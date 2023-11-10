@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +40,7 @@ import cn.taketoday.util.StringUtils;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class GenericCallMetaDataProvider implements CallMetaDataProvider {
@@ -110,8 +108,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
   }
 
   @Override
-  public void initializeWithProcedureColumnMetaData(
-          DatabaseMetaData databaseMetaData, @Nullable String catalogName,
+  public void initializeWithProcedureColumnMetaData(DatabaseMetaData databaseMetaData, @Nullable String catalogName,
           @Nullable String schemaName, @Nullable String procedureName) throws SQLException {
 
     this.procedureColumnMetaDataUsed = true;
@@ -126,52 +123,19 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
   @Override
   @Nullable
   public String procedureNameToUse(@Nullable String procedureName) {
-    if (procedureName == null) {
-      return null;
-    }
-    else if (isStoresUpperCaseIdentifiers()) {
-      return procedureName.toUpperCase();
-    }
-    else if (isStoresLowerCaseIdentifiers()) {
-      return procedureName.toLowerCase();
-    }
-    else {
-      return procedureName;
-    }
+    return identifierNameToUse(procedureName);
   }
 
   @Override
   @Nullable
   public String catalogNameToUse(@Nullable String catalogName) {
-    if (catalogName == null) {
-      return null;
-    }
-    else if (isStoresUpperCaseIdentifiers()) {
-      return catalogName.toUpperCase();
-    }
-    else if (isStoresLowerCaseIdentifiers()) {
-      return catalogName.toLowerCase();
-    }
-    else {
-      return catalogName;
-    }
+    return identifierNameToUse(catalogName);
   }
 
   @Override
   @Nullable
   public String schemaNameToUse(@Nullable String schemaName) {
-    if (schemaName == null) {
-      return null;
-    }
-    else if (isStoresUpperCaseIdentifiers()) {
-      return schemaName.toUpperCase();
-    }
-    else if (isStoresLowerCaseIdentifiers()) {
-      return schemaName.toLowerCase();
-    }
-    else {
-      return schemaName;
-    }
+    return identifierNameToUse(schemaName);
   }
 
   @Override
@@ -199,18 +163,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
   @Override
   @Nullable
   public String parameterNameToUse(@Nullable String parameterName) {
-    if (parameterName == null) {
-      return null;
-    }
-    else if (isStoresUpperCaseIdentifiers()) {
-      return parameterName.toUpperCase();
-    }
-    else if (isStoresLowerCaseIdentifiers()) {
-      return parameterName.toLowerCase();
-    }
-    else {
-      return parameterName;
-    }
+    return identifierNameToUse(parameterName);
   }
 
   @Override
@@ -316,12 +269,27 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
     return this.storesLowerCaseIdentifiers;
   }
 
+  @Nullable
+  private String identifierNameToUse(@Nullable String identifierName) {
+    if (identifierName == null) {
+      return null;
+    }
+    else if (isStoresUpperCaseIdentifiers()) {
+      return identifierName.toUpperCase();
+    }
+    else if (isStoresLowerCaseIdentifiers()) {
+      return identifierName.toLowerCase();
+    }
+    else {
+      return identifierName;
+    }
+  }
+
   /**
    * Process the procedure column meta-data.
    */
-  private void processProcedureColumns(
-          DatabaseMetaData databaseMetaData, @Nullable String catalogName,
-          @Nullable String schemaName, @Nullable String procedureName) {
+  private void processProcedureColumns(DatabaseMetaData databaseMetaData,
+          @Nullable String catalogName, @Nullable String schemaName, @Nullable String procedureName) {
 
     String metaDataCatalogName = metaDataCatalogNameToUse(catalogName);
     String metaDataSchemaName = metaDataSchemaNameToUse(schemaName);
@@ -337,9 +305,8 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       try (ResultSet procedures = databaseMetaData.getProcedures(
               metaDataCatalogName, metaDataSchemaName, metaDataProcedureName)) {
         while (procedures.next()) {
-          found.add(procedures.getString("PROCEDURE_CAT") + '.'
-                  + procedures.getString("PROCEDURE_SCHEM") + '.'
-                  + procedures.getString("PROCEDURE_NAME"));
+          found.add(procedures.getString("PROCEDURE_CAT") + '.' + procedures.getString("PROCEDURE_SCHEM") +
+                  '.' + procedures.getString("PROCEDURE_NAME"));
         }
       }
 
@@ -348,9 +315,8 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
         try (ResultSet functions = databaseMetaData.getFunctions(
                 metaDataCatalogName, metaDataSchemaName, metaDataProcedureName)) {
           while (functions.next()) {
-            found.add(functions.getString("FUNCTION_CAT") + '.'
-                    + functions.getString("FUNCTION_SCHEM") + '.'
-                    + functions.getString("FUNCTION_NAME"));
+            found.add(functions.getString("FUNCTION_CAT") + '.' + functions.getString("FUNCTION_SCHEM") +
+                    '.' + functions.getString("FUNCTION_NAME"));
             function = true;
           }
         }
@@ -363,7 +329,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       }
       else if (found.isEmpty()) {
         if (metaDataProcedureName != null && metaDataProcedureName.contains(".") &&
-                StringUtils.isBlank(metaDataCatalogName)) {
+                !StringUtils.hasText(metaDataCatalogName)) {
           String packageName = metaDataProcedureName.substring(0, metaDataProcedureName.indexOf('.'));
           throw new InvalidDataAccessApiUsageException(
                   "Unable to determine the correct call signature for '" + metaDataProcedureName +
@@ -372,7 +338,8 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
         }
         else if ("Oracle".equals(databaseMetaData.getDatabaseProductName())) {
           if (logger.isDebugEnabled()) {
-            logger.debug("Oracle JDBC driver did not return procedure/function/signature for '{}' - assuming a non-exposed synonym", metaDataProcedureName);
+            logger.debug("Oracle JDBC driver did not return procedure/function/signature for '{}' - assuming a non-exposed synonym",
+                    metaDataProcedureName);
           }
         }
         else {
@@ -428,14 +395,14 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
 
   private static boolean isInOrOutColumn(int columnType, boolean function) {
     if (function) {
-      return (columnType == DatabaseMetaData.functionColumnIn
-              || columnType == DatabaseMetaData.functionColumnInOut
-              || columnType == DatabaseMetaData.functionColumnOut);
+      return (columnType == DatabaseMetaData.functionColumnIn ||
+              columnType == DatabaseMetaData.functionColumnInOut ||
+              columnType == DatabaseMetaData.functionColumnOut);
     }
     else {
-      return (columnType == DatabaseMetaData.procedureColumnIn
-              || columnType == DatabaseMetaData.procedureColumnInOut
-              || columnType == DatabaseMetaData.procedureColumnOut);
+      return (columnType == DatabaseMetaData.procedureColumnIn ||
+              columnType == DatabaseMetaData.procedureColumnInOut ||
+              columnType == DatabaseMetaData.procedureColumnOut);
     }
   }
 

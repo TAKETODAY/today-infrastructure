@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see GenericCallMetaDataProvider
  * @since 4.0
  */
@@ -50,11 +48,9 @@ public class CallParameterMetaData {
 
   /**
    * Constructor taking all the properties including the function marker.
-   *
-   * @since 4.0
    */
   public CallParameterMetaData(boolean function, @Nullable String columnName, int columnType,
-                               int sqlType, @Nullable String typeName, boolean nullable) {
+          int sqlType, @Nullable String typeName, boolean nullable) {
 
     this.function = function;
     this.parameterName = columnName;
@@ -66,8 +62,6 @@ public class CallParameterMetaData {
 
   /**
    * Return whether this parameter is declared in a function.
-   *
-   * @since 4.0
    */
   public boolean isFunction() {
     return this.function;
@@ -93,13 +87,31 @@ public class CallParameterMetaData {
    * for our purposes: type {@link DatabaseMetaData#procedureColumnReturn} or
    * {@link DatabaseMetaData#procedureColumnResult}, or in case of a function,
    * {@link DatabaseMetaData#functionReturn}.
-   *
-   * @since 4.0
    */
   public boolean isReturnParameter() {
     return (this.function ? this.parameterType == DatabaseMetaData.functionReturn :
             (this.parameterType == DatabaseMetaData.procedureColumnReturn ||
                     this.parameterType == DatabaseMetaData.procedureColumnResult));
+  }
+
+  /**
+   * Determine whether the declared parameter qualifies as an 'out' parameter
+   * for our purposes: type {@link DatabaseMetaData#procedureColumnOut},
+   * or in case of a function, {@link DatabaseMetaData#functionColumnOut}.
+   */
+  public boolean isOutParameter() {
+    return (this.function ? this.parameterType == DatabaseMetaData.functionColumnOut :
+            this.parameterType == DatabaseMetaData.procedureColumnOut);
+  }
+
+  /**
+   * Determine whether the declared parameter qualifies as an 'in-out' parameter
+   * for our purposes: type {@link DatabaseMetaData#procedureColumnInOut},
+   * or in case of a function, {@link DatabaseMetaData#functionColumnInOut}.
+   */
+  public boolean isInOutParameter() {
+    return (this.function ? this.parameterType == DatabaseMetaData.functionColumnInOut :
+            this.parameterType == DatabaseMetaData.procedureColumnInOut);
   }
 
   /**

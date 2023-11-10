@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.jdbc.core.metadata;
 
-import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -54,6 +50,7 @@ import cn.taketoday.util.StringUtils;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Kiril Nugmanov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class CallMetaDataContext {
@@ -117,28 +114,28 @@ public class CallMetaDataContext {
   }
 
   /**
-   * Specify a limited set of in parameters to be used.
+   * Specify a limited set of the {@code in} parameters to be used.
    */
   public void setLimitedInParameterNames(Set<String> limitedInParameterNames) {
     this.limitedInParameterNames = limitedInParameterNames;
   }
 
   /**
-   * Get a limited set of in parameters to be used.
+   * Get the limited set of the {@code in} parameters to be used.
    */
   public Set<String> getLimitedInParameterNames() {
     return this.limitedInParameterNames;
   }
 
   /**
-   * Specify the names of the out parameters.
+   * Specify the names of the {@code out} parameters.
    */
   public void setOutParameterNames(List<String> outParameterNames) {
     this.outParameterNames = outParameterNames;
   }
 
   /**
-   * Get a list of the out parameter names.
+   * Get the list of the {@code out} parameter names.
    */
   public List<String> getOutParameterNames() {
     return this.outParameterNames;
@@ -233,8 +230,6 @@ public class CallMetaDataContext {
 
   /**
    * Specify whether parameters should be bound by name.
-   *
-   * @since 4.0
    */
   public void setNamedBinding(boolean namedBinding) {
     this.namedBinding = namedBinding;
@@ -242,8 +237,6 @@ public class CallMetaDataContext {
 
   /**
    * Check whether parameters should be bound by name.
-   *
-   * @since 4.0
    */
   public boolean isNamedBinding() {
     return this.namedBinding;
@@ -440,14 +433,14 @@ public class CallMetaDataContext {
           if (paramNameToUse == null) {
             paramNameToUse = "";
           }
-          if (meta.getParameterType() == DatabaseMetaData.procedureColumnOut) {
+          if (meta.isOutParameter()) {
             workParams.add(provider.createDefaultOutParameter(paramNameToUse, meta));
             outParamNames.add(paramNameToUse);
             if (logger.isDebugEnabled()) {
               logger.debug("Added meta-data out parameter for '" + paramNameToUse + "'");
             }
           }
-          else if (meta.getParameterType() == DatabaseMetaData.procedureColumnInOut) {
+          else if (meta.isInOutParameter()) {
             workParams.add(provider.createDefaultInOutParameter(paramNameToUse, meta));
             outParamNames.add(paramNameToUse);
             if (logger.isDebugEnabled()) {
@@ -485,7 +478,7 @@ public class CallMetaDataContext {
    */
   public Map<String, Object> matchInParameterValuesWithCallParameters(SqlParameterSource parameterSource) {
     // For parameter source lookups we need to provide case-insensitive lookup support
-    // since the database meta-data is not necessarily providing case sensitive parameter names.
+    // since the database meta-data is not necessarily providing case-sensitive parameter names.
     Map<String, String> caseInsensitiveParameterNames =
             SqlParameterSourceUtils.extractCaseInsensitiveParameterNames(parameterSource);
 
@@ -577,8 +570,8 @@ public class CallMetaDataContext {
       if (callParameterName == null) {
         if (logger.isDebugEnabled()) {
           Object value = parameterValue;
-          if (value instanceof SqlParameterValue) {
-            value = ((SqlParameterValue) value).getValue();
+          if (value instanceof SqlParameterValue sqlParameterValue) {
+            value = sqlParameterValue.getValue();
           }
           if (value != null) {
             logger.debug("Unable to locate the corresponding IN or IN-OUT parameter for \"" +
@@ -684,7 +677,6 @@ public class CallMetaDataContext {
    *
    * @param parameter call parameter
    * @return parameter binding fragment
-   * @since 4.0
    */
   protected String createParameterBinding(SqlParameter parameter) {
     return (isNamedBinding() ? parameter.getName() + " => ?" : "?");
