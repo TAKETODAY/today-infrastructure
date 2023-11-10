@@ -572,11 +572,11 @@ final class DefaultRestClient implements RestClient {
 
         for (HttpMessageConverter messageConverter : DefaultRestClient.this.messageConverters) {
           if (messageConverter instanceof GenericHttpMessageConverter generic) {
-            if (generic.canRead(bodyType, bodyClass, contentType)) {
+            if (generic.canRead(bodyType, null, contentType)) {
               if (logger.isDebugEnabled()) {
                 logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
               }
-              return (T) generic.read(bodyType, bodyClass, this.clientResponse);
+              return (T) generic.read(bodyType, null, this.clientResponse);
             }
           }
           if (messageConverter.canRead(bodyClass, contentType)) {
