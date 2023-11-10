@@ -48,6 +48,8 @@ import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.ReactorNettyClientRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.testfixture.Pojo;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -477,6 +479,49 @@ class RestClientIntegrationTests {
       assertThat(request.getBody().readUtf8()).isEqualTo("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}");
       assertThat(request.getHeader(HttpHeaders.ACCEPT)).isEqualTo("application/json");
       assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo("application/json");
+    });
+  }
+
+  @ParameterizedRestClientTest
+  public void postForm(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response.setResponseCode(200));
+
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("foo", "bar");
+    formData.add("baz", "qux");
+
+    ResponseEntity<Void> result = this.restClient.post()
+            .uri("/form")
+            .contentType(MediaType.MULTIPART_FORM_DATA)
+            .body(formData)
+            .retrieve()
+            .toBodilessEntity();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+    expectRequestCount(1);
+    expectRequest(request -> {
+      assertThat(request.getPath()).isEqualTo("/form");
+      String contentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
+      assertThat(contentType).startsWith(MediaType.MULTIPART_FORM_DATA_VALUE);
+      String[] lines = request.getBody().readUtf8().split("\r\n");
+      assertThat(lines).hasSize(13);
+      assertThat(lines[0]).startsWith("--"); // boundary
+      assertThat(lines[1]).isEqualTo("Content-Disposition: form-data; name=\"foo\"");
+      assertThat(lines[2]).isEqualTo("Content-Type: text/plain;charset=UTF-8");
+      assertThat(lines[3]).isEqualTo("Content-Length: 3");
+      assertThat(lines[4]).isEmpty();
+      assertThat(lines[5]).isEqualTo("bar");
+      assertThat(lines[6]).startsWith("--"); // boundary
+      assertThat(lines[7]).isEqualTo("Content-Disposition: form-data; name=\"baz\"");
+      assertThat(lines[8]).isEqualTo("Content-Type: text/plain;charset=UTF-8");
+      assertThat(lines[9]).isEqualTo("Content-Length: 3");
+      assertThat(lines[10]).isEmpty();
+      assertThat(lines[11]).isEqualTo("qux");
+      assertThat(lines[12]).startsWith("--"); // boundary
+      assertThat(lines[12]).endsWith("--"); // boundary
     });
   }
 
