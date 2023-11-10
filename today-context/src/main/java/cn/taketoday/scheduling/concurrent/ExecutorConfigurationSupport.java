@@ -87,6 +87,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
   @Nullable
   private ExecutorLifecycleDelegate lifecycleDelegate;
 
+  private volatile boolean lateShutdown;
+
   /**
    * Set the ThreadFactory to use for the ExecutorService's thread pool.
    * Default is the underlying ExecutorService's default thread factory.
@@ -378,8 +380,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public void stop() {
-    if (lifecycleDelegate != null) {
-      lifecycleDelegate.stop();
+    if (this.lifecycleDelegate != null && !this.lateShutdown) {
+      this.lifecycleDelegate.stop();
     }
   }
 
@@ -389,8 +391,11 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public void stop(Runnable callback) {
-    if (lifecycleDelegate != null) {
-      lifecycleDelegate.stop(callback);
+    if (this.lifecycleDelegate != null && !this.lateShutdown) {
+      this.lifecycleDelegate.stop(callback);
+    }
+    else {
+      callback.run();
     }
   }
 
@@ -442,10 +447,16 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   @Override
   public void onApplicationEvent(ContextClosedEvent event) {
-    if (event.getApplicationContext() == this.applicationContext && !this.acceptTasksAfterContextClose) {
-      // Early shutdown signal: accept no further tasks, let existing tasks complete
-      // before hitting the actual destruction step in the shutdown() method above.
-      initiateShutdown();
+    if (event.getApplicationContext() == this.applicationContext) {
+      if (this.acceptTasksAfterContextClose || this.waitForTasksToCompleteOnShutdown) {
+        // Late shutdown without early stop lifecycle.
+        this.lateShutdown = true;
+      }
+      else {
+        // Early shutdown signal: accept no further tasks, let existing tasks complete
+        // before hitting the actual destruction step in the shutdown() method above.
+        initiateShutdown();
+      }
     }
   }
 
