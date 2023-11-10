@@ -22,8 +22,8 @@ import org.eclipse.jetty.client.OutputStreamRequestContent;
 import org.eclipse.jetty.client.Request;
 import org.eclipse.jetty.client.Response;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.List;
@@ -47,6 +47,8 @@ import cn.taketoday.util.StreamUtils;
  * @since 4.0
  */
 class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
+
+  private static final int CHUNK_SIZE = 1024;
 
   private final Request request;
 
@@ -90,7 +92,7 @@ class JettyClientHttpRequest extends AbstractStreamingClientHttpRequest {
         OutputStreamRequestContent requestContent = new OutputStreamRequestContent(contentType);
         this.request.body(requestContent)
                 .send(responseListener);
-        try (OutputStream outputStream = requestContent.getOutputStream()) {
+        try (var outputStream = new BufferedOutputStream(requestContent.getOutputStream(), CHUNK_SIZE)) {
           body.writeTo(StreamUtils.nonClosing(outputStream));
         }
       }
