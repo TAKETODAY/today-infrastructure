@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,12 +87,12 @@ public class BoundConfigurationProperties {
   }
 
   static void register(BeanDefinitionRegistry registry) {
-    Assert.notNull(registry, "Registry must not be null");
+    Assert.notNull(registry, "Registry is required");
     if (!registry.containsBeanDefinition(BEAN_NAME)) {
-      BeanDefinition definition = BeanDefinitionBuilder.genericBeanDefinition(
-              BoundConfigurationProperties.class).getBeanDefinition();
-      definition.setEnableDependencyInjection(false);
-      definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+      BeanDefinition definition = BeanDefinitionBuilder.genericBeanDefinition(BoundConfigurationProperties.class)
+              .setEnableDependencyInjection(false)
+              .setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
+              .getBeanDefinition();
       registry.registerBeanDefinition(BEAN_NAME, definition);
     }
   }

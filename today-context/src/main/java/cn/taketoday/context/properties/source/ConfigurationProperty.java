@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -53,11 +50,10 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
     this(null, name, value, origin);
   }
 
-  private ConfigurationProperty(
-          @Nullable ConfigurationPropertySource source, ConfigurationPropertyName name,
-          Object value, @Nullable Origin origin) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(value, "Value must not be null");
+  private ConfigurationProperty(@Nullable ConfigurationPropertySource source,
+          ConfigurationPropertyName name, Object value, @Nullable Origin origin) {
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(value, "Value is required");
     this.source = source;
     this.name = name;
     this.value = value;
@@ -69,7 +65,6 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
    * {@code null} if the source is unknown.
    *
    * @return the configuration property source
-   * @since 4.0
    */
   @Nullable
   public ConfigurationPropertySource getSource() {
@@ -136,10 +131,8 @@ public final class ConfigurationProperty implements OriginProvider, Comparable<C
   }
 
   @Nullable
-  static ConfigurationProperty of(
-          @Nullable ConfigurationPropertySource source,
-          ConfigurationPropertyName name,
-          @Nullable Object value, @Nullable Origin origin) {
+  static ConfigurationProperty of(@Nullable ConfigurationPropertySource source,
+          ConfigurationPropertyName name, @Nullable Object value, @Nullable Origin origin) {
     if (value == null) {
       return null;
     }

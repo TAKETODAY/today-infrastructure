@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySources;
@@ -46,8 +44,8 @@ class PropertySourcesPlaceholdersResolverTests {
   @Test
   void placeholderResolverIfEnvironmentNullShouldThrowException() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new PropertySourcesPlaceholdersResolver((Environment) null))
-            .withMessageContaining("Environment must not be null");
+            .isThrownBy(() -> new PropertySourcesPlaceholdersResolver((ConfigurableEnvironment) null))
+            .withMessageContaining("Environment is required");
   }
 
   @Test

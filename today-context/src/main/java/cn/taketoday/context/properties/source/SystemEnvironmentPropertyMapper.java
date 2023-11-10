@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -63,7 +60,7 @@ final class SystemEnvironmentPropertyMapper implements PropertyMapper {
   private String convertName(ConfigurationPropertyName name, int numberOfElements) {
     StringBuilder result = new StringBuilder();
     for (int i = 0; i < numberOfElements; i++) {
-      if (result.length() > 0) {
+      if (!result.isEmpty()) {
         result.append('_');
       }
       result.append(name.getElement(i, Form.UNIFORM).toUpperCase(Locale.ENGLISH));
@@ -74,7 +71,7 @@ final class SystemEnvironmentPropertyMapper implements PropertyMapper {
   private String convertLegacyName(ConfigurationPropertyName name) {
     StringBuilder result = new StringBuilder();
     for (int i = 0; i < name.getNumberOfElements(); i++) {
-      if (result.length() > 0) {
+      if (!result.isEmpty()) {
         result.append('_');
       }
       result.append(convertLegacyNameElement(name.getElement(i, Form.ORIGINAL)));

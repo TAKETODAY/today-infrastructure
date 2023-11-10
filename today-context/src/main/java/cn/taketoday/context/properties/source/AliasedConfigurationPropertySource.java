@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -28,47 +25,48 @@ import cn.taketoday.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class AliasedConfigurationPropertySource implements ConfigurationPropertySource {
 
-  private final ConfigurationPropertySource source;
+  public final ConfigurationPropertySource source;
 
-  private final ConfigurationPropertyNameAliases aliases;
+  public final ConfigurationPropertyNameAliases aliases;
 
   AliasedConfigurationPropertySource(ConfigurationPropertySource source, ConfigurationPropertyNameAliases aliases) {
-    Assert.notNull(source, "Source must not be null");
-    Assert.notNull(aliases, "Aliases must not be null");
+    Assert.notNull(source, "Source is required");
+    Assert.notNull(aliases, "Aliases is required");
     this.source = source;
     this.aliases = aliases;
   }
 
   @Override
   public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
-    Assert.notNull(name, "Name must not be null");
-    ConfigurationProperty result = getSource().getConfigurationProperty(name);
+    Assert.notNull(name, "Name is required");
+    ConfigurationProperty result = source.getConfigurationProperty(name);
     if (result == null) {
-      ConfigurationPropertyName aliasedName = getAliases().getNameForAlias(name);
-      result = getSource().getConfigurationProperty(aliasedName);
+      ConfigurationPropertyName aliasedName = aliases.getNameForAlias(name);
+      result = source.getConfigurationProperty(aliasedName);
     }
     return result;
   }
 
   @Override
   public ConfigurationPropertyState containsDescendantOf(ConfigurationPropertyName name) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     ConfigurationPropertyState result = this.source.containsDescendantOf(name);
     if (result != ConfigurationPropertyState.ABSENT) {
       return result;
     }
-    for (ConfigurationPropertyName alias : getAliases().getAliases(name)) {
+    for (ConfigurationPropertyName alias : aliases.getAliases(name)) {
       ConfigurationPropertyState aliasResult = this.source.containsDescendantOf(alias);
       if (aliasResult != ConfigurationPropertyState.ABSENT) {
         return aliasResult;
       }
     }
-    for (ConfigurationPropertyName from : getAliases()) {
-      for (ConfigurationPropertyName alias : getAliases().getAliases(from)) {
+    for (ConfigurationPropertyName from : aliases) {
+      for (ConfigurationPropertyName alias : aliases.getAliases(from)) {
         if (name.isAncestorOf(alias)) {
           if (this.source.getConfigurationProperty(from) != null) {
             return ConfigurationPropertyState.PRESENT;
@@ -86,10 +84,6 @@ class AliasedConfigurationPropertySource implements ConfigurationPropertySource 
 
   protected ConfigurationPropertySource getSource() {
     return this.source;
-  }
-
-  protected ConfigurationPropertyNameAliases getAliases() {
-    return this.aliases;
   }
 
 }

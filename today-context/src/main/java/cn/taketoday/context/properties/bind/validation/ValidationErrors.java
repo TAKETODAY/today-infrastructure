@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind.validation;
@@ -53,22 +50,17 @@ public class ValidationErrors implements Iterable<ObjectError> {
 
   private final List<ObjectError> errors;
 
-  ValidationErrors(
-          ConfigurationPropertyName name,
-          Set<ConfigurationProperty> boundProperties,
-          List<ObjectError> errors) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(boundProperties, "BoundProperties must not be null");
-    Assert.notNull(errors, "Errors must not be null");
+  ValidationErrors(ConfigurationPropertyName name, Set<ConfigurationProperty> boundProperties, List<ObjectError> errors) {
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(errors, "Errors is required");
+    Assert.notNull(boundProperties, "BoundProperties is required");
     this.name = name;
-    this.boundProperties = Collections.unmodifiableSet(boundProperties);
     this.errors = convertErrors(name, boundProperties, errors);
+    this.boundProperties = Collections.unmodifiableSet(boundProperties);
   }
 
-  private List<ObjectError> convertErrors(
-          ConfigurationPropertyName name,
-          Set<ConfigurationProperty> boundProperties,
-          List<ObjectError> errors) {
+  private List<ObjectError> convertErrors(ConfigurationPropertyName name,
+          Set<ConfigurationProperty> boundProperties, List<ObjectError> errors) {
     ArrayList<ObjectError> converted = new ArrayList<>(errors.size());
     for (ObjectError error : errors) {
       converted.add(convertError(name, boundProperties, error));
@@ -76,16 +68,15 @@ public class ValidationErrors implements Iterable<ObjectError> {
     return Collections.unmodifiableList(converted);
   }
 
-  private ObjectError convertError(
-          ConfigurationPropertyName name, Set<ConfigurationProperty> boundProperties, ObjectError error) {
+  private ObjectError convertError(ConfigurationPropertyName name,
+          Set<ConfigurationProperty> boundProperties, ObjectError error) {
     if (error instanceof FieldError) {
       return convertFieldError(name, boundProperties, (FieldError) error);
     }
     return error;
   }
 
-  private FieldError convertFieldError(
-          ConfigurationPropertyName name,
+  private FieldError convertFieldError(ConfigurationPropertyName name,
           Set<ConfigurationProperty> boundProperties, FieldError error) {
     if (error instanceof OriginProvider) {
       return error;
@@ -94,8 +85,8 @@ public class ValidationErrors implements Iterable<ObjectError> {
   }
 
   @Nullable
-  private Origin findFieldErrorOrigin(
-          ConfigurationPropertyName name, Set<ConfigurationProperty> boundProperties, FieldError error) {
+  private Origin findFieldErrorOrigin(ConfigurationPropertyName name,
+          Set<ConfigurationProperty> boundProperties, FieldError error) {
     for (ConfigurationProperty boundProperty : boundProperties) {
       if (isForError(name, boundProperty.getName(), error)) {
         return Origin.from(boundProperty);
@@ -104,8 +95,8 @@ public class ValidationErrors implements Iterable<ObjectError> {
     return null;
   }
 
-  private boolean isForError(
-          ConfigurationPropertyName name, ConfigurationPropertyName boundPropertyName, FieldError error) {
+  private boolean isForError(ConfigurationPropertyName name,
+          ConfigurationPropertyName boundPropertyName, FieldError error) {
     return name.isParentOf(boundPropertyName)
             && boundPropertyName.getLastElement(Form.UNIFORM).equalsIgnoreCase(error.getField());
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -62,8 +59,8 @@ public enum ConfigurationPropertyState {
    * {@link #ABSENT}.
    */
   static <T> ConfigurationPropertyState search(Iterable<T> source, Predicate<T> predicate) {
-    Assert.notNull(source, "Source must not be null");
-    Assert.notNull(predicate, "Predicate must not be null");
+    Assert.notNull(source, "Source is required");
+    Assert.notNull(predicate, "Predicate is required");
     for (T item : source) {
       if (predicate.test(item)) {
         return PRESENT;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +23,6 @@ import java.util.Properties;
 import java.util.Set;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -41,8 +37,8 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
- * @author TODAY 2021/9/28 22:26
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/9/28 22:26
  */
 public class PropertyPlaceholderHandler {
   private static final Logger log = LoggerFactory.getLogger(PropertyPlaceholderHandler.class);
@@ -71,10 +67,13 @@ public class PropertyPlaceholderHandler {
           PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX, VALUE_SEPARATOR, true);
 
   private final String simplePrefix;
+
   private final String placeholderPrefix;
+
   private final String placeholderSuffix;
 
   private final int placeholderPrefixLength;
+
   private final int placeholderSuffixLength;
 
   @Nullable
@@ -103,12 +102,11 @@ public class PropertyPlaceholderHandler {
    * @param ignoreUnresolvablePlaceholders indicates whether unresolvable placeholders should
    * be ignored ({@code true}) or cause an exception ({@code false})
    */
-  public PropertyPlaceholderHandler(
-          String placeholderPrefix, String placeholderSuffix,
+  public PropertyPlaceholderHandler(String placeholderPrefix, String placeholderSuffix,
           @Nullable String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
+    Assert.notNull(placeholderPrefix, "'placeholderPrefix' is required");
+    Assert.notNull(placeholderSuffix, "'placeholderSuffix' is required");
 
-    Assert.notNull(placeholderPrefix, "'placeholderPrefix' must not be null");
-    Assert.notNull(placeholderSuffix, "'placeholderSuffix' must not be null");
     this.placeholderPrefix = placeholderPrefix;
     this.placeholderSuffix = placeholderSuffix;
     String simplePrefixForSuffix = wellKnownSimplePrefixes.get(placeholderSuffix);
@@ -133,7 +131,7 @@ public class PropertyPlaceholderHandler {
    * @return the supplied value with placeholders replaced inline
    */
   public String replacePlaceholders(String value, final Properties properties) {
-    Assert.notNull(properties, "'properties' must not be null");
+    Assert.notNull(properties, "'properties' is required");
     return replacePlaceholders(value, properties::getProperty);
   }
 
@@ -146,15 +144,11 @@ public class PropertyPlaceholderHandler {
    * @return the supplied value with placeholders replaced inline
    */
   public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
-    Assert.notNull(value, "'value' must not be null");
+    Assert.notNull(value, "'value' is required");
     return parseStringValue(value, placeholderResolver, null);
   }
 
-  protected String parseStringValue(
-          String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
-//    if (value == null || value.length() <= 3) { // #{} > 3
-//      return value;
-//    }
+  protected String parseStringValue(String value, PlaceholderResolver placeholderResolver, @Nullable Set<String> visitedPlaceholders) {
     int startIndex = value.indexOf(placeholderPrefix);
     if (startIndex == -1) {
       return value;
@@ -204,8 +198,7 @@ public class PropertyPlaceholderHandler {
         }
         else {
           throw new IllegalArgumentException(
-                  "Could not resolve placeholder '" +
-                          placeholder + "'" + " in value \"" + value + "\"");
+                  "Could not resolve placeholder '" + placeholder + "'" + " in value \"" + value + "\"");
         }
         visitedPlaceholders.remove(originalPlaceholder);
       }
@@ -241,9 +234,8 @@ public class PropertyPlaceholderHandler {
     return -1;
   }
 
-// static
+  // static
 
-  @NonNull
   public static PropertyPlaceholderHandler shared(boolean ignoreUnresolvablePlaceholders) {
     return ignoreUnresolvablePlaceholders ? nonStrict : strict;
   }

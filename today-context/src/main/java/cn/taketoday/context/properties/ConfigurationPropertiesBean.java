@@ -140,7 +140,7 @@ public final class ConfigurationPropertiesBean {
    * @return a map of all configuration properties beans keyed by the bean name
    */
   public static Map<String, ConfigurationPropertiesBean> getAll(ApplicationContext applicationContext) {
-    Assert.notNull(applicationContext, "ApplicationContext must not be null");
+    Assert.notNull(applicationContext, "ApplicationContext is required");
     if (applicationContext instanceof ConfigurableApplicationContext configurableContext) {
       return getAll(configurableContext);
     }

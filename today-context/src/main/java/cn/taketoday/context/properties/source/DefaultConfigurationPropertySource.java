@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.source;
@@ -79,7 +76,7 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
    * @param mappers the property mappers
    */
   DefaultConfigurationPropertySource(PropertySource<?> propertySource, PropertyMapper... mappers) {
-    Assert.notNull(propertySource, "PropertySource must not be null");
+    Assert.notNull(propertySource, "PropertySource is required");
     Assert.isTrue(mappers.length > 0, "Mappers must contain at least one item");
     this.propertySource = propertySource;
     this.mappers = mappers;
@@ -155,7 +152,7 @@ class DefaultConfigurationPropertySource implements ConfigurationPropertySource 
    * {@link DefaultIterableConfigurationPropertySource} instance
    */
   static DefaultConfigurationPropertySource from(PropertySource<?> source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     PropertyMapper[] mappers = getPropertyMappers(source);
     if (isFullEnumerable(source)) {
       return new DefaultIterableConfigurationPropertySource((EnumerablePropertySource<?>) source, mappers);

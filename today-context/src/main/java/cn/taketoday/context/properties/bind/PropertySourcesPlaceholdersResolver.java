@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.lang.Assert;
@@ -41,30 +37,26 @@ public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver
   @Nullable
   private final Iterable<PropertySource<?>> sources;
 
-  private final PropertyPlaceholderHandler helper;
+  private final PropertyPlaceholderHandler placeholderHandler;
 
-  public PropertySourcesPlaceholdersResolver(Environment environment) {
+  public PropertySourcesPlaceholdersResolver(ConfigurableEnvironment environment) {
     this(getSources(environment), null);
   }
 
-  public PropertySourcesPlaceholdersResolver(Iterable<PropertySource<?>> sources) {
+  public PropertySourcesPlaceholdersResolver(@Nullable Iterable<PropertySource<?>> sources) {
     this(sources, null);
   }
 
-  public PropertySourcesPlaceholdersResolver(
-          @Nullable Iterable<PropertySource<?>> sources, @Nullable PropertyPlaceholderHandler helper) {
+  public PropertySourcesPlaceholdersResolver(@Nullable Iterable<PropertySource<?>> sources,
+          @Nullable PropertyPlaceholderHandler placeholderHandler) {
     this.sources = sources;
-    this.helper = (helper != null) ? helper : new PropertyPlaceholderHandler(
-            PropertyPlaceholderHandler.PLACEHOLDER_PREFIX,
-            PropertyPlaceholderHandler.PLACEHOLDER_SUFFIX,
-            PropertyPlaceholderHandler.VALUE_SEPARATOR, true
-    );
+    this.placeholderHandler = placeholderHandler != null ? placeholderHandler : PropertyPlaceholderHandler.nonStrict;
   }
 
   @Override
   public Object resolvePlaceholders(Object value) {
     if (value instanceof String) {
-      return this.helper.replacePlaceholders((String) value, this::resolvePlaceholder);
+      return placeholderHandler.replacePlaceholders((String) value, this::resolvePlaceholder);
     }
     return value;
   }
@@ -82,11 +74,9 @@ public class PropertySourcesPlaceholdersResolver implements PlaceholdersResolver
     return null;
   }
 
-  private static PropertySources getSources(Environment environment) {
-    Assert.notNull(environment, "Environment must not be null");
-    Assert.isInstanceOf(ConfigurableEnvironment.class, environment,
-            "Environment must be a ConfigurableEnvironment");
-    return ((ConfigurableEnvironment) environment).getPropertySources();
+  private static PropertySources getSources(ConfigurableEnvironment environment) {
+    Assert.notNull(environment, "Environment is required");
+    return environment.getPropertySources();
   }
 
 }
