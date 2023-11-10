@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,16 +26,21 @@ import java.lang.annotation.Target;
 
 /**
  * {@code @RecordApplicationEvents} is a class-level annotation that is used to
- * instruct the <em>TestContext Framework</em> to record all
+ * instruct the <em>Infra TestContext Framework</em> to record all
  * {@linkplain cn.taketoday.context.ApplicationEvent application events}
  * that are published in the {@link cn.taketoday.context.ApplicationContext
- * ApplicationContext} during the execution of a single test.
+ * ApplicationContext} during the execution of a single test, either from the
+ * test thread or its descendants.
  *
  * <p>The recorded events can be accessed via the {@link ApplicationEvents} API
  * within your tests.
  *
  * <p>This annotation may be used as a <em>meta-annotation</em> to create custom
  * <em>composed annotations</em>.
+ *
+ * <p>This annotation will be inherited from an enclosing test class by default. See
+ * {@link cn.taketoday.test.context.NestedTestConfiguration @NestedTestConfiguration}
+ * for details.
  *
  * @author Sam Brannen
  * @see ApplicationEvents
