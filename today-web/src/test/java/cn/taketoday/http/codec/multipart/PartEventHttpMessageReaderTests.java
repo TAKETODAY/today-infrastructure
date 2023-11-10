@@ -17,7 +17,6 @@
 
 package cn.taketoday.http.codec.multipart;
 
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -46,6 +45,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.entry;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -146,8 +146,8 @@ class PartEventHttpMessageReaderTests {
     Flux<PartEvent> result = this.reader.read(forClass(PartEvent.class), request, emptyMap());
 
     StepVerifier.create(result)
-            .assertNext(form(headers -> assertThat(headers).contains(AssertionsForClassTypes.entry("Part", List.of("1"))), ""))
-            .assertNext(data(headers -> assertThat(headers).contains(AssertionsForClassTypes.entry("Part", List.of("2"))), bodyText("a"), true))
+            .assertNext(form(headers -> assertThat(headers).contains(entry("Part", List.of("1"))), ""))
+            .assertNext(data(headers -> assertThat(headers).contains(entry("Part", List.of("2"))), bodyText("a"), true))
             .verifyComplete();
   }
 
@@ -258,7 +258,21 @@ class PartEventHttpMessageReaderTests {
             .assertNext(data(headersFormField("text2"), bodyText("b"), true))
             .expectError(DataBufferLimitException.class)
             .verify();
+  }
 
+  @Test
+  void formPartTooLarge() {
+    MockServerHttpRequest request = createRequest(
+            new ClassPathResource("simple.multipart", getClass()), "simple-boundary");
+
+    PartEventHttpMessageReader reader = new PartEventHttpMessageReader();
+    reader.setMaxInMemorySize(40);
+
+    Flux<PartEvent> result = reader.read(forClass(PartEvent.class), request, emptyMap());
+
+    StepVerifier.create(result)
+            .expectError(DataBufferLimitException.class)
+            .verify();
   }
 
   @Test
