@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,13 +52,17 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmentContributor> {
+
   private static final Logger log = LoggerFactory.getLogger(ConfigDataEnvironmentContributors.class);
 
   private static final Predicate<ConfigDataEnvironmentContributor> NO_CONTRIBUTOR_FILTER = (contributor) -> true;
 
-  private final ConfigDataEnvironmentContributor root;
+  /**
+   * the root contributor.
+   */
+  public final ConfigDataEnvironmentContributor root;
 
-  private final ConfigurableBootstrapContext bootstrapContext;
+  public final ConfigurableBootstrapContext bootstrapContext;
 
   /**
    * Create a new {@link ConfigDataEnvironmentContributors} instance.
@@ -110,10 +111,10 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
         }
         return result;
       }
-      if (contributor.getKind() == Kind.UNBOUND_IMPORT) {
+      if (contributor.kind == Kind.UNBOUND_IMPORT) {
         ConfigDataEnvironmentContributor bound = contributor.withBoundProperties(result, activationContext);
         result = new ConfigDataEnvironmentContributors(bootstrapContext,
-                result.getRoot().withReplacement(contributor, bound));
+                result.root.withReplacement(contributor, bound));
         continue;
       }
       var locationResolverContext = new ContributorConfigDataLocationResolverContext(
@@ -130,7 +131,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       }
       var contributorAndChildren = contributor.withChildren(importPhase, asContributors(imported));
       result = new ConfigDataEnvironmentContributors(bootstrapContext,
-              result.getRoot().withReplacement(contributor, contributorAndChildren));
+              result.root.withReplacement(contributor, contributorAndChildren));
       processed++;
     }
   }
@@ -150,15 +151,11 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
     return message;
   }
 
-  protected final ConfigurableBootstrapContext getBootstrapContext() {
-    return this.bootstrapContext;
-  }
-
   @Nullable
   private ConfigDataEnvironmentContributor getNextToProcess(ConfigDataEnvironmentContributors contributors,
           @Nullable ConfigDataActivationContext activationContext, ImportPhase importPhase) {
-    for (ConfigDataEnvironmentContributor contributor : contributors.getRoot()) {
-      if (contributor.getKind() == Kind.UNBOUND_IMPORT
+    for (ConfigDataEnvironmentContributor contributor : contributors.root) {
+      if (contributor.kind == Kind.UNBOUND_IMPORT
               || isActiveWithUnprocessedImports(activationContext, importPhase, contributor)) {
         return contributor;
       }
@@ -166,14 +163,12 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
     return null;
   }
 
-  private boolean isActiveWithUnprocessedImports(
-          @Nullable ConfigDataActivationContext activationContext,
+  private boolean isActiveWithUnprocessedImports(@Nullable ConfigDataActivationContext activationContext,
           ImportPhase importPhase, ConfigDataEnvironmentContributor contributor) {
     return contributor.isActive(activationContext) && contributor.hasUnprocessedImports(importPhase);
   }
 
-  private List<ConfigDataEnvironmentContributor> asContributors(
-          Map<ConfigDataResolutionResult, ConfigData> imported) {
+  private List<ConfigDataEnvironmentContributor> asContributors(Map<ConfigDataResolutionResult, ConfigData> imported) {
     List<ConfigDataEnvironmentContributor> contributors = new ArrayList<>(imported.size() * 5);
 
     for (Map.Entry<ConfigDataResolutionResult, ConfigData> entry : imported.entrySet()) {
@@ -194,15 +189,6 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
       }
     }
     return Collections.unmodifiableList(contributors);
-  }
-
-  /**
-   * Returns the root contributor.
-   *
-   * @return the root contributor.
-   */
-  ConfigDataEnvironmentContributor getRoot() {
-    return this.root;
   }
 
   /**
@@ -250,12 +236,12 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
     return this.root.stream()
             .filter(this::hasConfigurationPropertySource)
             .filter(filter)
-            .map(ConfigDataEnvironmentContributor::getConfigurationPropertySource)
+            .map(cdec -> cdec.configurationPropertySource)
             .iterator();
   }
 
   private boolean hasConfigurationPropertySource(ConfigDataEnvironmentContributor contributor) {
-    return contributor.getConfigurationPropertySource() != null;
+    return contributor.configurationPropertySource != null;
   }
 
   @Override
@@ -276,7 +262,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 
     @Override
     public ConfigurableBootstrapContext getBootstrapContext() {
-      return this.contributors.getBootstrapContext();
+      return this.contributors.bootstrapContext;
     }
 
   }
@@ -315,12 +301,12 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 
     @Override
     public ConfigDataResource getParent() {
-      return this.contributor.getResource();
+      return this.contributor.resource;
     }
 
     @Override
     public ConfigurableBootstrapContext getBootstrapContext() {
-      return this.contributors.getBootstrapContext();
+      return this.contributors.bootstrapContext;
     }
 
   }
@@ -335,8 +321,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
     }
 
     @Override
-    public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context,
-            Object result) {
+    public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
       for (ConfigDataEnvironmentContributor contributor : ConfigDataEnvironmentContributors.this) {
         if (!contributor.isActive(activationContext)) {
           InactiveConfigDataAccessException.throwIfPropertyFound(contributor, name);

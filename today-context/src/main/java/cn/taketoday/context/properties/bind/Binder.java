@@ -39,7 +39,6 @@ import cn.taketoday.context.properties.source.ConfigurationPropertyState;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.lang.Assert;
@@ -94,8 +93,7 @@ public class Binder {
    * @param sources the sources used for binding
    * @param placeholdersResolver strategy to resolve any property placeholders
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources,
-          @Nullable PlaceholdersResolver placeholdersResolver) {
+  public Binder(Iterable<ConfigurationPropertySource> sources, @Nullable PlaceholdersResolver placeholdersResolver) {
     this(sources, placeholdersResolver, null, null);
   }
 
@@ -107,8 +105,7 @@ public class Binder {
    * @param conversionService the conversion service to convert values (or {@code null}
    * to use {@link ApplicationConversionService})
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources,
-          @Nullable PlaceholdersResolver placeholdersResolver,
+  public Binder(Iterable<ConfigurationPropertySource> sources, @Nullable PlaceholdersResolver placeholdersResolver,
           @Nullable ConversionService conversionService) {
     this(sources, placeholdersResolver, conversionService, null);
   }
@@ -124,10 +121,8 @@ public class Binder {
    * that can convert values (or {@code null} if no initialization is required). Often
    * used to call {@link ConfigurableBeanFactory#copyRegisteredEditorsTo}.
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources,
-          @Nullable PlaceholdersResolver placeholdersResolver,
-          @Nullable ConversionService conversionService,
-          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
+  public Binder(Iterable<ConfigurationPropertySource> sources, @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService, @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer) {
     this(sources, placeholdersResolver, conversionService, propertyEditorInitializer, null);
   }
 
@@ -144,17 +139,11 @@ public class Binder {
    * @param defaultBindHandler the default bind handler to use if none is specified when
    * binding
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources,
-          @Nullable PlaceholdersResolver placeholdersResolver,
-          @Nullable ConversionService conversionService,
-          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+  public Binder(Iterable<ConfigurationPropertySource> sources, @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService, @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
           @Nullable BindHandler defaultBindHandler) {
-    this(sources,
-            placeholdersResolver,
-            conversionService,
-            propertyEditorInitializer,
-            defaultBindHandler,
-            null);
+    this(sources, placeholdersResolver, conversionService,
+            propertyEditorInitializer, defaultBindHandler, null);
   }
 
   /**
@@ -172,19 +161,11 @@ public class Binder {
    * @param constructorProvider the constructor provider which provides the bind
    * constructor to use when binding
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources,
-          @Nullable PlaceholdersResolver placeholdersResolver,
-          @Nullable ConversionService conversionService,
-          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-          @Nullable BindHandler defaultBindHandler,
-          @Nullable BindConstructorProvider constructorProvider) {
-    this(sources,
-            placeholdersResolver,
-            conversionService != null ? Collections.singletonList(conversionService) : null,
-            propertyEditorInitializer,
-            defaultBindHandler,
-            constructorProvider
-    );
+  public Binder(Iterable<ConfigurationPropertySource> sources, @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable ConversionService conversionService, @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+          @Nullable BindHandler defaultBindHandler, @Nullable BindConstructorProvider constructorProvider) {
+    this(sources, placeholdersResolver, conversionService != null ? Collections.singletonList(conversionService) : null,
+            propertyEditorInitializer, defaultBindHandler, constructorProvider);
   }
 
   /**
@@ -202,13 +183,10 @@ public class Binder {
    * @param constructorProvider the constructor provider which provides the bind
    * constructor to use when binding
    */
-  public Binder(Iterable<ConfigurationPropertySource> sources,
-          @Nullable PlaceholdersResolver placeholdersResolver,
-          @Nullable List<ConversionService> conversionServices,
-          @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
-          @Nullable BindHandler defaultBindHandler,
-          @Nullable BindConstructorProvider constructorProvider) {
-    Assert.notNull(sources, "Sources must not be null");
+  public Binder(Iterable<ConfigurationPropertySource> sources, @Nullable PlaceholdersResolver placeholdersResolver,
+          @Nullable List<ConversionService> conversionServices, @Nullable Consumer<PropertyEditorRegistry> propertyEditorInitializer,
+          @Nullable BindHandler defaultBindHandler, @Nullable BindConstructorProvider constructorProvider) {
+    Assert.notNull(sources, "Sources is required");
     for (ConfigurationPropertySource source : sources) {
       Assert.notNull(source, "Sources must not contain null elements");
     }
@@ -222,7 +200,7 @@ public class Binder {
     }
     ValueObjectBinder valueObjectBinder = new ValueObjectBinder(constructorProvider);
     JavaBeanBinder javaBeanBinder = JavaBeanBinder.INSTANCE;
-    Map<BindMethod, List<DataObjectBinder>> dataObjectBinders = new HashMap<>();
+    HashMap<BindMethod, List<DataObjectBinder>> dataObjectBinders = new HashMap<>();
     dataObjectBinders.put(BindMethod.VALUE_OBJECT, List.of(valueObjectBinder));
     dataObjectBinders.put(BindMethod.JAVA_BEAN, List.of(javaBeanBinder));
     dataObjectBinders.put(null, List.of(valueObjectBinder, javaBeanBinder));
@@ -295,8 +273,7 @@ public class Binder {
    * @param <T> the bound type
    * @return the binding result (never {@code null})
    */
-  public <T> BindResult<T> bind(
-          ConfigurationPropertyName name, Bindable<T> target, @Nullable BindHandler handler) {
+  public <T> BindResult<T> bind(ConfigurationPropertyName name, Bindable<T> target, @Nullable BindHandler handler) {
     T bound = bind(name, target, handler, false);
     return BindResult.of(bound);
   }
@@ -362,10 +339,9 @@ public class Binder {
     return bind(name, target, handler, true);
   }
 
-  private <T> T bind(ConfigurationPropertyName name,
-          Bindable<T> target, @Nullable BindHandler handler, boolean create) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(target, "Target must not be null");
+  private <T> T bind(ConfigurationPropertyName name, Bindable<T> target, @Nullable BindHandler handler, boolean create) {
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(target, "Target is required");
     if (handler == null) {
       handler = defaultBindHandler;
     }

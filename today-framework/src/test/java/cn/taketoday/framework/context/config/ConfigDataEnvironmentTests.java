@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,10 +83,10 @@ class ConfigDataEnvironmentTests {
     this.environment.getPropertySources().addLast(propertySource3);
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
-    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().getRoot()
+    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().root
             .getChildren(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    Object[] wrapped = children.stream().filter((child) -> child.getKind() == Kind.EXISTING)
-            .map(ConfigDataEnvironmentContributor::getPropertySource).toArray();
+    Object[] wrapped = children.stream().filter((child) -> child.kind == Kind.EXISTING)
+            .map(spr -> spr.propertySource).toArray();
     assertThat(wrapped[1]).isEqualTo(propertySource1);
     assertThat(wrapped[2]).isEqualTo(propertySource2);
     assertThat(wrapped[3]).isEqualTo(propertySource3);
@@ -105,10 +102,10 @@ class ConfigDataEnvironmentTests {
     this.environment.getPropertySources().addLast(propertySource2);
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
-    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().getRoot()
+    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().root
             .getChildren(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    Object[] wrapped = children.stream().filter((child) -> child.getKind() == Kind.EXISTING)
-            .map(ConfigDataEnvironmentContributor::getPropertySource).toArray();
+    Object[] wrapped = children.stream().filter((child) -> child.kind == Kind.EXISTING)
+            .map(spr -> spr.propertySource).toArray();
     assertThat(wrapped[1]).isEqualTo(propertySource1);
     assertThat(wrapped[2]).isEqualTo(propertySource2);
     assertThat(wrapped[3]).isEqualTo(defaultPropertySource);
@@ -121,9 +118,9 @@ class ConfigDataEnvironmentTests {
     this.environment.setProperty("app.config.import", "i1,i2");
     ConfigDataEnvironment configDataEnvironment = new ConfigDataEnvironment(this.bootstrapContext,
             this.environment, this.resourceLoader, this.additionalProfiles, null);
-    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().getRoot()
+    List<ConfigDataEnvironmentContributor> children = configDataEnvironment.getContributors().root
             .getChildren(ImportPhase.BEFORE_PROFILE_ACTIVATION);
-    Object[] imports = children.stream().filter((child) -> child.getKind() == Kind.INITIAL_IMPORT)
+    Object[] imports = children.stream().filter((child) -> child.kind == Kind.INITIAL_IMPORT)
             .map(ConfigDataEnvironmentContributor::getImports).map(Object::toString).toArray();
     assertThat(imports).containsExactly("[i2]", "[i1]", "[a2]", "[a1]", "[l2]", "[l1]");
   }

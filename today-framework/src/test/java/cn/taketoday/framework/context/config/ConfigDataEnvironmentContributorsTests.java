@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,7 +97,7 @@ class ConfigDataEnvironmentContributorsTests {
             this.bootstrapContext, Arrays.asList(contributor));
     Iterator<ConfigDataEnvironmentContributor> iterator = contributors.iterator();
     assertThat(iterator.next()).isSameAs(contributor);
-    assertThat(iterator.next().getKind()).isEqualTo(Kind.ROOT);
+    assertThat(iterator.next().kind).isEqualTo(Kind.ROOT);
   }
 
   @Test
@@ -130,9 +127,9 @@ class ConfigDataEnvironmentContributorsTests {
     ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer,
             this.activationContext);
     Iterator<ConfigDataEnvironmentContributor> iterator = withProcessedImports.iterator();
-    assertThat(iterator.next().getPropertySource()).isSameAs(propertySource);
-    assertThat(iterator.next().getKind()).isEqualTo(Kind.INITIAL_IMPORT);
-    assertThat(iterator.next().getKind()).isEqualTo(Kind.ROOT);
+    assertThat(iterator.next().propertySource).isSameAs(propertySource);
+    assertThat(iterator.next().kind).isEqualTo(Kind.INITIAL_IMPORT);
+    assertThat(iterator.next().kind).isEqualTo(Kind.ROOT);
     assertThat(iterator.hasNext()).isFalse();
   }
 
@@ -160,10 +157,10 @@ class ConfigDataEnvironmentContributorsTests {
     ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer,
             this.activationContext);
     Iterator<ConfigDataEnvironmentContributor> iterator = withProcessedImports.iterator();
-    assertThat(iterator.next().getPropertySource()).isSameAs(secondPropertySource);
-    assertThat(iterator.next().getPropertySource()).isSameAs(initialPropertySource);
-    assertThat(iterator.next().getKind()).isEqualTo(Kind.INITIAL_IMPORT);
-    assertThat(iterator.next().getKind()).isEqualTo(Kind.ROOT);
+    assertThat(iterator.next().propertySource).isSameAs(secondPropertySource);
+    assertThat(iterator.next().propertySource).isSameAs(initialPropertySource);
+    assertThat(iterator.next().kind).isEqualTo(Kind.INITIAL_IMPORT);
+    assertThat(iterator.next().kind).isEqualTo(Kind.ROOT);
     assertThat(iterator.hasNext()).isFalse();
   }
 

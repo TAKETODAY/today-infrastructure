@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -116,20 +113,20 @@ public class InvalidConfigDataPropertyException extends ConfigDataException {
    * @param contributor the contributor to check
    */
   static void throwIfPropertyFound(ConfigDataEnvironmentContributor contributor) {
-    ConfigurationPropertySource propertySource = contributor.getConfigurationPropertySource();
+    ConfigurationPropertySource propertySource = contributor.configurationPropertySource;
     if (propertySource != null) {
       ERRORS.forEach((name, replacement) -> {
         ConfigurationProperty property = propertySource.getConfigurationProperty(name);
         if (property != null) {
-          throw new InvalidConfigDataPropertyException(property, false, replacement, contributor.getResource());
+          throw new InvalidConfigDataPropertyException(property, false, replacement, contributor.resource);
         }
       });
-      if (contributor.isFromProfileSpecificImport()
+      if (contributor.fromProfileSpecificImport
               && !contributor.hasConfigDataOption(ConfigData.Option.IGNORE_PROFILES)) {
         PROFILE_SPECIFIC_ERRORS.forEach(name -> {
           ConfigurationProperty property = propertySource.getConfigurationProperty(name);
           if (property != null) {
-            throw new InvalidConfigDataPropertyException(property, true, null, contributor.getResource());
+            throw new InvalidConfigDataPropertyException(property, true, null, contributor.resource);
           }
         });
       }

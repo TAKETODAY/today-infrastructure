@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,12 +129,10 @@ public class InactiveConfigDataAccessException extends ConfigDataException {
    * @param name the name to check
    */
   static void throwIfPropertyFound(ConfigDataEnvironmentContributor contributor, ConfigurationPropertyName name) {
-    ConfigurationPropertySource source = contributor.getConfigurationPropertySource();
+    ConfigurationPropertySource source = contributor.configurationPropertySource;
     ConfigurationProperty property = (source != null) ? source.getConfigurationProperty(name) : null;
     if (property != null) {
-      PropertySource<?> propertySource = contributor.getPropertySource();
-      ConfigDataResource location = contributor.getResource();
-      throw new InactiveConfigDataAccessException(propertySource, location, name.toString(),
+      throw new InactiveConfigDataAccessException(contributor.propertySource, contributor.resource, name.toString(),
               property.getOrigin());
     }
   }

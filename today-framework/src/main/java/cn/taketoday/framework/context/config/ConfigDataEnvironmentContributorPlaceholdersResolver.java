@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,13 +69,12 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
   private String resolvePlaceholder(String placeholder) {
     Object result = null;
     for (ConfigDataEnvironmentContributor contributor : this.contributors) {
-      PropertySource<?> propertySource = contributor.getPropertySource();
+      PropertySource<?> propertySource = contributor.propertySource;
       Object value = (propertySource != null) ? propertySource.getProperty(placeholder) : null;
       if (value != null && !isActive(contributor)) {
         if (this.failOnResolveFromInactiveContributor) {
-          ConfigDataResource resource = contributor.getResource();
           Origin origin = OriginLookup.getOrigin(propertySource, placeholder);
-          throw new InactiveConfigDataAccessException(propertySource, resource, placeholder, origin);
+          throw new InactiveConfigDataAccessException(propertySource, contributor.resource, placeholder, origin);
         }
         value = null;
       }
@@ -91,7 +87,7 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
     if (contributor == this.activeContributor) {
       return true;
     }
-    if (contributor.getKind() != Kind.UNBOUND_IMPORT) {
+    if (contributor.kind != Kind.UNBOUND_IMPORT) {
       return contributor.isActive(this.activationContext);
     }
     return contributor.withBoundProperties(this.contributors, this.activationContext)

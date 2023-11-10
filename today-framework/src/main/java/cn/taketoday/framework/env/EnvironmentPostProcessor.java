@@ -43,6 +43,7 @@ import cn.taketoday.framework.ConfigurableBootstrapContext;
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface

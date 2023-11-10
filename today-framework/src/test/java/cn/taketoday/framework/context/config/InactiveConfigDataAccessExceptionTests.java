@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -105,7 +102,7 @@ class InactiveConfigDataAccessExceptionTests {
   @Test
   void throwIfPropertyFoundWhenSourceIsNullDoesNothing() {
     ConfigDataEnvironmentContributor contributor = mock(ConfigDataEnvironmentContributor.class);
-    given(contributor.getConfigurationPropertySource()).willReturn(null);
+    given(contributor.configurationPropertySource).willReturn(null);
     InactiveConfigDataAccessException.throwIfPropertyFound(contributor, ConfigurationPropertyName.of("spring"));
   }
 
@@ -113,7 +110,7 @@ class InactiveConfigDataAccessExceptionTests {
   void throwIfPropertyFoundWhenPropertyNotFoundDoesNothing() {
     ConfigDataEnvironmentContributor contributor = mock(ConfigDataEnvironmentContributor.class);
     ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(this.propertySource);
-    given(contributor.getConfigurationPropertySource()).willReturn(configurationPropertySource);
+    given(contributor.configurationPropertySource).willReturn(configurationPropertySource);
     InactiveConfigDataAccessException.throwIfPropertyFound(contributor, ConfigurationPropertyName.of("spring"));
   }
 
@@ -123,9 +120,9 @@ class InactiveConfigDataAccessExceptionTests {
     this.propertySource.setProperty("spring", "test");
     ConfigDataEnvironmentContributor contributor = mock(ConfigDataEnvironmentContributor.class);
     ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(this.propertySource);
-    given(contributor.getConfigurationPropertySource()).willReturn(configurationPropertySource);
-    given(contributor.getPropertySource()).willReturn((PropertySource) this.propertySource);
-    given(contributor.getResource()).willReturn(this.resource);
+    given(contributor.configurationPropertySource).willReturn(configurationPropertySource);
+    given(contributor.propertySource).willReturn((PropertySource) this.propertySource);
+    given(contributor.resource).willReturn(this.resource);
     assertThatExceptionOfType(InactiveConfigDataAccessException.class)
             .isThrownBy(() -> InactiveConfigDataAccessException.throwIfPropertyFound(contributor,
                     ConfigurationPropertyName.of("spring")))

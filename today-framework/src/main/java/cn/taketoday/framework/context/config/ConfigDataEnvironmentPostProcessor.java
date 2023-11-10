@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +41,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Phillip Webb
  * @author Madhura Bhave
  * @author Nguyen Bao Sach
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {
@@ -53,14 +51,6 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
    * The default order for the processor.
    */
   public static final int ORDER = Ordered.HIGHEST_PRECEDENCE + 10;
-
-  /**
-   * Property used to determine what action to take when a
-   * {@code ConfigDataLocationNotFoundException} is thrown.
-   *
-   * @see ConfigDataNotFoundAction
-   */
-  public static final String ON_LOCATION_NOT_FOUND_PROPERTY = ConfigDataEnvironment.ON_NOT_FOUND_PROPERTY;
 
   private final ConfigurableBootstrapContext bootstrapContext;
 
@@ -159,11 +149,8 @@ public class ConfigDataEnvironmentPostProcessor implements EnvironmentPostProces
    * {@link ConfigDataEnvironmentUpdateListener} that can be used to track
    * {@link Environment} updates.
    */
-  public static void applyTo(
-          ConfigurableEnvironment environment,
-          @Nullable ResourceLoader resourceLoader,
-          @Nullable ConfigurableBootstrapContext bootstrapContext,
-          Collection<String> additionalProfiles,
+  public static void applyTo(ConfigurableEnvironment environment, @Nullable ResourceLoader resourceLoader,
+          @Nullable ConfigurableBootstrapContext bootstrapContext, Collection<String> additionalProfiles,
           @Nullable ConfigDataEnvironmentUpdateListener environmentUpdateListener) {
     if (bootstrapContext == null) {
       bootstrapContext = new DefaultBootstrapContext();
