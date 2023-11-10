@@ -64,8 +64,8 @@ import cn.taketoday.web.view.RedirectModelManager;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:43
  */
-public class HttpEntityMethodProcessor
-        extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
+public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor
+        implements HandlerMethodReturnValueHandler {
 
   @Nullable
   private final RedirectModelManager redirectModelManager;

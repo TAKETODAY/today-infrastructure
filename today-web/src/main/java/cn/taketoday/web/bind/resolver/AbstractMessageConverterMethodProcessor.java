@@ -81,6 +81,7 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public abstract class AbstractMessageConverterMethodProcessor
         extends AbstractMessageConverterMethodArgumentResolver implements ReturnValueHandler {
+
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodProcessor.class);
 
   /* Extensions associated with the built-in message converters */

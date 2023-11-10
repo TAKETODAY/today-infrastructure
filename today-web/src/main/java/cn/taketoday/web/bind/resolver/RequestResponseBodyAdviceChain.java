@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,15 +84,15 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   }
 
   @Override
-  public HttpInputMessage beforeBodyRead(HttpInputMessage request, MethodParameter parameter,
+  public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter,
           Type targetType, HttpMessageConverter<?> converter) throws IOException {
 
     for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class, requestBodyAdvice)) {
       if (advice.supports(parameter, targetType, converter)) {
-        request = advice.beforeBodyRead(request, parameter, targetType, converter);
+        inputMessage = advice.beforeBodyRead(inputMessage, parameter, targetType, converter);
       }
     }
-    return request;
+    return inputMessage;
   }
 
   @Override
@@ -113,14 +110,12 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
   @Override
   @Nullable
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public Object beforeBodyWrite(
-          @Nullable Object body, @Nullable MethodParameter returnType, MediaType contentType,
-          HttpMessageConverter<?> converter, RequestContext context) {
+  public Object beforeBodyWrite(@Nullable Object body, @Nullable MethodParameter returnType,
+          MediaType contentType, HttpMessageConverter<?> converter, RequestContext context) {
 
     for (ResponseBodyAdvice advice : getMatchingAdvice(returnType, ResponseBodyAdvice.class, responseBodyAdvice)) {
       if (advice.supports(body, returnType, converter)) {
-        body = advice.beforeBodyWrite(
-                body, returnType, contentType, converter, context);
+        body = advice.beforeBodyWrite(body, returnType, contentType, converter, context);
       }
     }
     return body;
@@ -128,14 +123,12 @@ public class RequestResponseBodyAdviceChain implements RequestBodyAdvice, Respon
 
   @Override
   @Nullable
-  public Object handleEmptyBody(
-          @Nullable Object body, HttpInputMessage inputMessage, MethodParameter parameter,
-          Type targetType, HttpMessageConverter<?> converter) {
+  public Object handleEmptyBody(@Nullable Object body, HttpInputMessage inputMessage,
+          MethodParameter parameter, Type targetType, HttpMessageConverter<?> converter) {
 
     for (RequestBodyAdvice advice : getMatchingAdvice(parameter, RequestBodyAdvice.class, requestBodyAdvice)) {
       if (advice.supports(parameter, targetType, converter)) {
-        body = advice.handleEmptyBody(
-                body, inputMessage, parameter, targetType, converter);
+        body = advice.handleEmptyBody(body, inputMessage, parameter, targetType, converter);
       }
     }
     return body;

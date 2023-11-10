@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,29 +54,36 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
 
   @Override
   public void storeAttribute(RequestContext request, String attributeName, Object attributeValue) {
-    Assert.notNull(request, "RequestContext must not be null");
-    Assert.notNull(attributeName, "Attribute name must not be null");
-    Assert.notNull(attributeValue, "Attribute value must not be null");
+    Assert.notNull(request, "RequestContext is required");
+    Assert.notNull(attributeName, "Attribute name is required");
+    Assert.notNull(attributeValue, "Attribute value is required");
     String storeAttributeName = getAttributeNameInSession(request, attributeName);
 
-    getSession(request).setAttribute(storeAttributeName, attributeValue);
+    obtainSession(request).setAttribute(storeAttributeName, attributeValue);
   }
 
   @Override
   @Nullable
   public Object retrieveAttribute(RequestContext request, String attributeName) {
-    Assert.notNull(request, "RequestContext must not be null");
-    Assert.notNull(attributeName, "Attribute name must not be null");
+    Assert.notNull(request, "RequestContext is required");
+    Assert.notNull(attributeName, "Attribute name is required");
     String storeAttributeName = getAttributeNameInSession(request, attributeName);
-    return getSession(request).getAttribute(storeAttributeName);
+    WebSession session = getSession(request);
+    if (session == null) {
+      return null;
+    }
+    return session.getAttribute(storeAttributeName);
   }
 
   @Override
   public void cleanupAttribute(RequestContext request, String attributeName) {
-    Assert.notNull(request, "RequestContext must not be null");
-    Assert.notNull(attributeName, "Attribute name must not be null");
-    String storeAttributeName = getAttributeNameInSession(request, attributeName);
-    getSession(request).removeAttribute(storeAttributeName);
+    Assert.notNull(request, "RequestContext is required");
+    Assert.notNull(attributeName, "Attribute name is required");
+    WebSession session = getSession(request);
+    if (session != null) {
+      String storeAttributeName = getAttributeNameInSession(request, attributeName);
+      session.removeAttribute(storeAttributeName);
+    }
   }
 
   /**
@@ -98,6 +102,13 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
     return this.attributeNamePrefix + attributeName;
   }
 
+  private WebSession obtainSession(RequestContext request) {
+    WebSession session = getSession(request);
+    Assert.state(session != null, "No web-session");
+    return session;
+  }
+
+  @Nullable
   private WebSession getSession(RequestContext request) {
     WebSession session = null;
     if (sessionManager != null) {
@@ -106,7 +117,6 @@ public class DefaultSessionAttributeStore implements SessionAttributeStore {
     if (session == null) {
       session = RequestContextUtils.getSession(request);
     }
-    Assert.state(session != null, "No web-session");
     return session;
   }
 

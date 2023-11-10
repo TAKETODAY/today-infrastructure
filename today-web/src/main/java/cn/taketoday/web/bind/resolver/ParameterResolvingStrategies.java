@@ -34,11 +34,11 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 /**
  * Composite ParameterResolvingStrategy
  *
- * @author TODAY 2021/9/26 21:07
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/9/26 21:07
  */
-public class ParameterResolvingStrategies
-        implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy>, ParameterResolvingStrategy {
+public class ParameterResolvingStrategies implements ArraySizeTrimmer, Iterable<ParameterResolvingStrategy>, ParameterResolvingStrategy {
+
   private final ArrayList<ParameterResolvingStrategy> strategies;
 
   public ParameterResolvingStrategies() {
@@ -125,10 +125,11 @@ public class ParameterResolvingStrategies
    * @return the instance of the first occurrence of the specified strategy-class
    */
   @Nullable
-  public ParameterResolvingStrategy get(Class<?> strategyClass) {
+  @SuppressWarnings("unchecked")
+  public <T> T get(Class<T> strategyClass) {
     int idx = indexOf(strategyClass);
     if (idx != -1) {
-      return strategies.get(idx);
+      return (T) strategies.get(idx);
     }
     return null;
   }

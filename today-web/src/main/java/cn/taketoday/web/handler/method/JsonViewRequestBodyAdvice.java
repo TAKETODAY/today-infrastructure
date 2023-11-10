@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,17 +51,14 @@ import cn.taketoday.lang.Assert;
 public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
 
   @Override
-  public boolean supports(
-          MethodParameter methodParameter, Type targetType,
-          HttpMessageConverter<?> converter) {
+  public boolean supports(MethodParameter methodParameter, Type targetType, HttpMessageConverter<?> converter) {
 
     return converter instanceof AbstractJackson2HttpMessageConverter
             && methodParameter.getParameterAnnotation(JsonView.class) != null;
   }
 
   @Override
-  public HttpInputMessage beforeBodyRead(
-          HttpInputMessage request, MethodParameter methodParameter,
+  public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter methodParameter,
           Type targetType, HttpMessageConverter<?> selectedConverterType) throws IOException {
 
     JsonView ann = methodParameter.getParameterAnnotation(JsonView.class);
@@ -76,7 +70,7 @@ public class JsonViewRequestBodyAdvice implements RequestBodyAdvice {
               "@JsonView only supported for request body advice with exactly 1 class argument: " + methodParameter);
     }
 
-    return new MappingJacksonInputMessage(request.getBody(), request.getHeaders(), classes[0]);
+    return new MappingJacksonInputMessage(inputMessage.getBody(), inputMessage.getHeaders(), classes[0]);
   }
 
 }

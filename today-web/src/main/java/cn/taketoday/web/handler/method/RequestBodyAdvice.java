@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,16 +54,16 @@ public interface RequestBodyAdvice {
           Type targetType, HttpMessageConverter<?> converter);
 
   /**
-   * Invoked second before the request body is read and converted.
+   * Invoked second before the inputMessage body is read and converted.
    *
-   * @param request the request
+   * @param inputMessage the inputMessage
    * @param parameter the target method parameter
    * @param targetType the target type, not necessarily the same as the method
    * parameter type, e.g. for {@code HttpEntity<String>}.
    * @param converter the converter used to deserialize the body
-   * @return the input request or a new instance (never {@code null})
+   * @return the input inputMessage or a new instance (never {@code null})
    */
-  HttpInputMessage beforeBodyRead(HttpInputMessage request, MethodParameter parameter,
+  HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter,
           Type targetType, HttpMessageConverter<?> converter) throws IOException;
 
   /**

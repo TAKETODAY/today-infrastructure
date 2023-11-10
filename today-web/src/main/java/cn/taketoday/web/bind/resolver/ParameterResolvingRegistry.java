@@ -62,8 +62,7 @@ import jakarta.servlet.ServletContext;
  * @see ParameterResolvingStrategy
  * @since 3.0
  */
-public class ParameterResolvingRegistry
-        extends ApplicationObjectSupport implements ArraySizeTrimmer, InitializingBean {
+public class ParameterResolvingRegistry extends ApplicationObjectSupport implements ArraySizeTrimmer, InitializingBean {
 
   private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
   private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();
@@ -377,8 +376,8 @@ public class ParameterResolvingRegistry
     applyConversionService(conversionService, customizedStrategies);
   }
 
-  static void applyConversionService(
-          @Nullable ConversionService conversionService, Iterable<ParameterResolvingStrategy> resolvers) {
+  static void applyConversionService(@Nullable ConversionService conversionService,
+          Iterable<ParameterResolvingStrategy> resolvers) {
     if (conversionService != null) {
       for (final ParameterResolvingStrategy resolver : resolvers) {
         if (resolver instanceof ConversionServiceAware) {
