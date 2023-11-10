@@ -43,6 +43,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Converter;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.PostLoad;
@@ -67,10 +68,21 @@ import jakarta.persistence.PreUpdate;
  */
 class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistrationAotProcessor {
 
-  private static final List<Class<? extends Annotation>> CALLBACK_TYPES = List.of(
-          PreUpdate.class, PostUpdate.class, PrePersist.class,
-          PostPersist.class, PreRemove.class, PostRemove.class, PostLoad.class
-  );
+  private static final List<Class<? extends Annotation>> CALLBACK_TYPES = List.of(PreUpdate.class,
+          PostUpdate.class, PrePersist.class, PostPersist.class, PreRemove.class, PostRemove.class, PostLoad.class);
+
+  @Nullable
+  private static Class<? extends Annotation> embeddableInstantiatorClass;
+
+  static {
+    try {
+      embeddableInstantiatorClass = ClassUtils.forName("org.hibernate.annotations.EmbeddableInstantiator",
+              PersistenceManagedTypesBeanRegistrationAotProcessor.class.getClassLoader());
+    }
+    catch (ClassNotFoundException ex) {
+      embeddableInstantiatorClass = null;
+    }
+  }
 
   @Nullable
   @Override
@@ -131,6 +143,7 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
           contributeIdClassHints(hints, managedClass);
           contributeConverterHints(hints, managedClass);
           contributeCallbackHints(hints, managedClass);
+          contributeHibernateHints(hints, managedClass);
         }
         catch (ClassNotFoundException ex) {
           throw new IllegalArgumentException("Failed to instantiate the managed class: " + managedClassName, ex);
@@ -177,6 +190,23 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
       ReflectionUtils.doWithMethods(managedClass, method ->
                       reflection.registerMethod(method, ExecutableMode.INVOKE),
               method -> CALLBACK_TYPES.stream().anyMatch(method::isAnnotationPresent));
+    }
+
+    private void contributeHibernateHints(RuntimeHints hints, Class<?> managedClass) {
+      if (embeddableInstantiatorClass == null) {
+        return;
+      }
+      ReflectionHints reflection = hints.reflection();
+      ReflectionUtils.doWithFields(managedClass, field -> {
+        Embedded embeddedAnnotation = AnnotationUtils.findAnnotation(field, Embedded.class);
+        if (embeddedAnnotation != null && field.getAnnotatedType().getType() instanceof Class<?> embeddedClass) {
+          Annotation embeddableInstantiatorAnnotation = AnnotationUtils.findAnnotation(embeddedClass, embeddableInstantiatorClass);
+          if (embeddableInstantiatorAnnotation != null) {
+            Class<?> embeddableInstantiatorClass = (Class<?>) AnnotationUtils.getAnnotationAttributes(embeddableInstantiatorAnnotation).get("value");
+            reflection.registerType(embeddableInstantiatorClass, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+          }
+        }
+      });
     }
   }
 }
