@@ -21,14 +21,13 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
-import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.mock.env.MockPropertySource;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.PropertySourceOrigin;
+import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -102,7 +101,7 @@ class InactiveConfigDataAccessExceptionTests {
   @Test
   void throwIfPropertyFoundWhenSourceIsNullDoesNothing() {
     ConfigDataEnvironmentContributor contributor = mock(ConfigDataEnvironmentContributor.class);
-    given(contributor.configurationPropertySource).willReturn(null);
+    ReflectionTestUtils.setField(contributor, "configurationPropertySource", null);
     InactiveConfigDataAccessException.throwIfPropertyFound(contributor, ConfigurationPropertyName.of("spring"));
   }
 
@@ -110,19 +109,19 @@ class InactiveConfigDataAccessExceptionTests {
   void throwIfPropertyFoundWhenPropertyNotFoundDoesNothing() {
     ConfigDataEnvironmentContributor contributor = mock(ConfigDataEnvironmentContributor.class);
     ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(this.propertySource);
-    given(contributor.configurationPropertySource).willReturn(configurationPropertySource);
+    ReflectionTestUtils.setField(contributor, "configurationPropertySource", configurationPropertySource);
     InactiveConfigDataAccessException.throwIfPropertyFound(contributor, ConfigurationPropertyName.of("spring"));
   }
 
   @Test
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   void throwIfPropertyFoundWhenPropertyFoundThrowsException() {
     this.propertySource.setProperty("spring", "test");
     ConfigDataEnvironmentContributor contributor = mock(ConfigDataEnvironmentContributor.class);
     ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(this.propertySource);
-    given(contributor.configurationPropertySource).willReturn(configurationPropertySource);
-    given(contributor.propertySource).willReturn((PropertySource) this.propertySource);
-    given(contributor.resource).willReturn(this.resource);
+    ReflectionTestUtils.setField(contributor, "configurationPropertySource", configurationPropertySource);
+    ReflectionTestUtils.setField(contributor, "propertySource", this.propertySource);
+    ReflectionTestUtils.setField(contributor, "resource", this.resource);
+
     assertThatExceptionOfType(InactiveConfigDataAccessException.class)
             .isThrownBy(() -> InactiveConfigDataAccessException.throwIfPropertyFound(contributor,
                     ConfigurationPropertyName.of("spring")))
