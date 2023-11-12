@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,13 +42,13 @@ class ConfigurationPropertyTests {
   @Test
   void createWhenNameIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new ConfigurationProperty(null, "bar", null))
-            .withMessageContaining("Name must not be null");
+            .withMessageContaining("Name is required");
   }
 
   @Test
   void createWhenValueIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new ConfigurationProperty(NAME, null, null))
-            .withMessageContaining("Value must not be null");
+            .withMessageContaining("Value is required");
   }
 
   @Test

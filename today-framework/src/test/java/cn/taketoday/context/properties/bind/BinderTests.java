@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,20 +72,20 @@ class BinderTests {
   @Test
   void createWhenSourcesIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new Binder((Iterable<ConfigurationPropertySource>) null))
-            .withMessageContaining("Sources must not be null");
+            .withMessageContaining("Sources is required");
   }
 
   @Test
   void bindWhenNameIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.binder.bind((ConfigurationPropertyName) null,
-            Bindable.of(String.class), BindHandler.DEFAULT)).withMessageContaining("Name must not be null");
+            Bindable.of(String.class), BindHandler.DEFAULT)).withMessageContaining("Name is required");
   }
 
   @Test
   void bindWhenTargetIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.binder.bind(ConfigurationPropertyName.of("foo"), null, BindHandler.DEFAULT))
-            .withMessageContaining("Target must not be null");
+            .withMessageContaining("Target is required");
   }
 
   @Test

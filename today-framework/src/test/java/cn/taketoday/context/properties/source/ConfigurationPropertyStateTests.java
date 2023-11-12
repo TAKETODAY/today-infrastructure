@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,14 +36,14 @@ class ConfigurationPropertyStateTests {
   @Test
   void searchWhenIterableIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> ConfigurationPropertyState.search(null, (e) -> true))
-            .withMessageContaining("Source must not be null");
+            .withMessageContaining("Source is required");
   }
 
   @Test
   void searchWhenPredicateIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ConfigurationPropertyState.search(Collections.emptyList(), null))
-            .withMessageContaining("Predicate must not be null");
+            .withMessageContaining("Predicate is required");
   }
 
   @Test

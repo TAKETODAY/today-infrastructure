@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,16 +52,16 @@ public final class ConfigurationPropertyNameAliases implements Iterable<Configur
   }
 
   public void addAliases(String name, String... aliases) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(aliases, "Aliases must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(aliases, "Aliases is required");
     addAliases(
             ConfigurationPropertyName.of(name),
             Arrays.stream(aliases).map(ConfigurationPropertyName::of).toArray(ConfigurationPropertyName[]::new));
   }
 
   public void addAliases(ConfigurationPropertyName name, ConfigurationPropertyName... aliases) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(aliases, "Aliases must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(aliases, "Aliases is required");
     this.aliases.addAll(name, Arrays.asList(aliases));
   }
 
