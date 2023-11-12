@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 class PropertyMapperTests {
 
-  private PropertyMapper map = PropertyMapper.get();
+  private final PropertyMapper map = PropertyMapper.get();
 
   @Test
   void fromNullValue() {
@@ -64,13 +61,13 @@ class PropertyMapperTests {
   @Test
   void fromWhenSupplierIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.map.from((Supplier<?>) null))
-            .withMessageContaining("Supplier must not be null");
+            .withMessageContaining("Supplier is required");
   }
 
   @Test
   void toWhenConsumerIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.map.from(() -> "").to(null))
-            .withMessageContaining("Consumer must not be null");
+            .withMessageContaining("Consumer is required");
   }
 
   @Test
@@ -90,7 +87,7 @@ class PropertyMapperTests {
   @Test
   void asWhenAdapterIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.map.from(() -> "").as(null))
-            .withMessageContaining("Adapter must not be null");
+            .withMessageContaining("Adapter is required");
   }
 
   @Test
