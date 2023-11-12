@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,19 +49,19 @@ class ValidationErrorsTests {
   void createWhenNameIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new ValidationErrors(null, Collections.emptySet(), Collections.emptyList()))
-            .withMessageContaining("Name must not be null");
+            .withMessageContaining("Name is required");
   }
 
   @Test
   void createWhenBoundPropertiesIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new ValidationErrors(NAME, null, Collections.emptyList()))
-            .withMessageContaining("BoundProperties must not be null");
+            .withMessageContaining("BoundProperties is required");
   }
 
   @Test
   void createWhenErrorsIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new ValidationErrors(NAME, Collections.emptySet(), null))
-            .withMessageContaining("Errors must not be null");
+            .withMessageContaining("Errors is required");
   }
 
   @Test
