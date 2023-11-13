@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -135,34 +132,34 @@ class ServletRegistrationBeanTests {
 	void setServletMustNotBeNull() {
 		ServletRegistrationBean<MockServlet> bean = new ServletRegistrationBean<>();
 		assertThatIllegalArgumentException().isThrownBy(() -> bean.onStartup(this.servletContext))
-				.withMessageContaining("Servlet must not be null");
+				.withMessageContaining("Servlet is required");
 	}
 
 	@Test
 	void createServletMustNotBeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ServletRegistrationBean<MockServlet>(null))
-				.withMessageContaining("Servlet must not be null");
+				.withMessageContaining("Servlet is required");
 	}
 
 	@Test
 	void setMappingMustNotBeNull() {
 		ServletRegistrationBean<MockServlet> bean = new ServletRegistrationBean<>(this.servlet);
 		assertThatIllegalArgumentException().isThrownBy(() -> bean.setUrlMappings(null))
-				.withMessageContaining("UrlMappings must not be null");
+				.withMessageContaining("UrlMappings is required");
 	}
 
 	@Test
 	void createMappingMustNotBeNull() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ServletRegistrationBean<>(this.servlet, (String[]) null))
-				.withMessageContaining("UrlMappings must not be null");
+				.withMessageContaining("UrlMappings is required");
 	}
 
 	@Test
 	void addMappingMustNotBeNull() {
 		ServletRegistrationBean<MockServlet> bean = new ServletRegistrationBean<>(this.servlet);
 		assertThatIllegalArgumentException().isThrownBy(() -> bean.addUrlMappings((String[]) null))
-				.withMessageContaining("UrlMappings must not be null");
+				.withMessageContaining("UrlMappings is required");
 	}
 
 	@Test

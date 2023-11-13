@@ -85,7 +85,7 @@ public class JettyWebServer implements WebServer {
    */
   public JettyWebServer(Server server, boolean autoStart) {
     this.autoStart = autoStart;
-    Assert.notNull(server, "Jetty Server must not be null");
+    Assert.notNull(server, "Jetty Server is required");
     this.server = server;
     this.gracefulShutdown = createGracefulShutdown(server);
     initialize();

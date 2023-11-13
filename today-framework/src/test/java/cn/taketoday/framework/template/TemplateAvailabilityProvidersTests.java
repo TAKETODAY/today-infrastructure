@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,7 +94,7 @@ class TemplateAvailabilityProvidersTests {
   void createWhenProvidersIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new TemplateAvailabilityProviders((Collection<TemplateAvailabilityProvider>) null))
-            .withMessageContaining("Providers must not be null");
+            .withMessageContaining("Providers is required");
   }
 
   @Test
@@ -110,7 +107,7 @@ class TemplateAvailabilityProvidersTests {
   @Test
   void getProviderWhenApplicationContextIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.providers.getProvider(this.view, null))
-            .withMessageContaining("ApplicationContext must not be null");
+            .withMessageContaining("ApplicationContext is required");
   }
 
   @Test
@@ -118,28 +115,28 @@ class TemplateAvailabilityProvidersTests {
     assertThatIllegalArgumentException()
             .isThrownBy(
                     () -> this.providers.getProvider(null, this.environment, this.classLoader, this.resourceLoader))
-            .withMessageContaining("View must not be null");
+            .withMessageContaining("View is required");
   }
 
   @Test
   void getProviderWhenEnvironmentIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.providers.getProvider(this.view, null, this.classLoader, this.resourceLoader))
-            .withMessageContaining("Environment must not be null");
+            .withMessageContaining("Environment is required");
   }
 
   @Test
   void getProviderWhenClassLoaderIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.providers.getProvider(this.view, this.environment, null, this.resourceLoader))
-            .withMessageContaining("ClassLoader must not be null");
+            .withMessageContaining("ClassLoader is required");
   }
 
   @Test
   void getProviderWhenResourceLoaderIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.providers.getProvider(this.view, this.environment, this.classLoader, null))
-            .withMessageContaining("ResourceLoader must not be null");
+            .withMessageContaining("ResourceLoader is required");
   }
 
   @Test

@@ -103,7 +103,7 @@ public class TomcatWebServer implements WebServer {
    * @param shutdown type of shutdown supported by the server
    */
   public TomcatWebServer(Tomcat tomcat, boolean autoStart, Shutdown shutdown) {
-    Assert.notNull(tomcat, "Tomcat Server must not be null");
+    Assert.notNull(tomcat, "Tomcat Server is required");
     this.tomcat = tomcat;
     this.autoStart = autoStart;
     this.gracefulShutdown = (shutdown == Shutdown.GRACEFUL) ? new GracefulShutdown(tomcat) : null;

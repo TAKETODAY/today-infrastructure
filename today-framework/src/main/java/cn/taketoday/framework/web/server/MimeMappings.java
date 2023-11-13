@@ -76,7 +76,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * value
    */
   public MimeMappings(Map<String, String> mappings) {
-    Assert.notNull(mappings, "Mappings must not be null");
+    Assert.notNull(mappings, "Mappings is required");
     this.map = new LinkedHashMap<>();
     for (Map.Entry<String, String> entry : mappings.entrySet()) {
       add(entry.getKey(), entry.getValue());
@@ -90,7 +90,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * @param mutable if the new object should be mutable.
    */
   MimeMappings(MimeMappings mappings, boolean mutable) {
-    Assert.notNull(mappings, "Mappings must not be null");
+    Assert.notNull(mappings, "Mappings is required");
     this.map = (mutable ? new LinkedHashMap<>(mappings.map) : Collections.unmodifiableMap(mappings.map));
   }
 
@@ -103,8 +103,8 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    */
   @Nullable
   public String add(String extension, String mimeType) {
-    Assert.notNull(extension, "Extension must not be null");
-    Assert.notNull(mimeType, "MimeType must not be null");
+    Assert.notNull(extension, "Extension is required");
+    Assert.notNull(mimeType, "MimeType is required");
     Mapping previous = map.put(extension.toLowerCase(Locale.ENGLISH), new Mapping(extension, mimeType));
     return previous != null ? previous.getMimeType() : null;
   }
@@ -117,7 +117,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    */
   @Nullable
   public String remove(String extension) {
-    Assert.notNull(extension, "Extension must not be null");
+    Assert.notNull(extension, "Extension is required");
     Mapping previous = map.remove(extension.toLowerCase(Locale.ENGLISH));
     return previous != null ? previous.getMimeType() : null;
   }
@@ -130,7 +130,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    */
   @Nullable
   public String get(String extension) {
-    Assert.notNull(extension, "Extension must not be null");
+    Assert.notNull(extension, "Extension is required");
     Mapping mapping = map.get(extension.toLowerCase(Locale.ENGLISH));
     return mapping != null ? mapping.getMimeType() : null;
   }
@@ -180,7 +180,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * @return an unmodifiable view of the specified mappings.
    */
   public static MimeMappings unmodifiableMappings(MimeMappings mappings) {
-    Assert.notNull(mappings, "Mappings must not be null");
+    Assert.notNull(mappings, "Mappings is required");
     return new MimeMappings(mappings, false);
   }
 
@@ -192,7 +192,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
    * @return a new mappings instance
    */
   public static MimeMappings lazyCopy(MimeMappings mappings) {
-    Assert.notNull(mappings, "Mappings must not be null");
+    Assert.notNull(mappings, "Mappings is required");
     return new LazyMimeMappingsCopy(mappings);
   }
 
@@ -206,8 +206,8 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
     private final String mimeType;
 
     public Mapping(String extension, String mimeType) {
-      Assert.notNull(extension, "Extension must not be null");
-      Assert.notNull(mimeType, "MimeType must not be null");
+      Assert.notNull(extension, "Extension is required");
+      Assert.notNull(mimeType, "MimeType is required");
       this.extension = extension;
       this.mimeType = mimeType;
     }
@@ -312,7 +312,7 @@ public sealed class MimeMappings implements Iterable<MimeMappings.Mapping> {
 
     @Override
     public String get(String extension) {
-      Assert.notNull(extension, "Extension must not be null");
+      Assert.notNull(extension, "Extension is required");
       extension = extension.toLowerCase(Locale.ENGLISH);
       Map<String, Mapping> loaded = this.loaded;
       if (loaded != null) {

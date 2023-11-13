@@ -50,7 +50,7 @@ class WebServerManager {
   WebServerManager(ReactiveWebServerApplicationContext applicationContext,
           ReactiveWebServerFactory factory, Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
     this.applicationContext = applicationContext;
-    Assert.notNull(factory, "Factory must not be null");
+    Assert.notNull(factory, "Factory is required");
     this.handler = new DelayedInitializationHttpHandler(handlerSupplier, lazyInit);
     this.webServer = factory.getWebServer(handler);
   }

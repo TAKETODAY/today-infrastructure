@@ -63,7 +63,7 @@ public class ConfigDataLocationNotFoundException extends ConfigDataNotFoundExcep
    */
   public ConfigDataLocationNotFoundException(ConfigDataLocation location, @Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
-    Assert.notNull(location, "Location must not be null");
+    Assert.notNull(location, "Location is required");
     this.location = location;
   }
 

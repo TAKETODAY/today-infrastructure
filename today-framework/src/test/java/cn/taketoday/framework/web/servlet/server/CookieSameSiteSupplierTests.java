@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,7 +111,7 @@ class CookieSameSiteSupplierTests {
   void whenHasNameMatchingPatternWhenPatternIsNullThrowsException() {
     CookieSameSiteSupplier supplier = (cookie) -> SameSite.LAX;
     assertThatIllegalArgumentException().isThrownBy(() -> supplier.whenHasNameMatching((Pattern) null))
-            .withMessage("Pattern must not be null");
+            .withMessage("Pattern is required");
   }
 
   @Test
@@ -134,7 +131,7 @@ class CookieSameSiteSupplierTests {
   void whenWhenPredicateIsNullThrowsException() {
     CookieSameSiteSupplier supplier = (cookie) -> SameSite.LAX;
     assertThatIllegalArgumentException().isThrownBy(() -> supplier.when(null))
-            .withMessage("Predicate must not be null");
+            .withMessage("Predicate is required");
   }
 
   @Test
@@ -169,7 +166,7 @@ class CookieSameSiteSupplierTests {
   @Test
   void ofWhenNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> CookieSameSiteSupplier.of(null))
-            .withMessage("SameSite must not be null");
+            .withMessage("SameSite is required");
   }
 
   @Test

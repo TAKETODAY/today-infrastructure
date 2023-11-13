@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,13 +41,13 @@ class ExitCodeGeneratorsTests {
     assertThatIllegalArgumentException().isThrownBy(() -> {
       List<ExitCodeGenerator> generators = null;
       new ExitCodeGenerators().addAll(generators);
-    }).withMessageContaining("Generators must not be null");
+    }).withMessageContaining("Generators is required");
   }
 
   @Test
   void addWhenGeneratorIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new ExitCodeGenerators().add(null))
-            .withMessageContaining("Generator must not be null");
+            .withMessageContaining("Generator is required");
   }
 
   @Test

@@ -167,8 +167,8 @@ final class NettyHttpHeaders extends HttpHeaders {
 
   @Override
   public void copyToArrayMap(final Map<String, String[]> newMap, final IntFunction<String[]> mappingFunction) {
-    Assert.notNull(newMap, "newMap must not be null");
-    Assert.notNull(mappingFunction, "mappingFunction must not be null");
+    Assert.notNull(newMap, "newMap is required");
+    Assert.notNull(mappingFunction, "mappingFunction is required");
     final io.netty.handler.codec.http.HttpHeaders headers = getOriginal();
     final Set<String> names = headers.names();
     for (final String name : names) {

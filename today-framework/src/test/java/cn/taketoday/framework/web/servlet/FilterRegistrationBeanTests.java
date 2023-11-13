@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,20 +72,20 @@ class FilterRegistrationBeanTests extends AbstractFilterRegistrationBeanTests {
     FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
     assertThatThrownBy(() -> bean.onStartup(this.servletContext))
             .isInstanceOf(IllegalStateException.class)
-            .withFailMessage("Filter must not be null");
+            .withFailMessage("Filter is required");
   }
 
   @Test
   void constructFilterMustNotBeNull() {
     assertThatIllegalArgumentException().isThrownBy(() -> new FilterRegistrationBean<>(null))
-            .withMessageContaining("Filter must not be null");
+            .withMessageContaining("Filter is required");
   }
 
   @Test
   void createServletRegistrationBeanMustNotBeNull() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new FilterRegistrationBean<>(this.filter, (ServletRegistrationBean[]) null))
-            .withMessageContaining("ServletRegistrationBeans must not be null");
+            .withMessageContaining("ServletRegistrationBeans is required");
   }
 
   @Test

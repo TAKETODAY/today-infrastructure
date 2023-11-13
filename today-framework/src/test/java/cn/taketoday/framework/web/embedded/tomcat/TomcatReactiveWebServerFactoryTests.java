@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,7 +122,7 @@ class TomcatReactiveWebServerFactoryTests extends AbstractReactiveWebServerFacto
   void setNullConnectorCustomizersShouldThrowException() {
     TomcatReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setTomcatConnectorCustomizers(null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -133,14 +130,14 @@ class TomcatReactiveWebServerFactoryTests extends AbstractReactiveWebServerFacto
     TomcatReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addConnectorCustomizers((TomcatConnectorCustomizer[]) null))
-            .withMessageContaining("Customizers must not be null");
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
   void setNullProtocolHandlerCustomizersShouldThrowException() {
     TomcatReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.setTomcatProtocolHandlerCustomizers(null))
-            .withMessageContaining("TomcatProtocolHandlerCustomizers must not be null");
+            .withMessageContaining("TomcatProtocolHandlerCustomizers is required");
   }
 
   @Test
@@ -148,7 +145,7 @@ class TomcatReactiveWebServerFactoryTests extends AbstractReactiveWebServerFacto
     TomcatReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> factory.addProtocolHandlerCustomizers((TomcatProtocolHandlerCustomizer[]) null))
-            .withMessageContaining("TomcatProtocolHandlerCustomizers must not be null");
+            .withMessageContaining("TomcatProtocolHandlerCustomizers is required");
   }
 
   @Test
@@ -197,7 +194,7 @@ class TomcatReactiveWebServerFactoryTests extends AbstractReactiveWebServerFacto
   void addNullAdditionalConnectorsThrows() {
     TomcatReactiveWebServerFactory factory = getFactory();
     assertThatIllegalArgumentException().isThrownBy(() -> factory.addAdditionalTomcatConnectors((Connector[]) null))
-            .withMessageContaining("Connectors must not be null");
+            .withMessageContaining("Connectors is required");
   }
 
   @Test

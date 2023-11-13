@@ -91,7 +91,7 @@ public abstract class JsonObjectDeserializer<T> extends JsonDeserializer<T> {
    */
   @SuppressWarnings({ "unchecked" })
   protected final <D> D nullSafeValue(JsonNode jsonNode, Class<D> type) {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     if (jsonNode == null) {
       return null;
     }
@@ -133,7 +133,7 @@ public abstract class JsonObjectDeserializer<T> extends JsonDeserializer<T> {
    * @return the {@link JsonNode}
    */
   protected final JsonNode getRequiredNode(JsonNode tree, String fieldName) {
-    Assert.notNull(tree, "Tree must not be null");
+    Assert.notNull(tree, "Tree is required");
     JsonNode node = tree.get(fieldName);
     Assert.state(node != null && !(node instanceof NullNode), () -> "Missing JSON field '" + fieldName + "'");
     return node;

@@ -88,7 +88,7 @@ public class LoggingSystemProperties {
    */
   public LoggingSystemProperties(Environment environment, @Nullable Function<String, String> defaultValueResolver,
           @Nullable BiConsumer<String, String> setter) {
-    Assert.notNull(environment, "Environment must not be null");
+    Assert.notNull(environment, "Environment is required");
     this.environment = environment;
     this.defaultValueResolver = (defaultValueResolver != null) ? defaultValueResolver : (name) -> null;
     this.setter = (setter != null) ? setter : systemPropertySetter;

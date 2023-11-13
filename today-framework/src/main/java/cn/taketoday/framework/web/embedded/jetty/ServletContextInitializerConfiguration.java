@@ -42,7 +42,7 @@ public class ServletContextInitializerConfiguration extends EmptyBuilderConfigur
    * @param initializers the initializers that should be invoked
    */
   public ServletContextInitializerConfiguration(ServletContextInitializer... initializers) {
-    Assert.notNull(initializers, "Initializers must not be null");
+    Assert.notNull(initializers, "Initializers is required");
     this.initializers = initializers;
   }
 

@@ -51,8 +51,8 @@ public final class LoggerConfiguration {
    * @param effectiveLevel the effective level of the logger
    */
   public LoggerConfiguration(String name, @Nullable LogLevel configuredLevel, LogLevel effectiveLevel) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(effectiveLevel, "EffectiveLevel must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(effectiveLevel, "EffectiveLevel is required");
     this.name = name;
     this.levelConfiguration = (configuredLevel != null) ? LevelConfiguration.of(configuredLevel) : null;
     this.inheritedLevelConfiguration = LevelConfiguration.of(effectiveLevel);
@@ -68,8 +68,8 @@ public final class LoggerConfiguration {
   public LoggerConfiguration(String name,
           @Nullable LevelConfiguration levelConfiguration,
           LevelConfiguration inheritedLevelConfiguration) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(inheritedLevelConfiguration, "EffectiveLevelConfiguration must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(inheritedLevelConfiguration, "EffectiveLevelConfiguration is required");
     this.name = name;
     this.levelConfiguration = levelConfiguration;
     this.inheritedLevelConfiguration = inheritedLevelConfiguration;
@@ -246,7 +246,7 @@ public final class LoggerConfiguration {
      * @return a new {@link LevelConfiguration} instance
      */
     public static LevelConfiguration of(LogLevel logLevel) {
-      Assert.notNull(logLevel, "LogLevel must not be null");
+      Assert.notNull(logLevel, "LogLevel is required");
       return new LevelConfiguration(logLevel.name(), logLevel);
     }
 

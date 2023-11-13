@@ -84,7 +84,7 @@ public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> ex
    * @see #addInitParameter
    */
   public void setInitParameters(Map<String, String> initParameters) {
-    Assert.notNull(initParameters, "InitParameters must not be null");
+    Assert.notNull(initParameters, "InitParameters is required");
     this.initParameters = new LinkedHashMap<>(initParameters);
   }
 
@@ -104,7 +104,7 @@ public abstract class DynamicRegistrationBean<D extends Registration.Dynamic> ex
    * @param value the init-parameter value
    */
   public void addInitParameter(String name, String value) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     initParameters.put(name, value);
   }
 

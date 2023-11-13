@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +69,7 @@ class JsonObjectDeserializerTests {
   void nullSafeValueWhenClassIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.testDeserializer.testNullSafeValue(Mockito.mock(JsonNode.class), null))
-            .withMessageContaining("Type must not be null");
+            .withMessageContaining("Type is required");
   }
 
   @Test
@@ -158,7 +155,7 @@ class JsonObjectDeserializerTests {
   @Test
   void getRequiredNodeWhenTreeIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> this.testDeserializer.testGetRequiredNode(null, "test"))
-            .withMessageContaining("Tree must not be null");
+            .withMessageContaining("Tree is required");
   }
 
   @Test

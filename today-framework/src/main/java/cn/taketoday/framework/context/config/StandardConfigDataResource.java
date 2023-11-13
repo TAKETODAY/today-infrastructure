@@ -61,8 +61,8 @@ public class StandardConfigDataResource extends ConfigDataResource {
    * @param emptyDirectory if the resource is an empty directory that we know exists
    */
   StandardConfigDataResource(StandardConfigDataReference reference, Resource resource, boolean emptyDirectory) {
-    Assert.notNull(reference, "Reference must not be null");
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(reference, "Reference is required");
+    Assert.notNull(resource, "Resource is required");
     this.reference = reference;
     this.resource = resource;
     this.emptyDirectory = emptyDirectory;

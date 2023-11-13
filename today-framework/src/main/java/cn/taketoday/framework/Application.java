@@ -950,7 +950,7 @@ public class Application {
    * @see #getAllSources()
    */
   public void setSources(Set<String> sources) {
-    Assert.notNull(sources, "Sources must not be null");
+    Assert.notNull(sources, "Sources is required");
     this.sources = new LinkedHashSet<>(sources);
   }
 
@@ -979,7 +979,7 @@ public class Application {
    * @param resourceLoader the resource loader
    */
   public void setResourceLoader(ResourceLoader resourceLoader) {
-    Assert.notNull(resourceLoader, "ResourceLoader must not be null");
+    Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.resourceLoader = resourceLoader;
   }
 
@@ -1455,7 +1455,7 @@ public class Application {
    * @return the outcome (0 if successful)
    */
   public static int exit(ApplicationContext context, ExitCodeGenerator... exitCodeGenerators) {
-    Assert.notNull(context, "Context must not be null");
+    Assert.notNull(context, "Context is required");
     int exitCode = 0;
     try {
       try {
@@ -1526,7 +1526,7 @@ public class Application {
    * @see #withHook(ApplicationHook, Runnable)
    */
   public static Application.Augmented from(ThrowingConsumer<String[]> main) {
-    Assert.notNull(main, "Main must not be null");
+    Assert.notNull(main, "Main ThrowingConsumer is required");
     return new Augmented(main, Collections.emptySet());
   }
 

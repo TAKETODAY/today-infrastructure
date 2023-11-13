@@ -100,7 +100,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
    * @param serverCustomizers the customizers to set
    */
   public void setServerCustomizers(Collection<? extends ReactorNettyServerCustomizer> serverCustomizers) {
-    Assert.notNull(serverCustomizers, "ServerCustomizers must not be null");
+    Assert.notNull(serverCustomizers, "ServerCustomizers is required");
     this.serverCustomizers = new LinkedHashSet<>(serverCustomizers);
   }
 

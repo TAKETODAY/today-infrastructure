@@ -132,7 +132,7 @@ class ApplicationBeanDefinitionLoader {
   }
 
   private void load(Object source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     if (source instanceof Class<?>) {
       load((Class<?>) source);
       return;

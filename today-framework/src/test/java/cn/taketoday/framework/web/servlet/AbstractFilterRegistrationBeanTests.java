@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,7 +121,7 @@ abstract class AbstractFilterRegistrationBeanTests {
   void setServletRegistrationBeanMustNotBeNull() {
     AbstractFilterRegistrationBean<?> bean = createFilterRegistrationBean();
     assertThatIllegalArgumentException().isThrownBy(() -> bean.setServletRegistrationBeans(null))
-            .withMessageContaining("ServletRegistrationBeans must not be null");
+            .withMessageContaining("ServletRegistrationBeans is required");
   }
 
   @Test
@@ -132,7 +129,7 @@ abstract class AbstractFilterRegistrationBeanTests {
     AbstractFilterRegistrationBean<?> bean = createFilterRegistrationBean();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> bean.addServletRegistrationBeans((ServletRegistrationBean[]) null))
-            .withMessageContaining("ServletRegistrationBeans must not be null");
+            .withMessageContaining("ServletRegistrationBeans is required");
   }
 
   @Test
@@ -159,28 +156,28 @@ abstract class AbstractFilterRegistrationBeanTests {
   void setUrlPatternMustNotBeNull() {
     AbstractFilterRegistrationBean<?> bean = createFilterRegistrationBean();
     assertThatIllegalArgumentException().isThrownBy(() -> bean.setUrlPatterns(null))
-            .withMessageContaining("UrlPatterns must not be null");
+            .withMessageContaining("UrlPatterns is required");
   }
 
   @Test
   void addUrlPatternMustNotBeNull() {
     AbstractFilterRegistrationBean<?> bean = createFilterRegistrationBean();
     assertThatIllegalArgumentException().isThrownBy(() -> bean.addUrlPatterns((String[]) null))
-            .withMessageContaining("UrlPatterns must not be null");
+            .withMessageContaining("UrlPatterns is required");
   }
 
   @Test
   void setServletNameMustNotBeNull() {
     AbstractFilterRegistrationBean<?> bean = createFilterRegistrationBean();
     assertThatIllegalArgumentException().isThrownBy(() -> bean.setServletNames(null))
-            .withMessageContaining("ServletNames must not be null");
+            .withMessageContaining("ServletNames is required");
   }
 
   @Test
   void addServletNameMustNotBeNull() {
     AbstractFilterRegistrationBean<?> bean = createFilterRegistrationBean();
     assertThatIllegalArgumentException().isThrownBy(() -> bean.addServletNames((String[]) null))
-            .withMessageContaining("ServletNames must not be null");
+            .withMessageContaining("ServletNames is required");
   }
 
   @Test

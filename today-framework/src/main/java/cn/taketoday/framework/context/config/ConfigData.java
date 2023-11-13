@@ -77,8 +77,8 @@ public final class ConfigData {
    */
   public ConfigData(Collection<? extends PropertySource<?>> propertySources,
           PropertySourceOptions propertySourceOptions) {
-    Assert.notNull(propertySources, "PropertySources must not be null");
-    Assert.notNull(propertySourceOptions, "PropertySourceOptions must not be null");
+    Assert.notNull(propertySources, "PropertySources is required");
+    Assert.notNull(propertySourceOptions, "PropertySourceOptions is required");
     this.propertySources = List.copyOf(propertySources);
     this.propertySourceOptions = propertySourceOptions;
   }
@@ -257,7 +257,7 @@ public final class ConfigData {
      * @return a new {@link Options} instance
      */
     public static Options of(Option... options) {
-      Assert.notNull(options, "Options must not be null");
+      Assert.notNull(options, "Options is required");
       if (options.length == 0) {
         return NONE;
       }

@@ -54,8 +54,8 @@ public class ApplicationAvailabilityBean
 
   @Override
   public <S extends AvailabilityState> S getState(Class<S> stateType, S defaultState) {
-    Assert.notNull(stateType, "StateType must not be null");
-    Assert.notNull(defaultState, "DefaultState must not be null");
+    Assert.notNull(stateType, "StateType is required");
+    Assert.notNull(defaultState, "DefaultState is required");
     S state = getState(stateType);
     return (state != null) ? state : defaultState;
   }

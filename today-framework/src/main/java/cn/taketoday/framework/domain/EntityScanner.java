@@ -53,7 +53,7 @@ public class EntityScanner {
    * @param context the source application context
    */
   public EntityScanner(ApplicationContext context) {
-    Assert.notNull(context, "Context must not be null");
+    Assert.notNull(context, "Context is required");
     this.context = context;
   }
 

@@ -63,7 +63,7 @@ public class ConfigDataResourceNotFoundException extends ConfigDataNotFoundExcep
   private ConfigDataResourceNotFoundException(ConfigDataResource resource, ConfigDataLocation location,
           Throwable cause) {
     super(getMessage(resource, location), cause);
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
     this.location = location;
   }

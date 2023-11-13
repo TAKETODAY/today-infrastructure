@@ -149,7 +149,7 @@ class ApplicationShutdownHookTests {
   void addHandlerActionWhenNullThrowsException() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     assertThatIllegalArgumentException().isThrownBy(() -> shutdownHook.handlers.add(null))
-            .withMessage("Action must not be null");
+            .withMessage("Action is required");
   }
 
   @Test
@@ -165,7 +165,7 @@ class ApplicationShutdownHookTests {
   void removeHandlerActionWhenNullThrowsException() {
     TestApplicationShutdownHook shutdownHook = new TestApplicationShutdownHook();
     assertThatIllegalArgumentException().isThrownBy(() -> shutdownHook.handlers.remove(null))
-            .withMessage("Action must not be null");
+            .withMessage("Action is required");
   }
 
   @Test

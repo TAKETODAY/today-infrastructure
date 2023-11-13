@@ -97,7 +97,7 @@ public class TemplateAvailabilityProviders {
    * @param providers the underlying providers
    */
   protected TemplateAvailabilityProviders(Collection<? extends TemplateAvailabilityProvider> providers) {
-    Assert.notNull(providers, "Providers must not be null");
+    Assert.notNull(providers, "Providers is required");
     this.providers = new ArrayList<>(providers);
   }
 
@@ -119,7 +119,7 @@ public class TemplateAvailabilityProviders {
    */
   @Nullable
   public TemplateAvailabilityProvider getProvider(String view, ApplicationContext applicationContext) {
-    Assert.notNull(applicationContext, "ApplicationContext must not be null");
+    Assert.notNull(applicationContext, "ApplicationContext is required");
     return getProvider(view, applicationContext.getEnvironment(),
             applicationContext.getClassLoader(), applicationContext);
   }
@@ -136,10 +136,10 @@ public class TemplateAvailabilityProviders {
   @Nullable
   public TemplateAvailabilityProvider getProvider(String view,
           Environment environment, ClassLoader classLoader, ResourceLoader resourceLoader) {
-    Assert.notNull(view, "View must not be null");
-    Assert.notNull(environment, "Environment must not be null");
-    Assert.notNull(classLoader, "ClassLoader must not be null");
-    Assert.notNull(resourceLoader, "ResourceLoader must not be null");
+    Assert.notNull(view, "View is required");
+    Assert.notNull(environment, "Environment is required");
+    Assert.notNull(classLoader, "ClassLoader is required");
+    Assert.notNull(resourceLoader, "ResourceLoader is required");
     boolean useCache = environment.getFlag("infra.template.provider.cache", true);
     if (!useCache) {
       return findProvider(view, environment, classLoader, resourceLoader);

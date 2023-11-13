@@ -130,7 +130,7 @@ public interface BootstrapRegistry {
      * @return a new {@link InstanceSupplier} instance with the new scope
      */
     default InstanceSupplier<T> withScope(Scope scope) {
-      Assert.notNull(scope, "Scope must not be null");
+      Assert.notNull(scope, "Scope is required");
       InstanceSupplier<T> parent = this;
       return new InstanceSupplier<>() {
 

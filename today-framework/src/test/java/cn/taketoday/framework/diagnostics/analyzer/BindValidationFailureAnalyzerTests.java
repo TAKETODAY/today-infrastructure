@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,9 +64,9 @@ class BindValidationFailureAnalyzerTests {
   @Test
   void bindExceptionWithFieldErrorsDueToValidationFailure() {
     FailureAnalysis analysis = performAnalysis(FieldValidationFailureConfiguration.class);
-    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "must not be null"));
+    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "is required"));
     assertThat(analysis.getDescription()).contains(failure("test.foo.value", "0", "at least five"));
-    assertThat(analysis.getDescription()).contains(failure("test.foo.nested.bar", "null", "must not be null"));
+    assertThat(analysis.getDescription()).contains(failure("test.foo.nested.bar", "null", "is required"));
   }
 
   @Test
@@ -88,10 +85,10 @@ class BindValidationFailureAnalyzerTests {
   void otherBindExceptionShouldReturnAnalysis() {
     BindException cause = new BindException(new FieldValidationFailureProperties(),
             "fieldValidationFailureProperties");
-    cause.addError(new FieldError("test", "value", "must not be null"));
+    cause.addError(new FieldError("test", "value", "is required"));
     BeanCreationException rootFailure = new BeanCreationException("bean creation failure", cause);
     FailureAnalysis analysis = new BindValidationFailureAnalyzer().analyze(rootFailure, rootFailure);
-    assertThat(analysis.getDescription()).contains(failure("test.value", "null", "must not be null"));
+    assertThat(analysis.getDescription()).contains(failure("test.value", "null", "is required"));
   }
 
   private static String failure(String property, String value, String reason) {

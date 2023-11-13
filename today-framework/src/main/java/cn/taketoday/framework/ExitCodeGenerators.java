@@ -53,33 +53,33 @@ class ExitCodeGenerators implements Iterable<ExitCodeGenerator> {
   }
 
   void addAll(Throwable exception, Iterable<? extends ExitCodeExceptionMapper> mappers) {
-    Assert.notNull(exception, "Exception must not be null");
-    Assert.notNull(mappers, "Mappers must not be null");
+    Assert.notNull(exception, "Exception is required");
+    Assert.notNull(mappers, "Mappers is required");
     for (ExitCodeExceptionMapper mapper : mappers) {
       add(exception, mapper);
     }
   }
 
   void add(Throwable exception, ExitCodeExceptionMapper mapper) {
-    Assert.notNull(exception, "Exception must not be null");
-    Assert.notNull(mapper, "Mapper must not be null");
+    Assert.notNull(exception, "Exception is required");
+    Assert.notNull(mapper, "Mapper is required");
     add(new MappedExitCodeGenerator(exception, mapper));
   }
 
   void addAll(ExitCodeGenerator... generators) {
-    Assert.notNull(generators, "Generators must not be null");
+    Assert.notNull(generators, "Generators is required");
     addAll(Arrays.asList(generators));
   }
 
   void addAll(Iterable<? extends ExitCodeGenerator> generators) {
-    Assert.notNull(generators, "Generators must not be null");
+    Assert.notNull(generators, "Generators is required");
     for (ExitCodeGenerator generator : generators) {
       add(generator);
     }
   }
 
   void add(ExitCodeGenerator generator) {
-    Assert.notNull(generator, "Generator must not be null");
+    Assert.notNull(generator, "Generator is required");
     this.generators.add(generator);
     AnnotationAwareOrderComparator.sort(this.generators);
   }

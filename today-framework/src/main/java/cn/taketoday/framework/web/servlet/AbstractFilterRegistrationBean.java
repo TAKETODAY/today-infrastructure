@@ -63,7 +63,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @param servletRegistrationBeans associate {@link ServletRegistrationBean}s
    */
   AbstractFilterRegistrationBean(ServletRegistrationBean<?>... servletRegistrationBeans) {
-    Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans must not be null");
+    Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans is required");
     Collections.addAll(this.servletRegistrationBeans, servletRegistrationBeans);
   }
 
@@ -73,7 +73,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @param servletRegistrationBeans the Servlet registration beans
    */
   public void setServletRegistrationBeans(Collection<? extends ServletRegistrationBean<?>> servletRegistrationBeans) {
-    Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans must not be null");
+    Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans is required");
     this.servletRegistrationBeans = new LinkedHashSet<>(servletRegistrationBeans);
   }
 
@@ -96,7 +96,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @see #setServletRegistrationBeans
    */
   public void addServletRegistrationBeans(ServletRegistrationBean<?>... servletRegistrationBeans) {
-    Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans must not be null");
+    Assert.notNull(servletRegistrationBeans, "ServletRegistrationBeans is required");
     Collections.addAll(this.servletRegistrationBeans, servletRegistrationBeans);
   }
 
@@ -109,7 +109,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @see #setUrlPatterns
    */
   public void setServletNames(Collection<String> servletNames) {
-    Assert.notNull(servletNames, "ServletNames must not be null");
+    Assert.notNull(servletNames, "ServletNames is required");
     this.servletNames = new LinkedHashSet<>(servletNames);
   }
 
@@ -129,7 +129,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @param servletNames the servlet names to add
    */
   public void addServletNames(String... servletNames) {
-    Assert.notNull(servletNames, "ServletNames must not be null");
+    Assert.notNull(servletNames, "ServletNames is required");
     Collections.addAll(this.servletNames, servletNames);
   }
 
@@ -142,7 +142,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @see #setServletNames
    */
   public void setUrlPatterns(Collection<String> urlPatterns) {
-    Assert.notNull(urlPatterns, "UrlPatterns must not be null");
+    Assert.notNull(urlPatterns, "UrlPatterns is required");
     this.urlPatterns = new LinkedHashSet<>(urlPatterns);
   }
 
@@ -163,7 +163,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
    * @param urlPatterns the URL patterns
    */
   public void addUrlPatterns(String... urlPatterns) {
-    Assert.notNull(urlPatterns, "UrlPatterns must not be null");
+    Assert.notNull(urlPatterns, "UrlPatterns is required");
     Collections.addAll(this.urlPatterns, urlPatterns);
   }
 
@@ -213,7 +213,7 @@ public abstract class AbstractFilterRegistrationBean<T extends Filter> extends D
   @Override
   protected String getDescription() {
     Filter filter = getFilter();
-    Assert.state(filter != null, "Filter must not be null");
+    Assert.state(filter != null, "Filter is required");
     return "filter " + getOrDeduceName(filter);
   }
 

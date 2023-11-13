@@ -42,7 +42,7 @@ public class ApplicationArguments {
   private final String[] args;
 
   public ApplicationArguments(String... args) {
-    Assert.notNull(args, "Args must not be null");
+    Assert.notNull(args, "Args is required");
     this.source = new Source(args);
     this.args = args;
   }

@@ -57,8 +57,8 @@ public class DefaultBootstrapContext implements ConfigurableBootstrapContext {
   }
 
   private <T> void register(Class<T> type, InstanceSupplier<T> instanceSupplier, boolean replaceExisting) {
-    Assert.notNull(type, "Type must not be null");
-    Assert.notNull(instanceSupplier, "InstanceSupplier must not be null");
+    Assert.notNull(type, "Type is required");
+    Assert.notNull(instanceSupplier, "InstanceSupplier is required");
     synchronized(this.instanceSuppliers) {
       boolean alreadyRegistered = this.instanceSuppliers.containsKey(type);
       if (replaceExisting || !alreadyRegistered) {

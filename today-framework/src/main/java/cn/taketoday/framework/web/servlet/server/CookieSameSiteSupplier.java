@@ -104,7 +104,7 @@ public interface CookieSameSiteSupplier {
    * name matches the pattern
    */
   default CookieSameSiteSupplier whenHasNameMatching(Pattern pattern) {
-    Assert.notNull(pattern, "Pattern must not be null");
+    Assert.notNull(pattern, "Pattern is required");
     return when(cookie -> pattern.matcher(cookie.getName()).matches());
   }
 
@@ -116,7 +116,7 @@ public interface CookieSameSiteSupplier {
    * cookie matches the predicate
    */
   default CookieSameSiteSupplier when(Predicate<Cookie> predicate) {
-    Assert.notNull(predicate, "Predicate must not be null");
+    Assert.notNull(predicate, "Predicate is required");
     return cookie -> predicate.test(cookie) ? getSameSite(cookie) : null;
   }
 
@@ -158,7 +158,7 @@ public interface CookieSameSiteSupplier {
    * @return the supplier instance
    */
   static CookieSameSiteSupplier of(SameSite sameSite) {
-    Assert.notNull(sameSite, "SameSite must not be null");
+    Assert.notNull(sameSite, "SameSite is required");
     return cookie -> sameSite;
   }
 

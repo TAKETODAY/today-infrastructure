@@ -75,7 +75,7 @@ public class WebServerPortFileWriter implements ApplicationListener<WebServerIni
    * @param file the file containing port
    */
   public WebServerPortFileWriter(File file) {
-    Assert.notNull(file, "File must not be null");
+    Assert.notNull(file, "File is required");
     String override = getSystemProperties(PROPERTY_VARIABLES);
     if (override != null) {
       this.file = new File(override);

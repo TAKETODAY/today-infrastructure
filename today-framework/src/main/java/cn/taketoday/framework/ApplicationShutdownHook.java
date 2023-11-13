@@ -174,7 +174,7 @@ class ApplicationShutdownHook implements Runnable {
 
     @Override
     public void add(Runnable action) {
-      Assert.notNull(action, "Action must not be null");
+      Assert.notNull(action, "Action is required");
       addRuntimeShutdownHookIfNecessary();
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
@@ -184,7 +184,7 @@ class ApplicationShutdownHook implements Runnable {
 
     @Override
     public void remove(Runnable action) {
-      Assert.notNull(action, "Action must not be null");
+      Assert.notNull(action, "Action is required");
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
         actions.remove(action);
