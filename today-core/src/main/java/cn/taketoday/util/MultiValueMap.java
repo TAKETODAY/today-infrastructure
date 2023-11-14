@@ -43,6 +43,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
 
   Function defaultMappingFunction = k -> new ArrayList<>(1);
 
+  Function smartListMappingFunction = k -> new SmartList<>();
+
   /**
    * Return the first value for the given key.
    *

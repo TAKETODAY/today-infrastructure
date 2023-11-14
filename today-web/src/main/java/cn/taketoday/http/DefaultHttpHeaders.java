@@ -31,7 +31,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.SmartList;
 
 /**
  * Default HttpHeaders
@@ -40,12 +39,14 @@ import cn.taketoday.util.SmartList;
  * @since 3.0
  */
 public class DefaultHttpHeaders extends HttpHeaders {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
-  final MultiValueMap<String, String> headers;
+  @SuppressWarnings("unchecked")
+  static final Function<String, List<String>> defaultHeaderMapping = smartListMappingFunction;
 
-  public static final Function<String, List<String>> defaultHeaderMapping = k -> new SmartList<>();
+  final MultiValueMap<String, String> headers;
 
   /**
    * Construct a case-insensitive header map
@@ -69,7 +70,7 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * @param headers the headers map (expected to operate with case-insensitive keys)
    */
   public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
-    Assert.notNull(headers, "MultiValueMap must not be null");
+    Assert.notNull(headers, "MultiValueMap is required");
     this.headers = headers;
   }
 
