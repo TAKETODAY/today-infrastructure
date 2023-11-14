@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +19,12 @@ package cn.taketoday.framework.test.web.client;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.mock.env.MockEnvironment;
-import cn.taketoday.web.util.UriTemplateHandler;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+
+import cn.taketoday.mock.env.MockEnvironment;
+import cn.taketoday.web.util.UriTemplateHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -47,21 +44,21 @@ class LocalHostUriTemplateHandlerTests {
   @Test
   void createWhenEnvironmentIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new LocalHostUriTemplateHandler(null))
-            .withMessageContaining("Environment must not be null");
+            .withMessageContaining("Environment is required");
   }
 
   @Test
   void createWhenSchemeIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new LocalHostUriTemplateHandler(new MockEnvironment(), null))
-            .withMessageContaining("Scheme must not be null");
+            .withMessageContaining("Scheme is required");
   }
 
   @Test
   void createWhenHandlerIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new LocalHostUriTemplateHandler(new MockEnvironment(), "http", null))
-            .withMessageContaining("Handler must not be null");
+            .withMessageContaining("Handler is required");
   }
 
   @Test
