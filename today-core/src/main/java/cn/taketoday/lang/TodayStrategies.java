@@ -427,7 +427,7 @@ public class TodayStrategies {
    * property does not have the correct numeric format, or if the
    * specified name is empty or {@code null}.
    *
-   * @param nm property name.
+   * @param key property name.
    * @param val default value.
    * @return the {@code Long} value of the property.
    * @throws SecurityException for the same reasons as
@@ -436,9 +436,9 @@ public class TodayStrategies {
    * @see System#getProperty(java.lang.String, java.lang.String)
    */
   @Nullable
-  public static Long getLong(String nm, Long val) {
+  public static Long getLong(String key, Long val) {
     try {
-      String v = System.getProperty(nm);
+      String v = getProperty(key);
       if (v != null) {
         try {
           return Long.decode(v);
