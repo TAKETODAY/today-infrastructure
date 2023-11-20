@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +69,7 @@ import cn.taketoday.util.StringUtils;
  * @author Jakub Kubrynski
  * @author Stephane Nicoll
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConditionalOnBean
  * @see ConditionalOnMissingBean
  * @see ConditionalOnSingleCandidate
@@ -84,19 +82,18 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Override
-  protected final ConditionOutcome[] getOutcomes(
-          String[] configClasses, AutoConfigurationMetadata configMetadata) {
+  protected final ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
       if (autoConfigurationClass != null) {
         Set<String> onBeanTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnBean");
-        outcomes[i] = getOutcome(onBeanTypes, ConditionalOnBean.class);
-        if (outcomes[i] == null) {
-          Set<String> onSingleCandidateTypes = configMetadata.getSet(
-                  autoConfigurationClass, "ConditionalOnSingleCandidate");
-          outcomes[i] = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
+        ConditionOutcome outcome = getOutcome(onBeanTypes, ConditionalOnBean.class);
+        if (outcome == null) {
+          Set<String> onSingleCandidateTypes = configMetadata.getSet(autoConfigurationClass, "ConditionalOnSingleCandidate");
+          outcome = getOutcome(onSingleCandidateTypes, ConditionalOnSingleCandidate.class);
         }
+        outcomes[i] = outcome;
       }
     }
     return outcomes;
@@ -125,8 +122,9 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
         String reason = createOnBeanNoMatchReason(matchResult);
         return ConditionOutcome.noMatch(spec.message().because(reason));
       }
-      matchMessage = spec.message(matchMessage).found("bean", "beans").items(Style.QUOTE,
-              matchResult.getNamesOfAllMatches());
+      matchMessage = spec.message(matchMessage)
+              .found("bean", "beans")
+              .items(Style.QUOTE, matchResult.namesOfAllMatches);
     }
 
     if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
@@ -135,7 +133,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       if (!matchResult.isAllMatched()) {
         return ConditionOutcome.noMatch(spec.message().didNotFind("any beans").atAll());
       }
-      Set<String> allBeans = matchResult.getNamesOfAllMatches();
+      Set<String> allBeans = matchResult.namesOfAllMatches;
       if (allBeans.size() == 1) {
         matchMessage = spec.message(matchMessage).found("a single bean").items(Style.QUOTE, allBeans);
       }
@@ -172,18 +170,18 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     ClassLoader classLoader = context.getClassLoader();
     ConfigurableBeanFactory beanFactory = context.getRequiredBeanFactory();
     boolean considerHierarchy = spec.getStrategy() != SearchStrategy.CURRENT;
-    Set<Class<?>> parameterizedContainers = spec.getParameterizedContainers();
     if (spec.getStrategy() == SearchStrategy.ANCESTORS) {
       BeanFactory parent = beanFactory.getParentBeanFactory();
       Assert.isInstanceOf(ConfigurableBeanFactory.class, parent, "Unable to use SearchStrategy.ANCESTORS");
       beanFactory = (ConfigurableBeanFactory) parent;
     }
     MatchResult result = new MatchResult();
+    Set<Class<?>> parameterizedContainers = spec.parameterizedContainers;
     Set<String> beansIgnoredByType = getNamesOfBeansIgnoredByType(
-            classLoader, beanFactory, considerHierarchy, spec.getIgnoredTypes(), parameterizedContainers);
-    for (String type : spec.getTypes()) {
-      Collection<String> typeMatches = getBeanNamesForType(classLoader, considerHierarchy, beanFactory, type,
-              parameterizedContainers);
+            classLoader, beanFactory, considerHierarchy, spec.ignoredTypes, parameterizedContainers);
+    for (String type : spec.types) {
+      Collection<String> typeMatches = getBeanNamesForType(classLoader,
+              considerHierarchy, beanFactory, type, parameterizedContainers);
       Iterator<String> iterator = typeMatches.iterator();
       while (iterator.hasNext()) {
         String match = iterator.next();
@@ -198,7 +196,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
         result.recordMatchedType(type, typeMatches);
       }
     }
-    for (String annotation : spec.getAnnotations()) {
+    for (String annotation : spec.annotations) {
       Set<String> annotationMatches = getBeanNamesForAnnotation(
               classLoader, beanFactory, annotation, considerHierarchy);
       annotationMatches.removeAll(beansIgnoredByType);
@@ -209,7 +207,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
         result.recordMatchedAnnotation(annotation, annotationMatches);
       }
     }
-    for (String beanName : spec.getNames()) {
+    for (String beanName : spec.names) {
       if (!beansIgnoredByType.contains(beanName) && containsBean(beanFactory, beanName, considerHierarchy)) {
         result.recordMatchedName(beanName);
       }
@@ -220,8 +218,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
-  private Set<String> getNamesOfBeansIgnoredByType(
-          @Nullable ClassLoader classLoader, BeanFactory beanFactory,
+  private Set<String> getNamesOfBeansIgnoredByType(@Nullable ClassLoader classLoader, BeanFactory beanFactory,
           boolean considerHierarchy, Set<String> ignoredTypes, Set<Class<?>> parameterizedContainers) {
     Set<String> result = null;
     for (String ignoredType : ignoredTypes) {
@@ -232,8 +229,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result != null ? result : Collections.emptySet();
   }
 
-  private Set<String> getBeanNamesForType(
-          @Nullable ClassLoader classLoader, boolean considerHierarchy,
+  private Set<String> getBeanNamesForType(@Nullable ClassLoader classLoader, boolean considerHierarchy,
           BeanFactory beanFactory, String type, Set<Class<?>> parameterizedContainers) throws LinkageError {
     try {
       return getBeanNamesForType(
@@ -244,16 +240,14 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
   }
 
-  private Set<String> getBeanNamesForType(
-          BeanFactory beanFactory, boolean considerHierarchy,
+  private Set<String> getBeanNamesForType(BeanFactory beanFactory, boolean considerHierarchy,
           Class<?> type, Set<Class<?>> parameterizedContainers) {
     Set<String> result = collectBeanNamesForType(
             beanFactory, considerHierarchy, type, parameterizedContainers, null);
     return result != null ? result : Collections.emptySet();
   }
 
-  private Set<String> collectBeanNamesForType(
-          BeanFactory beanFactory, boolean considerHierarchy,
+  private Set<String> collectBeanNamesForType(BeanFactory beanFactory, boolean considerHierarchy,
           Class<?> type, Set<Class<?>> parameterizedContainers, Set<String> result) {
     result = addAll(result, beanFactory.getBeanNamesForType(type, true, false));
     for (Class<?> container : parameterizedContainers) {
@@ -270,10 +264,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
-  private Set<String> getBeanNamesForAnnotation(
-          ClassLoader classLoader,
-          ConfigurableBeanFactory beanFactory,
-          String type, boolean considerHierarchy) throws LinkageError {
+  private Set<String> getBeanNamesForAnnotation(ClassLoader classLoader,
+          ConfigurableBeanFactory beanFactory, String type, boolean considerHierarchy) throws LinkageError {
     Set<String> result = null;
     try {
       result = collectBeanNamesForAnnotation(
@@ -286,15 +278,12 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @SuppressWarnings("unchecked")
-  private Class<? extends Annotation> resolveAnnotationType(
-          ClassLoader classLoader, String type) throws ClassNotFoundException {
+  private Class<? extends Annotation> resolveAnnotationType(ClassLoader classLoader, String type) throws ClassNotFoundException {
     return (Class<? extends Annotation>) resolve(type, classLoader);
   }
 
-  private Set<String> collectBeanNamesForAnnotation(
-          BeanFactory beanFactory,
-          Class<? extends Annotation> annotationType,
-          boolean considerHierarchy, Set<String> result) {
+  private Set<String> collectBeanNamesForAnnotation(BeanFactory beanFactory,
+          Class<? extends Annotation> annotationType, boolean considerHierarchy, Set<String> result) {
     result = addAll(result, beanFactory.getBeanNamesForAnnotation(annotationType));
     if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {
       BeanFactory parent = hierarchical.getParentBeanFactory();
@@ -305,8 +294,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return result;
   }
 
-  private boolean containsBean(ConfigurableBeanFactory beanFactory, String beanName,
-          boolean considerHierarchy) {
+  private boolean containsBean(ConfigurableBeanFactory beanFactory, String beanName, boolean considerHierarchy) {
     if (considerHierarchy) {
       return beanFactory.containsBean(beanName);
     }
@@ -315,15 +303,15 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
   private String createOnBeanNoMatchReason(MatchResult matchResult) {
     StringBuilder reason = new StringBuilder();
-    appendMessageForNoMatches(reason, matchResult.getUnmatchedAnnotations(), "annotated with");
-    appendMessageForNoMatches(reason, matchResult.getUnmatchedTypes(), "of type");
-    appendMessageForNoMatches(reason, matchResult.getUnmatchedNames(), "named");
+    appendMessageForNoMatches(reason, matchResult.unmatchedAnnotations, "annotated with");
+    appendMessageForNoMatches(reason, matchResult.unmatchedTypes, "of type");
+    appendMessageForNoMatches(reason, matchResult.unmatchedNames, "named");
     return reason.toString();
   }
 
   private void appendMessageForNoMatches(StringBuilder reason, Collection<String> unmatched, String description) {
     if (!unmatched.isEmpty()) {
-      if (reason.length() > 0) {
+      if (!reason.isEmpty()) {
         reason.append(" and ");
       }
       reason.append("did not find any beans ");
@@ -335,14 +323,14 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
   private String createOnMissingBeanNoMatchReason(MatchResult matchResult) {
     StringBuilder reason = new StringBuilder();
-    appendMessageForMatches(reason, matchResult.getMatchedAnnotations(), "annotated with");
-    appendMessageForMatches(reason, matchResult.getMatchedTypes(), "of type");
-    if (!matchResult.getMatchedNames().isEmpty()) {
-      if (reason.length() > 0) {
+    appendMessageForMatches(reason, matchResult.matchedAnnotations, "annotated with");
+    appendMessageForMatches(reason, matchResult.matchedTypes, "of type");
+    if (!matchResult.matchedNames.isEmpty()) {
+      if (!reason.isEmpty()) {
         reason.append(" and ");
       }
       reason.append("found beans named ");
-      reason.append(StringUtils.collectionToDelimitedString(matchResult.getMatchedNames(), ", "));
+      reason.append(StringUtils.collectionToDelimitedString(matchResult.matchedNames, ", "));
     }
     return reason.toString();
   }
@@ -351,7 +339,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
           StringBuilder reason, Map<String, Collection<String>> matches, String description) {
     if (!matches.isEmpty()) {
       for (Map.Entry<String, Collection<String>> entry : matches.entrySet()) {
-        if (reason.length() > 0) {
+        if (!reason.isEmpty()) {
           reason.append(" and ");
         }
         reason.append("found beans ");
@@ -364,8 +352,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
   }
 
-  private List<String> getPrimaryBeans(
-          ConfigurableBeanFactory beanFactory, Set<String> beanNames, boolean considerHierarchy) {
+  private List<String> getPrimaryBeans(ConfigurableBeanFactory beanFactory, Set<String> beanNames, boolean considerHierarchy) {
     ArrayList<String> primaryBeans = new ArrayList<>();
     for (String beanName : beanNames) {
       BeanDefinition beanDefinition = findBeanDefinition(beanFactory, beanName, considerHierarchy);
@@ -377,8 +364,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   }
 
   @Nullable
-  private BeanDefinition findBeanDefinition(
-          ConfigurableBeanFactory beanFactory, String beanName, boolean considerHierarchy) {
+  private BeanDefinition findBeanDefinition(ConfigurableBeanFactory beanFactory, String beanName, boolean considerHierarchy) {
     if (beanFactory.containsBeanDefinition(beanName)) {
       return beanFactory.getBeanDefinition(beanName);
     }
@@ -408,15 +394,18 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   private static class Spec<A extends Annotation> {
 
     private final ClassLoader classLoader;
+
     private final Class<? extends Annotation> annotationType;
 
-    private final Set<String> names;
-    private final Set<String> types;
-    private final Set<String> annotations;
-    private final Set<String> ignoredTypes;
+    public final Set<String> names;
+    public final Set<String> types;
+    public final Set<String> annotations;
+    public final Set<String> ignoredTypes;
+
     @Nullable
     private final SearchStrategy strategy;
-    private final Set<Class<?>> parameterizedContainers;
+
+    public final Set<Class<?>> parameterizedContainers;
 
     Spec(ConditionContext context, AnnotatedTypeMetadata metadata, MergedAnnotations annotations, Class<A> annotationType) {
       MultiValueMap<String, Object> attributes = annotations.stream(annotationType)
@@ -575,26 +564,6 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       return (this.strategy != null) ? this.strategy : SearchStrategy.ALL;
     }
 
-    Set<String> getNames() {
-      return this.names;
-    }
-
-    Set<String> getTypes() {
-      return this.types;
-    }
-
-    Set<String> getAnnotations() {
-      return this.annotations;
-    }
-
-    Set<String> getIgnoredTypes() {
-      return this.ignoredTypes;
-    }
-
-    Set<Class<?>> getParameterizedContainers() {
-      return this.parameterizedContainers;
-    }
-
     ConditionMessage.Builder message() {
       return ConditionMessage.forCondition(this.annotationType, this);
     }
@@ -657,10 +626,10 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
     @Override
     protected void validate(BeanTypeDeductionException ex) {
-      if (getTypes().size() != 1) {
+      if (types.size() != 1) {
         throw new IllegalArgumentException(
                 getAnnotationName() + " annotations must specify only one type (got "
-                        + StringUtils.collectionToCommaDelimitedString(getTypes()) + ")");
+                        + StringUtils.collectionToCommaDelimitedString(types) + ")");
       }
     }
 
@@ -708,41 +677,15 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     }
 
     boolean isAllMatched() {
-      return this.unmatchedAnnotations.isEmpty() && this.unmatchedNames.isEmpty()
+      return this.unmatchedAnnotations.isEmpty()
+              && this.unmatchedNames.isEmpty()
               && this.unmatchedTypes.isEmpty();
     }
 
     boolean isAnyMatched() {
-      return (!this.matchedAnnotations.isEmpty()) || (!this.matchedNames.isEmpty())
+      return (!this.matchedAnnotations.isEmpty())
+              || (!this.matchedNames.isEmpty())
               || (!this.matchedTypes.isEmpty());
-    }
-
-    Map<String, Collection<String>> getMatchedAnnotations() {
-      return this.matchedAnnotations;
-    }
-
-    List<String> getMatchedNames() {
-      return this.matchedNames;
-    }
-
-    Map<String, Collection<String>> getMatchedTypes() {
-      return this.matchedTypes;
-    }
-
-    List<String> getUnmatchedAnnotations() {
-      return this.unmatchedAnnotations;
-    }
-
-    List<String> getUnmatchedNames() {
-      return this.unmatchedNames;
-    }
-
-    List<String> getUnmatchedTypes() {
-      return this.unmatchedTypes;
-    }
-
-    Set<String> getNamesOfAllMatches() {
-      return this.namesOfAllMatches;
     }
 
   }

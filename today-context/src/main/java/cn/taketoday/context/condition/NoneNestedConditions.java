@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,23 +26,23 @@ import cn.taketoday.context.annotation.Condition;
  * {@link Condition} that will match when none of the nested class conditions match. Can
  * be used to create composite conditions, for example:
  *
- * <pre class="code">
+ * <pre>{@code
  * static class OnNeitherJndiNorProperty extends NoneNestedConditions {
  *
  *    OnNeitherJndiNorProperty() {
  *        super(ConfigurationPhase.PARSE_CONFIGURATION);
  *    }
  *
- *    &#064;ConditionalOnJndi()
+ *    @ConditionalOnJndi()
  *    static class OnJndi {
  *    }
  *
- *    &#064;ConditionalOnProperty("something")
+ *    @ConditionalOnProperty("something")
  *    static class OnProperty {
  *    }
  *
  * }
- * </pre>
+ * }</pre>
  * <p>
  * The
  * {@link ConfigurationPhase ConfigurationPhase} should be specified according

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.condition;
 
 import java.lang.annotation.Documented;
@@ -31,8 +29,8 @@ import cn.taketoday.context.annotation.Conditional;
  * {@link Conditional} that only matches when the specified classes are not on
  * the classpath.
  *
- * @author TODAY <br>
- * 2019-06-18 15:03
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-06-18 15:03
  */
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)

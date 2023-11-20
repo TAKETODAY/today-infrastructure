@@ -62,7 +62,6 @@ import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.ClassInstantiator;
-import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
@@ -95,12 +94,12 @@ import cn.taketoday.util.CollectionUtils;
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
  */
-@Experimental
 public class BootstrapContext extends BeanDefinitionCustomizers implements ClassInstantiator, EnvironmentCapable {
 
   public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
 
   private final BeanDefinitionRegistry registry;
+
   private final ConfigurableBeanFactory beanFactory;
 
   @Nullable
@@ -276,10 +275,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
 
   public boolean shouldSkip(@Nullable AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {
     return getConditionEvaluator().shouldSkip(metadata, phase);
-  }
-
-  public boolean passCondition(AnnotatedTypeMetadata metadata) {
-    return getConditionEvaluator().passCondition(metadata);
   }
 
   //---------------------------------------------------------------------

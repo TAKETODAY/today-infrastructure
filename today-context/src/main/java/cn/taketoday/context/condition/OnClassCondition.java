@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,9 +59,7 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
   private ConditionOutcome[] resolveOutcomesThreaded(
           String[] configClasses, AutoConfigurationMetadata configMetadata) {
     int split = configClasses.length / 2;
-    OutcomesResolver firstHalfResolver = createOutcomesResolver(
-            configClasses, 0, split, configMetadata);
-
+    OutcomesResolver firstHalfResolver = createOutcomesResolver(configClasses, 0, split, configMetadata);
     OutcomesResolver secondHalfResolver = new StandardOutcomesResolver(
             configClasses, split, configClasses.length, configMetadata, getBeanClassLoader());
 
@@ -76,17 +71,15 @@ final class OnClassCondition extends FilteringInfraCondition implements Conditio
     return outcomes;
   }
 
-  private OutcomesResolver createOutcomesResolver(
-          String[] autoConfigurationClasses, int start, int end,
-          AutoConfigurationMetadata autoConfigurationMetadata) {
+  private OutcomesResolver createOutcomesResolver(String[] autoConfigurationClasses,
+          int start, int end, AutoConfigurationMetadata autoConfigurationMetadata) {
     var outcomesResolver = new StandardOutcomesResolver(
             autoConfigurationClasses, start, end, autoConfigurationMetadata, getBeanClassLoader());
     return new ThreadedOutcomesResolver(outcomesResolver);
   }
 
   @Override
-  public ConditionOutcome getMatchOutcome(
-          ConditionContext context, AnnotatedTypeMetadata metadata) {
+  public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
     ClassLoader classLoader = context.getClassLoader();
     ConditionMessage matchMessage = ConditionMessage.empty();
     List<String> onClasses = getCandidates(metadata, ConditionalOnClass.class);

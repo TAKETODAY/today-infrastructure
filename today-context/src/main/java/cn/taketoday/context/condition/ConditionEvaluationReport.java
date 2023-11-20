@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +58,9 @@ public final class ConditionEvaluationReport {
   private ConditionEvaluationReport parent;
 
   private final ArrayList<String> exclusions = new ArrayList<>();
+
   private final HashSet<String> unconditionalClasses = new HashSet<>();
+
   private final TreeMap<String, ConditionAndOutcomes> outcomes = new TreeMap<>();
 
   /**
@@ -79,9 +78,9 @@ public final class ConditionEvaluationReport {
    * @param outcome the condition outcome
    */
   public void recordConditionEvaluation(String source, Condition condition, ConditionOutcome outcome) {
-    Assert.notNull(source, "Source must not be null");
-    Assert.notNull(condition, "Condition must not be null");
-    Assert.notNull(outcome, "Outcome must not be null");
+    Assert.notNull(source, "Source is required");
+    Assert.notNull(outcome, "Outcome is required");
+    Assert.notNull(condition, "Condition is required");
     unconditionalClasses.remove(source);
 
     ConditionAndOutcomes outcomes = this.outcomes.get(source);
@@ -100,7 +99,7 @@ public final class ConditionEvaluationReport {
    * @param exclusions the names of the excluded classes
    */
   public void recordExclusions(Collection<String> exclusions) {
-    Assert.notNull(exclusions, "exclusions must not be null");
+    Assert.notNull(exclusions, "exclusions is required");
     this.exclusions.addAll(exclusions);
   }
 
@@ -111,7 +110,7 @@ public final class ConditionEvaluationReport {
    * evaluated
    */
   public void recordEvaluationCandidates(List<String> evaluationCandidates) {
-    Assert.notNull(evaluationCandidates, "evaluationCandidates must not be null");
+    Assert.notNull(evaluationCandidates, "evaluationCandidates is required");
     this.unconditionalClasses.addAll(evaluationCandidates);
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +27,7 @@ import cn.taketoday.core.Ordered;
  * {@link Condition} that will match when any nested class condition matches. Can be used
  * to create composite conditions, for example:
  *
- * <pre class="code">
+ * <pre>{@code
  * static class OnJndiOrProperty extends AnyNestedCondition {
  *
  *    OnJndiOrProperty() {
@@ -46,7 +43,7 @@ import cn.taketoday.core.Ordered;
  *    }
  *
  * }
- * </pre>
+ * }</pre>
  * <p>
  * The
  * {@link ConfigurationPhase ConfigurationPhase} should be specified according to

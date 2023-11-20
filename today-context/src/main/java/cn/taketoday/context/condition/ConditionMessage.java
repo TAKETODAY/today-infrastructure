@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -41,13 +40,14 @@ import cn.taketoday.util.StringUtils;
  */
 public final class ConditionMessage {
 
+  @Nullable
   private final String message;
 
   private ConditionMessage() {
     this(null);
   }
 
-  private ConditionMessage(String message) {
+  private ConditionMessage(@Nullable String message) {
     this.message = message;
   }
 
@@ -65,19 +65,17 @@ public final class ConditionMessage {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (!(obj instanceof ConditionMessage)) {
-      return false;
-    }
-    if (obj == this) {
+  public boolean equals(Object object) {
+    if (this == object)
       return true;
-    }
-    return ObjectUtils.nullSafeEquals(((ConditionMessage) obj).message, this.message);
+    if (!(object instanceof ConditionMessage that))
+      return false;
+    return Objects.equals(message, that.message);
   }
 
   @Override
   public int hashCode() {
-    return ObjectUtils.nullSafeHashCode(this.message);
+    return Objects.hash(message);
   }
 
   @Override
@@ -114,7 +112,7 @@ public final class ConditionMessage {
    * @see #forCondition(Class, Object...)
    */
   public Builder andCondition(Class<? extends Annotation> condition, Object... details) {
-    Assert.notNull(condition, "Condition must not be null");
+    Assert.notNull(condition, "Condition is required");
     return andCondition("@" + ClassUtils.getShortName(condition), details);
   }
 
@@ -129,7 +127,7 @@ public final class ConditionMessage {
    * @see #forCondition(String, Object...)
    */
   public Builder andCondition(String condition, Object... details) {
-    Assert.notNull(condition, "Condition must not be null");
+    Assert.notNull(condition, "Condition is required");
     String detail = StringUtils.arrayToDelimitedString(details, " ");
     if (StringUtils.isNotEmpty(detail)) {
       return new Builder(condition + " " + detail);
@@ -406,7 +404,7 @@ public final class ConditionMessage {
      * @return a built {@link ConditionMessage}
      */
     public ConditionMessage items(Style style, Collection<?> items) {
-      Assert.notNull(style, "Style must not be null");
+      Assert.notNull(style, "Style is required");
       StringBuilder message = new StringBuilder(this.reason);
       items = style.applyTo(items);
       if ((items == null || items.size() <= 1)

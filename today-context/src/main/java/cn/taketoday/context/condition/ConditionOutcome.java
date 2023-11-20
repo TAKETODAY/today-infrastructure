@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,13 +17,16 @@
 
 package cn.taketoday.context.condition;
 
+import java.util.Objects;
+
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Outcome for a condition match, including log message.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConditionMessage
  * @since 4.0
  */
@@ -54,10 +54,69 @@ public class ConditionOutcome {
    * @param message the condition message
    */
   public ConditionOutcome(boolean match, ConditionMessage message) {
-    Assert.notNull(message, "ConditionMessage must not be null");
+    Assert.notNull(message, "ConditionMessage is required");
     this.match = match;
     this.message = message;
   }
+
+  /**
+   * Return {@code true} if the outcome was a match.
+   *
+   * @return {@code true} if the outcome matches
+   */
+  public boolean isMatch() {
+    return this.match;
+  }
+
+  /**
+   * Return an outcome message or {@code null}.
+   *
+   * @return the message or {@code null}
+   */
+  @Nullable
+  public String getMessage() {
+    return this.message.isEmpty() ? null : this.message.toString();
+  }
+
+  /**
+   * Return an outcome message or {@code null}.
+   *
+   * @return the message or {@code null}
+   */
+  public ConditionMessage getConditionMessage() {
+    return this.message;
+  }
+
+  /**
+   * Return the inverse of the specified condition outcome.
+   *
+   * @return the inverse of the condition outcome
+   */
+  public ConditionOutcome inverse() {
+    return new ConditionOutcome(!match, message);
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object)
+      return true;
+    if (!(object instanceof ConditionOutcome outcome))
+      return false;
+    return match == outcome.match
+            && Objects.equals(message, outcome.message);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(match, message);
+  }
+
+  @Override
+  public String toString() {
+    return this.message.toString();
+  }
+
+  // Static Factory Methods
 
   /**
    * Create a new {@link ConditionOutcome} instance for a 'match'.
@@ -108,68 +167,6 @@ public class ConditionOutcome {
    */
   public static ConditionOutcome noMatch(ConditionMessage message) {
     return new ConditionOutcome(false, message);
-  }
-
-  /**
-   * Return {@code true} if the outcome was a match.
-   *
-   * @return {@code true} if the outcome matches
-   */
-  public boolean isMatch() {
-    return this.match;
-  }
-
-  /**
-   * Return an outcome message or {@code null}.
-   *
-   * @return the message or {@code null}
-   */
-  public String getMessage() {
-    return this.message.isEmpty() ? null : this.message.toString();
-  }
-
-  /**
-   * Return an outcome message or {@code null}.
-   *
-   * @return the message or {@code null}
-   */
-  public ConditionMessage getConditionMessage() {
-    return this.message;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() == obj.getClass()) {
-      ConditionOutcome other = (ConditionOutcome) obj;
-      return (this.match == other.match && ObjectUtils.nullSafeEquals(this.message, other.message));
-    }
-    return super.equals(obj);
-  }
-
-  @Override
-  public int hashCode() {
-    return Boolean.hashCode(this.match) * 31 + ObjectUtils.nullSafeHashCode(this.message);
-  }
-
-  @Override
-  public String toString() {
-    return (this.message != null) ? this.message.toString() : "";
-  }
-
-  /**
-   * Return the inverse of the specified condition outcome.
-   *
-   * @param outcome the outcome to inverse
-   * @return the inverse of the condition outcome
-   */
-  public static ConditionOutcome inverse(ConditionOutcome outcome) {
-    return new ConditionOutcome(!outcome.isMatch(), outcome.getConditionMessage());
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +17,6 @@
 
 package cn.taketoday.context.annotation;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +30,6 @@ import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.core.type.AnnotationMetadata;
-import cn.taketoday.core.type.StandardMethodMetadata;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -42,11 +37,12 @@ import cn.taketoday.util.MultiValueMap;
 /**
  * Condition Evaluation
  *
- * @author TODAY 2021/10/1 21:12
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Condition
- * @since 4.0
+ * @since 4.0 2021/10/1 21:12
  */
 public class ConditionEvaluator {
+
   private final ConditionContext evaluationContext;
 
   public ConditionEvaluator(ApplicationContext context, BeanDefinitionRegistry registry) {
@@ -57,8 +53,7 @@ public class ConditionEvaluator {
    * Create a new {@link ConditionEvaluator} instance.
    */
   public ConditionEvaluator(@Nullable Environment environment,
-                            @Nullable ResourceLoader resourceLoader,
-                            @Nullable BeanDefinitionRegistry registry) {
+          @Nullable ResourceLoader resourceLoader, @Nullable BeanDefinitionRegistry registry) {
     this.evaluationContext = new ConditionContext(registry, environment, resourceLoader);
   }
 
@@ -70,22 +65,6 @@ public class ConditionEvaluator {
    */
   public boolean passCondition(AnnotatedTypeMetadata metadata) {
     return passCondition(metadata, null);
-  }
-
-  /**
-   * Decide whether to load the bean
-   *
-   * @param annotated Target class or a method
-   * @return If matched
-   */
-  public boolean passCondition(Class<?> annotated) {
-    AnnotationMetadata introspect = AnnotationMetadata.introspect(annotated);
-    return passCondition(introspect);
-  }
-
-  public boolean passCondition(Method annotated) {
-    StandardMethodMetadata standardMethodMetadata = new StandardMethodMetadata(annotated);
-    return passCondition(standardMethodMetadata);
   }
 
   public boolean passCondition(AnnotatedTypeMetadata metadata, @Nullable ConfigurationPhase phase) {

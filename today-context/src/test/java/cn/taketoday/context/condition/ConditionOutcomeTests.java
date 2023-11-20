@@ -17,31 +17,24 @@
 
 package cn.taketoday.context.condition;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.context.annotation.Conditional;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * annotation for a conditional element that depends on the value of a Java
- * Unified Expression Language
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 2019-06-18 15:11
+ * @since 4.0 2023/11/20 20:16
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Conditional(OnExpressionCondition.class)
-@Target({ ElementType.TYPE, ElementType.METHOD })
-public @interface ConditionalOnExpression {
+class ConditionOutcomeTests {
 
-  /**
-   * The Expression Language expression to evaluate. Expression
-   * should return {@code true} if the condition passes or {@code false} if it
-   * fails.
-   *
-   * @return the El expression
-   */
-  String value() default "true";
+  @Test
+  void inverse() {
+    ConditionOutcome yes = ConditionOutcome.match("yes");
+    assertThat(yes).isNotEqualTo(yes.inverse());
+    assertThat(yes.isMatch()).isTrue();
+    assertThat(yes.inverse().isMatch()).isFalse();
+    assertThat(yes.inverse().getConditionMessage()).isSameAs(yes.getConditionMessage());
+
+  }
+
 }

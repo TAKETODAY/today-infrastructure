@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,13 +43,12 @@ import cn.taketoday.util.MultiValueMap;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/16 17:55
  */
-public abstract class AbstractNestedCondition
-        extends InfraCondition implements ConfigurationCondition {
+public abstract class AbstractNestedCondition extends InfraCondition implements ConfigurationCondition {
 
   private final ConfigurationPhase configurationPhase;
 
   AbstractNestedCondition(ConfigurationPhase configurationPhase) {
-    Assert.notNull(configurationPhase, "ConfigurationPhase must not be null");
+    Assert.notNull(configurationPhase, "ConfigurationPhase is required");
     this.configurationPhase = configurationPhase;
   }
 
@@ -120,8 +116,7 @@ public abstract class AbstractNestedCondition
       return memberConditions;
     }
 
-    private void validateMemberCondition(
-            Condition condition, ConfigurationPhase nestedPhase, String nestedClassName) {
+    private void validateMemberCondition(Condition condition, ConfigurationPhase nestedPhase, String nestedClassName) {
       if (nestedPhase == ConfigurationPhase.PARSE_CONFIGURATION
               && condition instanceof ConfigurationCondition ccd) {
         ConfigurationPhase memberPhase = ccd.getConfigurationPhase();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,18 +36,18 @@ import cn.taketoday.context.annotation.Conditional;
  * When placed on a {@code @Component} method, the bean class defaults to the return type of
  * the factory method:
  *
- * <pre class="code">
- * &#064;Configuration
+ * <pre>{@code
+ * @Configuration
  * public class MyAutoConfiguration {
  *
- *     &#064;Component
- *     &#064;ConditionalOnBean
+ *     @Component
+ *     @ConditionalOnBean
  *     public MyService myService() {
  *         ...
  *     }
  *
  * }</pre>
- * <p>
+ * }<p>
  * In the sample above the condition will match if a bean of type {@code MyService} is
  * already contained in the {@link BeanFactory}.
  * <p>
