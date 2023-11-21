@@ -160,8 +160,8 @@ public class ContextConfigurationAttributes {
           Class<? extends ApplicationContextInitializer>[] initializers,
           boolean inheritInitializers, @Nullable String name, Class<? extends ContextLoader> contextLoaderClass) {
 
-    Assert.notNull(declaringClass, "'declaringClass' must not be null");
-    Assert.notNull(contextLoaderClass, "'contextLoaderClass' must not be null");
+    Assert.notNull(declaringClass, "'declaringClass' is required");
+    Assert.notNull(contextLoaderClass, "'contextLoaderClass' is required");
 
     if (ObjectUtils.isNotEmpty(locations) && ObjectUtils.isNotEmpty(classes) && logger.isDebugEnabled()) {
       logger.debug(

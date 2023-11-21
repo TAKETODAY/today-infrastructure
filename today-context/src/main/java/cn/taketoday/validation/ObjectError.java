@@ -72,7 +72,7 @@ public class ObjectError extends DefaultMessageSourceResolvable {
           @Nullable Object[] arguments, @Nullable String defaultMessage) {
 
     super(codes, arguments, defaultMessage);
-    Assert.notNull(objectName, "Object name must not be null");
+    Assert.notNull(objectName, "Object name is required");
     this.objectName = objectName;
   }
 

@@ -104,7 +104,7 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
   public ResourceArrayPropertyEditor(PatternResourceLoader resourcePatternResolver,
           @Nullable PropertyResolver propertyResolver, boolean ignoreUnresolvablePlaceholders) {
 
-    Assert.notNull(resourcePatternResolver, "ResourcePatternResolver must not be null");
+    Assert.notNull(resourcePatternResolver, "ResourcePatternResolver is required");
     this.resourcePatternResolver = resourcePatternResolver;
     this.propertyResolver = propertyResolver;
     this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;

@@ -124,7 +124,7 @@ public class Instantiator<T> {
    * @return a list of instantiated instances, can be modified
    */
   public List<T> instantiate(@Nullable ClassLoader classLoader, Collection<String> names) {
-    Assert.notNull(names, "Names must not be null");
+    Assert.notNull(names, "Names is required");
     return instantiate(names.stream().map((name) -> TypeSupplier.forName(classLoader, name)));
   }
 
@@ -135,7 +135,7 @@ public class Instantiator<T> {
    * @return a list of instantiated instances, can be modified
    */
   public List<T> instantiateTypes(Collection<Class<?>> types) {
-    Assert.notNull(types, "Types must not be null");
+    Assert.notNull(types, "Types is required");
     return instantiate(types.stream().map(TypeSupplier::forType));
   }
 

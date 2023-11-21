@@ -237,7 +237,7 @@ public class MutablePersistenceUnitInfo implements SmartPersistenceUnitInfo {
   }
 
   public void setProperties(Properties properties) {
-    Assert.notNull(properties, "Properties must not be null");
+    Assert.notNull(properties, "Properties is required");
     this.properties = properties;
   }
 

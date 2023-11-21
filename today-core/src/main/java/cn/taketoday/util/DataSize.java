@@ -141,7 +141,7 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
    * @return a corresponding {@code DataSize}
    */
   public static DataSize of(long amount, DataUnit unit) {
-    Assert.notNull(unit, "Unit must not be null");
+    Assert.notNull(unit, "Unit is required");
     return new DataSize(Math.multiplyExact(amount, unit.size().toBytes()));
   }
 
@@ -183,7 +183,7 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
    * @return the parsed {@code DataSize}
    */
   public static DataSize parse(CharSequence text, @Nullable DataUnit defaultUnit) {
-    Assert.notNull(text, "Text must not be null");
+    Assert.notNull(text, "Text is required");
     try {
       CharSequence trimmedText = StringUtils.trimAllWhitespace(text);
       Matcher matcher = DataSizeUtils.PATTERN.matcher(trimmedText);

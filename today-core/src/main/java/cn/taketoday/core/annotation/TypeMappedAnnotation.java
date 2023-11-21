@@ -216,7 +216,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   @SuppressWarnings("unchecked")
   public <T extends Annotation> MergedAnnotation<T> getAnnotation(
           String attributeName, Class<T> type) throws NoSuchElementException {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     int attributeIndex = getAttributeIndex(attributeName, true);
     Method attribute = mapping.methods.get(attributeIndex);
     if (!type.isAssignableFrom(attribute.getReturnType())) {
@@ -229,7 +229,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   @SuppressWarnings("unchecked")
   public <T extends Annotation> MergedAnnotation<T>[] getAnnotationArray(
           String attributeName, Class<T> type) throws NoSuchElementException {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     int attributeIndex = getAttributeIndex(attributeName, true);
     Method attribute = mapping.methods.get(attributeIndex);
     Class<?> componentType = attribute.getReturnType().getComponentType();
@@ -599,7 +599,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   private int getAttributeIndex(String attributeName, boolean required) {
-    Assert.hasText(attributeName, "Attribute name must not be null");
+    Assert.hasText(attributeName, "Attribute name is required");
     int attributeIndex = isFiltered(attributeName) ? -1 : mapping.methods.indexOf(attributeName);
     if (attributeIndex == -1 && required) {
       throw new NoSuchElementException(
@@ -632,7 +632,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
   }
 
   static <A extends Annotation> TypeMappedAnnotation<A> from(@Nullable Object source, A annotation) {
-    Assert.notNull(annotation, "Annotation must not be null");
+    Assert.notNull(annotation, "Annotation is required");
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(annotation.annotationType());
     return new TypeMappedAnnotation<>(mappings.get(0), null, source, annotation, ReflectionUtils::invokeMethod, 0);
   }
@@ -641,7 +641,7 @@ final class TypeMappedAnnotation<A extends Annotation> extends AbstractMergedAnn
           @Nullable ClassLoader classLoader, @Nullable Object source,
           Class<A> annotationType, @Nullable Map<String, ?> attributes) {
 
-    Assert.notNull(annotationType, "Annotation type must not be null");
+    Assert.notNull(annotationType, "Annotation type is required");
     AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(annotationType);
     return new TypeMappedAnnotation<>(
             mappings.get(0), classLoader, source, attributes, TypeMappedAnnotation::extractFromMap, 0);

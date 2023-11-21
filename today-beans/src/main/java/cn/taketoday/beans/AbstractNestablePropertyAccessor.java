@@ -197,7 +197,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    */
   public void setWrappedInstance(Object object, @Nullable String nestedPath, @Nullable Object rootObject) {
     this.wrappedObject = ObjectUtils.unwrapOptional(object);
-    Assert.notNull(this.wrappedObject, "Target object must not be null");
+    Assert.notNull(this.wrappedObject, "Target object is required");
     this.nestedPath = nestedPath != null ? nestedPath : "";
     this.rootObject = !this.nestedPath.isEmpty() ? rootObject : this.wrappedObject;
     this.nestedPropertyAccessors = null;
@@ -736,7 +736,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    */
   @Nullable
   protected PropertyHandler getPropertyHandler(String propertyName) throws BeansException {
-    Assert.notNull(propertyName, "Property name must not be null");
+    Assert.notNull(propertyName, "Property name is required");
     AbstractNestablePropertyAccessor nestedPa = getPropertyAccessorForPropertyPath(propertyName);
     return nestedPa.getLocalPropertyHandler(getFinalPath(nestedPa, propertyName));
   }
@@ -778,7 +778,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         }
         setPropertyValue(name, newArray);
         Object defaultValue = getPropertyValue(name);
-        Assert.state(defaultValue != null, "Default value must not be null");
+        Assert.state(defaultValue != null, "Default value is required");
         return defaultValue;
       }
     }
@@ -890,7 +890,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     PropertyValue pv = createDefaultPropertyValue(tokens);
     setPropertyValue(tokens, pv);
     Object defaultValue = getPropertyValue(tokens);
-    Assert.state(defaultValue != null, "Default value must not be null");
+    Assert.state(defaultValue != null, "Default value is required");
     return defaultValue;
   }
 

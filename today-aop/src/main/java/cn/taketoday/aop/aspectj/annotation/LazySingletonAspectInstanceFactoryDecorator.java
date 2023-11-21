@@ -46,7 +46,7 @@ public class LazySingletonAspectInstanceFactoryDecorator implements MetadataAwar
    * @param maaif the MetadataAwareAspectInstanceFactory to decorate
    */
   public LazySingletonAspectInstanceFactoryDecorator(MetadataAwareAspectInstanceFactory maaif) {
-    Assert.notNull(maaif, "AspectInstanceFactory must not be null");
+    Assert.notNull(maaif, "AspectInstanceFactory is required");
     this.maaif = maaif;
   }
 

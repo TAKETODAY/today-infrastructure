@@ -61,7 +61,7 @@ public class BindException extends Exception implements BindingResult {
    * @param bindingResult the BindingResult instance to wrap
    */
   public BindException(BindingResult bindingResult) {
-    Assert.notNull(bindingResult, "BindingResult must not be null");
+    Assert.notNull(bindingResult, "BindingResult is required");
     this.bindingResult = bindingResult;
   }
 
@@ -73,7 +73,7 @@ public class BindException extends Exception implements BindingResult {
    * @see BeanPropertyBindingResult
    */
   public BindException(Object target, String objectName) {
-    Assert.notNull(target, "Target object must not be null");
+    Assert.notNull(target, "Target object is required");
     this.bindingResult = new BeanPropertyBindingResult(target, objectName);
   }
 

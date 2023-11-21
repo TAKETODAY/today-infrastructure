@@ -500,8 +500,8 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
   protected ContextLoader resolveContextLoader(Class<?> testClass,
           List<ContextConfigurationAttributes> configAttributesList) {
 
-    Assert.notNull(testClass, "Class must not be null");
-    Assert.notNull(configAttributesList, "ContextConfigurationAttributes list must not be null");
+    Assert.notNull(testClass, "Class is required");
+    Assert.notNull(configAttributesList, "ContextConfigurationAttributes list is required");
 
     Class<? extends ContextLoader> contextLoaderClass = resolveExplicitContextLoaderClass(configAttributesList);
     if (contextLoaderClass == null) {
@@ -539,7 +539,7 @@ public abstract class AbstractTestContextBootstrapper implements TestContextBoot
   protected Class<? extends ContextLoader> resolveExplicitContextLoaderClass(
           List<ContextConfigurationAttributes> configAttributesList) {
 
-    Assert.notNull(configAttributesList, "ContextConfigurationAttributes list must not be null");
+    Assert.notNull(configAttributesList, "ContextConfigurationAttributes list is required");
 
     for (ContextConfigurationAttributes configAttributes : configAttributesList) {
       if (log.isTraceEnabled()) {

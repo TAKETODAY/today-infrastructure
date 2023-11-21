@@ -51,7 +51,7 @@ public abstract class TemplateAwareExpressionParser implements ExpressionParser 
   @Override
   public Expression parseExpression(String expressionString, @Nullable ParserContext context) throws ParseException {
     if (context != null && context.isTemplate()) {
-      Assert.notNull(expressionString, "'expressionString' must not be null");
+      Assert.notNull(expressionString, "'expressionString' is required");
       return parseTemplate(expressionString, context);
     }
     else {

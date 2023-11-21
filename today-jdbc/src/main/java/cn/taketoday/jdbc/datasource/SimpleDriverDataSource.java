@@ -142,7 +142,7 @@ public class SimpleDriverDataSource extends AbstractDriverBasedDataSource {
   protected Connection getConnectionFromDriver(Properties props) throws SQLException {
     Driver driver = getDriver();
     String url = getUrl();
-    Assert.notNull(driver, "Driver must not be null");
+    Assert.notNull(driver, "Driver is required");
     if (logger.isDebugEnabled()) {
       logger.debug("Creating new JDBC Driver Connection to [{}]", url);
     }

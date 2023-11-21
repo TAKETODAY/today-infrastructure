@@ -49,7 +49,7 @@ public class ExceptionDepthComparator implements Comparator<Class<? extends Thro
    * @param exception the target exception to compare to when sorting by depth
    */
   public ExceptionDepthComparator(Throwable exception) {
-    Assert.notNull(exception, "Target exception must not be null");
+    Assert.notNull(exception, "Target exception is required");
     this.targetException = exception.getClass();
   }
 
@@ -59,7 +59,7 @@ public class ExceptionDepthComparator implements Comparator<Class<? extends Thro
    * @param exceptionType the target exception type to compare to when sorting by depth
    */
   public ExceptionDepthComparator(Class<? extends Throwable> exceptionType) {
-    Assert.notNull(exceptionType, "Target exception type must not be null");
+    Assert.notNull(exceptionType, "Target exception type is required");
     this.targetException = exceptionType;
   }
 

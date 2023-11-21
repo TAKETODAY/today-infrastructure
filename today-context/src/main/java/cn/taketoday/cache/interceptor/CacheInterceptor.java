@@ -64,7 +64,7 @@ public class CacheInterceptor extends CacheAspectSupport implements MethodInterc
     };
 
     Object target = invocation.getThis();
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
     try {
       return execute(aopAllianceInvoker, target, method, invocation.getArguments());
     }

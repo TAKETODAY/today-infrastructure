@@ -117,7 +117,7 @@ public class YamlProcessor {
    * from this factory. Default is {@link ResolutionMethod#OVERRIDE}.
    */
   public void setResolutionMethod(ResolutionMethod resolutionMethod) {
-    Assert.notNull(resolutionMethod, "ResolutionMethod must not be null");
+    Assert.notNull(resolutionMethod, "ResolutionMethod is required");
     this.resolutionMethod = resolutionMethod;
   }
 

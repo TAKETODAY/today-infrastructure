@@ -60,7 +60,7 @@ public class BeanInstantiatorGenerator
 
   public BeanInstantiatorGenerator(Constructor<?> constructor, Class<?> targetClass) {
     super(targetClass);
-    Assert.notNull(constructor, "constructor must not be null");
+    Assert.notNull(constructor, "constructor is required");
     this.targetConstructor = constructor;
   }
 

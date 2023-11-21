@@ -77,7 +77,7 @@ public class CronTrigger implements Trigger {
    */
   public CronTrigger(String expression, ZoneId zoneId) {
     Assert.hasLength(expression, "Expression must not be empty");
-    Assert.notNull(zoneId, "ZoneId must not be null");
+    Assert.notNull(zoneId, "ZoneId is required");
 
     this.expression = CronExpression.parse(expression);
     this.zoneId = zoneId;

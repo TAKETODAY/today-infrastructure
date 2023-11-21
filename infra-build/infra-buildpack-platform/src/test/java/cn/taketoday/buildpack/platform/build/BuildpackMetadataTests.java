@@ -49,14 +49,14 @@ class BuildpackMetadataTests extends AbstractJsonTests {
   @Test
   void fromImageWhenImageIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> BuildpackMetadata.fromImage(null))
-            .withMessage("Image must not be null");
+            .withMessage("Image is required");
   }
 
   @Test
   void fromImageWhenImageConfigIsNullThrowsException() {
     Image image = mock(Image.class);
     assertThatIllegalArgumentException().isThrownBy(() -> BuildpackMetadata.fromImage(image))
-            .withMessage("ImageConfig must not be null");
+            .withMessage("ImageConfig is required");
   }
 
   @Test

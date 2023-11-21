@@ -104,7 +104,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
    * @param handlerMappingsLocation the mapping file location
    */
   public DefaultNamespaceHandlerResolver(@Nullable ClassLoader classLoader, String handlerMappingsLocation) {
-    Assert.notNull(handlerMappingsLocation, "Handler mappings location must not be null");
+    Assert.notNull(handlerMappingsLocation, "Handler mappings location is required");
     this.classLoader = (classLoader != null ? classLoader : ClassUtils.getDefaultClassLoader());
     this.handlerMappingsLocation = handlerMappingsLocation;
   }

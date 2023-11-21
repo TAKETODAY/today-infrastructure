@@ -69,7 +69,7 @@ public class Constants {
    * @throws IllegalArgumentException if the supplied {@code clazz} is {@code null}
    */
   public Constants(Class<?> clazz) {
-    Assert.notNull(clazz, "class must not be null");
+    Assert.notNull(clazz, "class is required");
     this.className = clazz.getName();
     Field[] fields = clazz.getFields();
     for (Field field : fields) {

@@ -92,7 +92,7 @@ public class ResourceOverridingShadowingClassLoader extends ShadowingClassLoader
    * @param other the other ClassLoader to copy from
    */
   public void copyOverrides(ResourceOverridingShadowingClassLoader other) {
-    Assert.notNull(other, "Other ClassLoader must not be null");
+    Assert.notNull(other, "Other ClassLoader is required");
     this.overrides.putAll(other.overrides);
   }
 

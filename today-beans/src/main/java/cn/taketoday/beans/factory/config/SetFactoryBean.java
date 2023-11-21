@@ -63,7 +63,7 @@ public class SetFactoryBean extends AbstractFactoryBean<Set<Object>> {
   @SuppressWarnings("rawtypes")
   public void setTargetSetClass(@Nullable Class<? extends Set> targetSetClass) {
     if (targetSetClass == null) {
-      throw new IllegalArgumentException("'targetSetClass' must not be null");
+      throw new IllegalArgumentException("'targetSetClass' is required");
     }
     if (!Set.class.isAssignableFrom(targetSetClass)) {
       throw new IllegalArgumentException("'targetSetClass' must implement [java.util.Set]");

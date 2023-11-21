@@ -47,7 +47,7 @@ public class DataBufferWrapper implements DataBuffer {
    * @param delegate the buffer to wrap
    */
   public DataBufferWrapper(DataBuffer delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 

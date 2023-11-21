@@ -60,7 +60,7 @@ public class AnnotationClassFilter implements ClassFilter {
    * semantics instead of standard Java {@link Class#isAnnotationPresent})
    */
   public AnnotationClassFilter(Class<? extends Annotation> annotationType, boolean checkInherited) {
-    Assert.notNull(annotationType, "Annotation type must not be null");
+    Assert.notNull(annotationType, "Annotation type is required");
     this.annotationType = annotationType;
     this.checkInherited = checkInherited;
   }

@@ -67,7 +67,7 @@ public class SimpleErrors implements Errors, Serializable {
    * @param target the target to wrap
    */
   public SimpleErrors(Object target) {
-    Assert.notNull(target, "Target must not be null");
+    Assert.notNull(target, "Target is required");
     this.target = target;
     this.objectName = this.target.getClass().getSimpleName();
   }
@@ -79,7 +79,7 @@ public class SimpleErrors implements Errors, Serializable {
    * @param objectName the name of the target object for error reporting
    */
   public SimpleErrors(Object target, String objectName) {
-    Assert.notNull(target, "Target must not be null");
+    Assert.notNull(target, "Target is required");
     this.target = target;
     this.objectName = objectName;
   }

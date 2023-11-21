@@ -78,8 +78,8 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
    * ({@code null} indicates resolution through {@link BeanFactory#getType} via the bean name)
    */
   public BeanFactoryAspectInstanceFactory(BeanFactory beanFactory, String name, @Nullable Class<?> type) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
-    Assert.notNull(name, "Bean name must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
+    Assert.notNull(name, "Bean name is required");
     this.beanFactory = beanFactory;
     this.name = name;
     Class<?> resolvedType = type;

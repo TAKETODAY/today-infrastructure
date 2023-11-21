@@ -122,8 +122,8 @@ public abstract class AbstractApplicationContextRunner<
    */
   protected AbstractApplicationContextRunner(Supplier<C> contextFactory,
           Function<RunnerConfiguration<C>, SELF> instanceFactory) {
-    Assert.notNull(contextFactory, "ContextFactory must not be null");
-    Assert.notNull(contextFactory, "RunnerConfiguration must not be null");
+    Assert.notNull(contextFactory, "ContextFactory is required");
+    Assert.notNull(contextFactory, "RunnerConfiguration is required");
     this.runnerConfiguration = new RunnerConfiguration<>(contextFactory);
     this.instanceFactory = instanceFactory;
   }
@@ -136,8 +136,8 @@ public abstract class AbstractApplicationContextRunner<
    */
   protected AbstractApplicationContextRunner(RunnerConfiguration<C> configuration,
           Function<RunnerConfiguration<C>, SELF> instanceFactory) {
-    Assert.notNull(configuration, "RunnerConfiguration must not be null");
-    Assert.notNull(instanceFactory, "instanceFactory must not be null");
+    Assert.notNull(configuration, "RunnerConfiguration is required");
+    Assert.notNull(instanceFactory, "instanceFactory is required");
     this.runnerConfiguration = configuration;
     this.instanceFactory = instanceFactory;
   }
@@ -173,7 +173,7 @@ public abstract class AbstractApplicationContextRunner<
    * @return a new instance with the updated initializers
    */
   public SELF withInitializer(ApplicationContextInitializer initializer) {
-    Assert.notNull(initializer, "Initializer must not be null");
+    Assert.notNull(initializer, "Initializer is required");
     return newInstance(this.runnerConfiguration.withInitializer(initializer));
   }
 
@@ -325,7 +325,7 @@ public abstract class AbstractApplicationContextRunner<
    * @return a new instance with the updated configuration
    */
   public SELF withConfiguration(Configurations configurations) {
-    Assert.notNull(configurations, "Configurations must not be null");
+    Assert.notNull(configurations, "Configurations is required");
     return newInstance(this.runnerConfiguration.withConfiguration(configurations));
   }
 
@@ -532,7 +532,7 @@ public abstract class AbstractApplicationContextRunner<
     }
 
     public RunnerConfiguration<C> withInitializer(ApplicationContextInitializer initializer) {
-      Assert.notNull(initializer, "Initializer must not be null");
+      Assert.notNull(initializer, "Initializer is required");
       RunnerConfiguration<C> config = new RunnerConfiguration<>(this);
       config.initializers = add(config.initializers, initializer);
       return config;
@@ -578,7 +578,7 @@ public abstract class AbstractApplicationContextRunner<
     }
 
     public RunnerConfiguration<C> withConfiguration(Configurations configurations) {
-      Assert.notNull(configurations, "Configurations must not be null");
+      Assert.notNull(configurations, "Configurations is required");
       RunnerConfiguration<C> config = new RunnerConfiguration<>(this);
       config.configurations = add(config.configurations, configurations);
       return config;

@@ -44,7 +44,7 @@ class DefaultAotTestAttributes implements AotTestAttributes {
   @Override
   public void setAttribute(String name, String value) {
     assertNotInAotRuntime();
-    Assert.notNull(value, "'value' must not be null");
+    Assert.notNull(value, "'value' is required");
     Assert.isTrue(!this.attributes.containsKey(name),
             () -> "AOT attributes cannot be overridden. Name '%s' is already in use.".formatted(name));
     this.attributes.put(name, value);

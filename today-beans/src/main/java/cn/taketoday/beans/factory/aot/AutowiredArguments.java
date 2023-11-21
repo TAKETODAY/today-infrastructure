@@ -94,7 +94,7 @@ public interface AutowiredArguments {
    * @return a new {@link AutowiredArguments} instance
    */
   static AutowiredArguments of(Object[] arguments) {
-    Assert.notNull(arguments, "'arguments' must not be null");
+    Assert.notNull(arguments, "'arguments' is required");
     return () -> arguments;
   }
 

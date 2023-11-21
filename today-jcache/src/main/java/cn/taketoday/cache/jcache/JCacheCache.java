@@ -64,7 +64,7 @@ public class JCacheCache extends AbstractValueAdaptingCache {
    */
   public JCacheCache(Cache<Object, Object> jcache, boolean allowNullValues) {
     super(allowNullValues);
-    Assert.notNull(jcache, "Cache must not be null");
+    Assert.notNull(jcache, "Cache is required");
     this.cache = jcache;
     this.valueLoaderEntryProcessor = new ValueLoaderEntryProcessor(this::fromStoreValue, this::toStoreValue);
   }

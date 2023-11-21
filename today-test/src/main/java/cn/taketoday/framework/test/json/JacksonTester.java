@@ -78,7 +78,7 @@ public class JacksonTester<T> extends AbstractJsonMarshalTester<T> {
    * @param objectMapper the Jackson object mapper
    */
   protected JacksonTester(ObjectMapper objectMapper) {
-    Assert.notNull(objectMapper, "ObjectMapper must not be null");
+    Assert.notNull(objectMapper, "ObjectMapper is required");
     this.objectMapper = objectMapper;
   }
 
@@ -95,7 +95,7 @@ public class JacksonTester<T> extends AbstractJsonMarshalTester<T> {
 
   public JacksonTester(Class<?> resourceLoadClass, ResolvableType type, ObjectMapper objectMapper, Class<?> view) {
     super(resourceLoadClass, type);
-    Assert.notNull(objectMapper, "ObjectMapper must not be null");
+    Assert.notNull(objectMapper, "ObjectMapper is required");
     this.objectMapper = objectMapper;
     this.view = view;
   }

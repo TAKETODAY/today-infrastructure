@@ -142,7 +142,7 @@ public class MockHttpServletRequestBuilder
   }
 
   private static URI initUri(String url, Object[] vars) {
-    Assert.notNull(url, "'url' must not be null");
+    Assert.notNull(url, "'url' is required");
     Assert.isTrue(url.isEmpty() || url.startsWith("/") || url.startsWith("http://") || url.startsWith("https://"),
             () -> "'url' should start with a path or be a complete HTTP URL: " + url);
     String uriString = (url.isEmpty() ? "/" : url);
@@ -302,7 +302,7 @@ public class MockHttpServletRequestBuilder
    * @param contentType the content type
    */
   public MockHttpServletRequestBuilder contentType(MediaType contentType) {
-    Assert.notNull(contentType, "'contentType' must not be null");
+    Assert.notNull(contentType, "'contentType' is required");
     this.contentType = contentType.toString();
     return this;
   }
@@ -314,7 +314,7 @@ public class MockHttpServletRequestBuilder
    * @param contentType the content type
    */
   public MockHttpServletRequestBuilder contentType(String contentType) {
-    Assert.notNull(contentType, "'contentType' must not be null");
+    Assert.notNull(contentType, "'contentType' is required");
     this.contentType = contentType;
     return this;
   }
@@ -530,7 +530,7 @@ public class MockHttpServletRequestBuilder
    * @param session the HTTP session
    */
   public MockHttpServletRequestBuilder session(MockHttpSession session) {
-    Assert.notNull(session, "'session' must not be null");
+    Assert.notNull(session, "'session' is required");
     this.session = session;
     return this;
   }
@@ -541,7 +541,7 @@ public class MockHttpServletRequestBuilder
    * @param principal the principal
    */
   public MockHttpServletRequestBuilder principal(Principal principal) {
-    Assert.notNull(principal, "'principal' must not be null");
+    Assert.notNull(principal, "'principal' is required");
     this.principal = principal;
     return this;
   }
@@ -872,7 +872,7 @@ public class MockHttpServletRequestBuilder
 
   private static void addToMap(Map<String, Object> map, String name, Object value) {
     Assert.hasLength(name, "'name' must not be empty");
-    Assert.notNull(value, "'value' must not be null");
+    Assert.notNull(value, "'value' is required");
     map.put(name, value);
   }
 

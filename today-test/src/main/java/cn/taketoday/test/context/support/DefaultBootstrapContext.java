@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +41,8 @@ public class DefaultBootstrapContext implements BootstrapContext {
    * transparent interaction with the {@code ContextCache}; never {@code null}
    */
   public DefaultBootstrapContext(Class<?> testClass, CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate) {
-    Assert.notNull(testClass, "Test class must not be null");
-    Assert.notNull(cacheAwareContextLoaderDelegate, "CacheAwareContextLoaderDelegate must not be null");
+    Assert.notNull(testClass, "Test class is required");
+    Assert.notNull(cacheAwareContextLoaderDelegate, "CacheAwareContextLoaderDelegate is required");
     this.testClass = testClass;
     this.cacheAwareContextLoaderDelegate = cacheAwareContextLoaderDelegate;
   }

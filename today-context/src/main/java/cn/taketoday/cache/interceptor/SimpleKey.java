@@ -57,7 +57,7 @@ public class SimpleKey implements Serializable {
    * @param elements the elements of the key
    */
   public SimpleKey(Object... elements) {
-    Assert.notNull(elements, "Elements must not be null");
+    Assert.notNull(elements, "Elements is required");
     this.params = elements.clone();
     // Pre-calculate hashCode field
     this.hashCode = Arrays.deepHashCode(this.params);

@@ -663,7 +663,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * @see DefaultBindingErrorProcessor
    */
   public void setBindingErrorProcessor(BindingErrorProcessor bindingErrorProcessor) {
-    Assert.notNull(bindingErrorProcessor, "BindingErrorProcessor must not be null");
+    Assert.notNull(bindingErrorProcessor, "BindingErrorProcessor is required");
     this.bindingErrorProcessor = bindingErrorProcessor;
   }
 

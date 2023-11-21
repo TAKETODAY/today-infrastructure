@@ -77,7 +77,7 @@ public final class RegisteredBean {
    * @return a new {@link RegisteredBean} instance
    */
   public static RegisteredBean of(ConfigurableBeanFactory beanFactory, String beanName) {
-    Assert.notNull(beanFactory, "'beanFactory' must not be null");
+    Assert.notNull(beanFactory, "'beanFactory' is required");
     Assert.hasLength(beanName, "'beanName' must not be empty");
     return new RegisteredBean(beanFactory, () -> beanName, false,
             () -> (RootBeanDefinition) beanFactory.getMergedBeanDefinition(beanName),
@@ -104,7 +104,7 @@ public final class RegisteredBean {
    * @return a new {@link RegisteredBean} instance
    */
   public static RegisteredBean ofInnerBean(RegisteredBean parent, BeanDefinitionHolder innerBean) {
-    Assert.notNull(innerBean, "'innerBean' must not be null");
+    Assert.notNull(innerBean, "'innerBean' is required");
     return ofInnerBean(parent, innerBean.getBeanName(), innerBean.getBeanDefinition());
   }
 
@@ -131,8 +131,8 @@ public final class RegisteredBean {
   public static RegisteredBean ofInnerBean(RegisteredBean parent,
           @Nullable String innerBeanName, BeanDefinition innerBeanDefinition) {
 
-    Assert.notNull(parent, "'parent' must not be null");
-    Assert.notNull(innerBeanDefinition, "'innerBeanDefinition' must not be null");
+    Assert.notNull(parent, "'parent' is required");
+    Assert.notNull(innerBeanDefinition, "'innerBeanDefinition' is required");
     InnerBeanResolver resolver = new InnerBeanResolver(parent, innerBeanName, innerBeanDefinition);
     Supplier<String> beanName = (StringUtils.isNotEmpty(innerBeanName) ?
                                  () -> innerBeanName : resolver::resolveBeanName);

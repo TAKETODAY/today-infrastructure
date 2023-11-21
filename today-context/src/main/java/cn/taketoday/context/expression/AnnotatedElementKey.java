@@ -47,7 +47,7 @@ public final class AnnotatedElementKey implements Comparable<AnnotatedElementKey
    * optional target {@link Class}.
    */
   public AnnotatedElementKey(AnnotatedElement element, @Nullable Class<?> targetClass) {
-    Assert.notNull(element, "AnnotatedElement must not be null");
+    Assert.notNull(element, "AnnotatedElement is required");
     this.element = element;
     this.targetClass = targetClass;
   }

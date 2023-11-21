@@ -112,10 +112,10 @@ public final class VolumeName {
    */
   public static <S> VolumeName basedOn(S source, Function<S, String> nameExtractor, String prefix, String suffix,
           int digestLength) {
-    Assert.notNull(source, "Source must not be null");
-    Assert.notNull(nameExtractor, "NameExtractor must not be null");
-    Assert.notNull(prefix, "Prefix must not be null");
-    Assert.notNull(suffix, "Suffix must not be null");
+    Assert.notNull(source, "Source is required");
+    Assert.notNull(nameExtractor, "NameExtractor is required");
+    Assert.notNull(prefix, "Prefix is required");
+    Assert.notNull(suffix, "Suffix is required");
     return of(prefix + getDigest(nameExtractor.apply(source), digestLength) + suffix);
   }
 
@@ -142,7 +142,7 @@ public final class VolumeName {
    * @return a new {@link VolumeName} instance
    */
   public static VolumeName of(String value) {
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     return new VolumeName(value);
   }
 

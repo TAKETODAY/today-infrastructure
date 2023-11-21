@@ -220,7 +220,7 @@ public class ClassPathScanningCandidateComponentProvider
    * @param environment the Environment to use
    */
   public void setEnvironment(Environment environment) {
-    Assert.notNull(environment, "Environment must not be null");
+    Assert.notNull(environment, "Environment is required");
     this.environment = environment;
     this.conditionEvaluator = null;
   }

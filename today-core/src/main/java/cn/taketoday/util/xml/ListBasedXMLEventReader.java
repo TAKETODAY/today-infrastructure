@@ -50,7 +50,7 @@ class ListBasedXMLEventReader extends AbstractXMLEventReader {
   private int cursor = 0;
 
   public ListBasedXMLEventReader(List<XMLEvent> events) {
-    Assert.notNull(events, "XMLEvent List must not be null");
+    Assert.notNull(events, "XMLEvent List is required");
     this.events = new ArrayList<>(events);
   }
 

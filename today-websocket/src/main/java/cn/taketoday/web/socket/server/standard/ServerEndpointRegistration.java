@@ -84,7 +84,7 @@ public class ServerEndpointRegistration
    */
   public ServerEndpointRegistration(String path, Endpoint endpoint) {
     Assert.hasText(path, "Path must not be empty");
-    Assert.notNull(endpoint, "Endpoint must not be null");
+    Assert.notNull(endpoint, "Endpoint is required");
     this.path = path;
     this.endpoint = endpoint;
     this.endpointProvider = null;
@@ -99,7 +99,7 @@ public class ServerEndpointRegistration
    */
   public ServerEndpointRegistration(String path, Class<? extends Endpoint> endpointClass) {
     Assert.hasText(path, "Path must not be empty");
-    Assert.notNull(endpointClass, "Endpoint Class must not be null");
+    Assert.notNull(endpointClass, "Endpoint Class is required");
     this.path = path;
     this.endpoint = null;
     this.endpointProvider = new BeanCreatingHandlerProvider<>(endpointClass);

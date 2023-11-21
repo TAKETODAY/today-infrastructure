@@ -102,9 +102,9 @@ final class HtmlUnitRequestBuilder implements RequestBuilder, Mergeable {
    * {@link MockHttpServletRequest}; never {@code null}
    */
   public HtmlUnitRequestBuilder(Map<String, MockHttpSession> sessions, WebClient webClient, WebRequest webRequest) {
-    Assert.notNull(sessions, "Sessions Map must not be null");
-    Assert.notNull(webClient, "WebClient must not be null");
-    Assert.notNull(webRequest, "WebRequest must not be null");
+    Assert.notNull(sessions, "Sessions Map is required");
+    Assert.notNull(webClient, "WebClient is required");
+    Assert.notNull(webRequest, "WebRequest is required");
     this.sessions = sessions;
     this.webClient = webClient;
     this.webRequest = webRequest;

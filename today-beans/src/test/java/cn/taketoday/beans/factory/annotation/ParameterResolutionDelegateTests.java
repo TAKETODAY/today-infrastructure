@@ -51,7 +51,7 @@ class ParameterResolutionDelegateTests {
   public void isAutowirablePreconditions() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     ParameterResolutionDelegate.isAutowirable(null, 0))
-            .withMessageContaining("Parameter must not be null");
+            .withMessageContaining("Parameter is required");
   }
 
   @Test
@@ -99,21 +99,21 @@ class ParameterResolutionDelegateTests {
   public void resolveDependencyPreconditionsForParameter() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     ParameterResolutionDelegate.resolveDependency(null, 0, null, mock(AutowireCapableBeanFactory.class)))
-            .withMessageContaining("Parameter must not be null");
+            .withMessageContaining("Parameter is required");
   }
 
   @Test
   public void resolveDependencyPreconditionsForContainingClass() throws Exception {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     ParameterResolutionDelegate.resolveDependency(getParameter(), 0, null, null))
-            .withMessageContaining("Containing class must not be null");
+            .withMessageContaining("Containing class is required");
   }
 
   @Test
   public void resolveDependencyPreconditionsForBeanFactory() throws Exception {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     ParameterResolutionDelegate.resolveDependency(getParameter(), 0, getClass(), null))
-            .withMessageContaining("AutowireCapableBeanFactory must not be null");
+            .withMessageContaining("AutowireCapableBeanFactory is required");
   }
 
   private Parameter getParameter() throws NoSuchMethodException {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,7 +80,7 @@ class RandomAccessDataFileTests {
   @Test
   void fileNotNull() {
     assertThatIllegalArgumentException().isThrownBy(() -> new RandomAccessDataFile(null))
-            .withMessageContaining("File must not be null");
+            .withMessageContaining("File is required");
   }
 
   @Test
@@ -131,13 +128,13 @@ class RandomAccessDataFileTests {
   @Test
   void inputStreamReadNullBytes() {
     assertThatNullPointerException().isThrownBy(() -> this.inputStream.read(null))
-            .withMessage("Bytes must not be null");
+            .withMessage("Bytes is required");
   }
 
   @Test
   void inputStreamReadNullBytesWithOffset() {
     assertThatNullPointerException().isThrownBy(() -> this.inputStream.read(null, 0, 1))
-            .withMessage("Bytes must not be null");
+            .withMessage("Bytes is required");
   }
 
   @Test

@@ -57,8 +57,8 @@ public abstract class GenericTypeResolver {
    * @return the corresponding generic parameter or return type
    */
   public static Class<?> resolveReturnType(Method method, Class<?> clazz) {
-    Assert.notNull(method, "Method must not be null");
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(method, "Method is required");
+    Assert.notNull(clazz, "Class is required");
     return ResolvableType.forReturnType(method, clazz).resolve(method.getReturnType());
   }
 
@@ -74,7 +74,7 @@ public abstract class GenericTypeResolver {
    */
   @Nullable
   public static Class<?> resolveReturnTypeArgument(Method method, Class<?> genericIfc) {
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method is required");
     ResolvableType resolvableType = ResolvableType.forReturnType(method).as(genericIfc);
     if (!resolvableType.hasGenerics() || resolvableType.getType() instanceof WildcardType) {
       return null;

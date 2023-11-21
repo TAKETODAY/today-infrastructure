@@ -68,7 +68,7 @@ public abstract class GeneratorSupport<T extends Accessor> {
   };
 
   protected GeneratorSupport(Class<?> targetClass) {
-    Assert.notNull(targetClass, "targetClass must not be null");
+    Assert.notNull(targetClass, "targetClass is required");
     this.targetClass = targetClass;
   }
 

@@ -77,7 +77,7 @@ public class MetadataNamingStrategy implements ObjectNamingStrategy, Initializin
    * @param attributeSource the JmxAttributeSource to use
    */
   public MetadataNamingStrategy(JmxAttributeSource attributeSource) {
-    Assert.notNull(attributeSource, "JmxAttributeSource must not be null");
+    Assert.notNull(attributeSource, "JmxAttributeSource is required");
     this.attributeSource = attributeSource;
   }
 
@@ -86,7 +86,7 @@ public class MetadataNamingStrategy implements ObjectNamingStrategy, Initializin
    * when reading the source-level metadata.
    */
   public void setAttributeSource(JmxAttributeSource attributeSource) {
-    Assert.notNull(attributeSource, "JmxAttributeSource must not be null");
+    Assert.notNull(attributeSource, "JmxAttributeSource is required");
     this.attributeSource = attributeSource;
   }
 

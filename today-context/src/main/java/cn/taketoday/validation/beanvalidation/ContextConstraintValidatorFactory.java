@@ -44,7 +44,7 @@ public class ContextConstraintValidatorFactory implements ConstraintValidatorFac
    * @param beanFactory the target BeanFactory
    */
   public ContextConstraintValidatorFactory(AutowireCapableBeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     this.beanFactory = beanFactory;
   }
 

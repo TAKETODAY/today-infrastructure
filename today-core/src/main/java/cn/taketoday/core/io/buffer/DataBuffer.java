@@ -263,8 +263,8 @@ public interface DataBuffer {
    * @return this buffer
    */
   default DataBuffer write(CharSequence charSequence, Charset charset) {
-    Assert.notNull(charSequence, "CharSequence must not be null");
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charSequence, "CharSequence is required");
+    Assert.notNull(charset, "Charset is required");
     if (charSequence.length() > 0) {
       CharsetEncoder encoder = charset.newEncoder()
               .onMalformedInput(CodingErrorAction.REPLACE)
@@ -488,7 +488,7 @@ public interface DataBuffer {
    * @return a string representation of all this buffers data
    */
   default String toString(Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     return toString(readPosition(), readableByteCount(), charset);
   }
 

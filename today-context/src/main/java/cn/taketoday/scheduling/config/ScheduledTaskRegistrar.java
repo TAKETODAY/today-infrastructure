@@ -98,7 +98,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
    * Set the {@link TaskScheduler} to register scheduled tasks with.
    */
   public void setTaskScheduler(TaskScheduler taskScheduler) {
-    Assert.notNull(taskScheduler, "TaskScheduler must not be null");
+    Assert.notNull(taskScheduler, "TaskScheduler is required");
     this.taskScheduler = taskScheduler;
   }
 

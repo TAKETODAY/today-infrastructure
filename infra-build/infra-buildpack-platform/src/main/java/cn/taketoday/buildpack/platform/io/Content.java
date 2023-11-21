@@ -58,7 +58,7 @@ public interface Content {
    * @return a new {@link Content} instance
    */
   static Content of(String string) {
-    Assert.notNull(string, "String must not be null");
+    Assert.notNull(string, "String is required");
     return of(string.getBytes(StandardCharsets.UTF_8));
   }
 
@@ -69,7 +69,7 @@ public interface Content {
    * @return a new {@link Content} instance
    */
   static Content of(byte[] bytes) {
-    Assert.notNull(bytes, "Bytes must not be null");
+    Assert.notNull(bytes, "Bytes is required");
     return of(bytes.length, () -> new ByteArrayInputStream(bytes));
   }
 
@@ -80,7 +80,7 @@ public interface Content {
    * @return a new {@link Content} instance
    */
   static Content of(File file) {
-    Assert.notNull(file, "File must not be null");
+    Assert.notNull(file, "File is required");
     return of((int) file.length(), () -> new FileInputStream(file));
   }
 
@@ -94,7 +94,7 @@ public interface Content {
    */
   static Content of(int size, IOSupplier<InputStream> supplier) {
     Assert.isTrue(size >= 0, "Size must not be negative");
-    Assert.notNull(supplier, "Supplier must not be null");
+    Assert.notNull(supplier, "Supplier is required");
     return new Content() {
 
       @Override

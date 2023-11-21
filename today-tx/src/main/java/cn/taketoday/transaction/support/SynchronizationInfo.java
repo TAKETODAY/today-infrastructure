@@ -144,7 +144,7 @@ public class SynchronizationInfo implements Serializable {
    * @see ResourceTransactionManager#getResourceFactory()
    */
   public void bindResource(Object key, Object value) throws IllegalStateException {
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
     Map<Object, Object> map = resourceMap;
     if (map == null) {
@@ -253,7 +253,7 @@ public class SynchronizationInfo implements Serializable {
    * @see cn.taketoday.core.Ordered
    */
   public void registerSynchronization(TransactionSynchronization synchronization) throws IllegalStateException {
-    Assert.notNull(synchronization, "TransactionSynchronization must not be null");
+    Assert.notNull(synchronization, "TransactionSynchronization is required");
     if (synchronizations == null) {
       throw new IllegalStateException("Transaction synchronization is not active");
     }

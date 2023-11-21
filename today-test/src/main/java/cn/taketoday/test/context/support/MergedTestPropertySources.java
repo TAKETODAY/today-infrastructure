@@ -61,8 +61,8 @@ class MergedTestPropertySources {
    * may be empty but never {@code null}
    */
   MergedTestPropertySources(List<PropertySourceDescriptor> descriptors, String[] properties) {
-    Assert.notNull(descriptors, "The descriptors list must not be null");
-    Assert.notNull(properties, "The properties array must not be null");
+    Assert.notNull(descriptors, "The descriptors list is required");
+    Assert.notNull(properties, "The properties array is required");
     this.descriptors = descriptors;
     this.properties = properties;
   }

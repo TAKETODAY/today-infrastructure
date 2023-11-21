@@ -48,7 +48,7 @@ class AutoConfigurationSorter {
   private final AutoConfigurationMetadata autoConfigMetadata;
 
   AutoConfigurationSorter(MetadataReaderFactory readerFactory, AutoConfigurationMetadata autoConfigMetadata) {
-    Assert.notNull(readerFactory, "MetadataReaderFactory must not be null");
+    Assert.notNull(readerFactory, "MetadataReaderFactory is required");
     this.readerFactory = readerFactory;
     this.autoConfigMetadata = autoConfigMetadata;
   }

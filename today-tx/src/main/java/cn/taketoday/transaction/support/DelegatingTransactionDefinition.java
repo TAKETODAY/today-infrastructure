@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +43,7 @@ public abstract class DelegatingTransactionDefinition implements TransactionDefi
    * @param targetDefinition the target TransactionAttribute to delegate to
    */
   public DelegatingTransactionDefinition(TransactionDefinition targetDefinition) {
-    Assert.notNull(targetDefinition, "Target definition must not be null");
+    Assert.notNull(targetDefinition, "Target definition is required");
     this.targetDefinition = targetDefinition;
   }
 

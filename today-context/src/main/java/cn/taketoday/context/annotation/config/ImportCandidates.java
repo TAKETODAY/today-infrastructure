@@ -86,7 +86,7 @@ public final class ImportCandidates implements Iterable<String> {
    * @return list of names of annotated classes
    */
   public static ImportCandidates load(Class<?> annotation, @Nullable ClassLoader classLoader) {
-    Assert.notNull(annotation, "'annotation' must not be null");
+    Assert.notNull(annotation, "'annotation' is required");
     ClassLoader classLoaderToUse = decideClassloader(classLoader);
     String location = String.format(LOCATION, annotation.getName());
     Enumeration<URL> urls = findUrlsInClasspath(classLoaderToUse, location);

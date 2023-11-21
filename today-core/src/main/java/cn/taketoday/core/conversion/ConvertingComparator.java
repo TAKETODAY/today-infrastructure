@@ -60,8 +60,8 @@ public class ConvertingComparator<S, T> implements Comparator<S> {
    * @param converter the converter
    */
   public ConvertingComparator(Comparator<T> comparator, Converter<S, T> converter) {
-    Assert.notNull(comparator, "Comparator must not be null");
-    Assert.notNull(converter, "Converter must not be null");
+    Assert.notNull(comparator, "Comparator is required");
+    Assert.notNull(converter, "Converter is required");
     this.comparator = comparator;
     this.converter = converter;
   }
@@ -118,8 +118,8 @@ public class ConvertingComparator<S, T> implements Comparator<S> {
     private final Class<? extends T> targetType;
 
     public ConversionServiceConverter(ConversionService conversionService, Class<? extends T> targetType) {
-      Assert.notNull(conversionService, "ConversionService must not be null");
-      Assert.notNull(targetType, "TargetType must not be null");
+      Assert.notNull(conversionService, "ConversionService is required");
+      Assert.notNull(targetType, "TargetType is required");
       this.conversionService = conversionService;
       this.targetType = targetType;
     }

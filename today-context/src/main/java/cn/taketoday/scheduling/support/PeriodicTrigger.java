@@ -97,7 +97,7 @@ public class PeriodicTrigger implements Trigger {
   }
 
   private PeriodicTrigger(Duration period, @Nullable TimeUnit timeUnit) {
-    Assert.notNull(period, "Period must not be null");
+    Assert.notNull(period, "Period is required");
     Assert.isTrue(!period.isNegative(), "Period must not be negative");
     this.period = period;
     if (timeUnit != null) {

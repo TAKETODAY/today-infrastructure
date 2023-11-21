@@ -39,7 +39,7 @@ public class RootClassFilter implements ClassFilter, Serializable {
   private final Class<?> clazz;
 
   public RootClassFilter(Class<?> clazz) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     this.clazz = clazz;
   }
 

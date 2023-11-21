@@ -93,7 +93,7 @@ public class DelegatingIntroductionInterceptor
    * @param delegate the delegate object
    */
   private void init(Object delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
     implementInterfacesOnObject(delegate);
 

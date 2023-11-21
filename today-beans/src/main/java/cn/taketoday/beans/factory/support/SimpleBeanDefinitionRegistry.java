@@ -54,7 +54,7 @@ public class SimpleBeanDefinitionRegistry
           throws BeanDefinitionStoreException {
 
     Assert.hasText(beanName, "'beanName' must not be empty");
-    Assert.notNull(beanDefinition, "BeanDefinition must not be null");
+    Assert.notNull(beanDefinition, "BeanDefinition is required");
     this.beanDefinitionMap.put(beanName, beanDefinition);
   }
 

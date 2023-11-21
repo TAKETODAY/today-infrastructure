@@ -59,7 +59,7 @@ public class CompositeDatabasePopulator implements DatabasePopulator {
    * @since 4.0
    */
   public CompositeDatabasePopulator(Collection<DatabasePopulator> populators) {
-    Assert.notNull(populators, "DatabasePopulators must not be null");
+    Assert.notNull(populators, "DatabasePopulators is required");
     this.populators.addAll(populators);
   }
 
@@ -70,7 +70,7 @@ public class CompositeDatabasePopulator implements DatabasePopulator {
    * @since 4.0
    */
   public CompositeDatabasePopulator(DatabasePopulator... populators) {
-    Assert.notNull(populators, "DatabasePopulators must not be null");
+    Assert.notNull(populators, "DatabasePopulators is required");
     this.populators.addAll(Arrays.asList(populators));
   }
 
@@ -78,7 +78,7 @@ public class CompositeDatabasePopulator implements DatabasePopulator {
    * Specify one or more populators to delegate to.
    */
   public void setPopulators(DatabasePopulator... populators) {
-    Assert.notNull(populators, "DatabasePopulators must not be null");
+    Assert.notNull(populators, "DatabasePopulators is required");
     this.populators.clear();
     this.populators.addAll(Arrays.asList(populators));
   }
@@ -87,13 +87,13 @@ public class CompositeDatabasePopulator implements DatabasePopulator {
    * Add one or more populators to the list of delegates.
    */
   public void addPopulators(DatabasePopulator... populators) {
-    Assert.notNull(populators, "DatabasePopulators must not be null");
+    Assert.notNull(populators, "DatabasePopulators is required");
     this.populators.addAll(Arrays.asList(populators));
   }
 
   @Override
   public void populate(Connection connection) throws SQLException, ScriptException {
-    Assert.notNull(connection, "Connection must not be null");
+    Assert.notNull(connection, "Connection is required");
     for (DatabasePopulator populator : this.populators) {
       populator.populate(connection);
     }

@@ -61,7 +61,7 @@ public abstract class AopTestUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> T getTargetObject(Object candidate) {
-    Assert.notNull(candidate, "Candidate must not be null");
+    Assert.notNull(candidate, "Candidate is required");
     try {
       if (isAopPresent) {
         if (AopUtils.isAopProxy(candidate) && candidate instanceof Advised advised) {
@@ -103,7 +103,7 @@ public abstract class AopTestUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T> T getUltimateTargetObject(Object candidate) {
-    Assert.notNull(candidate, "Candidate must not be null");
+    Assert.notNull(candidate, "Candidate is required");
     try {
       if (isAopPresent) {
         if (AopUtils.isAopProxy(candidate) && candidate instanceof Advised advised) {

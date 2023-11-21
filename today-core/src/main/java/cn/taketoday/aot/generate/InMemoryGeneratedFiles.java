@@ -43,9 +43,9 @@ public class InMemoryGeneratedFiles implements GeneratedFiles {
 
   @Override
   public void addFile(Kind kind, String path, InputStreamSource content) {
-    Assert.notNull(kind, "'kind' must not be null");
+    Assert.notNull(kind, "'kind' is required");
     Assert.hasLength(path, "'path' must not be empty");
-    Assert.notNull(content, "'content' must not be null");
+    Assert.notNull(content, "'content' is required");
     Map<String, InputStreamSource> paths = this.files.computeIfAbsent(kind,
             key -> new LinkedHashMap<>());
     Assert.state(!paths.containsKey(path), () -> "Path '" + path + "' already in use");
@@ -59,7 +59,7 @@ public class InMemoryGeneratedFiles implements GeneratedFiles {
    * @return a {@link Map} of paths to {@link InputStreamSource} instances
    */
   public Map<String, InputStreamSource> getGeneratedFiles(Kind kind) {
-    Assert.notNull(kind, "'kind' must not be null");
+    Assert.notNull(kind, "'kind' is required");
     return Collections.unmodifiableMap(this.files.getOrDefault(kind, Collections.emptyMap()));
   }
 
@@ -89,7 +89,7 @@ public class InMemoryGeneratedFiles implements GeneratedFiles {
    */
   @Nullable
   public InputStreamSource getGeneratedFile(Kind kind, String path) {
-    Assert.notNull(kind, "'kind' must not be null");
+    Assert.notNull(kind, "'kind' is required");
     Assert.hasLength(path, "'path' must not be empty");
     Map<String, InputStreamSource> paths = this.files.get(kind);
     return (paths != null) ? paths.get(path) : null;

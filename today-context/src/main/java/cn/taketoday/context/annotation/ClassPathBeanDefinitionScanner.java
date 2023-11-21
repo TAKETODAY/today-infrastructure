@@ -166,7 +166,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
   public ClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, boolean useDefaultFilters,
           Environment environment, @Nullable ResourceLoader resourceLoader) {
 
-    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+    Assert.notNull(registry, "BeanDefinitionRegistry is required");
     this.registry = registry;
 
     if (useDefaultFilters) {
@@ -432,7 +432,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
    * StandardEnvironment.
    */
   private static Environment getOrCreateEnvironment(BeanDefinitionRegistry registry) {
-    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+    Assert.notNull(registry, "BeanDefinitionRegistry is required");
     if (registry instanceof EnvironmentCapable) {
       return ((EnvironmentCapable) registry).getEnvironment();
     }

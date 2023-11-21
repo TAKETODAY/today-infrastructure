@@ -75,7 +75,7 @@ public abstract class AbstractRefreshableConfigApplicationContext extends Abstra
    */
   public void setConfigLocations(@Nullable String... locations) {
     if (locations != null) {
-      Assert.noNullElements(locations, "Config locations must not be null");
+      Assert.noNullElements(locations, "Config locations is required");
       this.configLocations = new String[locations.length];
       for (int i = 0; i < locations.length; i++) {
         this.configLocations[i] = resolvePath(locations[i]).trim();

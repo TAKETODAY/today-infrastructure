@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +75,7 @@ public class MockMvcHtmlUnitDriverBuilder extends MockMvcWebConnectionBuilderSup
    * @return the MockMvcHtmlUnitDriverBuilder to customize
    */
   public static MockMvcHtmlUnitDriverBuilder mockMvcSetup(MockMvc mockMvc) {
-    Assert.notNull(mockMvc, "MockMvc must not be null");
+    Assert.notNull(mockMvc, "MockMvc is required");
     return new MockMvcHtmlUnitDriverBuilder(mockMvc);
   }
 
@@ -91,7 +88,7 @@ public class MockMvcHtmlUnitDriverBuilder extends MockMvcWebConnectionBuilderSup
    * @return the MockMvcHtmlUnitDriverBuilder to customize
    */
   public static MockMvcHtmlUnitDriverBuilder webAppContextSetup(WebApplicationContext context) {
-    Assert.notNull(context, "WebApplicationContext must not be null");
+    Assert.notNull(context, "WebApplicationContext is required");
     return new MockMvcHtmlUnitDriverBuilder(context);
   }
 
@@ -107,8 +104,8 @@ public class MockMvcHtmlUnitDriverBuilder extends MockMvcWebConnectionBuilderSup
   public static MockMvcHtmlUnitDriverBuilder webAppContextSetup(WebApplicationContext context,
           MockMvcConfigurer configurer) {
 
-    Assert.notNull(context, "WebApplicationContext must not be null");
-    Assert.notNull(configurer, "MockMvcConfigurer must not be null");
+    Assert.notNull(context, "WebApplicationContext is required");
+    Assert.notNull(configurer, "MockMvcConfigurer is required");
     return new MockMvcHtmlUnitDriverBuilder(context, configurer);
   }
 
@@ -136,7 +133,7 @@ public class MockMvcHtmlUnitDriverBuilder extends MockMvcWebConnectionBuilderSup
    * @see #build()
    */
   public MockMvcHtmlUnitDriverBuilder withDelegate(WebConnectionHtmlUnitDriver driver) {
-    Assert.notNull(driver, "HtmlUnitDriver must not be null");
+    Assert.notNull(driver, "HtmlUnitDriver is required");
     driver.setJavascriptEnabled(this.javascriptEnabled);
     driver.setWebConnection(createConnection(driver.getWebClient()));
     this.driver = driver;

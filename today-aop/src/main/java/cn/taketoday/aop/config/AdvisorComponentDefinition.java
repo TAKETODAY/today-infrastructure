@@ -56,8 +56,8 @@ public class AdvisorComponentDefinition extends AbstractComponentDefinition {
   public AdvisorComponentDefinition(
           String advisorBeanName, BeanDefinition advisorDefinition, @Nullable BeanDefinition pointcutDefinition) {
 
-    Assert.notNull(advisorBeanName, "'advisorBeanName' must not be null");
-    Assert.notNull(advisorDefinition, "'advisorDefinition' must not be null");
+    Assert.notNull(advisorBeanName, "'advisorBeanName' is required");
+    Assert.notNull(advisorDefinition, "'advisorDefinition' is required");
     this.advisorBeanName = advisorBeanName;
     this.advisorDefinition = advisorDefinition;
 

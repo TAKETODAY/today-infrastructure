@@ -156,13 +156,13 @@ class DockerApiTests {
     @Test
     void pullWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.pull(null, this.pullListener))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
     void pullWhenListenerIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.pull(ImageReference.of("ubuntu"), null))
-              .withMessage("Listener must not be null");
+              .withMessage("Listener is required");
     }
 
     @Test
@@ -198,14 +198,14 @@ class DockerApiTests {
     @Test
     void pushWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.push(null, this.pushListener, null))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
     void pushWhenListenerIsNullThrowsException() {
       assertThatIllegalArgumentException()
               .isThrownBy(() -> this.api.push(ImageReference.of("ubuntu"), null, null))
-              .withMessage("Listener must not be null");
+              .withMessage("Listener is required");
     }
 
     @Test
@@ -233,14 +233,14 @@ class DockerApiTests {
     @Test
     void loadWhenArchiveIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.load(null, UpdateListener.none()))
-              .withMessage("Archive must not be null");
+              .withMessage("Archive is required");
     }
 
     @Test
     void loadWhenListenerIsNullThrowsException() {
       ImageArchive archive = mock(ImageArchive.class);
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.load(archive, null))
-              .withMessage("Listener must not be null");
+              .withMessage("Listener is required");
     }
 
     @Test
@@ -274,7 +274,7 @@ class DockerApiTests {
     @Test
     void removeWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.remove(null, true))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
@@ -302,7 +302,7 @@ class DockerApiTests {
     @Test
     void inspectWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.inspect(null))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
@@ -317,14 +317,14 @@ class DockerApiTests {
     @Test
     void exportLayersWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.exportLayerFiles(null, (name, archive) -> {
-      })).withMessage("Reference must not be null");
+      })).withMessage("Reference is required");
     }
 
     @Test
     void exportLayersWhenExportsIsNullThrowsException() {
       ImageReference reference = ImageReference.of("gcr.io/paketo-buildpacks/builder:base");
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.exportLayerFiles(reference, null))
-              .withMessage("Exports must not be null");
+              .withMessage("Exports is required");
     }
 
     @Test
@@ -408,14 +408,14 @@ class DockerApiTests {
     void tagWhenReferenceIsNullThrowsException() {
       ImageReference tag = ImageReference.of("localhost:5000/ubuntu");
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.tag(null, tag))
-              .withMessage("SourceReference must not be null");
+              .withMessage("SourceReference is required");
     }
 
     @Test
     void tagWhenTargetIsNullThrowsException() {
       ImageReference reference = ImageReference.of("localhost:5000/ubuntu");
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.tag(reference, null))
-              .withMessage("TargetReference must not be null");
+              .withMessage("TargetReference is required");
     }
 
     @Test
@@ -459,7 +459,7 @@ class DockerApiTests {
     @Test
     void createWhenConfigIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.create(null))
-              .withMessage("Config must not be null");
+              .withMessage("Config is required");
     }
 
     @Test
@@ -505,7 +505,7 @@ class DockerApiTests {
     @Test
     void startWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.start(null))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
@@ -520,14 +520,14 @@ class DockerApiTests {
     @Test
     void logsWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.logs(null, UpdateListener.none()))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
     void logsWhenListenerIsNullThrowsException() {
       assertThatIllegalArgumentException()
               .isThrownBy(() -> this.api.logs(ContainerReference.of("e90e34656806"), null))
-              .withMessage("Listener must not be null");
+              .withMessage("Listener is required");
     }
 
     @Test
@@ -545,7 +545,7 @@ class DockerApiTests {
     @Test
     void waitWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.wait(null))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
@@ -560,7 +560,7 @@ class DockerApiTests {
     @Test
     void removeWhenReferenceIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.remove(null, true))
-              .withMessage("Reference must not be null");
+              .withMessage("Reference is required");
     }
 
     @Test
@@ -596,7 +596,7 @@ class DockerApiTests {
     @Test
     void deleteWhenNameIsNullThrowsException() {
       assertThatIllegalArgumentException().isThrownBy(() -> this.api.delete(null, false))
-              .withMessage("Name must not be null");
+              .withMessage("Name is required");
     }
 
     @Test

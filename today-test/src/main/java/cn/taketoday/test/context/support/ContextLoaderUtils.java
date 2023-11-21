@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,7 +96,7 @@ abstract class ContextLoaderUtils {
    */
   @SuppressWarnings("unchecked")
   static List<List<ContextConfigurationAttributes>> resolveContextHierarchyAttributes(Class<?> testClass) {
-    Assert.notNull(testClass, "Class must not be null");
+    Assert.notNull(testClass, "Class is required");
 
     Class<ContextConfiguration> contextConfigType = ContextConfiguration.class;
     Class<ContextHierarchy> contextHierarchyType = ContextHierarchy.class;
@@ -238,7 +235,7 @@ abstract class ContextLoaderUtils {
    * {@code @ContextConfiguration} is not <em>present</em> on the supplied class
    */
   static List<ContextConfigurationAttributes> resolveContextConfigurationAttributes(Class<?> testClass) {
-    Assert.notNull(testClass, "Class must not be null");
+    Assert.notNull(testClass, "Class is required");
 
     Class<ContextConfiguration> annotationType = ContextConfiguration.class;
     AnnotationDescriptor<ContextConfiguration> descriptor = findAnnotationDescriptor(testClass, annotationType);

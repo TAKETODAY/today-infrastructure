@@ -73,7 +73,7 @@ public interface BeanRegistrationAotContribution {
   static BeanRegistrationAotContribution withCustomCodeFragments(
           UnaryOperator<BeanRegistrationCodeFragments> defaultCodeFragments) {
 
-    Assert.notNull(defaultCodeFragments, "'defaultCodeFragments' must not be null");
+    Assert.notNull(defaultCodeFragments, "'defaultCodeFragments' is required");
 
     return new BeanRegistrationAotContribution() {
       @Override

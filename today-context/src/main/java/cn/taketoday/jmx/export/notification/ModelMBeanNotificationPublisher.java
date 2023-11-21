@@ -73,9 +73,9 @@ public class ModelMBeanNotificationPublisher implements NotificationPublisher {
   public ModelMBeanNotificationPublisher(
           ModelMBeanNotificationBroadcaster modelMBean, ObjectName objectName, Object managedResource) {
 
-    Assert.notNull(modelMBean, "'modelMBean' must not be null");
-    Assert.notNull(objectName, "'objectName' must not be null");
-    Assert.notNull(managedResource, "'managedResource' must not be null");
+    Assert.notNull(modelMBean, "'modelMBean' is required");
+    Assert.notNull(objectName, "'objectName' is required");
+    Assert.notNull(managedResource, "'managedResource' is required");
     this.modelMBean = modelMBean;
     this.objectName = objectName;
     this.managedResource = managedResource;
@@ -91,7 +91,7 @@ public class ModelMBeanNotificationPublisher implements NotificationPublisher {
    */
   @Override
   public void sendNotification(Notification notification) {
-    Assert.notNull(notification, "Notification must not be null");
+    Assert.notNull(notification, "Notification is required");
     replaceNotificationSourceIfNecessary(notification);
     try {
       if (notification instanceof AttributeChangeNotification) {

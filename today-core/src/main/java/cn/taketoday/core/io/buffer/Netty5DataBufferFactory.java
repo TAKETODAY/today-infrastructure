@@ -44,7 +44,7 @@ public class Netty5DataBufferFactory implements DataBufferFactory {
    * @param bufferAllocator the factory to use
    */
   public Netty5DataBufferFactory(BufferAllocator bufferAllocator) {
-    Assert.notNull(bufferAllocator, "BufferAllocator must not be null");
+    Assert.notNull(bufferAllocator, "BufferAllocator is required");
     this.bufferAllocator = bufferAllocator;
   }
 

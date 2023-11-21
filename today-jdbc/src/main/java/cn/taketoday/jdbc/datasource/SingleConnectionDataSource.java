@@ -119,7 +119,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
    * SmartDataSource interface)
    */
   public SingleConnectionDataSource(Connection target, boolean suppressClose) {
-    Assert.notNull(target, "Connection must not be null");
+    Assert.notNull(target, "Connection is required");
     this.target = target;
     this.suppressClose = suppressClose;
     this.connection = (suppressClose ? getCloseSuppressingConnectionProxy(target) : target);

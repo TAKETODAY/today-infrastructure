@@ -132,8 +132,8 @@ public interface AttributeAccessor {
    */
   @SuppressWarnings("unchecked")
   default <T> T computeAttribute(String name, Function<String, T> computeFunction) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(computeFunction, "Compute function must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(computeFunction, "Compute function is required");
     Object value = getAttribute(name);
     if (value == null) {
       value = computeFunction.apply(name);

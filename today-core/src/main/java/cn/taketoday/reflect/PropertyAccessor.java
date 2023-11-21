@@ -138,7 +138,7 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @return PropertyAccessor
    */
   public static PropertyAccessor fromMethod(GetterMethod readMethod, @Nullable SetterMethod writeMethod) {
-    Assert.notNull(readMethod, "readMethod must not be null");
+    Assert.notNull(readMethod, "readMethod is required");
     if (writeMethod != null) {
       return new GetterSetterPropertyAccessor(readMethod, writeMethod);
     }

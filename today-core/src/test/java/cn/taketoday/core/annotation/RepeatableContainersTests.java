@@ -145,7 +145,7 @@ class RepeatableContainersTests {
     void ofExplicitWhenAnnotationIsNullThrowsException() {
       assertThatIllegalArgumentException()
               .isThrownBy(() -> RepeatableContainers.valueOf(null, null))
-              .withMessage("Repeatable must not be null");
+              .withMessage("Repeatable is required");
     }
 
     @Test

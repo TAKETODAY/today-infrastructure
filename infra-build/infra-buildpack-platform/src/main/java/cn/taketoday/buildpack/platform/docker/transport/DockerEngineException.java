@@ -88,8 +88,8 @@ public class DockerEngineException extends RuntimeException {
 
   private static String buildMessage(String host, URI uri, int statusCode, String reasonPhrase, Errors errors,
           Message responseMessage) {
-    Assert.notNull(host, "Host must not be null");
-    Assert.notNull(uri, "URI must not be null");
+    Assert.notNull(host, "Host is required");
+    Assert.notNull(uri, "URI is required");
     StringBuilder message = new StringBuilder(
             "Docker API call to '" + host + uri + "' failed with status code " + statusCode);
     if (StringUtils.isNotEmpty(reasonPhrase)) {

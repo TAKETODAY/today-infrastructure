@@ -88,7 +88,7 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
    * so it's possible to chain several calls together
    */
   public MapSqlParameterSource addValue(String paramName, @Nullable Object value) {
-    Assert.notNull(paramName, "Parameter name must not be null");
+    Assert.notNull(paramName, "Parameter name is required");
     this.values.put(paramName, value);
     if (value instanceof SqlParameterValue sqlParameterValue) {
       registerSqlType(paramName, sqlParameterValue.getSqlType());
@@ -106,7 +106,7 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
    * so it's possible to chain several calls together
    */
   public MapSqlParameterSource addValue(String paramName, @Nullable Object value, int sqlType) {
-    Assert.notNull(paramName, "Parameter name must not be null");
+    Assert.notNull(paramName, "Parameter name is required");
     this.values.put(paramName, value);
     registerSqlType(paramName, sqlType);
     return this;
@@ -123,7 +123,7 @@ public class MapSqlParameterSource extends AbstractSqlParameterSource {
    * so it's possible to chain several calls together
    */
   public MapSqlParameterSource addValue(String paramName, @Nullable Object value, int sqlType, String typeName) {
-    Assert.notNull(paramName, "Parameter name must not be null");
+    Assert.notNull(paramName, "Parameter name is required");
     this.values.put(paramName, value);
     registerSqlType(paramName, sqlType);
     registerTypeName(paramName, typeName);

@@ -96,13 +96,13 @@ public class MockFilterConfig implements FilterConfig {
   }
 
   public void addInitParameter(String name, String value) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     this.initParameters.put(name, value);
   }
 
   @Override
   public String getInitParameter(String name) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     return this.initParameters.get(name);
   }
 

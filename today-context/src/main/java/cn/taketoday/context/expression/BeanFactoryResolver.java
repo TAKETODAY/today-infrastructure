@@ -43,7 +43,7 @@ public class BeanFactoryResolver implements BeanResolver {
    * @param beanFactory the {@link BeanFactory} to resolve bean names against
    */
   public BeanFactoryResolver(BeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     this.beanFactory = beanFactory;
   }
 

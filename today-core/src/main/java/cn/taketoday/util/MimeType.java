@@ -655,7 +655,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @since 4.0
    */
   public boolean isMoreSpecific(MimeType other) {
-    Assert.notNull(other, "Other must not be null");
+    Assert.notNull(other, "Other is required");
     boolean thisWildcard = isWildcardType();
     boolean otherWildcard = other.isWildcardType();
     if (thisWildcard && !otherWildcard) {  // */* > audio/*
@@ -709,7 +709,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @since 4.0
    */
   public boolean isLessSpecific(MimeType other) {
-    Assert.notNull(other, "Other must not be null");
+    Assert.notNull(other, "Other is required");
     return other.isMoreSpecific(this);
   }
 

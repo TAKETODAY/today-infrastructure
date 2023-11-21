@@ -117,7 +117,7 @@ public class ReflectionHints {
    * @see #registerType(Class, MemberCategory...)
    */
   public ReflectionHints registerType(Class<?> type, Consumer<TypeHint.Builder> typeHint) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     if (type.getCanonicalName() != null) {
       registerType(TypeReference.of(type), typeHint);
     }
@@ -133,7 +133,7 @@ public class ReflectionHints {
    * @return {@code this}, to facilitate method chaining
    */
   public ReflectionHints registerType(Class<?> type, MemberCategory... memberCategories) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     if (type.getCanonicalName() != null) {
       registerType(TypeReference.of(type), memberCategories);
     }

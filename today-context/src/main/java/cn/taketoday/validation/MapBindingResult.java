@@ -52,7 +52,7 @@ public class MapBindingResult extends AbstractBindingResult implements Serializa
    */
   public MapBindingResult(Map<?, ?> target, String objectName) {
     super(objectName);
-    Assert.notNull(target, "Target Map must not be null");
+    Assert.notNull(target, "Target Map is required");
     this.target = target;
   }
 

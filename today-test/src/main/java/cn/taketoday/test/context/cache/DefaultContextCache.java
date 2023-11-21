@@ -120,7 +120,7 @@ public class DefaultContextCache implements ContextCache {
    */
   @Override
   public boolean contains(MergedContextConfiguration key) {
-    Assert.notNull(key, "Key must not be null");
+    Assert.notNull(key, "Key is required");
     return this.contextMap.containsKey(key);
   }
 
@@ -130,7 +130,7 @@ public class DefaultContextCache implements ContextCache {
   @Override
   @Nullable
   public ApplicationContext get(MergedContextConfiguration key) {
-    Assert.notNull(key, "Key must not be null");
+    Assert.notNull(key, "Key is required");
     ApplicationContext context = this.contextMap.get(key);
     if (context == null) {
       this.missCount.incrementAndGet();
@@ -146,8 +146,8 @@ public class DefaultContextCache implements ContextCache {
    */
   @Override
   public void put(MergedContextConfiguration key, ApplicationContext context) {
-    Assert.notNull(key, "Key must not be null");
-    Assert.notNull(context, "ApplicationContext must not be null");
+    Assert.notNull(key, "Key is required");
+    Assert.notNull(context, "ApplicationContext is required");
 
     this.contextMap.put(key, context);
     MergedContextConfiguration child = key;
@@ -165,7 +165,7 @@ public class DefaultContextCache implements ContextCache {
    */
   @Override
   public void remove(MergedContextConfiguration key, @Nullable HierarchyMode hierarchyMode) {
-    Assert.notNull(key, "Key must not be null");
+    Assert.notNull(key, "Key is required");
 
     // startKey is the level at which to begin clearing the cache,
     // depending on the configured hierarchy mode.
@@ -198,7 +198,7 @@ public class DefaultContextCache implements ContextCache {
   }
 
   private void remove(List<MergedContextConfiguration> removedContexts, MergedContextConfiguration key) {
-    Assert.notNull(key, "Key must not be null");
+    Assert.notNull(key, "Key is required");
 
     Set<MergedContextConfiguration> children = this.hierarchyMap.get(key);
     if (children != null) {

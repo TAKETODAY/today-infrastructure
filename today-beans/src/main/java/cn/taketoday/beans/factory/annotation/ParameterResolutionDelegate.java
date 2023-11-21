@@ -85,7 +85,7 @@ public final class ParameterResolutionDelegate {
    * @see #resolveDependency
    */
   public static boolean isAutowirable(Parameter parameter, int parameterIndex) {
-    Assert.notNull(parameter, "Parameter must not be null");
+    Assert.notNull(parameter, "Parameter is required");
     AnnotatedElement annotatedParameter = getEffectiveAnnotatedParameter(parameter, parameterIndex);
     return AnnotatedElementUtils.hasAnnotation(annotatedParameter, Autowired.class)
             || AnnotatedElementUtils.hasAnnotation(annotatedParameter, Qualifier.class)
@@ -126,9 +126,9 @@ public final class ParameterResolutionDelegate {
   public static Object resolveDependency(Parameter parameter, int parameterIndex,
           Class<?> containingClass, AutowireCapableBeanFactory beanFactory) throws BeansException {
 
-    Assert.notNull(parameter, "Parameter must not be null");
-    Assert.notNull(containingClass, "Containing class must not be null");
-    Assert.notNull(beanFactory, "AutowireCapableBeanFactory must not be null");
+    Assert.notNull(parameter, "Parameter is required");
+    Assert.notNull(containingClass, "Containing class is required");
+    Assert.notNull(beanFactory, "AutowireCapableBeanFactory is required");
 
     AnnotatedElement annotatedParameter = getEffectiveAnnotatedParameter(parameter, parameterIndex);
     Autowired autowired = AnnotatedElementUtils.findMergedAnnotation(annotatedParameter, Autowired.class);

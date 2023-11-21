@@ -58,8 +58,8 @@ public class GeneratedMethods {
    * @param methodNameGenerator the method name generator
    */
   GeneratedMethods(ClassName className, Function<MethodName, String> methodNameGenerator) {
-    Assert.notNull(className, "'className' must not be null");
-    Assert.notNull(methodNameGenerator, "'methodNameGenerator' must not be null");
+    Assert.notNull(className, "'className' is required");
+    Assert.notNull(methodNameGenerator, "'methodNameGenerator' is required");
     this.className = className;
     this.methodNameGenerator = methodNameGenerator;
     this.prefix = MethodName.NONE;
@@ -92,7 +92,7 @@ public class GeneratedMethods {
    * @return the newly added {@link GeneratedMethod}
    */
   public GeneratedMethod add(String suggestedName, Consumer<Builder> method) {
-    Assert.notNull(suggestedName, "'suggestedName' must not be null");
+    Assert.notNull(suggestedName, "'suggestedName' is required");
     return add(new String[] { suggestedName }, method);
   }
 
@@ -114,8 +114,8 @@ public class GeneratedMethods {
    * @return the newly added {@link GeneratedMethod}
    */
   public GeneratedMethod add(String[] suggestedNameParts, Consumer<Builder> method) {
-    Assert.notNull(suggestedNameParts, "'suggestedNameParts' must not be null");
-    Assert.notNull(method, "'method' must not be null");
+    Assert.notNull(suggestedNameParts, "'suggestedNameParts' is required");
+    Assert.notNull(method, "'method' is required");
     String generatedName = this.methodNameGenerator.apply(this.prefix.and(suggestedNameParts));
     GeneratedMethod generatedMethod = new GeneratedMethod(this.className, generatedName, method);
     this.generatedMethods.add(generatedMethod);
@@ -131,7 +131,7 @@ public class GeneratedMethods {
    * @return a new instance with the specified prefix
    */
   public GeneratedMethods withPrefix(String prefix) {
-    Assert.notNull(prefix, "'prefix' must not be null");
+    Assert.notNull(prefix, "'prefix' is required");
     return new GeneratedMethods(this.className, this.methodNameGenerator,
             this.prefix.and(prefix), this.generatedMethods);
   }

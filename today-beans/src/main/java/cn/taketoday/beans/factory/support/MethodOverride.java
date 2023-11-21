@@ -55,7 +55,7 @@ public abstract class MethodOverride implements BeanMetadataElement {
    * @param methodName the name of the method to override
    */
   protected MethodOverride(String methodName) {
-    Assert.notNull(methodName, "Method name must not be null");
+    Assert.notNull(methodName, "Method name is required");
     this.methodName = methodName;
   }
 

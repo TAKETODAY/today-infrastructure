@@ -115,7 +115,7 @@ public class CheckAnnotationAdapter extends AnnotationVisitor {
 
   private void checkName(final String name) {
     if (useNamedValue && name == null) {
-      throw new IllegalArgumentException("Annotation value name must not be null");
+      throw new IllegalArgumentException("Annotation value name is required");
     }
   }
 

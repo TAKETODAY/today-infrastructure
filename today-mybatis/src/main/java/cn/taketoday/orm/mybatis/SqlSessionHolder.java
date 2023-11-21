@@ -54,8 +54,8 @@ public final class SqlSessionHolder extends ResourceHolderSupport {
    */
   public SqlSessionHolder(SqlSession sqlSession, ExecutorType executorType,
           @Nullable PersistenceExceptionTranslator exceptionTranslator) {
-    Assert.notNull(sqlSession, "SqlSession must not be null");
-    Assert.notNull(executorType, "ExecutorType must not be null");
+    Assert.notNull(sqlSession, "SqlSession is required");
+    Assert.notNull(executorType, "ExecutorType is required");
 
     this.sqlSession = sqlSession;
     this.executorType = executorType;

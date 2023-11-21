@@ -84,7 +84,7 @@ public class TransactionalApplicationListenerMethodAdapter extends ApplicationLi
 
   @Override
   public void addCallback(SynchronizationCallback callback) {
-    Assert.notNull(callback, "SynchronizationCallback must not be null");
+    Assert.notNull(callback, "SynchronizationCallback is required");
     this.callbacks.add(callback);
   }
 

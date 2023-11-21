@@ -196,7 +196,7 @@ public abstract class StringUtils {
     if (length == 0) {
       return source;
     }
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream(length);
     boolean changed = false;

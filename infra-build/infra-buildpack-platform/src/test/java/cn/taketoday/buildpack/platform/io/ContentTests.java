@@ -37,7 +37,7 @@ class ContentTests {
   @Test
   void ofWhenStreamIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> Content.of(1, null))
-            .withMessage("Supplier must not be null");
+            .withMessage("Supplier is required");
   }
 
   @Test
@@ -51,7 +51,7 @@ class ContentTests {
   @Test
   void ofWhenStringIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> Content.of((String) null))
-            .withMessage("String must not be null");
+            .withMessage("String is required");
   }
 
   @Test
@@ -63,7 +63,7 @@ class ContentTests {
   @Test
   void ofWhenBytesIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> Content.of((byte[]) null))
-            .withMessage("Bytes must not be null");
+            .withMessage("Bytes is required");
   }
 
   @Test

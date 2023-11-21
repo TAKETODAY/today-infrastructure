@@ -60,7 +60,7 @@ public class GeneratedClasses {
 
   private GeneratedClasses(ClassNameGenerator classNameGenerator,
           List<GeneratedClass> classes, Map<Owner, GeneratedClass> classesByOwner) {
-    Assert.notNull(classNameGenerator, "'classNameGenerator' must not be null");
+    Assert.notNull(classNameGenerator, "'classNameGenerator' is required");
     this.classNameGenerator = classNameGenerator;
     this.classes = classes;
     this.classesByOwner = classesByOwner;
@@ -81,7 +81,7 @@ public class GeneratedClasses {
           Consumer<TypeSpec.Builder> type) {
 
     Assert.hasLength(featureName, "'featureName' must not be empty");
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     Owner owner = new Owner(this.classNameGenerator.getFeatureNamePrefix(), featureName, null);
     GeneratedClass generatedClass = this.classesByOwner.computeIfAbsent(owner, key -> createAndAddGeneratedClass(featureName, null, type));
     generatedClass.assertSameType(type);
@@ -105,8 +105,8 @@ public class GeneratedClasses {
           ClassName targetComponent, Consumer<TypeSpec.Builder> type) {
 
     Assert.hasLength(featureName, "'featureName' must not be empty");
-    Assert.notNull(targetComponent, "'targetComponent' must not be null");
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(targetComponent, "'targetComponent' is required");
+    Assert.notNull(type, "'type' is required");
     Owner owner = new Owner(this.classNameGenerator.getFeatureNamePrefix(), featureName, targetComponent);
     GeneratedClass generatedClass = this.classesByOwner.computeIfAbsent(owner, key ->
             createAndAddGeneratedClass(featureName, targetComponent, type));
@@ -144,7 +144,7 @@ public class GeneratedClasses {
    */
   public GeneratedClass addForFeature(String featureName, Consumer<TypeSpec.Builder> type) {
     Assert.hasLength(featureName, "'featureName' must not be empty");
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     return createAndAddGeneratedClass(featureName, null, type);
   }
 
@@ -162,8 +162,8 @@ public class GeneratedClasses {
           ClassName targetComponent, Consumer<TypeSpec.Builder> type) {
 
     Assert.hasLength(featureName, "'featureName' must not be empty");
-    Assert.notNull(targetComponent, "'targetComponent' must not be null");
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(targetComponent, "'targetComponent' is required");
+    Assert.notNull(type, "'type' is required");
     return createAndAddGeneratedClass(featureName, targetComponent, type);
   }
 
@@ -199,7 +199,7 @@ public class GeneratedClasses {
    * @param generatedFiles where to write the generated classes
    */
   void writeTo(GeneratedFiles generatedFiles) {
-    Assert.notNull(generatedFiles, "'generatedFiles' must not be null");
+    Assert.notNull(generatedFiles, "'generatedFiles' is required");
     List<GeneratedClass> generatedClasses = new ArrayList<>(this.classes);
     generatedClasses.sort(Comparator.comparing(GeneratedClass::getName));
     for (GeneratedClass generatedClass : generatedClasses) {

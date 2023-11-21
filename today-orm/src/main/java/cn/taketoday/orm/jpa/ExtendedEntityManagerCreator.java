@@ -176,7 +176,7 @@ public abstract class ExtendedEntityManagerCreator {
   public static EntityManager createContainerManagedEntityManager(
           EntityManagerFactory emf, @Nullable Map<?, ?> properties, boolean synchronizedWithTransaction) {
 
-    Assert.notNull(emf, "EntityManagerFactory must not be null");
+    Assert.notNull(emf, "EntityManagerFactory is required");
     if (emf instanceof EntityManagerFactoryInfo emfInfo) {
       EntityManager rawEntityManager = emfInfo.createNativeEntityManager(properties);
       return createProxy(rawEntityManager, emfInfo, true, synchronizedWithTransaction);
@@ -203,7 +203,7 @@ public abstract class ExtendedEntityManagerCreator {
   private static EntityManager createProxy(EntityManager rawEntityManager,
           EntityManagerFactoryInfo emfInfo, boolean containerManaged, boolean synchronizedWithTransaction) {
 
-    Assert.notNull(emfInfo, "EntityManagerFactoryInfo must not be null");
+    Assert.notNull(emfInfo, "EntityManagerFactoryInfo is required");
     JpaDialect jpaDialect = emfInfo.getJpaDialect();
     PersistenceUnitInfo pui = emfInfo.getPersistenceUnitInfo();
     Boolean jta = (pui != null ? pui.getTransactionType() == PersistenceUnitTransactionType.JTA : null);
@@ -232,7 +232,7 @@ public abstract class ExtendedEntityManagerCreator {
           @Nullable PersistenceExceptionTranslator exceptionTranslator, @Nullable Boolean jta,
           boolean containerManaged, boolean synchronizedWithTransaction) {
 
-    Assert.notNull(rawEm, "EntityManager must not be null");
+    Assert.notNull(rawEm, "EntityManager is required");
     Class<?>[] interfaces;
 
     if (emIfc != null) {

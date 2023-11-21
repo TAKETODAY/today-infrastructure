@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,14 +66,14 @@ public class EndpointConnectionManager extends ConnectionManagerSupport implemen
 
   public EndpointConnectionManager(Endpoint endpoint, String uriTemplate, Object... uriVariables) {
     super(uriTemplate, uriVariables);
-    Assert.notNull(endpoint, "endpoint must not be null");
+    Assert.notNull(endpoint, "endpoint is required");
     this.endpoint = endpoint;
     this.endpointProvider = null;
   }
 
   public EndpointConnectionManager(Class<? extends Endpoint> endpointClass, String uriTemplate, Object... uriVars) {
     super(uriTemplate, uriVars);
-    Assert.notNull(endpointClass, "endpointClass must not be null");
+    Assert.notNull(endpointClass, "endpointClass is required");
     this.endpoint = null;
     this.endpointProvider = new BeanCreatingHandlerProvider<>(endpointClass);
   }
@@ -121,7 +118,7 @@ public class EndpointConnectionManager extends ConnectionManagerSupport implemen
    * By default {@link SimpleAsyncTaskExecutor} is used.
    */
   public void setTaskExecutor(TaskExecutor taskExecutor) {
-    Assert.notNull(taskExecutor, "TaskExecutor must not be null");
+    Assert.notNull(taskExecutor, "TaskExecutor is required");
     this.taskExecutor = taskExecutor;
   }
 

@@ -72,7 +72,7 @@ class AutowiredMethodArgumentsResolverTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> AutowiredMethodArgumentsResolver
                     .forMethod("injectString", String.class).resolve(null))
-            .withMessage("'registeredBean' must not be null");
+            .withMessage("'registeredBean' is required");
   }
 
   @Test
@@ -137,7 +137,7 @@ class AutowiredMethodArgumentsResolverTests {
             .isThrownBy(() -> AutowiredMethodArgumentsResolver
                     .forMethod("injectString", String.class)
                     .resolveAndInvoke(registeredBean, null))
-            .withMessage("'instance' must not be null");
+            .withMessage("'instance' is required");
   }
 
   @Test
@@ -158,7 +158,7 @@ class AutowiredMethodArgumentsResolverTests {
             .isThrownBy(() -> AutowiredMethodArgumentsResolver
                     .forMethod("injectString", String.class)
                     .resolve(registeredBean, null))
-            .withMessage("'action' must not be null");
+            .withMessage("'action' is required");
   }
 
   @Test

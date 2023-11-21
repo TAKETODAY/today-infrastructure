@@ -84,7 +84,7 @@ public class EncodedResource implements InputStreamSource {
   }
 
   private EncodedResource(Resource resource, String encoding, Charset charset) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
     this.encoding = encoding;
     this.charset = charset;

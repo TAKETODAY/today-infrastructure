@@ -101,14 +101,14 @@ public class MapDataSourceLookup implements DataSourceLookup {
    * @param dataSource the {@link DataSource} to be so added
    */
   public void addDataSource(String dataSourceName, DataSource dataSource) {
-    Assert.notNull(dataSourceName, "DataSource name must not be null");
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(dataSourceName, "DataSource name is required");
+    Assert.notNull(dataSource, "DataSource is required");
     this.dataSources.put(dataSourceName, dataSource);
   }
 
   @Override
   public DataSource getDataSource(String dataSourceName) throws DataSourceLookupFailureException {
-    Assert.notNull(dataSourceName, "DataSource name must not be null");
+    Assert.notNull(dataSourceName, "DataSource name is required");
     DataSource dataSource = this.dataSources.get(dataSourceName);
     if (dataSource == null) {
       throw new DataSourceLookupFailureException(

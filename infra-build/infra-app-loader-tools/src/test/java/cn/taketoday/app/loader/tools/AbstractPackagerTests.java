@@ -185,7 +185,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     this.testJarFile.addClass("a/b/C.class", ClassWithMainMethod.class);
     P packager = createPackager();
     assertThatIllegalArgumentException().isThrownBy(() -> execute(packager, null))
-            .withMessageContaining("Libraries must not be null");
+            .withMessageContaining("Libraries is required");
   }
 
   @Test
@@ -400,7 +400,7 @@ abstract class AbstractPackagerTests<P extends Packager> {
     this.testJarFile.addClass("a/b/C.class", ClassWithoutMainMethod.class);
     Packager packager = createPackager();
     assertThatIllegalArgumentException().isThrownBy(() -> packager.setLayout(null))
-            .withMessageContaining("Layout must not be null");
+            .withMessageContaining("Layout is required");
   }
 
   @Test

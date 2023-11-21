@@ -85,7 +85,7 @@ public abstract class NamedParameterUtils {
    * @return the parsed statement, represented as ParsedSql instance
    */
   public static ParsedSql parseSqlStatement(final String sql) {
-    Assert.notNull(sql, "SQL must not be null");
+    Assert.notNull(sql, "SQL is required");
 
     Set<String> namedParameters = new HashSet<>();
     StringBuilder sqlToUse = new StringBuilder(sql);

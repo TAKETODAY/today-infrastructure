@@ -65,7 +65,7 @@ public final class RecordedInvocation {
    * @return a builder
    */
   public static Builder of(InstrumentedMethod instrumentedMethod) {
-    Assert.notNull(instrumentedMethod, "InstrumentedMethod must not be null");
+    Assert.notNull(instrumentedMethod, "InstrumentedMethod is required");
     return new Builder(instrumentedMethod);
   }
 

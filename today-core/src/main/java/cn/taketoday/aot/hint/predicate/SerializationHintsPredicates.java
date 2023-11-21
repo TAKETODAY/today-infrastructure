@@ -48,7 +48,7 @@ public class SerializationHintsPredicates {
    * @see java.lang.reflect.Proxy
    */
   public Predicate<RuntimeHints> onType(Class<?> type) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     return onType(TypeReference.of(type));
   }
 
@@ -61,7 +61,7 @@ public class SerializationHintsPredicates {
    * @see java.lang.reflect.Proxy
    */
   public Predicate<RuntimeHints> onType(TypeReference typeReference) {
-    Assert.notNull(typeReference, "'typeReference' must not be null");
+    Assert.notNull(typeReference, "'typeReference' is required");
     return hints -> hints.serialization().javaSerializationHints().anyMatch(
             hint -> hint.getType().equals(typeReference));
   }

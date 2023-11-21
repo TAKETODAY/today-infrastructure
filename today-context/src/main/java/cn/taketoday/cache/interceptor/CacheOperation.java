@@ -185,7 +185,7 @@ public abstract class CacheOperation implements BasicOperation {
     }
 
     public void setKey(String key) {
-      Assert.notNull(key, "Key must not be null");
+      Assert.notNull(key, "Key is required");
       this.key = key;
     }
 
@@ -206,22 +206,22 @@ public abstract class CacheOperation implements BasicOperation {
     }
 
     public void setKeyGenerator(String keyGenerator) {
-      Assert.notNull(keyGenerator, "KeyGenerator name must not be null");
+      Assert.notNull(keyGenerator, "KeyGenerator name is required");
       this.keyGenerator = keyGenerator;
     }
 
     public void setCacheManager(String cacheManager) {
-      Assert.notNull(cacheManager, "CacheManager name must not be null");
+      Assert.notNull(cacheManager, "CacheManager name is required");
       this.cacheManager = cacheManager;
     }
 
     public void setCacheResolver(String cacheResolver) {
-      Assert.notNull(cacheResolver, "CacheResolver name must not be null");
+      Assert.notNull(cacheResolver, "CacheResolver name is required");
       this.cacheResolver = cacheResolver;
     }
 
     public void setCondition(String condition) {
-      Assert.notNull(condition, "Condition must not be null");
+      Assert.notNull(condition, "Condition is required");
       this.condition = condition;
     }
 

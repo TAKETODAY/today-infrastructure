@@ -116,8 +116,8 @@ public abstract class FileSystemUtils {
    * @throws IOException in the case of I/O errors
    */
   public static void copyRecursively(File src, File dest) throws IOException {
-    Assert.notNull(src, "Source File must not be null");
-    Assert.notNull(dest, "Destination File must not be null");
+    Assert.notNull(src, "Source File is required");
+    Assert.notNull(dest, "Destination File is required");
     copyRecursively(src.toPath(), dest.toPath());
   }
 
@@ -130,8 +130,8 @@ public abstract class FileSystemUtils {
    * @throws IOException in the case of I/O errors
    */
   public static void copyRecursively(Path src, Path dest) throws IOException {
-    Assert.notNull(src, "Source Path must not be null");
-    Assert.notNull(dest, "Destination Path must not be null");
+    Assert.notNull(src, "Source Path is required");
+    Assert.notNull(dest, "Destination Path is required");
     BasicFileAttributes srcAttr = Files.readAttributes(src, BasicFileAttributes.class);
 
     if (srcAttr.isDirectory()) {

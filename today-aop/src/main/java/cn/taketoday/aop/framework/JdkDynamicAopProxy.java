@@ -106,7 +106,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
    * exception in this case, rather than let a mysterious failure happen later.
    */
   public JdkDynamicAopProxy(AdvisedSupport config) {
-    Assert.notNull(config, "AdvisedSupport must not be null");
+    Assert.notNull(config, "AdvisedSupport is required");
     this.advised = config;
     this.proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
     findDefinedEqualsAndHashCodeMethods(this.proxiedInterfaces);

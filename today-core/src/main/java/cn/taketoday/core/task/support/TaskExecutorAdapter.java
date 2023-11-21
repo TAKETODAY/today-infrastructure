@@ -59,7 +59,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
    * @param concurrentExecutor the JDK concurrent executor to delegate to
    */
   public TaskExecutorAdapter(Executor concurrentExecutor) {
-    Assert.notNull(concurrentExecutor, "Executor must not be null");
+    Assert.notNull(concurrentExecutor, "Executor is required");
     this.concurrentExecutor = concurrentExecutor;
   }
 

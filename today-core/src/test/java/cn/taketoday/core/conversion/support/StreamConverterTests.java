@@ -75,7 +75,7 @@ class StreamConverterTests {
     TypeDescriptor arrayOfLongs = new TypeDescriptor(Types.class.getField("arrayOfLongs"));
     Object result = this.conversionService.convert(stream, arrayOfLongs);
 
-    assertThat(result).as("Converted object must not be null").isNotNull();
+    assertThat(result).as("Converted object is required").isNotNull();
     assertThat(result.getClass().isArray()).as("Converted object must be an array").isTrue();
     Long[] content = (Long[]) result;
     assertThat(content).containsExactly(1L, 2L, 3L);

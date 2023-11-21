@@ -79,7 +79,7 @@ public class JCacheAspectSupport extends AbstractCacheInvoker implements Initial
    * Set the CacheOperationSource for this cache aspect.
    */
   public void setCacheOperationSource(JCacheOperationSource cacheOperationSource) {
-    Assert.notNull(cacheOperationSource, "JCacheOperationSource must not be null");
+    Assert.notNull(cacheOperationSource, "JCacheOperationSource is required");
     this.cacheOperationSource = cacheOperationSource;
   }
 

@@ -41,13 +41,13 @@ class LayerTests {
   @Test
   void ofWhenLayoutIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> Layer.of((IOConsumer<Layout>) null))
-            .withMessage("Layout must not be null");
+            .withMessage("Layout is required");
   }
 
   @Test
   void fromTarArchiveWhenTarArchiveIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> Layer.fromTarArchive(null))
-            .withMessage("TarArchive must not be null");
+            .withMessage("TarArchive is required");
   }
 
   @Test

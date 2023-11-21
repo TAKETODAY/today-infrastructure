@@ -75,7 +75,7 @@ public class FieldError extends ObjectError {
           @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
 
     super(objectName, codes, arguments, defaultMessage);
-    Assert.notNull(field, "Field must not be null");
+    Assert.notNull(field, "Field is required");
     this.field = field;
     this.rejectedValue = rejectedValue;
     this.bindingFailure = bindingFailure;

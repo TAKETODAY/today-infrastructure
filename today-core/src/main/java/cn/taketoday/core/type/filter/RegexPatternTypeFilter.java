@@ -37,7 +37,7 @@ public class RegexPatternTypeFilter extends AbstractClassTestingTypeFilter {
   private final Pattern pattern;
 
   public RegexPatternTypeFilter(Pattern pattern) {
-    Assert.notNull(pattern, "Pattern must not be null");
+    Assert.notNull(pattern, "Pattern is required");
     this.pattern = pattern;
   }
 

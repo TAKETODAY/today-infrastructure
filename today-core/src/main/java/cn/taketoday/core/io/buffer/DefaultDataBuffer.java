@@ -58,8 +58,8 @@ public class DefaultDataBuffer implements DataBuffer {
   private int writePosition;
 
   private DefaultDataBuffer(DefaultDataBufferFactory dataBufferFactory, ByteBuffer byteBuffer) {
-    Assert.notNull(dataBufferFactory, "DefaultDataBufferFactory must not be null");
-    Assert.notNull(byteBuffer, "ByteBuffer must not be null");
+    Assert.notNull(dataBufferFactory, "DefaultDataBufferFactory is required");
+    Assert.notNull(byteBuffer, "ByteBuffer is required");
     this.dataBufferFactory = dataBufferFactory;
     ByteBuffer slice = byteBuffer.slice();
     this.byteBuffer = slice;
@@ -101,7 +101,7 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public int indexOf(IntPredicate predicate, int fromIndex) {
-    Assert.notNull(predicate, "IntPredicate must not be null");
+    Assert.notNull(predicate, "IntPredicate is required");
     if (fromIndex < 0) {
       fromIndex = 0;
     }
@@ -119,7 +119,7 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public int lastIndexOf(IntPredicate predicate, int fromIndex) {
-    Assert.notNull(predicate, "IntPredicate must not be null");
+    Assert.notNull(predicate, "IntPredicate is required");
     int i = Math.min(fromIndex, this.writePosition - 1);
     for (; i >= 0; i--) {
       byte b = this.byteBuffer.get(i);
@@ -250,14 +250,14 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public DefaultDataBuffer read(byte[] destination) {
-    Assert.notNull(destination, "Byte array must not be null");
+    Assert.notNull(destination, "Byte array is required");
     read(destination, 0, destination.length);
     return this;
   }
 
   @Override
   public DefaultDataBuffer read(byte[] destination, int offset, int length) {
-    Assert.notNull(destination, "Byte array must not be null");
+    Assert.notNull(destination, "Byte array is required");
     assertIndex(this.readPosition <= this.writePosition - length,
             "readPosition %d and length %d should be smaller than writePosition %d",
             this.readPosition, length, this.writePosition);
@@ -282,14 +282,14 @@ public class DefaultDataBuffer implements DataBuffer {
 
   @Override
   public DefaultDataBuffer write(byte[] source) {
-    Assert.notNull(source, "Byte array must not be null");
+    Assert.notNull(source, "Byte array is required");
     write(source, 0, source.length);
     return this;
   }
 
   @Override
   public DefaultDataBuffer write(byte[] source, int offset, int length) {
-    Assert.notNull(source, "Byte array must not be null");
+    Assert.notNull(source, "Byte array is required");
     ensureWritable(length);
 
     ByteBuffer tmp = this.byteBuffer.duplicate();
@@ -401,7 +401,7 @@ public class DefaultDataBuffer implements DataBuffer {
   @Override
   public void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
     checkIndex(srcPos, length);
-    Assert.notNull(dest, "Dest must not be null");
+    Assert.notNull(dest, "Dest is required");
 
     dest = dest.duplicate().clear();
     dest.put(destPos, this.byteBuffer, srcPos, length);
@@ -424,7 +424,7 @@ public class DefaultDataBuffer implements DataBuffer {
   @Override
   public String toString(int index, int length, Charset charset) {
     checkIndex(index, length);
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
 
     byte[] bytes;
     int offset;

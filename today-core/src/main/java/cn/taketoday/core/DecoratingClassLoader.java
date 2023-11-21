@@ -67,7 +67,7 @@ public abstract class DecoratingClassLoader extends ClassLoader {
    * @param packageName the package name to exclude
    */
   public void excludePackage(String packageName) {
-    Assert.notNull(packageName, "Package name must not be null");
+    Assert.notNull(packageName, "Package name is required");
     this.excludedPackages.add(packageName);
   }
 
@@ -79,7 +79,7 @@ public abstract class DecoratingClassLoader extends ClassLoader {
    * @param className the class name to exclude
    */
   public void excludeClass(String className) {
-    Assert.notNull(className, "Class name must not be null");
+    Assert.notNull(className, "Class name is required");
     this.excludedClasses.add(className);
   }
 

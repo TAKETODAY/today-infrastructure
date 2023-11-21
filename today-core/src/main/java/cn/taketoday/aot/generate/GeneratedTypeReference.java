@@ -48,7 +48,7 @@ public final class GeneratedTypeReference extends AbstractTypeReference {
   }
 
   public static GeneratedTypeReference of(ClassName className) {
-    Assert.notNull(className, "ClassName must not be null");
+    Assert.notNull(className, "ClassName is required");
     return new GeneratedTypeReference(className);
   }
 

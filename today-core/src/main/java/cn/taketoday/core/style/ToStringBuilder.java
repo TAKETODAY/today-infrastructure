@@ -78,7 +78,7 @@ public class ToStringBuilder {
    * @param styler the ToStringStyler encapsulating pretty-print instructions
    */
   public ToStringBuilder(Object obj, @Nullable ToStringStyler styler) {
-    Assert.notNull(obj, "The object to be styled must not be null");
+    Assert.notNull(obj, "The object to be styled is required");
     this.object = obj;
     this.styler = (styler != null ? styler : DEFAULT_TO_STRING_STYLER);
     this.styler.styleStart(this.buffer, this.object);

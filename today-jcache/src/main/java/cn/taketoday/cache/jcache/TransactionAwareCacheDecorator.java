@@ -56,7 +56,7 @@ public class TransactionAwareCacheDecorator implements Cache {
    * @param targetCache the target Cache to decorate
    */
   public TransactionAwareCacheDecorator(Cache targetCache) {
-    Assert.notNull(targetCache, "Target Cache must not be null");
+    Assert.notNull(targetCache, "Target Cache is required");
     this.targetCache = targetCache;
   }
 

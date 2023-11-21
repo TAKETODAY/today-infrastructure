@@ -198,7 +198,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
    * @see AnnotationConfigUtils#CONFIGURATION_BEAN_NAME_GENERATOR
    */
   public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
-    Assert.notNull(beanNameGenerator, "BeanNameGenerator must not be null");
+    Assert.notNull(beanNameGenerator, "BeanNameGenerator is required");
     this.localBeanNameGeneratorSet = true;
     obtainBootstrapContext().setBeanNameGenerator(beanNameGenerator);
     this.importBeanNameGenerator = beanNameGenerator;

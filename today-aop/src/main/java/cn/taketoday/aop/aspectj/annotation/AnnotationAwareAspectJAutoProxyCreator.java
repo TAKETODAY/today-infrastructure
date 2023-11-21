@@ -74,7 +74,7 @@ public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorA
   }
 
   public void setAspectJAdvisorFactory(AspectJAdvisorFactory aspectJAdvisorFactory) {
-    Assert.notNull(aspectJAdvisorFactory, "AspectJAdvisorFactory must not be null");
+    Assert.notNull(aspectJAdvisorFactory, "AspectJAdvisorFactory is required");
     this.aspectJAdvisorFactory = aspectJAdvisorFactory;
   }
 

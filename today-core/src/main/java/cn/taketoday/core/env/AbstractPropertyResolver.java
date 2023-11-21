@@ -82,7 +82,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   @Override
   public void setConversionService(ConfigurableConversionService conversionService) {
-    Assert.notNull(conversionService, "ConversionService must not be null");
+    Assert.notNull(conversionService, "ConversionService is required");
     this.conversionService = conversionService;
   }
 
@@ -94,7 +94,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    */
   @Override
   public void setPlaceholderPrefix(String placeholderPrefix) {
-    Assert.notNull(placeholderPrefix, "'placeholderPrefix' must not be null");
+    Assert.notNull(placeholderPrefix, "'placeholderPrefix' is required");
     this.placeholderPrefix = placeholderPrefix;
   }
 
@@ -106,7 +106,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
    */
   @Override
   public void setPlaceholderSuffix(String placeholderSuffix) {
-    Assert.notNull(placeholderSuffix, "'placeholderSuffix' must not be null");
+    Assert.notNull(placeholderSuffix, "'placeholderSuffix' is required");
     this.placeholderSuffix = placeholderSuffix;
   }
 

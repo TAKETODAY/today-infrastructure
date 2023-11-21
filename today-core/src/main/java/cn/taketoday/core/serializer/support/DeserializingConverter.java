@@ -65,7 +65,7 @@ public class DeserializingConverter implements Converter<byte[], Object> {
    * Create a {@code DeserializingConverter} that delegates to the provided {@link Deserializer}.
    */
   public DeserializingConverter(Deserializer<Object> deserializer) {
-    Assert.notNull(deserializer, "Deserializer must not be null");
+    Assert.notNull(deserializer, "Deserializer is required");
     this.deserializer = deserializer;
   }
 

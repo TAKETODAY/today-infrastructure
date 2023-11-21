@@ -47,7 +47,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
   private final Method method;
 
   public MethodInvoker(Method method) {
-    Assert.notNull(method, "method must not be null");
+    Assert.notNull(method, "method is required");
     this.method = method;
   }
 
@@ -100,7 +100,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @return {@link MethodInvoker} sub object
    */
   public static MethodInvoker fromMethod(Method executable) {
-    Assert.notNull(executable, "method must not be null");
+    Assert.notNull(executable, "method is required");
     return new MethodInvokerGenerator(executable).create();
   }
 
@@ -113,7 +113,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @since 3.0
    */
   public static MethodInvoker fromMethod(Method executable, Class<?> targetClass) {
-    Assert.notNull(executable, "method must not be null");
+    Assert.notNull(executable, "method is required");
     return new MethodInvokerGenerator(executable, targetClass).create();
   }
 

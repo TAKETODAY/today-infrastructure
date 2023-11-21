@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +41,7 @@ public class CompositeTransactionAttributeSource implements TransactionAttribute
    * @param transactionAttributeSources the TransactionAttributeSource instances to combine
    */
   public CompositeTransactionAttributeSource(TransactionAttributeSource... transactionAttributeSources) {
-    Assert.notNull(transactionAttributeSources, "TransactionAttributeSource array must not be null");
+    Assert.notNull(transactionAttributeSources, "TransactionAttributeSource array is required");
     this.transactionAttributeSources = transactionAttributeSources;
   }
 

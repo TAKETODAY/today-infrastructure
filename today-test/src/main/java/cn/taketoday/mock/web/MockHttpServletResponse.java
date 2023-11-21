@@ -181,7 +181,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @see #setContentType(String)
    */
   public void setDefaultCharacterEncoding(String characterEncoding) {
-    Assert.notNull(characterEncoding, "'characterEncoding' must not be null");
+    Assert.notNull(characterEncoding, "'characterEncoding' is required");
     this.defaultCharacterEncoding = characterEncoding;
     if (!this.characterEncodingSet) {
       this.characterEncoding = characterEncoding;
@@ -434,7 +434,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   @Override
   public void addCookie(Cookie cookie) {
-    Assert.notNull(cookie, "Cookie must not be null");
+    Assert.notNull(cookie, "Cookie is required");
     this.cookies.add(cookie);
     doAddHeaderValue(HttpHeaders.SET_COOKIE, getCookieHeader(cookie), false);
   }
@@ -491,7 +491,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   @Nullable
   public Cookie getCookie(String name) {
-    Assert.notNull(name, "Cookie name must not be null");
+    Assert.notNull(name, "Cookie name is required");
     for (Cookie cookie : this.cookies) {
       if (name.equals(cookie.getName())) {
         return cookie;
@@ -622,7 +622,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   @Override
   public void sendRedirect(String url) throws IOException {
     Assert.state(!isCommitted(), "Cannot send redirect - response is already committed");
-    Assert.notNull(url, "Redirect URL must not be null");
+    Assert.notNull(url, "Redirect URL is required");
     setHeader(HttpHeaders.LOCATION, url);
     setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
     setCommitted(true);
@@ -747,7 +747,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   private void doAddHeaderValue(String name, Object value, boolean replace) {
-    Assert.notNull(value, "Header value must not be null");
+    Assert.notNull(value, "Header value is required");
     HeaderValueHolder header = this.headers.computeIfAbsent(name, key -> new HeaderValueHolder());
     if (replace) {
       header.setValue(value);
@@ -765,7 +765,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * @see #addCookie(Cookie)
    */
   private void setCookie(Cookie cookie) {
-    Assert.notNull(cookie, "Cookie must not be null");
+    Assert.notNull(cookie, "Cookie is required");
     this.cookies.clear();
     this.cookies.add(cookie);
     doAddHeaderValue(HttpHeaders.SET_COOKIE, getCookieHeader(cookie), true);
@@ -817,7 +817,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   public void addIncludedUrl(String includedUrl) {
-    Assert.notNull(includedUrl, "Included URL must not be null");
+    Assert.notNull(includedUrl, "Included URL is required");
     this.includedUrls.add(includedUrl);
   }
 

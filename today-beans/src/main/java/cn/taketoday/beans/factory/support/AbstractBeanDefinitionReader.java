@@ -86,7 +86,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
    * @see #setEnvironment
    */
   protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
-    Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
+    Assert.notNull(registry, "BeanDefinitionRegistry is required");
     this.registry = registry;
 
     // Determine ResourceLoader to use.
@@ -157,7 +157,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
    * should be read and which should be omitted.
    */
   public void setEnvironment(Environment environment) {
-    Assert.notNull(environment, "Environment must not be null");
+    Assert.notNull(environment, "Environment is required");
     this.environment = environment;
   }
 
@@ -182,7 +182,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
   @Override
   public int loadBeanDefinitions(Resource... resources) throws BeanDefinitionStoreException {
-    Assert.notNull(resources, "Resource array must not be null");
+    Assert.notNull(resources, "Resource array is required");
     int count = 0;
     for (Resource resource : resources) {
       count += loadBeanDefinitions(resource);
@@ -252,7 +252,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
   @Override
   public int loadBeanDefinitions(String... locations) throws BeanDefinitionStoreException {
-    Assert.notNull(locations, "Location array must not be null");
+    Assert.notNull(locations, "Location array is required");
     int count = 0;
     for (String location : locations) {
       count += loadBeanDefinitions(location);

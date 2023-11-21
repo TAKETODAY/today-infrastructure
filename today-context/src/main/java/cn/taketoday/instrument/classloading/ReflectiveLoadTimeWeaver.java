@@ -94,7 +94,7 @@ public class ReflectiveLoadTimeWeaver implements LoadTimeWeaver {
    * does not support the required weaving methods
    */
   public ReflectiveLoadTimeWeaver(@Nullable ClassLoader classLoader) {
-    Assert.notNull(classLoader, "ClassLoader must not be null");
+    Assert.notNull(classLoader, "ClassLoader is required");
     this.classLoader = classLoader;
 
     Method addTransformerMethod = ReflectionUtils.getMethodIfAvailable(
@@ -121,7 +121,7 @@ public class ReflectiveLoadTimeWeaver implements LoadTimeWeaver {
 
   @Override
   public void addTransformer(ClassFileTransformer transformer) {
-    Assert.notNull(transformer, "Transformer must not be null");
+    Assert.notNull(transformer, "Transformer is required");
     ReflectionUtils.invokeMethod(this.addTransformerMethod, this.classLoader, transformer);
   }
 

@@ -118,7 +118,7 @@ final class BitsCronField extends CronField {
 
   private static BitsCronField parseField(String value, Type type) {
     Assert.hasLength(value, "Value must not be empty");
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     try {
       BitsCronField result = new BitsCronField(type);
       String[] fields = StringUtils.delimitedListToStringArray(value, ",");

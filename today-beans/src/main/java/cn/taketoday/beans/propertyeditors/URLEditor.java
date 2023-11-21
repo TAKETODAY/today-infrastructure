@@ -64,7 +64,7 @@ public class URLEditor extends PropertyEditorSupport {
    * @param resourceEditor the ResourceEditor to use
    */
   public URLEditor(ResourceEditor resourceEditor) {
-    Assert.notNull(resourceEditor, "ResourceEditor must not be null");
+    Assert.notNull(resourceEditor, "ResourceEditor is required");
     this.resourceEditor = resourceEditor;
   }
 

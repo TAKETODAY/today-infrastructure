@@ -580,59 +580,59 @@ public class MimeMessageHelper {
   }
 
   public void setFrom(InternetAddress from) throws MessagingException {
-    Assert.notNull(from, "From address must not be null");
+    Assert.notNull(from, "From address is required");
     validateAddress(from);
     this.mimeMessage.setFrom(from);
   }
 
   public void setFrom(String from) throws MessagingException {
-    Assert.notNull(from, "From address must not be null");
+    Assert.notNull(from, "From address is required");
     setFrom(parseAddress(from));
   }
 
   public void setFrom(String from, String personal) throws MessagingException, UnsupportedEncodingException {
-    Assert.notNull(from, "From address must not be null");
+    Assert.notNull(from, "From address is required");
     setFrom(getEncoding() != null ?
             new InternetAddress(from, personal, getEncoding()) : new InternetAddress(from, personal));
   }
 
   public void setReplyTo(InternetAddress replyTo) throws MessagingException {
-    Assert.notNull(replyTo, "Reply-to address must not be null");
+    Assert.notNull(replyTo, "Reply-to address is required");
     validateAddress(replyTo);
     this.mimeMessage.setReplyTo(new InternetAddress[] { replyTo });
   }
 
   public void setReplyTo(String replyTo) throws MessagingException {
-    Assert.notNull(replyTo, "Reply-to address must not be null");
+    Assert.notNull(replyTo, "Reply-to address is required");
     setReplyTo(parseAddress(replyTo));
   }
 
   public void setReplyTo(String replyTo, String personal) throws MessagingException, UnsupportedEncodingException {
-    Assert.notNull(replyTo, "Reply-to address must not be null");
+    Assert.notNull(replyTo, "Reply-to address is required");
     InternetAddress replyToAddress = (getEncoding() != null) ?
                                      new InternetAddress(replyTo, personal, getEncoding()) : new InternetAddress(replyTo, personal);
     setReplyTo(replyToAddress);
   }
 
   public void setTo(InternetAddress to) throws MessagingException {
-    Assert.notNull(to, "To address must not be null");
+    Assert.notNull(to, "To address is required");
     validateAddress(to);
     this.mimeMessage.setRecipient(Message.RecipientType.TO, to);
   }
 
   public void setTo(InternetAddress[] to) throws MessagingException {
-    Assert.notNull(to, "To address array must not be null");
+    Assert.notNull(to, "To address array is required");
     validateAddresses(to);
     this.mimeMessage.setRecipients(Message.RecipientType.TO, to);
   }
 
   public void setTo(String to) throws MessagingException {
-    Assert.notNull(to, "To address must not be null");
+    Assert.notNull(to, "To address is required");
     setTo(parseAddress(to));
   }
 
   public void setTo(String[] to) throws MessagingException {
-    Assert.notNull(to, "To address array must not be null");
+    Assert.notNull(to, "To address array is required");
     InternetAddress[] addresses = new InternetAddress[to.length];
     for (int i = 0; i < to.length; i++) {
       addresses[i] = parseAddress(to[i]);
@@ -641,42 +641,42 @@ public class MimeMessageHelper {
   }
 
   public void addTo(InternetAddress to) throws MessagingException {
-    Assert.notNull(to, "To address must not be null");
+    Assert.notNull(to, "To address is required");
     validateAddress(to);
     this.mimeMessage.addRecipient(Message.RecipientType.TO, to);
   }
 
   public void addTo(String to) throws MessagingException {
-    Assert.notNull(to, "To address must not be null");
+    Assert.notNull(to, "To address is required");
     addTo(parseAddress(to));
   }
 
   public void addTo(String to, String personal) throws MessagingException, UnsupportedEncodingException {
-    Assert.notNull(to, "To address must not be null");
+    Assert.notNull(to, "To address is required");
     addTo(getEncoding() != null ?
           new InternetAddress(to, personal, getEncoding()) :
           new InternetAddress(to, personal));
   }
 
   public void setCc(InternetAddress cc) throws MessagingException {
-    Assert.notNull(cc, "Cc address must not be null");
+    Assert.notNull(cc, "Cc address is required");
     validateAddress(cc);
     this.mimeMessage.setRecipient(Message.RecipientType.CC, cc);
   }
 
   public void setCc(InternetAddress[] cc) throws MessagingException {
-    Assert.notNull(cc, "Cc address array must not be null");
+    Assert.notNull(cc, "Cc address array is required");
     validateAddresses(cc);
     this.mimeMessage.setRecipients(Message.RecipientType.CC, cc);
   }
 
   public void setCc(String cc) throws MessagingException {
-    Assert.notNull(cc, "Cc address must not be null");
+    Assert.notNull(cc, "Cc address is required");
     setCc(parseAddress(cc));
   }
 
   public void setCc(String[] cc) throws MessagingException {
-    Assert.notNull(cc, "Cc address array must not be null");
+    Assert.notNull(cc, "Cc address array is required");
     InternetAddress[] addresses = new InternetAddress[cc.length];
     for (int i = 0; i < cc.length; i++) {
       addresses[i] = parseAddress(cc[i]);
@@ -685,42 +685,42 @@ public class MimeMessageHelper {
   }
 
   public void addCc(InternetAddress cc) throws MessagingException {
-    Assert.notNull(cc, "Cc address must not be null");
+    Assert.notNull(cc, "Cc address is required");
     validateAddress(cc);
     this.mimeMessage.addRecipient(Message.RecipientType.CC, cc);
   }
 
   public void addCc(String cc) throws MessagingException {
-    Assert.notNull(cc, "Cc address must not be null");
+    Assert.notNull(cc, "Cc address is required");
     addCc(parseAddress(cc));
   }
 
   public void addCc(String cc, String personal) throws MessagingException, UnsupportedEncodingException {
-    Assert.notNull(cc, "Cc address must not be null");
+    Assert.notNull(cc, "Cc address is required");
     addCc(getEncoding() != null ?
           new InternetAddress(cc, personal, getEncoding()) :
           new InternetAddress(cc, personal));
   }
 
   public void setBcc(InternetAddress bcc) throws MessagingException {
-    Assert.notNull(bcc, "Bcc address must not be null");
+    Assert.notNull(bcc, "Bcc address is required");
     validateAddress(bcc);
     this.mimeMessage.setRecipient(Message.RecipientType.BCC, bcc);
   }
 
   public void setBcc(InternetAddress[] bcc) throws MessagingException {
-    Assert.notNull(bcc, "Bcc address array must not be null");
+    Assert.notNull(bcc, "Bcc address array is required");
     validateAddresses(bcc);
     this.mimeMessage.setRecipients(Message.RecipientType.BCC, bcc);
   }
 
   public void setBcc(String bcc) throws MessagingException {
-    Assert.notNull(bcc, "Bcc address must not be null");
+    Assert.notNull(bcc, "Bcc address is required");
     setBcc(parseAddress(bcc));
   }
 
   public void setBcc(String[] bcc) throws MessagingException {
-    Assert.notNull(bcc, "Bcc address array must not be null");
+    Assert.notNull(bcc, "Bcc address array is required");
     InternetAddress[] addresses = new InternetAddress[bcc.length];
     for (int i = 0; i < bcc.length; i++) {
       addresses[i] = parseAddress(bcc[i]);
@@ -729,18 +729,18 @@ public class MimeMessageHelper {
   }
 
   public void addBcc(InternetAddress bcc) throws MessagingException {
-    Assert.notNull(bcc, "Bcc address must not be null");
+    Assert.notNull(bcc, "Bcc address is required");
     validateAddress(bcc);
     this.mimeMessage.addRecipient(Message.RecipientType.BCC, bcc);
   }
 
   public void addBcc(String bcc) throws MessagingException {
-    Assert.notNull(bcc, "Bcc address must not be null");
+    Assert.notNull(bcc, "Bcc address is required");
     addBcc(parseAddress(bcc));
   }
 
   public void addBcc(String bcc, String personal) throws MessagingException, UnsupportedEncodingException {
-    Assert.notNull(bcc, "Bcc address must not be null");
+    Assert.notNull(bcc, "Bcc address is required");
     addBcc(getEncoding() != null ?
            new InternetAddress(bcc, personal, getEncoding()) :
            new InternetAddress(bcc, personal));
@@ -779,7 +779,7 @@ public class MimeMessageHelper {
    * @throws MessagingException in case of errors
    */
   public void setSentDate(Date sentDate) throws MessagingException {
-    Assert.notNull(sentDate, "Sent date must not be null");
+    Assert.notNull(sentDate, "Sent date is required");
     this.mimeMessage.setSentDate(sentDate);
   }
 
@@ -790,7 +790,7 @@ public class MimeMessageHelper {
    * @throws MessagingException in case of errors
    */
   public void setSubject(String subject) throws MessagingException {
-    Assert.notNull(subject, "Subject must not be null");
+    Assert.notNull(subject, "Subject is required");
     if (getEncoding() != null) {
       this.mimeMessage.setSubject(subject, getEncoding());
     }
@@ -826,7 +826,7 @@ public class MimeMessageHelper {
    * @throws MessagingException in case of errors
    */
   public void setText(String text, boolean html) throws MessagingException {
-    Assert.notNull(text, "Text must not be null");
+    Assert.notNull(text, "Text is required");
     MimePart partToUse;
     if (isMultipart()) {
       partToUse = getMainPart();
@@ -853,8 +853,8 @@ public class MimeMessageHelper {
    * @throws MessagingException in case of errors
    */
   public void setText(String plainText, String htmlText) throws MessagingException {
-    Assert.notNull(plainText, "Plain text must not be null");
-    Assert.notNull(htmlText, "HTML text must not be null");
+    Assert.notNull(plainText, "Plain text is required");
+    Assert.notNull(htmlText, "HTML text is required");
 
     MimeMultipart messageBody = new MimeMultipart(MULTIPART_SUBTYPE_ALTERNATIVE);
     getMainPart().setContent(messageBody, CONTENT_TYPE_ALTERNATIVE);
@@ -924,8 +924,8 @@ public class MimeMessageHelper {
    * @see #addInline(String, cn.taketoday.core.io.Resource)
    */
   public void addInline(String contentId, DataSource dataSource) throws MessagingException {
-    Assert.notNull(contentId, "Content ID must not be null");
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(contentId, "Content ID is required");
+    Assert.notNull(dataSource, "DataSource is required");
     MimeBodyPart mimeBodyPart = new MimeBodyPart();
     mimeBodyPart.setDisposition(Part.INLINE);
     mimeBodyPart.setContentID("<" + contentId + ">");
@@ -952,7 +952,7 @@ public class MimeMessageHelper {
    * @see #addInline(String, DataSource)
    */
   public void addInline(String contentId, File file) throws MessagingException {
-    Assert.notNull(file, "File must not be null");
+    Assert.notNull(file, "File is required");
     FileDataSource dataSource = new FileDataSource(file);
     dataSource.setFileTypeMap(getFileTypeMap());
     addInline(contentId, dataSource);
@@ -980,7 +980,7 @@ public class MimeMessageHelper {
    * @see #addInline(String, DataSource)
    */
   public void addInline(String contentId, Resource resource) throws MessagingException {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     String contentType = getFileTypeMap().getContentType(resource.getName());
     addInline(contentId, resource, contentType);
   }
@@ -1011,7 +1011,7 @@ public class MimeMessageHelper {
   public void addInline(String contentId, InputStreamSource inputStreamSource, String contentType)
           throws MessagingException {
 
-    Assert.notNull(inputStreamSource, "InputStreamSource must not be null");
+    Assert.notNull(inputStreamSource, "InputStreamSource is required");
     if (inputStreamSource instanceof Resource resource && resource.isOpen()) {
       throw new IllegalArgumentException(
               "Passed-in Resource contains an open stream: invalid argument. " +
@@ -1037,8 +1037,8 @@ public class MimeMessageHelper {
    * @see #addAttachment(String, File)
    */
   public void addAttachment(String attachmentFilename, DataSource dataSource) throws MessagingException {
-    Assert.notNull(attachmentFilename, "Attachment filename must not be null");
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(attachmentFilename, "Attachment filename is required");
+    Assert.notNull(dataSource, "DataSource is required");
     try {
       MimeBodyPart mimeBodyPart = new MimeBodyPart();
       mimeBodyPart.setDisposition(Part.ATTACHMENT);
@@ -1067,7 +1067,7 @@ public class MimeMessageHelper {
    * @see #addAttachment(String, DataSource)
    */
   public void addAttachment(String attachmentFilename, File file) throws MessagingException {
-    Assert.notNull(file, "File must not be null");
+    Assert.notNull(file, "File is required");
     FileDataSource dataSource = new FileDataSource(file);
     dataSource.setFileTypeMap(getFileTypeMap());
     addAttachment(attachmentFilename, dataSource);
@@ -1120,7 +1120,7 @@ public class MimeMessageHelper {
           String attachmentFilename, InputStreamSource inputStreamSource, String contentType)
           throws MessagingException {
 
-    Assert.notNull(inputStreamSource, "InputStreamSource must not be null");
+    Assert.notNull(inputStreamSource, "InputStreamSource is required");
     if (inputStreamSource instanceof Resource resource && resource.isOpen()) {
       throw new IllegalArgumentException(
               "Passed-in Resource contains an open stream: invalid argument. " +

@@ -89,7 +89,7 @@ public class MethodValidationPostProcessor extends AbstractBeanFactoryAwareAdvis
    * @param validatedAnnotationType the desired annotation type
    */
   public void setValidatedAnnotationType(Class<? extends Annotation> validatedAnnotationType) {
-    Assert.notNull(validatedAnnotationType, "'validatedAnnotationType' must not be null");
+    Assert.notNull(validatedAnnotationType, "'validatedAnnotationType' is required");
     this.validatedAnnotationType = validatedAnnotationType;
   }
 

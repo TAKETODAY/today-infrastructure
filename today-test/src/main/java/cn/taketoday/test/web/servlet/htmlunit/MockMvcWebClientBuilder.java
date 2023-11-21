@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +67,7 @@ public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<
    * @return the MockMvcWebClientBuilder to customize
    */
   public static MockMvcWebClientBuilder mockMvcSetup(MockMvc mockMvc) {
-    Assert.notNull(mockMvc, "MockMvc must not be null");
+    Assert.notNull(mockMvc, "MockMvc is required");
     return new MockMvcWebClientBuilder(mockMvc);
   }
 
@@ -83,7 +80,7 @@ public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<
    * @return the MockMvcWebClientBuilder to customize
    */
   public static MockMvcWebClientBuilder webAppContextSetup(WebApplicationContext context) {
-    Assert.notNull(context, "WebApplicationContext must not be null");
+    Assert.notNull(context, "WebApplicationContext is required");
     return new MockMvcWebClientBuilder(context);
   }
 
@@ -97,8 +94,8 @@ public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<
    * @return the MockMvcWebClientBuilder to customize
    */
   public static MockMvcWebClientBuilder webAppContextSetup(WebApplicationContext context, MockMvcConfigurer configurer) {
-    Assert.notNull(context, "WebApplicationContext must not be null");
-    Assert.notNull(configurer, "MockMvcConfigurer must not be null");
+    Assert.notNull(context, "WebApplicationContext is required");
+    Assert.notNull(configurer, "MockMvcConfigurer is required");
     return new MockMvcWebClientBuilder(context, configurer);
   }
 
@@ -113,7 +110,7 @@ public class MockMvcWebClientBuilder extends MockMvcWebConnectionBuilderSupport<
    * @see #build()
    */
   public MockMvcWebClientBuilder withDelegate(WebClient webClient) {
-    Assert.notNull(webClient, "WebClient must not be null");
+    Assert.notNull(webClient, "WebClient is required");
     webClient.setWebConnection(createConnection(webClient));
     this.webClient = webClient;
     return this;

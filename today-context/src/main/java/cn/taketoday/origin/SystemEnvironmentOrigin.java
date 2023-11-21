@@ -36,7 +36,7 @@ public class SystemEnvironmentOrigin implements Origin {
   private final String property;
 
   public SystemEnvironmentOrigin(String property) {
-    Assert.notNull(property, "Property name must not be null");
+    Assert.notNull(property, "Property name is required");
     Assert.hasText(property, "Property name must not be empty");
     this.property = property;
   }

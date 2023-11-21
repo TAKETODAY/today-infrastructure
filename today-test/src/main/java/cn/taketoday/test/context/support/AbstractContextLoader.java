@@ -240,7 +240,7 @@ public abstract class AbstractContextLoader implements SmartContextLoader {
    * @see #getResourceSuffixes()
    */
   protected String[] generateDefaultLocations(Class<?> clazz) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
 
     String[] suffixes = getResourceSuffixes();
     for (String suffix : suffixes) {

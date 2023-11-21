@@ -130,8 +130,8 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
   public void resolve(RegisteredBean registeredBean,
           ThrowingConsumer<AutowiredArguments> action) {
 
-    Assert.notNull(registeredBean, "'registeredBean' must not be null");
-    Assert.notNull(action, "'action' must not be null");
+    Assert.notNull(registeredBean, "'registeredBean' is required");
+    Assert.notNull(action, "'action' is required");
     AutowiredArguments resolved = resolve(registeredBean);
     if (resolved != null) {
       action.accept(resolved);
@@ -146,7 +146,7 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
    */
   @Nullable
   public AutowiredArguments resolve(RegisteredBean registeredBean) {
-    Assert.notNull(registeredBean, "'registeredBean' must not be null");
+    Assert.notNull(registeredBean, "'registeredBean' is required");
     return resolveArguments(registeredBean, getMethod(registeredBean));
   }
 
@@ -158,8 +158,8 @@ public final class AutowiredMethodArgumentsResolver extends AutowiredElementReso
    * @param instance the bean instance
    */
   public void resolveAndInvoke(RegisteredBean registeredBean, Object instance) {
-    Assert.notNull(registeredBean, "'registeredBean' must not be null");
-    Assert.notNull(instance, "'instance' must not be null");
+    Assert.notNull(registeredBean, "'registeredBean' is required");
+    Assert.notNull(instance, "'instance' is required");
     Method method = getMethod(registeredBean);
     AutowiredArguments resolved = resolveArguments(registeredBean, method);
     if (resolved != null) {

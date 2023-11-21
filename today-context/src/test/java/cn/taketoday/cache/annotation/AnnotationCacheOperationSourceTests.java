@@ -224,7 +224,7 @@ public class AnnotationCacheOperationSourceTests {
     // Valid as a CacheResolver might return the cache names to use with other info
     Collection<CacheOperation> ops = getOps(AnnotatedClass.class, "noCacheNameSpecified");
     CacheOperation cacheOperation = ops.iterator().next();
-    assertThat(cacheOperation.getCacheNames()).as("cache names set must not be null").isNotNull();
+    assertThat(cacheOperation.getCacheNames()).as("cache names set is required").isNotNull();
     assertThat(cacheOperation.getCacheNames().size()).as("no cache names specified").isEqualTo(0);
   }
 

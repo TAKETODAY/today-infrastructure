@@ -55,7 +55,7 @@ public class DateFormatterRegistrar implements FormatterRegistrar {
    * {@link Date} and {@link Calendar} fields will be registered.
    */
   public void setFormatter(DateFormatter dateFormatter) {
-    Assert.notNull(dateFormatter, "DateFormatter must not be null");
+    Assert.notNull(dateFormatter, "DateFormatter is required");
     this.dateFormatter = dateFormatter;
   }
 

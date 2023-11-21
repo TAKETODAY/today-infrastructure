@@ -50,7 +50,7 @@ public class MethodBeforeAdviceInterceptor implements MethodInterceptor, BeforeA
    * @param advice the MethodBeforeAdvice to wrap
    */
   public MethodBeforeAdviceInterceptor(MethodBeforeAdvice advice) {
-    Assert.notNull(advice, "Advice must not be null");
+    Assert.notNull(advice, "Advice is required");
     this.advice = advice;
   }
 

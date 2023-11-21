@@ -54,8 +54,8 @@ public class SqlArrayValue implements SqlValue {
    * @see java.sql.Connection#createArrayOf
    */
   public SqlArrayValue(String typeName, Object... elements) {
-    Assert.notNull(typeName, "Type name must not be null");
-    Assert.notNull(elements, "Elements array must not be null");
+    Assert.notNull(typeName, "Type name is required");
+    Assert.notNull(elements, "Elements array is required");
     this.typeName = typeName;
     this.elements = elements;
   }

@@ -157,14 +157,14 @@ abstract class AbstractMergedAnnotation<A extends Annotation> implements MergedA
 
   @Override
   public <E extends Enum<E>> E getEnum(String attributeName, Class<E> type) {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     return getRequiredAttributeValue(attributeName, type);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <E extends Enum<E>> E[] getEnumArray(String attributeName, Class<E> type) {
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(type, "Type is required");
     return (E[]) getRequiredAttributeValue(attributeName, type.arrayType());
   }
 

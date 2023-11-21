@@ -75,7 +75,7 @@ public class UrlResource extends AbstractFileResolvingResource {
    * @since 4.0
    */
   public UrlResource(URI uri) throws MalformedURLException {
-    Assert.notNull(uri, "URI must not be null");
+    Assert.notNull(uri, "URI is required");
     this.uri = uri;
     this.url = uri.toURL();
   }
@@ -86,7 +86,7 @@ public class UrlResource extends AbstractFileResolvingResource {
    * @param url a URL
    */
   public UrlResource(URL url) {
-    Assert.notNull(url, "URL must not be null");
+    Assert.notNull(url, "URL is required");
     this.uri = null;
     this.url = url;
   }
@@ -101,7 +101,7 @@ public class UrlResource extends AbstractFileResolvingResource {
    * @since 4.0
    */
   public UrlResource(String path) throws MalformedURLException {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     String cleanedPath = StringUtils.cleanPath(path);
     URI uri;
     URL url;

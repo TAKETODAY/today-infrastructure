@@ -51,7 +51,7 @@ class SpyDefinition extends Definition {
   SpyDefinition(String name, ResolvableType typeToSpy, MockReset reset, boolean proxyTargetAware,
           QualifierDefinition qualifier) {
     super(name, reset, proxyTargetAware, qualifier);
-    Assert.notNull(typeToSpy, "TypeToSpy must not be null");
+    Assert.notNull(typeToSpy, "TypeToSpy is required");
     this.typeToSpy = typeToSpy;
 
   }
@@ -93,7 +93,7 @@ class SpyDefinition extends Definition {
 
   @SuppressWarnings("unchecked")
   <T> T createSpy(String name, Object instance) {
-    Assert.notNull(instance, "Instance must not be null");
+    Assert.notNull(instance, "Instance is required");
     Assert.isInstanceOf(this.typeToSpy.resolve(), instance);
     if (Mockito.mockingDetails(instance).isSpy()) {
       return (T) instance;

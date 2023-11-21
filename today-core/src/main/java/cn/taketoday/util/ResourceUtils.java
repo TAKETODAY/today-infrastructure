@@ -353,7 +353,7 @@ public abstract class ResourceUtils {
    * @since 4.0
    */
   public static URL getURL(String resourceLocation) throws FileNotFoundException {
-    Assert.notNull(resourceLocation, "Resource location must not be null");
+    Assert.notNull(resourceLocation, "Resource location is required");
     if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {
       String path = resourceLocation.substring(CLASSPATH_URL_PREFIX.length());
       ClassLoader cl = ClassUtils.getDefaultClassLoader();
@@ -395,7 +395,7 @@ public abstract class ResourceUtils {
    * @since 4.0
    */
   public static File getFile(String resourceLocation) throws FileNotFoundException {
-    Assert.notNull(resourceLocation, "Resource location must not be null");
+    Assert.notNull(resourceLocation, "Resource location is required");
     if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {
       String path = resourceLocation.substring(CLASSPATH_URL_PREFIX.length());
       String description = "class path resource [" + path + "]";
@@ -444,7 +444,7 @@ public abstract class ResourceUtils {
    * @since 4.0
    */
   public static File getFile(URL resourceUrl, String description) throws FileNotFoundException {
-    Assert.notNull(resourceUrl, "Resource URL must not be null");
+    Assert.notNull(resourceUrl, "Resource URL is required");
     if (!URL_PROTOCOL_FILE.equals(resourceUrl.getProtocol())) {
       throw new FileNotFoundException(
               description + " cannot be resolved to absolute file path " +
@@ -486,7 +486,7 @@ public abstract class ResourceUtils {
    * @since 4.0
    */
   public static File getFile(URI resourceUri, String description) throws FileNotFoundException {
-    Assert.notNull(resourceUri, "Resource URI must not be null");
+    Assert.notNull(resourceUri, "Resource URI is required");
     if (!URL_PROTOCOL_FILE.equals(resourceUri.getScheme())) {
       throw new FileNotFoundException(
               description + " cannot be resolved to absolute file path " +

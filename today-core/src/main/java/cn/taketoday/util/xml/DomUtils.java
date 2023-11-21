@@ -63,8 +63,8 @@ public abstract class DomUtils {
    * @see Element#getElementsByTagName
    */
   public static List<Element> getChildElementsByTagName(Element ele, String... childEleNames) {
-    Assert.notNull(ele, "Element must not be null");
-    Assert.notNull(childEleNames, "Element names collection must not be null");
+    Assert.notNull(ele, "Element is required");
+    Assert.notNull(childEleNames, "Element names collection is required");
     List<String> childEleNameList = Arrays.asList(childEleNames);
     NodeList nl = ele.getChildNodes();
     ArrayList<Element> childEles = new ArrayList<>();
@@ -102,8 +102,8 @@ public abstract class DomUtils {
    */
   @Nullable
   public static Element getChildElementByTagName(Element ele, String childEleName) {
-    Assert.notNull(ele, "Element must not be null");
-    Assert.notNull(childEleName, "Element name must not be null");
+    Assert.notNull(ele, "Element is required");
+    Assert.notNull(childEleName, "Element name is required");
     NodeList nl = ele.getChildNodes();
     int length = nl.getLength();
     for (int i = 0; i < length; i++) {
@@ -135,7 +135,7 @@ public abstract class DomUtils {
    * @return a List of child {@code org.w3c.dom.Element} instances
    */
   public static List<Element> getChildElements(Element ele) {
-    Assert.notNull(ele, "Element must not be null");
+    Assert.notNull(ele, "Element is required");
     ArrayList<Element> childEles = new ArrayList<>();
     NodeList nl = ele.getChildNodes();
     int length = nl.getLength();
@@ -159,7 +159,7 @@ public abstract class DomUtils {
    * @see Comment
    */
   public static String getTextValue(Element valueEle) {
-    Assert.notNull(valueEle, "Element must not be null");
+    Assert.notNull(valueEle, "Element is required");
     StringBuilder sb = new StringBuilder();
     NodeList nl = valueEle.getChildNodes();
     int length = nl.getLength();
@@ -178,8 +178,8 @@ public abstract class DomUtils {
    * {@code desiredName}, otherwise returns {@code false}.
    */
   public static boolean nodeNameEquals(Node node, String desiredName) {
-    Assert.notNull(node, "Node must not be null");
-    Assert.notNull(desiredName, "Desired name must not be null");
+    Assert.notNull(node, "Node is required");
+    Assert.notNull(desiredName, "Desired name is required");
     return nodeNameMatch(node, desiredName);
   }
 

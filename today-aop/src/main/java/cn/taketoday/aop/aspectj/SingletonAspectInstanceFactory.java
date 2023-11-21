@@ -47,7 +47,7 @@ public class SingletonAspectInstanceFactory implements AspectInstanceFactory, Se
    * @param aspectInstance the singleton aspect instance
    */
   public SingletonAspectInstanceFactory(Object aspectInstance) {
-    Assert.notNull(aspectInstance, "Aspect instance must not be null");
+    Assert.notNull(aspectInstance, "Aspect instance is required");
     this.aspectInstance = aspectInstance;
   }
 

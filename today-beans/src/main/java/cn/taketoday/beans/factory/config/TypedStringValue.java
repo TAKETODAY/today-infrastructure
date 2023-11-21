@@ -112,7 +112,7 @@ public class TypedStringValue implements BeanMetadataElement, Comparable<TypedSt
    * for example in BeanFactoryPostProcessors.
    */
   public void setTargetType(Class<?> targetType) {
-    Assert.notNull(targetType, "'targetType' must not be null");
+    Assert.notNull(targetType, "'targetType' is required");
     this.targetType = targetType;
   }
 

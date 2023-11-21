@@ -80,7 +80,7 @@ public class ShadowingClassLoader extends DecoratingClassLoader {
    * @param defaultExcludes whether to apply {@link #DEFAULT_EXCLUDED_PACKAGES}
    */
   public ShadowingClassLoader(ClassLoader enclosingClassLoader, boolean defaultExcludes) {
-    Assert.notNull(enclosingClassLoader, "Enclosing ClassLoader must not be null");
+    Assert.notNull(enclosingClassLoader, "Enclosing ClassLoader is required");
     this.enclosingClassLoader = enclosingClassLoader;
     if (defaultExcludes) {
       for (String excludedPackage : DEFAULT_EXCLUDED_PACKAGES) {
@@ -96,7 +96,7 @@ public class ShadowingClassLoader extends DecoratingClassLoader {
    * @param transformer the ClassFileTransformer
    */
   public void addTransformer(ClassFileTransformer transformer) {
-    Assert.notNull(transformer, "Transformer must not be null");
+    Assert.notNull(transformer, "Transformer is required");
     this.classFileTransformers.add(transformer);
   }
 
@@ -107,7 +107,7 @@ public class ShadowingClassLoader extends DecoratingClassLoader {
    * @param other the ClassLoader to copy from
    */
   public void copyTransformers(ShadowingClassLoader other) {
-    Assert.notNull(other, "Other ClassLoader must not be null");
+    Assert.notNull(other, "Other ClassLoader is required");
     this.classFileTransformers.addAll(other.classFileTransformers);
   }
 

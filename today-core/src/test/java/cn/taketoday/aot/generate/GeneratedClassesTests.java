@@ -53,7 +53,7 @@ class GeneratedClassesTests {
   @Test
   void createWhenClassNameGeneratorIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new GeneratedClasses(null))
-            .withMessage("'classNameGenerator' must not be null");
+            .withMessage("'classNameGenerator' is required");
   }
 
   @Test
@@ -76,7 +76,7 @@ class GeneratedClassesTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.generatedClasses
                     .addForFeatureComponent("test", TestComponent.class, null))
-            .withMessage("'type' must not be null");
+            .withMessage("'type' is required");
   }
 
   @Test

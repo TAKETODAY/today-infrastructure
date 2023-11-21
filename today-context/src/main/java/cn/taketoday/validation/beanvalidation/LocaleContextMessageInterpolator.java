@@ -44,7 +44,7 @@ public class LocaleContextMessageInterpolator implements MessageInterpolator {
    * @param targetInterpolator the target MessageInterpolator to wrap
    */
   public LocaleContextMessageInterpolator(MessageInterpolator targetInterpolator) {
-    Assert.notNull(targetInterpolator, "Target MessageInterpolator must not be null");
+    Assert.notNull(targetInterpolator, "Target MessageInterpolator is required");
     this.targetInterpolator = targetInterpolator;
   }
 

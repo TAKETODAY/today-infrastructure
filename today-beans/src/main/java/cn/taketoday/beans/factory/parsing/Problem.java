@@ -76,8 +76,8 @@ public class Problem {
    * @param location the location within a bean configuration source that triggered the error
    */
   public Problem(String message, Location location, @Nullable ParseState parseState, @Nullable Throwable rootCause) {
-    Assert.notNull(message, "Message must not be null");
-    Assert.notNull(location, "Location must not be null");
+    Assert.notNull(message, "Message is required");
+    Assert.notNull(location, "Location is required");
     this.message = message;
     this.location = location;
     this.parseState = parseState;

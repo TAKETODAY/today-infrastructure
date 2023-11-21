@@ -58,7 +58,7 @@ public interface Converter<S, T> {
    * @since 4.0
    */
   default <U> Converter<S, U> andThen(Converter<? super T, ? extends U> after) {
-    Assert.notNull(after, "After Converter must not be null");
+    Assert.notNull(after, "After Converter is required");
     return (S s) -> {
       T initialResult = convert(s);
       return initialResult != null ? after.convert(initialResult) : null;

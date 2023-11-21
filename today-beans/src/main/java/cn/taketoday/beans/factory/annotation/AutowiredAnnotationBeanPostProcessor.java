@@ -216,7 +216,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
    * to be autowired.
    */
   public void setAutowiredAnnotationType(Class<? extends Annotation> autowiredAnnotationType) {
-    Assert.notNull(autowiredAnnotationType, "'autowiredAnnotationType' must not be null");
+    Assert.notNull(autowiredAnnotationType, "'autowiredAnnotationType' is required");
     this.autowiredAnnotationTypes.clear();
     this.autowiredAnnotationTypes.add(autowiredAnnotationType);
   }

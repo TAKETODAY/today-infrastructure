@@ -41,13 +41,13 @@ public class CompositeTaskDecorator implements TaskDecorator {
    * @param taskDecorators the taskDecorators to delegate to
    */
   public CompositeTaskDecorator(Collection<? extends TaskDecorator> taskDecorators) {
-    Assert.notNull(taskDecorators, "TaskDecorators must not be null");
+    Assert.notNull(taskDecorators, "TaskDecorators is required");
     this.taskDecorators = new ArrayList<>(taskDecorators);
   }
 
   @Override
   public Runnable decorate(Runnable runnable) {
-    Assert.notNull(runnable, "Runnable must not be null");
+    Assert.notNull(runnable, "Runnable is required");
     for (TaskDecorator taskDecorator : this.taskDecorators) {
       runnable = taskDecorator.decorate(runnable);
     }

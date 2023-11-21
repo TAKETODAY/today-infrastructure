@@ -133,7 +133,7 @@ public abstract class MergedAnnotationPredicates {
     private Object lastValue;
 
     FirstRunOfPredicate(Function<? super MergedAnnotation<A>, ?> valueExtractor) {
-      Assert.notNull(valueExtractor, "Value extractor must not be null");
+      Assert.notNull(valueExtractor, "Value extractor is required");
       this.valueExtractor = valueExtractor;
     }
 
@@ -159,7 +159,7 @@ public abstract class MergedAnnotationPredicates {
     private final HashSet<K> seen = new HashSet<>();
 
     UniquePredicate(Function<? super MergedAnnotation<A>, K> keyExtractor) {
-      Assert.notNull(keyExtractor, "Key extractor must not be null");
+      Assert.notNull(keyExtractor, "Key extractor is required");
       this.keyExtractor = keyExtractor;
     }
 

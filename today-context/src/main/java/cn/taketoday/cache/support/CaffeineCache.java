@@ -79,8 +79,8 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
           boolean allowNullValues) {
 
     super(allowNullValues);
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(cache, "Cache must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(cache, "Cache is required");
     this.name = name;
     this.cache = cache;
   }
@@ -96,8 +96,8 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
    */
   public CaffeineCache(String name, AsyncCache<Object, Object> cache, boolean allowNullValues) {
     super(allowNullValues);
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(cache, "Cache must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(cache, "Cache is required");
     this.name = name;
     this.cache = cache.synchronous();
     this.asyncCache = cache;

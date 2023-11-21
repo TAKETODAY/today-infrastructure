@@ -147,7 +147,7 @@ public class TestRestTemplate {
    */
   public TestRestTemplate(RestTemplateBuilder builder, String username, String password,
           HttpClientOption... httpClientOptions) {
-    Assert.notNull(builder, "Builder must not be null");
+    Assert.notNull(builder, "Builder is required");
     this.builder = builder;
     this.httpClientOptions = httpClientOptions;
     if (httpClientOptions != null) {

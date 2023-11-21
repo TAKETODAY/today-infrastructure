@@ -124,8 +124,8 @@ public class MockFilterChain implements FilterChain {
    */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(response, "Response must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(response, "Response is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
 
     if (this.iterator == null) {

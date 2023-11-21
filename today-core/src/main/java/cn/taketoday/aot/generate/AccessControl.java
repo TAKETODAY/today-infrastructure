@@ -168,7 +168,7 @@ public final class AccessControl {
     PRIVATE;
 
     private static Visibility forMember(Member member) {
-      Assert.notNull(member, "'member' must not be null");
+      Assert.notNull(member, "'member' is required");
       Visibility visibility = forModifiers(member.getModifiers());
       Visibility declaringClassVisibility = forClass(member.getDeclaringClass());
       visibility = lowest(visibility, declaringClassVisibility);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +66,7 @@ public abstract class MockRestRequestMatchers {
    * @return the request matcher
    */
   public static RequestMatcher method(HttpMethod method) {
-    Assert.notNull(method, "'method' must not be null");
+    Assert.notNull(method, "'method' is required");
     return request -> assertEquals("Unexpected HttpMethod", method, request.getMethod());
   }
 
@@ -80,7 +77,7 @@ public abstract class MockRestRequestMatchers {
    * @return the request matcher
    */
   public static RequestMatcher requestTo(Matcher<? super String> matcher) {
-    Assert.notNull(matcher, "'matcher' must not be null");
+    Assert.notNull(matcher, "'matcher' is required");
     return request -> assertThat("Request URI", request.getURI().toString(), matcher);
   }
 
@@ -91,7 +88,7 @@ public abstract class MockRestRequestMatchers {
    * @return the request matcher
    */
   public static RequestMatcher requestTo(String expectedUri) {
-    Assert.notNull(expectedUri, "'uri' must not be null");
+    Assert.notNull(expectedUri, "'uri' is required");
     return request -> assertEquals("Request URI", expectedUri, request.getURI().toString());
   }
 
@@ -105,7 +102,7 @@ public abstract class MockRestRequestMatchers {
    * @return the request matcher
    */
   public static RequestMatcher requestToUriTemplate(String expectedUri, Object... uriVars) {
-    Assert.notNull(expectedUri, "'uri' must not be null");
+    Assert.notNull(expectedUri, "'uri' is required");
     URI uri = UriComponentsBuilder.fromUriString(expectedUri).buildAndExpand(uriVars).encode().toUri();
     return requestTo(uri);
   }
@@ -117,7 +114,7 @@ public abstract class MockRestRequestMatchers {
    * @return the request matcher
    */
   public static RequestMatcher requestTo(URI uri) {
-    Assert.notNull(uri, "'uri' must not be null");
+    Assert.notNull(uri, "'uri' is required");
     return request -> assertEquals("Unexpected request", uri, request.getURI());
   }
 

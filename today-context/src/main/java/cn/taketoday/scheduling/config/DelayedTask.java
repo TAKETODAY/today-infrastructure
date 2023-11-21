@@ -40,7 +40,7 @@ public class DelayedTask extends Task {
    */
   public DelayedTask(Runnable runnable, Duration initialDelay) {
     super(runnable);
-    Assert.notNull(initialDelay, "InitialDelay must not be null");
+    Assert.notNull(initialDelay, "InitialDelay is required");
     this.initialDelay = initialDelay;
   }
 
@@ -49,7 +49,7 @@ public class DelayedTask extends Task {
    */
   DelayedTask(DelayedTask task) {
     super(task.getRunnable());
-    Assert.notNull(task, "DelayedTask must not be null");
+    Assert.notNull(task, "DelayedTask is required");
     this.initialDelay = task.getInitialDelayDuration();
   }
 

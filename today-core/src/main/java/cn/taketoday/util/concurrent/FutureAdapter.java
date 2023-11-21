@@ -55,7 +55,7 @@ public abstract class FutureAdapter<T, S> implements Future<T> {
    * @param adaptee the future to delegate to
    */
   protected FutureAdapter(Future<S> adaptee) {
-    Assert.notNull(adaptee, "Delegate must not be null");
+    Assert.notNull(adaptee, "Delegate is required");
     this.adaptee = adaptee;
   }
 

@@ -57,8 +57,8 @@ class KeyGeneratorAdapter implements KeyGenerator {
    * and {@link javax.cache.annotation.CacheValue} are handled according to the spec.
    */
   public KeyGeneratorAdapter(JCacheOperationSource cacheOperationSource, KeyGenerator target) {
-    Assert.notNull(cacheOperationSource, "JCacheOperationSource must not be null");
-    Assert.notNull(target, "KeyGenerator must not be null");
+    Assert.notNull(cacheOperationSource, "JCacheOperationSource is required");
+    Assert.notNull(target, "KeyGenerator is required");
     this.cacheOperationSource = cacheOperationSource;
     this.keyGenerator = target;
   }
@@ -67,8 +67,8 @@ class KeyGeneratorAdapter implements KeyGenerator {
    * Create an instance used to wrap the specified {@link javax.cache.annotation.CacheKeyGenerator}.
    */
   public KeyGeneratorAdapter(JCacheOperationSource cacheOperationSource, CacheKeyGenerator target) {
-    Assert.notNull(cacheOperationSource, "JCacheOperationSource must not be null");
-    Assert.notNull(target, "CacheKeyGenerator must not be null");
+    Assert.notNull(cacheOperationSource, "JCacheOperationSource is required");
+    Assert.notNull(target, "CacheKeyGenerator is required");
     this.cacheOperationSource = cacheOperationSource;
     this.cacheKeyGenerator = target;
   }

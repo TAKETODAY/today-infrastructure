@@ -51,8 +51,8 @@ public class ConvertingPropertyEditorAdapter extends PropertyEditorSupport {
    * @param targetDescriptor the target type to convert to
    */
   public ConvertingPropertyEditorAdapter(ConversionService conversionService, TypeDescriptor targetDescriptor) {
-    Assert.notNull(conversionService, "ConversionService must not be null");
-    Assert.notNull(targetDescriptor, "TypeDescriptor must not be null");
+    Assert.notNull(conversionService, "ConversionService is required");
+    Assert.notNull(targetDescriptor, "TypeDescriptor is required");
     this.targetDescriptor = targetDescriptor;
     this.conversionService = conversionService;
     this.canConvertToString = conversionService.canConvert(targetDescriptor, TypeDescriptor.valueOf(String.class));

@@ -81,7 +81,7 @@ class LayerIdTests {
   @Test
   void ofSha256DigestWhenNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> LayerId.ofSha256Digest((byte[]) null))
-            .withMessage("Digest must not be null");
+            .withMessage("Digest is required");
   }
 
   @Test

@@ -64,7 +64,7 @@ public class AutowireCandidateQualifier extends BeanMetadataAttributeAccessor {
    * @param typeName the name of the annotation type
    */
   public AutowireCandidateQualifier(String typeName) {
-    Assert.notNull(typeName, "Type name must not be null");
+    Assert.notNull(typeName, "Type name is required");
     this.typeName = typeName;
   }
 
@@ -91,7 +91,7 @@ public class AutowireCandidateQualifier extends BeanMetadataAttributeAccessor {
    * @param value the annotation value to match
    */
   public AutowireCandidateQualifier(String typeName, Object value) {
-    Assert.notNull(typeName, "Type name must not be null");
+    Assert.notNull(typeName, "Type name is required");
     this.typeName = typeName;
     setAttribute(VALUE_KEY, value);
   }

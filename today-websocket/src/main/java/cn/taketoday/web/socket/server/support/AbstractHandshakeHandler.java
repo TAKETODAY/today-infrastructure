@@ -103,7 +103,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
    * @param requestUpgradeStrategy the upgrade strategy to use
    */
   protected AbstractHandshakeHandler(RequestUpgradeStrategy requestUpgradeStrategy) {
-    Assert.notNull(requestUpgradeStrategy, "RequestUpgradeStrategy must not be null");
+    Assert.notNull(requestUpgradeStrategy, "RequestUpgradeStrategy is required");
     this.requestUpgradeStrategy = requestUpgradeStrategy;
   }
 

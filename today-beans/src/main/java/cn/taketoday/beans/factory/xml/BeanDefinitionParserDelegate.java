@@ -247,7 +247,7 @@ public class BeanDefinitionParserDelegate {
    * {@link XmlReaderContext}.
    */
   public BeanDefinitionParserDelegate(XmlReaderContext readerContext) {
-    Assert.notNull(readerContext, "XmlReaderContext must not be null");
+    Assert.notNull(readerContext, "XmlReaderContext is required");
     this.readerContext = readerContext;
   }
 

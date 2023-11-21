@@ -84,7 +84,7 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
   @SuppressWarnings("unchecked")
   public static <T> Constructor<T> newConstructorForSerialization(
           Class<T> type, Constructor<?> constructor) {
-    Assert.notNull(type, "type must not be null");
+    Assert.notNull(type, "type is required");
     try {
       return (Constructor<T>) newConstructorForSerialization.invoke(
               reflectionFactory, type, constructor);

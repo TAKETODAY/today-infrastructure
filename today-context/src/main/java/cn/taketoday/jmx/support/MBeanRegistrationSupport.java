@@ -120,7 +120,7 @@ public class MBeanRegistrationSupport {
    * @since 4.0
    */
   public void setRegistrationPolicy(RegistrationPolicy registrationPolicy) {
-    Assert.notNull(registrationPolicy, "RegistrationPolicy must not be null");
+    Assert.notNull(registrationPolicy, "RegistrationPolicy is required");
     this.registrationPolicy = registrationPolicy;
   }
 

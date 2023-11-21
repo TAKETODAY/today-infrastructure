@@ -43,14 +43,14 @@ class IncludeExcludeContentSelectorTests {
 		assertThatIllegalArgumentException()
 			.isThrownBy(
 					() -> new IncludeExcludeContentSelector<>(null, Collections.emptyList(), Collections.emptyList()))
-			.withMessage("Layer must not be null");
+			.withMessage("Layer is required");
 	}
 
 	@Test
 	void createWhenFactoryIsNullThrowsException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> new IncludeExcludeContentSelector<>(LAYER, null, null, null))
-			.withMessage("FilterFactory must not be null");
+			.withMessage("FilterFactory is required");
 	}
 
 	@Test

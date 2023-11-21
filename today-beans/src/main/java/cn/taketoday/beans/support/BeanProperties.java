@@ -63,8 +63,8 @@ public class BeanProperties {
    * @param converter type-converter to convert bean-properties
    */
   public static void copy(Object source, Object destination, @Nullable TypeConverter converter) {
-    Assert.notNull(source, "source object must not be null");
-    Assert.notNull(destination, "destination object must not be null");
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination object is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
     copy(source, destinationMetadata, destination, converter, null);
@@ -95,8 +95,8 @@ public class BeanProperties {
    */
   public static void copy(Object source, Object destination,
           @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
-    Assert.notNull(source, "source object must not be null");
-    Assert.notNull(destination, "destination object must not be null");
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination object is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
     copy(source, destinationMetadata, destination, converter, ignoreProperties);
@@ -129,8 +129,8 @@ public class BeanProperties {
    */
   @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination, @Nullable TypeConverter converter) {
-    Assert.notNull(source, "source object must not be null");
-    Assert.notNull(destination, "destination class must not be null");
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination class is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
@@ -159,8 +159,8 @@ public class BeanProperties {
   @SuppressWarnings("unchecked")
   public static <T> T copy(Object source, Class<T> destination,
           @Nullable TypeConverter converter, @Nullable String... ignoreProperties) {
-    Assert.notNull(source, "source object must not be null");
-    Assert.notNull(destination, "destination class must not be null");
+    Assert.notNull(source, "source object is required");
+    Assert.notNull(destination, "destination class is required");
 
     BeanMetadata destinationMetadata = BeanMetadata.from(destination);
     Object destinationInstance = destinationMetadata.newInstance(); // destination
@@ -287,8 +287,8 @@ public class BeanProperties {
    * @see BeanWrapperImpl
    */
   public static void populate(Object bean, Map<String, Object> properties, boolean ignoreUnknown) {
-    Assert.notNull(bean, "target bean must not be null");
-    Assert.notNull(properties, "properties must not be null");
+    Assert.notNull(bean, "target bean is required");
+    Assert.notNull(properties, "properties is required");
     BeanWrapperImpl beanWrapper = new BeanWrapperImpl(bean);
     beanWrapper.setAutoGrowNestedPaths(true);
 

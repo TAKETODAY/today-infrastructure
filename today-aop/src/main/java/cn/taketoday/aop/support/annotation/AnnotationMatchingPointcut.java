@@ -154,7 +154,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @return the corresponding AnnotationMatchingPointcut
    */
   public static AnnotationMatchingPointcut forClassAnnotation(Class<? extends Annotation> annotationType) {
-    Assert.notNull(annotationType, "Annotation type must not be null");
+    Assert.notNull(annotationType, "Annotation type is required");
     return new AnnotationMatchingPointcut(annotationType);
   }
 
@@ -166,7 +166,7 @@ public class AnnotationMatchingPointcut implements Pointcut {
    * @return the corresponding AnnotationMatchingPointcut
    */
   public static AnnotationMatchingPointcut forMethodAnnotation(Class<? extends Annotation> annotationType) {
-    Assert.notNull(annotationType, "Annotation type must not be null");
+    Assert.notNull(annotationType, "Annotation type is required");
     return new AnnotationMatchingPointcut(null, annotationType);
   }
 

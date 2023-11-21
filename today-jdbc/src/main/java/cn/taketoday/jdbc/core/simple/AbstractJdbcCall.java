@@ -101,7 +101,7 @@ public abstract class AbstractJdbcCall {
    * @param jdbcTemplate the JdbcTemplate to use
    */
   protected AbstractJdbcCall(JdbcTemplate jdbcTemplate) {
-    Assert.notNull(jdbcTemplate, "JdbcTemplate must not be null");
+    Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
     this.jdbcTemplate = jdbcTemplate;
   }
 
@@ -254,7 +254,7 @@ public abstract class AbstractJdbcCall {
    * @param parameter the {@link SqlParameter} to add
    */
   public void addDeclaredParameter(SqlParameter parameter) {
-    Assert.notNull(parameter, "The supplied parameter must not be null");
+    Assert.notNull(parameter, "The supplied parameter is required");
     if (StringUtils.isBlank(parameter.getName())) {
       throw new InvalidDataAccessApiUsageException(
               "You must specify a parameter name when declaring parameters for \"" + getProcedureName() + "\"");

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,7 +129,7 @@ public class TransactionSynchronizationManager {
    */
   public void bindResource(Object key, Object value) throws IllegalStateException {
     Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     Map<Object, Object> map = this.transactionContext.getResources();
     Object oldValue = map.put(actualKey, value);
     if (oldValue != null) {
@@ -219,7 +216,7 @@ public class TransactionSynchronizationManager {
   public void registerSynchronization(TransactionSynchronization synchronization)
           throws IllegalStateException {
 
-    Assert.notNull(synchronization, "TransactionSynchronization must not be null");
+    Assert.notNull(synchronization, "TransactionSynchronization is required");
     Set<TransactionSynchronization> synchs = this.transactionContext.getSynchronizations();
     if (synchs == null) {
       throw new IllegalStateException("Transaction synchronization is not active");

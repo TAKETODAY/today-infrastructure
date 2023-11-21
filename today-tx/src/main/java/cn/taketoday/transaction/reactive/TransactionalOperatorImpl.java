@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,8 +57,8 @@ final class TransactionalOperatorImpl implements TransactionalOperator {
    */
   TransactionalOperatorImpl(ReactiveTransactionManager transactionManager,
           TransactionDefinition transactionDefinition) {
-    Assert.notNull(transactionManager, "ReactiveTransactionManager must not be null");
-    Assert.notNull(transactionDefinition, "TransactionDefinition must not be null");
+    Assert.notNull(transactionManager, "ReactiveTransactionManager is required");
+    Assert.notNull(transactionDefinition, "TransactionDefinition is required");
     this.transactionManager = transactionManager;
     this.transactionDefinition = transactionDefinition;
   }

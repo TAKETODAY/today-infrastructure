@@ -176,35 +176,35 @@ class TestPropertySourceUtilsTests {
   void addPropertiesFilesToEnvironmentWithNullContext() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addPropertiesFilesToEnvironment((ConfigurableApplicationContext) null, FOO_LOCATIONS))
-            .withMessageContaining("'context' must not be null");
+            .withMessageContaining("'context' is required");
   }
 
   @Test
   void addPropertiesFilesToEnvironmentWithContextAndNullLocations() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addPropertiesFilesToEnvironment(mock(ConfigurableApplicationContext.class), (String[]) null))
-            .withMessageContaining("'locations' must not be null");
+            .withMessageContaining("'locations' is required");
   }
 
   @Test
   void addPropertiesFilesToEnvironmentWithNullEnvironment() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addPropertiesFilesToEnvironment((ConfigurableEnvironment) null, mock(), FOO_LOCATIONS))
-            .withMessageContaining("'environment' must not be null");
+            .withMessageContaining("'environment' is required");
   }
 
   @Test
   void addPropertiesFilesToEnvironmentWithEnvironmentLocationsAndNullResourceLoader() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addPropertiesFilesToEnvironment(new MockEnvironment(), null, FOO_LOCATIONS))
-            .withMessageContaining("'resourceLoader' must not be null");
+            .withMessageContaining("'resourceLoader' is required");
   }
 
   @Test
   void addPropertiesFilesToEnvironmentWithEnvironmentAndNullLocations() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addPropertiesFilesToEnvironment(new MockEnvironment(), mock(), (String[]) null))
-            .withMessageContaining("'locations' must not be null");
+            .withMessageContaining("'locations' is required");
   }
 
   @Test
@@ -229,28 +229,28 @@ class TestPropertySourceUtilsTests {
   void addInlinedPropertiesToEnvironmentWithNullContext() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addInlinedPropertiesToEnvironment((ConfigurableApplicationContext) null, KEY_VALUE_PAIR))
-            .withMessageContaining("'context' must not be null");
+            .withMessageContaining("'context' is required");
   }
 
   @Test
   void addInlinedPropertiesToEnvironmentWithContextAndNullInlinedProperties() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addInlinedPropertiesToEnvironment(mock(ConfigurableApplicationContext.class), (String[]) null))
-            .withMessageContaining("'inlinedProperties' must not be null");
+            .withMessageContaining("'inlinedProperties' is required");
   }
 
   @Test
   void addInlinedPropertiesToEnvironmentWithNullEnvironment() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addInlinedPropertiesToEnvironment((ConfigurableEnvironment) null, KEY_VALUE_PAIR))
-            .withMessageContaining("'environment' must not be null");
+            .withMessageContaining("'environment' is required");
   }
 
   @Test
   void addInlinedPropertiesToEnvironmentWithEnvironmentAndNullInlinedProperties() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> addInlinedPropertiesToEnvironment(new MockEnvironment(), (String[]) null))
-            .withMessageContaining("'inlinedProperties' must not be null");
+            .withMessageContaining("'inlinedProperties' is required");
   }
 
   @Test
@@ -294,7 +294,7 @@ class TestPropertySourceUtilsTests {
   void convertInlinedPropertiesToMapWithNullInlinedProperties() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> convertInlinedPropertiesToMap((String[]) null))
-            .withMessageContaining("'inlinedProperties' must not be null");
+            .withMessageContaining("'inlinedProperties' is required");
   }
 
   private static void assertMergedTestPropertySources(Class<?> testClass, String[] expectedLocations,

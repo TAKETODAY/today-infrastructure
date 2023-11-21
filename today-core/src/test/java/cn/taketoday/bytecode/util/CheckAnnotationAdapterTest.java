@@ -43,7 +43,7 @@ public class CheckAnnotationAdapterTest extends AsmTest implements Opcodes {
     Executable visit = () -> checkAnnotationAdapter.visit(null, Integer.valueOf(0));
 
     Exception exception = assertThrows(IllegalArgumentException.class, visit);
-    assertEquals("Annotation value name must not be null", exception.getMessage());
+    assertEquals("Annotation value name is required", exception.getMessage());
   }
 
   @Test

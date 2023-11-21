@@ -56,7 +56,7 @@ public class GenericApplicationListenerAdapter implements GenericApplicationList
    * @param delegate the delegate listener to be invoked
    */
   public GenericApplicationListenerAdapter(ApplicationListener delegate) {
-    Assert.notNull(delegate, "Delegate listener must not be null");
+    Assert.notNull(delegate, "Delegate listener is required");
     this.delegate = delegate;
     this.declaredEventType = resolveDeclaredEventType(this.delegate);
   }

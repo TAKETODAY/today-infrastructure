@@ -50,7 +50,7 @@ public abstract class TransactionSynchronizationUtils {
    * @see InfrastructureProxy#getWrappedObject()
    */
   public static Object unwrapResourceIfNecessary(Object resource) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     Object resourceRef = resource;
     // unwrap infrastructure proxy
     if (resourceRef instanceof InfrastructureProxy) {

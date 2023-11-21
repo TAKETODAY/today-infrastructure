@@ -48,8 +48,8 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
 
   @Override
   public void registerBundle(String name, SslBundle bundle) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(bundle, "Bundle must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(bundle, "Bundle is required");
     RegisteredSslBundle previous = this.registeredBundles.putIfAbsent(name, new RegisteredSslBundle(name, bundle));
     Assert.state(previous == null, () -> "Cannot replace existing SSL bundle '%s'".formatted(name));
   }
@@ -70,7 +70,7 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
   }
 
   private RegisteredSslBundle getRegistered(String name) throws NoSuchSslBundleException {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     RegisteredSslBundle registered = this.registeredBundles.get(name);
     if (registered == null) {
       throw new NoSuchSslBundleException(name, "SSL bundle name '%s' cannot be found".formatted(name));
@@ -92,7 +92,7 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
     }
 
     void update(SslBundle updatedBundle) {
-      Assert.notNull(updatedBundle, "UpdatedBundle must not be null");
+      Assert.notNull(updatedBundle, "UpdatedBundle is required");
       this.bundle = updatedBundle;
       if (this.updateHandlers.isEmpty()) {
         logger.warn("SSL bundle '{}' has been updated but may be in use by a technology that doesn't support SSL reloading", this.name);
@@ -105,7 +105,7 @@ public class DefaultSslBundleRegistry implements SslBundleRegistry, SslBundles {
     }
 
     void addUpdateHandler(Consumer<SslBundle> updateHandler) {
-      Assert.notNull(updateHandler, "UpdateHandler must not be null");
+      Assert.notNull(updateHandler, "UpdateHandler is required");
       this.updateHandlers.add(updateHandler);
     }
 

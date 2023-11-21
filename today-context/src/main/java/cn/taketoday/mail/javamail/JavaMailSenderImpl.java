@@ -149,7 +149,7 @@ public class JavaMailSenderImpl implements JavaMailSender {
    * @see #setJavaMailProperties
    */
   public synchronized void setSession(Session session) {
-    Assert.notNull(session, "Session must not be null");
+    Assert.notNull(session, "Session is required");
     this.session = session;
   }
 

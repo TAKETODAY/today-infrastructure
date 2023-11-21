@@ -86,7 +86,7 @@ public class ManagedMetric extends AbstractJmxAttribute {
    * A description of how this metric's values change over time.
    */
   public void setMetricType(MetricType metricType) {
-    Assert.notNull(metricType, "MetricType must not be null");
+    Assert.notNull(metricType, "MetricType is required");
     this.metricType = metricType;
   }
 

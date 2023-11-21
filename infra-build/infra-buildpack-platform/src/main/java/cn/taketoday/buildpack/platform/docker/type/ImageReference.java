@@ -48,7 +48,7 @@ public final class ImageReference {
   private final String string;
 
   private ImageReference(ImageName name, String tag, String digest) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     this.name = name;
     this.tag = tag;
     this.digest = digest;
@@ -247,7 +247,7 @@ public final class ImageReference {
    * @return an {@link ImageName} instance
    */
   public static ImageReference of(String value) {
-    Assert.hasText(value, "Value must not be null");
+    Assert.hasText(value, "Value is required");
     String domain = ImageName.parseDomain(value);
     String path = (domain != null) ? value.substring(domain.length() + 1) : value;
     String digest = null;

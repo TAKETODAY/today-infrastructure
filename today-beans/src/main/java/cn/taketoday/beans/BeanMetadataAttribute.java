@@ -50,7 +50,7 @@ public class BeanMetadataAttribute implements BeanMetadataElement {
    * @param value the value of the attribute (possibly before type conversion)
    */
   public BeanMetadataAttribute(String name, @Nullable Object value) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     this.name = name;
     this.value = value;
   }

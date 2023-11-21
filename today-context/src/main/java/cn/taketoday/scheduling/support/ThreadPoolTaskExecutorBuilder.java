@@ -242,7 +242,7 @@ public class ThreadPoolTaskExecutorBuilder {
    * @see #additionalCustomizers(ThreadPoolTaskExecutorCustomizer...)
    */
   public ThreadPoolTaskExecutorBuilder customizers(ThreadPoolTaskExecutorCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return customizers(Arrays.asList(customizers));
   }
 
@@ -257,7 +257,7 @@ public class ThreadPoolTaskExecutorBuilder {
    * @see #additionalCustomizers(ThreadPoolTaskExecutorCustomizer...)
    */
   public ThreadPoolTaskExecutorBuilder customizers(Iterable<? extends ThreadPoolTaskExecutorCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new ThreadPoolTaskExecutorBuilder(this.queueCapacity, this.corePoolSize, this.maxPoolSize,
         this.allowCoreThreadTimeOut, this.keepAlive, this.awaitTermination, this.awaitTerminationPeriod,
         this.threadNamePrefix, this.taskDecorator, append(null, customizers));
@@ -273,7 +273,7 @@ public class ThreadPoolTaskExecutorBuilder {
    * @see #customizers(ThreadPoolTaskExecutorCustomizer...)
    */
   public ThreadPoolTaskExecutorBuilder additionalCustomizers(ThreadPoolTaskExecutorCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return additionalCustomizers(Arrays.asList(customizers));
   }
 
@@ -287,7 +287,7 @@ public class ThreadPoolTaskExecutorBuilder {
    * @see #customizers(ThreadPoolTaskExecutorCustomizer...)
    */
   public ThreadPoolTaskExecutorBuilder additionalCustomizers(Iterable<? extends ThreadPoolTaskExecutorCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new ThreadPoolTaskExecutorBuilder(this.queueCapacity, this.corePoolSize, this.maxPoolSize,
         this.allowCoreThreadTimeOut, this.keepAlive, this.awaitTermination, this.awaitTerminationPeriod,
         this.threadNamePrefix, this.taskDecorator, append(this.customizers, customizers));

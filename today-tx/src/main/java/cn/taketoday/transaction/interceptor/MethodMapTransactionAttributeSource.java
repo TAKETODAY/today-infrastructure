@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,7 +133,7 @@ public class MethodMapTransactionAttributeSource
    * @throws IllegalArgumentException in case of an invalid name
    */
   public void addTransactionalMethod(String name, TransactionAttribute attr) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     int lastDotIndex = name.lastIndexOf('.');
     if (lastDotIndex == -1) {
       throw new IllegalArgumentException("'" + name + "' is not a valid method name: format is FQN.methodName");
@@ -156,8 +153,8 @@ public class MethodMapTransactionAttributeSource
    * @param attr attribute associated with the method
    */
   public void addTransactionalMethod(Class<?> clazz, String mappedName, TransactionAttribute attr) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(mappedName, "Mapped name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(mappedName, "Mapped name is required");
     String name = clazz.getName() + '.' + mappedName;
 
     Method[] methods = clazz.getDeclaredMethods();
@@ -201,8 +198,8 @@ public class MethodMapTransactionAttributeSource
    * @param attr attribute associated with the method
    */
   public void addTransactionalMethod(Method method, TransactionAttribute attr) {
-    Assert.notNull(method, "Method must not be null");
-    Assert.notNull(attr, "TransactionAttribute must not be null");
+    Assert.notNull(method, "Method is required");
+    Assert.notNull(attr, "TransactionAttribute is required");
     if (log.isDebugEnabled()) {
       log.debug("Adding transactional method [{}] with attribute [{}]", method, attr);
     }

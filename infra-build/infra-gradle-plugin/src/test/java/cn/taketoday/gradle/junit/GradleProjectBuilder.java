@@ -60,7 +60,7 @@ public final class GradleProjectBuilder {
   }
 
   public Project build() {
-    Assert.notNull(this.projectDir, "ProjectDir must not be null");
+    Assert.notNull(this.projectDir, "ProjectDir is required");
     ProjectBuilder builder = ProjectBuilder.builder();
     builder.withProjectDir(this.projectDir);
     File userHome = new File(this.projectDir, "userHome");

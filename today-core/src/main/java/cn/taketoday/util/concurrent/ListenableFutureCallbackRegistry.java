@@ -56,7 +56,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * @param callback the callback to add
    */
   public void addCallback(ListenableFutureCallback<? super T> callback) {
-    Assert.notNull(callback, "'callback' must not be null");
+    Assert.notNull(callback, "'callback' is required");
     synchronized(this.mutex) {
       switch (this.state) {
         case NEW -> {
@@ -96,7 +96,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * @since 4.0
    */
   public void addSuccessCallback(SuccessCallback<? super T> callback) {
-    Assert.notNull(callback, "'callback' must not be null");
+    Assert.notNull(callback, "'callback' is required");
     synchronized(this.mutex) {
       switch (this.state) {
         case NEW -> this.successCallbacks.add(callback);
@@ -112,7 +112,7 @@ public class ListenableFutureCallbackRegistry<T> {
    * @since 4.0
    */
   public void addFailureCallback(FailureCallback callback) {
-    Assert.notNull(callback, "'callback' must not be null");
+    Assert.notNull(callback, "'callback' is required");
     synchronized(this.mutex) {
       switch (this.state) {
         case NEW -> this.failureCallbacks.add(callback);

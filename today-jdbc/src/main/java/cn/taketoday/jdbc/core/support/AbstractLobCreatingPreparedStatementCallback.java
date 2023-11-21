@@ -67,7 +67,7 @@ public abstract class AbstractLobCreatingPreparedStatementCallback implements Pr
    * @param lobHandler the LobHandler to create LobCreators with
    */
   public AbstractLobCreatingPreparedStatementCallback(LobHandler lobHandler) {
-    Assert.notNull(lobHandler, "LobHandler must not be null");
+    Assert.notNull(lobHandler, "LobHandler is required");
     this.lobHandler = lobHandler;
   }
 

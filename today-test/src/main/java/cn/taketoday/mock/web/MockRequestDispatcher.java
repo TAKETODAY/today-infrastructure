@@ -50,14 +50,14 @@ public class MockRequestDispatcher implements RequestDispatcher {
    * particular path or given by a particular name
    */
   public MockRequestDispatcher(String resource) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
   }
 
   @Override
   public void forward(ServletRequest request, ServletResponse response) {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(response, "Response must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(response, "Response is required");
     Assert.state(!response.isCommitted(), "Cannot perform forward - response is already committed");
     getMockHttpServletResponse(response).setForwardedUrl(this.resource);
     if (logger.isDebugEnabled()) {
@@ -67,8 +67,8 @@ public class MockRequestDispatcher implements RequestDispatcher {
 
   @Override
   public void include(ServletRequest request, ServletResponse response) {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(response, "Response must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(response, "Response is required");
     getMockHttpServletResponse(response).addIncludedUrl(this.resource);
     if (logger.isDebugEnabled()) {
       logger.debug("MockRequestDispatcher: including [" + this.resource + "]");

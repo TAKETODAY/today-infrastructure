@@ -69,7 +69,7 @@ class StackId {
    * @return the extracted stack ID
    */
   static StackId fromImage(Image image) {
-    Assert.notNull(image, "Image must not be null");
+    Assert.notNull(image, "Image is required");
     return fromImageConfig(image.getConfig());
   }
 

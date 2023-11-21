@@ -67,7 +67,7 @@ public class GsonTester<T> extends AbstractJsonMarshalTester<T> {
    * @param gson the Gson instance
    */
   protected GsonTester(Gson gson) {
-    Assert.notNull(gson, "Gson must not be null");
+    Assert.notNull(gson, "Gson is required");
     this.gson = gson;
   }
 
@@ -81,7 +81,7 @@ public class GsonTester<T> extends AbstractJsonMarshalTester<T> {
    */
   public GsonTester(Class<?> resourceLoadClass, ResolvableType type, Gson gson) {
     super(resourceLoadClass, type);
-    Assert.notNull(gson, "Gson must not be null");
+    Assert.notNull(gson, "Gson is required");
     this.gson = gson;
   }
 

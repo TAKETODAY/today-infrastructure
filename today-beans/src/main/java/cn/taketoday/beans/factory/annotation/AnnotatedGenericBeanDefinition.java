@@ -79,7 +79,7 @@ public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implem
    * @param metadata the annotation metadata for the bean class in question
    */
   public AnnotatedGenericBeanDefinition(AnnotationMetadata metadata) {
-    Assert.notNull(metadata, "AnnotationMetadata must not be null");
+    Assert.notNull(metadata, "AnnotationMetadata is required");
     if (metadata instanceof StandardAnnotationMetadata sam) {
       setBeanClass(sam.getIntrospectedClass());
     }
@@ -98,7 +98,7 @@ public class AnnotatedGenericBeanDefinition extends GenericBeanDefinition implem
    */
   public AnnotatedGenericBeanDefinition(AnnotationMetadata metadata, MethodMetadata factoryMethodMetadata) {
     this(metadata);
-    Assert.notNull(factoryMethodMetadata, "MethodMetadata must not be null");
+    Assert.notNull(factoryMethodMetadata, "MethodMetadata is required");
     setFactoryMethodName(factoryMethodMetadata.getMethodName());
     this.factoryMethodMetadata = factoryMethodMetadata;
   }

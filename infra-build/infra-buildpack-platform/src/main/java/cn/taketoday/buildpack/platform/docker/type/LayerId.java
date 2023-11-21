@@ -100,7 +100,7 @@ public final class LayerId {
    * @return a new layer ID instance
    */
   public static LayerId ofSha256Digest(byte[] digest) {
-    Assert.notNull(digest, "Digest must not be null");
+    Assert.notNull(digest, "Digest is required");
     Assert.isTrue(digest.length == 32, "Digest must be exactly 32 bytes");
     String algorithm = "sha256";
     String hash = String.format("%064x", new BigInteger(1, digest));

@@ -55,7 +55,7 @@ public abstract class AnsiOutput {
    * @param enabled if ANSI is enabled, disabled or detected
    */
   public static void setEnabled(Enabled enabled) {
-    Assert.notNull(enabled, "Enabled must not be null");
+    Assert.notNull(enabled, "Enabled is required");
     AnsiOutput.enabled = enabled;
   }
 

@@ -82,7 +82,7 @@ public class InfraValidatorAdapter implements SmartValidator, jakarta.validation
    * @param targetValidator the JSR-303 Validator to wrap
    */
   public InfraValidatorAdapter(jakarta.validation.Validator targetValidator) {
-    Assert.notNull(targetValidator, "Target Validator must not be null");
+    Assert.notNull(targetValidator, "Target Validator is required");
     this.targetValidator = targetValidator;
   }
 

@@ -123,7 +123,7 @@ public final class ExecutableHint extends MemberHint {
      * @return {@code this}, to facilitate method chaining
      */
     public Builder withMode(ExecutableMode mode) {
-      Assert.notNull(mode, "'mode' must not be null");
+      Assert.notNull(mode, "'mode' is required");
       if ((this.mode == null) || !this.mode.includes(mode)) {
         this.mode = mode;
       }

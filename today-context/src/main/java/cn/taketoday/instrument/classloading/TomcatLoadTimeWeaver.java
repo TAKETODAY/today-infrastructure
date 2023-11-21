@@ -61,7 +61,7 @@ public class TomcatLoadTimeWeaver implements LoadTimeWeaver {
    * @param classLoader the {@code ClassLoader} to delegate to for weaving
    */
   public TomcatLoadTimeWeaver(@Nullable ClassLoader classLoader) {
-    Assert.notNull(classLoader, "ClassLoader must not be null");
+    Assert.notNull(classLoader, "ClassLoader is required");
     this.classLoader = classLoader;
 
     Class<?> instrumentableLoaderClass;

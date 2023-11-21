@@ -80,7 +80,7 @@ public class InspectedContent implements Content {
    * @throws IOException on IO error
    */
   public static InspectedContent of(InputStream inputStream, Inspector... inspectors) throws IOException {
-    Assert.notNull(inputStream, "InputStream must not be null");
+    Assert.notNull(inputStream, "InputStream is required");
     return of((outputStream) -> FileCopyUtils.copy(inputStream, outputStream), inspectors);
   }
 
@@ -93,7 +93,7 @@ public class InspectedContent implements Content {
    * @throws IOException on IO error
    */
   public static InspectedContent of(Content content, Inspector... inspectors) throws IOException {
-    Assert.notNull(content, "Content must not be null");
+    Assert.notNull(content, "Content is required");
     return of(content::writeTo, inspectors);
   }
 
@@ -107,7 +107,7 @@ public class InspectedContent implements Content {
    * @throws IOException on IO error
    */
   public static InspectedContent of(IOConsumer<OutputStream> writer, Inspector... inspectors) throws IOException {
-    Assert.notNull(writer, "Writer must not be null");
+    Assert.notNull(writer, "Writer is required");
     InspectingOutputStream outputStream = new InspectingOutputStream(inspectors);
     try (outputStream) {
       writer.accept(outputStream);

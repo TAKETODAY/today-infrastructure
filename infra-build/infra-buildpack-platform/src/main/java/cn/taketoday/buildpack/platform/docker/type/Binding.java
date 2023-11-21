@@ -65,7 +65,7 @@ public final class Binding {
    * @return a new {@link Binding} instance
    */
   public static Binding of(String value) {
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     return new Binding(value);
   }
 
@@ -77,7 +77,7 @@ public final class Binding {
    * @return a new {@link Binding} instance
    */
   public static Binding from(VolumeName sourceVolume, String destination) {
-    Assert.notNull(sourceVolume, "SourceVolume must not be null");
+    Assert.notNull(sourceVolume, "SourceVolume is required");
     return from(sourceVolume.toString(), destination);
   }
 
@@ -89,8 +89,8 @@ public final class Binding {
    * @return a new {@link Binding} instance
    */
   public static Binding from(String source, String destination) {
-    Assert.notNull(source, "Source must not be null");
-    Assert.notNull(destination, "Destination must not be null");
+    Assert.notNull(source, "Source is required");
+    Assert.notNull(destination, "Destination is required");
     return new Binding(source + ":" + destination);
   }
 

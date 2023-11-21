@@ -59,14 +59,14 @@ class DockerEngineExceptionTests {
   void createWhenHostIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new DockerEngineException(null, null, 404, null, NO_ERRORS, NO_MESSAGE))
-            .withMessage("Host must not be null");
+            .withMessage("Host is required");
   }
 
   @Test
   void createWhenUriIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new DockerEngineException(HOST, null, 404, null, NO_ERRORS, NO_MESSAGE))
-            .withMessage("URI must not be null");
+            .withMessage("URI is required");
   }
 
   @Test

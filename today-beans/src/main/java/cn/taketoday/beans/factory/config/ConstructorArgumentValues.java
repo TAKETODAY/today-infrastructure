@@ -117,7 +117,7 @@ public class ConstructorArgumentValues {
    */
   public void addIndexedArgumentValue(int index, ValueHolder newValue) {
     Assert.isTrue(index >= 0, "Index must not be negative");
-    Assert.notNull(newValue, "ValueHolder must not be null");
+    Assert.notNull(newValue, "ValueHolder is required");
     addOrMergeIndexedArgumentValue(index, newValue);
   }
 
@@ -229,7 +229,7 @@ public class ConstructorArgumentValues {
    * ValueHolder instances carrying the same content are of course allowed.
    */
   public void addGenericArgumentValue(ValueHolder newValue) {
-    Assert.notNull(newValue, "ValueHolder must not be null");
+    Assert.notNull(newValue, "ValueHolder is required");
     if (!this.genericArgumentValues.contains(newValue)) {
       addOrMergeGenericArgumentValue(newValue);
     }

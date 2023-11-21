@@ -69,7 +69,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    */
   ApplicationContextAssert(C applicationContext, Throwable startupFailure) {
     super(applicationContext, ApplicationContextAssert.class);
-    Assert.notNull(applicationContext, "ApplicationContext must not be null");
+    Assert.notNull(applicationContext, "ApplicationContext is required");
     this.startupFailure = startupFailure;
   }
 
@@ -130,7 +130,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * given type
    */
   public ApplicationContextAssert<C> hasSingleBean(Class<?> type, Scope scope) {
-    Assert.notNull(scope, "Scope must not be null");
+    Assert.notNull(scope, "Scope is required");
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to have a single bean of type:%n <%s>", type));
     }
@@ -179,7 +179,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * type
    */
   public ApplicationContextAssert<C> doesNotHaveBean(Class<?> type, Scope scope) {
-    Assert.notNull(scope, "Scope must not be null");
+    Assert.notNull(scope, "Scope is required");
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("not to have any beans of type:%n <%s>", type));
     }
@@ -279,7 +279,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * given type
    */
   public <T> AbstractObjectAssert<?, T> getBean(Class<T> type, Scope scope) {
-    Assert.notNull(scope, "Scope must not be null");
+    Assert.notNull(scope, "Scope is required");
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to contain bean of type:%n <%s>", type));
     }
@@ -425,7 +425,7 @@ public class ApplicationContextAssert<C extends ApplicationContext>
    * @throws AssertionError if the application context did not start
    */
   public <T> MapAssert<String, T> getBeans(Class<T> type, Scope scope) {
-    Assert.notNull(scope, "Scope must not be null");
+    Assert.notNull(scope, "Scope is required");
     if (this.startupFailure != null) {
       throwAssertionError(contextFailedToStartWhenExpecting("to get beans of type:%n <%s>", type));
     }

@@ -72,7 +72,7 @@ public class DefaultIntroductionAdvisor
    * the interface to introduce (may be {@code null})
    */
   public DefaultIntroductionAdvisor(Advice advice, IntroductionInfo introductionInfo) {
-    Assert.notNull(advice, "Advice must not be null");
+    Assert.notNull(advice, "Advice is required");
     this.advice = advice;
     if (introductionInfo != null) {
       Class<?>[] introducedInterfaces = introductionInfo.getInterfaces();
@@ -92,7 +92,7 @@ public class DefaultIntroductionAdvisor
    * @param ifc the interface to introduce
    */
   public DefaultIntroductionAdvisor(DynamicIntroductionAdvice advice, Class<?> ifc) {
-    Assert.notNull(advice, "Advice must not be null");
+    Assert.notNull(advice, "Advice is required");
     this.advice = advice;
     addInterface(ifc);
   }
@@ -103,7 +103,7 @@ public class DefaultIntroductionAdvisor
    * @param ifc the interface to introduce
    */
   public void addInterface(Class<?> ifc) {
-    Assert.notNull(ifc, "Interface must not be null");
+    Assert.notNull(ifc, "Interface is required");
     if (!ifc.isInterface()) {
       throw new IllegalArgumentException("Specified class [" + ifc.getName() + "] must be an interface");
     }

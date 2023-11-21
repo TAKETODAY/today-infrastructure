@@ -58,8 +58,8 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
   }
 
   public WebSocketHttpRequestHandler(WebSocketHandler wsHandler, HandshakeHandler handshakeHandler) {
-    Assert.notNull(wsHandler, "wsHandler must not be null");
-    Assert.notNull(handshakeHandler, "handshakeHandler must not be null");
+    Assert.notNull(wsHandler, "wsHandler is required");
+    Assert.notNull(handshakeHandler, "handshakeHandler is required");
     this.wsHandler = wsHandler;
     this.handshakeHandler = handshakeHandler;
   }

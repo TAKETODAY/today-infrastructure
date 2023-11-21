@@ -67,21 +67,21 @@ class PathResourceTests {
   void nullPath() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     new PathResource((Path) null))
-            .withMessageContaining("Path must not be null");
+            .withMessageContaining("Path is required");
   }
 
   @Test
   void nullPathString() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     new PathResource((String) null))
-            .withMessageContaining("Path must not be null");
+            .withMessageContaining("Path is required");
   }
 
   @Test
   void nullUri() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     new PathResource((URI) null))
-            .withMessageContaining("URI must not be null");
+            .withMessageContaining("URI is required");
   }
 
   @Test

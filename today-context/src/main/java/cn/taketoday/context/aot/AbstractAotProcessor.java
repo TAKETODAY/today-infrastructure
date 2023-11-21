@@ -283,9 +283,9 @@ public abstract class AbstractAotProcessor<T> {
        * Build the {@link Settings} configured in this {@code Builder}.
        */
       public Settings build() {
-        Assert.notNull(this.sourceOutput, "'sourceOutput' must not be null");
-        Assert.notNull(this.resourceOutput, "'resourceOutput' must not be null");
-        Assert.notNull(this.classOutput, "'classOutput' must not be null");
+        Assert.notNull(this.sourceOutput, "'sourceOutput' is required");
+        Assert.notNull(this.resourceOutput, "'resourceOutput' is required");
+        Assert.notNull(this.classOutput, "'classOutput' is required");
         Assert.hasText(this.groupId, "'groupId' must not be null or empty");
         Assert.hasText(this.artifactId, "'artifactId' must not be null or empty");
         return new Settings(this.sourceOutput, this.resourceOutput, this.classOutput,

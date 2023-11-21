@@ -66,7 +66,7 @@ public class ByteArrayResource extends AbstractResource {
    * @param description where the byte array comes from
    */
   public ByteArrayResource(byte[] byteArray, String description) {
-    Assert.notNull(byteArray, "Byte array must not be null");
+    Assert.notNull(byteArray, "Byte array is required");
     this.byteArray = byteArray;
     this.description = (description != null ? description : "");
   }

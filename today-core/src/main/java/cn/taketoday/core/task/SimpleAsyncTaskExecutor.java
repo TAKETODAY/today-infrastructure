@@ -250,7 +250,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    */
   @Override
   public void execute(Runnable task, long startTimeout) {
-    Assert.notNull(task, "Runnable must not be null");
+    Assert.notNull(task, "Runnable is required");
     if (!isActive()) {
       throw new TaskRejectedException(getClass().getSimpleName() + " has been closed already");
     }
@@ -383,7 +383,7 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
     private final Runnable task;
 
     public TaskTrackingRunnable(Runnable task) {
-      Assert.notNull(task, "Task must not be null");
+      Assert.notNull(task, "Task is required");
       this.task = task;
     }
 

@@ -84,7 +84,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
     if (ObjectUtils.isNotEmpty(operands)) {
       this.children = operands;
       for (SpelNodeImpl operand : operands) {
-        Assert.notNull(operand, "Operand must not be null");
+        Assert.notNull(operand, "Operand is required");
         operand.parent = this;
       }
     }

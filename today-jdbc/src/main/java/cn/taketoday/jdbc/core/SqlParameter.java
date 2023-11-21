@@ -130,7 +130,7 @@ public class SqlParameter {
    * @param otherParam the SqlParameter object to copy from
    */
   public SqlParameter(SqlParameter otherParam) {
-    Assert.notNull(otherParam, "SqlParameter object must not be null");
+    Assert.notNull(otherParam, "SqlParameter object is required");
     this.name = otherParam.name;
     this.sqlType = otherParam.sqlType;
     this.typeName = otherParam.typeName;

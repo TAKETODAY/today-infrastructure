@@ -79,7 +79,7 @@ public abstract class AbstractBindingResult extends AbstractErrors implements Bi
    * @see DefaultMessageCodesResolver
    */
   public void setMessageCodesResolver(MessageCodesResolver messageCodesResolver) {
-    Assert.notNull(messageCodesResolver, "MessageCodesResolver must not be null");
+    Assert.notNull(messageCodesResolver, "MessageCodesResolver is required");
     this.messageCodesResolver = messageCodesResolver;
   }
 

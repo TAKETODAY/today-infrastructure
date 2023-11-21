@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +47,7 @@ class MergedSqlConfigTests {
   void nullLocalSqlConfig() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new MergedSqlConfig(null, getClass()))
-            .withMessage("Local @SqlConfig must not be null");
+            .withMessage("Local @SqlConfig is required");
   }
 
   @Test
@@ -59,7 +56,7 @@ class MergedSqlConfigTests {
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new MergedSqlConfig(sqlConfig, null))
-            .withMessage("testClass must not be null");
+            .withMessage("testClass is required");
   }
 
   @Test

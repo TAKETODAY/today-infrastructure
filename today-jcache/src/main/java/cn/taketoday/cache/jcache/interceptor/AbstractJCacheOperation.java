@@ -60,8 +60,8 @@ abstract class AbstractJCacheOperation<A extends Annotation> implements JCacheOp
    * @param cacheResolver the cache resolver to resolve regular caches
    */
   protected AbstractJCacheOperation(CacheMethodDetails<A> methodDetails, CacheResolver cacheResolver) {
-    Assert.notNull(methodDetails, "CacheMethodDetails must not be null");
-    Assert.notNull(cacheResolver, "CacheResolver must not be null");
+    Assert.notNull(methodDetails, "CacheMethodDetails is required");
+    Assert.notNull(cacheResolver, "CacheResolver is required");
     this.methodDetails = methodDetails;
     this.cacheResolver = cacheResolver;
     this.allParameterDetails = initializeAllParameterDetails(methodDetails.getMethod());

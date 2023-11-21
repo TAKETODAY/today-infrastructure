@@ -36,7 +36,7 @@ public class ArrayInstantiator extends BeanInstantiator {
   private final Class<?> componentType;
 
   public ArrayInstantiator(Class<?> componentType) {
-    Assert.notNull(componentType, "component type must not be null");
+    Assert.notNull(componentType, "component type is required");
     this.componentType = componentType;
   }
 

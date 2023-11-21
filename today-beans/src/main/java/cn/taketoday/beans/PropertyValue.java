@@ -85,7 +85,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
    * @since 4.0
    */
   public PropertyValue(PropertyValue original) {
-    Assert.notNull(original, "Original must not be null");
+    Assert.notNull(original, "Original is required");
     this.name = original.getName();
     this.value = original.getValue();
     this.optional = original.isOptional();
@@ -106,7 +106,7 @@ public class PropertyValue extends BeanMetadataAttributeAccessor implements Seri
    * @since 4.0
    */
   public PropertyValue(PropertyValue original, @Nullable Object newValue) {
-    Assert.notNull(original, "Original must not be null");
+    Assert.notNull(original, "Original is required");
     this.name = original.getName();
     this.value = newValue;
     this.optional = original.isOptional();

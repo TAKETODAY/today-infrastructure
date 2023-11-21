@@ -997,8 +997,8 @@ public abstract class ReflectionUtils {
    */
   @Nullable
   public static Field findFieldIgnoreCase(Class<?> clazz, String name) {
-    Assert.notNull(clazz, "Class must not be null");
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(clazz, "Class is required");
+    Assert.notNull(name, "Name is required");
     Class<?> searchType = clazz;
     while (Object.class != searchType && searchType != null) {
       Field[] fields = getDeclaredFields(searchType);

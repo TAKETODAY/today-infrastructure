@@ -62,7 +62,7 @@ class ConfigurableJtaPlatform implements JtaPlatform {
   public ConfigurableJtaPlatform(TransactionManager tm, @Nullable UserTransaction ut,
           @Nullable TransactionSynchronizationRegistry tsr) {
 
-    Assert.notNull(tm, "TransactionManager reference must not be null");
+    Assert.notNull(tm, "TransactionManager reference is required");
     this.transactionManager = tm;
     this.userTransaction = (ut != null ? ut : new UserTransactionAdapter(tm));
     this.transactionSynchronizationRegistry = tsr;

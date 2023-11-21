@@ -43,7 +43,7 @@ class PropertySourceOriginTests {
   @Test
   void createWhenPropertySourceIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new PropertySourceOrigin(null, "name"))
-            .withMessageContaining("PropertySource must not be null");
+            .withMessageContaining("PropertySource is required");
   }
 
   @Test

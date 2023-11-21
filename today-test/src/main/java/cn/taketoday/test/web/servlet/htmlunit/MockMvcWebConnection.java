@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -100,8 +97,8 @@ public final class MockMvcWebConnection implements WebConnection {
    * @param contextPath the contextPath to use
    */
   public MockMvcWebConnection(MockMvc mockMvc, WebClient webClient, @Nullable String contextPath) {
-    Assert.notNull(mockMvc, "MockMvc must not be null");
-    Assert.notNull(webClient, "WebClient must not be null");
+    Assert.notNull(mockMvc, "MockMvc is required");
+    Assert.notNull(webClient, "WebClient is required");
     validateContextPath(contextPath);
 
     this.webClient = webClient;
@@ -127,7 +124,7 @@ public final class MockMvcWebConnection implements WebConnection {
   }
 
   public void setWebClient(WebClient webClient) {
-    Assert.notNull(webClient, "WebClient must not be null");
+    Assert.notNull(webClient, "WebClient is required");
     this.webClient = webClient;
   }
 

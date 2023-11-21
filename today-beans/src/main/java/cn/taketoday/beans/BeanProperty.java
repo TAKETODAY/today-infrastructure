@@ -207,7 +207,7 @@ public sealed class BeanProperty extends Property
    * @since 4.0
    */
   public static BeanProperty valueOf(Field field) {
-    Assert.notNull(field, "field must not be null");
+    Assert.notNull(field, "field is required");
     return new FieldBeanProperty(field);
   }
 

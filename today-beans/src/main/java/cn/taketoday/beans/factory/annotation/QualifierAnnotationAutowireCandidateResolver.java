@@ -86,7 +86,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * @param qualifierType the qualifier annotation to look for
    */
   public QualifierAnnotationAutowireCandidateResolver(Class<? extends Annotation> qualifierType) {
-    Assert.notNull(qualifierType, "'qualifierType' must not be null");
+    Assert.notNull(qualifierType, "'qualifierType' is required");
     this.qualifierTypes.add(qualifierType);
   }
 
@@ -97,7 +97,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * @param qualifierTypes the qualifier annotations to look for
    */
   public QualifierAnnotationAutowireCandidateResolver(Set<Class<? extends Annotation>> qualifierTypes) {
-    Assert.notNull(qualifierTypes, "'qualifierTypes' must not be null");
+    Assert.notNull(qualifierTypes, "'qualifierTypes' is required");
     this.qualifierTypes.addAll(qualifierTypes);
   }
 

@@ -81,7 +81,7 @@ public abstract class AopProxyUtils {
    * @see Advised#getTargetSource()
    */
   public static Class<?> ultimateTargetClass(Object candidate) {
-    Assert.notNull(candidate, "Candidate object must not be null");
+    Assert.notNull(candidate, "Candidate object is required");
     Object current = candidate;
     Class<?> result = null;
     while (current instanceof TargetClassAware) {

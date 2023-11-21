@@ -48,7 +48,7 @@ class ClassFileTransformerAdapter implements ClassFileTransformer {
   private boolean currentlyTransforming = false;
 
   public ClassFileTransformerAdapter(ClassTransformer classTransformer) {
-    Assert.notNull(classTransformer, "ClassTransformer must not be null");
+    Assert.notNull(classTransformer, "ClassTransformer is required");
     this.classTransformer = classTransformer;
   }
 

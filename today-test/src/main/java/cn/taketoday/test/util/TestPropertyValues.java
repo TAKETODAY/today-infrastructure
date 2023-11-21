@@ -163,9 +163,9 @@ public class TestPropertyValues {
    * @param name the name for the property source
    */
   public void applyTo(ConfigurableEnvironment environment, Type type, String name) {
-    Assert.notNull(environment, "Environment must not be null");
-    Assert.notNull(type, "Property source type must not be null");
-    Assert.notNull(name, "Property source name must not be null");
+    Assert.notNull(environment, "Environment is required");
+    Assert.notNull(type, "Property source type is required");
+    Assert.notNull(name, "Property source name is required");
     PropertySources sources = environment.getPropertySources();
     addToSources(sources, type, name);
     ConfigurationPropertySources.attach(environment);
@@ -420,7 +420,7 @@ public class TestPropertyValues {
     }
 
     private String setOrClear(String name, String value) {
-      Assert.notNull(name, "Name must not be null");
+      Assert.notNull(name, "Name is required");
       if (StringUtils.isEmpty(value)) {
         return (String) System.getProperties().remove(name);
       }

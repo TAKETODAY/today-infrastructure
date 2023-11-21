@@ -155,7 +155,7 @@ public class TypeDescriptor implements Serializable {
    * @param property the property
    */
   public TypeDescriptor(Property property) {
-    Assert.notNull(property, "Property must not be null");
+    Assert.notNull(property, "Property is required");
     this.resolvableType = ResolvableType.forMethodParameter(property.getMethodParameter());
     this.type = this.resolvableType.resolve(property.getType());
     this.annotatedElement = new AnnotatedElementAdapter(null, property);
@@ -668,7 +668,7 @@ public class TypeDescriptor implements Serializable {
    */
   public static TypeDescriptor collection(
           Class<?> collectionType, @Nullable TypeDescriptor elementDescriptor) {
-    Assert.notNull(collectionType, "Collection type must not be null");
+    Assert.notNull(collectionType, "Collection type is required");
     if (!Collection.class.isAssignableFrom(collectionType)) {
       throw new IllegalArgumentException("Collection type must be a [java.util.Collection]");
     }
@@ -697,7 +697,7 @@ public class TypeDescriptor implements Serializable {
    */
   public static TypeDescriptor map(Class<?> mapType,
           @Nullable TypeDescriptor keyDescriptor, @Nullable TypeDescriptor valueDescriptor) {
-    Assert.notNull(mapType, "Map type must not be null");
+    Assert.notNull(mapType, "Map type is required");
     if (!Map.class.isAssignableFrom(mapType)) {
       throw new IllegalArgumentException("Map type must be a [java.util.Map]");
     }

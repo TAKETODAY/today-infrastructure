@@ -249,7 +249,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * actual resources with
    */
   public PathMatchingPatternResourceLoader(ResourceLoader resourceLoader) {
-    Assert.notNull(resourceLoader, "ResourceLoader must not be null");
+    Assert.notNull(resourceLoader, "ResourceLoader is required");
     this.resourceLoader = resourceLoader;
   }
 
@@ -282,7 +282,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
    * @see AntPathMatcher
    */
   public void setPathMatcher(PathMatcher pathMatcher) {
-    Assert.notNull(pathMatcher, "PathMatcher must not be null");
+    Assert.notNull(pathMatcher, "PathMatcher is required");
     this.pathMatcher = pathMatcher;
   }
 
@@ -308,7 +308,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
   @Override
   public void scan(String locationPattern, ResourceConsumer consumer) throws IOException {
-    Assert.notNull(locationPattern, "Location pattern must not be null");
+    Assert.notNull(locationPattern, "Location pattern is required");
 
     if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
       // a class path resource (multiple resources for same name possible)

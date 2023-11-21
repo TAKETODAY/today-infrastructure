@@ -74,9 +74,9 @@ public abstract class ValidationUtils {
   public static void invokeValidator(Validator validator,
           Object target, Errors errors, @Nullable Object... validationHints) {
 
-    Assert.notNull(validator, "Validator must not be null");
-    Assert.notNull(target, "Target object must not be null");
-    Assert.notNull(errors, "Errors object must not be null");
+    Assert.notNull(validator, "Validator is required");
+    Assert.notNull(target, "Target object is required");
+    Assert.notNull(errors, "Errors object is required");
 
     if (logger.isDebugEnabled()) {
       logger.debug("Invoking validator [{}]", validator);
@@ -175,7 +175,7 @@ public abstract class ValidationUtils {
   public static void rejectIfEmpty(Errors errors, String field,
           String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
-    Assert.notNull(errors, "Errors object must not be null");
+    Assert.notNull(errors, "Errors object is required");
     Object value = errors.getFieldValue(field);
     if (value == null || StringUtils.isEmpty(value.toString())) {
       errors.rejectValue(field, errorCode, errorArgs, defaultMessage);
@@ -260,7 +260,7 @@ public abstract class ValidationUtils {
           Errors errors, String field, String errorCode,
           @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
-    Assert.notNull(errors, "Errors object must not be null");
+    Assert.notNull(errors, "Errors object is required");
     Object value = errors.getFieldValue(field);
     if (value == null || StringUtils.isBlank(value.toString())) {
       errors.rejectValue(field, errorCode, errorArgs, defaultMessage);

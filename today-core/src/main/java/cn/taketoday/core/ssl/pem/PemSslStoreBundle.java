@@ -128,7 +128,7 @@ public class PemSslStoreBundle implements SslStoreBundle {
       return null;
     }
     try {
-      Assert.notNull(details.certificate(), "Certificate content must not be null");
+      Assert.notNull(details.certificate(), "Certificate content is required");
       KeyStore store = createKeyStore(details);
       X509Certificate[] certificates = loadCertificates(details.certificate());
       PrivateKey privateKey = loadPrivateKey(details);

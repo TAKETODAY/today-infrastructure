@@ -121,7 +121,7 @@ public class MethodParameter implements AnnotatedElement {
    * nested List, whereas 2 would indicate the element of the nested List)
    */
   public MethodParameter(Method method, int parameterIndex, int nestingLevel) {
-    Assert.notNull(method, "Method must not be null");
+    Assert.notNull(method, "Method is required");
     this.executable = method;
     this.parameterIndex = validateIndex(method, parameterIndex);
     this.nestingLevel = nestingLevel;
@@ -147,7 +147,7 @@ public class MethodParameter implements AnnotatedElement {
    * nested List, whereas 2 would indicate the element of the nested List)
    */
   public MethodParameter(Constructor<?> constructor, int parameterIndex, int nestingLevel) {
-    Assert.notNull(constructor, "Constructor must not be null");
+    Assert.notNull(constructor, "Constructor is required");
     this.executable = constructor;
     this.parameterIndex = validateIndex(constructor, parameterIndex);
     this.nestingLevel = nestingLevel;
@@ -162,7 +162,7 @@ public class MethodParameter implements AnnotatedElement {
    * @param containingClass the containing class
    */
   MethodParameter(Executable executable, int parameterIndex, @Nullable Class<?> containingClass) {
-    Assert.notNull(executable, "Executable must not be null");
+    Assert.notNull(executable, "Executable is required");
     this.nestingLevel = 1;
     this.executable = executable;
     this.containingClass = containingClass;
@@ -176,7 +176,7 @@ public class MethodParameter implements AnnotatedElement {
    * @param original the original MethodParameter object to copy from
    */
   public MethodParameter(MethodParameter original) {
-    Assert.notNull(original, "Original must not be null");
+    Assert.notNull(original, "Original is required");
     this.executable = original.executable;
     this.parameterIndex = original.parameterIndex;
     this.parameter = original.parameter;

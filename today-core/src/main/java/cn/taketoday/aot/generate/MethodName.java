@@ -56,7 +56,7 @@ final class MethodName {
    * @return a method name instance
    */
   static MethodName of(String... parts) {
-    Assert.notNull(parts, "'parts' must not be null");
+    Assert.notNull(parts, "'parts' is required");
     return new MethodName(join(parts));
   }
 
@@ -67,7 +67,7 @@ final class MethodName {
    * @return a new method name instance
    */
   MethodName and(MethodName name) {
-    Assert.notNull(name, "'name' must not be null");
+    Assert.notNull(name, "'name' is required");
     return and(name.value);
   }
 
@@ -78,7 +78,7 @@ final class MethodName {
    * @return a new method name instance
    */
   MethodName and(String... parts) {
-    Assert.notNull(parts, "'parts' must not be null");
+    Assert.notNull(parts, "'parts' is required");
     String joined = join(parts);
     String prefix = getPrefix(joined);
     String suffix = joined.substring(prefix.length());

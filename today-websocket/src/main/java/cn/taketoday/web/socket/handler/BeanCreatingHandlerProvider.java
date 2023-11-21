@@ -44,7 +44,7 @@ public class BeanCreatingHandlerProvider<T> implements BeanFactoryAware {
   private AutowireCapableBeanFactory beanFactory;
 
   public BeanCreatingHandlerProvider(Class<? extends T> handlerType) {
-    Assert.notNull(handlerType, "handlerType must not be null");
+    Assert.notNull(handlerType, "handlerType is required");
     this.handlerType = handlerType;
   }
 

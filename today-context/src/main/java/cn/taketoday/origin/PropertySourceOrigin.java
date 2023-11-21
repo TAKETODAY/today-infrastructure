@@ -43,7 +43,7 @@ public class PropertySourceOrigin implements Origin {
    * @param propertyName the name from the property source
    */
   public PropertySourceOrigin(PropertySource<?> propertySource, String propertyName) {
-    Assert.notNull(propertySource, "PropertySource must not be null");
+    Assert.notNull(propertySource, "PropertySource is required");
     Assert.hasLength(propertyName, "PropertyName must not be empty");
     this.propertySource = propertySource;
     this.propertyName = propertyName;

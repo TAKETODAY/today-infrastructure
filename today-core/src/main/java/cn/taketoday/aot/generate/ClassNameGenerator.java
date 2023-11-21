@@ -77,7 +77,7 @@ public final class ClassNameGenerator {
 
   private ClassNameGenerator(ClassName defaultTarget, String featureNamePrefix,
           Map<String, AtomicInteger> sequenceGenerator) {
-    Assert.notNull(defaultTarget, "'defaultTarget' must not be null");
+    Assert.notNull(defaultTarget, "'defaultTarget' is required");
     this.defaultTarget = defaultTarget;
     this.featureNamePrefix = (!StringUtils.hasText(featureNamePrefix) ? "" : featureNamePrefix);
     this.sequenceGenerator = sequenceGenerator;

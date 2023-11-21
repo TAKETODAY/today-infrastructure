@@ -48,7 +48,7 @@ public class NettyDataBufferFactory implements DataBufferFactory {
    * @see io.netty.buffer.UnpooledByteBufAllocator
    */
   public NettyDataBufferFactory(ByteBufAllocator byteBufAllocator) {
-    Assert.notNull(byteBufAllocator, "ByteBufAllocator must not be null");
+    Assert.notNull(byteBufAllocator, "ByteBufAllocator is required");
     this.byteBufAllocator = byteBufAllocator;
   }
 

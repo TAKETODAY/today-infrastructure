@@ -179,7 +179,7 @@ public class InfraClassRule implements TestRule {
    * @param testClass the test class to be managed; never {@code null}
    */
   static TestContextManager getTestContextManager(Class<?> testClass) {
-    Assert.notNull(testClass, "Test Class must not be null");
+    Assert.notNull(testClass, "Test Class is required");
     return testContextManagerCache.computeIfAbsent(testClass, TestContextManager::new);
   }
 

@@ -56,7 +56,7 @@ public final class AnnotatedClassFinder {
    * @param annotationType the annotation to find
    */
   public AnnotatedClassFinder(Class<? extends Annotation> annotationType) {
-    Assert.notNull(annotationType, "AnnotationType must not be null");
+    Assert.notNull(annotationType, "AnnotationType is required");
     this.annotationType = annotationType;
     this.scanner = new ClassPathScanningCandidateComponentProvider(false);
     this.scanner.addIncludeFilter(new AnnotationTypeFilter(annotationType));
@@ -72,7 +72,7 @@ public final class AnnotatedClassFinder {
    * hierarchy defined by the given {@code source} or {@code null} if none is found.
    */
   public Class<?> findFromClass(Class<?> source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     return findFromPackage(ClassUtils.getPackageName(source));
   }
 
@@ -85,7 +85,7 @@ public final class AnnotatedClassFinder {
    * hierarchy defined by the given {@code source} or {@code null} if none is found.
    */
   public Class<?> findFromPackage(String source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     Class<?> configuration = cache.get(source);
     if (configuration == null) {
       configuration = scanPackage(source);

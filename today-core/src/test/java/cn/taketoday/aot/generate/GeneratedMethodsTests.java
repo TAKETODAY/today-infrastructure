@@ -51,14 +51,14 @@ class GeneratedMethodsTests {
   void createWhenClassNameIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     new GeneratedMethods(null, MethodName::toString))
-            .withMessage("'className' must not be null");
+            .withMessage("'className' is required");
   }
 
   @Test
   void createWhenMethodNameGeneratorIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     new GeneratedMethods(TEST_CLASS_NAME, null))
-            .withMessage("'methodNameGenerator' must not be null");
+            .withMessage("'methodNameGenerator' is required");
   }
 
   @Test
@@ -72,14 +72,14 @@ class GeneratedMethodsTests {
   void addWithStringNameWhenSuggestedMethodIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     this.methods.add((String) null, methodSpecCustomizer))
-            .withMessage("'suggestedName' must not be null");
+            .withMessage("'suggestedName' is required");
   }
 
   @Test
   void addWithStringNameWhenMethodIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     this.methods.add("test", null))
-            .withMessage("'method' must not be null");
+            .withMessage("'method' is required");
   }
 
   @Test

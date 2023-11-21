@@ -109,7 +109,7 @@ public final class AotServices<T> implements Iterable<T> {
    * @return a new {@link Loader} instance
    */
   public static Loader factories(TodayStrategies strategies) {
-    Assert.notNull(strategies, "'strategies' must not be null");
+    Assert.notNull(strategies, "'strategies' is required");
     return new Loader(strategies, null);
   }
 
@@ -136,8 +136,8 @@ public final class AotServices<T> implements Iterable<T> {
    * @return a new {@link Loader} instance
    */
   public static Loader factoriesAndBeans(TodayStrategies strategies, BeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "'beanFactory' must not be null");
-    Assert.notNull(strategies, "'strategies' must not be null");
+    Assert.notNull(beanFactory, "'beanFactory' is required");
+    Assert.notNull(strategies, "'strategies' is required");
     return new Loader(strategies, beanFactory);
   }
 

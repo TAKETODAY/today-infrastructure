@@ -75,8 +75,8 @@ public interface ClassFilter {
    * of the given ClassFilter matches
    */
   static ClassFilter union(ClassFilter cf1, ClassFilter cf2) {
-    Assert.notNull(cf1, "First ClassFilter must not be null");
-    Assert.notNull(cf2, "Second ClassFilter must not be null");
+    Assert.notNull(cf1, "First ClassFilter is required");
+    Assert.notNull(cf2, "Second ClassFilter is required");
     return new UnionClassFilter(new ClassFilter[] { cf1, cf2 });
   }
 
@@ -101,8 +101,8 @@ public interface ClassFilter {
    * of the given ClassFilter match
    */
   static ClassFilter intersection(ClassFilter cf1, ClassFilter cf2) {
-    Assert.notNull(cf1, "First ClassFilter must not be null");
-    Assert.notNull(cf2, "Second ClassFilter must not be null");
+    Assert.notNull(cf1, "First ClassFilter is required");
+    Assert.notNull(cf2, "Second ClassFilter is required");
     return new IntersectionClassFilter(new ClassFilter[] { cf1, cf2 });
   }
 
@@ -127,7 +127,7 @@ public interface ClassFilter {
    * @since 4.0
    */
   static ClassFilter negate(ClassFilter classFilter) {
-    Assert.notNull(classFilter, "ClassFilter must not be null");
+    Assert.notNull(classFilter, "ClassFilter is required");
     return new NegateClassFilter(classFilter);
   }
 

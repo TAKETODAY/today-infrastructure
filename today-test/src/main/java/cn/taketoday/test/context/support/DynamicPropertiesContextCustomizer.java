@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +74,7 @@ class DynamicPropertiesContextCustomizer implements ContextCustomizer {
     Map<String, Supplier<Object>> map = new LinkedHashMap<>();
     DynamicPropertyRegistry dynamicPropertyRegistry = (name, valueSupplier) -> {
       Assert.hasText(name, "'name' must not be null or blank");
-      Assert.notNull(valueSupplier, "'valueSupplier' must not be null");
+      Assert.notNull(valueSupplier, "'valueSupplier' is required");
       map.put(name, valueSupplier);
     };
     this.methods.forEach(method -> {

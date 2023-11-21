@@ -47,8 +47,8 @@ final class ReflectionTypeReference extends AbstractTypeReference {
   }
 
   static ReflectionTypeReference of(Class<?> type) {
-    Assert.notNull(type, "'type' must not be null");
-    Assert.notNull(type.getCanonicalName(), "'type.getCanonicalName()' must not be null");
+    Assert.notNull(type, "'type' is required");
+    Assert.notNull(type.getCanonicalName(), "'type.getCanonicalName()' is required");
     return new ReflectionTypeReference(type);
   }
 

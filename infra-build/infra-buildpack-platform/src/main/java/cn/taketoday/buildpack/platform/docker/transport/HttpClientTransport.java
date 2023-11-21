@@ -61,8 +61,8 @@ abstract class HttpClientTransport implements HttpTransport {
   private final HttpHost host;
 
   protected HttpClientTransport(HttpClient client, HttpHost host) {
-    Assert.notNull(client, "Client must not be null");
-    Assert.notNull(host, "Host must not be null");
+    Assert.notNull(client, "Client is required");
+    Assert.notNull(host, "Host is required");
     this.client = client;
     this.host = host;
   }

@@ -41,14 +41,14 @@ class CompositeTaskDecoratorTests {
   @Test
   void createWithNullCollection() {
     assertThatIllegalArgumentException().isThrownBy(() -> new CompositeTaskDecorator(null))
-            .withMessage("TaskDecorators must not be null");
+            .withMessage("TaskDecorators is required");
   }
 
   @Test
   void decorateWithNullRunnable() {
     CompositeTaskDecorator taskDecorator = new CompositeTaskDecorator(List.of());
     assertThatIllegalArgumentException().isThrownBy(() -> taskDecorator.decorate(null))
-            .withMessage("Runnable must not be null");
+            .withMessage("Runnable is required");
   }
 
   @Test

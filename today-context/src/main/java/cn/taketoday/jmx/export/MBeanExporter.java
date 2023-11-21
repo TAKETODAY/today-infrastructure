@@ -339,7 +339,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * Add the name of bean that should be excluded from autodetection.
    */
   public void addExcludedBean(String excludedBean) {
-    Assert.notNull(excludedBean, "ExcludedBean must not be null");
+    Assert.notNull(excludedBean, "ExcludedBean is required");
     excludedBeans.add(excludedBean);
   }
 
@@ -381,7 +381,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
    * handback objects see {@link #setNotificationListeners(NotificationListenerBean[])}.
    */
   public void setNotificationListenerMappings(Map<?, ? extends NotificationListener> listeners) {
-    Assert.notNull(listeners, "'listeners' must not be null");
+    Assert.notNull(listeners, "'listeners' is required");
     List<NotificationListenerBean> notificationListeners =
             new ArrayList<>(listeners.size());
 
@@ -468,7 +468,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
 
   @Override
   public ObjectName registerManagedResource(Object managedResource) throws MBeanExportException {
-    Assert.notNull(managedResource, "Managed resource must not be null");
+    Assert.notNull(managedResource, "Managed resource is required");
     ObjectName objectName;
     try {
       objectName = getObjectName(managedResource, null);
@@ -485,8 +485,8 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
 
   @Override
   public void registerManagedResource(Object managedResource, ObjectName objectName) throws MBeanExportException {
-    Assert.notNull(managedResource, "Managed resource must not be null");
-    Assert.notNull(objectName, "ObjectName must not be null");
+    Assert.notNull(managedResource, "Managed resource is required");
+    Assert.notNull(objectName, "ObjectName is required");
     try {
       if (isMBean(managedResource.getClass())) {
         doRegister(managedResource, objectName);
@@ -505,7 +505,7 @@ public class MBeanExporter extends MBeanRegistrationSupport implements MBeanExpo
 
   @Override
   public void unregisterManagedResource(ObjectName objectName) {
-    Assert.notNull(objectName, "ObjectName must not be null");
+    Assert.notNull(objectName, "ObjectName is required");
     doUnregister(objectName);
   }
 

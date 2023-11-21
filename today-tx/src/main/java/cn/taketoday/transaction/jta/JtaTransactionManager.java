@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -199,7 +196,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    */
   public JtaTransactionManager(UserTransaction userTransaction) {
     this();
-    Assert.notNull(userTransaction, "UserTransaction must not be null");
+    Assert.notNull(userTransaction, "UserTransaction is required");
     this.userTransaction = userTransaction;
   }
 
@@ -211,8 +208,8 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    */
   public JtaTransactionManager(UserTransaction userTransaction, TransactionManager transactionManager) {
     this();
-    Assert.notNull(userTransaction, "UserTransaction must not be null");
-    Assert.notNull(transactionManager, "TransactionManager must not be null");
+    Assert.notNull(userTransaction, "UserTransaction is required");
+    Assert.notNull(transactionManager, "TransactionManager is required");
     this.userTransaction = userTransaction;
     this.transactionManager = transactionManager;
   }
@@ -224,7 +221,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    */
   public JtaTransactionManager(TransactionManager transactionManager) {
     this();
-    Assert.notNull(transactionManager, "TransactionManager must not be null");
+    Assert.notNull(transactionManager, "TransactionManager is required");
     this.transactionManager = transactionManager;
     this.userTransaction = buildUserTransaction(transactionManager);
   }
@@ -234,7 +231,7 @@ public class JtaTransactionManager extends AbstractPlatformTransactionManager
    * A default one is used if not set.
    */
   public void setJndiTemplate(JndiTemplate jndiTemplate) {
-    Assert.notNull(jndiTemplate, "JndiTemplate must not be null");
+    Assert.notNull(jndiTemplate, "JndiTemplate is required");
     this.jndiTemplate = jndiTemplate;
   }
 

@@ -65,13 +65,13 @@ public final class DockerConfiguration {
   }
 
   public DockerConfiguration withHost(String address, boolean secure, String certificatePath) {
-    Assert.notNull(address, "Address must not be null");
+    Assert.notNull(address, "Address is required");
     return new DockerConfiguration(DockerHostConfiguration.forAddress(address, secure, certificatePath),
             this.builderAuthentication, this.publishAuthentication, this.bindHostToBuilder);
   }
 
   public DockerConfiguration withContext(String context) {
-    Assert.notNull(context, "Context must not be null");
+    Assert.notNull(context, "Context is required");
     return new DockerConfiguration(DockerHostConfiguration.forContext(context), this.builderAuthentication,
             this.publishAuthentication, this.bindHostToBuilder);
   }
@@ -82,29 +82,29 @@ public final class DockerConfiguration {
   }
 
   public DockerConfiguration withBuilderRegistryTokenAuthentication(String token) {
-    Assert.notNull(token, "Token must not be null");
+    Assert.notNull(token, "Token is required");
     return new DockerConfiguration(this.host, new DockerRegistryTokenAuthentication(token),
             this.publishAuthentication, this.bindHostToBuilder);
   }
 
   public DockerConfiguration withBuilderRegistryUserAuthentication(String username, String password, String url,
           String email) {
-    Assert.notNull(username, "Username must not be null");
-    Assert.notNull(password, "Password must not be null");
+    Assert.notNull(username, "Username is required");
+    Assert.notNull(password, "Password is required");
     return new DockerConfiguration(this.host, new DockerRegistryUserAuthentication(username, password, url, email),
             this.publishAuthentication, this.bindHostToBuilder);
   }
 
   public DockerConfiguration withPublishRegistryTokenAuthentication(String token) {
-    Assert.notNull(token, "Token must not be null");
+    Assert.notNull(token, "Token is required");
     return new DockerConfiguration(this.host, this.builderAuthentication,
             new DockerRegistryTokenAuthentication(token), this.bindHostToBuilder);
   }
 
   public DockerConfiguration withPublishRegistryUserAuthentication(String username, String password, String url,
           String email) {
-    Assert.notNull(username, "Username must not be null");
-    Assert.notNull(password, "Password must not be null");
+    Assert.notNull(username, "Username is required");
+    Assert.notNull(password, "Password is required");
     return new DockerConfiguration(this.host, this.builderAuthentication,
             new DockerRegistryUserAuthentication(username, password, url, email), this.bindHostToBuilder);
   }

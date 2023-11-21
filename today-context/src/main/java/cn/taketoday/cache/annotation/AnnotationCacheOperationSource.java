@@ -84,7 +84,7 @@ public class AnnotationCacheOperationSource extends AbstractFallbackCacheOperati
    */
   public AnnotationCacheOperationSource(CacheAnnotationParser annotationParser) {
     this.publicMethodsOnly = true;
-    Assert.notNull(annotationParser, "CacheAnnotationParser must not be null");
+    Assert.notNull(annotationParser, "CacheAnnotationParser is required");
     this.annotationParsers = Collections.singleton(annotationParser);
   }
 

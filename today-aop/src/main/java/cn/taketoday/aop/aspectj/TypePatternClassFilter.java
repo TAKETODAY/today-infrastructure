@@ -81,7 +81,7 @@ public class TypePatternClassFilter implements ClassFilter {
    * @param typePattern the type pattern that AspectJ weaver should parse
    */
   public void setTypePattern(String typePattern) {
-    Assert.notNull(typePattern, "Type pattern must not be null");
+    Assert.notNull(typePattern, "Type pattern is required");
     this.typePattern = typePattern;
     this.aspectJTypePatternMatcher =
             PointcutParser.getPointcutParserSupportingAllPrimitivesAndUsingContextClassloaderForResolution().

@@ -226,7 +226,7 @@ public class RepeatableContainers {
     ExplicitRepeatableContainer(@Nullable RepeatableContainers parent,
             Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
       super(parent);
-      Assert.notNull(repeatable, "Repeatable must not be null");
+      Assert.notNull(repeatable, "Repeatable is required");
       if (container == null) {
         container = deduceContainer(repeatable);
       }

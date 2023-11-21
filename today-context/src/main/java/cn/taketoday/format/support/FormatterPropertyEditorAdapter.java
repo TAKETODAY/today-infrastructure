@@ -47,7 +47,7 @@ public class FormatterPropertyEditorAdapter extends PropertyEditorSupport {
    */
   @SuppressWarnings("unchecked")
   public FormatterPropertyEditorAdapter(Formatter<?> formatter) {
-    Assert.notNull(formatter, "Formatter must not be null");
+    Assert.notNull(formatter, "Formatter is required");
     this.formatter = (Formatter<Object>) formatter;
   }
 

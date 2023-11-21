@@ -290,7 +290,7 @@ public class MockServletContext implements ServletContext {
    * @param mimeType the mime type
    */
   public void addMimeType(String fileExtension, MediaType mimeType) {
-    Assert.notNull(fileExtension, "'fileExtension' must not be null");
+    Assert.notNull(fileExtension, "'fileExtension' is required");
     this.mimeTypes.put(fileExtension, mimeType);
   }
 
@@ -393,8 +393,8 @@ public class MockServletContext implements ServletContext {
    * @see #unregisterNamedDispatcher
    */
   public void registerNamedDispatcher(String name, RequestDispatcher requestDispatcher) {
-    Assert.notNull(name, "RequestDispatcher name must not be null");
-    Assert.notNull(requestDispatcher, "RequestDispatcher must not be null");
+    Assert.notNull(name, "RequestDispatcher name is required");
+    Assert.notNull(requestDispatcher, "RequestDispatcher is required");
     this.namedRequestDispatchers.put(name, requestDispatcher);
   }
 
@@ -406,7 +406,7 @@ public class MockServletContext implements ServletContext {
    * @see #registerNamedDispatcher
    */
   public void unregisterNamedDispatcher(String name) {
-    Assert.notNull(name, "RequestDispatcher name must not be null");
+    Assert.notNull(name, "RequestDispatcher name is required");
     this.namedRequestDispatchers.remove(name);
   }
 
@@ -473,7 +473,7 @@ public class MockServletContext implements ServletContext {
 
   @Override
   public String getInitParameter(String name) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     return this.initParameters.get(name);
   }
 
@@ -484,7 +484,7 @@ public class MockServletContext implements ServletContext {
 
   @Override
   public boolean setInitParameter(String name, String value) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     if (this.initParameters.containsKey(name)) {
       return false;
     }
@@ -493,14 +493,14 @@ public class MockServletContext implements ServletContext {
   }
 
   public void addInitParameter(String name, String value) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     this.initParameters.put(name, value);
   }
 
   @Override
   @Nullable
   public Object getAttribute(String name) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     return this.attributes.get(name);
   }
 
@@ -511,7 +511,7 @@ public class MockServletContext implements ServletContext {
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     if (value != null) {
       this.attributes.put(name, value);
     }
@@ -522,7 +522,7 @@ public class MockServletContext implements ServletContext {
 
   @Override
   public void removeAttribute(String name) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     this.attributes.remove(name);
   }
 
@@ -543,7 +543,7 @@ public class MockServletContext implements ServletContext {
 
   @Override
   public void declareRoles(String... roleNames) {
-    Assert.notNull(roleNames, "Role names array must not be null");
+    Assert.notNull(roleNames, "Role names array is required");
     for (String roleName : roleNames) {
       Assert.hasLength(roleName, "Role name must not be empty");
       this.declaredRoles.add(roleName);

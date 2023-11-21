@@ -62,8 +62,8 @@ public class PassThroughFilterChain implements FilterChain {
    * @param nextFilterChain the FilterChain to use for that next Filter
    */
   public PassThroughFilterChain(Filter filter, FilterChain nextFilterChain) {
-    Assert.notNull(filter, "Filter must not be null");
-    Assert.notNull(nextFilterChain, "'FilterChain must not be null");
+    Assert.notNull(filter, "Filter is required");
+    Assert.notNull(nextFilterChain, "'FilterChain is required");
     this.filter = filter;
     this.nextFilterChain = nextFilterChain;
   }
@@ -74,7 +74,7 @@ public class PassThroughFilterChain implements FilterChain {
    * @param servlet the Servlet to delegate to
    */
   public PassThroughFilterChain(Servlet servlet) {
-    Assert.notNull(servlet, "Servlet must not be null");
+    Assert.notNull(servlet, "Servlet is required");
     this.servlet = servlet;
   }
 

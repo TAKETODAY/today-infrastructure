@@ -46,7 +46,7 @@ public class SimpleAspectInstanceFactory implements AspectInstanceFactory {
    * @param aspectClass the aspect class
    */
   public SimpleAspectInstanceFactory(Class<?> aspectClass) {
-    Assert.notNull(aspectClass, "Aspect class must not be null");
+    Assert.notNull(aspectClass, "Aspect class is required");
     this.aspectClass = aspectClass;
   }
 

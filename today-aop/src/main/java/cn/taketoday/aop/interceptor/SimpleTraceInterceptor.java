@@ -80,7 +80,7 @@ public class SimpleTraceInterceptor extends AbstractTraceInterceptor {
    */
   protected String getInvocationDescription(MethodInvocation invocation) {
     Object target = invocation.getThis();
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
     String className = target.getClass().getName();
     return "method '" + invocation.getMethod().getName() + "' of class [" + className + "]";
   }

@@ -70,7 +70,7 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
    * @return {@code true} if the exception was successfully set, else {@code false}
    */
   public boolean setException(Throwable exception) {
-    Assert.notNull(exception, "Exception must not be null");
+    Assert.notNull(exception, "Exception is required");
     return this.settableTask.setExceptionResult(exception);
   }
 

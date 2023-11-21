@@ -73,13 +73,13 @@ final class DefaultJdbcClient implements JdbcClient {
   }
 
   public DefaultJdbcClient(JdbcOperations jdbcTemplate) {
-    Assert.notNull(jdbcTemplate, "JdbcTemplate must not be null");
+    Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
     this.classicOps = jdbcTemplate;
     this.namedParamOps = new NamedParameterJdbcTemplate(jdbcTemplate);
   }
 
   public DefaultJdbcClient(NamedParameterJdbcOperations jdbcTemplate) {
-    Assert.notNull(jdbcTemplate, "JdbcTemplate must not be null");
+    Assert.notNull(jdbcTemplate, "JdbcTemplate is required");
     this.classicOps = jdbcTemplate.getJdbcOperations();
     this.namedParamOps = jdbcTemplate;
   }

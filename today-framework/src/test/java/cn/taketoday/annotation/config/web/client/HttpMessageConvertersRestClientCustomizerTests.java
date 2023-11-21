@@ -45,7 +45,7 @@ class HttpMessageConvertersRestClientCustomizerTests {
   void createWhenNullMessageConvertersArrayThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new HttpMessageConvertersRestClientCustomizer((HttpMessageConverter<?>[]) null))
-            .withMessage("MessageConverters must not be null");
+            .withMessage("MessageConverters is required");
   }
 
   @Test

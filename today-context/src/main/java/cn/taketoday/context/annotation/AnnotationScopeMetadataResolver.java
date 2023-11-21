@@ -65,7 +65,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
    * @param defaultProxyMode the default scoped-proxy mode
    */
   public AnnotationScopeMetadataResolver(ScopedProxyMode defaultProxyMode) {
-    Assert.notNull(defaultProxyMode, "'defaultProxyMode' must not be null");
+    Assert.notNull(defaultProxyMode, "'defaultProxyMode' is required");
     this.defaultProxyMode = defaultProxyMode;
   }
 
@@ -76,7 +76,7 @@ public class AnnotationScopeMetadataResolver implements ScopeMetadataResolver {
    * @param scopeAnnotationType the target annotation type
    */
   public void setScopeAnnotationType(Class<? extends Annotation> scopeAnnotationType) {
-    Assert.notNull(scopeAnnotationType, "'scopeAnnotationType' must not be null");
+    Assert.notNull(scopeAnnotationType, "'scopeAnnotationType' is required");
     this.scopeAnnotationType = scopeAnnotationType;
   }
 

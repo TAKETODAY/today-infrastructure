@@ -50,7 +50,7 @@ public class SyncTaskExecutor implements TaskExecutor, Serializable {
    */
   @Override
   public void execute(Runnable task) {
-    Assert.notNull(task, "Runnable must not be null");
+    Assert.notNull(task, "Runnable is required");
     task.run();
   }
 

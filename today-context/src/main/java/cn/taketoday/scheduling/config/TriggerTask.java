@@ -44,7 +44,7 @@ public class TriggerTask extends Task {
    */
   public TriggerTask(Runnable runnable, Trigger trigger) {
     super(runnable);
-    Assert.notNull(trigger, "Trigger must not be null");
+    Assert.notNull(trigger, "Trigger is required");
     this.trigger = trigger;
   }
 

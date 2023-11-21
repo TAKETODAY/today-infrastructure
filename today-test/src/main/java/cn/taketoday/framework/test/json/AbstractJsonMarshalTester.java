@@ -90,8 +90,8 @@ public abstract class AbstractJsonMarshalTester<T> {
    * @param type the type under test
    */
   public AbstractJsonMarshalTester(Class<?> resourceLoadClass, ResolvableType type) {
-    Assert.notNull(resourceLoadClass, "ResourceLoadClass must not be null");
-    Assert.notNull(type, "Type must not be null");
+    Assert.notNull(resourceLoadClass, "ResourceLoadClass is required");
+    Assert.notNull(type, "Type is required");
     initialize(resourceLoadClass, type);
   }
 
@@ -136,7 +136,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public JsonContent<T> write(T value) throws IOException {
     verify();
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     String json = writeObject(value, this.type);
     return getJsonContent(json);
   }
@@ -173,7 +173,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> parse(byte[] jsonBytes) throws IOException {
     verify();
-    Assert.notNull(jsonBytes, "JsonBytes must not be null");
+    Assert.notNull(jsonBytes, "JsonBytes is required");
     return read(new ByteArrayResource(jsonBytes));
   }
 
@@ -198,7 +198,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> parse(String jsonString) throws IOException {
     verify();
-    Assert.notNull(jsonString, "JsonString must not be null");
+    Assert.notNull(jsonString, "JsonString is required");
     return read(new StringReader(jsonString));
   }
 
@@ -225,7 +225,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> read(String resourcePath) throws IOException {
     verify();
-    Assert.notNull(resourcePath, "ResourcePath must not be null");
+    Assert.notNull(resourcePath, "ResourcePath is required");
     return read(new ClassPathResource(resourcePath, this.resourceLoadClass));
   }
 
@@ -250,7 +250,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> read(File file) throws IOException {
     verify();
-    Assert.notNull(file, "File must not be null");
+    Assert.notNull(file, "File is required");
     return read(new FileSystemResource(file));
   }
 
@@ -275,7 +275,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> read(InputStream inputStream) throws IOException {
     verify();
-    Assert.notNull(inputStream, "InputStream must not be null");
+    Assert.notNull(inputStream, "InputStream is required");
     return read(new InputStreamResource(inputStream));
   }
 
@@ -300,7 +300,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> read(Resource resource) throws IOException {
     verify();
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     InputStream inputStream = resource.getInputStream();
     T object = readObject(inputStream, this.type);
     closeQuietly(inputStream);
@@ -328,7 +328,7 @@ public abstract class AbstractJsonMarshalTester<T> {
    */
   public ObjectContent<T> read(Reader reader) throws IOException {
     verify();
-    Assert.notNull(reader, "Reader must not be null");
+    Assert.notNull(reader, "Reader is required");
     T object = readObject(reader, this.type);
     closeQuietly(reader);
     return new ObjectContent<>(this.type, object);
@@ -393,19 +393,19 @@ public abstract class AbstractJsonMarshalTester<T> {
 
     @SuppressWarnings("rawtypes")
     protected FieldInitializer(Class<? extends AbstractJsonMarshalTester> testerClass) {
-      Assert.notNull(testerClass, "TesterClass must not be null");
+      Assert.notNull(testerClass, "TesterClass is required");
       this.testerClass = testerClass;
     }
 
     public void initFields(Object testInstance, M marshaller) {
-      Assert.notNull(testInstance, "TestInstance must not be null");
-      Assert.notNull(marshaller, "Marshaller must not be null");
+      Assert.notNull(testInstance, "TestInstance is required");
+      Assert.notNull(marshaller, "Marshaller is required");
       initFields(testInstance, () -> marshaller);
     }
 
     public void initFields(Object testInstance, final Supplier<M> marshaller) {
-      Assert.notNull(testInstance, "TestInstance must not be null");
-      Assert.notNull(marshaller, "Marshaller must not be null");
+      Assert.notNull(testInstance, "TestInstance is required");
+      Assert.notNull(marshaller, "Marshaller is required");
       ReflectionUtils.doWithFields(testInstance.getClass(),
               (field) -> doWithField(field, testInstance, marshaller));
     }

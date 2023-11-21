@@ -50,7 +50,7 @@ public class TemplateExpressionParsingTests extends AbstractExpressionTests {
   void nullTemplateExpressionIsRejected() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> parser.parseExpression(null, DOLLAR_SIGN_TEMPLATE_PARSER_CONTEXT))
-            .withMessage("'expressionString' must not be null");
+            .withMessage("'expressionString' is required");
   }
 
   @Test

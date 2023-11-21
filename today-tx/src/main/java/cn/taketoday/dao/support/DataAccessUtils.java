@@ -339,7 +339,7 @@ public abstract class DataAccessUtils {
   public static RuntimeException translateIfNecessary(
           RuntimeException rawException, PersistenceExceptionTranslator pet) {
 
-    Assert.notNull(pet, "PersistenceExceptionTranslator must not be null");
+    Assert.notNull(pet, "PersistenceExceptionTranslator is required");
     DataAccessException dae = pet.translateExceptionIfPossible(rawException);
     return (dae != null ? dae : rawException);
   }

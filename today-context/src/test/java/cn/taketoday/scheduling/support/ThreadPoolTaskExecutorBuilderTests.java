@@ -85,14 +85,14 @@ class ThreadPoolTaskExecutorBuilderTests {
   void customizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.customizers((ThreadPoolTaskExecutorCustomizer[]) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test
   void customizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.customizers((Set<ThreadPoolTaskExecutorCustomizer>) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -144,14 +144,14 @@ class ThreadPoolTaskExecutorBuilderTests {
   void additionalCustomizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.additionalCustomizers((ThreadPoolTaskExecutorCustomizer[]) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test
   void additionalCustomizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.additionalCustomizers((Set<ThreadPoolTaskExecutorCustomizer>) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test

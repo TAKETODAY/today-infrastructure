@@ -77,7 +77,7 @@ public class InstrumentationLoadTimeWeaver implements LoadTimeWeaver {
 
   @Override
   public void addTransformer(ClassFileTransformer transformer) {
-    Assert.notNull(transformer, "Transformer must not be null");
+    Assert.notNull(transformer, "Transformer is required");
     var actualTransformer = new FilteringClassFileTransformer(transformer, this.classLoader);
     synchronized(this.transformers) {
       Assert.state(this.instrumentation != null,

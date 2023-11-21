@@ -43,7 +43,7 @@ final class StringSequence implements CharSequence {
   }
 
   StringSequence(String source, int start, int end) {
-    Objects.requireNonNull(source, "Source must not be null");
+    Objects.requireNonNull(source, "Source is required");
     if (start < 0) {
       throw new StringIndexOutOfBoundsException(start);
     }

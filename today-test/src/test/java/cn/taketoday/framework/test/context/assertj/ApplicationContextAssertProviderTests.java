@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,14 +65,14 @@ class ApplicationContextAssertProviderTests {
   void getWhenTypeIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(
                     () -> ApplicationContextAssertProvider.get(null, ApplicationContext.class, this.mockContextSupplier))
-            .withMessageContaining("Type must not be null");
+            .withMessageContaining("Type is required");
   }
 
   @Test
   void getWhenTypeIsClassShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(
                     () -> ApplicationContextAssertProvider.get(null, ApplicationContext.class, this.mockContextSupplier))
-            .withMessageContaining("Type must not be null");
+            .withMessageContaining("Type is required");
   }
 
   @Test
@@ -91,7 +88,7 @@ class ApplicationContextAssertProviderTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> ApplicationContextAssertProvider.get(TestAssertProviderApplicationContext.class, null,
                     this.mockContextSupplier))
-            .withMessageContaining("ContextType must not be null");
+            .withMessageContaining("ContextType is required");
   }
 
   @Test

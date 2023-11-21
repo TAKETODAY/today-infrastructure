@@ -51,7 +51,7 @@ public class AspectJPointcutAdvisor implements PointcutAdvisor, Ordered {
    * @param advice the AbstractAspectJAdvice to wrap
    */
   public AspectJPointcutAdvisor(AbstractAspectJAdvice advice) {
-    Assert.notNull(advice, "Advice must not be null");
+    Assert.notNull(advice, "Advice is required");
     this.advice = advice;
     this.pointcut = advice.buildSafePointcut();
   }

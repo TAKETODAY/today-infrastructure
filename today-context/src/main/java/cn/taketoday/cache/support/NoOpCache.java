@@ -45,7 +45,7 @@ public class NoOpCache implements Cache {
    * @param name the name of the cache
    */
   public NoOpCache(String name) {
-    Assert.notNull(name, "Cache name must not be null");
+    Assert.notNull(name, "Cache name is required");
     this.name = name;
   }
 

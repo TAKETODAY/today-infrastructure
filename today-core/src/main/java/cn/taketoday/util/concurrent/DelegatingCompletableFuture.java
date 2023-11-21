@@ -38,7 +38,7 @@ class DelegatingCompletableFuture<T> extends CompletableFuture<T> {
   private final Future<T> delegate;
 
   public DelegatingCompletableFuture(Future<T> delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 

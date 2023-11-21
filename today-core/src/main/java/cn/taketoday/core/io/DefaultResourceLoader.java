@@ -105,7 +105,7 @@ public class DefaultResourceLoader implements ResourceLoader {
    * @see #getProtocolResolvers()
    */
   public void addProtocolResolver(ProtocolResolver resolver) {
-    Assert.notNull(resolver, "ProtocolResolver must not be null");
+    Assert.notNull(resolver, "ProtocolResolver is required");
     if (protocolResolvers == null) {
       this.protocolResolvers = new LinkedHashSet<>(4);
     }
@@ -145,7 +145,7 @@ public class DefaultResourceLoader implements ResourceLoader {
 
   @Override
   public Resource getResource(String location) {
-    Assert.notNull(location, "Location must not be null");
+    Assert.notNull(location, "Location is required");
 
     if (protocolResolvers != null) {
       for (ProtocolResolver protocolResolver : protocolResolvers) {

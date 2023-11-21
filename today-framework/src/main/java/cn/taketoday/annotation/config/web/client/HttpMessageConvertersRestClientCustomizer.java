@@ -41,7 +41,7 @@ public class HttpMessageConvertersRestClientCustomizer implements RestClientCust
   private final Iterable<? extends HttpMessageConverter<?>> messageConverters;
 
   public HttpMessageConvertersRestClientCustomizer(HttpMessageConverter<?>... messageConverters) {
-    Assert.notNull(messageConverters, "MessageConverters must not be null");
+    Assert.notNull(messageConverters, "MessageConverters is required");
     this.messageConverters = Arrays.asList(messageConverters);
   }
 

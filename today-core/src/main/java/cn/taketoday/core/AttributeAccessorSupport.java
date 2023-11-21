@@ -80,8 +80,8 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
   @Override
   @SuppressWarnings("unchecked")
   public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(computeFunction, "Compute function must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(computeFunction, "Compute function is required");
     if (attributes == null) {
       T value = computeFunction.apply(name);
       if (value == null) {
@@ -136,7 +136,7 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
    * @param source the AttributeAccessor to copy from
    */
   public void copyAttributesFrom(AttributeAccessor source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     Map<String, Object> attributes;
     if (source instanceof AttributeAccessorSupport) {
       attributes = ((AttributeAccessorSupport) source).attributes;

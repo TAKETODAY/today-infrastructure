@@ -32,7 +32,7 @@ class RandomStringTests {
   @Test
   void generateWhenPrefixIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> RandomString.generate(null, 10))
-            .withMessage("Prefix must not be null");
+            .withMessage("Prefix is required");
   }
 
   @Test

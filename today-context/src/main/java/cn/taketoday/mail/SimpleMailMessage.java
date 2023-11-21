@@ -84,7 +84,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
    * of an existing {@code SimpleMailMessage} instance.
    */
   public SimpleMailMessage(SimpleMailMessage original) {
-    Assert.notNull(original, "'original' message argument must not be null");
+    Assert.notNull(original, "'original' message argument is required");
     this.from = original.getFrom();
     this.replyTo = original.getReplyTo();
     this.to = copyOrNull(original.getTo());
@@ -196,7 +196,7 @@ public class SimpleMailMessage implements MailMessage, Serializable {
    * @param target the {@code MailMessage} to copy to
    */
   public void copyTo(MailMessage target) {
-    Assert.notNull(target, "'target' MailMessage must not be null");
+    Assert.notNull(target, "'target' MailMessage is required");
     if (getFrom() != null) {
       target.setFrom(getFrom());
     }

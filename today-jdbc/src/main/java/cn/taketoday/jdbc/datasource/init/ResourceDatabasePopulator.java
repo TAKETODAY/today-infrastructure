@@ -120,7 +120,7 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    * @param script the path to an SQL script (never {@code null})
    */
   public void addScript(Resource script) {
-    Assert.notNull(script, "'script' must not be null");
+    Assert.notNull(script, "'script' is required");
     this.scripts.add(script);
   }
 
@@ -147,7 +147,7 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
   }
 
   private void assertContentsOfScriptArray(Resource... scripts) {
-    Assert.notNull(scripts, "'scripts' must not be null");
+    Assert.notNull(scripts, "'scripts' is required");
     Assert.noNullElements(scripts, "'scripts' must not contain null elements");
   }
 
@@ -257,7 +257,7 @@ public class ResourceDatabasePopulator implements DatabasePopulator {
    */
   @Override
   public void populate(Connection connection) throws ScriptException {
-    Assert.notNull(connection, "'connection' must not be null");
+    Assert.notNull(connection, "'connection' is required");
     for (Resource script : this.scripts) {
       EncodedResource encodedScript = new EncodedResource(script, this.sqlScriptEncoding);
       ScriptUtils.executeSqlScript(connection, encodedScript, this.continueOnError, this.ignoreFailedDrops,

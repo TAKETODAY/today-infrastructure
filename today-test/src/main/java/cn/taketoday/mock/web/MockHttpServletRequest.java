@@ -534,7 +534,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * parameter name, they will be replaced.
    */
   public void setParameter(String name, String... values) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     this.parameters.put(name, values);
   }
 
@@ -544,7 +544,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * existing values, use {@link #addParameters(java.util.Map)}.
    */
   public void setParameters(Map<String, ?> params) {
-    Assert.notNull(params, "Parameter map must not be null");
+    Assert.notNull(params, "Parameter map is required");
     params.forEach((key, value) -> {
       if (value instanceof String str) {
         setParameter(key, str);
@@ -574,7 +574,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * parameter name, the given values will be added to the end of the list.
    */
   public void addParameter(String name, String... values) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     String[] oldArr = this.parameters.get(name);
     if (oldArr != null) {
       String[] newArr = new String[oldArr.length + values.length];
@@ -593,7 +593,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * {@link #setParameters(java.util.Map)}.
    */
   public void addParameters(Map<String, ?> params) {
-    Assert.notNull(params, "Parameter map must not be null");
+    Assert.notNull(params, "Parameter map is required");
     params.forEach((key, value) -> {
       if (value instanceof String str) {
         addParameter(key, str);
@@ -612,7 +612,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Remove already registered values for the specified HTTP parameter, if any.
    */
   public void removeParameter(String name) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     this.parameters.remove(name);
   }
 
@@ -626,7 +626,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   @Nullable
   public String getParameter(String name) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     String[] arr = this.parameters.get(name);
     return (arr != null && arr.length > 0 ? arr[0] : null);
   }
@@ -638,7 +638,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   @Override
   public String[] getParameterValues(String name) {
-    Assert.notNull(name, "Parameter name must not be null");
+    Assert.notNull(name, "Parameter name is required");
     return this.parameters.get(name);
   }
 
@@ -762,7 +762,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     checkActive();
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     if (value != null) {
       this.attributes.put(name, value);
     }
@@ -774,7 +774,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Override
   public void removeAttribute(String name) {
     checkActive();
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     this.attributes.remove(name);
   }
 
@@ -791,7 +791,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * @see #setPreferredLocales
    */
   public void addPreferredLocale(Locale locale) {
-    Assert.notNull(locale, "Locale must not be null");
+    Assert.notNull(locale, "Locale is required");
     this.locales.addFirst(locale);
     updateAcceptLanguageHeader();
   }
@@ -1084,7 +1084,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   private void doAddHeaderValue(String name, @Nullable Object value, boolean replace) {
     HeaderValueHolder header = this.headers.get(name);
-    Assert.notNull(value, "Header value must not be null");
+    Assert.notNull(value, "Header value is required");
     if (header == null || replace) {
       header = new HeaderValueHolder();
       this.headers.put(name, header);
@@ -1104,7 +1104,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Remove already registered entries for the specified HTTP header, if any.
    */
   public void removeHeader(String name) {
-    Assert.notNull(name, "Header name must not be null");
+    Assert.notNull(name, "Header name is required");
     this.headers.remove(name);
   }
 

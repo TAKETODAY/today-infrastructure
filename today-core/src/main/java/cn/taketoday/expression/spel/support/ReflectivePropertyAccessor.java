@@ -147,7 +147,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
   @Override
   public TypedValue read(EvaluationContext context, @Nullable Object target, String name) throws AccessException {
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
     Class<?> type = (target instanceof Class<?> clazz ? clazz : target.getClass());
 
     if (type.isArray() && name.equals("length")) {
@@ -261,7 +261,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
               "' on target [" + target + "] does not allow write operations");
     }
 
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
     Class<?> type = (target instanceof Class<?> clazz ? clazz : target.getClass());
 
     Object possiblyConvertedNewValue = newValue;

@@ -65,8 +65,8 @@ public class AutowiredArgumentsCodeGenerator {
   public CodeBlock generateCode(Class<?>[] parameterTypes, int startIndex,
           String variableName) {
 
-    Assert.notNull(parameterTypes, "'parameterTypes' must not be null");
-    Assert.notNull(variableName, "'variableName' must not be null");
+    Assert.notNull(parameterTypes, "'parameterTypes' is required");
+    Assert.notNull(variableName, "'variableName' is required");
     boolean ambiguous = isAmbiguous();
     CodeBlock.Builder code = CodeBlock.builder();
     for (int i = startIndex; i < parameterTypes.length; i++) {

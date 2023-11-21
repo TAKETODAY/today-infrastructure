@@ -52,7 +52,7 @@ public class ContainerConfig {
   ContainerConfig(String user, ImageReference image, String command, List<String> args, Map<String, String> labels,
           List<Binding> bindings, Map<String, String> env, String networkMode, List<String> securityOptions)
           throws IOException {
-    Assert.notNull(image, "Image must not be null");
+    Assert.notNull(image, "Image is required");
     Assert.hasText(command, "Command must not be empty");
     ObjectMapper objectMapper = SharedObjectMapper.get();
     ObjectNode node = objectMapper.createObjectNode();
@@ -103,8 +103,8 @@ public class ContainerConfig {
    * @return a new {@link ContainerConfig} instance
    */
   public static ContainerConfig of(ImageReference imageReference, Consumer<Update> update) {
-    Assert.notNull(imageReference, "ImageReference must not be null");
-    Assert.notNull(update, "Update must not be null");
+    Assert.notNull(imageReference, "ImageReference is required");
+    Assert.notNull(update, "Update is required");
     return new Update(imageReference).run(update);
   }
 

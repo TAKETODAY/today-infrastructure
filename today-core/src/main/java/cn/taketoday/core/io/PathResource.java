@@ -74,7 +74,7 @@ public class PathResource extends AbstractResource implements WritableResource {
    * @param path a Path handle
    */
   public PathResource(Path path) {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     this.path = path.normalize();
   }
 
@@ -88,7 +88,7 @@ public class PathResource extends AbstractResource implements WritableResource {
    * @see java.nio.file.Paths#get(String, String...)
    */
   public PathResource(String path) {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     this.path = Paths.get(path).normalize();
   }
 
@@ -102,7 +102,7 @@ public class PathResource extends AbstractResource implements WritableResource {
    * @see java.nio.file.Paths#get(URI)
    */
   public PathResource(URI uri) {
-    Assert.notNull(uri, "URI must not be null");
+    Assert.notNull(uri, "URI is required");
     this.path = Paths.get(uri).normalize();
   }
 

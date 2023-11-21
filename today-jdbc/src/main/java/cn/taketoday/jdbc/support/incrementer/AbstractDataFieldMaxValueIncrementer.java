@@ -62,8 +62,8 @@ public abstract class AbstractDataFieldMaxValueIncrementer implements DataFieldM
    * @param incrementerName the name of the sequence/table to use
    */
   public AbstractDataFieldMaxValueIncrementer(DataSource dataSource, String incrementerName) {
-    Assert.notNull(dataSource, "DataSource must not be null");
-    Assert.notNull(incrementerName, "Incrementer name must not be null");
+    Assert.notNull(dataSource, "DataSource is required");
+    Assert.notNull(incrementerName, "Incrementer name is required");
     this.dataSource = dataSource;
     this.incrementerName = incrementerName;
   }

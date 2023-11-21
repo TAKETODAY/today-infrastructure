@@ -164,7 +164,7 @@ public interface MethodMatcher {
    * @since 4.0
    */
   static MethodMatcher negate(MethodMatcher methodMatcher) {
-    Assert.notNull(methodMatcher, "MethodMatcher must not be null");
+    Assert.notNull(methodMatcher, "MethodMatcher is required");
     return new NegateMethodMatcher(methodMatcher);
   }
 
@@ -181,7 +181,7 @@ public interface MethodMatcher {
    * @return whether or not this method matches statically
    */
   static boolean matches(MethodMatcher mm, Method method, Class<?> targetClass, boolean hasIntroductions) {
-    Assert.notNull(mm, "MethodMatcher must not be null");
+    Assert.notNull(mm, "MethodMatcher is required");
     return (mm instanceof IntroductionAwareMethodMatcher ?
             ((IntroductionAwareMethodMatcher) mm).matches(method, targetClass, hasIntroductions)
                                                          : mm.matches(method, targetClass));
@@ -199,8 +199,8 @@ public interface MethodMatcher {
     protected final MethodMatcher mm2;
 
     private UnionMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
-      Assert.notNull(mm1, "First MethodMatcher must not be null");
-      Assert.notNull(mm2, "Second MethodMatcher must not be null");
+      Assert.notNull(mm1, "First MethodMatcher is required");
+      Assert.notNull(mm2, "Second MethodMatcher is required");
       this.mm1 = mm1;
       this.mm2 = mm2;
     }
@@ -362,8 +362,8 @@ public interface MethodMatcher {
     protected final MethodMatcher mm2;
 
     public IntersectionMethodMatcher(MethodMatcher mm1, MethodMatcher mm2) {
-      Assert.notNull(mm1, "First MethodMatcher must not be null");
-      Assert.notNull(mm2, "Second MethodMatcher must not be null");
+      Assert.notNull(mm1, "First MethodMatcher is required");
+      Assert.notNull(mm2, "Second MethodMatcher is required");
       this.mm1 = mm1;
       this.mm2 = mm2;
     }

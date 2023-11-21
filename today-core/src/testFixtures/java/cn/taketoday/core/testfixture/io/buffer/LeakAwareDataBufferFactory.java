@@ -69,7 +69,7 @@ public class LeakAwareDataBufferFactory implements DataBufferFactory {
    * @param delegate the delegate buffer factory to wrap.
    */
   public LeakAwareDataBufferFactory(DataBufferFactory delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 

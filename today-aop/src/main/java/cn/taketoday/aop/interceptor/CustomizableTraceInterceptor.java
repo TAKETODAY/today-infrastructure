@@ -304,7 +304,7 @@ public class CustomizableTraceInterceptor extends AbstractTraceInterceptor {
           @Nullable Object returnValue, @Nullable Throwable throwable, long invocationTime) {
 
     Object target = methodInvocation.getThis();
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
 
     StringBuilder output = new StringBuilder();
     Matcher matcher = PATTERN.matcher(message);

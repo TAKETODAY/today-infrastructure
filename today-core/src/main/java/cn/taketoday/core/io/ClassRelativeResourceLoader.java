@@ -40,7 +40,7 @@ public class ClassRelativeResourceLoader extends DefaultResourceLoader {
    * @param clazz the class to load resources through
    */
   public ClassRelativeResourceLoader(Class<?> clazz) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     this.clazz = clazz;
     setClassLoader(clazz.getClassLoader());
   }

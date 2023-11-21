@@ -42,8 +42,8 @@ public final class RuntimeMethodInterceptor implements MethodInterceptor {
   private final MethodInterceptor interceptor;
 
   public RuntimeMethodInterceptor(MethodInterceptor interceptor, MethodMatcher methodMatcher) {
-    Assert.notNull(interceptor, "interceptor must not be null");
-    Assert.notNull(methodMatcher, "methodMatcher must not be null");
+    Assert.notNull(interceptor, "interceptor is required");
+    Assert.notNull(methodMatcher, "methodMatcher is required");
     Assert.state(methodMatcher.isRuntime(), "methodMatcher must be a runtime Matcher");
 
     this.interceptor = interceptor;

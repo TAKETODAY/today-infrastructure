@@ -358,7 +358,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
    */
   @Nullable
   protected <T> T doExecute(HibernateCallback<T> action, boolean enforceNativeSession) throws DataAccessException {
-    Assert.notNull(action, "Callback object must not be null");
+    Assert.notNull(action, "Callback object is required");
 
     Session session = null;
     boolean isNew = false;
@@ -828,7 +828,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   public List<?> findByCriteria(DetachedCriteria criteria, int firstResult, int maxResults)
           throws DataAccessException {
 
-    Assert.notNull(criteria, "DetachedCriteria must not be null");
+    Assert.notNull(criteria, "DetachedCriteria is required");
     return nonNull(executeWithNativeSession(session -> {
       Criteria executableCriteria = criteria.getExecutableCriteria(session);
       prepareCriteria(executableCriteria);
@@ -862,7 +862,7 @@ public class HibernateTemplate implements HibernateOperations, InitializingBean 
   public <T> List<T> findByExample(@Nullable String entityName, T exampleEntity, int firstResult, int maxResults)
           throws DataAccessException {
 
-    Assert.notNull(exampleEntity, "Example entity must not be null");
+    Assert.notNull(exampleEntity, "Example entity is required");
     return nonNull(executeWithNativeSession(session -> {
       Criteria executableCriteria = (entityName != null ?
                                      session.createCriteria(entityName) : session.createCriteria(exampleEntity.getClass()));

@@ -44,7 +44,7 @@ public abstract class Layouts {
    */
   public static Layout forFile(File file) {
     if (file == null) {
-      throw new IllegalArgumentException("File must not be null");
+      throw new IllegalArgumentException("File is required");
     }
     String lowerCaseFileName = file.getName().toLowerCase(Locale.ENGLISH);
     if (lowerCaseFileName.endsWith(".jar")) {

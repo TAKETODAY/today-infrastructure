@@ -75,7 +75,7 @@ public class Layer implements Content {
    * @throws IOException on IO error
    */
   public static Layer of(IOConsumer<Layout> layout) throws IOException {
-    Assert.notNull(layout, "Layout must not be null");
+    Assert.notNull(layout, "Layout is required");
     return fromTarArchive(TarArchive.of(layout));
   }
 
@@ -87,7 +87,7 @@ public class Layer implements Content {
    * @throws IOException on error
    */
   public static Layer fromTarArchive(TarArchive tarArchive) throws IOException {
-    Assert.notNull(tarArchive, "TarArchive must not be null");
+    Assert.notNull(tarArchive, "TarArchive is required");
     try {
       return new Layer(tarArchive);
     }

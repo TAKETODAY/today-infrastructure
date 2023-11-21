@@ -91,7 +91,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * @param dataSource the JDBC DataSource to access
    */
   public NamedParameterJdbcTemplate(DataSource dataSource) {
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(dataSource, "DataSource is required");
     this.classicJdbcTemplate = new JdbcTemplate(dataSource);
   }
 
@@ -102,7 +102,7 @@ public class NamedParameterJdbcTemplate implements NamedParameterJdbcOperations 
    * @param classicJdbcTemplate the classic Framework JdbcTemplate to wrap
    */
   public NamedParameterJdbcTemplate(JdbcOperations classicJdbcTemplate) {
-    Assert.notNull(classicJdbcTemplate, "JdbcTemplate must not be null");
+    Assert.notNull(classicJdbcTemplate, "JdbcTemplate is required");
     this.classicJdbcTemplate = classicJdbcTemplate;
   }
 

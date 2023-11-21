@@ -78,12 +78,12 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
   }
 
   public void addResolvers(EndpointParameterResolver... resolvers) {
-    Assert.notNull(resolvers, "EndpointParameterResolvers must not be null");
+    Assert.notNull(resolvers, "EndpointParameterResolvers is required");
     Collections.addAll(this.resolvers, resolvers);
   }
 
   public void addResolvers(List<EndpointParameterResolver> resolvers) {
-    Assert.notNull(resolvers, "EndpointParameterResolvers must not be null");
+    Assert.notNull(resolvers, "EndpointParameterResolvers is required");
     this.resolvers.addAll(resolvers);
   }
 

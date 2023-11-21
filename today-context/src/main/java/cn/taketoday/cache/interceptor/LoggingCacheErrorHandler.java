@@ -54,7 +54,7 @@ public class LoggingCacheErrorHandler implements CacheErrorHandler {
    * @param logStackTraces whether to log stack trace
    */
   public LoggingCacheErrorHandler(Logger logger, boolean logStackTraces) {
-    Assert.notNull(logger, "Logger must not be null");
+    Assert.notNull(logger, "Logger is required");
     this.logger = logger;
     this.logStackTraces = logStackTraces;
   }

@@ -55,7 +55,7 @@ public class HotSwappableTargetSource implements TargetSource, Serializable {
    * @param initialTarget the initial target object
    */
   public HotSwappableTargetSource(Object initialTarget) {
-    Assert.notNull(initialTarget, "Target object must not be null");
+    Assert.notNull(initialTarget, "Target object is required");
     this.target = initialTarget;
   }
 
@@ -86,7 +86,7 @@ public class HotSwappableTargetSource implements TargetSource, Serializable {
    * @throws IllegalArgumentException if the new target is invalid
    */
   public synchronized Object swap(Object newTarget) {
-    Assert.notNull(newTarget, "Target object must not be null");
+    Assert.notNull(newTarget, "Target object is required");
     Object old = this.target;
     this.target = newTarget;
     return old;

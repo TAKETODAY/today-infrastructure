@@ -73,7 +73,7 @@ class DefaultGenerationContextTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new DefaultGenerationContext((GeneratedClasses) null,
                     this.generatedFiles, this.runtimeHints))
-            .withMessage("'generatedClasses' must not be null");
+            .withMessage("'generatedClasses' is required");
   }
 
   @Test
@@ -81,7 +81,7 @@ class DefaultGenerationContextTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new DefaultGenerationContext(this.generatedClasses,
                     null, this.runtimeHints))
-            .withMessage("'generatedFiles' must not be null");
+            .withMessage("'generatedFiles' is required");
   }
 
   @Test
@@ -89,7 +89,7 @@ class DefaultGenerationContextTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new DefaultGenerationContext(this.generatedClasses,
                     this.generatedFiles, null))
-            .withMessage("'runtimeHints' must not be null");
+            .withMessage("'runtimeHints' is required");
   }
 
   @Test

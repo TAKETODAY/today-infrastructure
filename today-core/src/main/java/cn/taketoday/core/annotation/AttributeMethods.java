@@ -145,7 +145,7 @@ final class AttributeMethods {
   }
 
   private void assertAnnotation(Annotation annotation) {
-    Assert.notNull(annotation, "Annotation must not be null");
+    Assert.notNull(annotation, "Annotation is required");
     if (this.annotationType != null) {
       Assert.isInstanceOf(this.annotationType, annotation);
     }

@@ -86,7 +86,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
    * @see ClassUtils#getDefaultClassLoader()
    */
   public ClassPathResource(String path, ClassLoader classLoader) {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     String pathToUse = StringUtils.cleanPath(path);
     if (pathToUse.startsWith("/")) {
       pathToUse = pathToUse.substring(1);
@@ -112,7 +112,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
    * @see ModuleResource
    */
   public ClassPathResource(String path, Class<?> clazz) {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     this.path = StringUtils.cleanPath(path);
 
     String absolutePath = this.path;

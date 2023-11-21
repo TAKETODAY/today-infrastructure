@@ -53,7 +53,7 @@ class JpaPersistenceUnitInfo extends MutablePersistenceUnitInfo {
    * used by Framework to add instrumentation to the current class loader.
    */
   public void init(LoadTimeWeaver loadTimeWeaver) {
-    Assert.notNull(loadTimeWeaver, "LoadTimeWeaver must not be null");
+    Assert.notNull(loadTimeWeaver, "LoadTimeWeaver is required");
     this.loadTimeWeaver = loadTimeWeaver;
     this.classLoader = loadTimeWeaver.getInstrumentableClassLoader();
   }

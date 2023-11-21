@@ -50,8 +50,8 @@ public final class Netty5DataBuffer
    * @param buffer the buffer to base this buffer on
    */
   Netty5DataBuffer(Buffer buffer, Netty5DataBufferFactory dataBufferFactory) {
-    Assert.notNull(buffer, "Buffer must not be null");
-    Assert.notNull(dataBufferFactory, "Netty5DataBufferFactory must not be null");
+    Assert.notNull(buffer, "Buffer is required");
+    Assert.notNull(dataBufferFactory, "Netty5DataBufferFactory is required");
     this.buffer = buffer;
     this.dataBufferFactory = dataBufferFactory;
   }
@@ -72,7 +72,7 @@ public final class Netty5DataBuffer
 
   @Override
   public int indexOf(IntPredicate predicate, int fromIndex) {
-    Assert.notNull(predicate, "IntPredicate must not be null");
+    Assert.notNull(predicate, "IntPredicate is required");
     if (fromIndex < 0) {
       fromIndex = 0;
     }
@@ -86,7 +86,7 @@ public final class Netty5DataBuffer
 
   @Override
   public int lastIndexOf(IntPredicate predicate, int fromIndex) {
-    Assert.notNull(predicate, "IntPredicate must not be null");
+    Assert.notNull(predicate, "IntPredicate is required");
     if (fromIndex < 0) {
       return -1;
     }
@@ -248,8 +248,8 @@ public final class Netty5DataBuffer
 
   @Override
   public DataBuffer write(CharSequence charSequence, Charset charset) {
-    Assert.notNull(charSequence, "CharSequence must not be null");
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charSequence, "CharSequence is required");
+    Assert.notNull(charset, "Charset is required");
 
     this.buffer.writeCharSequence(charSequence, charset);
     return this;
@@ -310,13 +310,13 @@ public final class Netty5DataBuffer
 
   @Override
   public String toString(Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     return this.buffer.toString(charset);
   }
 
   @Override
   public String toString(int index, int length, Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     byte[] data = new byte[length];
     this.buffer.copyInto(index, data, 0, length);
     return new String(data, 0, length, charset);
@@ -360,7 +360,7 @@ public final class Netty5DataBuffer
     private T next;
 
     public BufferComponentIterator(ComponentIterator<T> delegate, boolean readable) {
-      Assert.notNull(delegate, "Delegate must not be null");
+      Assert.notNull(delegate, "Delegate is required");
       this.delegate = delegate;
       this.readable = readable;
       this.next = readable ? this.delegate.firstReadable() : this.delegate.firstWritable();

@@ -58,7 +58,7 @@ public abstract class AbstractColumnMaxValueIncrementer extends AbstractDataFiel
    */
   public AbstractColumnMaxValueIncrementer(DataSource dataSource, String incrementerName, String columnName) {
     super(dataSource, incrementerName);
-    Assert.notNull(columnName, "Column name must not be null");
+    Assert.notNull(columnName, "Column name is required");
     this.columnName = columnName;
   }
 

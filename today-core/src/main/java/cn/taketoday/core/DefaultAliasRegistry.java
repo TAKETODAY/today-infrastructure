@@ -162,7 +162,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
    * @param valueResolver the StringValueResolver to apply
    */
   public void resolveAliases(StringValueResolver valueResolver) {
-    Assert.notNull(valueResolver, "StringValueResolver must not be null");
+    Assert.notNull(valueResolver, "StringValueResolver is required");
     synchronized(aliasMap) {
       HashMap<String, String> aliasCopy = new HashMap<>(aliasMap);
       for (final Map.Entry<String, String> entry : aliasCopy.entrySet()) {

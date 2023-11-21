@@ -102,7 +102,7 @@ public interface Pointcut {
    * @return whether there's a runtime match
    */
   static boolean matches(Pointcut pointcut, MethodInvocation invocation) {
-    Assert.notNull(pointcut, "Pointcut must not be null");
+    Assert.notNull(pointcut, "Pointcut is required");
     if (pointcut == Pointcut.TRUE) {
       return true;
     }
@@ -128,7 +128,7 @@ public interface Pointcut {
    * @return whether there's a runtime match
    */
   static boolean matches(Pointcut pointcut, Method method, Class<?> targetClass, Object... args) {
-    Assert.notNull(pointcut, "Pointcut must not be null");
+    Assert.notNull(pointcut, "Pointcut is required");
     if (pointcut == Pointcut.TRUE) {
       return true;
     }

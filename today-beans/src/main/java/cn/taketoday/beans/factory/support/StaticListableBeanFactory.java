@@ -95,7 +95,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
    * bean name as key and the corresponding singleton object as value
    */
   public StaticListableBeanFactory(Map<String, Object> beans) {
-    Assert.notNull(beans, "Beans Map must not be null");
+    Assert.notNull(beans, "Beans Map is required");
     this.beans = beans;
   }
 

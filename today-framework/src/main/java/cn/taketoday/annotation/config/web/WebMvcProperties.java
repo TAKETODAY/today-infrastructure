@@ -233,7 +233,7 @@ public class WebMvcProperties {
     }
 
     public void setPath(String path) {
-      Assert.notNull(path, "Path must not be null");
+      Assert.notNull(path, "Path is required");
       Assert.isTrue(!path.contains("*"), "Path must not contain wildcards");
       this.path = path;
     }

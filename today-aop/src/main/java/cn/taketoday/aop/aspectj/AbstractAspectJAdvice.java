@@ -165,7 +165,7 @@ public abstract class AbstractAspectJAdvice implements Advice, AspectJPrecedence
    */
   public AbstractAspectJAdvice(
           Method aspectJAdviceMethod, AspectJExpressionPointcut pointcut, AspectInstanceFactory aspectInstanceFactory) {
-    Assert.notNull(aspectJAdviceMethod, "Advice method must not be null");
+    Assert.notNull(aspectJAdviceMethod, "Advice method is required");
 
     this.pointcut = pointcut;
     this.aspectJAdviceMethod = aspectJAdviceMethod;

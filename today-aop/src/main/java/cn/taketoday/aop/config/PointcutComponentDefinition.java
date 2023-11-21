@@ -41,9 +41,9 @@ public class PointcutComponentDefinition extends AbstractComponentDefinition {
   private final String description;
 
   public PointcutComponentDefinition(String pointcutBeanName, BeanDefinition pointcutDefinition, String expression) {
-    Assert.notNull(pointcutBeanName, "Bean name must not be null");
-    Assert.notNull(pointcutDefinition, "Pointcut definition must not be null");
-    Assert.notNull(expression, "Expression must not be null");
+    Assert.notNull(pointcutBeanName, "Bean name is required");
+    Assert.notNull(pointcutDefinition, "Pointcut definition is required");
+    Assert.notNull(expression, "Expression is required");
     this.pointcutBeanName = pointcutBeanName;
     this.pointcutDefinition = pointcutDefinition;
     this.description = "Pointcut <name='" + pointcutBeanName + "', expression=[" + expression + "]>";

@@ -132,7 +132,7 @@ public class CaffeineCacheManager implements CacheManager {
    * @see com.github.benmanes.caffeine.cache.Caffeine#build()
    */
   public void setCaffeine(Caffeine<Object, Object> caffeine) {
-    Assert.notNull(caffeine, "Caffeine must not be null");
+    Assert.notNull(caffeine, "Caffeine is required");
     doSetCaffeine(caffeine);
   }
 

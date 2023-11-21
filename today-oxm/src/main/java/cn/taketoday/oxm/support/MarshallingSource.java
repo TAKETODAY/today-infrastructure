@@ -72,8 +72,8 @@ public class MarshallingSource extends SAXSource {
    */
   public MarshallingSource(Marshaller marshaller, Object content) {
     super(new MarshallingXMLReader(marshaller, content), new InputSource());
-    Assert.notNull(marshaller, "'marshaller' must not be null");
-    Assert.notNull(content, "'content' must not be null");
+    Assert.notNull(marshaller, "'marshaller' is required");
+    Assert.notNull(content, "'content' is required");
     this.marshaller = marshaller;
     this.content = content;
   }
@@ -130,8 +130,8 @@ public class MarshallingSource extends SAXSource {
     private LexicalHandler lexicalHandler;
 
     private MarshallingXMLReader(Marshaller marshaller, Object content) {
-      Assert.notNull(marshaller, "'marshaller' must not be null");
-      Assert.notNull(content, "'content' must not be null");
+      Assert.notNull(marshaller, "'marshaller' is required");
+      Assert.notNull(content, "'content' is required");
       this.marshaller = marshaller;
       this.content = content;
     }

@@ -51,7 +51,7 @@ public class InstanceComparator<T> implements Comparator<T> {
    * objects. Classes earlier in the list will be given a higher priority.
    */
   public InstanceComparator(Class<?>... instanceOrder) {
-    Assert.notNull(instanceOrder, "'instanceOrder' array must not be null");
+    Assert.notNull(instanceOrder, "'instanceOrder' array is required");
     this.instanceOrder = instanceOrder;
   }
 

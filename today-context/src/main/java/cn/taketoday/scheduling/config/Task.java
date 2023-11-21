@@ -40,7 +40,7 @@ public class Task {
    * @param runnable the underlying task to execute
    */
   public Task(Runnable runnable) {
-    Assert.notNull(runnable, "Runnable must not be null");
+    Assert.notNull(runnable, "Runnable is required");
     this.runnable = runnable;
   }
 

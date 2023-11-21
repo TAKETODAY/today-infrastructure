@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +33,7 @@ public final class MockOrigin implements Origin {
   private final Origin parent;
 
   private MockOrigin(String value, @Nullable Origin parent) {
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     this.value = value;
     this.parent = parent;
   }

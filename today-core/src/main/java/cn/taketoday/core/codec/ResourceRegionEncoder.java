@@ -83,9 +83,9 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
           Publisher<? extends ResourceRegion> input, DataBufferFactory bufferFactory,
           ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    Assert.notNull(input, "'inputStream' must not be null");
-    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
-    Assert.notNull(elementType, "'elementType' must not be null");
+    Assert.notNull(input, "'inputStream' is required");
+    Assert.notNull(bufferFactory, "'bufferFactory' is required");
+    Assert.notNull(elementType, "'elementType' is required");
 
     if (input instanceof Mono) {
       return Mono.from(input)

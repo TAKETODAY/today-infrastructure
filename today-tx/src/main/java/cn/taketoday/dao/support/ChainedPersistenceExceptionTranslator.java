@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +41,7 @@ public class ChainedPersistenceExceptionTranslator implements PersistenceExcepti
    * Add a PersistenceExceptionTranslator to the chained delegate list.
    */
   public final void addDelegate(PersistenceExceptionTranslator pet) {
-    Assert.notNull(pet, "PersistenceExceptionTranslator must not be null");
+    Assert.notNull(pet, "PersistenceExceptionTranslator is required");
     this.delegates.add(pet);
   }
 

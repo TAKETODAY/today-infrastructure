@@ -90,7 +90,7 @@ public class Cache {
    * @return a new cache instance
    */
   public static Cache volume(String name) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     return new Volume(VolumeName.of(name));
   }
 
@@ -101,7 +101,7 @@ public class Cache {
    * @return a new cache instance
    */
   public static Cache volume(VolumeName name) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     return new Volume(name);
   }
 
@@ -112,7 +112,7 @@ public class Cache {
    * @return a new cache instance
    */
   public static Cache bind(String source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     return new Bind(source);
   }
 

@@ -68,7 +68,7 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
 
   @SuppressWarnings("unchecked")
   public UnmodifiableMultiValueMap(MultiValueMap<? extends K, ? extends V> delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = (MultiValueMap<K, V>) delegate;
   }
 
@@ -493,7 +493,7 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
 
       @SuppressWarnings("unchecked")
       public UnmodifiableEntry(Map.Entry<? extends K, ? extends List<? extends V>> delegate) {
-        Assert.notNull(delegate, "Delegate must not be null");
+        Assert.notNull(delegate, "Delegate is required");
         this.delegate = (Map.Entry<K, List<V>>) delegate;
       }
 

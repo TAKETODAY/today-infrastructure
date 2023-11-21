@@ -50,7 +50,7 @@ public class StandardClassMetadata implements ClassMetadata {
    * @param introspectedClass the Class to introspect
    */
   public StandardClassMetadata(Class<?> introspectedClass) {
-    Assert.notNull(introspectedClass, "Class must not be null");
+    Assert.notNull(introspectedClass, "Class is required");
     this.introspectedClass = introspectedClass;
   }
 

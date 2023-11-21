@@ -76,7 +76,7 @@ public class ThrowsAdviceInterceptor implements MethodInterceptor, AfterAdvice {
    * (usually a {@link cn.taketoday.aop.ThrowsAdvice} implementation)
    */
   public ThrowsAdviceInterceptor(Object throwsAdvice) {
-    Assert.notNull(throwsAdvice, "Advice must not be null");
+    Assert.notNull(throwsAdvice, "Advice is required");
     this.throwsAdvice = throwsAdvice;
 
     Method[] methods = throwsAdvice.getClass().getMethods();

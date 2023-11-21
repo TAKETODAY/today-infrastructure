@@ -143,7 +143,7 @@ public class AnnotationAttributes extends LinkedHashMap<String, Object> {
    * @param validated if the attributes are considered already validated
    */
   AnnotationAttributes(Class<? extends Annotation> annotationType, boolean validated) {
-    Assert.notNull(annotationType, "'annotationType' must not be null");
+    Assert.notNull(annotationType, "'annotationType' is required");
     this.annotationType = annotationType;
     this.displayName = annotationType.getName();
     this.validated = validated;

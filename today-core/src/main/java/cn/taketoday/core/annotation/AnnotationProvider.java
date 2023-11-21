@@ -42,7 +42,7 @@ public interface AnnotationProvider<A extends Annotation> {
   }
 
   default A getAnnotation(AnnotatedElement annotated) {
-    Assert.notNull(annotated, "annotated must not be null");
+    Assert.notNull(annotated, "annotated is required");
     return AnnotationUtils.getAnnotation(annotated, annotationType());
   }
 

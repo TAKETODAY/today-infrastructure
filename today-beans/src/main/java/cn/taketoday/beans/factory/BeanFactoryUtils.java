@@ -80,7 +80,7 @@ public abstract class BeanFactoryUtils {
    * @see BeanFactory#FACTORY_BEAN_PREFIX
    */
   public static String transformedBeanName(String name) {
-    Assert.notNull(name, "'name' must not be null");
+    Assert.notNull(name, "'name' is required");
     if (!name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
       return name;
     }
@@ -114,7 +114,7 @@ public abstract class BeanFactoryUtils {
    * @see #GENERATED_BEAN_NAME_SEPARATOR
    */
   public static String originalBeanName(String name) {
-    Assert.notNull(name, "'name' must not be null");
+    Assert.notNull(name, "'name' is required");
     int separatorIndex = name.indexOf(GENERATED_BEAN_NAME_SEPARATOR);
     return (separatorIndex != -1 ? name.substring(0, separatorIndex) : name);
   }

@@ -78,9 +78,9 @@ public class StaticMessageSource extends AbstractMessageSource {
    * @param msg the message associated with this lookup code
    */
   public void addMessage(String code, Locale locale, String msg) {
-    Assert.notNull(code, "Code must not be null");
-    Assert.notNull(locale, "Locale must not be null");
-    Assert.notNull(msg, "Message must not be null");
+    Assert.notNull(code, "Code is required");
+    Assert.notNull(locale, "Locale is required");
+    Assert.notNull(msg, "Message is required");
     this.messageMap.computeIfAbsent(code, key -> new HashMap<>(4)).put(locale, new MessageHolder(msg, locale));
     if (logger.isDebugEnabled()) {
       logger.debug("Added message [{}] for code [{}] and Locale [{}]", msg, code, locale);
@@ -95,7 +95,7 @@ public class StaticMessageSource extends AbstractMessageSource {
    * @param locale the locale that the messages should be found within
    */
   public void addMessages(Map<String, String> messages, Locale locale) {
-    Assert.notNull(messages, "Messages Map must not be null");
+    Assert.notNull(messages, "Messages Map is required");
     for (Map.Entry<String, String> entry : messages.entrySet()) {
       String code = entry.getKey();
       String msg = entry.getValue();

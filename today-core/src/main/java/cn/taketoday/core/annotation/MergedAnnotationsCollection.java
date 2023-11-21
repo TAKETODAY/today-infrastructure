@@ -51,12 +51,12 @@ final class MergedAnnotationsCollection implements MergedAnnotations {
   private final AnnotationTypeMappings[] mappings;
 
   private MergedAnnotationsCollection(Collection<MergedAnnotation<?>> annotations) {
-    Assert.notNull(annotations, "Annotations must not be null");
+    Assert.notNull(annotations, "Annotations is required");
     this.annotations = annotations.toArray(new MergedAnnotation<?>[0]);
     this.mappings = new AnnotationTypeMappings[this.annotations.length];
     for (int i = 0; i < this.annotations.length; i++) {
       MergedAnnotation<?> annotation = this.annotations[i];
-      Assert.notNull(annotation, "Annotation must not be null");
+      Assert.notNull(annotation, "Annotation is required");
       Assert.isTrue(annotation.isDirectlyPresent(), "Annotation must be directly present");
       Assert.isTrue(annotation.getAggregateIndex() == 0, "Annotation must have aggregate index of zero");
       this.mappings[i] = AnnotationTypeMappings.forAnnotationType(annotation.getType());

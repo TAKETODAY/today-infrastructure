@@ -196,7 +196,7 @@ public abstract class PropertiesUtils {
    * @throws IOException if loading failed
    */
   public static Properties loadAllProperties(String resourceName, @Nullable ClassLoader classLoader) throws IOException {
-    Assert.notNull(resourceName, "Resource name must not be null");
+    Assert.notNull(resourceName, "Resource name is required");
     ClassLoader classLoaderToUse = classLoader;
     if (classLoaderToUse == null) {
       classLoaderToUse = ClassUtils.getDefaultClassLoader();

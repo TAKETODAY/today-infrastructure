@@ -71,7 +71,7 @@ public interface PersistenceManagedTypes {
    * @return a {@link PersistenceManagedTypes}
    */
   static PersistenceManagedTypes of(String... managedClassNames) {
-    Assert.notNull(managedClassNames, "'managedClassNames' must not be null");
+    Assert.notNull(managedClassNames, "'managedClassNames' is required");
     return new SimplePersistenceManagedTypes(List.of(managedClassNames), List.of());
   }
 

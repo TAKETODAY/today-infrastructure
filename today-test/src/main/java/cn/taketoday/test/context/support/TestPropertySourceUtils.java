@@ -194,8 +194,8 @@ public abstract class TestPropertySourceUtils {
    * @see #addPropertySourcesToEnvironment(ConfigurableApplicationContext, List)
    */
   public static void addPropertiesFilesToEnvironment(ConfigurableApplicationContext context, String... locations) {
-    Assert.notNull(context, "'context' must not be null");
-    Assert.notNull(locations, "'locations' must not be null");
+    Assert.notNull(context, "'context' is required");
+    Assert.notNull(locations, "'locations' is required");
     addPropertiesFilesToEnvironment(context.getEnvironment(), context, locations);
   }
 
@@ -224,7 +224,7 @@ public abstract class TestPropertySourceUtils {
   public static void addPropertiesFilesToEnvironment(ConfigurableEnvironment environment,
           ResourceLoader resourceLoader, String... locations) {
 
-    Assert.notNull(locations, "'locations' must not be null");
+    Assert.notNull(locations, "'locations' is required");
     addPropertySourcesToEnvironment(environment, resourceLoader,
             List.of(new PropertySourceDescriptor(locations)));
   }
@@ -250,8 +250,8 @@ public abstract class TestPropertySourceUtils {
   public static void addPropertySourcesToEnvironment(ConfigurableApplicationContext context,
           List<PropertySourceDescriptor> descriptors) {
 
-    Assert.notNull(context, "'context' must not be null");
-    Assert.notNull(descriptors, "'descriptors' must not be null");
+    Assert.notNull(context, "'context' is required");
+    Assert.notNull(descriptors, "'descriptors' is required");
     addPropertySourcesToEnvironment(context.getEnvironment(), context, descriptors);
   }
 
@@ -284,9 +284,9 @@ public abstract class TestPropertySourceUtils {
   public static void addPropertySourcesToEnvironment(ConfigurableEnvironment environment,
           ResourceLoader resourceLoader, List<PropertySourceDescriptor> descriptors) {
 
-    Assert.notNull(environment, "'environment' must not be null");
-    Assert.notNull(resourceLoader, "'resourceLoader' must not be null");
-    Assert.notNull(descriptors, "'descriptors' must not be null");
+    Assert.notNull(environment, "'environment' is required");
+    Assert.notNull(resourceLoader, "'resourceLoader' is required");
+    Assert.notNull(descriptors, "'descriptors' is required");
 
     PatternResourceLoader patternResourceLoader = PatternResourceLoader.fromResourceLoader(resourceLoader);
     PropertySources propertySources = environment.getPropertySources();
@@ -327,8 +327,8 @@ public abstract class TestPropertySourceUtils {
    * @see #addInlinedPropertiesToEnvironment(ConfigurableEnvironment, String[])
    */
   public static void addInlinedPropertiesToEnvironment(ConfigurableApplicationContext context, String... inlinedProperties) {
-    Assert.notNull(context, "'context' must not be null");
-    Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
+    Assert.notNull(context, "'context' is required");
+    Assert.notNull(inlinedProperties, "'inlinedProperties' is required");
     addInlinedPropertiesToEnvironment(context.getEnvironment(), inlinedProperties);
   }
 
@@ -349,8 +349,8 @@ public abstract class TestPropertySourceUtils {
    * @see #convertInlinedPropertiesToMap
    */
   public static void addInlinedPropertiesToEnvironment(ConfigurableEnvironment environment, String... inlinedProperties) {
-    Assert.notNull(environment, "'environment' must not be null");
-    Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
+    Assert.notNull(environment, "'environment' is required");
+    Assert.notNull(inlinedProperties, "'inlinedProperties' is required");
     if (ObjectUtils.isNotEmpty(inlinedProperties)) {
       if (logger.isTraceEnabled()) {
         logger.trace("Adding inlined properties to environment: {}", ObjectUtils.nullSafeToString(inlinedProperties));
@@ -386,7 +386,7 @@ public abstract class TestPropertySourceUtils {
    * @see #addInlinedPropertiesToEnvironment(ConfigurableEnvironment, String[])
    */
   public static Map<String, Object> convertInlinedPropertiesToMap(String... inlinedProperties) {
-    Assert.notNull(inlinedProperties, "'inlinedProperties' must not be null");
+    Assert.notNull(inlinedProperties, "'inlinedProperties' is required");
 
     SequencedProperties sequencedProperties = new SequencedProperties();
     for (String input : inlinedProperties) {

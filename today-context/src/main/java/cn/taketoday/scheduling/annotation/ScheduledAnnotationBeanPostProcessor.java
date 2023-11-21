@@ -170,7 +170,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    * tasks on
    */
   public ScheduledAnnotationBeanPostProcessor(ScheduledTaskRegistrar registrar) {
-    Assert.notNull(registrar, "ScheduledTaskRegistrar must not be null");
+    Assert.notNull(registrar, "ScheduledTaskRegistrar is required");
     this.registrar = registrar;
   }
 

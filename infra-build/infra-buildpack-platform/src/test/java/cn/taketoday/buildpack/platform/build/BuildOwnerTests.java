@@ -48,7 +48,7 @@ class BuildOwnerTests {
   @Test
   void fromEnvWhenEnvIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> BuildOwner.fromEnv(null))
-            .withMessage("Env must not be null");
+            .withMessage("Env is required");
   }
 
   @Test

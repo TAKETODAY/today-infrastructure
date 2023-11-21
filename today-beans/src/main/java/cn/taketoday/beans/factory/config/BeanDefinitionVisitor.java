@@ -61,7 +61,7 @@ public class BeanDefinitionVisitor {
    * @param valueResolver the StringValueResolver to apply
    */
   public BeanDefinitionVisitor(StringValueResolver valueResolver) {
-    Assert.notNull(valueResolver, "StringValueResolver must not be null");
+    Assert.notNull(valueResolver, "StringValueResolver is required");
     this.valueResolver = valueResolver;
   }
 

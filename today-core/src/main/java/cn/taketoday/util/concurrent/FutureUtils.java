@@ -48,7 +48,7 @@ public abstract class FutureUtils {
 	 * @see CompletableFuture#supplyAsync(Supplier)
 	 */
 	public static <T> CompletableFuture<T> callAsync(Callable<T> callable) {
-		Assert.notNull(callable, "Callable must not be null");
+		Assert.notNull(callable, "Callable is required");
 
 		CompletableFuture<T> result = new CompletableFuture<>();
 		return result.completeAsync(toSupplier(callable, result));
@@ -65,8 +65,8 @@ public abstract class FutureUtils {
 	 * @see CompletableFuture#supplyAsync(Supplier, Executor)
 	 */
 	public static <T> CompletableFuture<T> callAsync(Callable<T> callable, Executor executor) {
-		Assert.notNull(callable, "Callable must not be null");
-		Assert.notNull(executor, "Executor must not be null");
+		Assert.notNull(callable, "Callable is required");
+		Assert.notNull(executor, "Executor is required");
 
 		CompletableFuture<T> result = new CompletableFuture<>();
 		return result.completeAsync(toSupplier(callable, result), executor);

@@ -289,7 +289,7 @@ public class ImageArchive implements TarArchive {
      * @param layer the layer to add
      */
     public void withNewLayer(Layer layer) {
-      Assert.notNull(layer, "Layer must not be null");
+      Assert.notNull(layer, "Layer is required");
       this.newLayers.add(layer);
     }
 
@@ -299,7 +299,7 @@ public class ImageArchive implements TarArchive {
      * @param createDate the create date
      */
     public void withCreateDate(Instant createDate) {
-      Assert.notNull(createDate, "CreateDate must not be null");
+      Assert.notNull(createDate, "CreateDate is required");
       this.createDate = createDate;
     }
 
@@ -309,7 +309,7 @@ public class ImageArchive implements TarArchive {
      * @param tag the tag
      */
     public void withTag(ImageReference tag) {
-      Assert.notNull(tag, "Tag must not be null");
+      Assert.notNull(tag, "Tag is required");
       this.tag = tag.inTaggedForm();
     }
 

@@ -151,7 +151,7 @@ public abstract class AbstractTraceInterceptor implements MethodInterceptor, Ser
     }
     else {
       Object target = invocation.getThis();
-      Assert.state(target != null, "Target must not be null");
+      Assert.state(target != null, "Target is required");
       return LoggerFactory.getLogger(getClassForLogging(target));
     }
   }

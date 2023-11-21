@@ -97,7 +97,7 @@ public class ConcurrentModel extends ConcurrentHashMap<String, Object> implement
    */
   @Override
   public ConcurrentModel addAttribute(String attributeName, @Nullable Object attributeValue) {
-    Assert.notNull(attributeName, "Model attribute name must not be null");
+    Assert.notNull(attributeName, "Model attribute name is required");
     put(attributeName, attributeValue);
     return this;
   }
@@ -119,7 +119,7 @@ public class ConcurrentModel extends ConcurrentHashMap<String, Object> implement
    */
   @Override
   public ConcurrentModel addAttribute(Object attributeValue) {
-    Assert.notNull(attributeValue, "Model attribute value must not be null");
+    Assert.notNull(attributeValue, "Model attribute value is required");
     if (attributeValue instanceof Collection && ((Collection<?>) attributeValue).isEmpty()) {
       return this;
     }

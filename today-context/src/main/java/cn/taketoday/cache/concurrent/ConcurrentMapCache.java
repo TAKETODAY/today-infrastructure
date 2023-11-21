@@ -114,8 +114,8 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
           boolean allowNullValues, @Nullable SerializationDelegate serialization) {
 
     super(allowNullValues);
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(store, "Store must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(store, "Store is required");
     this.name = name;
     this.store = store;
     this.serialization = serialization;

@@ -217,7 +217,7 @@ public enum PeriodStyle {
    * @throws IllegalArgumentException if the value is not a known style
    */
   public static PeriodStyle detect(String value) {
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
     for (PeriodStyle candidate : values()) {
       if (candidate.matches(value)) {
         return candidate;

@@ -221,7 +221,7 @@ class ImageReferenceTests {
   @Test
   void randomWherePrefixIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> ImageReference.random(null))
-            .withMessage("Prefix must not be null");
+            .withMessage("Prefix is required");
   }
 
   @Test

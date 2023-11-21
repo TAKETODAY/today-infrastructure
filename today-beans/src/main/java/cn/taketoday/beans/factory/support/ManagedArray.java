@@ -45,7 +45,7 @@ public class ManagedArray extends ManagedList<Object> {
    */
   public ManagedArray(String elementTypeName, int size) {
     super(size);
-    Assert.notNull(elementTypeName, "elementTypeName must not be null");
+    Assert.notNull(elementTypeName, "elementTypeName is required");
     setElementTypeName(elementTypeName);
   }
 

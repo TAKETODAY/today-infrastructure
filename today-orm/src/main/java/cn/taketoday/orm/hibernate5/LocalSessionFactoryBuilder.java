@@ -187,7 +187,7 @@ public class LocalSessionFactoryBuilder extends Configuration {
    * setting to avoid meaningless double configuration.
    */
   public LocalSessionFactoryBuilder setJtaTransactionManager(Object jtaTransactionManager) {
-    Assert.notNull(jtaTransactionManager, "Transaction manager reference must not be null");
+    Assert.notNull(jtaTransactionManager, "Transaction manager reference is required");
 
     Properties properties = getProperties();
     if (jtaTransactionManager instanceof JtaTransactionManager) {
@@ -397,7 +397,7 @@ public class LocalSessionFactoryBuilder extends Configuration {
    * @see #buildSessionFactory()
    */
   public SessionFactory buildSessionFactory(AsyncTaskExecutor bootstrapExecutor) {
-    Assert.notNull(bootstrapExecutor, "AsyncTaskExecutor must not be null");
+    Assert.notNull(bootstrapExecutor, "AsyncTaskExecutor is required");
     return (SessionFactory) Proxy.newProxyInstance(patternResourceLoader.getClassLoader(),
             new Class<?>[] { SessionFactoryImplementor.class, InfrastructureProxy.class },
             new BootstrapSessionFactoryInvocationHandler(bootstrapExecutor));

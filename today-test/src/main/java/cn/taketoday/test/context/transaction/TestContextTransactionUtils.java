@@ -88,7 +88,7 @@ public abstract class TestContextTransactionUtils {
    */
   @Nullable
   public static DataSource retrieveDataSource(TestContext testContext, @Nullable String name) {
-    Assert.notNull(testContext, "TestContext must not be null");
+    Assert.notNull(testContext, "TestContext is required");
     BeanFactory bf = testContext.getApplicationContext().getAutowireCapableBeanFactory();
 
     try {
@@ -159,7 +159,7 @@ public abstract class TestContextTransactionUtils {
    */
   @Nullable
   public static PlatformTransactionManager retrieveTransactionManager(TestContext testContext, @Nullable String name) {
-    Assert.notNull(testContext, "TestContext must not be null");
+    Assert.notNull(testContext, "TestContext is required");
     BeanFactory bf = testContext.getApplicationContext().getAutowireCapableBeanFactory();
 
     try {
@@ -250,8 +250,8 @@ public abstract class TestContextTransactionUtils {
   public static TransactionAttribute createDelegatingTransactionAttribute(
           TestContext testContext, TransactionAttribute targetAttribute, boolean includeMethodName) {
 
-    Assert.notNull(testContext, "TestContext must not be null");
-    Assert.notNull(targetAttribute, "Target TransactionAttribute must not be null");
+    Assert.notNull(testContext, "TestContext is required");
+    Assert.notNull(targetAttribute, "Target TransactionAttribute is required");
     return new TestContextTransactionAttribute(targetAttribute, testContext, includeMethodName);
   }
 

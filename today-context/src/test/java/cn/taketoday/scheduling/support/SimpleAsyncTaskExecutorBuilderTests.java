@@ -72,14 +72,14 @@ class SimpleAsyncTaskExecutorBuilderTests {
   void customizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.customizers((SimpleAsyncTaskExecutorCustomizer[]) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test
   void customizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.customizers((Set<SimpleAsyncTaskExecutorCustomizer>) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -121,14 +121,14 @@ class SimpleAsyncTaskExecutorBuilderTests {
   void additionalCustomizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.additionalCustomizers((SimpleAsyncTaskExecutorCustomizer[]) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test
   void additionalCustomizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> this.builder.additionalCustomizers((Set<SimpleAsyncTaskExecutorCustomizer>) null))
-        .withMessageContaining("Customizers must not be null");
+        .withMessageContaining("Customizers is required");
   }
 
   @Test

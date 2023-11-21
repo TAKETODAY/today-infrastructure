@@ -198,7 +198,7 @@ public class StandardEvaluationContext implements EvaluationContext {
    * @see #getTypeLocator()
    */
   public void setTypeLocator(TypeLocator typeLocator) {
-    Assert.notNull(typeLocator, "TypeLocator must not be null");
+    Assert.notNull(typeLocator, "TypeLocator is required");
     this.typeLocator = typeLocator;
   }
 
@@ -218,7 +218,7 @@ public class StandardEvaluationContext implements EvaluationContext {
   }
 
   public void setTypeConverter(TypeConverter typeConverter) {
-    Assert.notNull(typeConverter, "TypeConverter must not be null");
+    Assert.notNull(typeConverter, "TypeConverter is required");
     this.typeConverter = typeConverter;
   }
 
@@ -231,7 +231,7 @@ public class StandardEvaluationContext implements EvaluationContext {
   }
 
   public void setTypeComparator(TypeComparator typeComparator) {
-    Assert.notNull(typeComparator, "TypeComparator must not be null");
+    Assert.notNull(typeComparator, "TypeComparator is required");
     this.typeComparator = typeComparator;
   }
 
@@ -241,7 +241,7 @@ public class StandardEvaluationContext implements EvaluationContext {
   }
 
   public void setOperatorOverloader(OperatorOverloader operatorOverloader) {
-    Assert.notNull(operatorOverloader, "OperatorOverloader must not be null");
+    Assert.notNull(operatorOverloader, "OperatorOverloader is required");
     this.operatorOverloader = operatorOverloader;
   }
 

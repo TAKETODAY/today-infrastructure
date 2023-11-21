@@ -135,7 +135,7 @@ public class AsyncAnnotationBeanPostProcessor extends AbstractBeanFactoryAwareAd
    * @param asyncAnnotationType the desired annotation type
    */
   public void setAsyncAnnotationType(Class<? extends Annotation> asyncAnnotationType) {
-    Assert.notNull(asyncAnnotationType, "'asyncAnnotationType' must not be null");
+    Assert.notNull(asyncAnnotationType, "'asyncAnnotationType' is required");
     this.asyncAnnotationType = asyncAnnotationType;
   }
 

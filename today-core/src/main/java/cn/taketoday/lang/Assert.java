@@ -48,7 +48,7 @@ import cn.taketoday.util.StringUtils;
  * For example:
  *
  * <pre class="code">
- * Assert.notNull(clazz, "The class must not be null");
+ * Assert.notNull(clazz, "The class is required");
  * Assert.isTrue(i > 0, "The value must be greater than zero");</pre>
  *
  * <p>
@@ -190,7 +190,7 @@ public abstract class Assert {
 
   /**
    * Assert that an object is not {@code null}.
-   * <pre class="code">Assert.notNull(clazz, "The class must not be null");</pre>
+   * <pre class="code">Assert.notNull(clazz, "The class is required");</pre>
    *
    * @param object the object to check
    * @param message the exception message to use if the assertion fails
@@ -204,7 +204,7 @@ public abstract class Assert {
 
   /**
    * Assert that an object is not {@code null}. <pre class="code">
-   * Assert.notNull(clazz, () -&gt; "The class '" + clazz.getName() + "' must not be null");
+   * Assert.notNull(clazz, () -&gt; "The class '" + clazz.getName() + "' is required");
    * </pre>
    *
    * @param object the object to check
@@ -221,7 +221,7 @@ public abstract class Assert {
    * Assert that an object is not {@code null}.
    */
   public static void notNull(Object object) {
-    notNull(object, "[Assertion failed] - this argument is required; it must not be null");
+    notNull(object, "[Assertion failed] - this argument is required; it is required");
   }
 
   /**
@@ -578,7 +578,7 @@ public abstract class Assert {
    * @throws IllegalArgumentException if the object is not an instance of type
    */
   public static void isInstanceOf(Class<?> type, Object obj, String message) {
-    notNull(type, "Type to check against must not be null");
+    notNull(type, "Type to check against is required");
     if (!type.isInstance(obj)) {
       instanceCheckFailed(type, obj, message);
     }
@@ -598,7 +598,7 @@ public abstract class Assert {
    * @throws IllegalArgumentException if the object is not an instance of type
    */
   public static void isInstanceOf(Class<?> type, Object obj, Supplier<String> messageSupplier) {
-    notNull(type, "Type to check against must not be null");
+    notNull(type, "Type to check against is required");
     if (!type.isInstance(obj)) {
       instanceCheckFailed(type, obj, nullSafeGet(messageSupplier));
     }
@@ -631,7 +631,7 @@ public abstract class Assert {
    * @throws IllegalArgumentException if the classes are not assignable
    */
   public static void isAssignable(Class<?> superType, Class<?> subType, String message) {
-    notNull(superType, "Super type to check against must not be null");
+    notNull(superType, "Super type to check against is required");
     if (subType == null || !superType.isAssignableFrom(subType)) {
       assignableCheckFailed(superType, subType, message);
     }
@@ -651,7 +651,7 @@ public abstract class Assert {
    * @throws IllegalArgumentException if the classes are not assignable
    */
   public static void isAssignable(Class<?> superType, Class<?> subType, Supplier<String> messageSupplier) {
-    notNull(superType, "Super type to check against must not be null");
+    notNull(superType, "Super type to check against is required");
     if (subType == null || !superType.isAssignableFrom(subType)) {
       assignableCheckFailed(superType, subType, nullSafeGet(messageSupplier));
     }

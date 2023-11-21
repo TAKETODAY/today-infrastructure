@@ -35,7 +35,7 @@ class ContainerContentTests {
   @Test
   void ofWhenArchiveIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> ContainerContent.of(null))
-            .withMessage("Archive must not be null");
+            .withMessage("Archive is required");
   }
 
   @Test

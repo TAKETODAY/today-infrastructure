@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,14 +88,14 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
   protected void beforeOrAfterTestMethod(TestContext testContext, MethodMode requiredMethodMode,
           ClassMode requiredClassMode) throws Exception {
 
-    Assert.notNull(testContext, "TestContext must not be null");
-    Assert.notNull(requiredMethodMode, "requiredMethodMode must not be null");
-    Assert.notNull(requiredClassMode, "requiredClassMode must not be null");
+    Assert.notNull(testContext, "TestContext is required");
+    Assert.notNull(requiredMethodMode, "requiredMethodMode is required");
+    Assert.notNull(requiredClassMode, "requiredClassMode is required");
 
     Class<?> testClass = testContext.getTestClass();
     Method testMethod = testContext.getTestMethod();
-    Assert.notNull(testClass, "The test class of the supplied TestContext must not be null");
-    Assert.notNull(testMethod, "The test method of the supplied TestContext must not be null");
+    Assert.notNull(testClass, "The test class of the supplied TestContext is required");
+    Assert.notNull(testMethod, "The test method of the supplied TestContext is required");
 
     DirtiesContext methodAnn = AnnotatedElementUtils.findMergedAnnotation(testMethod, DirtiesContext.class);
     DirtiesContext classAnn = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
@@ -133,11 +130,11 @@ public abstract class AbstractDirtiesContextTestExecutionListener extends Abstra
    * @since 4.0
    */
   protected void beforeOrAfterTestClass(TestContext testContext, ClassMode requiredClassMode) throws Exception {
-    Assert.notNull(testContext, "TestContext must not be null");
-    Assert.notNull(requiredClassMode, "requiredClassMode must not be null");
+    Assert.notNull(testContext, "TestContext is required");
+    Assert.notNull(requiredClassMode, "requiredClassMode is required");
 
     Class<?> testClass = testContext.getTestClass();
-    Assert.notNull(testClass, "The test class of the supplied TestContext must not be null");
+    Assert.notNull(testClass, "The test class of the supplied TestContext is required");
 
     DirtiesContext dirtiesContext = TestContextAnnotationUtils.findMergedAnnotation(testClass, DirtiesContext.class);
     boolean classAnnotated = (dirtiesContext != null);

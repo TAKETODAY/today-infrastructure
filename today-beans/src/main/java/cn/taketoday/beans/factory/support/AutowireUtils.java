@@ -161,8 +161,8 @@ abstract class AutowireUtils {
    */
   public static Class<?> resolveReturnTypeForFactoryMethod(
           Method method, Object[] args, @Nullable ClassLoader classLoader) {
-    Assert.notNull(method, "Method must not be null");
-    Assert.notNull(args, "Argument array must not be null");
+    Assert.notNull(method, "Method is required");
+    Assert.notNull(args, "Argument array is required");
 
     Type[] methodParameterTypes = method.getGenericParameterTypes();
     Assert.isTrue(args.length == methodParameterTypes.length, "Argument array does not match parameter count");

@@ -131,7 +131,7 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
    * @param asyncAnnotationType the desired annotation type
    */
   public void setAsyncAnnotationType(Class<? extends Annotation> asyncAnnotationType) {
-    Assert.notNull(asyncAnnotationType, "'asyncAnnotationType' must not be null");
+    Assert.notNull(asyncAnnotationType, "'asyncAnnotationType' is required");
     this.pointcut = buildPointcut(Set.of(asyncAnnotationType));
   }
 

@@ -60,7 +60,7 @@ public class SimpleLoadTimeWeaver implements LoadTimeWeaver {
    * instrumentable {@code ClassLoader} on top of
    */
   public SimpleLoadTimeWeaver(SimpleInstrumentableClassLoader classLoader) {
-    Assert.notNull(classLoader, "ClassLoader must not be null");
+    Assert.notNull(classLoader, "ClassLoader is required");
     this.classLoader = classLoader;
   }
 

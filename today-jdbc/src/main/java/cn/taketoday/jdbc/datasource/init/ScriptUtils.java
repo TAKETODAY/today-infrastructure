@@ -628,7 +628,7 @@ public abstract class ScriptUtils {
           String blockCommentEndDelimiter, List<String> statements) throws ScriptException {
 
     Assert.hasText(script, "'script' must not be null or empty");
-    Assert.notNull(separator, "'separator' must not be null");
+    Assert.notNull(separator, "'separator' is required");
     Assert.notEmpty(commentPrefixes, "'commentPrefixes' must not be null or empty");
     for (String commentPrefix : commentPrefixes) {
       Assert.hasText(commentPrefix, "'commentPrefixes' must not contain null or empty elements");

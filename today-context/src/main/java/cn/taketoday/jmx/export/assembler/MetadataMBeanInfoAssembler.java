@@ -81,7 +81,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    * @param attributeSource the JmxAttributeSource to use
    */
   public MetadataMBeanInfoAssembler(JmxAttributeSource attributeSource) {
-    Assert.notNull(attributeSource, "JmxAttributeSource must not be null");
+    Assert.notNull(attributeSource, "JmxAttributeSource is required");
     this.attributeSource = attributeSource;
   }
 
@@ -92,7 +92,7 @@ public class MetadataMBeanInfoAssembler extends AbstractReflectiveMBeanInfoAssem
    * @see AnnotationJmxAttributeSource
    */
   public void setAttributeSource(JmxAttributeSource attributeSource) {
-    Assert.notNull(attributeSource, "JmxAttributeSource must not be null");
+    Assert.notNull(attributeSource, "JmxAttributeSource is required");
     this.attributeSource = attributeSource;
   }
 

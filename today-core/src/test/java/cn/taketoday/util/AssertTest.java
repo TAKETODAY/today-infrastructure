@@ -509,7 +509,7 @@ public class AssertTest {
   public void isInstanceOfWithNullType() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Assert.isInstanceOf(null, "foo", "enigma"))
-            .withMessageContaining("Type to check against must not be null");
+            .withMessageContaining("Type to check against is required");
   }
 
   @Test
@@ -556,7 +556,7 @@ public class AssertTest {
   public void isInstanceOfWithNullTypeAndMessageSupplier() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Assert.isInstanceOf(null, "foo", () -> "enigma"))
-            .withMessageContaining("Type to check against must not be null");
+            .withMessageContaining("Type to check against is required");
   }
 
   @Test
@@ -589,7 +589,7 @@ public class AssertTest {
   public void isAssignableWithNullSupertype() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Assert.isAssignable(null, Integer.class, "enigma"))
-            .withMessageContaining("Super type to check against must not be null");
+            .withMessageContaining("Super type to check against is required");
   }
 
   @Test
@@ -635,7 +635,7 @@ public class AssertTest {
   public void isAssignableWithNullSupertypeAndMessageSupplier() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> Assert.isAssignable(null, Integer.class, () -> "enigma"))
-            .withMessageContaining("Super type to check against must not be null");
+            .withMessageContaining("Super type to check against is required");
   }
 
   @Test

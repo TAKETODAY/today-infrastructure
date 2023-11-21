@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +60,7 @@ public abstract class MockMvcWebConnectionBuilderSupport<T extends MockMvcWebCon
    * @param mockMvc the {@code MockMvc} instance to use; never {@code null}
    */
   protected MockMvcWebConnectionBuilderSupport(MockMvc mockMvc) {
-    Assert.notNull(mockMvc, "MockMvc must not be null");
+    Assert.notNull(mockMvc, "MockMvc is required");
     this.mockMvc = mockMvc;
     this.requestMatchers.add(new HostRequestMatcher("localhost"));
   }
@@ -159,7 +156,7 @@ public abstract class MockMvcWebConnectionBuilderSupport<T extends MockMvcWebCon
    * @see #useMockMvcForHosts(String...)
    */
   protected final WebConnection createConnection(WebClient webClient) {
-    Assert.notNull(webClient, "WebClient must not be null");
+    Assert.notNull(webClient, "WebClient is required");
     return createConnection(webClient, webClient.getWebConnection());
   }
 

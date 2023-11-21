@@ -303,7 +303,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    * @since 4.0
    */
   public void setAutowireCandidateResolver(AutowireCandidateResolver autowireCandidateResolver) {
-    Assert.notNull(autowireCandidateResolver, "AutowireCandidateResolver must not be null");
+    Assert.notNull(autowireCandidateResolver, "AutowireCandidateResolver is required");
     if (autowireCandidateResolver instanceof BeanFactoryAware) {
       ((BeanFactoryAware) autowireCandidateResolver).setBeanFactory(this);
     }
@@ -662,7 +662,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getBean(Class<T> requiredType, @Nullable Object... args) throws BeansException {
-    Assert.notNull(requiredType, "Required type must not be null");
+    Assert.notNull(requiredType, "Required type is required");
     Object resolved = resolveBean(ResolvableType.forRawClass(requiredType), args, false);
     if (resolved == null) {
       throw new NoSuchBeanDefinitionException(requiredType);
@@ -698,7 +698,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @SuppressWarnings("unchecked")
   private <T> NamedBeanHolder<T> resolveNamedBean(
           ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
-    Assert.notNull(requiredType, "Required type must not be null");
+    Assert.notNull(requiredType, "Required type is required");
     Set<String> candidateNames = getBeanNamesForType(requiredType);
 
     int size = candidateNames.size();
@@ -763,7 +763,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
-    Assert.notNull(requiredType, "Required type must not be null");
+    Assert.notNull(requiredType, "Required type is required");
     NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.forClass(requiredType), null, false);
     if (namedBean != null) {
       return namedBean;
@@ -791,7 +791,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType, boolean allowEagerInit) {
-    Assert.notNull(requiredType, "Required type must not be null");
+    Assert.notNull(requiredType, "Required type is required");
     return getBeanProvider(ResolvableType.forRawClass(requiredType), allowEagerInit);
   }
 
@@ -1119,7 +1119,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   public Map<String, Object> getBeansWithAnnotation(
           Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
-    Assert.notNull(annotationType, "annotationType must not be null");
+    Assert.notNull(annotationType, "annotationType is required");
 
     Set<String> beanNames = getBeanNamesForAnnotation(annotationType);
     Map<String, Object> result = CollectionUtils.newLinkedHashMap(beanNames.size());
@@ -1132,7 +1132,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
 
   @Override
   public Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType) {
-    Assert.notNull(annotationType, "annotationType must not be null");
+    Assert.notNull(annotationType, "annotationType is required");
     LinkedHashSet<String> names = new LinkedHashSet<>();
 
     for (String beanName : beanDefinitionNames) {

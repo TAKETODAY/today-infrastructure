@@ -84,7 +84,7 @@ public class JCacheInterceptor extends JCacheAspectSupport implements MethodInte
     };
 
     Object target = invocation.getThis();
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
     try {
       return execute(aopAllianceInvoker, target, method, invocation.getArguments());
     }

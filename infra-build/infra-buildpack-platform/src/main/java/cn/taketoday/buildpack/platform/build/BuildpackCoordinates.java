@@ -129,7 +129,7 @@ final class BuildpackCoordinates {
    * @return a new {@link BuildpackCoordinates} instance
    */
   static BuildpackCoordinates fromBuildpackMetadata(BuildpackMetadata buildpackMetadata) {
-    Assert.notNull(buildpackMetadata, "BuildpackMetadata must not be null");
+    Assert.notNull(buildpackMetadata, "BuildpackMetadata is required");
     return new BuildpackCoordinates(buildpackMetadata.getId(), buildpackMetadata.getVersion());
   }
 

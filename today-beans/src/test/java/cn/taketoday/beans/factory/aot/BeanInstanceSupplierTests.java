@@ -80,7 +80,7 @@ class BeanInstanceSupplierTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> BeanInstanceSupplier
                     .forConstructor((Class<?>[]) null))
-            .withMessage("'parameterTypes' must not be null");
+            .withMessage("'parameterTypes' is required");
   }
 
   @Test
@@ -114,7 +114,7 @@ class BeanInstanceSupplierTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> BeanInstanceSupplier
                     .forFactoryMethod(null, "test"))
-            .withMessage("'declaringClass' must not be null");
+            .withMessage("'declaringClass' is required");
   }
 
   @Test
@@ -131,7 +131,7 @@ class BeanInstanceSupplierTests {
             .isThrownBy(
                     () -> BeanInstanceSupplier.forFactoryMethod(
                             SingleArgFactory.class, "single", (Class<?>[]) null))
-            .withMessage("'parameterTypes' must not be null");
+            .withMessage("'parameterTypes' is required");
   }
 
   @Test
@@ -171,7 +171,7 @@ class BeanInstanceSupplierTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> resolver.withGenerator(
                     (ThrowingBiFunction<RegisteredBean, AutowiredArguments, Object>) null))
-            .withMessage("'generator' must not be null");
+            .withMessage("'generator' is required");
   }
 
   @Test
@@ -181,7 +181,7 @@ class BeanInstanceSupplierTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> resolver.withGenerator(
                     (ThrowingFunction<RegisteredBean, Object>) null))
-            .withMessage("'generator' must not be null");
+            .withMessage("'generator' is required");
   }
 
   @Test
@@ -238,7 +238,7 @@ class BeanInstanceSupplierTests {
     BeanInstanceSupplier<Object> resolver = BeanInstanceSupplier
             .forConstructor(String.class);
     assertThatIllegalArgumentException().isThrownBy(() -> resolver.get((RegisteredBean) null))
-            .withMessage("'registeredBean' must not be null");
+            .withMessage("'registeredBean' is required");
   }
 
   @ParameterizedResolverTest(Sources.SINGLE_ARG)

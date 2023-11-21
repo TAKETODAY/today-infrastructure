@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +60,7 @@ public abstract class AnnotationConfigContextLoaderUtils {
    * never {@code null}
    */
   public static Class<?>[] detectDefaultConfigurationClasses(Class<?> declaringClass) {
-    Assert.notNull(declaringClass, "Declaring class must not be null");
+    Assert.notNull(declaringClass, "Declaring class is required");
 
     List<Class<?>> configClasses = new ArrayList<>();
 
@@ -113,7 +110,7 @@ public abstract class AnnotationConfigContextLoaderUtils {
   }
 
   private static boolean isStaticNonPrivateAndNonFinal(Class<?> clazz) {
-    Assert.notNull(clazz, "Class must not be null");
+    Assert.notNull(clazz, "Class is required");
     int modifiers = clazz.getModifiers();
     return (Modifier.isStatic(modifiers) && !Modifier.isPrivate(modifiers) && !Modifier.isFinal(modifiers));
   }

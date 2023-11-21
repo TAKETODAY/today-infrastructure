@@ -45,7 +45,7 @@ public class DefaultToStringStyler implements ToStringStyler {
    * @param valueStyler the ValueStyler to use
    */
   public DefaultToStringStyler(ValueStyler valueStyler) {
-    Assert.notNull(valueStyler, "ValueStyler must not be null");
+    Assert.notNull(valueStyler, "ValueStyler is required");
     this.valueStyler = valueStyler;
   }
 

@@ -41,7 +41,7 @@ public class SingleDataSourceLookup implements DataSourceLookup {
    * @param dataSource the single {@link DataSource} to wrap
    */
   public SingleDataSourceLookup(DataSource dataSource) {
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(dataSource, "DataSource is required");
     this.dataSource = dataSource;
   }
 

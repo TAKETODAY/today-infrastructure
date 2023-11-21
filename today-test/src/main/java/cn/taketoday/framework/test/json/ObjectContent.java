@@ -47,7 +47,7 @@ public final class ObjectContent<T> implements AssertProvider<ObjectContentAsser
    * @param object the actual object content
    */
   public ObjectContent(ResolvableType type, T object) {
-    Assert.notNull(object, "Object must not be null");
+    Assert.notNull(object, "Object is required");
     this.type = type;
     this.object = object;
   }

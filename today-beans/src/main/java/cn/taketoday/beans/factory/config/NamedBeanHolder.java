@@ -45,7 +45,7 @@ public class NamedBeanHolder<T> implements NamedBean {
    * @param beanInstance the corresponding bean instance
    */
   public NamedBeanHolder(String beanName, T beanInstance) {
-    Assert.notNull(beanName, "Bean name must not be null");
+    Assert.notNull(beanName, "Bean name is required");
     this.beanName = beanName;
     this.beanInstance = beanInstance;
   }

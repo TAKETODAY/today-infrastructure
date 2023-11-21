@@ -70,7 +70,7 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
    * @see #DEFAULT_RESOURCE_PATTERN
    */
   public void setResourcePattern(String resourcePattern) {
-    Assert.notNull(resourcePattern, "'resourcePattern' must not be null");
+    Assert.notNull(resourcePattern, "'resourcePattern' is required");
     this.resourcePattern = resourcePattern;
   }
 

@@ -49,7 +49,7 @@ public class MessageSourceResourceBundleLocator implements ResourceBundleLocator
    * @param messageSource the Framework MessageSource to wrap
    */
   public MessageSourceResourceBundleLocator(MessageSource messageSource) {
-    Assert.notNull(messageSource, "MessageSource must not be null");
+    Assert.notNull(messageSource, "MessageSource is required");
     this.messageSource = messageSource;
   }
 

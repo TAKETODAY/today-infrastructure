@@ -51,7 +51,7 @@ class RegisteredBeanTests {
   void ofWhenBeanFactoryIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> RegisteredBean.of(null, "bd"))
-            .withMessage("'beanFactory' must not be null");
+            .withMessage("'beanFactory' is required");
   }
 
   @Test
@@ -66,7 +66,7 @@ class RegisteredBeanTests {
     RegisteredBean parent = RegisteredBean.of(this.beanFactory, "bd");
     assertThatIllegalArgumentException().isThrownBy(
                     () -> RegisteredBean.ofInnerBean(parent, (BeanDefinitionHolder) null))
-            .withMessage("'innerBean' must not be null");
+            .withMessage("'innerBean' is required");
   }
 
   @Test
@@ -74,7 +74,7 @@ class RegisteredBeanTests {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> RegisteredBean.ofInnerBean(null,
                     new RootBeanDefinition(TestInnerBean.class)))
-            .withMessage("'parent' must not be null");
+            .withMessage("'parent' is required");
   }
 
   @Test
@@ -82,7 +82,7 @@ class RegisteredBeanTests {
     RegisteredBean parent = RegisteredBean.of(this.beanFactory, "bd");
     assertThatIllegalArgumentException()
             .isThrownBy(() -> RegisteredBean.ofInnerBean(parent, "ib", null))
-            .withMessage("'innerBeanDefinition' must not be null");
+            .withMessage("'innerBeanDefinition' is required");
   }
 
   @Test

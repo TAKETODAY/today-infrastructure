@@ -186,7 +186,7 @@ public class MethodValidationInterceptor extends OrderedSupport implements Metho
       // Allow validation for AOP proxy without a target
       target = methodInvocation.getProxy();
     }
-    Assert.state(target != null, "Target must not be null");
+    Assert.state(target != null, "Target is required");
     return target;
   }
 

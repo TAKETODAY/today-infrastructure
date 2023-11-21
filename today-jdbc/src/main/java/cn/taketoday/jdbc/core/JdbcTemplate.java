@@ -344,7 +344,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   @Override
   @Nullable
   public <T> T execute(ConnectionCallback<T> action) throws DataAccessException {
-    Assert.notNull(action, "Callback object must not be null");
+    Assert.notNull(action, "Callback object is required");
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
@@ -388,7 +388,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
 
   @Nullable
   private <T> T execute(StatementCallback<T> action, boolean closeResources) throws DataAccessException {
-    Assert.notNull(action, "Callback object must not be null");
+    Assert.notNull(action, "Callback object is required");
 
     Connection con = DataSourceUtils.getConnection(obtainDataSource());
     Statement stmt = null;
@@ -455,8 +455,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   @Override
   @Nullable
   public <T> T query(final String sql, final ResultSetExtractor<T> rse) throws DataAccessException {
-    Assert.notNull(sql, "SQL must not be null");
-    Assert.notNull(rse, "ResultSetExtractor must not be null");
+    Assert.notNull(sql, "SQL is required");
+    Assert.notNull(rse, "ResultSetExtractor is required");
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement("Executing SQL query", sql);
     }
@@ -555,7 +555,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
 
   @Override
   public int update(final String sql) throws DataAccessException {
-    Assert.notNull(sql, "SQL must not be null");
+    Assert.notNull(sql, "SQL is required");
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement("Executing SQL update", sql);
     }
@@ -659,8 +659,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   private <T> T execute(PreparedStatementCreator psc, PreparedStatementCallback<T> action, boolean closeResources)
           throws DataAccessException {
 
-    Assert.notNull(psc, "PreparedStatementCreator must not be null");
-    Assert.notNull(action, "Callback object must not be null");
+    Assert.notNull(psc, "PreparedStatementCreator is required");
+    Assert.notNull(action, "Callback object is required");
     if (stmtLogger.isDebugEnabled()) {
       String sql = getSql(psc);
       stmtLogger.logStatement("Executing prepared SQL statement", (sql != null ? sql : ""));
@@ -731,7 +731,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   public <T> T query(PreparedStatementCreator psc, @Nullable final PreparedStatementSetter pss, final ResultSetExtractor<T> rse)
           throws DataAccessException {
 
-    Assert.notNull(rse, "ResultSetExtractor must not be null");
+    Assert.notNull(rse, "ResultSetExtractor is required");
     logger.debug("Executing prepared SQL query");
 
     return execute(psc, new PreparedStatementCallback<T>() {
@@ -1002,7 +1002,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   public int update(final PreparedStatementCreator psc, final KeyHolder generatedKeyHolder)
           throws DataAccessException {
 
-    Assert.notNull(generatedKeyHolder, "KeyHolder must not be null");
+    Assert.notNull(generatedKeyHolder, "KeyHolder is required");
     logger.debug("Executing SQL update and returning generated keys");
 
     return updateCount(execute(psc, ps -> {
@@ -1167,8 +1167,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   public <T> T execute(CallableStatementCreator csc, CallableStatementCallback<T> action)
           throws DataAccessException {
 
-    Assert.notNull(csc, "CallableStatementCreator must not be null");
-    Assert.notNull(action, "Callback object must not be null");
+    Assert.notNull(csc, "CallableStatementCreator is required");
+    Assert.notNull(action, "Callback object is required");
     if (stmtLogger.isDebugEnabled()) {
       String sql = getSql(csc);
       stmtLogger.logStatement("Calling stored procedure", sql != null ? sql : "");
@@ -1704,7 +1704,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   private record SimplePreparedStatementCreator(String sql) implements PreparedStatementCreator, SqlProvider {
 
     private SimplePreparedStatementCreator {
-      Assert.notNull(sql, "SQL must not be null");
+      Assert.notNull(sql, "SQL is required");
     }
 
     @Override
@@ -1725,7 +1725,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
           implements CallableStatementCreator, SqlProvider {
 
     private SimpleCallableStatementCreator {
-      Assert.notNull(callString, "Call string must not be null");
+      Assert.notNull(callString, "Call string is required");
     }
 
     @Override

@@ -66,7 +66,7 @@ class BuilderTests {
   @Test
   void createWhenLogIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new Builder((BuildLog) null))
-            .withMessage("Log must not be null");
+            .withMessage("Log is required");
   }
 
   @Test
@@ -79,7 +79,7 @@ class BuilderTests {
   void buildWhenRequestIsNullThrowsException() {
     Builder builder = new Builder();
     assertThatIllegalArgumentException().isThrownBy(() -> builder.build(null))
-            .withMessage("Request must not be null");
+            .withMessage("Request is required");
   }
 
   @Test

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,14 +39,14 @@ class GsonTesterTests extends AbstractJsonMarshalTesterTests {
   @Test
   void initFieldsWhenTestIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> GsonTester.initFields(null, new GsonBuilder().create()))
-            .withMessageContaining("TestInstance must not be null");
+            .withMessageContaining("TestInstance is required");
   }
 
   @Test
   void initFieldsWhenMarshallerIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> GsonTester.initFields(new InitFieldsTestClass(), (Gson) null))
-            .withMessageContaining("Marshaller must not be null");
+            .withMessageContaining("Marshaller is required");
   }
 
   @Test

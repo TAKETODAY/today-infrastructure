@@ -101,8 +101,8 @@ public interface SslManagerBundle {
    * @return a new {@link SslManagerBundle} instance
    */
   static SslManagerBundle of(KeyManagerFactory keyManagerFactory, TrustManagerFactory trustManagerFactory) {
-    Assert.notNull(keyManagerFactory, "KeyManagerFactory must not be null");
-    Assert.notNull(trustManagerFactory, "TrustManagerFactory must not be null");
+    Assert.notNull(keyManagerFactory, "KeyManagerFactory is required");
+    Assert.notNull(trustManagerFactory, "TrustManagerFactory is required");
     return new SslManagerBundle() {
 
       @Override

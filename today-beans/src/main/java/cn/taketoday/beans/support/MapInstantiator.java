@@ -40,7 +40,7 @@ public class MapInstantiator extends BeanInstantiator {
   }
 
   public MapInstantiator(Class<?> mapType, Class<?> keyType) {
-    Assert.notNull(mapType, "map type must not be null");
+    Assert.notNull(mapType, "map type is required");
     this.keyType = keyType;
     this.mapType = mapType;
   }

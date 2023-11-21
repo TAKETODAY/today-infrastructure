@@ -78,7 +78,7 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    * @see #FileSystemResource(Path)
    */
   public FileSystemResource(String path) {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     this.path = StringUtils.cleanPath(path);
     this.file = new File(path);
     this.filePath = this.file.toPath();
@@ -141,8 +141,8 @@ public class FileSystemResource extends AbstractResource implements WritableReso
    * @since 4.0
    */
   public FileSystemResource(FileSystem fileSystem, String path) {
-    Assert.notNull(path, "Path must not be null");
-    Assert.notNull(fileSystem, "FileSystem must not be null");
+    Assert.notNull(path, "Path is required");
+    Assert.notNull(fileSystem, "FileSystem is required");
     this.file = null;
     this.path = StringUtils.cleanPath(path);
     this.filePath = fileSystem.getPath(this.path).normalize();

@@ -40,7 +40,7 @@ public class CollectionInstantiator extends BeanInstantiator {
   }
 
   public CollectionInstantiator(Class<?> collectionType, Class<?> elementType) {
-    Assert.notNull(collectionType, "collection type must not be null");
+    Assert.notNull(collectionType, "collection type is required");
     this.elementType = elementType;
     this.collectionType = collectionType;
   }

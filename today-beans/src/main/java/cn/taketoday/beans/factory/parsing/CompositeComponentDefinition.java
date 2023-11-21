@@ -51,7 +51,7 @@ public class CompositeComponentDefinition extends AbstractComponentDefinition {
    * @param source the source element that defines the root of the composite component
    */
   public CompositeComponentDefinition(String name, @Nullable Object source) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     this.name = name;
     this.source = source;
   }
@@ -73,7 +73,7 @@ public class CompositeComponentDefinition extends AbstractComponentDefinition {
    * @param component the nested component to add
    */
   public void addNestedComponent(ComponentDefinition component) {
-    Assert.notNull(component, "ComponentDefinition must not be null");
+    Assert.notNull(component, "ComponentDefinition is required");
     this.nestedComponents.add(component);
   }
 

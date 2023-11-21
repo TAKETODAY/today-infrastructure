@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +43,7 @@ class SpyDefinitionTests {
   @Test
   void classToSpyMustNotBeNull() {
     assertThatIllegalArgumentException().isThrownBy(() -> new SpyDefinition(null, null, null, true, null))
-            .withMessageContaining("TypeToSpy must not be null");
+            .withMessageContaining("TypeToSpy is required");
   }
 
   @Test
@@ -85,7 +82,7 @@ class SpyDefinitionTests {
   void createSpyWhenNullInstanceShouldThrowException() {
     SpyDefinition definition = new SpyDefinition("name", REAL_SERVICE_TYPE, MockReset.BEFORE, true, null);
     assertThatIllegalArgumentException().isThrownBy(() -> definition.createSpy(null))
-            .withMessageContaining("Instance must not be null");
+            .withMessageContaining("Instance is required");
   }
 
   @Test

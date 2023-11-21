@@ -92,7 +92,7 @@ public abstract class JndiLocatorSupport extends JndiAccessor {
    * @see #setResourceRef
    */
   protected <T> T lookup(String jndiName, @Nullable Class<T> requiredType) throws NamingException {
-    Assert.notNull(jndiName, "'jndiName' must not be null");
+    Assert.notNull(jndiName, "'jndiName' is required");
     String convertedName = convertJndiName(jndiName);
     T jndiObject;
     try {

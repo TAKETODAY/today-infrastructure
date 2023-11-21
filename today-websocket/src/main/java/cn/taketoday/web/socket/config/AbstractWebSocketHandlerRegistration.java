@@ -59,7 +59,7 @@ public abstract class AbstractWebSocketHandlerRegistration<M> implements WebSock
 
   @Override
   public WebSocketHandlerRegistration addHandler(WebSocketHandler handler, String... paths) {
-    Assert.notNull(handler, "WebSocketHandler must not be null");
+    Assert.notNull(handler, "WebSocketHandler is required");
     Assert.notEmpty(paths, "Paths must not be empty");
     this.handlerMap.put(handler, Arrays.asList(paths));
     return this;

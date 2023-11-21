@@ -73,7 +73,7 @@ public class StandardMethodMetadata implements MethodMetadata {
    * with ASM-based {@link AnnotationMetadata} implementations
    */
   public StandardMethodMetadata(Method introspectedMethod, boolean nestedAnnotationsAsMap) {
-    Assert.notNull(introspectedMethod, "Method must not be null");
+    Assert.notNull(introspectedMethod, "Method is required");
     this.introspectedMethod = introspectedMethod;
     this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;
     this.mergedAnnotations = MergedAnnotations.from(

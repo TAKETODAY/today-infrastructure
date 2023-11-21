@@ -64,7 +64,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @param pointcut the original Pointcut
    */
   public ComposablePointcut(Pointcut pointcut) {
-    Assert.notNull(pointcut, "Pointcut must not be null");
+    Assert.notNull(pointcut, "Pointcut is required");
     this.classFilter = pointcut.getClassFilter();
     this.methodMatcher = pointcut.getMethodMatcher();
   }
@@ -76,7 +76,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @param classFilter the ClassFilter to use
    */
   public ComposablePointcut(ClassFilter classFilter) {
-    Assert.notNull(classFilter, "ClassFilter must not be null");
+    Assert.notNull(classFilter, "ClassFilter is required");
     this.classFilter = classFilter;
     this.methodMatcher = MethodMatcher.TRUE;
   }
@@ -88,7 +88,7 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @param methodMatcher the MethodMatcher to use
    */
   public ComposablePointcut(MethodMatcher methodMatcher) {
-    Assert.notNull(methodMatcher, "MethodMatcher must not be null");
+    Assert.notNull(methodMatcher, "MethodMatcher is required");
     this.classFilter = ClassFilter.TRUE;
     this.methodMatcher = methodMatcher;
   }
@@ -100,8 +100,8 @@ public class ComposablePointcut implements Pointcut, Serializable {
    * @param methodMatcher the MethodMatcher to use
    */
   public ComposablePointcut(ClassFilter classFilter, MethodMatcher methodMatcher) {
-    Assert.notNull(classFilter, "ClassFilter must not be null");
-    Assert.notNull(methodMatcher, "MethodMatcher must not be null");
+    Assert.notNull(classFilter, "ClassFilter is required");
+    Assert.notNull(methodMatcher, "MethodMatcher is required");
     this.classFilter = classFilter;
     this.methodMatcher = methodMatcher;
   }

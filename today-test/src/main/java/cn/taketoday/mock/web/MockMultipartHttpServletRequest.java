@@ -92,7 +92,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
    * @param file multipart file to be added
    */
   public void addFile(MultipartFile file) {
-    Assert.notNull(file, "MultipartFile must not be null");
+    Assert.notNull(file, "MultipartFile is required");
     this.multipartData.add(file.getName(), file);
   }
 
@@ -165,7 +165,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
 
   public HttpMethod getRequestMethod() {
     String method = getMethod();
-    Assert.state(method != null, "Method must not be null");
+    Assert.state(method != null, "Method is required");
     return HttpMethod.valueOf(method);
   }
 

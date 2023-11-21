@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,8 +51,8 @@ final class MockWebResponseBuilder {
   private final MockHttpServletResponse response;
 
   public MockWebResponseBuilder(long startTime, WebRequest webRequest, MockHttpServletResponse response) {
-    Assert.notNull(webRequest, "WebRequest must not be null");
-    Assert.notNull(response, "HttpServletResponse must not be null");
+    Assert.notNull(webRequest, "WebRequest is required");
+    Assert.notNull(response, "HttpServletResponse is required");
     this.startTime = startTime;
     this.webRequest = webRequest;
     this.response = response;

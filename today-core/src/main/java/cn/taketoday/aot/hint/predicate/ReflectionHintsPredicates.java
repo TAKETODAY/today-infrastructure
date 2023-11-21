@@ -60,7 +60,7 @@ public class ReflectionHintsPredicates {
    * @return the {@link RuntimeHints} predicate
    */
   public TypeHintPredicate onType(TypeReference typeReference) {
-    Assert.notNull(typeReference, "'typeReference' must not be null");
+    Assert.notNull(typeReference, "'typeReference' is required");
     return new TypeHintPredicate(typeReference);
   }
 
@@ -72,7 +72,7 @@ public class ReflectionHintsPredicates {
    * @return the {@link RuntimeHints} predicate
    */
   public TypeHintPredicate onType(Class<?> type) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     return new TypeHintPredicate(TypeReference.of(type));
   }
 
@@ -85,7 +85,7 @@ public class ReflectionHintsPredicates {
    * @return the {@link RuntimeHints} predicate
    */
   public ConstructorHintPredicate onConstructor(Constructor<?> constructor) {
-    Assert.notNull(constructor, "'constructor' must not be null");
+    Assert.notNull(constructor, "'constructor' is required");
     return new ConstructorHintPredicate(constructor);
   }
 
@@ -98,7 +98,7 @@ public class ReflectionHintsPredicates {
    * @return the {@link RuntimeHints} predicate
    */
   public MethodHintPredicate onMethod(Method method) {
-    Assert.notNull(method, "'method' must not be null");
+    Assert.notNull(method, "'method' is required");
     return new MethodHintPredicate(method);
   }
 
@@ -114,7 +114,7 @@ public class ReflectionHintsPredicates {
    * @throws IllegalArgumentException if the method cannot be found or if multiple methods are found with the same name.
    */
   public MethodHintPredicate onMethod(Class<?> type, String methodName) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     Assert.hasText(methodName, "'methodName' must not be empty");
     return new MethodHintPredicate(getMethod(type, methodName));
   }
@@ -163,7 +163,7 @@ public class ReflectionHintsPredicates {
    * @throws IllegalArgumentException if a field cannot be found with the given name.
    */
   public FieldHintPredicate onField(Class<?> type, String fieldName) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     Assert.hasText(fieldName, "'fieldName' must not be empty");
     Field field = ReflectionUtils.findField(type, fieldName);
     if (field == null) {
@@ -199,7 +199,7 @@ public class ReflectionHintsPredicates {
    * @return the {@link RuntimeHints} predicate
    */
   public FieldHintPredicate onField(Field field) {
-    Assert.notNull(field, "'field' must not be null");
+    Assert.notNull(field, "'field' is required");
     return new FieldHintPredicate(field);
   }
 
@@ -228,7 +228,7 @@ public class ReflectionHintsPredicates {
      * @return the refined {@link RuntimeHints} predicate
      */
     public Predicate<RuntimeHints> withMemberCategory(MemberCategory memberCategory) {
-      Assert.notNull(memberCategory, "'memberCategory' must not be null");
+      Assert.notNull(memberCategory, "'memberCategory' is required");
       return this.and(hints -> getTypeHint(hints).getMemberCategories().contains(memberCategory));
     }
 

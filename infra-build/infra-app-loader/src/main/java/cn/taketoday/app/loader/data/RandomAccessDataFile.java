@@ -48,7 +48,7 @@ public class RandomAccessDataFile implements RandomAccessData {
    */
   public RandomAccessDataFile(File file) {
     if (file == null) {
-      throw new IllegalArgumentException("File must not be null");
+      throw new IllegalArgumentException("File is required");
     }
     this.fileAccess = new FileAccess(file);
     this.offset = 0L;
@@ -155,7 +155,7 @@ public class RandomAccessDataFile implements RandomAccessData {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
       if (b == null) {
-        throw new NullPointerException("Bytes must not be null");
+        throw new NullPointerException("Bytes is required");
       }
       return doRead(b, off, len);
     }

@@ -60,7 +60,7 @@ public class NotificationListenerBean extends NotificationListenerHolder impleme
    * @param notificationListener the encapsulated listener
    */
   public NotificationListenerBean(NotificationListener notificationListener) {
-    Assert.notNull(notificationListener, "NotificationListener must not be null");
+    Assert.notNull(notificationListener, "NotificationListener is required");
     setNotificationListener(notificationListener);
   }
 

@@ -65,7 +65,7 @@ public abstract class TransformerUtils {
    * @see OutputKeys#INDENT
    */
   public static void enableIndenting(Transformer transformer, int indentAmount) {
-    Assert.notNull(transformer, "Transformer must not be null");
+    Assert.notNull(transformer, "Transformer is required");
     if (indentAmount < 0) {
       throw new IllegalArgumentException("Invalid indent amount (must not be less than zero): " + indentAmount);
     }
@@ -85,7 +85,7 @@ public abstract class TransformerUtils {
    * @see OutputKeys#INDENT
    */
   public static void disableIndenting(Transformer transformer) {
-    Assert.notNull(transformer, "Transformer must not be null");
+    Assert.notNull(transformer, "Transformer is required");
     transformer.setOutputProperty(OutputKeys.INDENT, "no");
   }
 

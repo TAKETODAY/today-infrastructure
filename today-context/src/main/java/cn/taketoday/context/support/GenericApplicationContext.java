@@ -127,7 +127,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * @see #refresh
    */
   public GenericApplicationContext(StandardBeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     this.beanFactory = beanFactory;
   }
 

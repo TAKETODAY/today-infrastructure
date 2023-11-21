@@ -72,14 +72,14 @@ class FileSystemGeneratedFilesTests {
   void createWhenRootIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new FileSystemGeneratedFiles((Path) null))
-            .withMessage("'root' must not be null");
+            .withMessage("'root' is required");
   }
 
   @Test
   void createWhenRootsIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new FileSystemGeneratedFiles((Function<Kind, Path>) null))
-            .withMessage("'roots' must not be null");
+            .withMessage("'roots' is required");
   }
 
   @Test

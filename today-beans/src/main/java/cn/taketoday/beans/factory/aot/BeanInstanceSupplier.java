@@ -112,7 +112,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
    * @return a new {@link BeanInstanceSupplier} instance
    */
   public static <T> BeanInstanceSupplier<T> forConstructor(Class<?>... parameterTypes) {
-    Assert.notNull(parameterTypes, "'parameterTypes' must not be null");
+    Assert.notNull(parameterTypes, "'parameterTypes' is required");
     Assert.noNullElements(parameterTypes, "'parameterTypes' must not contain null elements");
     return new BeanInstanceSupplier<>(new ConstructorLookup(parameterTypes), null, null);
   }
@@ -130,9 +130,9 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
   public static <T> BeanInstanceSupplier<T> forFactoryMethod(
           Class<?> declaringClass, String methodName, Class<?>... parameterTypes) {
 
-    Assert.notNull(declaringClass, "'declaringClass' must not be null");
+    Assert.notNull(declaringClass, "'declaringClass' is required");
     Assert.hasText(methodName, "'methodName' must not be empty");
-    Assert.notNull(parameterTypes, "'parameterTypes' must not be null");
+    Assert.notNull(parameterTypes, "'parameterTypes' is required");
     Assert.noNullElements(parameterTypes, "'parameterTypes' must not contain null elements");
     return new BeanInstanceSupplier<>(
             new FactoryMethodLookup(declaringClass, methodName, parameterTypes),
@@ -151,7 +151,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
   public BeanInstanceSupplier<T> withGenerator(
           ThrowingBiFunction<RegisteredBean, AutowiredArguments, T> generator) {
 
-    Assert.notNull(generator, "'generator' must not be null");
+    Assert.notNull(generator, "'generator' is required");
     return new BeanInstanceSupplier<>(this.lookup, generator, this.shortcuts);
   }
 
@@ -164,7 +164,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
    * @return a new {@link BeanInstanceSupplier} instance with the specified generator
    */
   public BeanInstanceSupplier<T> withGenerator(ThrowingFunction<RegisteredBean, T> generator) {
-    Assert.notNull(generator, "'generator' must not be null");
+    Assert.notNull(generator, "'generator' is required");
     return new BeanInstanceSupplier<>(this.lookup,
             (registeredBean, args) -> generator.apply(registeredBean), this.shortcuts);
   }
@@ -184,7 +184,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
 
   @Override
   public T get(RegisteredBean registeredBean) throws Exception {
-    Assert.notNull(registeredBean, "'registeredBean' must not be null");
+    Assert.notNull(registeredBean, "'registeredBean' is required");
     Executable executable = this.lookup.get(registeredBean);
     AutowiredArguments arguments = resolveArguments(registeredBean, executable);
     if (this.generator != null) {
@@ -223,7 +223,7 @@ public final class BeanInstanceSupplier<T> extends AutowiredElementResolver impl
    * @return the resolved constructor or factory method arguments
    */
   AutowiredArguments resolveArguments(RegisteredBean registeredBean) {
-    Assert.notNull(registeredBean, "'registeredBean' must not be null");
+    Assert.notNull(registeredBean, "'registeredBean' is required");
     return resolveArguments(registeredBean, this.lookup.get(registeredBean));
   }
 

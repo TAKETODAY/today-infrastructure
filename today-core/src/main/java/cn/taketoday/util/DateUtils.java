@@ -175,7 +175,7 @@ public class DateUtils {
    * @return {@link Instant}对象
    */
   public static long toEpochMilli(TemporalAccessor temporalAccessor) {
-    Assert.notNull(temporalAccessor, "temporalAccessor must not be null");
+    Assert.notNull(temporalAccessor, "temporalAccessor is required");
     return toInstant(temporalAccessor).toEpochMilli();
   }
 

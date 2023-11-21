@@ -74,8 +74,8 @@ class MergedSqlConfig {
    * takes place and the local configuration is used "as is".
    */
   MergedSqlConfig(SqlConfig localSqlConfig, Class<?> testClass) {
-    Assert.notNull(localSqlConfig, "Local @SqlConfig must not be null");
-    Assert.notNull(testClass, "testClass must not be null");
+    Assert.notNull(localSqlConfig, "Local @SqlConfig is required");
+    Assert.notNull(testClass, "testClass is required");
 
     AnnotationAttributes mergedAttributes = mergeAttributes(localSqlConfig, testClass);
 

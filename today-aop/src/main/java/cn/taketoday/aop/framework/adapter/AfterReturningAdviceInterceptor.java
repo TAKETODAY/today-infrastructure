@@ -50,7 +50,7 @@ public class AfterReturningAdviceInterceptor implements MethodInterceptor, After
    * @param advice the AfterReturningAdvice to wrap
    */
   public AfterReturningAdviceInterceptor(AfterReturningAdvice advice) {
-    Assert.notNull(advice, "Advice must not be null");
+    Assert.notNull(advice, "Advice is required");
     this.advice = advice;
   }
 

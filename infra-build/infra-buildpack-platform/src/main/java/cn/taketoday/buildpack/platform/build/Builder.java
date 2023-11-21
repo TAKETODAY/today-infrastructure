@@ -94,14 +94,14 @@ public class Builder {
   }
 
   Builder(BuildLog log, DockerApi docker, DockerConfiguration dockerConfiguration) {
-    Assert.notNull(log, "Log must not be null");
+    Assert.notNull(log, "Log is required");
     this.log = log;
     this.docker = docker;
     this.dockerConfiguration = dockerConfiguration;
   }
 
   public void build(BuildRequest request) throws DockerEngineException, IOException {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     this.log.start(request);
     String domain = request.getBuilder().getDomain();
     PullPolicy pullPolicy = request.getPullPolicy();
@@ -215,8 +215,8 @@ public class Builder {
     }
 
     Image fetchImage(ImageType type, ImageReference reference) throws IOException {
-      Assert.notNull(type, "Type must not be null");
-      Assert.notNull(reference, "Reference must not be null");
+      Assert.notNull(type, "Type is required");
+      Assert.notNull(reference, "Reference is required");
       Assert.state(this.authHeader == null || reference.getDomain().equals(this.domain),
               () -> String.format("%s '%s' must be pulled from the '%s' authenticated registry",
                       StringUtils.capitalize(type.getDescription()), reference, this.domain));

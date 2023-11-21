@@ -57,8 +57,8 @@ public class RefreshableScriptTargetSource extends BeanFactoryRefreshableTargetS
           ScriptFactory scriptFactory, ScriptSource scriptSource, boolean isFactoryBean) {
 
     super(beanFactory, beanName);
-    Assert.notNull(scriptFactory, "ScriptFactory must not be null");
-    Assert.notNull(scriptSource, "ScriptSource must not be null");
+    Assert.notNull(scriptFactory, "ScriptFactory is required");
+    Assert.notNull(scriptSource, "ScriptSource is required");
     this.scriptFactory = scriptFactory;
     this.scriptSource = scriptSource;
     this.isFactoryBean = isFactoryBean;

@@ -48,7 +48,7 @@ public class DispatcherServletRegistrationBean
    */
   public DispatcherServletRegistrationBean(DispatcherServlet servlet, String path) {
     super(servlet);
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     this.path = path;
     super.addUrlMappings(getServletUrlMapping());
   }

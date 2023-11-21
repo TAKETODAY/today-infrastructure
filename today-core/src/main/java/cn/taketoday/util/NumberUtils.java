@@ -89,8 +89,8 @@ public abstract class NumberUtils {
   public static <T extends Number> T convertNumberToTargetClass(Number number, Class<T> targetClass)
           throws IllegalArgumentException {
 
-    Assert.notNull(number, "Number must not be null");
-    Assert.notNull(targetClass, "Target class must not be null");
+    Assert.notNull(number, "Number is required");
+    Assert.notNull(targetClass, "Target class is required");
 
     if (targetClass.isInstance(number)) {
       return (T) number;
@@ -207,8 +207,8 @@ public abstract class NumberUtils {
    */
   @SuppressWarnings("unchecked")
   public static <T extends Number> T parseNumber(String text, Class<T> targetClass) {
-    Assert.notNull(text, "Text must not be null");
-    Assert.notNull(targetClass, "Target class must not be null");
+    Assert.notNull(text, "Text is required");
+    Assert.notNull(targetClass, "Target class is required");
     String trimmed = StringUtils.trimAllWhitespace(text);
 
     if (Byte.class == targetClass) {
@@ -261,8 +261,8 @@ public abstract class NumberUtils {
           String text, Class<T> targetClass, @Nullable NumberFormat numberFormat) {
 
     if (numberFormat != null) {
-      Assert.notNull(text, "Text must not be null");
-      Assert.notNull(targetClass, "Target class must not be null");
+      Assert.notNull(text, "Text is required");
+      Assert.notNull(targetClass, "Target class is required");
       DecimalFormat decimalFormat = null;
       boolean resetBigDecimal = false;
       if (numberFormat instanceof DecimalFormat) {

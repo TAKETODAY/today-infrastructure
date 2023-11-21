@@ -109,7 +109,7 @@ public abstract class AopUtils {
    * @see AopProxyUtils#ultimateTargetClass(Object)
    */
   public static Class<?> getTargetClass(Object candidate) {
-    Assert.notNull(candidate, "Candidate object must not be null");
+    Assert.notNull(candidate, "Candidate object is required");
     Class<?> result = null;
     if (candidate instanceof TargetClassAware) {
       result = ((TargetClassAware) candidate).getTargetClass();
@@ -130,7 +130,7 @@ public abstract class AopUtils {
    * @see TargetClassAware#getTargetClass()
    */
   public static Class<?> getTargetClass(MethodInvocation invocation) {
-    Assert.notNull(invocation, "MethodInvocation must not be null");
+    Assert.notNull(invocation, "MethodInvocation is required");
     Class<?> result = null;
     if (invocation instanceof TargetClassAware) {
       result = ((TargetClassAware) invocation).getTargetClass();
@@ -191,7 +191,7 @@ public abstract class AopUtils {
    * @return whether the pointcut can apply on any method
    */
   public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
-    Assert.notNull(pc, "Pointcut must not be null");
+    Assert.notNull(pc, "Pointcut is required");
     if (!pc.getClassFilter().matches(targetClass)) {
       return false;
     }

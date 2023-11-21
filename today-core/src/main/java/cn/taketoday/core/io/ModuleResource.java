@@ -57,8 +57,8 @@ public class ModuleResource extends AbstractResource {
    * @param path the resource path within the module
    */
   public ModuleResource(Module module, String path) {
-    Assert.notNull(module, "Module must not be null");
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(module, "Module is required");
+    Assert.notNull(path, "Path is required");
     this.module = module;
     this.path = path;
   }

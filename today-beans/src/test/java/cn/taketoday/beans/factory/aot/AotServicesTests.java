@@ -65,7 +65,7 @@ class AotServicesTests {
   void factoriesWithTodayStrategiesWhenTodayStrategiesIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> AotServices.factories((TodayStrategies) null))
-            .withMessage("'strategies' must not be null");
+            .withMessage("'strategies' is required");
   }
 
   @Test
@@ -80,7 +80,7 @@ class AotServicesTests {
   void factoriesAndBeansWhenBeanFactoryIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> AotServices.factoriesAndBeans(null))
-            .withMessage("'beanFactory' must not be null");
+            .withMessage("'beanFactory' is required");
   }
 
   @Test
@@ -110,7 +110,7 @@ class AotServicesTests {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     assertThatIllegalArgumentException()
             .isThrownBy(() -> AotServices.factoriesAndBeans(null, beanFactory))
-            .withMessage("'strategies' must not be null");
+            .withMessage("'strategies' is required");
   }
 
   @Test

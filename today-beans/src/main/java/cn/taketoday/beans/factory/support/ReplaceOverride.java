@@ -54,7 +54,7 @@ public class ReplaceOverride extends MethodOverride {
    */
   public ReplaceOverride(String methodName, String methodReplacerBeanName) {
     super(methodName);
-    Assert.notNull(methodReplacerBeanName, "Method replacer bean name must not be null");
+    Assert.notNull(methodReplacerBeanName, "Method replacer bean name is required");
     this.methodReplacerBeanName = methodReplacerBeanName;
   }
 

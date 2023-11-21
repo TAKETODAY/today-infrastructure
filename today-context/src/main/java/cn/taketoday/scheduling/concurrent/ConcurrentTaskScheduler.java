@@ -163,7 +163,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * Provide an {@link ErrorHandler} strategy.
    */
   public void setErrorHandler(ErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ErrorHandler must not be null");
+    Assert.notNull(errorHandler, "ErrorHandler is required");
     this.errorHandler = errorHandler;
   }
 

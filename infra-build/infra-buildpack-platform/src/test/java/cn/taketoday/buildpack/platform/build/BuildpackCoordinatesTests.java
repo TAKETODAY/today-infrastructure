@@ -100,7 +100,7 @@ class BuildpackCoordinatesTests extends AbstractJsonTests {
   @Test
   void fromBuildpackMetadataWhenMetadataIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> BuildpackCoordinates.fromBuildpackMetadata(null))
-            .withMessage("BuildpackMetadata must not be null");
+            .withMessage("BuildpackMetadata is required");
   }
 
   @Test

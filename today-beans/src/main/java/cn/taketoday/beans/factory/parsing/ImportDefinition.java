@@ -68,7 +68,7 @@ public class ImportDefinition implements BeanMetadataElement {
    * @param source the source object (may be {@code null})
    */
   public ImportDefinition(String importedResource, @Nullable Resource[] actualResources, @Nullable Object source) {
-    Assert.notNull(importedResource, "Imported resource must not be null");
+    Assert.notNull(importedResource, "Imported resource is required");
     this.importedResource = importedResource;
     this.actualResources = actualResources;
     this.source = source;

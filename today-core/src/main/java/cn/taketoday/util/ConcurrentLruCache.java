@@ -113,8 +113,8 @@ public final class ConcurrentLruCache<K, V> {
   }
 
   private void put(K key, V value) {
-    Assert.notNull(key, "key must not be null");
-    Assert.notNull(value, "value must not be null");
+    Assert.notNull(key, "key is required");
+    Assert.notNull(value, "value is required");
     final CacheEntry<V> cacheEntry = new CacheEntry<>(value, CacheEntryState.ACTIVE);
     final Node<K, V> node = new Node<>(key, cacheEntry);
     final Node<K, V> prior = this.cache.putIfAbsent(node.key, node);

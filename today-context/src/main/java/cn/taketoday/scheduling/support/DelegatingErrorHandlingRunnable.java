@@ -45,8 +45,8 @@ public class DelegatingErrorHandlingRunnable implements Runnable {
    * @param errorHandler the ErrorHandler for handling any exceptions
    */
   public DelegatingErrorHandlingRunnable(Runnable delegate, ErrorHandler errorHandler) {
-    Assert.notNull(delegate, "Delegate must not be null");
-    Assert.notNull(errorHandler, "ErrorHandler must not be null");
+    Assert.notNull(delegate, "Delegate is required");
+    Assert.notNull(errorHandler, "ErrorHandler is required");
     this.delegate = delegate;
     this.errorHandler = errorHandler;
   }

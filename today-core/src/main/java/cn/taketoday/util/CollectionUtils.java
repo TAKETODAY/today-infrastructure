@@ -337,7 +337,7 @@ public abstract class CollectionUtils {
    */
   @SuppressWarnings({ "unchecked", "cast" })
   public static <E> Collection<E> createCollection(Class<?> collectionType, @Nullable Class<?> elementType, int capacity) {
-    Assert.notNull(collectionType, "Collection type must not be null");
+    Assert.notNull(collectionType, "Collection type is required");
     if (LinkedHashSet.class == collectionType
             || HashSet.class == collectionType
             || Set.class == collectionType
@@ -512,7 +512,7 @@ public abstract class CollectionUtils {
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public static <K, V> Map<K, V> createMap(Class<?> mapType, @Nullable Class<?> keyType, int capacity) {
-    Assert.notNull(mapType, "Map type must not be null");
+    Assert.notNull(mapType, "Map type is required");
     if (HashMap.class == mapType) {
       return new HashMap<>(capacity);
     }
@@ -631,7 +631,7 @@ public abstract class CollectionUtils {
    */
   @SuppressWarnings("rawtypes")
   private static Class<? extends Enum> asEnumType(Class<?> enumType) {
-    Assert.notNull(enumType, "Enum type must not be null");
+    Assert.notNull(enumType, "Enum type is required");
     if (!Enum.class.isAssignableFrom(enumType)) {
       throw new IllegalArgumentException("Supplied type is not an enum: " + enumType.getName());
     }

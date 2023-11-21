@@ -85,9 +85,9 @@ public class DefaultGenerationContext implements GenerationContext {
   protected DefaultGenerationContext(GeneratedClasses generatedClasses,
           GeneratedFiles generatedFiles, RuntimeHints runtimeHints) {
 
-    Assert.notNull(generatedClasses, "'generatedClasses' must not be null");
-    Assert.notNull(generatedFiles, "'generatedFiles' must not be null");
-    Assert.notNull(runtimeHints, "'runtimeHints' must not be null");
+    Assert.notNull(generatedClasses, "'generatedClasses' is required");
+    Assert.notNull(generatedFiles, "'generatedFiles' is required");
+    Assert.notNull(runtimeHints, "'runtimeHints' is required");
     this.sequenceGenerator = new ConcurrentHashMap<>();
     this.generatedClasses = generatedClasses;
     this.generatedFiles = generatedFiles;

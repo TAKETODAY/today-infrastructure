@@ -49,7 +49,7 @@ public class SerializingConverter implements Converter<Object, byte[]> {
    * Create a {@code SerializingConverter} that delegates to the provided {@link Serializer}.
    */
   public SerializingConverter(Serializer<Object> serializer) {
-    Assert.notNull(serializer, "Serializer must not be null");
+    Assert.notNull(serializer, "Serializer is required");
     this.serializer = serializer;
   }
 

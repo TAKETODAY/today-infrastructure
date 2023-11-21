@@ -160,7 +160,7 @@ public interface GeneratedFiles {
    * {@link Appendable} which will receive the file contents
    */
   default void addFile(Kind kind, String path, ThrowingConsumer<Appendable> content) {
-    Assert.notNull(content, "'content' must not be null");
+    Assert.notNull(content, "'content' is required");
     addFile(kind, path, new AppendableConsumerInputStreamSource(content));
   }
 

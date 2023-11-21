@@ -53,7 +53,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
    * @param targetMap the plain target {@code Map}
    */
   public MultiValueMapAdapter(Map<K, List<V>> targetMap) {
-    Assert.notNull(targetMap, "'targetMap' must not be null");
+    Assert.notNull(targetMap, "'targetMap' is required");
     this.targetMap = targetMap;
   }
 

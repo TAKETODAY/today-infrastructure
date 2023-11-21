@@ -76,7 +76,7 @@ class AspectJPrecedenceComparator implements Comparator<Advisor> {
    * @param advisorComparator the {@code Comparator} to use for advisors
    */
   public AspectJPrecedenceComparator(Comparator<? super Advisor> advisorComparator) {
-    Assert.notNull(advisorComparator, "Advisor comparator must not be null");
+    Assert.notNull(advisorComparator, "Advisor comparator is required");
     this.advisorComparator = advisorComparator;
   }
 

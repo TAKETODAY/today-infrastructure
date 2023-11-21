@@ -160,7 +160,7 @@ public final class MockRestServiceServer {
    * to reply to the given {@code RestGatewaySupport}.
    */
   public static MockRestServiceServerBuilder bindTo(RestGatewaySupport restGatewaySupport) {
-    Assert.notNull(restGatewaySupport, "'restGatewaySupport' must not be null");
+    Assert.notNull(restGatewaySupport, "'restGatewaySupport' is required");
     return new RestTemplateMockRestServiceServerBuilder(restGatewaySupport.getRestTemplate());
   }
 
@@ -269,7 +269,7 @@ public final class MockRestServiceServer {
     private final RestClient.Builder restClientBuilder;
 
     RestClientMockRestServiceServerBuilder(RestClient.Builder restClientBuilder) {
-      Assert.notNull(restClientBuilder, "RestClient.Builder must not be null");
+      Assert.notNull(restClientBuilder, "RestClient.Builder is required");
       this.restClientBuilder = restClientBuilder;
     }
 
@@ -284,7 +284,7 @@ public final class MockRestServiceServer {
     private final RestTemplate restTemplate;
 
     RestTemplateMockRestServiceServerBuilder(RestTemplate restTemplate) {
-      Assert.notNull(restTemplate, "RestTemplate must not be null");
+      Assert.notNull(restTemplate, "RestTemplate is required");
       this.restTemplate = restTemplate;
     }
 
@@ -306,8 +306,8 @@ public final class MockRestServiceServer {
     }
 
     private MockClientHttpRequest createRequestInternal(URI uri, HttpMethod httpMethod) {
-      Assert.notNull(uri, "'uri' must not be null");
-      Assert.notNull(httpMethod, "'httpMethod' must not be null");
+      Assert.notNull(uri, "'uri' is required");
+      Assert.notNull(httpMethod, "'httpMethod' is required");
 
       return new MockClientHttpRequest(httpMethod, uri) {
 

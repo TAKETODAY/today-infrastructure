@@ -139,7 +139,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    * @see #additionalCustomizers(ThreadPoolTaskSchedulerCustomizer...)
    */
   public ThreadPoolTaskSchedulerBuilder customizers(ThreadPoolTaskSchedulerCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return customizers(Arrays.asList(customizers));
   }
 
@@ -155,7 +155,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    * @see #additionalCustomizers(ThreadPoolTaskSchedulerCustomizer...)
    */
   public ThreadPoolTaskSchedulerBuilder customizers(Iterable<? extends ThreadPoolTaskSchedulerCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, this.awaitTerminationPeriod,
         this.threadNamePrefix, append(null, customizers));
   }
@@ -171,7 +171,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    * @see #customizers(ThreadPoolTaskSchedulerCustomizer...)
    */
   public ThreadPoolTaskSchedulerBuilder additionalCustomizers(ThreadPoolTaskSchedulerCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return additionalCustomizers(Arrays.asList(customizers));
   }
 
@@ -186,7 +186,7 @@ public class ThreadPoolTaskSchedulerBuilder {
    * @see #customizers(ThreadPoolTaskSchedulerCustomizer...)
    */
   public ThreadPoolTaskSchedulerBuilder additionalCustomizers(Iterable<? extends ThreadPoolTaskSchedulerCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new ThreadPoolTaskSchedulerBuilder(this.poolSize, this.awaitTermination, this.awaitTerminationPeriod,
         this.threadNamePrefix, append(this.customizers, customizers));
   }

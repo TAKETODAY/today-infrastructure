@@ -42,7 +42,7 @@ public class ScopeMetadata {
    * Set the name of the scope.
    */
   public void setScopeName(String scopeName) {
-    Assert.notNull(scopeName, "'scopeName' must not be null");
+    Assert.notNull(scopeName, "'scopeName' is required");
     this.scopeName = scopeName;
   }
 
@@ -57,7 +57,7 @@ public class ScopeMetadata {
    * Set the proxy-mode to be applied to the scoped instance.
    */
   public void setScopedProxyMode(ScopedProxyMode scopedProxyMode) {
-    Assert.notNull(scopedProxyMode, "'scopedProxyMode' must not be null");
+    Assert.notNull(scopedProxyMode, "'scopedProxyMode' is required");
     this.scopedProxyMode = scopedProxyMode;
   }
 

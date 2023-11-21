@@ -51,8 +51,8 @@ public abstract class TypeUtils {
    * @see ClassUtils#isAssignable(Class, Class)
    */
   public static boolean isAssignable(Type lhsType, Type rhsType) {
-    Assert.notNull(lhsType, "Left-hand side type must not be null");
-    Assert.notNull(rhsType, "Right-hand side type must not be null");
+    Assert.notNull(lhsType, "Left-hand side type is required");
+    Assert.notNull(rhsType, "Right-hand side type is required");
 
     // all types are assignable to themselves and to class Object
     if (lhsType.equals(rhsType) || Object.class == lhsType) {

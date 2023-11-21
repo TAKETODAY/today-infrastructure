@@ -69,7 +69,7 @@ class FileWatcher implements Closeable {
    * actions
    */
   FileWatcher(Duration quietPeriod) {
-    Assert.notNull(quietPeriod, "QuietPeriod must not be null");
+    Assert.notNull(quietPeriod, "QuietPeriod is required");
     this.quietPeriod = quietPeriod;
   }
 
@@ -80,8 +80,8 @@ class FileWatcher implements Closeable {
    * @param action the action to take when changes are detected
    */
   void watch(Set<Path> paths, Runnable action) {
-    Assert.notNull(paths, "Paths must not be null");
-    Assert.notNull(action, "Action must not be null");
+    Assert.notNull(paths, "Paths is required");
+    Assert.notNull(action, "Action is required");
     if (paths.isEmpty()) {
       return;
     }

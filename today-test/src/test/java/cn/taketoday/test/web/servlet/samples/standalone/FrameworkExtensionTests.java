@@ -127,14 +127,14 @@ public class FrameworkExtensionTests {
     @RequestMapping(headers = "Foo")
     @ResponseBody
     public String handleFoo(Principal principal) {
-      Assert.notNull(principal, "Principal must not be null");
+      Assert.notNull(principal, "Principal is required");
       return "Foo";
     }
 
     @RequestMapping(headers = "Bar")
     @ResponseBody
     public String handleBar(Principal principal) {
-      Assert.notNull(principal, "Principal must not be null");
+      Assert.notNull(principal, "Principal is required");
       return "Bar";
     }
   }

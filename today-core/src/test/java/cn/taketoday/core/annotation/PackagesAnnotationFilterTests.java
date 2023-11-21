@@ -36,7 +36,7 @@ class PackagesAnnotationFilterTests {
   void createWhenPackagesIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() ->
                     new PackagesAnnotationFilter((String[]) null))
-            .withMessage("Packages array must not be null");
+            .withMessage("Packages array is required");
   }
 
   @Test

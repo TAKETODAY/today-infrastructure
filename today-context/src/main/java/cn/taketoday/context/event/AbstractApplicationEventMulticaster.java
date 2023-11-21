@@ -392,8 +392,7 @@ public abstract class AbstractApplicationEventMulticaster
    * @return whether the given listener should be included in the candidates
    * for the given event type
    */
-  protected boolean supportsEvent(
-          ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
+  protected boolean supportsEvent(ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
     GenericApplicationListener smartListener
             = listener instanceof GenericApplicationListener
               ? (GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener);
@@ -406,10 +405,8 @@ public abstract class AbstractApplicationEventMulticaster
   private record ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType)
           implements Comparable<ListenerCacheKey> {
 
-    private ListenerCacheKey(ResolvableType eventType, @Nullable Class<?> sourceType) {
-      Assert.notNull(eventType, "Event type must not be null");
-      this.eventType = eventType;
-      this.sourceType = sourceType;
+    private ListenerCacheKey {
+      Assert.notNull(eventType, "Event type is required");
     }
 
     @Override
@@ -478,6 +475,7 @@ public abstract class AbstractApplicationEventMulticaster
   private class DefaultListenerRetriever {
 
     public final LinkedHashSet<String> applicationListenerBeans = new LinkedHashSet<>();
+
     public final LinkedHashSet<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
     public Collection<ApplicationListener<?>> getApplicationListeners() {

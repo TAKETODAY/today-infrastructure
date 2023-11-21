@@ -66,7 +66,7 @@ public class JsonbTester<T> extends AbstractJsonMarshalTester<T> {
    * @param jsonb the Jsonb instance
    */
   protected JsonbTester(Jsonb jsonb) {
-    Assert.notNull(jsonb, "Jsonb must not be null");
+    Assert.notNull(jsonb, "Jsonb is required");
     this.jsonb = jsonb;
   }
 
@@ -80,7 +80,7 @@ public class JsonbTester<T> extends AbstractJsonMarshalTester<T> {
    */
   public JsonbTester(Class<?> resourceLoadClass, ResolvableType type, Jsonb jsonb) {
     super(resourceLoadClass, type);
-    Assert.notNull(jsonb, "Jsonb must not be null");
+    Assert.notNull(jsonb, "Jsonb is required");
     this.jsonb = jsonb;
   }
 

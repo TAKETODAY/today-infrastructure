@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,10 +86,10 @@ class MethodLevelDirtiesContextTests {
   }
 
   private void performAssertions(int expectedContextCreationCount) throws Exception {
-    assertThat(this.context).as("context must not be null").isNotNull();
+    assertThat(this.context).as("context is required").isNotNull();
     assertThat(this.context.isActive()).as("context must be active").isTrue();
 
-    assertThat(this.count).as("count must not be null").isNotNull();
+    assertThat(this.count).as("count is required").isNotNull();
     assertThat(this.count.intValue()).as("count: ").isEqualTo(expectedContextCreationCount);
 
     assertThat(contextCount.get()).as("context creation count: ").isEqualTo(expectedContextCreationCount);

@@ -81,7 +81,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
   default <V> InstanceSupplier<V> andThen(
           ThrowingBiFunction<RegisteredBean, ? super T, ? extends V> after) {
 
-    Assert.notNull(after, "'after' function must not be null");
+    Assert.notNull(after, "'after' function is required");
     return new InstanceSupplier<>() {
       @Override
       public V get(RegisteredBean registeredBean) throws Exception {
@@ -104,7 +104,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    * @return a new {@link InstanceSupplier}
    */
   static <T> InstanceSupplier<T> using(ThrowingSupplier<T> supplier) {
-    Assert.notNull(supplier, "Supplier must not be null");
+    Assert.notNull(supplier, "Supplier is required");
     if (supplier instanceof InstanceSupplier<T> instanceSupplier) {
       return instanceSupplier;
     }
@@ -121,7 +121,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    * @return a new {@link InstanceSupplier}
    */
   static <T> InstanceSupplier<T> using(@Nullable Method factoryMethod, ThrowingSupplier<T> supplier) {
-    Assert.notNull(supplier, "Supplier must not be null");
+    Assert.notNull(supplier, "Supplier is required");
 
     if (supplier instanceof InstanceSupplier<T> instanceSupplier &&
             instanceSupplier.getFactoryMethod() == factoryMethod) {
@@ -151,7 +151,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    * @return a new {@link InstanceSupplier}
    */
   static <T> InstanceSupplier<T> of(InstanceSupplier<T> instanceSupplier) {
-    Assert.notNull(instanceSupplier, "InstanceSupplier must not be null");
+    Assert.notNull(instanceSupplier, "InstanceSupplier is required");
     return instanceSupplier;
   }
 

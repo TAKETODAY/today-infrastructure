@@ -73,7 +73,7 @@ public class SharedEntityManagerBean extends EntityManagerFactoryAccessor
    * @see EntityManager
    */
   public void setEntityManagerInterface(Class<? extends EntityManager> entityManagerInterface) {
-    Assert.notNull(entityManagerInterface, "'entityManagerInterface' must not be null");
+    Assert.notNull(entityManagerInterface, "'entityManagerInterface' is required");
     this.entityManagerInterface = entityManagerInterface;
   }
 

@@ -103,7 +103,7 @@ public abstract class EntityManagerFactoryUtils {
    */
   public static EntityManagerFactory findEntityManagerFactory(
           BeanFactory beanFactory, @Nullable String unitName) throws NoSuchBeanDefinitionException {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     if (StringUtils.isNotEmpty(unitName)) {
       // See whether we can find an EntityManagerFactory with matching persistence unit name.
       var candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(beanFactory, EntityManagerFactory.class);

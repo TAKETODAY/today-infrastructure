@@ -118,8 +118,8 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
   @Override
   public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
-    Assert.notNull(beanName, "Bean name must not be null");
-    Assert.notNull(singletonObject, "Singleton object must not be null");
+    Assert.notNull(beanName, "Bean name is required");
+    Assert.notNull(singletonObject, "Singleton object is required");
     synchronized(this.singletonObjects) {
       Object oldObject = this.singletonObjects.get(beanName);
       if (oldObject != null) {
@@ -157,7 +157,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * @param singletonFactory the factory for the singleton object
    */
   protected void addSingletonFactory(String beanName, Supplier<?> singletonFactory) {
-    Assert.notNull(singletonFactory, "Singleton factory must not be null");
+    Assert.notNull(singletonFactory, "Singleton factory is required");
     synchronized(this.singletonObjects) {
       if (!this.singletonObjects.containsKey(beanName)) {
         this.singletonFactories.put(beanName, singletonFactory);
@@ -220,7 +220,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    * @return the registered singleton object
    */
   public Object getSingleton(String beanName, Supplier<?> singletonSupplier) {
-    Assert.notNull(beanName, "Bean name must not be null");
+    Assert.notNull(beanName, "Bean name is required");
     synchronized(singletonObjects) {
       Object singletonObject = singletonObjects.get(beanName);
       if (singletonObject == null) {
@@ -327,7 +327,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   }
 
   public void setCurrentlyInCreation(String beanName, boolean inCreation) {
-    Assert.notNull(beanName, "Bean name must not be null");
+    Assert.notNull(beanName, "Bean name is required");
     if (!inCreation) {
       inCreationCheckExclusions.add(beanName);
     }
@@ -337,7 +337,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   }
 
   public boolean isCurrentlyInCreation(String beanName) {
-    Assert.notNull(beanName, "Bean name must not be null");
+    Assert.notNull(beanName, "Bean name is required");
     return (!inCreationCheckExclusions.contains(beanName) && isActuallyInCreation(beanName));
   }
 

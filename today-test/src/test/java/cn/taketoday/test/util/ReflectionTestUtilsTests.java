@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -370,7 +367,7 @@ class ReflectionTestUtilsTests {
   void invokeInitMethodBeforeAutowiring() {
     assertThatIllegalStateException()
             .isThrownBy(() -> invokeMethod(component, "init"))
-            .withMessageStartingWith("number must not be null");
+            .withMessageStartingWith("number is required");
   }
 
   @Test
@@ -436,7 +433,7 @@ class ReflectionTestUtilsTests {
   void invokeStaticMethodWithNullTargetClass() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> invokeMethod((Class<?>) null, null))
-            .withMessage("Target class must not be null");
+            .withMessage("Target class is required");
   }
 
   @Test

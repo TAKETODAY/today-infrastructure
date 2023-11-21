@@ -61,7 +61,7 @@ public class StandardTypeConverter implements TypeConverter {
    * @param conversionService the ConversionService to delegate to
    */
   public StandardTypeConverter(ConversionService conversionService) {
-    Assert.notNull(conversionService, "ConversionService must not be null");
+    Assert.notNull(conversionService, "ConversionService is required");
     this.conversionService = () -> conversionService;
   }
 
@@ -71,7 +71,7 @@ public class StandardTypeConverter implements TypeConverter {
    * @param conversionService a Supplier for the ConversionService to delegate to
    */
   public StandardTypeConverter(Supplier<ConversionService> conversionService) {
-    Assert.notNull(conversionService, "Supplier must not be null");
+    Assert.notNull(conversionService, "Supplier is required");
     this.conversionService = conversionService;
   }
 

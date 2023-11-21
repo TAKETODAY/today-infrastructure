@@ -63,7 +63,7 @@ public class ResourceScriptSource implements ScriptSource {
    * @param resource the EncodedResource to load the script from
    */
   public ResourceScriptSource(EncodedResource resource) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
   }
 
@@ -73,7 +73,7 @@ public class ResourceScriptSource implements ScriptSource {
    * @param resource the Resource to load the script from (using UTF-8 encoding)
    */
   public ResourceScriptSource(Resource resource) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = new EncodedResource(resource, StandardCharsets.UTF_8);
   }
 

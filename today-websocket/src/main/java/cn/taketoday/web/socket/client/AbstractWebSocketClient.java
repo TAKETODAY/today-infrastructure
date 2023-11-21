@@ -67,7 +67,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   public CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
           String uriTemplate, Object... uriVars) {
 
-    Assert.notNull(uriTemplate, "'uriTemplate' must not be null");
+    Assert.notNull(uriTemplate, "'uriTemplate' is required");
     URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
     return execute(webSocketHandler, null, uri);
   }
@@ -76,7 +76,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   public final CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
           @Nullable WebSocketHttpHeaders headers, URI uri) {
 
-    Assert.notNull(webSocketHandler, "WebSocketHandler must not be null");
+    Assert.notNull(webSocketHandler, "WebSocketHandler is required");
     assertUri(uri);
 
     if (logger.isDebugEnabled()) {
@@ -105,7 +105,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   public ListenableFuture<WebSocketSession> doHandshake(
           WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
 
-    Assert.notNull(uriTemplate, "'uriTemplate' must not be null");
+    Assert.notNull(uriTemplate, "'uriTemplate' is required");
     URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
     return doHandshake(webSocketHandler, null, uri);
   }
@@ -114,7 +114,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   public final ListenableFuture<WebSocketSession> doHandshake(
           WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri) {
 
-    Assert.notNull(webSocketHandler, "WebSocketHandler must not be null");
+    Assert.notNull(webSocketHandler, "WebSocketHandler is required");
     assertUri(uri);
 
     if (logger.isDebugEnabled()) {
@@ -139,7 +139,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   }
 
   protected void assertUri(URI uri) {
-    Assert.notNull(uri, "URI must not be null");
+    Assert.notNull(uri, "URI is required");
     String scheme = uri.getScheme();
     if (!"ws".equals(scheme) && !"wss".equals(scheme)) {
       throw new IllegalArgumentException("Invalid scheme: " + scheme);

@@ -74,7 +74,7 @@ public class MethodInvocationProceedingJoinPoint implements ProceedingJoinPoint,
    * @param methodInvocation the Framework ProxyMethodInvocation object
    */
   public MethodInvocationProceedingJoinPoint(ProxyMethodInvocation methodInvocation) {
-    Assert.notNull(methodInvocation, "MethodInvocation must not be null");
+    Assert.notNull(methodInvocation, "MethodInvocation is required");
     this.methodInvocation = methodInvocation;
   }
 

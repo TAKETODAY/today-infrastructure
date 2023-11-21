@@ -52,7 +52,7 @@ public final class ReactiveTypeDescriptor {
   private ReactiveTypeDescriptor(Class<?> reactiveType, boolean multiValue, boolean noValue,
           @Nullable Supplier<?> emptySupplier, boolean deferred) {
 
-    Assert.notNull(reactiveType, "'reactiveType' must not be null");
+    Assert.notNull(reactiveType, "'reactiveType' is required");
     this.reactiveType = reactiveType;
     this.multiValue = multiValue;
     this.noValue = noValue;

@@ -32,7 +32,7 @@ class VolumeNameTests {
   @Test
   void randomWhenPrefixIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> VolumeName.random(null))
-            .withMessage("Prefix must not be null");
+            .withMessage("Prefix is required");
   }
 
   @Test
@@ -58,25 +58,25 @@ class VolumeNameTests {
   @Test
   void basedOnWhenSourceIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> VolumeName.basedOn(null, "prefix", "suffix", 6))
-            .withMessage("Source must not be null");
+            .withMessage("Source is required");
   }
 
   @Test
   void basedOnWhenNameExtractorIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> VolumeName.basedOn("test", null, "prefix", "suffix", 6))
-            .withMessage("NameExtractor must not be null");
+            .withMessage("NameExtractor is required");
   }
 
   @Test
   void basedOnWhenPrefixIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> VolumeName.basedOn("test", null, "suffix", 6))
-            .withMessage("Prefix must not be null");
+            .withMessage("Prefix is required");
   }
 
   @Test
   void basedOnWhenSuffixIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> VolumeName.basedOn("test", "prefix", null, 6))
-            .withMessage("Suffix must not be null");
+            .withMessage("Suffix is required");
   }
 
   @Test
@@ -94,7 +94,7 @@ class VolumeNameTests {
   @Test
   void ofWhenValueIsNullThrowsException() {
     assertThatIllegalArgumentException().isThrownBy(() -> VolumeName.of(null))
-            .withMessage("Value must not be null");
+            .withMessage("Value is required");
   }
 
   @Test

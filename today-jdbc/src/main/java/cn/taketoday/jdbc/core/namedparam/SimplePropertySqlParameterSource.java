@@ -59,7 +59,7 @@ public class SimplePropertySqlParameterSource extends AbstractSqlParameterSource
    * @param paramObject the bean, record or field holder instance to wrap
    */
   public SimplePropertySqlParameterSource(Object paramObject) {
-    Assert.notNull(paramObject, "Parameter object must not be null");
+    Assert.notNull(paramObject, "Parameter object is required");
     this.paramObject = paramObject;
   }
 

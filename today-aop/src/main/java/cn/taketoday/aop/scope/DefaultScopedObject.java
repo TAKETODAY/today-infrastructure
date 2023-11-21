@@ -52,7 +52,7 @@ public class DefaultScopedObject implements ScopedObject, Serializable {
    * @param targetBeanName the name of the target bean
    */
   public DefaultScopedObject(ConfigurableBeanFactory beanFactory, String targetBeanName) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     Assert.hasText(targetBeanName, "'targetBeanName' must not be empty");
     this.beanFactory = beanFactory;
     this.targetBeanName = targetBeanName;

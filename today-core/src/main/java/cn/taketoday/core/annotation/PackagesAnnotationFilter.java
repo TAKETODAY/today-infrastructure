@@ -40,7 +40,7 @@ final class PackagesAnnotationFilter implements AnnotationFilter {
   private final int hashCode;
 
   PackagesAnnotationFilter(String... packages) {
-    Assert.notNull(packages, "Packages array must not be null");
+    Assert.notNull(packages, "Packages array is required");
     this.prefixes = new String[packages.length];
     for (int i = 0; i < packages.length; i++) {
       String pkg = packages[i];

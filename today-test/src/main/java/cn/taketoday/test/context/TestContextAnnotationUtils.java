@@ -217,7 +217,7 @@ public abstract class TestContextAnnotationUtils {
   public static <T extends Annotation> AnnotationDescriptor<T> findAnnotationDescriptor(
           Class<?> clazz, Class<T> annotationType) {
 
-    Assert.notNull(annotationType, "Annotation type must not be null");
+    Assert.notNull(annotationType, "Annotation type is required");
     return findAnnotationDescriptor(clazz, annotationType,
             TestContextAnnotationUtils::searchEnclosingClass, new HashSet<>());
   }
@@ -510,9 +510,9 @@ public abstract class TestContextAnnotationUtils {
 
     @SuppressWarnings("unchecked")
     AnnotationDescriptor(Class<?> rootDeclaringClass, Class<?> declaringClass, T annotation) {
-      Assert.notNull(rootDeclaringClass, "'rootDeclaringClass' must not be null");
-      Assert.notNull(declaringClass, "'declaringClass' must not be null");
-      Assert.notNull(annotation, "Annotation must not be null");
+      Assert.notNull(rootDeclaringClass, "'rootDeclaringClass' is required");
+      Assert.notNull(declaringClass, "'declaringClass' is required");
+      Assert.notNull(annotation, "Annotation is required");
       this.rootDeclaringClass = rootDeclaringClass;
       this.declaringClass = declaringClass;
       T mergedAnnotation = (T) AnnotatedElementUtils.findMergedAnnotation(

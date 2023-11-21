@@ -331,7 +331,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
    * @throws BeanDefinitionStoreException in case of loading or parsing errors
    */
   public int loadBeanDefinitions(EncodedResource encodedResource) throws BeanDefinitionStoreException {
-    Assert.notNull(encodedResource, "EncodedResource must not be null");
+    Assert.notNull(encodedResource, "EncodedResource is required");
     if (logger.isTraceEnabled()) {
       logger.trace("Loading XML bean definitions from {}", encodedResource);
     }

@@ -160,7 +160,7 @@ public class SQLErrorCodesFactory {
    * @throws IllegalArgumentException if the supplied database name is {@code null}
    */
   public SQLErrorCodes getErrorCodes(String databaseName) {
-    Assert.notNull(databaseName, "Database product name must not be null");
+    Assert.notNull(databaseName, "Database product name is required");
 
     SQLErrorCodes sec = this.errorCodesMap.get(databaseName);
     if (sec == null) {
@@ -215,7 +215,7 @@ public class SQLErrorCodesFactory {
    */
   @Nullable
   public SQLErrorCodes resolveErrorCodes(DataSource dataSource) {
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(dataSource, "DataSource is required");
     boolean debugEnabled = log.isDebugEnabled();
     if (debugEnabled) {
       log.debug("Looking up default SQLErrorCodes for DataSource [{}]", identify(dataSource));

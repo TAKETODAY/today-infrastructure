@@ -62,7 +62,7 @@ public class WeavingTransformer {
    * @param transformer the class file transformer to register
    */
   public void addTransformer(ClassFileTransformer transformer) {
-    Assert.notNull(transformer, "Transformer must not be null");
+    Assert.notNull(transformer, "Transformer is required");
     this.transformers.add(transformer);
   }
 

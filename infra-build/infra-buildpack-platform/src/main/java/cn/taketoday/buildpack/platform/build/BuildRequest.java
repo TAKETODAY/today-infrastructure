@@ -92,8 +92,8 @@ public class BuildRequest {
   private final List<String> securityOptions;
 
   BuildRequest(ImageReference name, Function<Owner, TarArchive> applicationContent) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(applicationContent, "ApplicationContent must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(applicationContent, "ApplicationContent is required");
     this.name = name.inTaggedForm();
     this.applicationContent = applicationContent;
     this.builder = DEFAULT_BUILDER;
@@ -150,7 +150,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withBuilder(ImageReference builder) {
-    Assert.notNull(builder, "Builder must not be null");
+    Assert.notNull(builder, "Builder is required");
     return new BuildRequest(this.name, this.applicationContent, builder.inTaggedOrDigestForm(), this.runImage,
             this.creator, this.env, this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish,
             this.buildpacks, this.bindings, this.network, this.tags, this.buildWorkspace, this.buildCache,
@@ -177,7 +177,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withCreator(Creator creator) {
-    Assert.notNull(creator, "Creator must not be null");
+    Assert.notNull(creator, "Creator is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -209,7 +209,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withEnv(Map<String, String> env) {
-    Assert.notNull(env, "Env must not be null");
+    Assert.notNull(env, "Env is required");
     Map<String, String> updatedEnv = new LinkedHashMap<>(this.env);
     updatedEnv.putAll(env);
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator,
@@ -288,7 +288,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withBuildpacks(List<BuildpackReference> buildpacks) {
-    Assert.notNull(buildpacks, "Buildpacks must not be null");
+    Assert.notNull(buildpacks, "Buildpacks is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -313,7 +313,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withBindings(List<Binding> bindings) {
-    Assert.notNull(bindings, "Bindings must not be null");
+    Assert.notNull(bindings, "Bindings is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -351,7 +351,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withTags(List<ImageReference> tags) {
-    Assert.notNull(tags, "Tags must not be null");
+    Assert.notNull(tags, "Tags is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, tags, this.buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -365,7 +365,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withBuildWorkspace(Cache buildWorkspace) {
-    Assert.notNull(buildWorkspace, "BuildWorkspace must not be null");
+    Assert.notNull(buildWorkspace, "BuildWorkspace is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -379,7 +379,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withBuildCache(Cache buildCache) {
-    Assert.notNull(buildCache, "BuildCache must not be null");
+    Assert.notNull(buildCache, "BuildCache is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, buildCache, this.launchCache, this.createdDate,
@@ -393,7 +393,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withLaunchCache(Cache launchCache) {
-    Assert.notNull(launchCache, "LaunchCache must not be null");
+    Assert.notNull(launchCache, "LaunchCache is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, launchCache, this.createdDate,
@@ -407,7 +407,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withCreatedDate(String createdDate) {
-    Assert.notNull(createdDate, "CreatedDate must not be null");
+    Assert.notNull(createdDate, "CreatedDate is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, this.launchCache,
@@ -433,7 +433,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withApplicationDirectory(String applicationDirectory) {
-    Assert.notNull(applicationDirectory, "ApplicationDirectory must not be null");
+    Assert.notNull(applicationDirectory, "ApplicationDirectory is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -447,7 +447,7 @@ public class BuildRequest {
    * @return an updated build request
    */
   public BuildRequest withSecurityOptions(List<String> securityOptions) {
-    Assert.notNull(securityOptions, "SecurityOption must not be null");
+    Assert.notNull(securityOptions, "SecurityOption is required");
     return new BuildRequest(this.name, this.applicationContent, this.builder, this.runImage, this.creator, this.env,
             this.cleanCache, this.verboseLogging, this.pullPolicy, this.publish, this.buildpacks, this.bindings,
             this.network, this.tags, this.buildWorkspace, this.buildCache, this.launchCache, this.createdDate,
@@ -667,7 +667,7 @@ public class BuildRequest {
   }
 
   private static void assertJarFile(File jarFile) {
-    Assert.notNull(jarFile, "JarFile must not be null");
+    Assert.notNull(jarFile, "JarFile is required");
     Assert.isTrue(jarFile.exists(), "JarFile must exist");
     Assert.isTrue(jarFile.isFile(), "JarFile must be a file");
   }

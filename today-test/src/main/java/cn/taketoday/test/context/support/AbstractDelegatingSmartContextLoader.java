@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,7 +119,7 @@ public abstract class AbstractDelegatingSmartContextLoader implements AotContext
    */
   @Override
   public void processContextConfiguration(final ContextConfigurationAttributes configAttributes) {
-    Assert.notNull(configAttributes, "configAttributes must not be null");
+    Assert.notNull(configAttributes, "configAttributes is required");
     Assert.isTrue(!(configAttributes.hasLocations() && configAttributes.hasClasses()),
             () -> String.format("Cannot process locations AND classes for context configuration %s: " +
                     "configure one or the other, but not both.", configAttributes));
@@ -260,7 +257,7 @@ public abstract class AbstractDelegatingSmartContextLoader implements AotContext
   }
 
   private SmartContextLoader getContextLoader(MergedContextConfiguration mergedConfig) {
-    Assert.notNull(mergedConfig, "MergedContextConfiguration must not be null");
+    Assert.notNull(mergedConfig, "MergedContextConfiguration is required");
     Assert.state(!(mergedConfig.hasLocations() && mergedConfig.hasClasses()), () -> """
             Neither %s nor %s is able to load an ApplicationContext for %s: \
             declare either 'locations' or 'classes' but not both.""".formatted(

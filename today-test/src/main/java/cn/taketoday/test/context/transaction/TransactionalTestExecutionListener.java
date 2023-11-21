@@ -198,7 +198,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   public void beforeTestMethod(final TestContext testContext) throws Exception {
     Method testMethod = testContext.getTestMethod();
     Class<?> testClass = testContext.getTestClass();
-    Assert.notNull(testMethod, "Test method of supplied TestContext must not be null");
+    Assert.notNull(testMethod, "Test method of supplied TestContext is required");
 
     TransactionContext txContext = TransactionContextHolder.removeCurrentTransactionContext();
     Assert.state(txContext == null, "Cannot start new transaction without ending existing transaction");
@@ -243,7 +243,7 @@ public class TransactionalTestExecutionListener extends AbstractTestExecutionLis
   @Override
   public void afterTestMethod(TestContext testContext) throws Exception {
     Method testMethod = testContext.getTestMethod();
-    Assert.notNull(testMethod, "The test method of the supplied TestContext must not be null");
+    Assert.notNull(testMethod, "The test method of the supplied TestContext is required");
 
     TransactionContext txContext = TransactionContextHolder.removeCurrentTransactionContext();
     // If there was (or perhaps still is) a transaction...

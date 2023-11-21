@@ -65,7 +65,7 @@ public abstract class ProfileValueUtils {
    */
   @SuppressWarnings("unchecked")
   public static ProfileValueSource retrieveProfileValueSource(Class<?> testClass) {
-    Assert.notNull(testClass, "testClass must not be null");
+    Assert.notNull(testClass, "testClass is required");
 
     Class<ProfileValueSourceConfiguration> annotationType = ProfileValueSourceConfiguration.class;
     ProfileValueSourceConfiguration config = AnnotatedElementUtils.findMergedAnnotation(testClass, annotationType);

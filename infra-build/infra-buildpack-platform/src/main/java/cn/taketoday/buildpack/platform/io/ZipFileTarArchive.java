@@ -55,8 +55,8 @@ public class ZipFileTarArchive implements TarArchive {
    * @param owner the owner of the tar entries
    */
   public ZipFileTarArchive(File zip, Owner owner) {
-    Assert.notNull(zip, "Zip must not be null");
-    Assert.notNull(owner, "Owner must not be null");
+    Assert.notNull(zip, "Zip is required");
+    Assert.notNull(owner, "Owner is required");
     assertArchiveHasEntries(zip);
     this.zip = zip;
     this.owner = owner;

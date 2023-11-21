@@ -36,7 +36,7 @@ class MethodNameTests {
   void ofWhenPartsIsNullThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> MethodName.of((String[]) null))
-            .withMessage("'parts' must not be null");
+            .withMessage("'parts' is required");
   }
 
   @Test
@@ -56,7 +56,7 @@ class MethodNameTests {
     MethodName name = MethodName.of("myBean");
     assertThatIllegalArgumentException()
             .isThrownBy(() -> name.and(((String[]) null)))
-            .withMessage("'parts' must not be null");
+            .withMessage("'parts' is required");
   }
 
   @Test
@@ -75,7 +75,7 @@ class MethodNameTests {
     MethodName name = MethodName.of("myBean");
     assertThatIllegalArgumentException()
             .isThrownBy(() -> name.and(((MethodName) null)))
-            .withMessage("'name' must not be null");
+            .withMessage("'name' is required");
   }
 
   @Test

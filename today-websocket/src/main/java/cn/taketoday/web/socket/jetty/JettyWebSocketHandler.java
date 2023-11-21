@@ -58,8 +58,8 @@ public class JettyWebSocketHandler {
   private final WebSocketHandler webSocketHandler;
 
   public JettyWebSocketHandler(WebSocketHandler webSocketHandler, JettyWebSocketSession wsSession) {
-    Assert.notNull(webSocketHandler, "WebSocketHandler must not be null");
-    Assert.notNull(wsSession, "WebSocketSession must not be null");
+    Assert.notNull(webSocketHandler, "WebSocketHandler is required");
+    Assert.notNull(wsSession, "WebSocketSession is required");
     this.webSocketHandler = webSocketHandler;
     this.wsSession = wsSession;
   }

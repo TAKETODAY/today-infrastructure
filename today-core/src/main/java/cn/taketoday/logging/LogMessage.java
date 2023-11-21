@@ -152,7 +152,7 @@ public abstract class LogMessage implements CharSequence {
     private final Supplier<? extends CharSequence> supplier;
 
     SupplierMessage(Supplier<? extends CharSequence> supplier) {
-      Assert.notNull(supplier, "Supplier must not be null");
+      Assert.notNull(supplier, "Supplier is required");
       this.supplier = supplier;
     }
 
@@ -167,7 +167,7 @@ public abstract class LogMessage implements CharSequence {
     protected final String format;
 
     FormatMessage(String format) {
-      Assert.notNull(format, "Format must not be null");
+      Assert.notNull(format, "Format is required");
       this.format = format;
     }
   }

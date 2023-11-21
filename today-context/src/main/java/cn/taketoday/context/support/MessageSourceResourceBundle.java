@@ -52,7 +52,7 @@ public class MessageSourceResourceBundle extends ResourceBundle {
    * @param locale the Locale to retrieve messages for
    */
   public MessageSourceResourceBundle(MessageSource source, Locale locale) {
-    Assert.notNull(source, "MessageSource must not be null");
+    Assert.notNull(source, "MessageSource is required");
     this.messageSource = source;
     this.locale = locale;
   }

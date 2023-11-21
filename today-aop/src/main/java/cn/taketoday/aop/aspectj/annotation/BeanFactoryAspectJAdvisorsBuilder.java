@@ -72,8 +72,8 @@ public class BeanFactoryAspectJAdvisorsBuilder {
    * @param advisorFactory the AspectJAdvisorFactory to build each Advisor with
    */
   public BeanFactoryAspectJAdvisorsBuilder(BeanFactory beanFactory, AspectJAdvisorFactory advisorFactory) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
-    Assert.notNull(advisorFactory, "AspectJAdvisorFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
+    Assert.notNull(advisorFactory, "AspectJAdvisorFactory is required");
     this.beanFactory = beanFactory;
     this.advisorFactory = advisorFactory;
   }

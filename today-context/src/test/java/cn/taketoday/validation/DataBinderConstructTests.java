@@ -118,7 +118,7 @@ public class DataBinderConstructTests {
     DataClass(String param1, boolean p2, Optional<Integer> optionalParam) {
       this.param1 = param1;
       this.param2 = p2;
-      Assert.notNull(optionalParam, "Optional must not be null");
+      Assert.notNull(optionalParam, "Optional is required");
       optionalParam.ifPresent(integer -> this.param3 = integer);
     }
 

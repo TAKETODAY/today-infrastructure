@@ -110,7 +110,7 @@ public class SystemEnvironmentPropertySource extends MapPropertySource {
    * found or otherwise the original name. Never returns {@code null}.
    */
   protected final String resolvePropertyName(String name) {
-    Assert.notNull(name, "Property name must not be null");
+    Assert.notNull(name, "Property name is required");
     String resolvedName = checkPropertyName(name);
     if (resolvedName != null) {
       return resolvedName;

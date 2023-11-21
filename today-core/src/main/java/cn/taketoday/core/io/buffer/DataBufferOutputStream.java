@@ -39,7 +39,7 @@ final class DataBufferOutputStream extends OutputStream {
   private boolean closed;
 
   public DataBufferOutputStream(DataBuffer dataBuffer) {
-    Assert.notNull(dataBuffer, "DataBuffer must not be null");
+    Assert.notNull(dataBuffer, "DataBuffer is required");
     this.dataBuffer = dataBuffer;
   }
 

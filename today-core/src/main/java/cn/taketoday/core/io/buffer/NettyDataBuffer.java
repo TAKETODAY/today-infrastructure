@@ -49,8 +49,8 @@ public class NettyDataBuffer implements PooledDataBuffer {
    * @param byteBuf the buffer to base this buffer on
    */
   NettyDataBuffer(ByteBuf byteBuf, NettyDataBufferFactory dataBufferFactory) {
-    Assert.notNull(byteBuf, "ByteBuf must not be null");
-    Assert.notNull(dataBufferFactory, "NettyDataBufferFactory must not be null");
+    Assert.notNull(byteBuf, "ByteBuf is required");
+    Assert.notNull(dataBufferFactory, "NettyDataBufferFactory is required");
     this.byteBuf = byteBuf;
     this.dataBufferFactory = dataBufferFactory;
   }
@@ -71,7 +71,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public int indexOf(IntPredicate predicate, int fromIndex) {
-    Assert.notNull(predicate, "IntPredicate must not be null");
+    Assert.notNull(predicate, "IntPredicate is required");
     if (fromIndex < 0) {
       fromIndex = 0;
     }
@@ -84,7 +84,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public int lastIndexOf(IntPredicate predicate, int fromIndex) {
-    Assert.notNull(predicate, "IntPredicate must not be null");
+    Assert.notNull(predicate, "IntPredicate is required");
     if (fromIndex < 0) {
       return -1;
     }
@@ -240,8 +240,8 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public DataBuffer write(CharSequence charSequence, Charset charset) {
-    Assert.notNull(charSequence, "CharSequence must not be null");
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charSequence, "CharSequence is required");
+    Assert.notNull(charset, "Charset is required");
     if (StandardCharsets.UTF_8.equals(charset)) {
       ByteBufUtil.writeUtf8(this.byteBuf, charSequence);
     }
@@ -305,7 +305,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public void toByteBuffer(int srcPos, ByteBuffer dest, int destPos, int length) {
-    Assert.notNull(dest, "Dest must not be null");
+    Assert.notNull(dest, "Dest is required");
 
     dest = dest.duplicate().clear();
     dest.put(destPos, this.byteBuf.nioBuffer(), srcPos, length);
@@ -325,13 +325,13 @@ public class NettyDataBuffer implements PooledDataBuffer {
 
   @Override
   public String toString(Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     return this.byteBuf.toString(charset);
   }
 
   @Override
   public String toString(int index, int length, Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     return this.byteBuf.toString(index, length, charset);
   }
 

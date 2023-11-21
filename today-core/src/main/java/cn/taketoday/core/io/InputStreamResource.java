@@ -67,7 +67,7 @@ public class InputStreamResource extends AbstractResource {
    * @param description where the InputStream comes from
    */
   public InputStreamResource(InputStream inputStream, String description) {
-    Assert.notNull(inputStream, "InputStream must not be null");
+    Assert.notNull(inputStream, "InputStream is required");
     this.inputStream = inputStream;
     this.description = (description != null ? description : "");
   }

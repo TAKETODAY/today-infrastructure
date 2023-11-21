@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,9 +95,9 @@ public class DefaultTestContext implements TestContext {
   public DefaultTestContext(Class<?> testClass, MergedContextConfiguration mergedConfig,
           CacheAwareContextLoaderDelegate cacheAwareContextLoaderDelegate) {
 
-    Assert.notNull(testClass, "Test Class must not be null");
-    Assert.notNull(mergedConfig, "MergedContextConfiguration must not be null");
-    Assert.notNull(cacheAwareContextLoaderDelegate, "CacheAwareContextLoaderDelegate must not be null");
+    Assert.notNull(testClass, "Test Class is required");
+    Assert.notNull(mergedConfig, "MergedContextConfiguration is required");
+    Assert.notNull(cacheAwareContextLoaderDelegate, "CacheAwareContextLoaderDelegate is required");
     this.testClass = testClass;
     this.mergedConfig = mergedConfig;
     this.cacheAwareContextLoaderDelegate = cacheAwareContextLoaderDelegate;
@@ -194,7 +191,7 @@ public class DefaultTestContext implements TestContext {
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     synchronized(this.attributes) {
       if (value != null) {
         this.attributes.put(name, value);
@@ -208,15 +205,15 @@ public class DefaultTestContext implements TestContext {
   @Override
   @Nullable
   public Object getAttribute(String name) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     return this.attributes.get(name);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <T> T computeAttribute(String name, Function<String, T> computeFunction) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(computeFunction, "Compute function must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(computeFunction, "Compute function is required");
     Object value = this.attributes.computeIfAbsent(name, computeFunction);
     Assert.state(value != null,
             () -> String.format("Compute function must not return null for attribute named '%s'", name));
@@ -225,7 +222,7 @@ public class DefaultTestContext implements TestContext {
 
   @Override
   public void copyAttributesFrom(AttributeAccessor source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     Map<String, Object> attributes = source.getAttributes();
     if (CollectionUtils.isNotEmpty(attributes)) {
       this.attributes.putAll(attributes);
@@ -240,13 +237,13 @@ public class DefaultTestContext implements TestContext {
   @Override
   @Nullable
   public Object removeAttribute(String name) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     return this.attributes.remove(name);
   }
 
   @Override
   public boolean hasAttribute(String name) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     return this.attributes.containsKey(name);
   }
 

@@ -111,7 +111,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @see #additionalCustomizers(SimpleAsyncTaskSchedulerCustomizer...)
    */
   public SimpleAsyncTaskSchedulerBuilder customizers(SimpleAsyncTaskSchedulerCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return customizers(Arrays.asList(customizers));
   }
 
@@ -127,7 +127,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    */
   public SimpleAsyncTaskSchedulerBuilder customizers(
           Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new SimpleAsyncTaskSchedulerBuilder(this.threadNamePrefix, this.concurrencyLimit, this.virtualThreads,
             append(null, customizers));
   }
@@ -142,7 +142,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @see #customizers(SimpleAsyncTaskSchedulerCustomizer...)
    */
   public SimpleAsyncTaskSchedulerBuilder additionalCustomizers(SimpleAsyncTaskSchedulerCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return additionalCustomizers(Arrays.asList(customizers));
   }
 
@@ -157,7 +157,7 @@ public class SimpleAsyncTaskSchedulerBuilder {
    */
   public SimpleAsyncTaskSchedulerBuilder additionalCustomizers(
           Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new SimpleAsyncTaskSchedulerBuilder(this.threadNamePrefix, this.concurrencyLimit, this.virtualThreads,
             append(this.customizers, customizers));
   }

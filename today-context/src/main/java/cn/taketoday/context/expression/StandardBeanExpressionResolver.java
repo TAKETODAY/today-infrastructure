@@ -116,7 +116,7 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
    * compatible with standard Unified EL style expression syntax.
    */
   public void setExpressionParser(ExpressionParser expressionParser) {
-    Assert.notNull(expressionParser, "ExpressionParser must not be null");
+    Assert.notNull(expressionParser, "ExpressionParser is required");
     this.expressionParser = expressionParser;
   }
 

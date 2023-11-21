@@ -55,7 +55,7 @@ public interface ReactorNettyHttpClientMapper extends Function<HttpClient, HttpC
    * @return a composed {@link ReactorNettyHttpClientMapper} instance
    */
   static ReactorNettyHttpClientMapper forCompose(ReactorNettyHttpClientMapper... mappers) {
-    Assert.notNull(mappers, "Mappers must not be null");
+    Assert.notNull(mappers, "Mappers is required");
     return forCompose(Arrays.asList(mappers));
   }
 
@@ -66,7 +66,7 @@ public interface ReactorNettyHttpClientMapper extends Function<HttpClient, HttpC
    * @return a composed {@link ReactorNettyHttpClientMapper} instance
    */
   static ReactorNettyHttpClientMapper forCompose(Collection<ReactorNettyHttpClientMapper> mappers) {
-    Assert.notNull(mappers, "Mappers must not be null");
+    Assert.notNull(mappers, "Mappers is required");
     return httpClient -> {
       for (ReactorNettyHttpClientMapper mapper : mappers) {
         httpClient = mapper.apply(httpClient);

@@ -63,8 +63,8 @@ public class SerializationDelegate implements Serializer<Object>, Deserializer<O
    * @param deserializer the {@link Deserializer} to use (never {@code null)}
    */
   public SerializationDelegate(Serializer<Object> serializer, Deserializer<Object> deserializer) {
-    Assert.notNull(serializer, "Serializer must not be null");
-    Assert.notNull(deserializer, "Deserializer must not be null");
+    Assert.notNull(serializer, "Serializer is required");
+    Assert.notNull(deserializer, "Deserializer is required");
     this.serializer = serializer;
     this.deserializer = deserializer;
   }

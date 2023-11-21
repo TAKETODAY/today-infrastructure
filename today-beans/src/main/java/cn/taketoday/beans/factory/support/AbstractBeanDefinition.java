@@ -796,7 +796,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @param source the AbstractBeanDefinition to copy from
    */
   public void copyQualifiersFrom(AbstractBeanDefinition source) {
-    Assert.notNull(source, "Source must not be null");
+    Assert.notNull(source, "Source is required");
     if (source.qualifiers != null) {
       qualifiers().putAll(source.qualifiers);
     }

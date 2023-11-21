@@ -67,7 +67,7 @@ public abstract class Configurations {
   private final Set<Class<?>> classes;
 
   protected Configurations(Collection<Class<?>> classes) {
-    Assert.notNull(classes, "Classes must not be null");
+    Assert.notNull(classes, "Classes is required");
     Collection<Class<?>> sorted = sort(classes);
     this.classes = Collections.unmodifiableSet(new LinkedHashSet<>(sorted));
   }

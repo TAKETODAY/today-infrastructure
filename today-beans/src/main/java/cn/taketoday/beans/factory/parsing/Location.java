@@ -61,7 +61,7 @@ public class Location {
    * (may be {@code null})
    */
   public Location(Resource resource, @Nullable Object source) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
     this.source = source;
   }

@@ -206,8 +206,8 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
           throws BeansException {
 
     super(parent);
-    Assert.notNull(paths, "Path array must not be null");
-    Assert.notNull(clazz, "Class argument must not be null");
+    Assert.notNull(paths, "Path array is required");
+    Assert.notNull(clazz, "Class argument is required");
     this.configResources = new Resource[paths.length];
     for (int i = 0; i < paths.length; i++) {
       this.configResources[i] = new ClassPathResource(paths[i], clazz);

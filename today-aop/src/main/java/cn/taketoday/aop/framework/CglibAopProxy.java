@@ -121,7 +121,7 @@ class CglibAopProxy implements AopProxy, Serializable {
    * happen later.
    */
   public CglibAopProxy(AdvisedSupport config) {
-    Assert.notNull(config, "AdvisedSupport must not be null");
+    Assert.notNull(config, "AdvisedSupport is required");
     this.config = config;
   }
 

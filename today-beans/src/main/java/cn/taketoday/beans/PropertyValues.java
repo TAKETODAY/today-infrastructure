@@ -227,7 +227,7 @@ public class PropertyValues implements Iterable<PropertyValue>, Serializable {
    * @return this in order to allow for adding multiple property values in a chain
    */
   public PropertyValues add(String propertyName, @Nullable Object propertyValue) {
-    Assert.notNull(propertyName, "propertyName must not be null");
+    Assert.notNull(propertyName, "propertyName is required");
     add(new PropertyValue(propertyName, propertyValue));
     return this;
   }

@@ -74,8 +74,8 @@ public interface DatabasePopulator {
    * @see DataSourceUtils#isConnectionTransactional(Connection, DataSource)
    */
   static void execute(DatabasePopulator populator, DataSource dataSource) throws DataAccessException {
-    Assert.notNull(populator, "DatabasePopulator must not be null");
-    Assert.notNull(dataSource, "DataSource must not be null");
+    Assert.notNull(populator, "DatabasePopulator is required");
+    Assert.notNull(dataSource, "DataSource is required");
     try {
       Connection connection = DataSourceUtils.getConnection(dataSource);
       try {
