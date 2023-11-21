@@ -55,7 +55,7 @@ public final class JettyHeadersAdapter implements MultiValueMap<String, String> 
    * @param headers the {@code HttpFields} to base this adapter on
    */
   public JettyHeadersAdapter(HttpFields headers) {
-    Assert.notNull(headers, "Headers must not be null");
+    Assert.notNull(headers, "Headers is required");
     this.headers = headers;
   }
 

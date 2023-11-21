@@ -43,7 +43,7 @@ class MultipartFileResource extends AbstractResource {
   private final MultipartFile multipartFile;
 
   public MultipartFileResource(MultipartFile multipartFile) {
-    Assert.notNull(multipartFile, "MultipartFile must not be null");
+    Assert.notNull(multipartFile, "MultipartFile is required");
     this.multipartFile = multipartFile;
   }
 

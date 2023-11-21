@@ -41,7 +41,7 @@ public class ClientHttpRequestFactoryWrapper implements ClientHttpRequestFactory
    * @param requestFactory the request factory to be wrapped
    */
   public ClientHttpRequestFactoryWrapper(ClientHttpRequestFactory requestFactory) {
-    Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
+    Assert.notNull(requestFactory, "ClientHttpRequestFactory is required");
     this.requestFactory = requestFactory;
   }
 

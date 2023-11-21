@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,7 +68,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   private Consumer<ClientHttpRequest> httpRequestConsumer;
 
   public DefaultClientRequestBuilder(ClientRequest other) {
-    Assert.notNull(other, "ClientRequest must not be null");
+    Assert.notNull(other, "ClientRequest is required");
     this.method = other.method();
     this.url = other.url();
     headers(headers -> headers.addAll(other.headers()));
@@ -82,22 +79,22 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
   }
 
   public DefaultClientRequestBuilder(HttpMethod method, URI url) {
-    Assert.notNull(method, "HttpMethod must not be null");
-    Assert.notNull(url, "URI must not be null");
+    Assert.notNull(method, "HttpMethod is required");
+    Assert.notNull(url, "URI is required");
     this.method = method;
     this.url = url;
   }
 
   @Override
   public ClientRequest.Builder method(HttpMethod method) {
-    Assert.notNull(method, "HttpMethod must not be null");
+    Assert.notNull(method, "HttpMethod is required");
     this.method = method;
     return this;
   }
 
   @Override
   public ClientRequest.Builder url(URI url) {
-    Assert.notNull(url, "URI must not be null");
+    Assert.notNull(url, "URI is required");
     this.url = url;
     return this;
   }

@@ -99,7 +99,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * {@linkplain #createRequest(URI, HttpMethod) synchronous execution}.
    */
   public void setHttpClient(HttpClient httpClient) {
-    Assert.notNull(httpClient, "HttpClient must not be null");
+    Assert.notNull(httpClient, "HttpClient is required");
     this.httpClient = httpClient;
   }
 
@@ -145,7 +145,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * @see SocketConfig#getSoTimeout
    */
   public void setConnectTimeout(Duration connectTimeout) {
-    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    Assert.notNull(connectTimeout, "ConnectTimeout is required");
     Assert.isTrue(!connectTimeout.isNegative(), "Timeout must be a non-negative value");
     this.connectTimeout = connectTimeout.toMillis();
   }
@@ -176,7 +176,7 @@ public class HttpComponentsClientHttpRequestFactory implements ClientHttpRequest
    * @see RequestConfig#getConnectionRequestTimeout()
    */
   public void setConnectionRequestTimeout(Duration connectionRequestTimeout) {
-    Assert.notNull(connectionRequestTimeout, "ConnectionRequestTimeout must not be null");
+    Assert.notNull(connectionRequestTimeout, "ConnectionRequestTimeout is required");
     Assert.isTrue(!connectionRequestTimeout.isNegative(), "Timeout must be a non-negative value");
     this.connectionRequestTimeout = connectionRequestTimeout.toMillis();
   }

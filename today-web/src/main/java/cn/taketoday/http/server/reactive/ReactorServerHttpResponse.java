@@ -57,7 +57,7 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
 
   public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
     super(bufferFactory, new DefaultHttpHeaders(new Netty4HeadersAdapter(response.responseHeaders())));
-    Assert.notNull(response, "HttpServerResponse must not be null");
+    Assert.notNull(response, "HttpServerResponse is required");
     this.response = response;
   }
 

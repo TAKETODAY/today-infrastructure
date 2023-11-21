@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,8 +121,8 @@ public class MockFilterChain implements FilterChain {
    */
   @Override
   public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(response, "Response must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(response, "Response is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
 
     if (this.iterator == null) {

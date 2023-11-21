@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -272,7 +269,7 @@ public class ResolvableMethod {
     private final List<Predicate<Method>> filters = new ArrayList<>(4);
 
     private Builder(Class<?> objectClass) {
-      Assert.notNull(objectClass, "Class must not be null");
+      Assert.notNull(objectClass, "Class is required");
       this.objectClass = objectClass;
     }
 
@@ -663,7 +660,7 @@ public class ResolvableMethod {
 
   @SuppressWarnings("unchecked")
   private static <T> T initProxy(Class<?> type, MethodInvocationInterceptor interceptor) {
-    Assert.notNull(type, "'type' must not be null");
+    Assert.notNull(type, "'type' is required");
     if (type.isInterface()) {
       ProxyFactory factory = new ProxyFactory(EmptyTargetSource.INSTANCE);
       factory.addInterface(type);

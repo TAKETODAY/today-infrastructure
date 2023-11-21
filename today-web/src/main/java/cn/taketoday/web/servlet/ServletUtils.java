@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -314,7 +311,7 @@ public abstract class ServletUtils {
    */
   @Nullable
   public static String getSessionId(HttpServletRequest request) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     HttpSession session = request.getSession(false);
     return (session != null ? session.getId() : null);
   }
@@ -331,7 +328,7 @@ public abstract class ServletUtils {
    */
   @Nullable
   public static Object getSessionAttribute(HttpServletRequest request, String name) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     HttpSession session = request.getSession(false);
     return session != null ? session.getAttribute(name) : null;
   }
@@ -366,7 +363,7 @@ public abstract class ServletUtils {
    * @since 4.0
    */
   public static void setSessionAttribute(HttpServletRequest request, String name, @Nullable Object value) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     if (value != null) {
       request.getSession().setAttribute(name, value);
     }
@@ -400,7 +397,7 @@ public abstract class ServletUtils {
    * @since 4.0
    */
   public static Object getSessionMutex(HttpSession session) {
-    Assert.notNull(session, "Session must not be null");
+    Assert.notNull(session, "Session is required");
     Object mutex = session.getAttribute(SESSION_MUTEX_ATTRIBUTE);
     if (mutex == null) {
       mutex = session;
@@ -424,7 +421,7 @@ public abstract class ServletUtils {
    * @since 4.0
    */
   public static boolean hasSubmitParameter(ServletRequest request, String name) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     if (request.getParameter(name) != null) {
       return true;
     }
@@ -472,7 +469,7 @@ public abstract class ServletUtils {
    */
   @Nullable
   public static Cookie getCookie(HttpServletRequest request, String name) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
@@ -500,7 +497,7 @@ public abstract class ServletUtils {
    * @see ServletRequest#getParameterMap
    */
   public static Map<String, Object> getParametersStartingWith(ServletRequest request, @Nullable String prefix) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     Enumeration<String> paramNames = request.getParameterNames();
     Map<String, Object> params = new TreeMap<>();
     while (paramNames != null && paramNames.hasMoreElements()) {
@@ -686,7 +683,7 @@ public abstract class ServletUtils {
    * @see #DEFAULT_WEB_APP_ROOT_KEY
    */
   public static void setWebAppRootSystemProperty(ServletContext servletContext) throws IllegalStateException {
-    Assert.notNull(servletContext, "ServletContext must not be null");
+    Assert.notNull(servletContext, "ServletContext is required");
     String root = servletContext.getRealPath("/");
     if (root == null) {
       throw new IllegalStateException(
@@ -713,7 +710,7 @@ public abstract class ServletUtils {
    * @see #setWebAppRootSystemProperty
    */
   public static void removeWebAppRootSystemProperty(ServletContext servletContext) {
-    Assert.notNull(servletContext, "ServletContext must not be null");
+    Assert.notNull(servletContext, "ServletContext is required");
     String param = servletContext.getInitParameter(WEB_APP_ROOT_KEY_PARAM);
     String key = (param != null ? param : DEFAULT_WEB_APP_ROOT_KEY);
     System.getProperties().remove(key);
@@ -772,7 +769,7 @@ public abstract class ServletUtils {
    * @return the File representing the temporary directory
    */
   public static File getTempDir(ServletContext servletContext) {
-    Assert.notNull(servletContext, "ServletContext must not be null");
+    Assert.notNull(servletContext, "ServletContext is required");
     return (File) servletContext.getAttribute(TEMP_DIR_CONTEXT_ATTRIBUTE);
   }
 
@@ -791,7 +788,7 @@ public abstract class ServletUtils {
    * @see ServletContext#getRealPath
    */
   public static String getRealPath(ServletContext servletContext, String path) throws FileNotFoundException {
-    Assert.notNull(servletContext, "ServletContext must not be null");
+    Assert.notNull(servletContext, "ServletContext is required");
     // Interpret location as relative to the web application root directory.
     if (!path.startsWith("/")) {
       path = "/" + path;

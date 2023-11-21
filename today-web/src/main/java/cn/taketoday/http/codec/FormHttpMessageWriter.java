@@ -86,7 +86,7 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
    * <p>By default this is set to "UTF-8".
    */
   public void setDefaultCharset(Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     this.defaultCharset = charset;
   }
 

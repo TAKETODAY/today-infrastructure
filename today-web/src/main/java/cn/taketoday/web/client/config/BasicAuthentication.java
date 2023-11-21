@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,8 +40,8 @@ class BasicAuthentication {
   private final Charset charset;
 
   BasicAuthentication(String username, String password, @Nullable Charset charset) {
-    Assert.notNull(username, "Username must not be null");
-    Assert.notNull(password, "Password must not be null");
+    Assert.notNull(username, "Username is required");
+    Assert.notNull(password, "Password is required");
     this.username = username;
     this.password = password;
     this.charset = charset;

@@ -114,7 +114,7 @@ class DefaultServerHttpRequestBuilder implements ServerHttpRequest.Builder {
 
   @Override
   public ServerHttpRequest.Builder headers(Consumer<HttpHeaders> headersConsumer) {
-    Assert.notNull(headersConsumer, "'headersConsumer' must not be null");
+    Assert.notNull(headersConsumer, "'headersConsumer' is required");
     headersConsumer.accept(this.headers);
     return this;
   }

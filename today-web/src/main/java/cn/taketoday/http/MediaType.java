@@ -573,7 +573,7 @@ public class MediaType extends MimeType implements Serializable {
    */
   @Override
   public boolean isMoreSpecific(MimeType other) {
-    Assert.notNull(other, "Other must not be null");
+    Assert.notNull(other, "Other is required");
     if (other instanceof MediaType otherMediaType) {
       double quality1 = getQualityValue();
       double quality2 = otherMediaType.getQualityValue();
@@ -617,7 +617,7 @@ public class MediaType extends MimeType implements Serializable {
    */
   @Override
   public boolean isLessSpecific(MimeType other) {
-    Assert.notNull(other, "Other must not be null");
+    Assert.notNull(other, "Other is required");
     return other.isMoreSpecific(this);
   }
 
@@ -655,7 +655,7 @@ public class MediaType extends MimeType implements Serializable {
    * Semantics and Content, section 5.3.2</a>
    */
   public static void sortBySpecificity(List<MediaType> mediaTypes) {
-    Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
+    Assert.notNull(mediaTypes, "'mediaTypes' is required");
     if (mediaTypes.size() > 1) {
       mediaTypes.sort(SPECIFICITY_COMPARATOR);
     }
@@ -688,7 +688,7 @@ public class MediaType extends MimeType implements Serializable {
    * @see #getQualityValue()
    */
   public static void sortByQualityValue(List<MediaType> mediaTypes) {
-    Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
+    Assert.notNull(mediaTypes, "'mediaTypes' is required");
     if (mediaTypes.size() > 1) {
       mediaTypes.sort(QUALITY_VALUE_COMPARATOR);
     }
@@ -702,7 +702,7 @@ public class MediaType extends MimeType implements Serializable {
    * @see MediaType#sortByQualityValue(List)
    */
   public static void sortBySpecificityAndQuality(List<MediaType> mediaTypes) {
-    Assert.notNull(mediaTypes, "'mediaTypes' must not be null");
+    Assert.notNull(mediaTypes, "'mediaTypes' is required");
     if (mediaTypes.size() > 1) {
       mediaTypes.sort(MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
     }

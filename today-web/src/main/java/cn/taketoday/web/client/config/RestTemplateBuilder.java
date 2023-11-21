@@ -106,7 +106,7 @@ public class RestTemplateBuilder {
    * should be applied when the {@link RestTemplate} is built
    */
   public RestTemplateBuilder(RestTemplateCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     this.requestFactorySettings = ClientHttpRequestFactorySettings.DEFAULTS;
     this.detectRequestFactory = true;
     this.rootUri = null;
@@ -187,7 +187,7 @@ public class RestTemplateBuilder {
    * @see #additionalMessageConverters(HttpMessageConverter...)
    */
   public RestTemplateBuilder messageConverters(HttpMessageConverter<?>... messageConverters) {
-    Assert.notNull(messageConverters, "MessageConverters must not be null");
+    Assert.notNull(messageConverters, "MessageConverters is required");
     return messageConverters(Arrays.asList(messageConverters));
   }
 
@@ -202,7 +202,7 @@ public class RestTemplateBuilder {
    * @see #additionalMessageConverters(HttpMessageConverter...)
    */
   public RestTemplateBuilder messageConverters(Collection<? extends HttpMessageConverter<?>> messageConverters) {
-    Assert.notNull(messageConverters, "MessageConverters must not be null");
+    Assert.notNull(messageConverters, "MessageConverters is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             copiedSetOf(messageConverters), interceptors, requestFactory, uriTemplateHandler,
             errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
@@ -218,7 +218,7 @@ public class RestTemplateBuilder {
    * @see #messageConverters(HttpMessageConverter...)
    */
   public RestTemplateBuilder additionalMessageConverters(HttpMessageConverter<?>... messageConverters) {
-    Assert.notNull(messageConverters, "MessageConverters must not be null");
+    Assert.notNull(messageConverters, "MessageConverters is required");
     return additionalMessageConverters(Arrays.asList(messageConverters));
   }
 
@@ -233,7 +233,7 @@ public class RestTemplateBuilder {
    */
   public RestTemplateBuilder additionalMessageConverters(
           Collection<? extends HttpMessageConverter<?>> messageConverters) {
-    Assert.notNull(messageConverters, "MessageConverters must not be null");
+    Assert.notNull(messageConverters, "MessageConverters is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             append(this.messageConverters, messageConverters), interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
@@ -265,7 +265,7 @@ public class RestTemplateBuilder {
    * @see #additionalInterceptors(ClientHttpRequestInterceptor...)
    */
   public RestTemplateBuilder interceptors(ClientHttpRequestInterceptor... interceptors) {
-    Assert.notNull(interceptors, "interceptors must not be null");
+    Assert.notNull(interceptors, "interceptors is required");
     return interceptors(Arrays.asList(interceptors));
   }
 
@@ -279,7 +279,7 @@ public class RestTemplateBuilder {
    * @see #additionalInterceptors(ClientHttpRequestInterceptor...)
    */
   public RestTemplateBuilder interceptors(Collection<ClientHttpRequestInterceptor> interceptors) {
-    Assert.notNull(interceptors, "interceptors must not be null");
+    Assert.notNull(interceptors, "interceptors is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, copiedSetOf(interceptors), requestFactory, uriTemplateHandler,
             errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
@@ -294,7 +294,7 @@ public class RestTemplateBuilder {
    * @see #interceptors(ClientHttpRequestInterceptor...)
    */
   public RestTemplateBuilder additionalInterceptors(ClientHttpRequestInterceptor... interceptors) {
-    Assert.notNull(interceptors, "interceptors must not be null");
+    Assert.notNull(interceptors, "interceptors is required");
     return additionalInterceptors(Arrays.asList(interceptors));
   }
 
@@ -307,7 +307,7 @@ public class RestTemplateBuilder {
    * @see #interceptors(ClientHttpRequestInterceptor...)
    */
   public RestTemplateBuilder additionalInterceptors(Collection<? extends ClientHttpRequestInterceptor> interceptors) {
-    Assert.notNull(interceptors, "interceptors must not be null");
+    Assert.notNull(interceptors, "interceptors is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, append(this.interceptors, interceptors), requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication, defaultHeaders,
@@ -347,9 +347,8 @@ public class RestTemplateBuilder {
    * @return a new builder instance
    * @see ClientHttpRequestFactories
    */
-  public RestTemplateBuilder requestFactory(
-          Function<ClientHttpRequestFactorySettings, ClientHttpRequestFactory> requestFactoryFunction) {
-    Assert.notNull(requestFactoryFunction, "RequestFactoryFunction must not be null");
+  public RestTemplateBuilder requestFactory(Function<ClientHttpRequestFactorySettings, ClientHttpRequestFactory> requestFactoryFunction) {
+    Assert.notNull(requestFactoryFunction, "RequestFactoryFunction is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactoryFunction, uriTemplateHandler,
             errorHandler, basicAuthentication, defaultHeaders, customizers,
@@ -364,7 +363,7 @@ public class RestTemplateBuilder {
    * @return a new builder instance
    */
   public RestTemplateBuilder uriTemplateHandler(UriTemplateHandler uriTemplateHandler) {
-    Assert.notNull(uriTemplateHandler, "UriTemplateHandler must not be null");
+    Assert.notNull(uriTemplateHandler, "UriTemplateHandler is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler, errorHandler,
             basicAuthentication, defaultHeaders, customizers, requestCustomizers);
@@ -378,7 +377,7 @@ public class RestTemplateBuilder {
    * @return a new builder instance
    */
   public RestTemplateBuilder errorHandler(ResponseErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ErrorHandler must not be null");
+    Assert.notNull(errorHandler, "ErrorHandler is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler, errorHandler,
             basicAuthentication, defaultHeaders, customizers, requestCustomizers);
@@ -422,8 +421,8 @@ public class RestTemplateBuilder {
    * @return a new builder instance
    */
   public RestTemplateBuilder defaultHeader(String name, String... values) {
-    Assert.notNull(name, "Name must not be null");
-    Assert.notNull(values, "Values must not be null");
+    Assert.notNull(name, "Name is required");
+    Assert.notNull(values, "Values is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
             errorHandler, basicAuthentication, append(defaultHeaders, name, values),
@@ -465,8 +464,7 @@ public class RestTemplateBuilder {
   public RestTemplateBuilder setSslBundle(SslBundle sslBundle) {
     return new RestTemplateBuilder(requestFactorySettings.withSslBundle(sslBundle), detectRequestFactory,
             rootUri, messageConverters, interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, customizers,
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, customizers, requestCustomizers);
   }
 
   /**
@@ -480,7 +478,7 @@ public class RestTemplateBuilder {
    * @see #additionalCustomizers(RestTemplateCustomizer...)
    */
   public RestTemplateBuilder customizers(RestTemplateCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return customizers(Arrays.asList(customizers));
   }
 
@@ -495,11 +493,10 @@ public class RestTemplateBuilder {
    * @see #additionalCustomizers(RestTemplateCustomizer...)
    */
   public RestTemplateBuilder customizers(Collection<? extends RestTemplateCustomizer> customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, copiedSetOf(customizers),
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, copiedSetOf(customizers), requestCustomizers);
   }
 
   /**
@@ -512,7 +509,7 @@ public class RestTemplateBuilder {
    * @see #customizers(RestTemplateCustomizer...)
    */
   public RestTemplateBuilder additionalCustomizers(RestTemplateCustomizer... customizers) {
-    Assert.notNull(customizers, "Customizers must not be null");
+    Assert.notNull(customizers, "Customizers is required");
     return additionalCustomizers(Arrays.asList(customizers));
   }
 
@@ -526,11 +523,10 @@ public class RestTemplateBuilder {
    * @see #customizers(RestTemplateCustomizer...)
    */
   public RestTemplateBuilder additionalCustomizers(Collection<? extends RestTemplateCustomizer> customizers) {
-    Assert.notNull(customizers, "RestTemplateCustomizers must not be null");
+    Assert.notNull(customizers, "RestTemplateCustomizers is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
-            errorHandler, basicAuthentication, defaultHeaders, append(this.customizers, customizers),
-            requestCustomizers);
+            errorHandler, basicAuthentication, defaultHeaders, append(this.customizers, customizers), requestCustomizers);
   }
 
   /**
@@ -544,7 +540,7 @@ public class RestTemplateBuilder {
    * @see #additionalRequestCustomizers(RestTemplateRequestCustomizer...)
    */
   public RestTemplateBuilder requestCustomizers(RestTemplateRequestCustomizer<?>... requestCustomizers) {
-    Assert.notNull(requestCustomizers, "RequestCustomizers must not be null");
+    Assert.notNull(requestCustomizers, "RequestCustomizers is required");
     return requestCustomizers(Arrays.asList(requestCustomizers));
   }
 
@@ -558,9 +554,8 @@ public class RestTemplateBuilder {
    * @return a new builder instance
    * @see #additionalRequestCustomizers(RestTemplateRequestCustomizer...)
    */
-  public RestTemplateBuilder requestCustomizers(
-          Collection<? extends RestTemplateRequestCustomizer<?>> requestCustomizers) {
-    Assert.notNull(requestCustomizers, "RequestCustomizers must not be null");
+  public RestTemplateBuilder requestCustomizers(Collection<? extends RestTemplateRequestCustomizer<?>> requestCustomizers) {
+    Assert.notNull(requestCustomizers, "RequestCustomizers is required");
     return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory, uriTemplateHandler,
             errorHandler, basicAuthentication, defaultHeaders, customizers,
@@ -577,7 +572,7 @@ public class RestTemplateBuilder {
    * @see #requestCustomizers(RestTemplateRequestCustomizer...)
    */
   public RestTemplateBuilder additionalRequestCustomizers(RestTemplateRequestCustomizer<?>... requestCustomizers) {
-    Assert.notNull(requestCustomizers, "RequestCustomizers must not be null");
+    Assert.notNull(requestCustomizers, "RequestCustomizers is required");
     return additionalRequestCustomizers(Arrays.asList(requestCustomizers));
   }
 
@@ -592,9 +587,8 @@ public class RestTemplateBuilder {
    */
   public RestTemplateBuilder additionalRequestCustomizers(
           Collection<? extends RestTemplateRequestCustomizer<?>> requestCustomizers) {
-    Assert.notNull(requestCustomizers, "RequestCustomizers must not be null");
-    return new RestTemplateBuilder(
-            requestFactorySettings, detectRequestFactory, rootUri,
+    Assert.notNull(requestCustomizers, "RequestCustomizers is required");
+    return new RestTemplateBuilder(requestFactorySettings, detectRequestFactory, rootUri,
             messageConverters, interceptors, requestFactory,
             uriTemplateHandler, errorHandler, basicAuthentication,
             defaultHeaders, customizers, append(this.requestCustomizers, requestCustomizers));

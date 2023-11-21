@@ -71,7 +71,7 @@ public interface FormPartEvent extends PartEvent {
    */
   static Mono<FormPartEvent> create(String name, String value, @Nullable Consumer<HttpHeaders> headersConsumer) {
     Assert.hasLength(name, "Name must not be empty");
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(value, "Value is required");
 
     return Mono.fromCallable(() -> {
       HttpHeaders headers = HttpHeaders.create();

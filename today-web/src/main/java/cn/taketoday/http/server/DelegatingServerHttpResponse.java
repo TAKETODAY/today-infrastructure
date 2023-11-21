@@ -44,7 +44,7 @@ public class DelegatingServerHttpResponse implements ServerHttpResponse {
    * @param delegate the response to delegate to
    */
   public DelegatingServerHttpResponse(ServerHttpResponse delegate) {
-    Assert.notNull(delegate, "Delegate must not be null");
+    Assert.notNull(delegate, "Delegate is required");
     this.delegate = delegate;
   }
 

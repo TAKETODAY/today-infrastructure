@@ -126,7 +126,7 @@ public class BufferedImageHttpMessageConverter implements HttpMessageConverter<B
    * this converter will cache image data.
    */
   public void setCacheDir(File cacheDir) {
-    Assert.notNull(cacheDir, "'cacheDir' must not be null");
+    Assert.notNull(cacheDir, "'cacheDir' is required");
     if (!cacheDir.isDirectory()) {
       throw new IllegalArgumentException("'cacheDir' is not a directory: " + cacheDir);
     }

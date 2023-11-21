@@ -58,7 +58,7 @@ class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse impleme
 
   public ReactorNetty2ServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
     super(bufferFactory, HttpHeaders.from(new Netty5HeadersAdapter(response.responseHeaders())));
-    Assert.notNull(response, "HttpServerResponse must not be null");
+    Assert.notNull(response, "HttpServerResponse is required");
     this.response = response;
   }
 

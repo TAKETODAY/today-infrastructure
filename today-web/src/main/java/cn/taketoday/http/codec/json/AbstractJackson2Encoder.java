@@ -145,9 +145,9 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
   public Flux<DataBuffer> encode(Publisher<?> inputStream, DataBufferFactory bufferFactory,
           ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
-    Assert.notNull(inputStream, "'inputStream' must not be null");
-    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
-    Assert.notNull(elementType, "'elementType' must not be null");
+    Assert.notNull(inputStream, "'inputStream' is required");
+    Assert.notNull(bufferFactory, "'bufferFactory' is required");
+    Assert.notNull(elementType, "'elementType' is required");
 
     return Flux.deferContextual(contextView -> {
 

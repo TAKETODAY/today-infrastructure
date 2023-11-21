@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +60,7 @@ public interface ExchangeFilterFunction {
    * @return the composed filter
    */
   default ExchangeFilterFunction andThen(ExchangeFilterFunction afterFilter) {
-    Assert.notNull(afterFilter, "ExchangeFilterFunction must not be null");
+    Assert.notNull(afterFilter, "ExchangeFilterFunction is required");
     return (request, next) ->
             filter(request, afterRequest -> afterFilter.filter(afterRequest, next));
   }
@@ -76,7 +73,7 @@ public interface ExchangeFilterFunction {
    * @return the filtered exchange function
    */
   default ExchangeFunction apply(ExchangeFunction exchange) {
-    Assert.notNull(exchange, "ExchangeFunction must not be null");
+    Assert.notNull(exchange, "ExchangeFunction is required");
     return request -> this.filter(request, exchange);
   }
 
@@ -88,7 +85,7 @@ public interface ExchangeFilterFunction {
    * @return the resulting filter adapter
    */
   static ExchangeFilterFunction ofRequestProcessor(Function<ClientRequest, Mono<ClientRequest>> processor) {
-    Assert.notNull(processor, "ClientRequest Function must not be null");
+    Assert.notNull(processor, "ClientRequest Function is required");
     return (request, next) -> processor.apply(request).flatMap(next::exchange);
   }
 
@@ -100,7 +97,7 @@ public interface ExchangeFilterFunction {
    * @return the resulting filter adapter
    */
   static ExchangeFilterFunction ofResponseProcessor(Function<ClientResponse, Mono<ClientResponse>> processor) {
-    Assert.notNull(processor, "ClientResponse Function must not be null");
+    Assert.notNull(processor, "ClientResponse Function is required");
     return (request, next) -> next.exchange(request).flatMap(processor);
   }
 

@@ -71,7 +71,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
   private String servletPath;
 
   public ServletHttpHandlerAdapter(HttpHandler httpHandler) {
-    Assert.notNull(httpHandler, "HttpHandler must not be null");
+    Assert.notNull(httpHandler, "HttpHandler is required");
     this.httpHandler = httpHandler;
   }
 
@@ -105,7 +105,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
   }
 
   public void setDataBufferFactory(DataBufferFactory dataBufferFactory) {
-    Assert.notNull(dataBufferFactory, "DataBufferFactory must not be null");
+    Assert.notNull(dataBufferFactory, "DataBufferFactory is required");
     this.dataBufferFactory = dataBufferFactory;
   }
 

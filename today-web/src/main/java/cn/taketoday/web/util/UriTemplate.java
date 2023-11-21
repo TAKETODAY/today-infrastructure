@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +67,7 @@ public class UriTemplate implements Serializable {
    * @param uriTemplate the URI template string
    */
   public UriTemplate(String uriTemplate) {
-    Assert.hasText(uriTemplate, "'uriTemplate' must not be null");
+    Assert.hasText(uriTemplate, "'uriTemplate' is required");
     this.uriTemplate = uriTemplate;
     this.uriComponents = UriComponentsBuilder.fromUriString(uriTemplate).build();
 
@@ -161,7 +158,7 @@ public class UriTemplate implements Serializable {
    * @return a map of variable values
    */
   public Map<String, String> match(String uri) {
-    Assert.notNull(uri, "'uri' must not be null");
+    Assert.notNull(uri, "'uri' is required");
     Map<String, String> result = CollectionUtils.newLinkedHashMap(this.variableNames.size());
     Matcher matcher = this.matchPattern.matcher(uri);
     if (matcher.find()) {

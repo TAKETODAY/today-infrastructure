@@ -49,12 +49,12 @@ public class UndertowHttpHandlerAdapter implements io.undertow.server.HttpHandle
   private DataBufferFactory bufferFactory = DefaultDataBufferFactory.sharedInstance;
 
   public UndertowHttpHandlerAdapter(HttpHandler httpHandler) {
-    Assert.notNull(httpHandler, "HttpHandler must not be null");
+    Assert.notNull(httpHandler, "HttpHandler is required");
     this.httpHandler = httpHandler;
   }
 
   public void setDataBufferFactory(DataBufferFactory bufferFactory) {
-    Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
+    Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.bufferFactory = bufferFactory;
   }
 

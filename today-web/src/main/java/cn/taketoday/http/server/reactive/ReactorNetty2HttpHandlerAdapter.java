@@ -49,7 +49,7 @@ public class ReactorNetty2HttpHandlerAdapter implements BiFunction<HttpServerReq
   private final HttpHandler httpHandler;
 
   public ReactorNetty2HttpHandlerAdapter(HttpHandler httpHandler) {
-    Assert.notNull(httpHandler, "HttpHandler must not be null");
+    Assert.notNull(httpHandler, "HttpHandler is required");
     this.httpHandler = httpHandler;
   }
 

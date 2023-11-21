@@ -89,7 +89,7 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
    * @see URLConnection#setConnectTimeout(int)
    */
   public void setConnectTimeout(Duration connectTimeout) {
-    Assert.notNull(connectTimeout, "ConnectTimeout must not be null");
+    Assert.notNull(connectTimeout, "ConnectTimeout is required");
     this.connectTimeout = (int) connectTimeout.toMillis();
   }
 
@@ -112,7 +112,7 @@ public class SimpleClientHttpRequestFactory implements ClientHttpRequestFactory 
    * @see URLConnection#setReadTimeout(int)
    */
   public void setReadTimeout(Duration readTimeout) {
-    Assert.notNull(readTimeout, "ReadTimeout must not be null");
+    Assert.notNull(readTimeout, "ReadTimeout is required");
     this.readTimeout = (int) readTimeout.toMillis();
   }
 

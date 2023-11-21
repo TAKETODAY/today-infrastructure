@@ -70,7 +70,7 @@ public class MarshallingHttpMessageConverter extends AbstractXmlHttpMessageConve
    * @param marshaller object used as marshaller and unmarshaller
    */
   public MarshallingHttpMessageConverter(Marshaller marshaller) {
-    Assert.notNull(marshaller, "Marshaller must not be null");
+    Assert.notNull(marshaller, "Marshaller is required");
     this.marshaller = marshaller;
     // The following pattern variable cannot be named "unmarshaller" due to lacking
     // support in Checkstyle: https://github.com/checkstyle/checkstyle/issues/10969
@@ -87,8 +87,8 @@ public class MarshallingHttpMessageConverter extends AbstractXmlHttpMessageConve
    * @param unmarshaller the Unmarshaller to use
    */
   public MarshallingHttpMessageConverter(Marshaller marshaller, Unmarshaller unmarshaller) {
-    Assert.notNull(marshaller, "Marshaller must not be null");
-    Assert.notNull(unmarshaller, "Unmarshaller must not be null");
+    Assert.notNull(marshaller, "Marshaller is required");
+    Assert.notNull(unmarshaller, "Unmarshaller is required");
     this.marshaller = marshaller;
     this.unmarshaller = unmarshaller;
   }

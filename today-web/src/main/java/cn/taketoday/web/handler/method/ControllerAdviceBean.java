@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,7 +90,7 @@ public class ControllerAdviceBean implements Ordered {
    * @param bean the bean instance
    */
   public ControllerAdviceBean(Object bean) {
-    Assert.notNull(bean, "Bean must not be null");
+    Assert.notNull(bean, "Bean is required");
     this.beanOrName = bean;
     this.isSingleton = true;
     this.resolvedBean = bean;
@@ -128,7 +125,7 @@ public class ControllerAdviceBean implements Ordered {
   public ControllerAdviceBean(
           String beanName, BeanFactory beanFactory, @Nullable ControllerAdvice controllerAdvice) {
     Assert.hasText(beanName, "Bean name must contain text");
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     if (!beanFactory.containsBean(beanName)) {
       throw new IllegalArgumentException(
               "BeanFactory [" + beanFactory + "] does not contain specified controller advice bean '" + beanName + "'");

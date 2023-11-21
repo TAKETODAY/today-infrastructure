@@ -98,11 +98,14 @@ import cn.taketoday.web.util.UriTemplateHandler;
  * @since 4.0
  */
 public class RestTemplate extends InterceptingHttpAccessor implements RestOperations {
+
   private static final boolean gsonPresent = isPresent("com.google.gson.Gson");
   private static final boolean jsonbPresent = isPresent("jakarta.json.bind.Jsonb");
   private static final boolean romePresent = isPresent("com.rometools.rome.feed.WireFeed");
+
   private static final boolean jackson2Present = isPresent("com.fasterxml.jackson.databind.ObjectMapper")
           && isPresent("com.fasterxml.jackson.core.JsonGenerator");
+
   private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
   private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
@@ -442,17 +445,13 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   // PUT
 
   @Override
-  public void put(String url, @Nullable Object request, Object... uriVariables)
-          throws RestClientException {
-
+  public void put(String url, @Nullable Object request, Object... uriVariables) throws RestClientException {
     RequestCallback requestCallback = httpEntityCallback(request);
     execute(url, HttpMethod.PUT, requestCallback, null, uriVariables);
   }
 
   @Override
-  public void put(String url, @Nullable Object request, Map<String, ?> uriVariables)
-          throws RestClientException {
-
+  public void put(String url, @Nullable Object request, Map<String, ?> uriVariables) throws RestClientException {
     RequestCallback requestCallback = httpEntityCallback(request);
     execute(url, HttpMethod.PUT, requestCallback, null, uriVariables);
   }
@@ -681,8 +680,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
    */
   @Override
   @Nullable
-  public <T> T execute(URI url, HttpMethod method,
-          @Nullable RequestCallback requestCallback, @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
+  public <T> T execute(URI url, HttpMethod method, @Nullable RequestCallback requestCallback,
+          @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
     return doExecute(url, method, requestCallback, responseExtractor);
   }
 

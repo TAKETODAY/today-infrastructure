@@ -36,7 +36,7 @@ import reactor.netty.http.server.HttpServerRequest;
 abstract class ReactorUriHelper {
 
   public static URI createUri(HttpServerRequest request) throws URISyntaxException {
-    Assert.notNull(request, "HttpServerRequest must not be null");
+    Assert.notNull(request, "HttpServerRequest is required");
 
     StringBuilder builder = new StringBuilder();
     String scheme = request.scheme();

@@ -27,6 +27,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.client.ClientHttpRequest;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
@@ -50,10 +51,11 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public abstract class HttpAccessor {
+
   /** Logger available to subclasses. */
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private ClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+  private ClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
 
   private final ArrayList<ClientHttpRequestInitializer> httpRequestInitializers = new ArrayList<>();
 
@@ -69,7 +71,7 @@ public abstract class HttpAccessor {
    * @see cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory
    */
   public void setRequestFactory(ClientHttpRequestFactory requestFactory) {
-    Assert.notNull(requestFactory, "ClientHttpRequestFactory must not be null");
+    Assert.notNull(requestFactory, "ClientHttpRequestFactory is required");
     this.requestFactory = requestFactory;
   }
 

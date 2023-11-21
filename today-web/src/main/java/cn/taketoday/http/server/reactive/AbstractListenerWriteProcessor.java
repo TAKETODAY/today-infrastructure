@@ -343,7 +343,7 @@ public abstract class AbstractListenerWriteProcessor<T> implements Processor<T, 
     UNSUBSCRIBED {
       @Override
       public <T> void onSubscribe(AbstractListenerWriteProcessor<T> processor, Subscription subscription) {
-        Assert.notNull(subscription, "Subscription must not be null");
+        Assert.notNull(subscription, "Subscription is required");
         if (processor.changeState(this, REQUESTED)) {
           processor.subscription = subscription;
           subscription.request(1);

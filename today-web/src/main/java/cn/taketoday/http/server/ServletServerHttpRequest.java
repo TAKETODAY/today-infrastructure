@@ -78,7 +78,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
    * @param servletRequest the servlet request
    */
   public ServletServerHttpRequest(HttpServletRequest servletRequest) {
-    Assert.notNull(servletRequest, "HttpServletRequest must not be null");
+    Assert.notNull(servletRequest, "HttpServletRequest is required");
     this.servletRequest = servletRequest;
     this.method = HttpMethod.valueOf(servletRequest.getMethod());
   }

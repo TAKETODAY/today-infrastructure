@@ -379,7 +379,7 @@ public class MvcUriComponentsBuilder {
    * @param controllerType the target controller
    */
   public static <T> T controller(Class<T> controllerType) {
-    Assert.notNull(controllerType, "'controllerType' must not be null");
+    Assert.notNull(controllerType, "'controllerType' is required");
     return ControllerMethodInvocationInterceptor.initProxy(controllerType, null);
   }
 
@@ -569,7 +569,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static String getClassMapping(Class<?> controllerType) {
-    Assert.notNull(controllerType, "'controllerType' must not be null");
+    Assert.notNull(controllerType, "'controllerType' is required");
     RequestMapping mapping = AnnotatedElementUtils.findMergedAnnotation(controllerType, RequestMapping.class);
     if (mapping == null) {
       return "/";
@@ -585,7 +585,7 @@ public class MvcUriComponentsBuilder {
   }
 
   private static String getMethodMapping(Method method) {
-    Assert.notNull(method, "'method' must not be null");
+    Assert.notNull(method, "'method' is required");
     RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(method, RequestMapping.class);
     if (requestMapping == null) {
       throw new IllegalArgumentException("No @RequestMapping on: " + method.toGenericString());

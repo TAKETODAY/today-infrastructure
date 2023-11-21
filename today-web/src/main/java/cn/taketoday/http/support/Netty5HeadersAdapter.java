@@ -51,7 +51,7 @@ public final class Netty5HeadersAdapter implements MultiValueMap<String, String>
    * {@code HttpHeaders}.
    */
   public Netty5HeadersAdapter(HttpHeaders headers) {
-    Assert.notNull(headers, "Headers must not be null");
+    Assert.notNull(headers, "Headers is required");
     this.headers = headers;
   }
 

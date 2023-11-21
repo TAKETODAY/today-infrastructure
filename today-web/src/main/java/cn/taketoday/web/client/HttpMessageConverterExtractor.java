@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +71,7 @@ public class HttpMessageConverterExtractor<T> implements ResponseExtractor<T> {
   @SuppressWarnings("unchecked")
   public HttpMessageConverterExtractor(
           Type responseType, List<HttpMessageConverter<?>> messageConverters, Logger logger) {
-    Assert.notNull(responseType, "'responseType' must not be null");
+    Assert.notNull(responseType, "'responseType' is required");
     Assert.notEmpty(messageConverters, "'messageConverters' must not be empty");
     Assert.noNullElements(messageConverters, "'messageConverters' must not contain null elements");
     this.logger = logger;

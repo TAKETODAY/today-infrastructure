@@ -300,8 +300,8 @@ public abstract class AbstractListenerReadPublisher<T> implements Publisher<T> {
     UNSUBSCRIBED {
       @Override
       <T> void subscribe(AbstractListenerReadPublisher<T> publisher, Subscriber<? super T> subscriber) {
-        Assert.notNull(publisher, "Publisher must not be null");
-        Assert.notNull(subscriber, "Subscriber must not be null");
+        Assert.notNull(publisher, "Publisher is required");
+        Assert.notNull(subscriber, "Subscriber is required");
         if (publisher.changeState(this, SUBSCRIBING)) {
           Subscription subscription = publisher.createSubscription();
           publisher.subscriber = subscriber;

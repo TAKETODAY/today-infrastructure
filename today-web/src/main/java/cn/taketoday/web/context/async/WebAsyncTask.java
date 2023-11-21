@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +58,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
    * @param callable the callable for concurrent handling
    */
   public WebAsyncTask(Callable<V> callable) {
-    Assert.notNull(callable, "Callable must not be null");
+    Assert.notNull(callable, "Callable is required");
     this.callable = callable;
   }
 
@@ -85,7 +82,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
    */
   public WebAsyncTask(@Nullable Long timeout, String executorName, Callable<V> callable) {
     this(callable);
-    Assert.notNull(executorName, "Executor name must not be null");
+    Assert.notNull(executorName, "Executor name is required");
     this.executorName = executorName;
     this.timeout = timeout;
   }
@@ -99,7 +96,7 @@ public class WebAsyncTask<V> implements BeanFactoryAware {
    */
   public WebAsyncTask(@Nullable Long timeout, AsyncTaskExecutor executor, Callable<V> callable) {
     this(callable);
-    Assert.notNull(executor, "Executor must not be null");
+    Assert.notNull(executor, "Executor is required");
     this.executor = executor;
     this.timeout = timeout;
   }

@@ -217,7 +217,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return the new {@code UriComponentsBuilder}
    */
   public static UriComponentsBuilder fromUriString(String uri) {
-    Assert.notNull(uri, "URI must not be null");
+    Assert.notNull(uri, "URI is required");
     Matcher matcher = URI_PATTERN.matcher(uri);
     if (matcher.matches()) {
       UriComponentsBuilder builder = new UriComponentsBuilder();
@@ -281,7 +281,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return the URI components of the URI
    */
   public static UriComponentsBuilder fromHttpUrl(String httpUrl) {
-    Assert.notNull(httpUrl, "HTTP URL must not be null");
+    Assert.notNull(httpUrl, "HTTP URL is required");
     Matcher matcher = HTTP_URL_PATTERN.matcher(httpUrl);
     if (matcher.matches()) {
       UriComponentsBuilder builder = new UriComponentsBuilder();
@@ -495,7 +495,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return this UriComponentsBuilder
    */
   public UriComponentsBuilder uri(URI uri) {
-    Assert.notNull(uri, "URI must not be null");
+    Assert.notNull(uri, "URI is required");
     this.scheme = uri.getScheme();
     if (uri.isOpaque()) {
       this.ssp = uri.getRawSchemeSpecificPart();
@@ -538,7 +538,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return this UriComponentsBuilder
    */
   public UriComponentsBuilder uriComponents(UriComponents uriComponents) {
-    Assert.notNull(uriComponents, "UriComponents must not be null");
+    Assert.notNull(uriComponents, "UriComponents is required");
     uriComponents.copyToUriComponentsBuilder(this);
     return this;
   }
@@ -653,7 +653,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   @Override
   public UriComponentsBuilder queryParam(String name, Object... values) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     if (ObjectUtils.isNotEmpty(values)) {
       for (Object value : values) {
         String valueAsString = getQueryParamValue(value);
@@ -709,7 +709,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   @Override
   public UriComponentsBuilder replaceQueryParam(String name, Object... values) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     this.queryParams.remove(name);
     if (ObjectUtils.isNotEmpty(values)) {
       queryParam(name, values);

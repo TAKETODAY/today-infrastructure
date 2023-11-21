@@ -135,17 +135,17 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport
   }
 
   public void addHandlers(ReturnValueHandler... handlers) {
-    Assert.notNull(handlers, "handler must not be null");
+    Assert.notNull(handlers, "handler is required");
     Collections.addAll(this.handlers, handlers);
   }
 
   public void addHandlers(List<ReturnValueHandler> handlers) {
-    Assert.notNull(handlers, "handler must not be null");
+    Assert.notNull(handlers, "handler is required");
     this.handlers.addAll(handlers);
   }
 
   public void setHandlers(List<ReturnValueHandler> handlers) {
-    Assert.notNull(handlers, "handler must not be null");
+    Assert.notNull(handlers, "handler is required");
     this.handlers.clear();
     this.handlers.addAll(handlers);
   }
@@ -163,7 +163,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport
 
   @Nullable
   public ReturnValueHandler getHandler(final Object handler) {
-    Assert.notNull(handler, "handler must not be null");
+    Assert.notNull(handler, "handler is required");
     for (ReturnValueHandler resolver : getHandlers()) {
       if (resolver.supportsHandler(handler)) {
         return resolver;
@@ -442,7 +442,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport
   }
 
   public void setImageFormatName(String imageFormatName) {
-    Assert.notNull(imageFormatName, "imageFormatName must not be null");
+    Assert.notNull(imageFormatName, "imageFormatName is required");
     this.imageFormatName = imageFormatName;
   }
 

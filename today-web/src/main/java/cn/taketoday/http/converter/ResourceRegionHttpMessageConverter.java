@@ -138,7 +138,7 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
   }
 
   protected void writeResourceRegion(ResourceRegion region, HttpOutputMessage outputMessage) throws IOException {
-    Assert.notNull(region, "ResourceRegion must not be null");
+    Assert.notNull(region, "ResourceRegion is required");
     HttpHeaders responseHeaders = outputMessage.getHeaders();
 
     long start = region.getPosition();

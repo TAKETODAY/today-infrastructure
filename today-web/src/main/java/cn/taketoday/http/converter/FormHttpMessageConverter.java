@@ -194,7 +194,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * @see #getSupportedMediaTypes()
    */
   public void setSupportedMediaTypes(List<MediaType> supportedMediaTypes) {
-    Assert.notNull(supportedMediaTypes, "'supportedMediaTypes' must not be null");
+    Assert.notNull(supportedMediaTypes, "'supportedMediaTypes' is required");
     // Ensure internal list is mutable.
     this.supportedMediaTypes = new ArrayList<>(supportedMediaTypes);
   }
@@ -208,7 +208,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * @see #setSupportedMediaTypes(List)
    */
   public void addSupportedMediaTypes(MediaType... supportedMediaTypes) {
-    Assert.notNull(supportedMediaTypes, "'supportedMediaTypes' must not be null");
+    Assert.notNull(supportedMediaTypes, "'supportedMediaTypes' is required");
     Assert.noNullElements(supportedMediaTypes, "'supportedMediaTypes' must not contain null elements");
     Collections.addAll(this.supportedMediaTypes, supportedMediaTypes);
   }
@@ -246,7 +246,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * to MIME parts.
    */
   public void addPartConverter(HttpMessageConverter<?> partConverter) {
-    Assert.notNull(partConverter, "'partConverter' must not be null");
+    Assert.notNull(partConverter, "'partConverter' is required");
     this.partConverters.add(partConverter);
   }
 

@@ -51,7 +51,7 @@ class ControllerAdviceBeanTests {
   public void constructorPreconditions() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new ControllerAdviceBean(null))
-            .withMessage("Bean must not be null");
+            .withMessage("Bean is required");
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new ControllerAdviceBean((String) null, null))
@@ -67,7 +67,7 @@ class ControllerAdviceBeanTests {
 
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new ControllerAdviceBean("myBean", null))
-            .withMessage("BeanFactory must not be null");
+            .withMessage("BeanFactory is required");
   }
 
   @Test

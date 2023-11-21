@@ -136,8 +136,8 @@ public class JettyClientHttpConnector implements ClientHttpConnector {
     private final AtomicInteger refCount = new AtomicInteger(1);
 
     public JettyDataBuffer(DataBuffer delegate, Content.Chunk chunk) {
-      Assert.notNull(delegate, "Delegate must not be null");
-      Assert.notNull(chunk, "Chunk must not be null");
+      Assert.notNull(delegate, "Delegate is required");
+      Assert.notNull(chunk, "Chunk is required");
 
       this.delegate = delegate;
       this.chunk = chunk;
@@ -371,8 +371,8 @@ public class JettyClientHttpConnector implements ClientHttpConnector {
       private final Content.Chunk chunk;
 
       public JettyByteBufferIterator(ByteBufferIterator delegate, Content.Chunk chunk) {
-        Assert.notNull(delegate, "Delegate must not be null");
-        Assert.notNull(chunk, "Chunk must not be null");
+        Assert.notNull(delegate, "Delegate is required");
+        Assert.notNull(chunk, "Chunk is required");
 
         this.delegate = delegate;
         this.chunk = chunk;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,7 +94,7 @@ public abstract class AbstractHttpServer implements HttpServer {
 
   @Override
   public final void afterPropertiesSet() throws Exception {
-    Assert.notNull(this.host, "Host must not be null");
+    Assert.notNull(this.host, "Host is required");
     Assert.isTrue(this.port >= 0, "Port must not be a negative number");
     Assert.isTrue(this.httpHandler != null || this.handlerMap != null, "No HttpHandler configured");
     Assert.state(!this.running, "Cannot reconfigure while running");

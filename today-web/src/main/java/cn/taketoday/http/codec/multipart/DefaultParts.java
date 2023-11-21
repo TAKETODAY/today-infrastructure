@@ -52,8 +52,8 @@ abstract class DefaultParts {
    * @return the created part
    */
   public static FormFieldPart formFieldPart(HttpHeaders headers, String value) {
-    Assert.notNull(headers, "Headers must not be null");
-    Assert.notNull(value, "Value must not be null");
+    Assert.notNull(headers, "Headers is required");
+    Assert.notNull(value, "Value is required");
 
     return new DefaultFormFieldPart(headers, value);
   }
@@ -68,8 +68,8 @@ abstract class DefaultParts {
    * @return {@link Part} or {@link FilePart}, depending on {@link HttpHeaders#getContentDisposition()}
    */
   public static Part part(HttpHeaders headers, Flux<DataBuffer> dataBuffers) {
-    Assert.notNull(headers, "Headers must not be null");
-    Assert.notNull(dataBuffers, "DataBuffers must not be null");
+    Assert.notNull(headers, "Headers is required");
+    Assert.notNull(dataBuffers, "DataBuffers is required");
 
     return partInternal(headers, new FluxContent(dataBuffers));
   }
@@ -85,9 +85,9 @@ abstract class DefaultParts {
    * @return {@link Part} or {@link FilePart}, depending on {@link HttpHeaders#getContentDisposition()}
    */
   public static Part part(HttpHeaders headers, Path file, Scheduler scheduler) {
-    Assert.notNull(headers, "Headers must not be null");
-    Assert.notNull(file, "File must not be null");
-    Assert.notNull(scheduler, "Scheduler must not be null");
+    Assert.notNull(headers, "Headers is required");
+    Assert.notNull(file, "File is required");
+    Assert.notNull(scheduler, "Scheduler is required");
 
     return partInternal(headers, new FileContent(file, scheduler));
   }

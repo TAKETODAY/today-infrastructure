@@ -78,8 +78,8 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   }
 
   public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory, HttpHeaders headers) {
-    Assert.notNull(dataBufferFactory, "DataBufferFactory must not be null");
-    Assert.notNull(headers, "HttpHeaders must not be null");
+    Assert.notNull(dataBufferFactory, "DataBufferFactory is required");
+    Assert.notNull(headers, "HttpHeaders is required");
     this.headers = headers;
     this.dataBufferFactory = dataBufferFactory;
     this.cookies = MultiValueMap.forLinkedHashMap();
@@ -146,7 +146,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
 
   @Override
   public void addCookie(ResponseCookie cookie) {
-    Assert.notNull(cookie, "ResponseCookie must not be null");
+    Assert.notNull(cookie, "ResponseCookie is required");
 
     if (this.state.get() == State.COMMITTED) {
       throw new IllegalStateException(

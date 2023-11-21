@@ -192,7 +192,7 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
    * @see <a href="https://tools.ietf.org/html/rfc7578#section-5.1">RFC-7578 Section 5.1</a>
    */
   public void setHeadersCharset(Charset headersCharset) {
-    Assert.notNull(headersCharset, "HeadersCharset must not be null");
+    Assert.notNull(headersCharset, "HeadersCharset is required");
     this.headersCharset = headersCharset;
   }
 

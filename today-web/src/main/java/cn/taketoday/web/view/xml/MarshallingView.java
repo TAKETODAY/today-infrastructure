@@ -71,7 +71,7 @@ public class MarshallingView extends AbstractView {
    */
   public MarshallingView(Marshaller marshaller) {
     this();
-    Assert.notNull(marshaller, "Marshaller must not be null");
+    Assert.notNull(marshaller, "Marshaller is required");
     this.marshaller = marshaller;
   }
 

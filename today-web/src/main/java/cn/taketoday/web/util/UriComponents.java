@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,7 +157,7 @@ public abstract class UriComponents implements Serializable {
    * @return the expanded URI components
    */
   public final UriComponents expand(Map<String, ?> uriVariables) {
-    Assert.notNull(uriVariables, "'uriVariables' must not be null");
+    Assert.notNull(uriVariables, "'uriVariables' is required");
     return expandInternal(new MapTemplateVariables(uriVariables));
   }
 
@@ -172,7 +169,7 @@ public abstract class UriComponents implements Serializable {
    * @return the expanded URI components
    */
   public final UriComponents expand(Object... uriVariableValues) {
-    Assert.notNull(uriVariableValues, "'uriVariableValues' must not be null");
+    Assert.notNull(uriVariableValues, "'uriVariableValues' is required");
     return expandInternal(new VarArgsTemplateVariables(uriVariableValues));
   }
 
@@ -184,7 +181,7 @@ public abstract class UriComponents implements Serializable {
    * @return the expanded URI components
    */
   public final UriComponents expand(UriTemplateVariables uriVariables) {
-    Assert.notNull(uriVariables, "'uriVariables' must not be null");
+    Assert.notNull(uriVariables, "'uriVariables' is required");
     return expandInternal(uriVariables);
   }
 

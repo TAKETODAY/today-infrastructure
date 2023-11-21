@@ -130,7 +130,7 @@ public interface FilePartEvent extends PartEvent {
    */
   static Flux<FilePartEvent> create(String name, Path path, @Nullable Consumer<HttpHeaders> headersConsumer) {
     Assert.hasLength(name, "Name must not be empty");
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
 
     return Flux.defer(() -> {
       String pathName = path.toString();
@@ -180,8 +180,8 @@ public interface FilePartEvent extends PartEvent {
 
     Assert.hasLength(partName, "PartName must not be empty");
     Assert.hasLength(filename, "Filename must not be empty");
-    Assert.notNull(contentType, "ContentType must not be null");
-    Assert.notNull(contents, "Contents must not be null");
+    Assert.notNull(contentType, "ContentType is required");
+    Assert.notNull(contents, "Contents is required");
 
     return Flux.defer(() -> {
       HttpHeaders headers = HttpHeaders.create();

@@ -101,7 +101,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
    * @param extensionRegistry a message extension registry
    */
   public ProtobufDecoder(ExtensionRegistry extensionRegistry) {
-    Assert.notNull(extensionRegistry, "ExtensionRegistry must not be null");
+    Assert.notNull(extensionRegistry, "ExtensionRegistry is required");
     this.extensionRegistry = extensionRegistry;
   }
 

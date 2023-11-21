@@ -63,7 +63,7 @@ public class CorsFilter extends OncePerRequestFilter implements ApplicationConte
    * to find the {@link CorsConfiguration} to use for each incoming request.
    */
   public CorsFilter(CorsConfigurationSource configSource) {
-    Assert.notNull(configSource, "CorsConfigurationSource must not be null");
+    Assert.notNull(configSource, "CorsConfigurationSource is required");
     this.configSource = configSource;
   }
 
@@ -73,7 +73,7 @@ public class CorsFilter extends OncePerRequestFilter implements ApplicationConte
    * <p>By default {@link DefaultCorsProcessor} is used.
    */
   public void setCorsProcessor(CorsProcessor processor) {
-    Assert.notNull(processor, "CorsProcessor must not be null");
+    Assert.notNull(processor, "CorsProcessor is required");
     this.processor = processor;
   }
 

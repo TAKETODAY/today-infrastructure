@@ -65,7 +65,7 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
           NettyDataBufferFactory bufferFactory) throws URISyntaxException {
     super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), "",
             new Netty4HeadersAdapter(request.requestHeaders()));
-    Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
+    Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.request = request;
     this.bufferFactory = bufferFactory;
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +65,7 @@ public class BeanFactoryHandlerInstantiator extends HandlerInstantiator {
    * @param beanFactory the target BeanFactory
    */
   public BeanFactoryHandlerInstantiator(AutowireCapableBeanFactory beanFactory) {
-    Assert.notNull(beanFactory, "BeanFactory must not be null");
+    Assert.notNull(beanFactory, "BeanFactory is required");
     this.beanFactory = beanFactory;
   }
 

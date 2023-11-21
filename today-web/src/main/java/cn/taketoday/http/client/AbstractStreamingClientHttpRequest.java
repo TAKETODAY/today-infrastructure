@@ -59,7 +59,7 @@ abstract class AbstractStreamingClientHttpRequest
 
   @Override
   public final void setBody(Body body) {
-    Assert.notNull(body, "Body must not be null");
+    Assert.notNull(body, "Body is required");
     assertNotExecuted();
     Assert.state(this.bodyStream == null, "Invoke either getBody or setBody; not both");
 

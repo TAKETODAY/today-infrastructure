@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -106,7 +103,7 @@ public class MockCookie extends Cookie {
    */
   @SuppressWarnings("removal")
   public static MockCookie parse(String setCookieHeader) {
-    Assert.notNull(setCookieHeader, "Set-Cookie header must not be null");
+    Assert.notNull(setCookieHeader, "Set-Cookie header is required");
     String[] cookieParts = setCookieHeader.split("\\s*=\\s*", 2);
     Assert.isTrue(cookieParts.length == 2, () -> "Invalid Set-Cookie header '" + setCookieHeader + "'");
 

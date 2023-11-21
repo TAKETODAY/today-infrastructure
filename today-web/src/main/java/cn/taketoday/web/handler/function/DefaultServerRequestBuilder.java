@@ -313,8 +313,8 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException {
-      Assert.notNull(bindType, "BindType must not be null");
-      Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer must not be null");
+      Assert.notNull(bindType, "BindType is required");
+      Assert.notNull(dataBinderCustomizer, "DataBinderCustomizer is required");
 
       WebDataBinder dataBinder = new WebDataBinder(null);
       dataBinder.setTargetType(ResolvableType.forClass(bindType));

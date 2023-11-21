@@ -106,9 +106,9 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   public AbstractServerHttpRequest(HttpMethod method, URI uri, @Nullable String contextPath,
           MultiValueMap<String, String> headers) {
 
-    Assert.notNull(method, "Method must not be null");
-    Assert.notNull(uri, "Uri must not be null");
-    Assert.notNull(headers, "Headers must not be null");
+    Assert.notNull(method, "Method is required");
+    Assert.notNull(uri, "Uri is required");
+    Assert.notNull(headers, "Headers is required");
 
     this.method = method;
     this.uri = uri;

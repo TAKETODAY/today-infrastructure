@@ -75,8 +75,8 @@ public abstract class ExchangeFilterFunctions {
   public static ExchangeFilterFunction statusError(Predicate<HttpStatusCode> statusPredicate,
       Function<ClientResponse, ? extends Throwable> exceptionFunction) {
 
-    Assert.notNull(statusPredicate, "Predicate must not be null");
-    Assert.notNull(exceptionFunction, "Function must not be null");
+    Assert.notNull(statusPredicate, "Predicate is required");
+    Assert.notNull(exceptionFunction, "Function is required");
 
     return ExchangeFilterFunction.ofResponseProcessor(
         response -> (statusPredicate.test(response.statusCode()) ?

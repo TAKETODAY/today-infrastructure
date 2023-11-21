@@ -80,8 +80,8 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     super(bufferFactory, headers);
 
-    Assert.notNull(response, "HttpServletResponse must not be null");
-    Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
+    Assert.notNull(response, "HttpServletResponse is required");
+    Assert.notNull(bufferFactory, "DataBufferFactory is required");
     Assert.isTrue(bufferSize > 0, "Buffer size must be greater than 0");
 
     this.response = response;

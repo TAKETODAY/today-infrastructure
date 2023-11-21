@@ -154,7 +154,7 @@ class WriteResultPublisher implements Publisher<Void> {
     UNSUBSCRIBED {
       @Override
       void subscribe(WriteResultPublisher publisher, Subscriber<? super Void> subscriber) {
-        Assert.notNull(subscriber, "Subscriber must not be null");
+        Assert.notNull(subscriber, "Subscriber is required");
         if (publisher.changeState(this, SUBSCRIBING)) {
           WriteResultSubscription subscription = new WriteResultSubscription(publisher);
           publisher.subscriber = subscriber;

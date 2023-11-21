@@ -85,7 +85,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
     super(initUri(request), request.getContextPath() + servletPath, initHeaders(headers, request));
 
-    Assert.notNull(bufferFactory, "'bufferFactory' must not be null");
+    Assert.notNull(bufferFactory, "'bufferFactory' is required");
     Assert.isTrue(bufferSize > 0, "'bufferSize' must be higher than 0");
 
     this.request = request;
@@ -110,7 +110,7 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private static URI initUri(HttpServletRequest request) throws URISyntaxException {
-    Assert.notNull(request, "'request' must not be null");
+    Assert.notNull(request, "'request' is required");
     StringBuffer url = request.getRequestURL();
     String query = request.getQueryString();
     if (StringUtils.hasText(query)) {

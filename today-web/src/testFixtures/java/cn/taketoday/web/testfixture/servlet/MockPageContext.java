@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -146,7 +143,7 @@ public class MockPageContext extends PageContext {
 
   @Override
   public void setAttribute(String name, @Nullable Object value) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     if (value != null) {
       this.attributes.put(name, value);
     }
@@ -157,7 +154,7 @@ public class MockPageContext extends PageContext {
 
   @Override
   public void setAttribute(String name, @Nullable Object value, int scope) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     switch (scope) {
       case PageContext.PAGE_SCOPE -> setAttribute(name, value);
       case PageContext.REQUEST_SCOPE -> this.request.setAttribute(name, value);
@@ -170,14 +167,14 @@ public class MockPageContext extends PageContext {
   @Override
   @Nullable
   public Object getAttribute(String name) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     return this.attributes.get(name);
   }
 
   @Override
   @Nullable
   public Object getAttribute(String name, int scope) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     return switch (scope) {
       case PageContext.PAGE_SCOPE -> getAttribute(name);
       case PageContext.REQUEST_SCOPE -> this.request.getAttribute(name);
@@ -208,7 +205,7 @@ public class MockPageContext extends PageContext {
 
   @Override
   public void removeAttribute(String name) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     this.removeAttribute(name, PageContext.PAGE_SCOPE);
     this.removeAttribute(name, PageContext.REQUEST_SCOPE);
     this.removeAttribute(name, PageContext.SESSION_SCOPE);
@@ -217,7 +214,7 @@ public class MockPageContext extends PageContext {
 
   @Override
   public void removeAttribute(String name, int scope) {
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     switch (scope) {
       case PageContext.PAGE_SCOPE -> this.attributes.remove(name);
       case PageContext.REQUEST_SCOPE -> this.request.removeAttribute(name);

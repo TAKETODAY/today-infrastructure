@@ -129,7 +129,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   public DefaultRestClientBuilder(DefaultRestClientBuilder other) {
-    Assert.notNull(other, "Other must not be null");
+    Assert.notNull(other, "Other is required");
 
     this.baseUrl = other.baseUrl;
     this.defaultUriVariables = (other.defaultUriVariables != null ?
@@ -155,7 +155,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   }
 
   public DefaultRestClientBuilder(RestTemplate restTemplate) {
-    Assert.notNull(restTemplate, "RestTemplate must not be null");
+    Assert.notNull(restTemplate, "RestTemplate is required");
 
     if (restTemplate.getUriTemplateHandler() instanceof UriBuilderFactory builderFactory) {
       this.uriBuilderFactory = builderFactory;
@@ -238,7 +238,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   @Override
   public RestClient.Builder requestInterceptor(ClientHttpRequestInterceptor interceptor) {
-    Assert.notNull(interceptor, "Interceptor must not be null");
+    Assert.notNull(interceptor, "Interceptor is required");
     initInterceptors().add(interceptor);
     return this;
   }
@@ -258,7 +258,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   @Override
   public RestClient.Builder requestInitializer(ClientHttpRequestInitializer initializer) {
-    Assert.notNull(initializer, "Initializer must not be null");
+    Assert.notNull(initializer, "Initializer is required");
     initInitializers().add(initializer);
     return this;
   }

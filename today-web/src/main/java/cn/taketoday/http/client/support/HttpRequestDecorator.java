@@ -47,7 +47,7 @@ public class HttpRequestDecorator implements HttpRequest {
    * @param request the request object to be wrapped
    */
   public HttpRequestDecorator(HttpRequest request) {
-    Assert.notNull(request, "HttpRequest must not be null");
+    Assert.notNull(request, "HttpRequest is required");
     this.request = request;
   }
 

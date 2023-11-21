@@ -74,7 +74,7 @@ public class MultipartWriterSupport extends LoggingCodecSupport {
    * the character set used.
    */
   public void setCharset(Charset charset) {
-    Assert.notNull(charset, "Charset must not be null");
+    Assert.notNull(charset, "Charset is required");
     this.charset = charset;
   }
 

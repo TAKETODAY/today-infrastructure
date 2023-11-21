@@ -109,7 +109,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    * If not set, the default constructor is used.
    */
   public void setContentNegotiationManager(ContentNegotiationManager contentNegotiationManager) {
-    Assert.notNull(contentNegotiationManager, "ContentNegotiationManager must not be null");
+    Assert.notNull(contentNegotiationManager, "ContentNegotiationManager is required");
     this.contentNegotiationManager = contentNegotiationManager;
     config.setContentNegotiationManager(contentNegotiationManager);
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +85,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   private HttpRequest request;
 
   DefaultClientResponseBuilder(ExchangeStrategies strategies) {
-    Assert.notNull(strategies, "ExchangeStrategies must not be null");
+    Assert.notNull(strategies, "ExchangeStrategies is required");
     this.strategies = strategies;
     this.headers = HttpHeaders.create();
     this.cookies = new LinkedMultiValueMap<>();
@@ -96,7 +93,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   }
 
   DefaultClientResponseBuilder(ClientResponse other, boolean mutate) {
-    Assert.notNull(other, "ClientResponse must not be null");
+    Assert.notNull(other, "ClientResponse is required");
     this.strategies = other.strategies();
     this.statusCode = other.statusCode();
     if (mutate) {
@@ -113,7 +110,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
   @Override
   public DefaultClientResponseBuilder statusCode(HttpStatusCode statusCode) {
-    Assert.notNull(statusCode, "StatusCode must not be null");
+    Assert.notNull(statusCode, "StatusCode is required");
     this.statusCode = statusCode;
     return this;
   }
@@ -175,7 +172,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
   @Override
   public ClientResponse.Builder body(Flux<DataBuffer> body) {
-    Assert.notNull(body, "Body must not be null");
+    Assert.notNull(body, "Body is required");
     releaseBody();
     this.body = body;
     return this;
@@ -183,7 +180,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
   @Override
   public ClientResponse.Builder body(String body) {
-    Assert.notNull(body, "Body must not be null");
+    Assert.notNull(body, "Body is required");
     releaseBody();
     this.body = Flux.just(body).
             map(s -> {
@@ -199,7 +196,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
 
   @Override
   public ClientResponse.Builder request(HttpRequest request) {
-    Assert.notNull(request, "Request must not be null");
+    Assert.notNull(request, "Request is required");
     this.request = request;
     return this;
   }

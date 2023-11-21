@@ -75,7 +75,7 @@ public class JdkClientHttpRequestFactory implements ClientHttpRequestFactory {
    */
   public JdkClientHttpRequestFactory(HttpClient httpClient, Executor executor) {
     Assert.notNull(httpClient, "HttpClient is required");
-    Assert.notNull(executor, "Executor must not be null");
+    Assert.notNull(executor, "Executor is required");
     this.httpClient = httpClient;
     this.executor = executor;
   }

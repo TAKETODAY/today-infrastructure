@@ -562,8 +562,8 @@ public final class ContentDisposition {
    * @see <a href="https://tools.ietf.org/html/rfc2047">RFC 2047</a>
    */
   private static String encodeQuotedPrintableFilename(String filename, Charset charset) {
-    Assert.notNull(filename, "'filename' must not be null");
-    Assert.notNull(charset, "'charset' must not be null");
+    Assert.notNull(filename, "'filename' is required");
+    Assert.notNull(charset, "'charset' is required");
 
     byte[] source = filename.getBytes(charset);
     StringBuilder sb = new StringBuilder(source.length << 1);

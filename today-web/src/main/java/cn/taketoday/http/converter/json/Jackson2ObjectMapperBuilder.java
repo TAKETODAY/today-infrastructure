@@ -714,7 +714,7 @@ public class Jackson2ObjectMapperBuilder {
    * @param objectMapper the ObjectMapper to configure
    */
   public void configure(ObjectMapper objectMapper) {
-    Assert.notNull(objectMapper, "ObjectMapper must not be null");
+    Assert.notNull(objectMapper, "ObjectMapper is required");
     DefaultMultiValueMap<Object, Module> modulesToRegister = MultiValueMap.forLinkedHashMap();
     if (this.findModulesViaServiceLoader) {
       for (Module module : ObjectMapper.findModules(this.moduleClassLoader)) {

@@ -66,13 +66,13 @@ class ReactorNetty2ServerHttpRequest extends AbstractServerHttpRequest {
           throws URISyntaxException {
 
     super(initUri(request), "", new Netty5HeadersAdapter(request.requestHeaders()));
-    Assert.notNull(bufferFactory, "DataBufferFactory must not be null");
+    Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.request = request;
     this.bufferFactory = bufferFactory;
   }
 
   private static URI initUri(HttpServerRequest request) throws URISyntaxException {
-    Assert.notNull(request, "HttpServerRequest must not be null");
+    Assert.notNull(request, "HttpServerRequest is required");
     return new URI(resolveBaseUrl(request) + resolveRequestUri(request));
   }
 

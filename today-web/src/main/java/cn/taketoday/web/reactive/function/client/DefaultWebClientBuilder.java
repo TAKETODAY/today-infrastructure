@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,7 +108,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   }
 
   public DefaultWebClientBuilder(DefaultWebClientBuilder other) {
-    Assert.notNull(other, "DefaultWebClientBuilder must not be null");
+    Assert.notNull(other, "DefaultWebClientBuilder is required");
 
     this.baseUrl = other.baseUrl;
     this.defaultUriVariables = (other.defaultUriVariables != null ?
@@ -217,7 +214,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   @Override
   public WebClient.Builder filter(ExchangeFilterFunction filter) {
-    Assert.notNull(filter, "ExchangeFilterFunction must not be null");
+    Assert.notNull(filter, "ExchangeFilterFunction is required");
     initFilters().add(filter);
     return this;
   }

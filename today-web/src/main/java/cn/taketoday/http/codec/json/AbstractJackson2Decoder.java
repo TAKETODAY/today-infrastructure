@@ -222,7 +222,7 @@ public abstract class AbstractJackson2Decoder
 
   private ObjectReader createObjectReader(ObjectMapper mapper,
           ResolvableType elementType, @Nullable Map<String, Object> hints) {
-    Assert.notNull(elementType, "'elementType' must not be null");
+    Assert.notNull(elementType, "'elementType' is required");
     Class<?> contextClass = getContextClass(elementType);
     if (contextClass == null && hints != null) {
       contextClass = getContextClass((ResolvableType) hints.get(ACTUAL_TYPE_HINT));

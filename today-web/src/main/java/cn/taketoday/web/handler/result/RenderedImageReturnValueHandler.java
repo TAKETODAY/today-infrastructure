@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,7 +67,7 @@ public class RenderedImageReturnValueHandler implements HandlerMethodReturnValue
   }
 
   public void setFormatName(String formatName) {
-    Assert.notNull(formatName, "formatName must not be null");
+    Assert.notNull(formatName, "formatName is required");
     this.formatName = formatName;
   }
 
@@ -84,7 +81,7 @@ public class RenderedImageReturnValueHandler implements HandlerMethodReturnValue
    * @param contentType response content-type
    */
   public void setContentType(String contentType) {
-    Assert.notNull(contentType, "contentType must not be null");
+    Assert.notNull(contentType, "contentType is required");
     this.contentType = contentType;
   }
 
@@ -94,7 +91,7 @@ public class RenderedImageReturnValueHandler implements HandlerMethodReturnValue
    * @param contentType response content-type
    */
   public void setContentType(MediaType contentType) {
-    Assert.notNull(contentType, "contentType must not be null");
+    Assert.notNull(contentType, "contentType is required");
     this.contentType = contentType.toString();
   }
 

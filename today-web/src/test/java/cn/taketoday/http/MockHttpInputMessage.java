@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,12 +36,12 @@ public class MockHttpInputMessage implements HttpInputMessage {
   private final InputStream body;
 
   public MockHttpInputMessage(byte[] contents) {
-    Assert.notNull(contents, "'contents' must not be null");
+    Assert.notNull(contents, "'contents' is required");
     this.body = new ByteArrayInputStream(contents);
   }
 
   public MockHttpInputMessage(InputStream body) {
-    Assert.notNull(body, "'body' must not be null");
+    Assert.notNull(body, "'body' is required");
     this.body = body;
   }
 

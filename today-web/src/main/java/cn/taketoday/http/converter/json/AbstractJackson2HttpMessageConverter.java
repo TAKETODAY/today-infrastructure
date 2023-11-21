@@ -136,7 +136,7 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
    * @see #registerObjectMappersForType(Class, Consumer)
    */
   public void setObjectMapper(ObjectMapper objectMapper) {
-    Assert.notNull(objectMapper, "ObjectMapper must not be null");
+    Assert.notNull(objectMapper, "ObjectMapper is required");
     this.defaultObjectMapper = objectMapper;
     configurePrettyPrint();
   }

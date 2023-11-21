@@ -579,7 +579,7 @@ public abstract class HttpHeaders
    * {@literal Accept-Language} header.
    */
   public void setAcceptLanguage(Collection<Locale.LanguageRange> languages) {
-    Assert.notNull(languages, "LanguageRange List must not be null");
+    Assert.notNull(languages, "LanguageRange List is required");
 
     List<String> values = languages.stream().map(range -> {
       if (range.getWeight() == Locale.LanguageRange.MAX_WEIGHT) {
@@ -1008,7 +1008,7 @@ public abstract class HttpHeaders
    * @see #getContentDisposition()
    */
   public void setContentDispositionFormData(String name, @Nullable String filename) {
-    Assert.notNull(name, "Name must not be null");
+    Assert.notNull(name, "Name is required");
     ContentDisposition.Builder disposition = ContentDisposition.builder("form-data").name(name);
     if (filename != null) {
       disposition.filename(filename);
@@ -1923,9 +1923,9 @@ public abstract class HttpHeaders
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
   public static String encodeBasicAuth(String username, String password, @Nullable Charset charset) {
-    Assert.notNull(username, "Username must not be null");
+    Assert.notNull(username, "Username is required");
     Assert.doesNotContain(username, ":", "Username must not contain a colon");
-    Assert.notNull(password, "Password must not be null");
+    Assert.notNull(password, "Password is required");
     if (charset == null) {
       charset = StandardCharsets.ISO_8859_1;
     }
@@ -1993,7 +1993,7 @@ public abstract class HttpHeaders
    * @since 4.0
    */
   public static HttpHeaders readOnlyHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders must not be null");
+    Assert.notNull(headers, "HttpHeaders is required");
     if (headers instanceof ReadOnlyHttpHeaders) {
       return headers;
     }
@@ -2012,7 +2012,7 @@ public abstract class HttpHeaders
    * @since 4.0
    */
   public static HttpHeaders writableHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders must not be null");
+    Assert.notNull(headers, "HttpHeaders is required");
     if (headers instanceof ReadOnlyHttpHeaders readOnly) {
       return new DefaultHttpHeaders(readOnly.headers);
     }

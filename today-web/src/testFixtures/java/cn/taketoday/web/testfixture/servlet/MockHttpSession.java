@@ -148,7 +148,7 @@ public class MockHttpSession implements HttpSession {
   @Override
   public Object getAttribute(String name) {
     assertIsValid();
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     return this.attributes.get(name);
   }
 
@@ -161,7 +161,7 @@ public class MockHttpSession implements HttpSession {
   @Override
   public void setAttribute(String name, @Nullable Object value) {
     assertIsValid();
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     if (value != null) {
       Object oldValue = this.attributes.put(name, value);
       if (value != oldValue) {
@@ -181,7 +181,7 @@ public class MockHttpSession implements HttpSession {
   @Override
   public void removeAttribute(String name) {
     assertIsValid();
-    Assert.notNull(name, "Attribute name must not be null");
+    Assert.notNull(name, "Attribute name is required");
     Object value = this.attributes.remove(name);
     if (value instanceof HttpSessionBindingListener listener) {
       listener.valueUnbound(new HttpSessionBindingEvent(this, name, value));

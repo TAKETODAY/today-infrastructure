@@ -57,7 +57,7 @@ public class TomcatHttpServer extends AbstractHttpServer {
   }
 
   public TomcatHttpServer(String baseDir, Class<?> wsListener) {
-    Assert.notNull(baseDir, "Base dir must not be null");
+    Assert.notNull(baseDir, "Base dir is required");
     this.baseDir = baseDir;
     this.wsListener = wsListener;
   }

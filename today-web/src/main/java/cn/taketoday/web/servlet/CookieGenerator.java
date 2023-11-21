@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,7 +170,7 @@ public class CookieGenerator {
    * @see ResponseCookie.ResponseCookieBuilder#sameSite(String)
    */
   public void setCookieSameSite(String cookieSameSite) {
-    Assert.notNull(cookieSameSite, "cookieSameSite must not be null");
+    Assert.notNull(cookieSameSite, "cookieSameSite is required");
     this.cookieSameSite = cookieSameSite;
   }
 
@@ -226,7 +223,7 @@ public class CookieGenerator {
    * @see #setCookiePath
    */
   public void removeCookie(RequestContext response) {
-    Assert.notNull(response, "RequestContext must not be null");
+    Assert.notNull(response, "RequestContext is required");
     ResponseCookieBuilder cookie = createCookie("");
     cookie.maxAge(0);
 

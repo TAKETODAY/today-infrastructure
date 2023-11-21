@@ -60,7 +60,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
    * @param servletResponse the servlet response
    */
   public ServletServerHttpResponse(HttpServletResponse servletResponse) {
-    Assert.notNull(servletResponse, "HttpServletResponse must not be null");
+    Assert.notNull(servletResponse, "HttpServletResponse is required");
     this.servletResponse = servletResponse;
     this.headers = new ServletResponseHttpHeaders();
   }
@@ -74,7 +74,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
 
   @Override
   public void setStatusCode(HttpStatusCode status) {
-    Assert.notNull(status, "HttpStatus must not be null");
+    Assert.notNull(status, "HttpStatus is required");
     this.servletResponse.setStatus(status.value());
   }
 

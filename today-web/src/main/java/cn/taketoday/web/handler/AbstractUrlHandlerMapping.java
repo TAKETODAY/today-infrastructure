@@ -216,7 +216,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @since 4.0
    */
   protected void registerHandler(String[] urlPaths, String beanName) throws BeansException, IllegalStateException {
-    Assert.notNull(urlPaths, "URL path array must not be null");
+    Assert.notNull(urlPaths, "URL path array is required");
     for (String urlPath : urlPaths) {
       registerHandler(urlPath, beanName);
     }
@@ -232,8 +232,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    * @throws IllegalStateException if there is a conflicting handler registered
    */
   public void registerHandler(String urlPath, Object handler) throws BeansException, IllegalStateException {
-    Assert.notNull(urlPath, "URL path must not be null");
-    Assert.notNull(handler, "Handler object must not be null");
+    Assert.notNull(urlPath, "URL path is required");
+    Assert.notNull(handler, "Handler object is required");
     Object resolvedHandler = handler;
 
     // Eagerly resolve handler if referencing singleton via name.

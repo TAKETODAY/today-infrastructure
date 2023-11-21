@@ -87,8 +87,8 @@ public class HttpComponentsClientHttpConnector implements ClientHttpConnector, C
    */
   public HttpComponentsClientHttpConnector(CloseableHttpAsyncClient client,
           BiFunction<HttpMethod, URI, ? extends HttpClientContext> contextProvider) {
-    Assert.notNull(client, "Client must not be null");
-    Assert.notNull(contextProvider, "ContextProvider must not be null");
+    Assert.notNull(client, "Client is required");
+    Assert.notNull(contextProvider, "ContextProvider is required");
     this.client = client;
     this.contextProvider = contextProvider;
     this.client.start();

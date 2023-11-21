@@ -94,7 +94,7 @@ public abstract class AbstractJackson2View extends AbstractView {
    * By default, {@linkplain JsonEncoding#UTF8 UTF-8} is used.
    */
   public void setEncoding(JsonEncoding encoding) {
-    Assert.notNull(encoding, "'encoding' must not be null");
+    Assert.notNull(encoding, "'encoding' is required");
     this.encoding = encoding;
   }
 

@@ -66,7 +66,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   }
 
   public AbstractClientHttpRequest(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders must not be null");
+    Assert.notNull(headers, "HttpHeaders is required");
     this.headers = headers;
     this.cookies = MultiValueMap.forLinkedHashMap();
   }
@@ -104,7 +104,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
 
   @Override
   public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-    Assert.notNull(action, "Action must not be null");
+    Assert.notNull(action, "Action is required");
     this.commitActions.add(action);
   }
 

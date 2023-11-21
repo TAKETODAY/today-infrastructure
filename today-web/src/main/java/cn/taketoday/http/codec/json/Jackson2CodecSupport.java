@@ -101,7 +101,7 @@ public abstract class Jackson2CodecSupport {
    * Constructor with a Jackson {@link ObjectMapper} to use.
    */
   protected Jackson2CodecSupport(ObjectMapper objectMapper, MimeType... mimeTypes) {
-    Assert.notNull(objectMapper, "ObjectMapper must not be null");
+    Assert.notNull(objectMapper, "ObjectMapper is required");
     this.defaultObjectMapper = objectMapper;
     this.mimeTypes = ObjectUtils.isNotEmpty(mimeTypes) ? List.of(mimeTypes) : defaultMimeTypes;
   }
@@ -112,7 +112,7 @@ public abstract class Jackson2CodecSupport {
    * @param objectMapper the ObjectMapper instance
    */
   public void setObjectMapper(ObjectMapper objectMapper) {
-    Assert.notNull(objectMapper, "ObjectMapper must not be null");
+    Assert.notNull(objectMapper, "ObjectMapper is required");
     this.defaultObjectMapper = objectMapper;
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,14 +47,14 @@ public class MockRequestDispatcher implements RequestDispatcher {
    * particular path or given by a particular name
    */
   public MockRequestDispatcher(String resource) {
-    Assert.notNull(resource, "Resource must not be null");
+    Assert.notNull(resource, "Resource is required");
     this.resource = resource;
   }
 
   @Override
   public void forward(ServletRequest request, ServletResponse response) {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(response, "Response must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(response, "Response is required");
     Assert.state(!response.isCommitted(), "Cannot perform forward - response is already committed");
     getMockHttpServletResponse(response).setForwardedUrl(this.resource);
     if (logger.isDebugEnabled()) {
@@ -67,8 +64,8 @@ public class MockRequestDispatcher implements RequestDispatcher {
 
   @Override
   public void include(ServletRequest request, ServletResponse response) {
-    Assert.notNull(request, "Request must not be null");
-    Assert.notNull(response, "Response must not be null");
+    Assert.notNull(request, "Request is required");
+    Assert.notNull(response, "Response is required");
     getMockHttpServletResponse(response).addIncludedUrl(this.resource);
     if (logger.isDebugEnabled()) {
       logger.debug("MockRequestDispatcher: including [" + this.resource + "]");

@@ -59,7 +59,7 @@ public abstract class AbstractEncoderTests<E extends Encoder<?>> extends Abstrac
    * @param encoder the encoder
    */
   protected AbstractEncoderTests(E encoder) {
-    Assert.notNull(encoder, "Encoder must not be null");
+    Assert.notNull(encoder, "Encoder is required");
     this.encoder = encoder;
   }
 

@@ -119,7 +119,7 @@ public abstract class ClientHttpRequestFactories {
   @SuppressWarnings("unchecked")
   public static <T extends ClientHttpRequestFactory> T get(Class<T> requestFactoryType,
           ClientHttpRequestFactorySettings settings) {
-    Assert.notNull(settings, "Settings must not be null");
+    Assert.notNull(settings, "Settings is required");
     if (requestFactoryType == ClientHttpRequestFactory.class) {
       return (T) get(settings);
     }

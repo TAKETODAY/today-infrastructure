@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -325,7 +322,7 @@ public abstract class ReflectionTestUtils {
    * @see ReflectionUtils#invokeMethod(Method, Object, Object[])
    */
   public static void invokeSetterMethod(Object target, String name, @Nullable Object value, @Nullable Class<?> type) {
-    Assert.notNull(target, "Target object must not be null");
+    Assert.notNull(target, "Target object is required");
     Assert.hasText(name, "Method name must not be empty");
     Class<?>[] paramTypes = (type != null ? new Class<?>[] { type } : null);
 
@@ -377,7 +374,7 @@ public abstract class ReflectionTestUtils {
    */
   @Nullable
   public static Object invokeGetterMethod(Object target, String name) {
-    Assert.notNull(target, "Target object must not be null");
+    Assert.notNull(target, "Target object is required");
     Assert.hasText(name, "Method name must not be empty");
 
     String getterMethodName = name;
@@ -420,7 +417,7 @@ public abstract class ReflectionTestUtils {
    */
   @Nullable
   public static <T> T invokeMethod(Object target, String name, Object... args) {
-    Assert.notNull(target, "Target object must not be null");
+    Assert.notNull(target, "Target object is required");
     return invokeMethod(target, null, name, args);
   }
 
@@ -443,7 +440,7 @@ public abstract class ReflectionTestUtils {
    */
   @Nullable
   public static <T> T invokeMethod(Class<?> targetClass, String name, Object... args) {
-    Assert.notNull(targetClass, "Target class must not be null");
+    Assert.notNull(targetClass, "Target class is required");
     return invokeMethod(null, targetClass, name, args);
   }
 
