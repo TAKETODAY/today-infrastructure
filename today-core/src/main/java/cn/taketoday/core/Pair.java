@@ -20,6 +20,7 @@ package cn.taketoday.core;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Map;
 
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Experimental;
@@ -40,7 +41,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0 2023/8/24 14:45
  */
 @Experimental
-public class Pair<A, B> implements Serializable {
+public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
 
   @SuppressWarnings({ "rawtypes" })
   public static final Pair EMPTY = of(null, null);
@@ -67,6 +68,21 @@ public class Pair<A, B> implements Serializable {
   @Nullable
   public final B getSecond() {
     return second;
+  }
+
+  @Override
+  public A getKey() {
+    return first;
+  }
+
+  @Override
+  public B getValue() {
+    return second;
+  }
+
+  @Override
+  public B setValue(B value) {
+    throw new UnsupportedOperationException();
   }
 
   public Pair<A, B> withFirst(@Nullable A first) {
