@@ -55,8 +55,9 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void start() {
+    serverBootstrap.bind(listenAddress)
+            .syncUninterruptibly();
     log.info("Netty web server started on port: '{}'", getPort());
-    serverBootstrap.bind(listenAddress);
   }
 
   @Override

@@ -115,7 +115,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    *
    * @param acceptorGroup acceptor
    */
-  public void setAcceptorGroup(EventLoopGroup acceptorGroup) {
+  public void setAcceptorGroup(@Nullable EventLoopGroup acceptorGroup) {
     this.acceptorGroup = acceptorGroup;
   }
 
@@ -124,11 +124,11 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    *
    * @param workerGroup worker
    */
-  public void setWorkerGroup(EventLoopGroup workerGroup) {
+  public void setWorkerGroup(@Nullable EventLoopGroup workerGroup) {
     this.workerGroup = workerGroup;
   }
 
-  public void setSocketChannel(Class<? extends ServerSocketChannel> socketChannel) {
+  public void setSocketChannel(@Nullable Class<? extends ServerSocketChannel> socketChannel) {
     this.socketChannel = socketChannel;
   }
 

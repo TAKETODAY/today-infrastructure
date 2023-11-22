@@ -135,17 +135,17 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport
   }
 
   public void addHandlers(ReturnValueHandler... handlers) {
-    Assert.notNull(handlers, "handler is required");
+    Assert.notNull(handlers, "ReturnValueHandler is required");
     Collections.addAll(this.handlers, handlers);
   }
 
   public void addHandlers(List<ReturnValueHandler> handlers) {
-    Assert.notNull(handlers, "handler is required");
+    Assert.notNull(handlers, "ReturnValueHandler is required");
     this.handlers.addAll(handlers);
   }
 
   public void setHandlers(List<ReturnValueHandler> handlers) {
-    Assert.notNull(handlers, "handler is required");
+    Assert.notNull(handlers, "ReturnValueHandler is required");
     this.handlers.clear();
     this.handlers.addAll(handlers);
   }

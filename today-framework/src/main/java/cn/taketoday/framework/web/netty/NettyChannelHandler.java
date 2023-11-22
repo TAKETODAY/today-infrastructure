@@ -59,11 +59,10 @@ import io.netty.util.ReferenceCountUtil;
  *
  * @author TODAY 2019-07-04 21:50
  */
-public class NettyChannelHandler extends DispatcherHandler
-        implements ChannelInboundHandler, SmartInitializingSingleton {
+public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler, SmartInitializingSingleton {
 
   private static final boolean websocketPresent = ClassUtils.isPresent(
-          "cn.taketoday.web.socket.Message", NettyChannelHandler.class.getClassLoader());
+          "cn.taketoday.web.socket.Message", NettyChannelHandler.class);
 
   protected final NettyRequestConfig requestConfig;
 
