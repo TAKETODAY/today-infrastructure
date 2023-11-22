@@ -41,6 +41,7 @@ import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
@@ -109,7 +110,7 @@ class RestTemplateBuilderTests {
   @Test
   void detectRequestFactoryWhenFalseShouldDisableDetection() {
     RestTemplate restTemplate = this.builder.detectRequestFactory(false).build();
-    assertThat(restTemplate.getRequestFactory()).isInstanceOf(SimpleClientHttpRequestFactory.class);
+    assertThat(restTemplate.getRequestFactory()).isInstanceOf(JdkClientHttpRequestFactory.class);
   }
 
   @Test
