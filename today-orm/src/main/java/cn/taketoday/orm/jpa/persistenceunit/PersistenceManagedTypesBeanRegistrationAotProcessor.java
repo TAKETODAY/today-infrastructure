@@ -43,7 +43,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Converter;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.PostLoad;
@@ -197,16 +196,19 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
         return;
       }
       ReflectionHints reflection = hints.reflection();
+      registerInstantiatorForReflection(reflection, AnnotationUtils.findAnnotation(managedClass, embeddableInstantiatorClass));
       ReflectionUtils.doWithFields(managedClass, field -> {
-        Embedded embeddedAnnotation = AnnotationUtils.findAnnotation(field, Embedded.class);
-        if (embeddedAnnotation != null && field.getAnnotatedType().getType() instanceof Class<?> embeddedClass) {
-          Annotation embeddableInstantiatorAnnotation = AnnotationUtils.findAnnotation(embeddedClass, embeddableInstantiatorClass);
-          if (embeddableInstantiatorAnnotation != null) {
-            Class<?> embeddableInstantiatorClass = (Class<?>) AnnotationUtils.getAnnotationAttributes(embeddableInstantiatorAnnotation).get("value");
-            reflection.registerType(embeddableInstantiatorClass, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
-          }
-        }
+        registerInstantiatorForReflection(reflection, AnnotationUtils.findAnnotation(field, embeddableInstantiatorClass));
+        registerInstantiatorForReflection(reflection, AnnotationUtils.findAnnotation(field.getType(), embeddableInstantiatorClass));
       });
+    }
+
+    private void registerInstantiatorForReflection(ReflectionHints reflection, @Nullable Annotation annotation) {
+      if (annotation == null) {
+        return;
+      }
+      Class<?> embeddableInstantiatorClass = (Class<?>) AnnotationUtils.getAnnotationAttributes(annotation).get("value");
+      reflection.registerType(embeddableInstantiatorClass, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
     }
   }
 }
