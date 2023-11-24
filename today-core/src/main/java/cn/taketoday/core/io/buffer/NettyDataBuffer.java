@@ -35,6 +35,7 @@ import io.netty.buffer.ByteBufUtil;
  *
  * @author Arjen Poutsma
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class NettyDataBuffer implements PooledDataBuffer {
@@ -308,7 +309,7 @@ public class NettyDataBuffer implements PooledDataBuffer {
     Assert.notNull(dest, "Dest is required");
 
     dest = dest.duplicate().clear();
-    dest.put(destPos, this.byteBuf.nioBuffer(), srcPos, length);
+    dest.put(destPos, this.byteBuf.nioBuffer(srcPos, length), 0, length);
   }
 
   @Override

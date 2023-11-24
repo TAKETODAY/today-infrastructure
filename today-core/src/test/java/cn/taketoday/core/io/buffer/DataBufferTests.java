@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -397,7 +394,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     assertThat(buffer.capacity()).isEqualTo(1);
     buffer.write((byte) 'b');
 
-    assertThat(buffer.capacity() > 1).isTrue();
+    assertThat(buffer.capacity()).isGreaterThan(1);
 
     release(buffer);
   }
@@ -596,6 +593,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
+  @SuppressWarnings("deprecation")
   void emptyAsByteBuffer(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -615,6 +613,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     buffer.write(new byte[] { 'a', 'b', 'c' });
     buffer.read(); // skip a
 
+    @SuppressWarnings("deprecation")
     ByteBuffer result = buffer.toByteBuffer();
     assertThat(result.capacity()).isEqualTo(2);
     assertThat(result.remaining()).isEqualTo(2);
@@ -633,6 +632,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     DataBuffer buffer = createDataBuffer(3);
     buffer.write(new byte[] { 'a', 'b', 'c' });
 
+    @SuppressWarnings("deprecation")
     ByteBuffer result = buffer.toByteBuffer(1, 2);
     assertThat(result.capacity()).isEqualTo(2);
     assertThat(result.remaining()).isEqualTo(2);
@@ -764,6 +764,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
+  @SuppressWarnings("deprecation")
   void slice(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -787,14 +788,11 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     if (!(bufferFactory instanceof Netty5DataBufferFactory)) {
       assertThat(result).isEqualTo(new byte[] { 'b', 'c' });
     }
-    else {
-      assertThat(result).isEqualTo(new byte[] { 'b', 0 });
-      release(slice);
-    }
     release(buffer);
   }
 
   @ParameterizedDataBufferAllocatingTest
+  @SuppressWarnings("deprecation")
   void retainedSlice(DataBufferFactory bufferFactory) {
     assumeFalse(bufferFactory instanceof Netty5DataBufferFactory,
             "Netty 5 does not support retainedSlice");
@@ -824,6 +822,7 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
   }
 
   @ParameterizedDataBufferAllocatingTest
+  @SuppressWarnings("deprecation")
   void spr16351(DataBufferFactory bufferFactory) {
     super.bufferFactory = bufferFactory;
 
@@ -925,6 +924,18 @@ class DataBufferTests extends AbstractDataBufferAllocatingTests {
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> buffer.getByte(3));
 
     release(buffer);
+  }
+
+  @ParameterizedDataBufferAllocatingTest
+    // gh-31605
+  void shouldHonorSourceBuffersReadPosition(DataBufferFactory bufferFactory) {
+    DataBuffer dataBuffer = bufferFactory.wrap("ab".getBytes(StandardCharsets.UTF_8));
+    dataBuffer.readPosition(1);
+
+    ByteBuffer byteBuffer = ByteBuffer.allocate(dataBuffer.readableByteCount());
+    dataBuffer.toByteBuffer(byteBuffer);
+
+    assertThat(StandardCharsets.UTF_8.decode(byteBuffer).toString()).isEqualTo("b");
   }
 
 }
