@@ -61,137 +61,125 @@ import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * A {@link ResourceLoader} implementation that is able to resolve a specified
- * resource location path into one or more matching Resources. The source path
- * may be a simple path which has a one-to-one mapping to a target
- * {@link Resource}, or alternatively may contain the special
- * "{@code classpath*:}" prefix and/or internal Ant-style regular expressions
- * (matched using {@link AntPathMatcher} utility). Both of the latter
- * are effectively wildcards.
+ * A {@link PatternResourceLoader} implementation that is able to resolve a
+ * specified resource location path into one or more matching Resources.
  *
- * <p>
- * <b>No Wildcards:</b>
+ * <p>The source path may be a simple path which has a one-to-one mapping to a
+ * target {@link cn.taketoday.core.io.Resource}, or alternatively may
+ * contain the special "{@code classpath*:}" prefix and/or internal Ant-style
+ * path patterns (matched using Infra {@link AntPathMatcher} utility). Both
+ * of the latter are effectively wildcards.
  *
- * <p>
- * In the simple case, if the specified location path does not start with the
- * {@code "classpath*:}" prefix, and does not contain a PathMatcher pattern,
- * this resolver will simply return a single resource via a
- * {@code getResource()} call on the underlying {@code ResourceLoader}. Examples
- * are real URLs such as "{@code file:C:/context.xml}", pseudo-URLs such as
- * "{@code classpath:/context.xml}", and simple unprefixed paths such as
- * "{@code /WEB-INF/context.xml}". The latter will resolve in a fashion specific
- * to the underlying {@code ResourceLoader} (e.g. {@code ServletContextResource}
- * for a {@code WebApplicationContext}).
+ * <h3>No Wildcards</h3>
  *
- * <p>
- * <b>Ant-style Patterns:</b>
+ * <p>In the simple case, if the specified location path does not start with the
+ * {@code "classpath*:}" prefix and does not contain a {@link PathMatcher}
+ * pattern, this resolver will simply return a single resource via a
+ * {@code getResource()} call on the underlying {@code ResourceLoader}.
+ * Examples are real URLs such as "{@code file:C:/context.xml}", pseudo-URLs
+ * such as "{@code classpath:/context.xml}", and simple unprefixed paths
+ * such as "{@code /WEB-INF/context.xml}". The latter will resolve in a
+ * fashion specific to the underlying {@code ResourceLoader} (e.g.
+ * {@code ServletContextResource} for a {@code WebApplicationContext}).
  *
- * <p>
- * When the path location contains an Ant-style pattern, e.g.:
+ * <h3>Ant-style Patterns</h3>
+ *
+ * <p>When the path location contains an Ant-style pattern, for example:
  * <pre class="code">
  * /WEB-INF/*-context.xml
- * com/mycompany/**&#47;applicationContext.xml
+ * com/example/**&#47;applicationContext.xml
  * file:C:/some/path/*-context.xml
- * classpath:com/mycompany/**&#47;applicationContext.xml</pre> the resolver
- * follows a more complex but defined procedure to try to resolve the wildcard.
- * It produces a {@code Resource} for the path up to the last non-wildcard
- * segment and obtains a {@code URL} from it. If this URL is not a
- * "{@code jar:}" URL or container-specific variant (e.g. "{@code zip:}" in
- * WebLogic, "{@code wsjar}" in WebSphere", etc.), then a {@code java.io.File}
- * is obtained from it, and used to resolve the wildcard by walking the
- * filesystem. In the case of a jar URL, the resolver either gets a
- * {@code java.net.JarURLConnection} from it, or manually parses the jar URL,
- * and then traverses the contents of the jar file, to resolve the wildcards.
+ * classpath:com/example/**&#47;applicationContext.xml</pre>
+ * the resolver follows a more complex but defined procedure to try to resolve
+ * the wildcard. It produces a {@code Resource} for the path up to the last
+ * non-wildcard segment and obtains a {@code URL} from it. If this URL is not a
+ * "{@code jar:}" URL or container-specific variant (e.g. "{@code zip:}" in WebLogic,
+ * "{@code wsjar}" in WebSphere", etc.), then the root directory of the filesystem
+ * associated with the URL is obtained and used to resolve the wildcards by walking
+ * the filesystem. In the case of a jar URL, the resolver either gets a
+ * {@code java.net.JarURLConnection} from it, or manually parses the jar URL, and
+ * then traverses the contents of the jar file, to resolve the wildcards.
  *
- * <p>
- * <b>Implications on portability:</b>
+ * <h3>Implications on Portability</h3>
  *
- * <p>
- * If the specified path is already a file URL (either explicitly, or implicitly
- * because the base {@code ResourceLoader} is a filesystem one, then wildcarding
- * is guaranteed to work in a completely portable fashion.
+ * <p>If the specified path is already a file URL (either explicitly, or
+ * implicitly because the base {@code ResourceLoader} is a filesystem one),
+ * then wildcarding is guaranteed to work in a completely portable fashion.
  *
- * <p>
- * If the specified path is a classpath location, then the resolver must obtain
- * the last non-wildcard path segment URL via a
- * {@code Classloader.getResource()} call. Since this is just a node of the path
- * (not the file at the end) it is actually undefined (in the ClassLoader
- * Javadocs) exactly what sort of a URL is returned in this case. In practice,
- * it is usually a {@code java.io.File} representing the directory, where the
- * classpath resource resolves to a filesystem location, or a jar URL of some
- * sort, where the classpath resource resolves to a jar location. Still, there
- * is a portability concern on this operation.
+ * <p>If the specified path is a class path location, then the resolver must
+ * obtain the last non-wildcard path segment URL via a
+ * {@code Classloader.getResource()} call. Since this is just a
+ * node of the path (not the file at the end) it is actually undefined
+ * (in the ClassLoader Javadocs) exactly what sort of URL is returned in
+ * this case. In practice, it is usually a {@code java.io.File} representing
+ * the directory, where the class path resource resolves to a filesystem
+ * location, or a jar URL of some sort, where the class path resource resolves
+ * to a jar location. Still, there is a portability concern on this operation.
  *
- * <p>
- * If a jar URL is obtained for the last non-wildcard segment, the resolver must
- * be able to get a {@code java.net.JarURLConnection} from it, or manually parse
- * the jar URL, to be able to walk the contents of the jar, and resolve the
- * wildcard. This will work in most environments, but will fail in others, and
- * it is strongly recommended that the wildcard resolution of resources coming
- * from jars be thoroughly tested in your specific environment before you rely
- * on it.
+ * <p>If a jar URL is obtained for the last non-wildcard segment, the resolver
+ * must be able to get a {@code java.net.JarURLConnection} from it, or
+ * manually parse the jar URL, to be able to walk the contents of the jar
+ * and resolve the wildcard. This will work in most environments but will
+ * fail in others, and it is strongly recommended that the wildcard
+ * resolution of resources coming from jars be thoroughly tested in your
+ * specific environment before you rely on it.
  *
- * <p>
- * <b>{@code classpath*:} Prefix:</b>
+ * <h3>{@code classpath*:} Prefix</h3>
  *
- * <p>
- * There is special support for retrieving multiple class path resources with
+ * <p>There is special support for retrieving multiple class path resources with
  * the same name, via the "{@code classpath*:}" prefix. For example,
- * "{@code classpath*:META-INF/beans.xml}" will find all "beans.xml" files in
- * the class path, be it in "classes" directories or in JAR files. This is
- * particularly useful for autodetecting config files of the same name at the
- * same location within each jar file. Internally, this happens via a
+ * "{@code classpath*:META-INF/beans.xml}" will find all "META-INF/beans.xml"
+ * files in the class path, be it in "classes" directories or in JAR files.
+ * This is particularly useful for autodetecting config files of the same name
+ * at the same location within each jar file. Internally, this happens via a
  * {@code ClassLoader.getResources()} call, and is completely portable.
  *
- * <p>
- * The "classpath*:" prefix can also be combined with a PathMatcher pattern in
- * the rest of the location path, for example "classpath*:META-INF/*-beans.xml".
- * In this case, the resolution strategy is fairly simple: a
- * {@code ClassLoader.getResources()} call is used on the last non-wildcard path
- * segment to get all the matching resources in the class loader hierarchy, and
- * then off each resource the same PathMatcher resolution strategy described
- * above is used for the wildcard subpath.
+ * <p>The "{@code classpath*:}" prefix can also be combined with a {@code PathMatcher}
+ * pattern in the rest of the location path &mdash; for example,
+ * "{@code classpath*:META-INF/*-beans.xml"}. In this case, the resolution strategy
+ * is fairly simple: a {@code ClassLoader.getResources()} call is used on the last
+ * non-wildcard path segment to get all the matching resources in the class loader
+ * hierarchy, and then off each resource the same {@code PathMatcher} resolution
+ * strategy described above is used for the wildcard sub pattern.
  *
- * <p>
- * <b>Other notes:</b>
+ * <h3>Other Notes</h3>
  *
- * <p>As of 4.0, if {@link #getResources(String)} is invoked with a location
- * pattern using the "classpath*:" prefix it will first search  all modules
- * in the {@linkplain ModuleLayer#boot() boot layer}, excluding {@linkplain
- * ModuleFinder#ofSystem() system modules}. It will then search the classpath
- * using {@link ClassLoader} APIs as described previously and return the
- * combined results. Consequently, some of the limitations of classpath
- * searches may not apply when applications are deployed as modules.
+ * <p>As of Spring Framework 6.0, if {@link #getResources(String)} is invoked with
+ * a location pattern using the "{@code classpath*:}" prefix it will first search
+ * all modules in the {@linkplain ModuleLayer#boot() boot layer}, excluding
+ * {@linkplain ModuleFinder#ofSystem() system modules}. It will then search the
+ * class path using {@link ClassLoader} APIs as described previously and return the
+ * combined results. Consequently, some of the limitations of class path searches
+ * may not apply when applications are deployed as modules.
  *
- * <p>
- * <b>WARNING:</b> Note that "{@code classpath*:}" when combined with Ant-style
- * patterns will only work reliably with at least one root directory before the
- * pattern starts, unless the actual target files reside in the file system.
- * This means that a pattern like "{@code classpath*:*.xml}" will <i>not</i>
- * retrieve files from the root of jar files but rather only from the root of
- * expanded directories. This originates from a limitation in the JDK's
+ * <p><b>WARNING:</b> Note that "{@code classpath*:}" when combined with
+ * Ant-style patterns will only work reliably with at least one root directory
+ * before the pattern starts, unless the actual target files reside in the file
+ * system. This means that a pattern like "{@code classpath*:*.xml}" will
+ * <i>not</i> retrieve files from the root of jar files but rather only from the
+ * root of expanded directories. This originates from a limitation in the JDK's
  * {@code ClassLoader.getResources()} method which only returns file system
- * locations for a passed-in empty String (indicating potential roots to
- * search). This {@code ResourcePatternResolver} implementation is trying to
- * mitigate the jar root lookup limitation through {@link URLClassLoader}
- * introspection and "java.class.path" manifest evaluation; however, without
- * portability guarantees.
+ * locations for a passed-in empty String (indicating potential roots to search).
+ * This {@code ResourcePatternResolver} implementation tries to mitigate the
+ * jar root lookup limitation through {@link URLClassLoader} introspection and
+ * "{@code java.class.path}" manifest evaluation; however, without portability
+ * guarantees.
  *
- * <p>
- * <b>WARNING:</b> Ant-style patterns with "classpath:" resources are not
- * guaranteed to find matching resources if the root package to search is
- * available in multiple class path locations. This is because a resource such
- * as <pre class="code">
- *     com/mycompany/package1/service-context.xml
- * </pre> may be in only one location, but when a path such as
+ * <p><b>WARNING:</b> Ant-style patterns with "{@code classpath:}" resources are not
+ * guaranteed to find matching resources if the base package to search is available
+ * in multiple class path locations. This is because a resource such as
  * <pre class="code">
- *     classpath:com/mycompany/**&#47;service-context.xml
- * </pre> is used to try to resolve it, the resolver will work off the (first)
- * URL returned by {@code getResource("com/mycompany");}. If this base package
- * node exists in multiple classloader locations, the actual end resource may
- * not be underneath. Therefore, preferably, use "{@code classpath*:}" with the
- * same Ant-style pattern in such a case, which will search <i>all</i> class
- * path locations that contain the root package.
+ *   com/example/package1/service-context.xml</pre>
+ * may exist in only one class path location, but when a location pattern such as
+ * <pre class="code">
+ *   classpath:com/example/**&#47;service-context.xml</pre>
+ * is used to try to resolve it, the resolver will work off the (first) URL
+ * returned by {@code getResource("com/example")}. If the {@code com/example} base
+ * package node exists in multiple class path locations, the actual desired resource
+ * may not be present under the {@code com/example} base package in the first URL.
+ * Therefore, preferably, use "{@code classpath*:}" with the same Ant-style pattern
+ * in such a case, which will search <i>all</i> class path locations that contain
+ * the base package.
  *
  * @author Juergen Hoeller
  * @author Colin Sampaleanu
@@ -199,10 +187,15 @@ import cn.taketoday.util.StringUtils;
  * @author Costin Leau
  * @author Phillip Webb
  * @author Sam Brannen
- * @author TODAY 2019-12-05 12:51
+ * @author Sebastien Deleuze
+ * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see #CLASSPATH_ALL_URL_PREFIX
+ * @see AntPathMatcher
+ * @see ResourceLoader#getResource(String)
  * @see AntPathMatcher
  * @see ClassLoader#getResources(String)
- * @since 2.1.7
+ * @since 2.1.7 2019-12-05 12:51
  */
 public class PathMatchingPatternResourceLoader implements PatternResourceLoader {
   private static final Logger log = LoggerFactory.getLogger(PathMatchingPatternResourceLoader.class);
