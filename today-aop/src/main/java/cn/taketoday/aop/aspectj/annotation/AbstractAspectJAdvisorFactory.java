@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +52,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Rod Johnson
  * @author Adrian Colyer
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFactory {
@@ -89,7 +87,7 @@ public abstract class AbstractAspectJAdvisorFactory implements AspectJAdvisorFac
    * We need to detect this as "code-style" AspectJ aspects should not be
    * interpreted by Framework AOP.
    */
-  private boolean compiledByAjc(Class<?> clazz) {
+  static boolean compiledByAjc(Class<?> clazz) {
     // The AJTypeSystem goes to great lengths to provide a uniform appearance between code-style and
     // annotation-style aspects. Therefore there is no 'clean' way to tell them apart. Here we rely on
     // an implementation detail of the AspectJ compiler.
