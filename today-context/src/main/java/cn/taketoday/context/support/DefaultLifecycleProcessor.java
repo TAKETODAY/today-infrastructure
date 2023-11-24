@@ -72,21 +72,31 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   /**
    * Property name for a common context checkpoint: {@value}.
    *
-   * @see #CHECKPOINT_ON_REFRESH_VALUE
+   * @see #ON_REFRESH_VALUE
    * @see org.crac.Core#checkpointRestore()
    */
   public static final String CHECKPOINT_PROPERTY_NAME = "infra.context.checkpoint";
 
   /**
-   * Recognized value for the context checkpoint property: {@value}.
+   * Property name for terminating the JVM when the context reaches a specific phase: {@value}.
+   *
+   * @see #ON_REFRESH_VALUE
+   */
+  public static final String EXIT_PROPERTY_NAME = "infra.context.exit";
+
+  /**
+   * Recognized value for the context checkpoint and exit properties: {@value}.
    *
    * @see #CHECKPOINT_PROPERTY_NAME
-   * @see org.crac.Core#checkpointRestore()
+   * @see #EXIT_PROPERTY_NAME
    */
-  public static final String CHECKPOINT_ON_REFRESH_VALUE = "onRefresh";
+  public static final String ON_REFRESH_VALUE = "onRefresh";
 
-  private final static boolean checkpointOnRefresh =
-          CHECKPOINT_ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(CHECKPOINT_PROPERTY_NAME));
+  private static final boolean checkpointOnRefresh =
+          ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(CHECKPOINT_PROPERTY_NAME));
+
+  private static final boolean exitOnRefresh =
+          ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(EXIT_PROPERTY_NAME));
 
   private volatile long timeoutPerShutdownPhase = 30000;
 
@@ -173,6 +183,9 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   public void onRefresh() {
     if (checkpointOnRefresh) {
       new CracDelegate().checkpointRestore();
+    }
+    if (exitOnRefresh) {
+      Runtime.getRuntime().halt(0);
     }
 
     this.stoppedBeans = null;
