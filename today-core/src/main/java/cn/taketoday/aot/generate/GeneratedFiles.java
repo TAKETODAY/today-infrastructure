@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +17,11 @@
 
 package cn.taketoday.aot.generate;
 
-import cn.taketoday.javapoet.JavaFile;
-
 import cn.taketoday.core.io.InputStreamSource;
+import cn.taketoday.javapoet.JavaFile;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.function.ThrowingConsumer;
 
 /**
@@ -36,6 +33,7 @@ import cn.taketoday.util.function.ThrowingConsumer;
  * @author Phillip Webb
  * @author Brian Clozel
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see InMemoryGeneratedFiles
  * @see FileSystemGeneratedFiles
  * @since 4.0
@@ -49,6 +47,7 @@ public interface GeneratedFiles {
    * @param javaFile the java file to add
    */
   default void addSourceFile(JavaFile javaFile) {
+    validatePackage(javaFile.packageName, javaFile.typeSpec.name);
     String className = javaFile.packageName + "." + javaFile.typeSpec.name;
     addSourceFile(className, javaFile::writeTo);
   }
@@ -177,8 +176,18 @@ public interface GeneratedFiles {
 
   private static String getClassNamePath(String className) {
     Assert.hasLength(className, "'className' must not be empty");
-    Assert.isTrue(isJavaIdentifier(className), "'className' must be a valid identifier");
+    validatePackage(ClassUtils.getPackageName(className), className);
+    Assert.isTrue(isJavaIdentifier(className),
+            () -> "'className' must be a valid identifier, got '" + className + "'");
     return ClassUtils.convertClassNameToResourcePath(className) + ".java";
+  }
+
+  private static void validatePackage(String packageName, String className) {
+    if (StringUtils.isEmpty(packageName)) {
+      throw new IllegalArgumentException("Could not add '" + className + "', "
+              + "processing classes in the default package is not supported. "
+              + "Did you forget to add a package statement?");
+    }
   }
 
   private static boolean isJavaIdentifier(String className) {

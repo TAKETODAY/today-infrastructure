@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,10 +17,6 @@
 
 package cn.taketoday.aot.generate;
 
-import cn.taketoday.javapoet.JavaFile;
-import cn.taketoday.javapoet.MethodSpec;
-import cn.taketoday.javapoet.TypeSpec;
-
 import org.assertj.core.api.AbstractStringAssert;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +30,9 @@ import cn.taketoday.aot.generate.GeneratedFiles.Kind;
 import cn.taketoday.core.io.ByteArrayResource;
 import cn.taketoday.core.io.InputStreamSource;
 import cn.taketoday.core.io.Resource;
+import cn.taketoday.javapoet.JavaFile;
+import cn.taketoday.javapoet.MethodSpec;
+import cn.taketoday.javapoet.TypeSpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -66,6 +62,15 @@ class GeneratedFilesTests {
   }
 
   @Test
+  void addSourceFileWithJavaFileInTheDefaultPackageThrowsException() {
+    TypeSpec helloWorld = TypeSpec.classBuilder("HelloWorld").build();
+    JavaFile javaFile = JavaFile.builder("", helloWorld).build();
+    assertThatIllegalArgumentException().isThrownBy(() -> this.generatedFiles.addSourceFile(javaFile))
+            .withMessage("Could not add 'HelloWorld', processing classes in the "
+                    + "default package is not supported. Did you forget to add a package statement?");
+  }
+
+  @Test
   void addSourceFileWithCharSequenceAddsFile() throws Exception {
     this.generatedFiles.addSourceFile("com.example.HelloWorld", "{}");
     assertThatFileAdded(Kind.SOURCE, "com/example/HelloWorld.java").isEqualTo("{}");
@@ -79,11 +84,19 @@ class GeneratedFilesTests {
   }
 
   @Test
+  void addSourceFileWithCharSequenceWhenClassNameIsInTheDefaultPackageThrowsException() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> this.generatedFiles.addSourceFile("HelloWorld", "{}"))
+            .withMessage("Could not add 'HelloWorld', processing classes in the "
+                    + "default package is not supported. Did you forget to add a package statement?");
+  }
+
+  @Test
   void addSourceFileWithCharSequenceWhenClassNameIsInvalidThrowsException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> this.generatedFiles
                     .addSourceFile("com/example/HelloWorld.java", "{}"))
-            .withMessage("'className' must be a valid identifier");
+            .withMessage("'className' must be a valid identifier, got 'com/example/HelloWorld.java'");
   }
 
   @Test
