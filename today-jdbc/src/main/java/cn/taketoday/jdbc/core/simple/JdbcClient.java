@@ -40,7 +40,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * A fluent {@link JdbcClient} with common JDBC query and update operations,
- * supporting JDBC-style positional as well as Spring-style named parameters
+ * supporting JDBC-style positional as well as Infra-style named parameters
  * with a convenient unified facade for JDBC PreparedStatement execution.
  *
  * <p>An example for retrieving a query result as a {@code java.util.Optional}:
@@ -308,6 +308,17 @@ public interface JdbcClient {
      * @see java.sql.PreparedStatement#executeUpdate()
      */
     int update(KeyHolder generatedKeyHolder);
+
+    /**
+     * Execute the provided SQL statement as an update.
+     *
+     * @param generatedKeyHolder a KeyHolder that will hold the generated keys
+     * (typically a {@link cn.taketoday.jdbc.support.GeneratedKeyHolder})
+     * @param keyColumnNames names of the columns that will have keys generated for them
+     * @return the number of rows affected
+     * @see java.sql.PreparedStatement#executeUpdate()
+     */
+    int update(KeyHolder generatedKeyHolder, String... keyColumnNames);
   }
 
   /**
