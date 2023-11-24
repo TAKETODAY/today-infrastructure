@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ProblemDetailRuntimeHintsTests {
 
+  private static final List<String> METHOD_NAMES = List.of("getType", "getTitle",
+          "getStatus", "getDetail", "getInstance", "getProperties");
+
   private final RuntimeHints hints = new RuntimeHints();
 
   @BeforeEach
@@ -51,9 +51,17 @@ class ProblemDetailRuntimeHintsTests {
 
   @Test
   void getterMethodsShouldHaveReflectionHints() {
-    List<String> methodNames = List.of("getType", "getTitle", "getStatus", "getDetail", "getInstance", "getProperties");
-    for (String methodName : methodNames) {
-      assertThat(RuntimeHintsPredicates.reflection().onMethod(ProblemDetail.class, methodName)).accepts(this.hints);
+    for (String methodName : METHOD_NAMES) {
+      assertThat(RuntimeHintsPredicates.reflection()
+              .onMethod(ProblemDetail.class, methodName)).accepts(this.hints);
+    }
+  }
+
+  @Test
+  void mixinShouldHaveReflectionHints() {
+    for (String methodName : METHOD_NAMES) {
+      assertThat(RuntimeHintsPredicates.reflection()
+              .onMethod(ProblemDetailJacksonXmlMixin.class, methodName)).accepts(this.hints);
     }
   }
 

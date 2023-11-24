@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +21,8 @@ import cn.taketoday.aot.hint.BindingReflectionHintsRegistrar;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.http.ProblemDetail;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation that registers binding reflection entries
@@ -36,9 +35,15 @@ import cn.taketoday.http.ProblemDetail;
 class ProblemDetailRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
-  public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
     BindingReflectionHintsRegistrar bindingRegistrar = new BindingReflectionHintsRegistrar();
     bindingRegistrar.registerReflectionHints(hints.reflection(), ProblemDetail.class);
+    if (ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader)) {
+      bindingRegistrar.registerReflectionHints(hints.reflection(), ProblemDetailJacksonXmlMixin.class);
+    }
+    else if (ClassUtils.isPresent("com.fasterxml.jackson.annotation.JacksonAnnotation", classLoader)) {
+      bindingRegistrar.registerReflectionHints(hints.reflection(), ProblemDetailJacksonMixin.class);
+    }
   }
 
 }
