@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +38,7 @@ import cn.taketoday.lang.Nullable;
  * @author Thomas Risberg
  * @author Juergen Hoeller
  * @author Yanming Zhou
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class NamedParameterUtils {
@@ -59,7 +57,7 @@ public abstract class NamedParameterUtils {
    * Set of characters that qualify as parameter separators,
    * indicating that a parameter name in an SQL String has ended.
    */
-  private static final String PARAMETER_SEPARATORS = "\"':&,;()|=+-*%/\\<>^]";
+  private static final String PARAMETER_SEPARATORS = "\"':&,;()|=+-*%/\\<>^";
 
   /**
    * An index with separator flags per character code.
@@ -146,16 +144,25 @@ public abstract class NamedParameterUtils {
           j++;
         }
         else {
-          while (j < statement.length && !isParameterSeparator(statement[j])) {
+          boolean paramWithSquareBrackets = false;
+          while (j < statement.length) {
+            c = statement[j];
+            if (isParameterSeparator(c)) {
+              break;
+            }
+            if (c == '[') {
+              paramWithSquareBrackets = true;
+            }
+            else if (c == ']') {
+              if (!paramWithSquareBrackets) {
+                break;
+              }
+              paramWithSquareBrackets = false;
+            }
             j++;
           }
           if (j - i > 1) {
             parameter = sql.substring(i + 1, j);
-            if (j < statement.length && statement[j] == ']' && parameter.contains("[")) {
-              // preserve end bracket for index/key
-              j++;
-              parameter = sql.substring(i + 1, j);
-            }
             namedParameterCount = addNewNamedParameter(
                     namedParameters, namedParameterCount, parameter);
             totalParameterCount = addNamedParameter(

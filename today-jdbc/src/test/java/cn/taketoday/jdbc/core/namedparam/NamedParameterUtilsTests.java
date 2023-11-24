@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -335,7 +332,18 @@ public class NamedParameterUtilsTests {
   }
 
   @Test
-    // gh-27925
+  void paramNameWithNestedSquareBrackets() {
+    String sql = "insert into GeneratedAlways (id, first_name, last_name) values " +
+            "(:records[0].id, :records[0].firstName, :records[0].lastName), " +
+            "(:records[1].id, :records[1].firstName, :records[1].lastName)";
+
+    ParsedSql parsedSql = NamedParameterUtils.parseSqlStatement(sql);
+    assertThat(parsedSql.getParameterNames()).containsOnly(
+            "records[0].id", "records[0].firstName", "records[0].lastName",
+            "records[1].id", "records[1].firstName", "records[1].lastName");
+  }
+
+  @Test
   void namedParamMapReference() {
     String sql = "insert into foos (id) values (:headers[id])";
     ParsedSql psql = NamedParameterUtils.parseSqlStatement(sql);
