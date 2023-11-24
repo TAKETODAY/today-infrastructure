@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -316,15 +313,15 @@ public class Property implements Member, AnnotatedElement, Serializable {
   /**
    * is primitive
    *
-   * @see java.lang.Boolean#TYPE
-   * @see java.lang.Character#TYPE
-   * @see java.lang.Byte#TYPE
-   * @see java.lang.Short#TYPE
-   * @see java.lang.Integer#TYPE
-   * @see java.lang.Long#TYPE
-   * @see java.lang.Float#TYPE
-   * @see java.lang.Double#TYPE
-   * @see java.lang.Void#TYPE
+   * @see Boolean#TYPE
+   * @see Character#TYPE
+   * @see Byte#TYPE
+   * @see Short#TYPE
+   * @see Integer#TYPE
+   * @see Long#TYPE
+   * @see Float#TYPE
+   * @see Double#TYPE
+   * @see Void#TYPE
    * @see Class#isPrimitive()
    * @since 4.0
    */
@@ -414,7 +411,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
 
   @Override
   public boolean isAnnotationPresent(@NonNull Class<? extends Annotation> annotationClass) {
-    for (Annotation annotation : getAnnotations()) {
+    for (Annotation annotation : getAnnotations(false)) {
       if (annotation.annotationType() == annotationClass) {
         return true;
       }
@@ -426,7 +423,7 @@ public class Property implements Member, AnnotatedElement, Serializable {
   @Nullable
   @SuppressWarnings("unchecked")
   public <T extends Annotation> T getAnnotation(@NonNull Class<T> annotationClass) {
-    for (Annotation annotation : getAnnotations()) {
+    for (Annotation annotation : getAnnotations(false)) {
       if (annotation.annotationType() == annotationClass) {
         return (T) annotation;
       }
@@ -436,32 +433,38 @@ public class Property implements Member, AnnotatedElement, Serializable {
 
   @Override
   public Annotation[] getDeclaredAnnotations() {
-    return getAnnotations();
+    return getAnnotations(true);
   }
 
   @Override
   public Annotation[] getAnnotations() {
-    if (this.annotations == null) {
-      this.annotations = resolveAnnotations();
+    return getAnnotations(true);
+  }
+
+  private Annotation[] getAnnotations(boolean clone) {
+    Annotation[] annotations = this.annotations;
+    if (annotations == null) {
+      annotations = resolveAnnotations();
+      this.annotations = annotations;
     }
-    return this.annotations;
+    return clone ? annotations.clone() : annotations;
   }
 
   private Annotation[] resolveAnnotations() {
     Annotation[] annotations = annotationCache.get(this);
     if (annotations == null) {
-      Map<Class<? extends Annotation>, Annotation> annotationMap = new LinkedHashMap<>();
+      var annotationMap = new LinkedHashMap<Class<? extends Annotation>, Annotation>();
       addAnnotationsToMap(annotationMap, getReadMethod());
       addAnnotationsToMap(annotationMap, getWriteMethod());
       addAnnotationsToMap(annotationMap, getField());
-      annotations = annotationMap.values().toArray(Constant.EMPTY_ANNOTATIONS);
+      annotations = annotationMap.isEmpty() ? Constant.EMPTY_ANNOTATIONS :
+                    annotationMap.values().toArray(Constant.EMPTY_ANNOTATIONS);
       annotationCache.put(this, annotations);
     }
     return annotations;
   }
 
-  private void addAnnotationsToMap(
-          Map<Class<? extends Annotation>, Annotation> annotationMap, @Nullable AnnotatedElement object) {
+  private void addAnnotationsToMap(Map<Class<? extends Annotation>, Annotation> annotationMap, @Nullable AnnotatedElement object) {
     if (object != null) {
       for (Annotation annotation : object.getAnnotations()) {
         annotationMap.put(annotation.annotationType(), annotation);
