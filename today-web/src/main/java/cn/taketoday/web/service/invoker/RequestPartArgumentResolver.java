@@ -23,13 +23,13 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -55,9 +55,6 @@ import cn.taketoday.web.multipart.MultipartFile;
  */
 public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResolver {
 
-  private static final boolean REACTOR_PRESENT =
-          ClassUtils.isPresent("reactor.core.publisher.Mono", RequestPartArgumentResolver.class.getClassLoader());
-
   @Nullable
   private final ReactiveAdapterRegistry reactiveAdapterRegistry;
 
@@ -65,7 +62,7 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
    * Constructor with a {@link HttpExchangeAdapter}, for access to config settings.
    */
   public RequestPartArgumentResolver(HttpExchangeAdapter exchangeAdapter) {
-    if (REACTOR_PRESENT) {
+    if (ReactiveStreams.reactorPresent) {
       this.reactiveAdapterRegistry =
               (exchangeAdapter instanceof ReactorHttpExchangeAdapter reactorAdapter ?
                reactorAdapter.getReactiveAdapterRegistry() :

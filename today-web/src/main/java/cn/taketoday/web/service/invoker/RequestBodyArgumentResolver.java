@@ -21,9 +21,9 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.RequestBody;
 
 /**
@@ -36,9 +36,6 @@ import cn.taketoday.web.annotation.RequestBody;
  */
 public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver {
 
-  private static final boolean REACTOR_PRESENT =
-          ClassUtils.isPresent("reactor.core.publisher.Mono", RequestBodyArgumentResolver.class.getClassLoader());
-
   @Nullable
   private final ReactiveAdapterRegistry reactiveAdapterRegistry;
 
@@ -46,7 +43,7 @@ public class RequestBodyArgumentResolver implements HttpServiceArgumentResolver 
    * Constructor with a {@link HttpExchangeAdapter}, for access to config settings.
    */
   public RequestBodyArgumentResolver(HttpExchangeAdapter exchangeAdapter) {
-    if (REACTOR_PRESENT) {
+    if (ReactiveStreams.reactorPresent) {
       this.reactiveAdapterRegistry =
               (exchangeAdapter instanceof ReactorHttpExchangeAdapter reactorAdapter ?
                reactorAdapter.getReactiveAdapterRegistry() :

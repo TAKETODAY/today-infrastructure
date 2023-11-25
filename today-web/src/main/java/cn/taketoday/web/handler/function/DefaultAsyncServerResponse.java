@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,12 +29,12 @@ import java.util.function.Function;
 
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
@@ -51,9 +48,6 @@ import cn.taketoday.web.context.async.WebAsyncManager;
  * @since 4.0
  */
 final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse implements AsyncServerResponse {
-
-  public static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", DefaultAsyncServerResponse.class.getClassLoader());
 
   private final CompletableFuture<ServerResponse> futureResponse;
 
@@ -155,7 +149,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
     if (o instanceof CompletableFuture) {
       return new DefaultAsyncServerResponse((CompletableFuture<ServerResponse>) o, timeout);
     }
-    else if (reactiveStreamsPresent) {
+    else if (ReactiveStreams.isPresent) {
       ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
       ReactiveAdapter publisherAdapter = registry.getAdapter(o.getClass());
       if (publisherAdapter != null) {

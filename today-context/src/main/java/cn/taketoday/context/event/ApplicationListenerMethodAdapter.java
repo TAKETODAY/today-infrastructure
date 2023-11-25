@@ -40,6 +40,7 @@ import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -75,9 +76,6 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  */
 public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered {
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
-
-  private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", ApplicationListenerMethodAdapter.class);
 
   private final Method method;
 
@@ -361,7 +359,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   protected void handleResult(Object result) {
-    if (reactiveStreamsPresent && ReactiveDelegate.subscribeToPublisher(this, result)) {
+    if (ReactiveStreams.isPresent && ReactiveDelegate.subscribeToPublisher(this, result)) {
       if (log.isTraceEnabled()) {
         log.trace("Adapted to reactive result: {}", result);
       }

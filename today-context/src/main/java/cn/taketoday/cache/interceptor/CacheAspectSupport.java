@@ -48,6 +48,7 @@ import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
@@ -103,10 +104,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           new CacheEvaluationContextFactory(originalEvaluationContext));
 
   @Nullable
-  private final ReactiveCachingHandler reactiveCachingHandler
-          = ClassUtils.isPresent("org.reactivestreams.Publisher", CacheAspectSupport.class) ?
-            new ReactiveCachingHandler() :
-            null;
+  private final ReactiveCachingHandler reactiveCachingHandler = ReactiveStreams.isPresent ? new ReactiveCachingHandler() : null;
 
   @Nullable
   private CacheOperationSource cacheOperationSource;

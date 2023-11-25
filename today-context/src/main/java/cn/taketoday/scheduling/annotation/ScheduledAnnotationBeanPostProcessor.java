@@ -54,6 +54,7 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.expression.EmbeddedValueResolverAware;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -74,7 +75,6 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 import cn.taketoday.scheduling.config.TaskSchedulerRouter;
 import cn.taketoday.scheduling.support.CronTrigger;
 import cn.taketoday.scheduling.support.ScheduledMethodRunnable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -120,12 +120,6 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
    * in case of multiple scheduler beans found in the context.
    */
   public static final String DEFAULT_TASK_SCHEDULER_BEAN_NAME = TaskSchedulerRouter.DEFAULT_TASK_SCHEDULER_BEAN_NAME;
-
-  /**
-   * Reactive Streams API present on the classpath?
-   */
-  private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", ScheduledAnnotationBeanPostProcessor.class.getClassLoader());
 
   private static final Logger log = LoggerFactory.getLogger(ScheduledAnnotationBeanPostProcessor.class);
 
@@ -328,7 +322,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
   protected void processScheduled(Scheduled scheduled, Method method, Object bean) {
     // Is the method a Kotlin suspending function? Throws if true and the reactor bridge isn't on the classpath.
     // Does the method return a reactive type? Throws if true and it isn't a deferred Publisher type.
-    if (reactiveStreamsPresent && ScheduledAnnotationReactiveSupport.isReactive(method)) {
+    if (ReactiveStreams.isPresent && ScheduledAnnotationReactiveSupport.isReactive(method)) {
       processScheduledAsync(scheduled, method, bean);
       return;
     }

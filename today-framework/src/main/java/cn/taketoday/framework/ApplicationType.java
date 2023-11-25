@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.framework;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.aot.hint.TypeReference;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.ServletDetector;
@@ -61,7 +59,7 @@ public enum ApplicationType {
 
   public static final String WEB_INDICATOR_CLASS = "cn.taketoday.web.RequestContext";
   public static final String SERVLET_INDICATOR_CLASS = ServletDetector.SERVLET_CLASS;
-  public static final String REACTOR_INDICATOR_CLASS = "reactor.core.publisher.Flux";
+  public static final String REACTOR_INDICATOR_CLASS = ReactiveStreams.REACTOR_INDICATOR_CLASS;
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   public static ApplicationType forClasspath() {

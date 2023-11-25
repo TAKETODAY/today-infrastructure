@@ -37,6 +37,7 @@ import java.util.function.Consumer;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.io.InputStreamResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceRegion;
@@ -202,7 +203,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
       return new CompletionStageEntityResponse(this.status, this.headers, this.cookies,
               completionStage, this.entityType);
     }
-    else if (DefaultAsyncServerResponse.reactiveStreamsPresent) {
+    else if (ReactiveStreams.isPresent) {
       ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(this.entity.getClass());
       if (adapter != null) {
         Publisher<T> publisher = adapter.toPublisher(this.entity);

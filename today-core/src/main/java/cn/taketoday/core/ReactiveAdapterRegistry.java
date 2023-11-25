@@ -61,11 +61,6 @@ public class ReactiveAdapterRegistry {
   @Nullable
   private static volatile ReactiveAdapterRegistry sharedInstance;
 
-  private static final boolean mutinyPresent = isPresent("io.smallrye.mutiny.Multi");
-  private static final boolean reactorPresent = isPresent("reactor.core.publisher.Flux");
-  private static final boolean rxjava3Present = isPresent("io.reactivex.rxjava3.core.Flowable");
-  private static final boolean reactiveStreamsPresent = isPresent("org.reactivestreams.Publisher");
-
   private final ArrayList<ReactiveAdapter> adapters = new ArrayList<>();
 
   /**
@@ -75,27 +70,27 @@ public class ReactiveAdapterRegistry {
    */
   public ReactiveAdapterRegistry() {
     // Defensive guard for the Reactive Streams API itself
-    if (!reactiveStreamsPresent) {
+    if (!ReactiveStreams.isPresent) {
       return;
     }
 
     // Reactor
-    if (reactorPresent) {
+    if (ReactiveStreams.reactorPresent) {
       new ReactorRegistrar().registerAdapters(this);
     }
 
     // RxJava
-    if (rxjava3Present) {
+    if (ReactiveStreams.rxjava3Present) {
       new RxJava3Registrar().registerAdapters(this);
     }
 
     // SmallRye Mutiny
-    if (mutinyPresent) {
+    if (ReactiveStreams.mutinyPresent) {
       new MutinyRegistrar().registerAdapters(this);
     }
 
     // Simple Flow.Publisher bridge if Reactor is not present
-    if (!reactorPresent) {
+    if (!ReactiveStreams.reactorPresent) {
       new FlowAdaptersRegistrar().registerAdapters(this);
     }
   }
@@ -112,11 +107,10 @@ public class ReactiveAdapterRegistry {
    * @see #registerReactiveTypeOverride
    * @see #getAdapter
    */
-  public void registerReactiveType(
-          ReactiveTypeDescriptor descriptor,
+  public void registerReactiveType(ReactiveTypeDescriptor descriptor,
           Function<Object, Publisher<?>> toAdapter, Function<Publisher<?>, Object> fromAdapter) {
 
-    if (reactorPresent) {
+    if (ReactiveStreams.reactorPresent) {
       this.adapters.add(new ReactorAdapter(descriptor, toAdapter, fromAdapter));
     }
     else {
@@ -148,7 +142,7 @@ public class ReactiveAdapterRegistry {
   private ReactiveAdapter buildAdapter(ReactiveTypeDescriptor descriptor,
           Function<Object, Publisher<?>> toAdapter, Function<Publisher<?>, Object> fromAdapter) {
 
-    return reactorPresent
+    return ReactiveStreams.reactorPresent
            ? new ReactorAdapter(descriptor, toAdapter, fromAdapter)
            : new ReactiveAdapter(descriptor, toAdapter, fromAdapter);
   }

@@ -50,6 +50,7 @@ import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.InstanceSupplier;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.CodeBlock.Builder;
 import cn.taketoday.lang.Nullable;
@@ -133,7 +134,7 @@ class BeanDefinitionPropertiesCodeGenerator {
   private void addInitDestroyMethods(Builder code, AbstractBeanDefinition beanDefinition,
           @Nullable String[] methodNames, String format) {
     // For Publisher-based destroy methods
-    hints.reflection().registerType(TypeReference.of("org.reactivestreams.Publisher"));
+    hints.reflection().registerType(TypeReference.of(ReactiveStreams.INDICATOR_CLASS));
     if (!ObjectUtils.isEmpty(methodNames)) {
       Class<?> beanType = ClassUtils.getUserClass(beanDefinition.getResolvableType().toClass());
       Arrays.stream(methodNames).forEach(methodName -> addInitDestroyHint(beanType, methodName));

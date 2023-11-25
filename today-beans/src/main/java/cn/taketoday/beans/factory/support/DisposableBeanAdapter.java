@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,11 +35,11 @@ import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.beans.factory.config.DestructionAwareBeanPostProcessor;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
@@ -76,9 +73,6 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
   private static final String CLOSE_METHOD_NAME = "close";
   private static final String DESTROY_METHOD_NAME = "destroy";
   private static final String SHUTDOWN_METHOD_NAME = "shutdown";
-
-  private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", DisposableBeanAdapter.class.getClassLoader());
 
   private final Object bean;
   private final String beanName;
@@ -321,7 +315,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
         future.get();
         logDestroyMethodCompletion(destroyMethod, true);
       }
-      else if (!reactiveStreamsPresent ||
+      else if (!ReactiveStreams.isPresent ||
               !ReactiveDestroyMethodHandler.await(this, destroyMethod, returnValue)) {
         if (log.isDebugEnabled()) {
           log.debug("Unknown return value type from custom destroy method '{}' on bean with name '{}': {}",

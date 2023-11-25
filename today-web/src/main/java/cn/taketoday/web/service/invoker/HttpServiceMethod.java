@@ -27,10 +27,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ReactiveAdapter;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
@@ -40,7 +41,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.service.annotation.HttpExchange;
@@ -60,9 +60,6 @@ import reactor.core.publisher.Mono;
  */
 final class HttpServiceMethod {
 
-  private static final boolean REACTOR_PRESENT =
-          ClassUtils.isPresent("reactor.core.publisher.Mono", HttpServiceMethod.class.getClassLoader());
-
   private final Method method;
 
   private final MethodParameter[] parameters;
@@ -80,7 +77,7 @@ final class HttpServiceMethod {
     this.parameters = initMethodParameters(method);
     this.argumentResolvers = argumentResolvers;
 
-    boolean isReactorAdapter = REACTOR_PRESENT && adapter instanceof ReactorHttpExchangeAdapter;
+    boolean isReactorAdapter = ReactiveStreams.reactorPresent && adapter instanceof ReactorHttpExchangeAdapter;
 
     this.requestValuesInitializer =
             HttpRequestValuesInitializer.create(
@@ -99,7 +96,7 @@ final class HttpServiceMethod {
       return new MethodParameter[0];
     }
 
-    DefaultParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
+    ParameterNameDiscoverer nameDiscoverer = ParameterNameDiscoverer.getSharedInstance();
     MethodParameter[] parameters = new MethodParameter[count];
     for (int i = 0; i < count; i++) {
       parameters[i] = new SynthesizingMethodParameter(method, i);

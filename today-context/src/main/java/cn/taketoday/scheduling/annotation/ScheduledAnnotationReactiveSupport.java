@@ -29,12 +29,12 @@ import java.util.concurrent.CountDownLatch;
 import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
+import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.scheduling.SchedulingAwareRunnable;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -48,9 +48,6 @@ import reactor.core.publisher.Flux;
  * @since 4.0
  */
 abstract class ScheduledAnnotationReactiveSupport {
-
-  static final boolean reactorPresent = ClassUtils.isPresent(
-      "reactor.core.publisher.Flux", ScheduledAnnotationReactiveSupport.class.getClassLoader());
 
   private static final Logger logger = LoggerFactory.getLogger(ScheduledAnnotationReactiveSupport.class);
 
@@ -78,9 +75,9 @@ abstract class ScheduledAnnotationReactiveSupport {
       return false;
     }
     Assert.isTrue(method.getParameterCount() == 0,
-        "Reactive methods may only be annotated with @Scheduled if declared without arguments");
+            "Reactive methods may only be annotated with @Scheduled if declared without arguments");
     Assert.isTrue(candidateAdapter.getDescriptor().isDeferred(),
-        "Reactive methods may only be annotated with @Scheduled if the return type supports deferred execution");
+            "Reactive methods may only be annotated with @Scheduled if the return type supports deferred execution");
     return true;
   }
 
@@ -102,7 +99,7 @@ abstract class ScheduledAnnotationReactiveSupport {
     }
     if (!adapter.getDescriptor().isDeferred()) {
       throw new IllegalArgumentException("Cannot convert @Scheduled reactive method return type to Publisher: " +
-          returnType.getSimpleName() + " is not a deferred reactive type");
+              returnType.getSimpleName() + " is not a deferred reactive type");
     }
 
     Method invocableMethod = AopUtils.selectInvocableMethod(method, bean.getClass());
@@ -112,9 +109,9 @@ abstract class ScheduledAnnotationReactiveSupport {
 
       Publisher<?> publisher = adapter.toPublisher(returnValue);
       // If Reactor is on the classpath, we could benefit from having a checkpoint for debuggability
-      if (reactorPresent) {
+      if (ReactiveStreams.reactorPresent) {
         return Flux.from(publisher)
-            .checkpoint("@Scheduled '" + method.getName() + "()' in '" + method.getDeclaringClass().getName() + "'");
+                .checkpoint("@Scheduled '" + method.getName() + "()' in '" + method.getDeclaringClass().getName() + "'");
       }
       else {
         return publisher;
@@ -122,12 +119,12 @@ abstract class ScheduledAnnotationReactiveSupport {
     }
     catch (InvocationTargetException ex) {
       throw new IllegalArgumentException(
-          "Cannot obtain a Publisher-convertible value from the @Scheduled reactive method",
-          ex.getTargetException());
+              "Cannot obtain a Publisher-convertible value from the @Scheduled reactive method",
+              ex.getTargetException());
     }
     catch (IllegalAccessException ex) {
       throw new IllegalArgumentException(
-          "Cannot obtain a Publisher-convertible value from the @Scheduled reactive method", ex);
+              "Cannot obtain a Publisher-convertible value from the @Scheduled reactive method", ex);
     }
   }
 
@@ -142,7 +139,7 @@ abstract class ScheduledAnnotationReactiveSupport {
    * delay is applied until the next iteration).
    */
   public static Runnable createSubscriptionRunnable(Method method, Object targetBean,
-      Scheduled scheduled, List<Runnable> subscriptionTrackerRegistry) {
+          Scheduled scheduled, List<Runnable> subscriptionTrackerRegistry) {
 
     boolean shouldBlock = scheduled.fixedDelay() > 0 || StringUtils.hasText(scheduled.fixedDelayString());
     Publisher<?> publisher = getPublisherFor(method, targetBean);
@@ -165,7 +162,7 @@ abstract class ScheduledAnnotationReactiveSupport {
     private final List<Runnable> subscriptionTrackerRegistry;
 
     SubscribingRunnable(Publisher<?> publisher, boolean shouldBlock,
-        @Nullable String qualifier, List<Runnable> subscriptionTrackerRegistry) {
+            @Nullable String qualifier, List<Runnable> subscriptionTrackerRegistry) {
 
       this.publisher = publisher;
       this.shouldBlock = shouldBlock;
