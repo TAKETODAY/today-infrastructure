@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,9 +32,12 @@ import cn.taketoday.cache.annotation.Cacheable;
 import cn.taketoday.cache.annotation.Caching;
 import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.context.expression.AnnotatedElementKey;
+import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class ExpressionEvaluatorTests {
 
-  private final CacheOperationExpressionEvaluator eval = new CacheOperationExpressionEvaluator();
+  private final StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
+
+  private final CacheOperationExpressionEvaluator eval = new CacheOperationExpressionEvaluator(
+          new CacheEvaluationContextFactory(this.originalEvaluationContext));
 
   private final AnnotationCacheOperationSource source = new AnnotationCacheOperationSource();
 
@@ -63,14 +66,14 @@ public class ExpressionEvaluatorTests {
   @Test
   public void testMultipleCachingSource() {
     Collection<CacheOperation> ops = getOps("multipleCaching");
-    assertThat(ops.size()).isEqualTo(2);
+    assertThat(ops).hasSize(2);
     Iterator<CacheOperation> it = ops.iterator();
     CacheOperation next = it.next();
-    assertThat(next instanceof CacheableOperation).isTrue();
+    assertThat(next).isInstanceOf(CacheableOperation.class);
     assertThat(next.getCacheNames().contains("test")).isTrue();
     assertThat(next.getKey()).isEqualTo("#a");
     next = it.next();
-    assertThat(next instanceof CacheableOperation).isTrue();
+    assertThat(next).isInstanceOf(CacheableOperation.class);
     assertThat(next.getCacheNames().contains("test")).isTrue();
     assertThat(next.getKey()).isEqualTo("#b");
   }
@@ -84,7 +87,7 @@ public class ExpressionEvaluatorTests {
     Collection<ConcurrentMapCache> caches = Collections.singleton(new ConcurrentMapCache("test"));
 
     EvaluationContext evalCtx = this.eval.createEvaluationContext(caches, method, args,
-            target, target.getClass(), method, CacheOperationExpressionEvaluator.NO_RESULT, null);
+            target, target.getClass(), method, CacheOperationExpressionEvaluator.NO_RESULT);
     Collection<CacheOperation> ops = getOps("multipleCaching");
 
     Iterator<CacheOperation> it = ops.iterator();
@@ -142,14 +145,17 @@ public class ExpressionEvaluatorTests {
     return createEvaluationContext(result, null);
   }
 
-  private EvaluationContext createEvaluationContext(Object result, BeanFactory beanFactory) {
+  private EvaluationContext createEvaluationContext(Object result, @Nullable BeanFactory beanFactory) {
+    if (beanFactory != null) {
+      this.originalEvaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
+    }
     AnnotatedClass target = new AnnotatedClass();
     Method method = ReflectionUtils.findMethod(
             AnnotatedClass.class, "multipleCaching", Object.class, Object.class);
     Object[] args = new Object[] { new Object(), new Object() };
     Collection<ConcurrentMapCache> caches = Collections.singleton(new ConcurrentMapCache("test"));
     return this.eval.createEvaluationContext(
-            caches, method, args, target, target.getClass(), method, result, beanFactory);
+            caches, method, args, target, target.getClass(), method, result);
   }
 
   private static class AnnotatedClass {

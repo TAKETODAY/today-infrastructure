@@ -35,10 +35,12 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.core.MethodIntrospector;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -65,8 +67,6 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final EventExpressionEvaluator evaluator = new EventExpressionEvaluator();
-
   private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
 
   @Nullable
@@ -83,6 +83,9 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
   public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
     var factories = beanFactory.getBeans(EventListenerFactory.class);
     AnnotationAwareOrderComparator.sort(factories);
+    StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
+    originalEvaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
+    EventExpressionEvaluator evaluator = new EventExpressionEvaluator(originalEvaluationContext);
 
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {
@@ -112,7 +115,7 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
           }
         }
         try {
-          process(beanName, type, factories);
+          process(beanName, type, factories, evaluator);
         }
         catch (Throwable ex) {
           throw new BeanInitializationException("Failed to process @EventListener " +
@@ -122,7 +125,7 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
     }
   }
 
-  private void process(String beanName, Class<?> targetType, List<EventListenerFactory> factories) {
+  private void process(String beanName, Class<?> targetType, List<EventListenerFactory> factories, EventExpressionEvaluator evaluator) {
     if (!this.nonAnnotatedClasses.contains(targetType)
             && AnnotationUtils.isCandidateClass(targetType, EventListener.class)
             && !isInfraContainerClass(targetType)) {

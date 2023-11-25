@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,10 +22,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.context.expression.AnnotatedElementKey;
-import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.context.expression.CachedExpressionEvaluator;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
@@ -71,6 +66,14 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
 
   private final Map<ExpressionKey, Expression> unlessCache = new ConcurrentHashMap<>(64);
 
+  private final CacheEvaluationContextFactory evaluationContextFactory;
+
+  public CacheOperationExpressionEvaluator(CacheEvaluationContextFactory evaluationContextFactory) {
+    super();
+    this.evaluationContextFactory = evaluationContextFactory;
+    this.evaluationContextFactory.setParameterNameDiscoverer(() -> parameterNameDiscoverer);
+  }
+
   /**
    * Create an {@link EvaluationContext}.
    *
@@ -83,21 +86,19 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
    * {@link #NO_RESULT} if there is no return at this time
    * @return the evaluation context
    */
-  public EvaluationContext createEvaluationContext(Collection<? extends Cache> caches,
-          Method method, Object[] args, Object target, Class<?> targetClass, Method targetMethod,
-          @Nullable Object result, @Nullable BeanFactory beanFactory) {
+  public EvaluationContext createEvaluationContext(Collection<? extends Cache> caches, Method method,
+          Object[] args, Object target, Class<?> targetClass, Method targetMethod, @Nullable Object result) {
 
     var rootObject = new CacheExpressionRootObject(caches, method, args, target, targetClass);
-    var evaluationContext = new CacheEvaluationContext(rootObject, targetMethod, args, parameterNameDiscoverer);
+    var evaluationContext = evaluationContextFactory.forOperation(rootObject, targetMethod, args);
+
     if (result == RESULT_UNAVAILABLE) {
       evaluationContext.addUnavailableVariable(RESULT_VARIABLE);
     }
     else if (result != NO_RESULT) {
       evaluationContext.setVariable(RESULT_VARIABLE, result);
     }
-    if (beanFactory != null) {
-      evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
-    }
+
     return evaluationContext;
   }
 

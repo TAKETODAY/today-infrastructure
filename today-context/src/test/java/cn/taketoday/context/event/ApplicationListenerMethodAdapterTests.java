@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ResolvableTypeProvider;
 import cn.taketoday.core.annotation.Order;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -323,7 +321,7 @@ public class ApplicationListenerMethodAdapterTests extends AbstractApplicationEv
     given(this.context.getBean("testBean")).willReturn(this.sampleEvents);
     ApplicationListenerMethodAdapter listener = new ApplicationListenerMethodAdapter(
             "testBean", GenericTestEvent.class, method);
-    listener.init(this.context, new EventExpressionEvaluator());
+    listener.init(this.context, new EventExpressionEvaluator(new StandardEvaluationContext()));
     GenericTestEvent<String> event = createGenericTestEvent("test");
 
     listener.onApplicationEvent(event);

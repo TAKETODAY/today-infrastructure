@@ -44,10 +44,12 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.context.expression.AnnotatedElementKey;
+import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.ReactiveAdapter;
 import cn.taketoday.core.ReactiveAdapterRegistry;
 import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -93,15 +95,18 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
   private static final Logger log = LoggerFactory.getLogger(CacheAspectSupport.class);
 
-  private static final boolean reactiveStreamsPresent = ClassUtils.isPresent(
-          "org.reactivestreams.Publisher", CacheAspectSupport.class.getClassLoader());
-
   private final ConcurrentHashMap<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
 
-  private final CacheOperationExpressionEvaluator evaluator = new CacheOperationExpressionEvaluator();
+  private final StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
+
+  private final CacheOperationExpressionEvaluator evaluator = new CacheOperationExpressionEvaluator(
+          new CacheEvaluationContextFactory(originalEvaluationContext));
 
   @Nullable
-  private final ReactiveCachingHandler reactiveCachingHandler;
+  private final ReactiveCachingHandler reactiveCachingHandler
+          = ClassUtils.isPresent("org.reactivestreams.Publisher", CacheAspectSupport.class) ?
+            new ReactiveCachingHandler() :
+            null;
 
   @Nullable
   private CacheOperationSource cacheOperationSource;
@@ -116,19 +121,12 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
   private boolean initialized = false;
 
-  protected CacheAspectSupport() {
-    this.reactiveCachingHandler = (reactiveStreamsPresent ? new ReactiveCachingHandler() : null);
-  }
-
   /**
    * Configure this aspect with the given error handler, key generator and cache resolver/manager
    * suppliers, applying the corresponding default if a supplier is not resolvable.
    */
-  public void configure(
-          @Nullable Supplier<CacheErrorHandler> errorHandler,
-          @Nullable Supplier<KeyGenerator> keyGenerator,
-          @Nullable Supplier<CacheResolver> cacheResolver,
-          @Nullable Supplier<CacheManager> cacheManager) {
+  public void configure(@Nullable Supplier<CacheErrorHandler> errorHandler, @Nullable Supplier<KeyGenerator> keyGenerator,
+          @Nullable Supplier<CacheResolver> cacheResolver, @Nullable Supplier<CacheManager> cacheManager) {
 
     this.keyGenerator = new SingletonSupplier<>(keyGenerator, SimpleKeyGenerator::new);
     this.errorHandler = new SingletonSupplier<>(errorHandler, SimpleCacheErrorHandler::new);
@@ -146,7 +144,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   public void setCacheOperationSources(CacheOperationSource... cacheOperationSources) {
     Assert.notEmpty(cacheOperationSources, "At least 1 CacheOperationSource needs to be specified");
     this.cacheOperationSource = cacheOperationSources.length > 1 ?
-                                new CompositeCacheOperationSource(cacheOperationSources) : cacheOperationSources[0];
+                                new CompositeCacheOperationSource(cacheOperationSources) :
+                                cacheOperationSources[0];
   }
 
   /**
@@ -221,6 +220,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
+    this.originalEvaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
   }
 
   @Override
@@ -263,9 +263,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     return ClassUtils.getQualifiedMethodName(specificMethod);
   }
 
-  protected Collection<? extends Cache> getCaches(
-          CacheOperationInvocationContext<CacheOperation> context, CacheResolver cacheResolver) {
-
+  protected Collection<? extends Cache> getCaches(CacheOperationInvocationContext<CacheOperation> context, CacheResolver cacheResolver) {
     Collection<? extends Cache> caches = cacheResolver.resolveCaches(context);
     if (caches.isEmpty()) {
       throw new IllegalStateException("No cache could be resolved for '" +
@@ -275,8 +273,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     return caches;
   }
 
-  protected CacheOperationContext getOperationContext(
-          CacheOperation operation, Method method, Object[] args, Object target, Class<?> targetClass) {
+  protected CacheOperationContext getOperationContext(CacheOperation operation,
+          Method method, Object[] args, Object target, Class<?> targetClass) {
 
     CacheOperationMetadata metadata = getCacheOperationMetadata(operation, method, targetClass);
     return new CacheOperationContext(metadata, args, target);
@@ -292,8 +290,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
    * @param targetClass the target type
    * @return the resolved metadata for the operation
    */
-  protected CacheOperationMetadata getCacheOperationMetadata(
-          CacheOperation operation, Method method, Class<?> targetClass) {
+  protected CacheOperationMetadata getCacheOperationMetadata(CacheOperation operation, Method method, Class<?> targetClass) {
 
     CacheOperationCacheKey cacheKey = new CacheOperationCacheKey(operation, method, targetClass);
     CacheOperationMetadata metadata = this.metadataCache.get(cacheKey);
@@ -361,8 +358,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       if (cacheOperationSource != null) {
         Collection<CacheOperation> operations = cacheOperationSource.getCacheOperations(method, targetClass);
         if (CollectionUtils.isNotEmpty(operations)) {
-          return execute(invoker, method,
-                  new CacheOperationContexts(operations, method, args, target, targetClass));
+          return execute(invoker, method, new CacheOperationContexts(operations, method, args, target, targetClass));
         }
       }
     }
@@ -454,8 +450,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
         return cache.retrieve(key, () -> (CompletableFuture<?>) invokeOperation(invoker));
       }
-      if (this.reactiveCachingHandler != null) {
-        Object returnValue = this.reactiveCachingHandler.executeSynchronized(invoker, method, cache, key);
+      if (reactiveCachingHandler != null) {
+        Object returnValue = reactiveCachingHandler.executeSynchronized(invoker, method, cache, key);
         if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
           return returnValue;
         }
@@ -510,8 +506,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   @Nullable
-  private Object processCacheEvicts(Collection<CacheOperationContext> contexts, boolean beforeInvocation,
-          @Nullable Object result) {
+  private Object processCacheEvicts(Collection<CacheOperationContext> contexts,
+          boolean beforeInvocation, @Nullable Object result) {
 
     if (contexts.isEmpty()) {
       return null;
@@ -530,8 +526,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         }
       });
     }
-    if (this.reactiveCachingHandler != null) {
-      Object returnValue = this.reactiveCachingHandler.processCacheEvicts(applicable, result);
+    if (reactiveCachingHandler != null) {
+      Object returnValue = reactiveCachingHandler.processCacheEvicts(applicable, result);
       if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
         return returnValue;
       }
@@ -563,8 +559,10 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   private static void logInvalidating(CacheOperationContext context, CacheEvictOperation operation, @Nullable Object key) {
-    log.trace("Invalidating {} for operation {} on method {}",
-            (key != null ? "cache key [" + key + "]" : "entire cache"), operation, context.metadata.method);
+    if (log.isTraceEnabled()) {
+      log.trace("Invalidating {} for operation {} on method {}",
+              (key != null ? "cache key [" + key + "]" : "entire cache"), operation, context.metadata.method);
+    }
   }
 
   /**
@@ -619,8 +617,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       if (CompletableFuture.class.isAssignableFrom(context.getMethod().getReturnType())) {
         return cache.retrieve(key);
       }
-      if (this.reactiveCachingHandler != null) {
-        Object returnValue = this.reactiveCachingHandler.findInCaches(context, cache, key);
+      if (reactiveCachingHandler != null) {
+        Object returnValue = reactiveCachingHandler.findInCaches(context, cache, key);
         if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
           return returnValue;
         }
@@ -656,8 +654,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     private final boolean sync;
 
-    public CacheOperationContexts(Collection<? extends CacheOperation> operations, Method method,
-            Object[] args, Object target, Class<?> targetClass) {
+    public CacheOperationContexts(Collection<? extends CacheOperation> operations,
+            Method method, Object[] args, Object target, Class<?> targetClass) {
 
       this.contexts = MultiValueMap.forLinkedHashMap(operations.size());
       for (CacheOperation op : operations) {
@@ -731,8 +729,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     public final CacheResolver cacheResolver;
 
-    public CacheOperationMetadata(CacheOperation operation, Method method, Class<?> targetClass,
-            KeyGenerator keyGenerator, CacheResolver cacheResolver) {
+    public CacheOperationMetadata(CacheOperation operation, Method method,
+            Class<?> targetClass, KeyGenerator keyGenerator, CacheResolver cacheResolver) {
 
       this.operation = operation;
       this.targetClass = targetClass;
@@ -849,7 +847,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     private EvaluationContext createEvaluationContext(@Nullable Object result) {
       return evaluator.createEvaluationContext(this.caches, this.metadata.method, this.args,
-              this.target, this.metadata.targetClass, this.metadata.targetMethod, result, beanFactory);
+              this.target, this.metadata.targetClass, this.metadata.targetMethod, result);
     }
 
     protected Collection<? extends Cache> getCaches() {
@@ -964,7 +962,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   /**
    * Reactive Streams Subscriber collection for collecting a List to cache.
    */
-  private class CachePutListSubscriber implements Subscriber<Object> {
+  private static class CachePutListSubscriber implements Subscriber<Object> {
 
     private final CachePutRequest request;
 
@@ -998,36 +996,32 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   /**
    * Inner class to avoid a hard dependency on the Reactive Streams API at runtime.
    */
-  private class ReactiveCachingHandler {
+  private final class ReactiveCachingHandler {
 
     public static final Object NOT_HANDLED = new Object();
 
-    private final ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
+    private static final ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
 
-    @Nullable
     public Object executeSynchronized(CacheOperationInvoker invoker, Method method, Cache cache, Object key) {
-      ReactiveAdapter adapter = this.registry.getAdapter(method.getReturnType());
+      ReactiveAdapter adapter = registry.getAdapter(method.getReturnType());
       if (adapter != null) {
         if (adapter.isMultiValue()) {
           // Flux or similar
-          return adapter.fromPublisher(Flux.from(Mono.fromFuture(cache.retrieve(key,
-                          () -> Flux.from(adapter.toPublisher(invokeOperation(invoker)))
-                                  .collectList().toFuture())))
+          return adapter.fromPublisher(Flux.from(Mono.fromFuture(cache.retrieve(key, () -> Flux.from(adapter.toPublisher(invokeOperation(invoker)))
+                          .collectList().toFuture())))
                   .flatMap(Flux::fromIterable));
         }
         else {
           // Mono or similar
           return adapter.fromPublisher(Mono.fromFuture(
-                  cache.retrieve(key,
-                          () -> Mono.from(adapter.toPublisher(invokeOperation(invoker))).toFuture())));
+                  cache.retrieve(key, () -> Mono.from(adapter.toPublisher(invokeOperation(invoker))).toFuture())));
         }
       }
       return NOT_HANDLED;
     }
 
-    @Nullable
     public Object processCacheEvicts(List<CacheOperationContext> contexts, @Nullable Object result) {
-      ReactiveAdapter adapter = (result != null ? this.registry.getAdapter(result.getClass()) : null);
+      ReactiveAdapter adapter = (result != null ? registry.getAdapter(result.getClass()) : null);
       if (adapter != null) {
         return adapter.fromPublisher(Mono.from(adapter.toPublisher(result))
                 .doOnSuccess(value -> performCacheEvicts(contexts, result)));
@@ -1037,7 +1031,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     @Nullable
     public Object findInCaches(CacheOperationContext context, Cache cache, Object key) {
-      ReactiveAdapter adapter = this.registry.getAdapter(context.getMethod().getReturnType());
+      ReactiveAdapter adapter = registry.getAdapter(context.getMethod().getReturnType());
       if (adapter != null) {
         CompletableFuture<?> cachedFuture = cache.retrieve(key);
         if (cachedFuture == null) {
@@ -1054,9 +1048,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       return NOT_HANDLED;
     }
 
-    @Nullable
     public Object processPutRequest(CachePutRequest request, @Nullable Object result) {
-      ReactiveAdapter adapter = (result != null ? this.registry.getAdapter(result.getClass()) : null);
+      ReactiveAdapter adapter = (result != null ? registry.getAdapter(result.getClass()) : null);
       if (adapter != null) {
         if (adapter.isMultiValue()) {
           Flux<?> source = Flux.from(adapter.toPublisher(result));

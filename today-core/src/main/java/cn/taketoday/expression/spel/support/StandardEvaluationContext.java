@@ -273,7 +273,9 @@ public class StandardEvaluationContext implements EvaluationContext {
    * @see #setVariable(String, Object)
    */
   public void setVariables(Map<String, Object> variables) {
-    variables.forEach(this::setVariable);
+    for (Map.Entry<String, Object> entry : variables.entrySet()) {
+      setVariable(entry.getKey(), entry.getValue());
+    }
   }
 
   /**
@@ -328,6 +330,29 @@ public class StandardEvaluationContext implements EvaluationContext {
               "Method filter cannot be set as the reflective method resolver is not in use");
     }
     resolver.registerMethodFilter(type, filter);
+  }
+
+  /**
+   * Apply the internal delegates of this instance to the specified
+   * {@code evaluationContext}. Typically invoked right after the new context
+   * instance has been created to reuse the delegates. Do not modify the
+   * {@linkplain #setRootObject(Object) root object} or any registered
+   * {@linkplain #setVariables(Map) variables}.
+   *
+   * @param evaluationContext the evaluation context to update
+   */
+  public void applyDelegatesTo(StandardEvaluationContext evaluationContext) {
+    // Triggers initialization for default delegates
+    evaluationContext.setConstructorResolvers(new ArrayList<>(getConstructorResolvers()));
+    evaluationContext.setMethodResolvers(new ArrayList<>(getMethodResolvers()));
+    evaluationContext.setPropertyAccessors(new ArrayList<>(getPropertyAccessors()));
+    evaluationContext.setTypeLocator(getTypeLocator());
+    evaluationContext.setTypeConverter(getTypeConverter());
+
+    evaluationContext.beanResolver = this.beanResolver;
+    evaluationContext.operatorOverloader = this.operatorOverloader;
+    evaluationContext.reflectiveMethodResolver = this.reflectiveMethodResolver;
+    evaluationContext.typeComparator = this.typeComparator;
   }
 
   private List<PropertyAccessor> initPropertyAccessors() {

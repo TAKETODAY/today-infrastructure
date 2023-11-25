@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +21,11 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.expression.AnnotatedElementKey;
-import cn.taketoday.context.expression.BeanFactoryResolver;
 import cn.taketoday.context.expression.CachedExpressionEvaluator;
 import cn.taketoday.context.expression.MethodBasedEvaluationContext;
 import cn.taketoday.expression.Expression;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
 /**
  * Utility class for handling SpEL expression parsing for application events.
@@ -45,19 +40,23 @@ class EventExpressionEvaluator extends CachedExpressionEvaluator {
 
   private final Map<ExpressionKey, Expression> conditionCache = new ConcurrentHashMap<>(64);
 
+  private final StandardEvaluationContext originalEvaluationContext;
+
+  EventExpressionEvaluator(StandardEvaluationContext originalEvaluationContext) {
+    this.originalEvaluationContext = originalEvaluationContext;
+  }
+
   /**
    * Determine if the condition defined by the specified expression evaluates
    * to {@code true}.
    */
-  public boolean condition(String conditionExpression, Object event, Method targetMethod,
-          AnnotatedElementKey methodKey, Object[] args, @Nullable BeanFactory beanFactory) {
+  public boolean condition(String conditionExpression, Object event,
+          Method targetMethod, AnnotatedElementKey methodKey, Object[] args) {
 
     var root = new EventExpressionRootObject(event, args);
-    var evaluationContext = new MethodBasedEvaluationContext(
-            root, targetMethod, args, parameterNameDiscoverer);
-    if (beanFactory != null) {
-      evaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
-    }
+    var evaluationContext = new MethodBasedEvaluationContext(root, targetMethod, args, parameterNameDiscoverer);
+
+    originalEvaluationContext.applyDelegatesTo(evaluationContext);
 
     return Boolean.TRUE.equals(
             getExpression(conditionCache, methodKey, conditionExpression)
