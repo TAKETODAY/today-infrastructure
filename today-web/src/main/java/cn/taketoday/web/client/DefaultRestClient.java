@@ -27,7 +27,6 @@ import java.nio.charset.Charset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -229,8 +228,6 @@ final class DefaultRestClient implements RestClient {
     @Nullable
     private InternalBody body;
 
-    private final Map<String, Object> attributes = new LinkedHashMap<>(4);
-
     @Nullable
     private Consumer<ClientHttpRequest> httpRequestConsumer;
 
@@ -318,18 +315,6 @@ final class DefaultRestClient implements RestClient {
     @Override
     public DefaultRequestBodyUriSpec ifNoneMatch(String... ifNoneMatches) {
       getHeaders().setIfNoneMatch(Arrays.asList(ifNoneMatches));
-      return this;
-    }
-
-    @Override
-    public RequestBodySpec attribute(String name, Object value) {
-      this.attributes.put(name, value);
-      return this;
-    }
-
-    @Override
-    public RequestBodySpec attributes(Consumer<Map<String, Object>> attributesConsumer) {
-      attributesConsumer.accept(this.attributes);
       return this;
     }
 
