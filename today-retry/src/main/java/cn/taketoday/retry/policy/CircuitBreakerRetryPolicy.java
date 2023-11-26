@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +28,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
 
 /**
  * @author Dave Syer
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -122,7 +120,7 @@ public class CircuitBreakerRetryPolicy implements RetryPolicy {
       resetTimeout = this.resetTimeoutSupplier.get();
     }
     long openTimeout = this.openTimeout;
-    if (this.resetTimeoutSupplier != null) {
+    if (this.openTimeoutSupplier != null) {
       openTimeout = this.openTimeoutSupplier.get();
     }
     return new CircuitBreakerRetryContext(parent, this.delegate, resetTimeout, openTimeout);
