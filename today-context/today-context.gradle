@@ -64,6 +64,7 @@ dependencies {
   testFixturesImplementation(testFixtures(project(":today-beans")))
   testFixturesImplementation("com.google.code.findbugs:jsr305")
   testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation("io.projectreactor:reactor-test")
 
   testImplementation 'org.projectlombok:lombok'
   testAnnotationProcessor("org.projectlombok:lombok:1.18.22")

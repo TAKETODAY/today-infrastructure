@@ -26,9 +26,9 @@ import cn.taketoday.lang.Nullable;
 /**
  * Interface that defines common cache operations.
  *
- * <p>Serves as an SPI for Infra annotation-based caching model
- * ({@link cn.taketoday.cache.annotation.Cacheable} and co)
- * as well as an API for direct usage in applications.
+ * <p>Serves primarily as an SPI for Infra annotation-based caching
+ * model ({@link cn.taketoday.cache.annotation.Cacheable} and co)
+ * and secondarily as an API for direct usage in applications.
  *
  * <p><b>Note:</b> Due to the generic use of caching, it is recommended
  * that implementations allow storage of {@code null} values

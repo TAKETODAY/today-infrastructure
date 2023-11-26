@@ -350,7 +350,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   protected Object execute(CacheOperationInvoker invoker, Object target, Method method, Object[] args) {
     // Check whether aspect is enabled (to cope with cases where the AJ is pulled in automatically)
     if (this.initialized) {
-      Class<?> targetClass = getTargetClass(target);
+      Class<?> targetClass = AopProxyUtils.ultimateTargetClass(target);
       CacheOperationSource cacheOperationSource = getCacheOperationSource();
       if (cacheOperationSource != null) {
         Collection<CacheOperation> operations = cacheOperationSource.getCacheOperations(method, targetClass);
@@ -360,7 +360,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       }
     }
 
-    return invoker.invoke();
+    return invokeOperation(invoker);
   }
 
   /**
@@ -379,12 +379,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     return invoker.invoke();
   }
 
-  private Class<?> getTargetClass(Object target) {
-    return AopProxyUtils.ultimateTargetClass(target);
-  }
-
   @Nullable
-  private Object execute(final CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
+  private Object execute(CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
     if (contexts.isSynchronized()) {
       // Special handling of synchronized invocation
       return executeSynchronized(invoker, method, contexts);
@@ -395,14 +391,111 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
             CacheOperationExpressionEvaluator.NO_RESULT);
 
     // Check if we have a cached value matching the conditions
-    Object cacheHit = findCachedValue(contexts.get(CacheableOperation.class));
+    Object cacheHit = findCachedValue(invoker, method, contexts);
+    if (cacheHit == null || cacheHit instanceof Cache.ValueWrapper) {
+      return evaluate(cacheHit, invoker, method, contexts);
+    }
+    return cacheHit;
+  }
+
+  @Nullable
+  private Object executeSynchronized(CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
+    CacheOperationContext context = contexts.get(CacheableOperation.class).iterator().next();
+    if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {
+      Object key = generateKey(context, CacheOperationExpressionEvaluator.NO_RESULT);
+      Cache cache = context.getCaches().iterator().next();
+      if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
+        return cache.retrieve(key, () -> (CompletableFuture<?>) invokeOperation(invoker));
+      }
+      if (this.reactiveCachingHandler != null) {
+        Object returnValue = this.reactiveCachingHandler.executeSynchronized(invoker, method, cache, key);
+        if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
+          return returnValue;
+        }
+      }
+      try {
+        return wrapCacheValue(method, cache.get(key, () -> unwrapReturnValue(invokeOperation(invoker))));
+      }
+      catch (Cache.ValueRetrievalException ex) {
+        // Directly propagate ThrowableWrapper from the invoker,
+        // or potentially also an IllegalArgumentException etc.
+        ReflectionUtils.rethrowRuntimeException(ex.getCause());
+        // Never reached
+        return null;
+      }
+    }
+    else {
+      // No caching required, just call the underlying method
+      return invokeOperation(invoker);
+    }
+  }
+
+  /**
+   * Find a cached value only for {@link CacheableOperation} that passes the condition.
+   *
+   * @param contexts the cacheable operations
+   * @return a {@link Cache.ValueWrapper} holding the cached value,
+   * or {@code null} if none is found
+   */
+  @Nullable
+  private Object findCachedValue(CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
+    for (CacheOperationContext context : contexts.get(CacheableOperation.class)) {
+      if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {
+        Object key = generateKey(context, CacheOperationExpressionEvaluator.NO_RESULT);
+        Object cached = findInCaches(context, key, invoker, method, contexts);
+        if (cached != null) {
+          if (log.isTraceEnabled()) {
+            log.trace("Cache entry for key '{}' found in cache(s) {}", key, context.getCacheNames());
+          }
+          return cached;
+        }
+        else {
+          if (log.isTraceEnabled()) {
+            log.trace("No cache entry for key '{}' in cache(s) {}", key, context.getCacheNames());
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  private Object findInCaches(CacheOperationContext context, Object key,
+          CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
+
+    for (Cache cache : context.getCaches()) {
+      if (CompletableFuture.class.isAssignableFrom(context.getMethod().getReturnType())) {
+        CompletableFuture<?> result = cache.retrieve(key);
+        if (result != null) {
+          return result.thenCompose(value -> (CompletableFuture<?>) evaluate(
+                  (value != null ? CompletableFuture.completedFuture(unwrapCacheValue(value)) : null),
+                  invoker, method, contexts));
+        }
+      }
+      if (reactiveCachingHandler != null) {
+        Object returnValue = reactiveCachingHandler.findInCaches(context, cache, key, invoker, method, contexts);
+        if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
+          return returnValue;
+        }
+      }
+      Cache.ValueWrapper result = doGet(cache, key);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
+  }
+
+  @Nullable
+  private Object evaluate(@Nullable Object cacheHit, CacheOperationInvoker invoker, Method method,
+          CacheOperationContexts contexts) {
 
     Object cacheValue;
     Object returnValue;
 
     if (cacheHit != null && !hasCachePut(contexts)) {
       // If there are no put requests, just use the cache hit
-      cacheValue = (cacheHit instanceof Cache.ValueWrapper wrapper ? wrapper.get() : cacheHit);
+      cacheValue = unwrapCacheValue(cacheHit);
       returnValue = wrapCacheValue(method, cacheValue);
     }
     else {
@@ -439,38 +532,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   @Nullable
-  private Object executeSynchronized(CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
-    CacheOperationContext context = contexts.get(CacheableOperation.class).iterator().next();
-    if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {
-      Object key = generateKey(context, CacheOperationExpressionEvaluator.NO_RESULT);
-      Cache cache = context.getCaches().iterator().next();
-      if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
-        return cache.retrieve(key, () -> (CompletableFuture<?>) invokeOperation(invoker));
-      }
-      if (reactiveCachingHandler != null) {
-        Object returnValue = reactiveCachingHandler.executeSynchronized(invoker, method, cache, key);
-        if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
-          return returnValue;
-        }
-      }
-      try {
-        return wrapCacheValue(method, cache.get(key, () -> unwrapReturnValue(invokeOperation(invoker))));
-      }
-      catch (Cache.ValueRetrievalException ex) {
-        // Directly propagate ThrowableWrapper from the invoker,
-        // or potentially also an IllegalArgumentException etc.
-        ReflectionUtils.rethrowRuntimeException(ex.getCause());
-        // Never reached
-        return null;
-      }
-    }
-    else {
-      // No caching required, just call the underlying method
-      return invokeOperation(invoker);
-    }
-  }
-
-  @Nullable
   private static Object wrapCacheValue(Method method, @Nullable Object cacheValue) {
     if (method.getReturnType() == Optional.class
             && (cacheValue == null || cacheValue.getClass() != Optional.class)) {
@@ -482,6 +543,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   @Nullable
   private static Object unwrapReturnValue(@Nullable Object returnValue) {
     return ObjectUtils.unwrapOptional(returnValue);
+  }
+
+  @Nullable
+  private Object unwrapCacheValue(@Nullable Object cacheValue) {
+    return (cacheValue instanceof Cache.ValueWrapper wrapper ? wrapper.get() : cacheValue);
   }
 
   private boolean hasCachePut(CacheOperationContexts contexts) {
@@ -563,33 +629,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   }
 
   /**
-   * Find a cached value only for {@link CacheableOperation} that passes the condition.
-   *
-   * @param contexts the cacheable operations
-   * @return a {@link Cache.ValueWrapper} holding the cached value,
-   * or {@code null} if none is found
-   */
-  @Nullable
-  private Object findCachedValue(Collection<CacheOperationContext> contexts) {
-    for (CacheOperationContext context : contexts) {
-      if (isConditionPassing(context, CacheOperationExpressionEvaluator.NO_RESULT)) {
-        Object key = generateKey(context, CacheOperationExpressionEvaluator.NO_RESULT);
-        Object cached = findInCaches(context, key);
-        if (cached != null) {
-          if (log.isTraceEnabled()) {
-            log.trace("Cache entry for key '{}' found in cache(s) {}", key, context.getCacheNames());
-          }
-          return cached;
-        }
-        else if (log.isTraceEnabled()) {
-          log.trace("No cache entry for key '{}' in cache(s) {}", key, context.getCacheNames());
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
    * Collect the {@link CachePutRequest} for all {@link CacheOperation} using
    * the specified result value.
    *
@@ -606,23 +645,6 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         putRequests.add(new CachePutRequest(context, key));
       }
     }
-  }
-
-  @Nullable
-  private Object findInCaches(CacheOperationContext context, Object key) {
-    for (Cache cache : context.getCaches()) {
-      if (CompletableFuture.class.isAssignableFrom(context.getMethod().getReturnType())) {
-        return cache.retrieve(key);
-      }
-      if (reactiveCachingHandler != null) {
-        Object returnValue = reactiveCachingHandler.findInCaches(context, cache, key);
-        if (returnValue != ReactiveCachingHandler.NOT_HANDLED) {
-          return returnValue;
-        }
-      }
-      return doGet(cache, key);
-    }
-    return null;
   }
 
   private boolean isConditionPassing(CacheOperationContext context, @Nullable Object result) {
@@ -1026,8 +1048,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       return NOT_HANDLED;
     }
 
+    @SuppressWarnings("unchecked")
     @Nullable
-    public Object findInCaches(CacheOperationContext context, Cache cache, Object key) {
+    public Object findInCaches(CacheOperationContext context, Cache cache, Object key,
+            CacheOperationInvoker invoker, Method method, CacheOperationContexts contexts) {
+
       ReactiveAdapter adapter = registry.getAdapter(context.getMethod().getReturnType());
       if (adapter != null) {
         CompletableFuture<?> cachedFuture = cache.retrieve(key);
@@ -1035,11 +1060,16 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           return null;
         }
         if (adapter.isMultiValue()) {
-          return adapter.fromPublisher(Flux.from(Mono.fromFuture(cachedFuture))
-                  .flatMap(v -> (v instanceof Iterable<?> iv ? Flux.fromIterable(iv) : Flux.just(v))));
+          return adapter.fromPublisher(Flux.from(
+                          Mono.fromFuture(cachedFuture)
+                                  .flatMap(value -> (Mono<?>) evaluate(Mono.just(unwrapCacheValue(value)), invoker, method, contexts)))
+                  .flatMap(v -> (v instanceof Iterable<?> iv ? Flux.fromIterable(iv) : Flux.just(v)))
+                  .switchIfEmpty(Flux.defer(() -> (Flux<?>) evaluate(null, invoker, method, contexts))));
         }
         else {
-          return adapter.fromPublisher(Mono.fromFuture(cachedFuture));
+          return adapter.fromPublisher(Mono.fromFuture(cachedFuture)
+                  .flatMap(value -> (Mono<?>) evaluate(Mono.just(unwrapCacheValue(value)), invoker, method, contexts))
+                  .switchIfEmpty(Mono.defer(() -> (Mono) evaluate(null, invoker, method, contexts))));
         }
       }
       return NOT_HANDLED;
