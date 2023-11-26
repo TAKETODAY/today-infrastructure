@@ -18,10 +18,9 @@
 package cn.taketoday.context.event;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.aop.scope.ScopedObject;
@@ -66,8 +65,6 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final Set<Class<?>> nonAnnotatedClasses = Collections.newSetFromMap(new ConcurrentHashMap<>(64));
-
   @Nullable
   private ConfigurableApplicationContext applicationContext;
 
@@ -80,6 +77,8 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
 
   @Override
   public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
+    Set<Class<?>> nonAnnotatedClasses = new HashSet<>();
+
     var factories = beanFactory.getBeans(EventListenerFactory.class);
     AnnotationAwareOrderComparator.sort(factories);
     StandardEvaluationContext shared = new StandardEvaluationContext();
@@ -114,7 +113,7 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
           }
         }
         try {
-          process(beanName, type, factories, evaluator);
+          process(beanName, type, factories, evaluator, nonAnnotatedClasses);
         }
         catch (Throwable ex) {
           throw new BeanInitializationException("Failed to process @EventListener " +
@@ -124,10 +123,13 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
     }
   }
 
-  private void process(String beanName, Class<?> targetType, List<EventListenerFactory> factories, EventExpressionEvaluator evaluator) {
-    if (!this.nonAnnotatedClasses.contains(targetType)
+  private void process(String beanName, Class<?> targetType,
+          List<EventListenerFactory> factories, EventExpressionEvaluator evaluator, Set<Class<?>> nonAnnotatedClasses) {
+
+    if (!nonAnnotatedClasses.contains(targetType)
             && AnnotationUtils.isCandidateClass(targetType, EventListener.class)
             && !isInfraContainerClass(targetType)) {
+
       Set<Method> annotatedMethods = null;
       try {
         annotatedMethods = MethodIntrospector.filterMethods(
