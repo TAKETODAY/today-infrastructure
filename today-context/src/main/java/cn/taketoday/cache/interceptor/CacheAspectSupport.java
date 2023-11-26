@@ -640,9 +640,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           @Nullable Object result, ArrayList<CachePutRequest> putRequests) {
 
     for (CacheOperationContext context : contexts) {
-      if (isConditionPassing(context, result) && context.canPutToCache(result)) {
-        Object key = generateKey(context, result);
-        putRequests.add(new CachePutRequest(context, key));
+      if (isConditionPassing(context, result)) {
+        putRequests.add(new CachePutRequest(context));
       }
     }
   }
@@ -929,22 +928,16 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     private final CacheOperationContext context;
 
-    private final Object key;
-
-    public CachePutRequest(CacheOperationContext context, Object key) {
+    public CachePutRequest(CacheOperationContext context) {
       this.context = context;
-      this.key = key;
     }
 
     @Nullable
     public Object apply(@Nullable Object result) {
       if (result instanceof CompletableFuture<?> future) {
         return future.whenComplete((value, ex) -> {
-          if (ex != null) {
-            performEvict(ex);
-          }
-          else {
-            performPut(value);
+          if (ex == null) {
+            performCachePut(value);
           }
         });
       }
@@ -954,26 +947,19 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
           return returnValue;
         }
       }
-      performPut(result);
+      performCachePut(result);
       return null;
     }
 
-    void performPut(@Nullable Object value) {
-      if (log.isTraceEnabled()) {
-        log.trace("Creating cache entry for key '{}' in cache(s) {}", context.getCacheNames(), key);
-      }
-      for (Cache cache : this.context.getCaches()) {
-        doPut(cache, this.key, value);
-      }
-    }
-
-    void performEvict(Throwable cause) {
-      if (log.isTraceEnabled()) {
-        log.trace("Removing cache entry for key '{}' from cache(s) {} due to exception: {}",
-                key, context.getCacheNames(), cause);
-      }
-      for (Cache cache : this.context.getCaches()) {
-        doEvict(cache, this.key, false);
+    public void performCachePut(@Nullable Object value) {
+      if (this.context.canPutToCache(value)) {
+        Object key = generateKey(this.context, value);
+        if (log.isTraceEnabled()) {
+          log.trace("Creating cache entry for key '{}' in cache(s) {}", key, this.context.getCacheNames());
+        }
+        for (Cache cache : this.context.getCaches()) {
+          doPut(cache, key, value);
+        }
       }
     }
   }
@@ -985,7 +971,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     private final CachePutRequest request;
 
-    private final List<Object> cacheValue = new ArrayList<>();
+    private final ArrayList<Object> cacheValue = new ArrayList<>();
 
     public CachePutListSubscriber(CachePutRequest request) {
       this.request = request;
@@ -1002,13 +988,11 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     }
 
     @Override
-    public void onError(Throwable t) {
-      this.request.performEvict(t);
-    }
+    public void onError(Throwable t) { }
 
     @Override
     public void onComplete() {
-      this.request.performPut(this.cacheValue);
+      this.request.performCachePut(this.cacheValue);
     }
   }
 
@@ -1085,7 +1069,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         }
         else {
           return adapter.fromPublisher(Mono.from(adapter.toPublisher(result))
-                  .doOnSuccess(request::performPut).doOnError(request::performEvict));
+                  .doOnSuccess(request::performCachePut));
         }
       }
       return NOT_HANDLED;
