@@ -22,7 +22,8 @@
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:tool="http://www.springframework.org/schema/tool"
     targetNamespace="http://www.springframework.org/schema/jee"
-    elementFormDefault="qualified" attributeFormDefault="unqualified">
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
 
   <xsd:import namespace="http://www.springframework.org/schema/beans"
       schemaLocation="https://www.springframework.org/schema/beans/spring-beans.xsd" />
@@ -113,7 +114,7 @@
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="local-slsb" type="jndiLocatingType">
+  <xsd:element name="local-slsb" type="ejbType">
     <xsd:annotation>
       <xsd:documentation source="java:cn.taketoday.jndi.JndiObjectFactoryBean"><![CDATA[
 	Exposes a reference to a local EJB Stateless SessionBean.
@@ -121,15 +122,56 @@
     </xsd:annotation>
   </xsd:element>
 
-  <xsd:element name="remote-slsb" type="jndiLocatingType">
+  <xsd:element name="remote-slsb">
     <xsd:annotation>
       <xsd:documentation source="java:cn.taketoday.jndi.JndiObjectFactoryBean"><![CDATA[
 	Exposes a reference to a remote EJB Stateless SessionBean.
 			]]></xsd:documentation>
     </xsd:annotation>
+    <xsd:complexType>
+      <xsd:complexContent>
+        <xsd:extension base="ejbType">
+          <xsd:attribute name="home-interface" type="xsd:string">
+            <xsd:annotation>
+              <xsd:documentation source="java:java.lang.Class"><![CDATA[
+	The home interface that will be narrowed to before performing the
+	parameterless SLSB create() call that returns the actual SLSB proxy.
+	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+							]]></xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+          <xsd:attribute name="refresh-home-on-connect-failure" type="xsd:boolean" default="false">
+            <xsd:annotation>
+              <xsd:documentation><![CDATA[
+	Controls whether to refresh the EJB home on connect failure.
+	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+
+	Can be turned on to allow for hot restart of the EJB server.
+	If a cached EJB home throws an RMI exception that indicates a
+	remote connect failure, a fresh home will be fetched and the
+	invocation will be retried.
+							]]></xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+          <xsd:attribute name="cache-session-bean" type="xsd:boolean" default="false">
+            <xsd:annotation>
+              <xsd:documentation><![CDATA[
+	Controls whether to cache the actual session bean object.
+	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+
+	Off by default for standard EJB compliance. Turn this flag
+	on to optimize session bean access for servers that are
+	known to allow for caching the actual session bean object.
+							]]></xsd:documentation>
+            </xsd:annotation>
+          </xsd:attribute>
+        </xsd:extension>
+      </xsd:complexContent>
+    </xsd:complexType>
   </xsd:element>
 
-  <xsd:complexType name="jndiLocatingType">
+  <!-- base types -->
+  <xsd:complexType name="jndiLocatingType" abstract="true">
     <xsd:complexContent>
       <xsd:extension base="beans:identifiedType">
         <xsd:sequence>
@@ -167,7 +209,7 @@
             <xsd:documentation><![CDATA[
 	Controls whether the lookup occurs in a Jakarta EE container, i.e. if the
 	prefix "java:comp/env/" needs to be added if the JNDI name doesn't
-	already contain it. Default is "true"
+	already contain it. Default is "true" (since Spring 2.5).
 						]]></xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
@@ -191,10 +233,44 @@
 	If false, it will be instantiated on startup by bean factories
 	that perform eager initialization of singletons. The default is
 	"false".
-	
+
 	Note: This attribute will not be inherited by child bean definitions.
 	Hence, it needs to be specified per concrete bean definition.
 	    				]]></xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="ejbType">
+    <xsd:complexContent>
+      <xsd:extension base="jndiLocatingType">
+        <xsd:attribute name="lookup-home-on-startup" type="xsd:boolean" default="true">
+          <xsd:annotation>
+            <xsd:documentation><![CDATA[
+	Controls whether the lookup of the EJB home object is performed
+	immediately on startup (if true, the default), or on first access
+	(if false).
+	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+						]]></xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="cache-home" type="xsd:boolean" default="true">
+          <xsd:annotation>
+            <xsd:documentation><![CDATA[
+	Controls whether the EJB home object is cached once it has been located.
+	On by default; turn this flag off to always reobtain fresh home objects.
+	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+						]]></xsd:documentation>
+          </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="business-interface" type="xsd:string">
+          <xsd:annotation>
+            <xsd:documentation source="java:java.lang.Class"><![CDATA[
+	The business interface of the EJB being proxied.
+	NOTE: Effectively ignored as of 6.0 in favor of plain JNDI lookups.
+						]]></xsd:documentation>
           </xsd:annotation>
         </xsd:attribute>
       </xsd:extension>

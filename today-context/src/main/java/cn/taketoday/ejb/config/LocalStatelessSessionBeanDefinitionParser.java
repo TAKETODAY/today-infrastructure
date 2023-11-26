@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +19,7 @@ package cn.taketoday.ejb.config;
 
 import org.w3c.dom.Element;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.jndi.JndiObjectFactoryBean;
 
 /**
@@ -31,6 +29,7 @@ import cn.taketoday.jndi.JndiObjectFactoryBean;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class LocalStatelessSessionBeanDefinitionParser extends AbstractJndiLocatingBeanDefinitionParser {
@@ -38,6 +37,12 @@ class LocalStatelessSessionBeanDefinitionParser extends AbstractJndiLocatingBean
   @Override
   protected Class<?> getBeanClass(Element element) {
     return JndiObjectFactoryBean.class;
+  }
+
+  @Override
+  protected boolean isEligibleAttribute(String attributeName) {
+    return (super.isEligibleAttribute(attributeName) &&
+            BeanUtils.getPropertyDescriptor(JndiObjectFactoryBean.class, extractPropertyName(attributeName)) != null);
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,9 @@ package cn.taketoday.ejb.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.naming.NoInitialContextException;
+
+import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.RuntimeBeanReference;
@@ -33,6 +33,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.jndi.JndiObjectFactoryBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Harrop
@@ -44,6 +45,7 @@ public class JeeNamespaceHandlerTests {
 
   private ConfigurableBeanFactory beanFactory;
 
+
   @BeforeEach
   public void setup() {
     GenericApplicationContext ctx = new GenericApplicationContext();
@@ -53,6 +55,7 @@ public class JeeNamespaceHandlerTests {
     this.beanFactory = ctx.getBeanFactory();
     this.beanFactory.getBeanNamesForType(ITestBean.class);
   }
+
 
   @Test
   public void testSimpleDefinition() {
@@ -95,6 +98,10 @@ public class JeeNamespaceHandlerTests {
     BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("simpleLocalEjb");
     assertThat(beanDefinition.getBeanClassName()).isEqualTo(JndiObjectFactoryBean.class.getName());
     assertPropertyValue(beanDefinition, "jndiName", "ejb/MyLocalBean");
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.beanFactory.getBean("simpleLocalEjb"))
+            .withCauseInstanceOf(NoInitialContextException.class);
   }
 
   @Test
@@ -102,6 +109,32 @@ public class JeeNamespaceHandlerTests {
     BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("simpleRemoteEjb");
     assertThat(beanDefinition.getBeanClassName()).isEqualTo(JndiObjectFactoryBean.class.getName());
     assertPropertyValue(beanDefinition, "jndiName", "ejb/MyRemoteBean");
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.beanFactory.getBean("simpleRemoteEjb"))
+            .withCauseInstanceOf(NoInitialContextException.class);
+  }
+
+  @Test
+  public void testComplexLocalSlsb() {
+    BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("complexLocalEjb");
+    assertThat(beanDefinition.getBeanClassName()).isEqualTo(JndiObjectFactoryBean.class.getName());
+    assertPropertyValue(beanDefinition, "jndiName", "ejb/MyLocalBean");
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.beanFactory.getBean("complexLocalEjb"))
+            .withCauseInstanceOf(NoInitialContextException.class);
+  }
+
+  @Test
+  public void testComplexRemoteSlsb() {
+    BeanDefinition beanDefinition = this.beanFactory.getMergedBeanDefinition("complexRemoteEjb");
+    assertThat(beanDefinition.getBeanClassName()).isEqualTo(JndiObjectFactoryBean.class.getName());
+    assertPropertyValue(beanDefinition, "jndiName", "ejb/MyRemoteBean");
+
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> this.beanFactory.getBean("complexRemoteEjb"))
+            .withCauseInstanceOf(NoInitialContextException.class);
   }
 
   @Test
