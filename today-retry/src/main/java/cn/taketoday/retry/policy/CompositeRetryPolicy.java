@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +18,7 @@
 package cn.taketoday.retry.policy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.retry.RetryContext;
@@ -33,6 +31,7 @@ import cn.taketoday.retry.context.RetryContextSupport;
  *
  * @author Dave Syer
  * @author Michael Minella
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -149,6 +148,22 @@ public class CompositeRetryPolicy implements RetryPolicy {
       policies[i].registerThrowable(contexts[i], throwable);
     }
     ((RetryContextSupport) context).registerThrowable(throwable);
+  }
+
+  /**
+   * @return the lower 'maximum number of attempts before failure' between all policies
+   * that have a 'maximum number of attempts before failure' set, if at least one is
+   * present among the policies, return {@link RetryPolicy#NO_MAXIMUM_ATTEMPTS_SET}
+   * otherwise
+   */
+  @Override
+  public int getMaxAttempts() {
+    return Arrays.stream(policies)
+            .map(RetryPolicy::getMaxAttempts)
+            .filter(maxAttempts -> maxAttempts != NO_MAXIMUM_ATTEMPTS_SET)
+            .sorted()
+            .findFirst()
+            .orElse(NO_MAXIMUM_ATTEMPTS_SET);
   }
 
   private static class CompositeRetryContext extends RetryContextSupport {

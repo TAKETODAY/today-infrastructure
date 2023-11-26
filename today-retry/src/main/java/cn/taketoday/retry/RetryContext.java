@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,6 +62,13 @@ public interface RetryContext extends AttributeAccessor {
    * recoverable.
    */
   String NO_RECOVERY = "context.no-recovery";
+
+  /**
+   * Retry context attribute that represent the maximum number of attempts for policies
+   * that provide a maximum number of attempts before failure. For other policies the
+   * value returned is {@link RetryPolicy#NO_MAXIMUM_ATTEMPTS_SET}
+   */
+  String MAX_ATTEMPTS = "context.max-attempts";
 
   /**
    * Signal to the framework that no more attempts should be made to try or retry the

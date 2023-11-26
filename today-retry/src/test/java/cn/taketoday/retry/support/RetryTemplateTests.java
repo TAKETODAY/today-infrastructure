@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +27,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import cn.taketoday.classify.BinaryExceptionClassifier;
 import cn.taketoday.retry.RetryCallback;
 import cn.taketoday.retry.RetryContext;
+import cn.taketoday.retry.RetryPolicy;
 import cn.taketoday.retry.TerminatedRetryException;
 import cn.taketoday.retry.backoff.BackOffContext;
 import cn.taketoday.retry.backoff.BackOffInterruptedException;
 import cn.taketoday.retry.backoff.BackOffPolicy;
 import cn.taketoday.retry.backoff.StatelessBackOffPolicy;
 import cn.taketoday.retry.listener.RetryListenerSupport;
+import cn.taketoday.retry.policy.AlwaysRetryPolicy;
 import cn.taketoday.retry.policy.NeverRetryPolicy;
 import cn.taketoday.retry.policy.SimpleRetryPolicy;
 
@@ -339,6 +338,30 @@ public class RetryTemplateTests {
       return first.getAndSet(false) ? "bad" : "good";
     });
     assertThat(callCount.get()).isEqualTo(2);
+  }
+
+  @Test
+  public void testContextForPolicyWithMaximumNumberOfAttempts() throws Throwable {
+    RetryTemplate retryTemplate = new RetryTemplate();
+    RetryPolicy retryPolicy = new SimpleRetryPolicy(2);
+    retryTemplate.setRetryPolicy(retryPolicy);
+
+    Integer result = retryTemplate.execute((RetryCallback<Integer, Throwable>) context -> (Integer) context
+            .getAttribute(RetryContext.MAX_ATTEMPTS), context -> RetryPolicy.NO_MAXIMUM_ATTEMPTS_SET);
+
+    assertThat(result).isEqualTo(2);
+  }
+
+  @Test
+  public void testContextForPolicyWithNoMaximumNumberOfAttempts() throws Throwable {
+    RetryTemplate retryTemplate = new RetryTemplate();
+    RetryPolicy retryPolicy = new AlwaysRetryPolicy();
+    retryTemplate.setRetryPolicy(retryPolicy);
+
+    Integer result = retryTemplate.execute((RetryCallback<Integer, Throwable>) context -> (Integer) context
+            .getAttribute(RetryContext.MAX_ATTEMPTS), context -> RetryPolicy.NO_MAXIMUM_ATTEMPTS_SET);
+
+    assertThat(result).isEqualTo(RetryPolicy.NO_MAXIMUM_ATTEMPTS_SET);
   }
 
   private static class MockRetryCallback implements RetryCallback<Object, Exception> {

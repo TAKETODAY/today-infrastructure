@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +74,7 @@ import cn.taketoday.retry.policy.SimpleRetryPolicy;
  * @author Artem Bilan
  * @author Josh Long
  * @author Aleksandr Shamukov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class RetryTemplate implements RetryOperations {
@@ -301,6 +299,10 @@ public class RetryTemplate implements RetryOperations {
       boolean running = doOpenInterceptors(retryCallback, context);
       if (!running) {
         throw new TerminatedRetryException("Retry terminated abnormally by interceptor before first attempt");
+      }
+
+      if (!context.hasAttribute(RetryContext.MAX_ATTEMPTS)) {
+        context.setAttribute(RetryContext.MAX_ATTEMPTS, retryPolicy.getMaxAttempts());
       }
 
       // Get or Start the backoff context...

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,6 +159,25 @@ public class CompositeRetryPolicyTests {
     RetryContext context = policy.open(null);
     assertThat(context).isNotNull();
     assertThat(policy.canRetry(context)).isTrue();
+  }
+
+  @Test
+  public void testMaximumAttemptsForNonSuitablePolicies() {
+    CompositeRetryPolicy policy = new CompositeRetryPolicy();
+    policy.setOptimistic(true);
+    policy.setPolicies(new RetryPolicy[] { new NeverRetryPolicy(), new NeverRetryPolicy() });
+
+    assertThat(policy.getMaxAttempts()).isEqualTo(RetryPolicy.NO_MAXIMUM_ATTEMPTS_SET);
+  }
+
+  @Test
+  public void testMaximumAttemptsForSuitablePolicies() {
+    CompositeRetryPolicy policy = new CompositeRetryPolicy();
+    policy.setOptimistic(true);
+    policy.setPolicies(
+            new RetryPolicy[] { new SimpleRetryPolicy(6), new SimpleRetryPolicy(3), new SimpleRetryPolicy(4) });
+
+    assertThat(policy.getMaxAttempts()).isEqualTo(3);
   }
 
 }
