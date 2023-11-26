@@ -573,7 +573,6 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
 
     if (con instanceof JarURLConnection jarCon) {
       // Should usually be the case for traditional JAR files.
-      ResourceUtils.useCachesIfNecessary(jarCon);
       jarFile = jarCon.getJarFile();
       jarFileUrl = jarCon.getJarFileURL().toExternalForm();
       JarEntry jarEntry = jarCon.getJarEntry();
