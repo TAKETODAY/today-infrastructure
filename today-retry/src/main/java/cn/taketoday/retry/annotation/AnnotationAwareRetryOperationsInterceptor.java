@@ -42,7 +42,7 @@ import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.expression.Expression;
-import cn.taketoday.expression.common.TemplateParserContext;
+import cn.taketoday.expression.ParserContext;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.retry.RetryContext;
@@ -82,7 +82,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class AnnotationAwareRetryOperationsInterceptor implements IntroductionInterceptor, BeanFactoryAware {
 
-  private static final TemplateParserContext PARSER_CONTEXT = new TemplateParserContext();
+  private static final ParserContext PARSER_CONTEXT = ParserContext.TEMPLATE_EXPRESSION;
 
   private static final SpelExpressionParser PARSER = SpelExpressionParser.INSTANCE;
 
@@ -358,7 +358,7 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     @SuppressWarnings("unchecked")
     Class<? extends Throwable>[] retryFor = (Class<? extends Throwable>[]) attrs.get("value");
     String exceptionExpression = (String) attrs.get("exceptionExpression");
-    boolean hasExpression = StringUtils.hasText(exceptionExpression);
+    boolean hasExceptionExpression = StringUtils.hasText(exceptionExpression);
     if (ObjectUtils.isEmpty(retryFor)) {
       retryFor = (Class<? extends Throwable>[]) attrs.get("retryFor");
     }
@@ -374,14 +374,14 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
         parsedExpression = null;
       }
     }
-    final Expression expression = parsedExpression;
+    final Expression maxAttExpression = parsedExpression;
     SimpleRetryPolicy simple = null;
     if (retryFor.length == 0 && noRetryFor.length == 0) {
-      simple = hasExpression
+      simple = hasExceptionExpression
                ? new ExpressionRetryPolicy(resolve(exceptionExpression)).withBeanFactory(this.beanFactory)
                : new SimpleRetryPolicy();
-      if (expression != null) {
-        simple.maxAttemptsSupplier(() -> evaluate(expression, Integer.class, stateless));
+      if (maxAttExpression != null) {
+        simple.maxAttemptsSupplier(() -> evaluate(maxAttExpression, Integer.class, stateless));
       }
       else {
         simple.setMaxAttempts(maxAttempts);
@@ -396,16 +396,17 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
     }
     boolean retryNotExcluded = retryFor.length == 0;
     if (simple == null) {
-      if (hasExpression) {
+      if (hasExceptionExpression) {
         simple = new ExpressionRetryPolicy(maxAttempts, policyMap,
                 true, resolve(exceptionExpression), retryNotExcluded)
                 .withBeanFactory(this.beanFactory);
       }
       else {
         simple = new SimpleRetryPolicy(maxAttempts, policyMap, true, retryNotExcluded);
-        if (expression != null) {
-          simple.maxAttemptsSupplier(() -> evaluate(expression, Integer.class, stateless));
-        }
+      }
+
+      if (maxAttExpression != null) {
+        simple.maxAttemptsSupplier(() -> evaluate(maxAttExpression, Integer.class, stateless));
       }
     }
     @SuppressWarnings("unchecked")
