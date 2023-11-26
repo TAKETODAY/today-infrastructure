@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,10 +52,17 @@ public class MethodBasedEvaluationContext extends StandardEvaluationContext {
 
   private boolean argumentsLoaded = false;
 
-  public MethodBasedEvaluationContext(Object rootObject, Method method, Object[] arguments,
-          ParameterNameDiscoverer parameterNameDiscoverer) {
-
+  public MethodBasedEvaluationContext(Object rootObject, Method method,
+          Object[] arguments, ParameterNameDiscoverer parameterNameDiscoverer) {
     super(rootObject);
+    this.method = method;
+    this.arguments = arguments;
+    this.parameterNameDiscoverer = parameterNameDiscoverer;
+  }
+
+  public MethodBasedEvaluationContext(Object rootObject, Method method, Object[] arguments,
+          ParameterNameDiscoverer parameterNameDiscoverer, StandardEvaluationContext shared) {
+    super(rootObject, shared);
     this.method = method;
     this.arguments = arguments;
     this.parameterNameDiscoverer = parameterNameDiscoverer;

@@ -91,7 +91,7 @@ public class StandardEvaluationContext implements EvaluationContext {
 
   private OperatorOverloader operatorOverloader = OperatorOverloader.STANDARD;
 
-  private final Map<String, Object> variables = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, Object> variables = new ConcurrentHashMap<>();
 
   /**
    * Create a {@code StandardEvaluationContext} with a null root object.
@@ -107,15 +107,42 @@ public class StandardEvaluationContext implements EvaluationContext {
    * @see #setRootObject
    */
   public StandardEvaluationContext(@Nullable Object rootObject) {
-    this.rootObject = new TypedValue(rootObject);
+    this.rootObject = TypedValue.valueOf(rootObject);
   }
 
-  public void setRootObject(@Nullable Object rootObject, TypeDescriptor typeDescriptor) {
+  /**
+   * Create a {@code StandardEvaluationContext} with the given root object.
+   */
+  protected StandardEvaluationContext(StandardEvaluationContext shared) {
+    this.typeLocator = shared.getTypeLocator();
+    this.typeConverter = shared.getTypeConverter();
+    this.methodResolvers = new ArrayList<>(shared.getMethodResolvers());
+    this.propertyAccessors = new ArrayList<>(shared.getPropertyAccessors());
+    this.constructorResolvers = new ArrayList<>(shared.getConstructorResolvers());
+
+    this.beanResolver = shared.beanResolver;
+    this.typeComparator = shared.typeComparator;
+    this.operatorOverloader = shared.operatorOverloader;
+    this.reflectiveMethodResolver = shared.reflectiveMethodResolver;
+  }
+
+  /**
+   * Create a {@code StandardEvaluationContext} with the given root object.
+   *
+   * @param rootObject the root object to use
+   * @see #setRootObject
+   */
+  protected StandardEvaluationContext(@Nullable Object rootObject, StandardEvaluationContext shared) {
+    this(shared);
+    this.rootObject = TypedValue.valueOf(rootObject);
+  }
+
+  public void setRootObject(@Nullable Object rootObject, @Nullable TypeDescriptor typeDescriptor) {
     this.rootObject = new TypedValue(rootObject, typeDescriptor);
   }
 
   public void setRootObject(@Nullable Object rootObject) {
-    this.rootObject = (rootObject != null ? new TypedValue(rootObject) : TypedValue.NULL);
+    this.rootObject = TypedValue.valueOf(rootObject);
   }
 
   @Override
@@ -334,13 +361,14 @@ public class StandardEvaluationContext implements EvaluationContext {
 
   /**
    * Apply the internal delegates of this instance to the specified
-   * {@code evaluationContext}. Typically invoked right after the new context
+   * {@code evaluationContext}. Typically, invoked right after the new context
    * instance has been created to reuse the delegates. Do not modify the
    * {@linkplain #setRootObject(Object) root object} or any registered
    * {@linkplain #setVariables(Map) variables}.
    *
    * @param evaluationContext the evaluation context to update
    */
+  @Deprecated
   public void applyDelegatesTo(StandardEvaluationContext evaluationContext) {
     // Triggers initialization for default delegates
     evaluationContext.setConstructorResolvers(new ArrayList<>(getConstructorResolvers()));

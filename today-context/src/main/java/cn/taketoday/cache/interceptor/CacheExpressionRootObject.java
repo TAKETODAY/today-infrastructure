@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +27,7 @@ import cn.taketoday.cache.Cache;
  *
  * @author Costin Leau
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class CacheExpressionRootObject {
@@ -44,8 +42,8 @@ class CacheExpressionRootObject {
 
   private final Class<?> targetClass;
 
-  public CacheExpressionRootObject(
-          Collection<? extends Cache> caches, Method method, Object[] args, Object target, Class<?> targetClass) {
+  public CacheExpressionRootObject(Collection<? extends Cache> caches,
+          Method method, Object[] args, Object target, Class<?> targetClass) {
 
     this.method = method;
     this.target = target;

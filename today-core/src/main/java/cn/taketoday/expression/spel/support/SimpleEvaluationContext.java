@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.TypeDescriptor;
@@ -107,11 +103,7 @@ public final class SimpleEvaluationContext implements EvaluationContext {
 
   private final TypeConverter typeConverter;
 
-  private final TypeComparator typeComparator = TypeComparator.STANDARD;
-
-  private final OperatorOverloader operatorOverloader = OperatorOverloader.STANDARD;
-
-  private final Map<String, Object> variables = new HashMap<>();
+  private final HashMap<String, Object> variables = new HashMap<>();
 
   private SimpleEvaluationContext(List<PropertyAccessor> accessors, List<MethodResolver> resolvers,
           @Nullable TypeConverter converter, @Nullable TypedValue rootObject) {
@@ -198,7 +190,7 @@ public final class SimpleEvaluationContext implements EvaluationContext {
    */
   @Override
   public TypeComparator getTypeComparator() {
-    return this.typeComparator;
+    return TypeComparator.STANDARD;
   }
 
   /**
@@ -206,7 +198,7 @@ public final class SimpleEvaluationContext implements EvaluationContext {
    */
   @Override
   public OperatorOverloader getOperatorOverloader() {
-    return this.operatorOverloader;
+    return OperatorOverloader.STANDARD;
   }
 
   /**

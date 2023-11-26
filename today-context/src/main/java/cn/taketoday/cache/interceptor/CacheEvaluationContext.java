@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +22,8 @@ import java.util.HashSet;
 
 import cn.taketoday.context.expression.MethodBasedEvaluationContext;
 import cn.taketoday.core.ParameterNameDiscoverer;
+import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -51,9 +50,9 @@ final class CacheEvaluationContext extends MethodBasedEvaluationContext {
   private final HashSet<String> unavailableVariables = new HashSet<>(1);
 
   CacheEvaluationContext(Object rootObject, Method method, Object[] arguments,
-          ParameterNameDiscoverer parameterNameDiscoverer) {
+          ParameterNameDiscoverer parameterNameDiscoverer, StandardEvaluationContext shared) {
 
-    super(rootObject, method, arguments, parameterNameDiscoverer);
+    super(rootObject, method, arguments, parameterNameDiscoverer, shared);
   }
 
   /**

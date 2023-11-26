@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.expression;
 
 import cn.taketoday.beans.BeansException;
@@ -30,7 +28,7 @@ import cn.taketoday.lang.Assert;
  * EL bean resolver that operates against a {@link BeanFactory}.
  *
  * @author Juergen Hoeller
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-02-23 10:36
  */
 public class BeanFactoryResolver implements BeanResolver {

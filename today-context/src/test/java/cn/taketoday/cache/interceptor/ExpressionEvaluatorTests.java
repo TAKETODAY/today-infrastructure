@@ -53,8 +53,7 @@ public class ExpressionEvaluatorTests {
 
   private final StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
 
-  private final CacheOperationExpressionEvaluator eval = new CacheOperationExpressionEvaluator(
-          new CacheEvaluationContextFactory(this.originalEvaluationContext));
+  private final CacheOperationExpressionEvaluator eval = new CacheOperationExpressionEvaluator(this.originalEvaluationContext);
 
   private final AnnotationCacheOperationSource source = new AnnotationCacheOperationSource();
 

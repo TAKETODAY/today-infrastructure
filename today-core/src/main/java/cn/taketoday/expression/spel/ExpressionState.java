@@ -288,10 +288,9 @@ public class ExpressionState {
    */
   private static class VariableScope {
 
-    private final Map<String, Object> vars = new HashMap<>();
+    private final HashMap<String, Object> vars = new HashMap<>();
 
-    public VariableScope() {
-    }
+    public VariableScope() { }
 
     public VariableScope(@Nullable Map<String, Object> arguments) {
       if (arguments != null) {

@@ -310,8 +310,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    * @throws Throwable propagated from the target invocation
    */
   @Nullable
-  protected Object invokeWithinTransaction(Method method,
-          @Nullable Class<?> targetClass, final InvocationCallback invocation) throws Throwable {
+  protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass, final InvocationCallback invocation) throws Throwable {
 
     // If the transaction attribute is null, the method is non-transactional.
     TransactionAttributeSource tas = getTransactionAttributeSource();
@@ -496,9 +495,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     }
   }
 
-  private String methodIdentification(
-          Method method, @Nullable Class<?> targetClass, @Nullable TransactionAttribute txAttr) {
-
+  private String methodIdentification(Method method, @Nullable Class<?> targetClass, @Nullable TransactionAttribute txAttr) {
     String methodIdentification = methodIdentification(method, targetClass);
     if (methodIdentification == null) {
       if (txAttr instanceof DefaultTransactionAttribute) {
@@ -696,8 +693,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     @Nullable
     public TransactionInfo oldTransactionInfo;
 
-    public TransactionInfo(
-            @Nullable PlatformTransactionManager transactionManager,
+    public TransactionInfo(@Nullable PlatformTransactionManager transactionManager,
             @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
 
       this.transactionManager = transactionManager;
@@ -994,8 +990,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     @Nullable
     public ReactiveTransaction reactiveTransaction;
 
-    public ReactiveTransactionInfo(
-            @Nullable ReactiveTransactionManager transactionManager,
+    public ReactiveTransactionInfo(@Nullable ReactiveTransactionManager transactionManager,
             @Nullable TransactionAttribute transactionAttribute, String joinpointIdentification) {
 
       this.transactionManager = transactionManager;
@@ -1029,8 +1024,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     private final String joinpointIdentification;
 
-    public JoinPointTransactionAttribute(
-            TransactionAttribute targetAttribute, String joinpointIdentification) {
+    public JoinPointTransactionAttribute(TransactionAttribute targetAttribute, String joinpointIdentification) {
       super(targetAttribute);
       this.joinpointIdentification = joinpointIdentification;
     }

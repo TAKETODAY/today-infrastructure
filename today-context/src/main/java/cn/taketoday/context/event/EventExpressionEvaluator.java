@@ -40,10 +40,10 @@ class EventExpressionEvaluator extends CachedExpressionEvaluator {
 
   private final Map<ExpressionKey, Expression> conditionCache = new ConcurrentHashMap<>(64);
 
-  private final StandardEvaluationContext originalEvaluationContext;
+  private final StandardEvaluationContext shared;
 
-  EventExpressionEvaluator(StandardEvaluationContext originalEvaluationContext) {
-    this.originalEvaluationContext = originalEvaluationContext;
+  EventExpressionEvaluator(StandardEvaluationContext shared) {
+    this.shared = shared;
   }
 
   /**
@@ -54,9 +54,7 @@ class EventExpressionEvaluator extends CachedExpressionEvaluator {
           Method targetMethod, AnnotatedElementKey methodKey, Object[] args) {
 
     var root = new EventExpressionRootObject(event, args);
-    var evaluationContext = new MethodBasedEvaluationContext(root, targetMethod, args, parameterNameDiscoverer);
-
-    originalEvaluationContext.applyDelegatesTo(evaluationContext);
+    var evaluationContext = new MethodBasedEvaluationContext(root, targetMethod, args, parameterNameDiscoverer, shared);
 
     return Boolean.TRUE.equals(
             getExpression(conditionCache, methodKey, conditionExpression)

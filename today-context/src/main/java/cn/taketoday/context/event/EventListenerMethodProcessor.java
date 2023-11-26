@@ -57,11 +57,10 @@ import cn.taketoday.util.CollectionUtils;
  * Implements {@link BeanFactoryPostProcessor} primarily for early retrieval,
  * avoiding AOP checks for this processor bean and its {@link EventListenerFactory} delegates.
  *
- * </p>
- *
- * @author TODAY 2021/3/17 12:35
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see EventListenerFactory
  * @see DefaultEventListenerFactory
+ * @since 2021/3/17 12:35
  */
 public class EventListenerMethodProcessor implements SmartInitializingSingleton, ApplicationContextAware {
 
@@ -83,9 +82,9 @@ public class EventListenerMethodProcessor implements SmartInitializingSingleton,
   public void afterSingletonsInstantiated(ConfigurableBeanFactory beanFactory) {
     var factories = beanFactory.getBeans(EventListenerFactory.class);
     AnnotationAwareOrderComparator.sort(factories);
-    StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
-    originalEvaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
-    EventExpressionEvaluator evaluator = new EventExpressionEvaluator(originalEvaluationContext);
+    StandardEvaluationContext shared = new StandardEvaluationContext();
+    shared.setBeanResolver(new BeanFactoryResolver(beanFactory));
+    EventExpressionEvaluator evaluator = new EventExpressionEvaluator(shared);
 
     Set<String> beanNames = beanFactory.getBeanNamesForType(Object.class);
     for (String beanName : beanNames) {

@@ -27,6 +27,7 @@ import cn.taketoday.context.expression.AnnotatedElementKey;
 import cn.taketoday.context.expression.CachedExpressionEvaluator;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
+import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -66,12 +67,10 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
 
   private final Map<ExpressionKey, Expression> unlessCache = new ConcurrentHashMap<>(64);
 
-  private final CacheEvaluationContextFactory evaluationContextFactory;
+  private final StandardEvaluationContext shared;
 
-  public CacheOperationExpressionEvaluator(CacheEvaluationContextFactory evaluationContextFactory) {
-    super();
-    this.evaluationContextFactory = evaluationContextFactory;
-    this.evaluationContextFactory.setParameterNameDiscoverer(() -> parameterNameDiscoverer);
+  CacheOperationExpressionEvaluator(StandardEvaluationContext shared) {
+    this.shared = shared;
   }
 
   /**
@@ -90,7 +89,7 @@ class CacheOperationExpressionEvaluator extends CachedExpressionEvaluator {
           Object[] args, Object target, Class<?> targetClass, Method targetMethod, @Nullable Object result) {
 
     var rootObject = new CacheExpressionRootObject(caches, method, args, target, targetClass);
-    var evaluationContext = evaluationContextFactory.forOperation(rootObject, targetMethod, args);
+    var evaluationContext = new CacheEvaluationContext(rootObject, targetMethod, args, parameterNameDiscoverer, shared);
 
     if (result == RESULT_UNAVAILABLE) {
       evaluationContext.addUnavailableVariable(RESULT_VARIABLE);

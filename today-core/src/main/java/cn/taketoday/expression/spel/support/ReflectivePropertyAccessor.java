@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,13 +68,13 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
   private final boolean allowWrite;
 
-  private final Map<PropertyCacheKey, InvokerPair> readerCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<PropertyCacheKey, InvokerPair> readerCache = new ConcurrentHashMap<>(64);
 
-  private final Map<PropertyCacheKey, Member> writerCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<PropertyCacheKey, Member> writerCache = new ConcurrentHashMap<>(64);
 
-  private final Map<PropertyCacheKey, TypeDescriptor> typeDescriptorCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<PropertyCacheKey, TypeDescriptor> typeDescriptorCache = new ConcurrentHashMap<>(64);
 
-  private final Map<Class<?>, Method[]> sortedMethodsCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<Class<?>, Method[]> sortedMethodsCache = new ConcurrentHashMap<>(64);
 
   /**
    * Create a new property accessor for reading as well writing.
@@ -597,8 +596,9 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
       if (!(other instanceof PropertyCacheKey otherKey)) {
         return false;
       }
-      return (this.clazz == otherKey.clazz && this.property.equals(otherKey.property) &&
-              this.targetIsClass == otherKey.targetIsClass);
+      return this.targetIsClass == otherKey.targetIsClass
+              && this.clazz == otherKey.clazz
+              && this.property.equals(otherKey.property);
     }
 
     @Override

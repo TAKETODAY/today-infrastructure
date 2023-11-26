@@ -98,10 +98,9 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
   private final ConcurrentHashMap<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
 
-  private final StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
+  private final StandardEvaluationContext sharedContext = new StandardEvaluationContext();
 
-  private final CacheOperationExpressionEvaluator evaluator = new CacheOperationExpressionEvaluator(
-          new CacheEvaluationContextFactory(originalEvaluationContext));
+  private final CacheOperationExpressionEvaluator evaluator = new CacheOperationExpressionEvaluator(sharedContext);
 
   @Nullable
   private final ReactiveCachingHandler reactiveCachingHandler = ReactiveStreams.isPresent ? new ReactiveCachingHandler() : null;
@@ -218,7 +217,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    this.originalEvaluationContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
+    this.sharedContext.setBeanResolver(new BeanFactoryResolver(beanFactory));
   }
 
   @Override

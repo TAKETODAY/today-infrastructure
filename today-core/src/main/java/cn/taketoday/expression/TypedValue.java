@@ -28,6 +28,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class TypedValue {
@@ -101,6 +102,15 @@ public class TypedValue {
   @Override
   public String toString() {
     return "TypedValue: '" + this.value + "' of [" + getTypeDescriptor() + "]";
+  }
+
+  // Static
+
+  public static TypedValue valueOf(@Nullable Object value) {
+    if (value == null) {
+      return NULL;
+    }
+    return new TypedValue(value);
   }
 
 }

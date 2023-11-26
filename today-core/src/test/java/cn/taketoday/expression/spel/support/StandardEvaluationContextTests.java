@@ -19,17 +19,12 @@ package cn.taketoday.expression.spel.support;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import cn.taketoday.expression.BeanResolver;
 import cn.taketoday.expression.ConstructorResolver;
 import cn.taketoday.expression.MethodResolver;
-import cn.taketoday.expression.OperatorOverloader;
 import cn.taketoday.expression.PropertyAccessor;
-import cn.taketoday.expression.TypeConverter;
-import cn.taketoday.expression.TypeLocator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,32 +39,7 @@ class StandardEvaluationContextTests {
 
   @Test
   void applyDelegatesToSetDelegatesToTarget() {
-    StandardEvaluationContext target = new StandardEvaluationContext();
-    this.evaluationContext.applyDelegatesTo(target);
-    assertThat(target).hasFieldOrProperty("reflectiveMethodResolver").isNotNull();
-    assertThat(target.getBeanResolver()).isSameAs(this.evaluationContext.getBeanResolver());
-    assertThat(target.getTypeLocator()).isSameAs(this.evaluationContext.getTypeLocator());
-    assertThat(target.getTypeConverter()).isSameAs(this.evaluationContext.getTypeConverter());
-    assertThat(target.getOperatorOverloader()).isSameAs(this.evaluationContext.getOperatorOverloader());
-    assertThat(target.getPropertyAccessors()).satisfies(hasSameElements(
-            this.evaluationContext.getPropertyAccessors()));
-    assertThat(target.getConstructorResolvers()).satisfies(hasSameElements(
-            this.evaluationContext.getConstructorResolvers()));
-    assertThat(target.getMethodResolvers()).satisfies(hasSameElements(
-            this.evaluationContext.getMethodResolvers()));
-  }
-
-  @Test
-  void applyDelegatesToSetOverrideDelegatesInTarget() {
-    StandardEvaluationContext target = new StandardEvaluationContext();
-    target.setBeanResolver(mock(BeanResolver.class));
-    target.setTypeLocator(mock(TypeLocator.class));
-    target.setTypeConverter(mock(TypeConverter.class));
-    target.setOperatorOverloader(mock(OperatorOverloader.class));
-    target.setPropertyAccessors(new ArrayList<>());
-    target.setConstructorResolvers(new ArrayList<>());
-    target.setMethodResolvers(new ArrayList<>());
-    this.evaluationContext.applyDelegatesTo(target);
+    StandardEvaluationContext target = new StandardEvaluationContext(evaluationContext);
     assertThat(target).hasFieldOrProperty("reflectiveMethodResolver").isNotNull();
     assertThat(target.getBeanResolver()).isSameAs(this.evaluationContext.getBeanResolver());
     assertThat(target.getTypeLocator()).isSameAs(this.evaluationContext.getTypeLocator());
@@ -85,8 +55,7 @@ class StandardEvaluationContextTests {
 
   @Test
   void applyDelegatesToMakesACopyOfPropertyAccessors() {
-    StandardEvaluationContext target = new StandardEvaluationContext();
-    this.evaluationContext.applyDelegatesTo(target);
+    StandardEvaluationContext target = new StandardEvaluationContext(evaluationContext);
     PropertyAccessor propertyAccessor = mock(PropertyAccessor.class);
     this.evaluationContext.getPropertyAccessors().add(propertyAccessor);
     assertThat(target.getPropertyAccessors()).doesNotContain(propertyAccessor);
@@ -94,8 +63,7 @@ class StandardEvaluationContextTests {
 
   @Test
   void applyDelegatesToMakesACopyOfConstructorResolvers() {
-    StandardEvaluationContext target = new StandardEvaluationContext();
-    this.evaluationContext.applyDelegatesTo(target);
+    StandardEvaluationContext target = new StandardEvaluationContext(evaluationContext);
     ConstructorResolver methodResolver = mock(ConstructorResolver.class);
     this.evaluationContext.getConstructorResolvers().add(methodResolver);
     assertThat(target.getConstructorResolvers()).doesNotContain(methodResolver);
@@ -103,8 +71,7 @@ class StandardEvaluationContextTests {
 
   @Test
   void applyDelegatesToMakesACopyOfMethodResolvers() {
-    StandardEvaluationContext target = new StandardEvaluationContext();
-    this.evaluationContext.applyDelegatesTo(target);
+    StandardEvaluationContext target = new StandardEvaluationContext(evaluationContext);
     MethodResolver methodResolver = mock(MethodResolver.class);
     this.evaluationContext.getMethodResolvers().add(methodResolver);
     assertThat(target.getMethodResolvers()).doesNotContain(methodResolver);
