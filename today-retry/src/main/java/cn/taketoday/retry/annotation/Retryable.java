@@ -143,8 +143,10 @@ public @interface Retryable {
   String exceptionExpression() default "";
 
   /**
-   * Bean names of retry listeners to use instead of default ones defined in Infra
-   * context
+   * Bean names of retry listeners to use instead of default ones defined in Spring
+   * context. If this attribute is set to an empty string {@code ""}, it will
+   * effectively exclude all retry listeners, including with the default listener beans,
+   * from being used.
    *
    * @return retry listeners bean names
    */

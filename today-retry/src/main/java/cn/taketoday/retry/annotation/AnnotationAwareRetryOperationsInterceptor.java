@@ -319,7 +319,9 @@ public class AnnotationAwareRetryOperationsInterceptor implements IntroductionIn
   private RetryTemplate createTemplate(String[] listenersBeanNames) {
     RetryTemplate template = new RetryTemplate();
     if (listenersBeanNames.length > 0) {
-      template.setListeners(getListenersBeans(listenersBeanNames));
+      if (listenersBeanNames.length > 1 || StringUtils.hasText(listenersBeanNames[0])) {
+        template.setListeners(getListenersBeans(listenersBeanNames));
+      }
     }
     else if (this.globalListeners != null) {
       template.setListeners(this.globalListeners);
