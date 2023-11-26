@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.retry.backoff;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Tomaz Fernandes
@@ -42,6 +40,21 @@ public class UniformRandomBackOffPolicyTests {
 
     assertThat(withSleeper.getMinBackOffPeriod()).isEqualTo(minBackOff);
     assertThat(withSleeper.getMaxBackOffPeriod()).isEqualTo(maxBackOff);
+  }
+
+  @Test
+  public void testInterruptedStatusIsRestored() {
+    UniformRandomBackOffPolicy backOffPolicy = new UniformRandomBackOffPolicy();
+    int minBackOff = 1000;
+    int maxBackOff = 10000;
+    backOffPolicy.setMinBackOffPeriod(minBackOff);
+    backOffPolicy.setMaxBackOffPeriod(maxBackOff);
+    UniformRandomBackOffPolicy withSleeper = backOffPolicy.withSleeper(backOffPeriod -> {
+      throw new InterruptedException("foo");
+    });
+
+    assertThatExceptionOfType(BackOffInterruptedException.class).isThrownBy(() -> withSleeper.backOff(null));
+    assertThat(Thread.interrupted()).isTrue();
   }
 
 }

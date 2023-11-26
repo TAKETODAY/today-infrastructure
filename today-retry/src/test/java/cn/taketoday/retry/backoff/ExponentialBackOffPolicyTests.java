@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.retry.backoff;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Harrop
@@ -94,6 +92,33 @@ public class ExponentialBackOffPolicyTests {
       assertThat(sleeper.getLastBackOff()).isEqualTo(seed);
       seed *= multiplier;
     }
+  }
+
+  @Test
+  public void testMultiBackOffWithInitialDelaySupplier() {
+    ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
+    long seed = 40;
+    double multiplier = 1.2;
+    strategy.initialIntervalSupplier(() -> 40L);
+    strategy.setMultiplier(multiplier);
+    strategy.setSleeper(sleeper);
+    BackOffContext context = strategy.start(null);
+    for (int x = 0; x < 5; x++) {
+      strategy.backOff(context);
+      assertThat(sleeper.getLastBackOff()).isEqualTo(seed);
+      seed *= multiplier;
+    }
+  }
+
+  @Test
+  public void testInterruptedStatusIsRestored() {
+    ExponentialBackOffPolicy strategy = new ExponentialBackOffPolicy();
+    strategy.setSleeper(backOffPeriod -> {
+      throw new InterruptedException("foo");
+    });
+    BackOffContext context = strategy.start(null);
+    assertThatExceptionOfType(BackOffInterruptedException.class).isThrownBy(() -> strategy.backOff(context));
+    assertThat(Thread.interrupted()).isTrue();
   }
 
 }

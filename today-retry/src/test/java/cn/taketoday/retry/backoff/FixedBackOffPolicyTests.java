@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +20,7 @@ package cn.taketoday.retry.backoff;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Harrop
@@ -67,6 +65,18 @@ public class FixedBackOffPolicyTests {
       assertThat(sleeper.getLastBackOff()).isEqualTo(backOffPeriod);
     }
     assertThat(sleeper.getBackOffs().length).isEqualTo(10);
+  }
+
+  @Test
+  public void testInterruptedStatusIsRestored() {
+    int backOffPeriod = 50;
+    FixedBackOffPolicy strategy = new FixedBackOffPolicy();
+    strategy.setBackOffPeriod(backOffPeriod);
+    strategy.setSleeper(backOffPeriod1 -> {
+      throw new InterruptedException("foo");
+    });
+    assertThatExceptionOfType(BackOffInterruptedException.class).isThrownBy(() -> strategy.backOff(null));
+    assertThat(Thread.interrupted()).isTrue();
   }
 
 }

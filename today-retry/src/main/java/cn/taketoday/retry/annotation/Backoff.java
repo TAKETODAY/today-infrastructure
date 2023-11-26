@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -123,16 +120,16 @@ public @interface Backoff {
   String multiplierExpression() default "";
 
   /**
-   * In the exponential case ({@link #multiplier()} &gt; 0) set this to true to have the
-   * backoff delays randomized, so that the maximum delay is multiplier times the
-   * previous delay and the distribution is uniform between the two values.
+   * In the exponential case ({@link #multiplier()} &gt; 1.0) set this to true to have
+   * the backoff delays randomized with jitter, so that the maximum delay is multiplier
+   * times the previous delay and the distribution is uniform between the two values.
    *
    * @return the flag to signal randomization is required (default false)
    */
   boolean random() default false;
 
   /**
-   * Evaluates to a value. In the exponential case ({@link #multiplier()} &gt; 0) set
+   * Evaluates to a value. In the exponential case ({@link #multiplier()} &gt; 1.0) set
    * this to true to have the backoff delays randomized, so that the maximum delay is
    * multiplier times the previous delay and the distribution is uniform between the two
    * values. Use {@code #{...}} for one-time evaluation during initialization, omit the

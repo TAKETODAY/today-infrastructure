@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -257,6 +254,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
       this.sleeper.sleep(sleepTime);
     }
     catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new BackOffInterruptedException("Thread interrupted while sleeping", e);
     }
   }
@@ -272,7 +270,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
 
     private final long maxInterval;
 
-    private final Supplier<Long> intervalSupplier;
+    private Supplier<Long> initialIntervalSupplier;
 
     private final Supplier<Double> multiplierSupplier;
 
@@ -284,7 +282,7 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
       this.interval = interval;
       this.multiplier = multiplier;
       this.maxInterval = maxInterval;
-      this.intervalSupplier = intervalSupplier;
+      this.initialIntervalSupplier = intervalSupplier;
       this.multiplierSupplier = multiplierSupplier;
       this.maxIntervalSupplier = maxIntervalSupplier;
     }
@@ -310,7 +308,11 @@ public class ExponentialBackOffPolicy implements SleepingBackOffPolicy<Exponenti
     }
 
     public long getInterval() {
-      return this.intervalSupplier != null ? this.intervalSupplier.get() : this.interval;
+      if (this.initialIntervalSupplier != null) {
+        this.interval = this.initialIntervalSupplier.get();
+        this.initialIntervalSupplier = null;
+      }
+      return this.interval;
     }
 
     public long getMaxInterval() {
