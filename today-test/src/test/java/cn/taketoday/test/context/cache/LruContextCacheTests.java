@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,18 +19,17 @@ package cn.taketoday.test.context.cache;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.test.util.ReflectionTestUtils;
 
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.InstanceOfAssertFactories.map;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -53,10 +49,10 @@ class LruContextCacheTests {
   private static final MergedContextConfiguration barConfig = config(Bar.class);
   private static final MergedContextConfiguration bazConfig = config(Baz.class);
 
-  private final ConfigurableApplicationContext abcContext = mock(ConfigurableApplicationContext.class);
-  private final ConfigurableApplicationContext fooContext = mock(ConfigurableApplicationContext.class);
-  private final ConfigurableApplicationContext barContext = mock(ConfigurableApplicationContext.class);
-  private final ConfigurableApplicationContext bazContext = mock(ConfigurableApplicationContext.class);
+  private final ConfigurableApplicationContext abcContext = mock();
+  private final ConfigurableApplicationContext fooContext = mock();
+  private final ConfigurableApplicationContext barContext = mock();
+  private final ConfigurableApplicationContext bazContext = mock();
 
   @Test
   void maxCacheSizeNegativeOne() {
@@ -159,18 +155,15 @@ class LruContextCacheTests {
 
   @SuppressWarnings("unchecked")
   private static void assertCacheContents(DefaultContextCache cache, String... expectedNames) {
-
-    Map<MergedContextConfiguration, ApplicationContext> contextMap =
-            (Map<MergedContextConfiguration, ApplicationContext>) ReflectionTestUtils.getField(cache, "contextMap");
-
-    // @formatter:off
-		List<String> actualNames = contextMap.keySet().stream()
-			.map(cfg -> cfg.getClasses()[0])
-			.map(Class::getSimpleName)
-			.collect(toList());
-		// @formatter:on
-
-    assertThat(actualNames).isEqualTo(asList(expectedNames));
+    assertThat(cache).extracting("contextMap", as(map(MergedContextConfiguration.class, ApplicationContext.class)))
+            .satisfies(contextMap -> {
+              List<String> actualNames = contextMap.keySet().stream()
+                      .map(MergedContextConfiguration::getClasses)
+                      .flatMap(Arrays::stream)
+                      .map(Class::getSimpleName)
+                      .toList();
+              assertThat(actualNames).containsExactly(expectedNames);
+            });
   }
 
   private static class Abc { }
