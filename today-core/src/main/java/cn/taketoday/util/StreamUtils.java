@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -46,9 +41,9 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Phillip Webb
  * @author Brian Clozel
- * @author TODAY 2021/8/21 00:03
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FileCopyUtils
- * @since 4.0
+ * @since 4.0 2021/8/21 00:03
  */
 public abstract class StreamUtils {
 
@@ -107,8 +102,7 @@ public abstract class StreamUtils {
    * @return the String that has been copied to (possibly empty)
    * @throws IOException in case of I/O errors
    */
-  public static String copyToString(
-          @Nullable InputStream in, Charset charset, int bufferSize) throws IOException {
+  public static String copyToString(@Nullable InputStream in, Charset charset, int bufferSize) throws IOException {
     if (in == null) {
       return Constant.BLANK;
     }
@@ -167,9 +161,8 @@ public abstract class StreamUtils {
     Assert.notNull(charset, "No Charset specified");
     Assert.notNull(out, "No OutputStream specified");
 
-    Writer writer = new OutputStreamWriter(out, charset);
-    writer.write(in);
-    writer.flush();
+    out.write(in.getBytes(charset));
+    out.flush();
   }
 
   /**
@@ -223,8 +216,7 @@ public abstract class StreamUtils {
    * @return the number of bytes copied
    * @throws IOException in case of I/O errors
    */
-  public static long copyRange(
-          InputStream in, OutputStream out, long start, long end) throws IOException {
+  public static long copyRange(InputStream in, OutputStream out, long start, long end) throws IOException {
     Assert.notNull(in, "No InputStream specified");
     Assert.notNull(out, "No OutputStream specified");
 
