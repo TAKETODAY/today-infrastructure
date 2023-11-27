@@ -230,6 +230,13 @@ public class GenericTypeResolverTests {
     assertThat(resolvableType.resolveGenerics()).containsExactly(Object.class);
   }
 
+  @Test
+  void resolveGenericWithDifferentInterfaceOrder() {
+    Type f = First.class.getTypeParameters()[0];
+    assertThat(resolveType(f, FirstSecondService.class)).isEqualTo(Integer.class);
+    assertThat(resolveType(f, SecondFirstService.class)).isEqualTo(Integer.class);
+  }
+
   private static Method method(Class<?> target, String methodName, Class<?>... parameterTypes) {
     Method method = findMethod(target, methodName, parameterTypes);
     assertThat(method).describedAs(target.getName() + "#" + methodName).isNotNull();
@@ -417,6 +424,26 @@ public class GenericTypeResolverTests {
   }
 
   interface IdFixingRepository<T> extends Repository<T, Long> {
+  }
+
+  interface First<F extends Number> {
+
+    default void foo(F f) {
+      // ...
+    }
+  }
+
+  interface Second<B> {
+
+    default void bar(B b) {
+      // ...
+    }
+  }
+
+  static class FirstSecondService implements First<Integer>, Second<String> {
+  }
+
+  static class SecondFirstService implements Second<String>, First<Integer> {
   }
 
 }
