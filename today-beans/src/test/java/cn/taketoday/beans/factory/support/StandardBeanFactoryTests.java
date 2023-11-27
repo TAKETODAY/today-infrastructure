@@ -2116,6 +2116,31 @@ class StandardBeanFactoryTests {
   }
 
   @Test
+  void beanProviderWithParentBeanFactoryAndMixedOrder() {
+    StandardBeanFactory parentBf = new StandardBeanFactory();
+    parentBf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    lbf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    lbf.setParentBeanFactory(parentBf);
+
+    lbf.registerSingleton("plainTestBean", new TestBean());
+
+    RootBeanDefinition bd1 = new RootBeanDefinition(PriorityTestBeanFactory.class);
+    bd1.setFactoryMethodName("lowPriorityTestBean");
+    lbf.registerBeanDefinition("lowPriorityTestBean", bd1);
+
+    RootBeanDefinition bd2 = new RootBeanDefinition(PriorityTestBeanFactory.class);
+    bd2.setFactoryMethodName("highPriorityTestBean");
+    parentBf.registerBeanDefinition("highPriorityTestBean", bd2);
+
+    ObjectProvider<TestBean> testBeanProvider = lbf.getBeanProvider(ResolvableType.forClass(TestBean.class));
+    List<TestBean> resolved = testBeanProvider.orderedStream().toList();
+    assertThat(resolved.size()).isEqualTo(3);
+    assertThat(resolved.get(0)).isSameAs(lbf.getBean("highPriorityTestBean"));
+    assertThat(resolved.get(1)).isSameAs(lbf.getBean("lowPriorityTestBean"));
+    assertThat(resolved.get(2)).isSameAs(lbf.getBean("plainTestBean"));
+  }
+
+  @Test
   void autowireExistingBeanByName() {
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     lbf.registerBeanDefinition("spouse", bd);
@@ -3259,6 +3284,17 @@ class StandardBeanFactoryTests {
 
     public NonPublicEnum getNonPublicEnum() {
       return nonPublicEnum;
+    }
+  }
+
+  private static class PriorityTestBeanFactory {
+
+    public static LowPriorityTestBean lowPriorityTestBean() {
+      return new LowPriorityTestBean();
+    }
+
+    public static HighPriorityTestBean highPriorityTestBean() {
+      return new HighPriorityTestBean();
     }
   }
 
