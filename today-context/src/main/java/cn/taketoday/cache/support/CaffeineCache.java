@@ -151,7 +151,14 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
   @SuppressWarnings("unchecked")
   @Override
   public <T> CompletableFuture<T> retrieve(Object key, Supplier<CompletableFuture<T>> valueLoader) {
-    return (CompletableFuture<T>) getAsyncCache().get(key, (k, e) -> valueLoader.get());
+    if (allowNullValues) {
+      return (CompletableFuture<T>) getAsyncCache()
+              .get(key, (k, e) -> valueLoader.get().thenApply(this::toStoreValue))
+              .thenApply(this::fromStoreValue);
+    }
+    else {
+      return (CompletableFuture<T>) getAsyncCache().get(key, (k, e) -> valueLoader.get());
+    }
   }
 
   @Override

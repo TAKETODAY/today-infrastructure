@@ -184,7 +184,9 @@ public class CaffeineCacheManagerTests {
     assertThat(cache1.retrieve("key3", () -> CompletableFuture.completedFuture("value3")).join())
             .isEqualTo("value3");
     cache1.evict("key3");
+    assertThat(cache1.retrieve("key3")).isNull();
     assertThat(cache1.retrieve("key3", () -> CompletableFuture.completedFuture(null)).join()).isNull();
+    assertThat(cache1.retrieve("key3").join()).isNull();
     assertThat(cache1.retrieve("key3", () -> CompletableFuture.completedFuture(null)).join()).isNull();
   }
 
