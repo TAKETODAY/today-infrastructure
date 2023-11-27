@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import cn.taketoday.annotation.config.http.CodecProperties;
 import cn.taketoday.annotation.config.http.CodecsAutoConfiguration;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -31,9 +32,8 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.http.codec.CodecConfigurer;
-import cn.taketoday.http.codec.support.DefaultClientCodecConfigurer;
 import cn.taketoday.http.codec.CodecCustomizer;
-import cn.taketoday.annotation.config.http.CodecProperties;
+import cn.taketoday.http.codec.support.DefaultClientCodecConfigurer;
 import cn.taketoday.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

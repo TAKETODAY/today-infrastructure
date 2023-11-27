@@ -112,7 +112,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    * Create a new {@link UndertowServletWebServerFactory} instance.
    */
   public UndertowServletWebServerFactory() {
-    getJsp().setRegistered(false);
+
   }
 
   /**
@@ -123,7 +123,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    */
   public UndertowServletWebServerFactory(int port) {
     super(port);
-    getJsp().setRegistered(false);
   }
 
   /**
@@ -135,7 +134,6 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
    */
   public UndertowServletWebServerFactory(String contextPath, int port) {
     super(contextPath, port);
-    getJsp().setRegistered(false);
   }
 
   @Override

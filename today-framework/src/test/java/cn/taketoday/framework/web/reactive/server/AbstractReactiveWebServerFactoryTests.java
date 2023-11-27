@@ -60,7 +60,6 @@ import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.web.reactive.function.BodyInserters;
@@ -91,7 +90,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Scott Frederick
  */
 @DirtiesUrlFactories
-@ClassPathExclusions("tomcat-embed-jasper*")
 public abstract class AbstractReactiveWebServerFactoryTests {
 
   protected WebServer webServer;

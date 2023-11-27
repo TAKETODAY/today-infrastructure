@@ -44,7 +44,6 @@ import cn.taketoday.framework.Application;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.test.util.ApplicationContextTestUtils;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.test.web.servlet.MockMvc;
@@ -64,7 +63,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  * @author Sebastien Deleuze
  */
-@ClassPathExclusions("tomcat-embed-jasper*")
 class BasicErrorControllerDirectMockMvcTests {
 
   private ConfigurableWebApplicationContext wac;

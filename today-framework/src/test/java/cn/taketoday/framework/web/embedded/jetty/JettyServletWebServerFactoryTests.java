@@ -63,7 +63,6 @@ import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactoryTests;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.util.ReflectionUtils;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
@@ -84,7 +83,6 @@ import static org.mockito.Mockito.mock;
  * @author Andy Wilkinson
  * @author Henri Kerola
  */
-@ClassPathExclusions("tomcat-embed-jasper*")
 class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryTests {
 
   @Override

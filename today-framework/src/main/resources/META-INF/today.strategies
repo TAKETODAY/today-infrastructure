@@ -109,8 +109,7 @@ cn.taketoday.context.ApplicationListener=\
 
 # Template availability providers
 cn.taketoday.framework.template.TemplateAvailabilityProvider=\
-cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider,\
-cn.taketoday.annotation.config.web.servlet.JspTemplateAvailabilityProvider
+cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider
 
 cn.taketoday.framework.logging.LoggingSystemFactory=\
   cn.taketoday.framework.logging.logback.LogbackLoggingSystem.Factory,\

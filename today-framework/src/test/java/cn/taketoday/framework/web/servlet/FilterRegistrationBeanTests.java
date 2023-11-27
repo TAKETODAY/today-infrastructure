@@ -19,11 +19,10 @@ package cn.taketoday.framework.web.servlet;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.framework.web.servlet.mock.MockFilter;
-
 import java.io.IOException;
 import java.util.EnumSet;
 
+import cn.taketoday.framework.web.servlet.mock.MockFilter;
 import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;

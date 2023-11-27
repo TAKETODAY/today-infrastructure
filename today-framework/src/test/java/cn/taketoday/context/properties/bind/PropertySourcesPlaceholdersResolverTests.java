@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySources;
 import cn.taketoday.util.PropertyPlaceholderHandler;

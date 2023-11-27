@@ -26,13 +26,13 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.bytecode.proxy.Enhancer;
 import cn.taketoday.bytecode.proxy.MethodInterceptor;
 import cn.taketoday.bytecode.proxy.MethodProxy;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.logging.Logger;
+import cn.taketoday.stereotype.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

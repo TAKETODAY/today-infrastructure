@@ -22,7 +22,6 @@ dependencies {
   optional 'jakarta.servlet:jakarta.servlet-api'
   optional 'mysql:mysql-connector-java'
   optional 'org.glassfish.external:opendmk_jmxremote_optional_jar'
-  optional 'org.apache.tomcat.embed:tomcat-embed-jasper'
   optional 'io.projectreactor:reactor-test'
   optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
   optional 'org.xmlunit:xmlunit-assertj'

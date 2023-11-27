@@ -33,12 +33,10 @@ import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
-import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
@@ -89,13 +87,6 @@ class ServletWebServerFactoryCustomizerTests {
     this.properties.setSsl(ssl);
     this.customizer.customize(factory);
     then(factory).should().setSsl(ssl);
-  }
-
-  @Test
-  void testCustomizeJsp() {
-    ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
-    this.customizer.customize(factory);
-    then(factory).should().setJsp(any(JspProperties.class));
   }
 
   @Test

@@ -40,7 +40,6 @@ import org.apache.hc.client5.http.ssl.TrustSelfSignedStrategy;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.jasper.servlet.JspServlet;
 import org.apache.tomcat.JarScanFilter;
 import org.apache.tomcat.JarScanType;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
@@ -88,7 +87,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.FileSystemUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -571,14 +569,6 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
             () -> factory.getWebServer((context) -> context.addListener(new FailingServletContextListener())));
   }
 
-  @Test
-  @ClassPathOverrides("org.apache.tomcat.embed:tomcat-embed-jasper:10.1.15")
-  void registerJspServletWithDefaultLoadOnStartup() {
-    TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0);
-    factory.addInitializers((context) -> context.addServlet("manually-registered-jsp-servlet", JspServlet.class));
-    this.webServer = factory.getWebServer();
-    this.webServer.start();
-  }
 
   @Override
   protected void assertThatSslWithInvalidAliasCallFails(ThrowingCallable call) {

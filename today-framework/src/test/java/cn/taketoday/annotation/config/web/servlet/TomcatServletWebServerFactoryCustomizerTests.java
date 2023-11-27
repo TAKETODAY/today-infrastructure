@@ -28,7 +28,6 @@ import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.embedded.tomcat.TomcatWebServer;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.mock.env.MockEnvironment;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 @DirtiesUrlFactories
-@ClassPathExclusions("tomcat-embed-jasper*")
 class TomcatServletWebServerFactoryCustomizerTests {
 
   private TomcatServletWebServerFactoryCustomizer customizer;

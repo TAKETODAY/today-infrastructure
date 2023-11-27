@@ -127,7 +127,6 @@ import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionTrackingMode;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.test.web.servlet.ExampleFilter;
 import cn.taketoday.test.web.servlet.ExampleServlet;
@@ -175,7 +174,6 @@ import static org.mockito.Mockito.times;
  */
 @DirtiesUrlFactories
 @ExtendWith(OutputCaptureExtension.class)
-@ClassPathExclusions("tomcat-embed-jasper*")
 public abstract class AbstractServletWebServerFactoryTests {
 
   @TempDir

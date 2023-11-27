@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +62,7 @@ public class ErrorPage {
   /**
    * The path to render (usually implemented as a forward), starting with "/". A custom
    * controller or servlet path can be used, or if the server supports it, a template
-   * path (e.g. "/error.jsp").
+   * path (e.g. "/error.html").
    *
    * @return the path that will be rendered for this error
    */

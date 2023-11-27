@@ -39,7 +39,6 @@ import cn.taketoday.framework.Application;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
@@ -56,7 +55,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Scott Frederick
  */
 @DirtiesContext
-@ClassPathExclusions("tomcat-embed-jasper*")
 @InfraTest(properties = { "server.error.include-message=always" })
 class DefaultErrorViewIntegrationTests {
 

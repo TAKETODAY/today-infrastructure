@@ -41,7 +41,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.PropertyMapper;
 import jakarta.servlet.ServletContext;
@@ -77,8 +76,6 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
   private MimeMappings mimeMappings = MimeMappings.lazyCopy(MimeMappings.DEFAULT);
 
   private List<ServletContextInitializer> initializers = new ArrayList<>();
-
-  private JspProperties jspConfig = new JspProperties();
 
   private Map<Locale, Charset> localeCharsetMappings = new HashMap<>();
 
@@ -213,16 +210,6 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     CollectionUtils.addAll(this.initializers, initializers);
   }
 
-  public JspProperties getJsp() {
-    return this.jspConfig;
-  }
-
-  @Override
-  public void setJsp(@Nullable JspProperties jsp) {
-    Assert.notNull(jsp, "JspProperties is required");
-    this.jspConfig = jsp;
-  }
-
   public SessionProperties getSession() {
     return this.session;
   }
@@ -288,16 +275,6 @@ public abstract class AbstractServletWebServerFactory extends AbstractConfigurab
     CollectionUtils.addAll(mergedInitializers, initializers);
     mergedInitializers.addAll(this.initializers);
     return mergedInitializers.toArray(new ServletContextInitializer[0]);
-  }
-
-  /**
-   * Returns whether or not the JSP servlet should be registered with the web server.
-   *
-   * @return {@code true} if the servlet should be registered, otherwise {@code false}
-   */
-  protected boolean shouldRegisterJspServlet() {
-    return jspConfig != null && jspConfig.getRegistered()
-            && ClassUtils.isPresent(jspConfig.getClassName(), getClass().getClassLoader());
   }
 
   /**

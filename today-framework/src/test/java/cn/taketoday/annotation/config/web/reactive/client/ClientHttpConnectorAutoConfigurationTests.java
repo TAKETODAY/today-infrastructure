@@ -27,9 +27,9 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.test.context.FilteredClassLoader;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
+import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
-import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 

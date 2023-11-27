@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +17,16 @@
 
 package cn.taketoday.beans.factory.xml;
 
+import org.w3c.dom.Element;
+
+import java.util.List;
+
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.ManagedList;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.xml.DomUtils;
-import org.w3c.dom.Element;
-
-import java.util.List;
 
 public class ComponentBeanDefinitionParser extends AbstractBeanDefinitionParser {
 

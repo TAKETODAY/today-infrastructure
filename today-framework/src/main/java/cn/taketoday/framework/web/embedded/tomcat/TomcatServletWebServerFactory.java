@@ -67,7 +67,6 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
-import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
@@ -75,7 +74,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LambdaSafe;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.ServletContainerInitializer;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -244,13 +242,11 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     loader.setLoaderClass(TomcatEmbeddedWebappClassLoader.class.getName());
     loader.setDelegate(true);
     context.setLoader(loader);
+
     if (isRegisterDefaultServlet()) {
       addDefaultServlet(context);
     }
-    if (shouldRegisterJspServlet()) {
-      addJspServlet(context, getJsp());
-      addJasperInitializer(context);
-    }
+
     context.addLifecycleListener(new StaticResourceConfigurer(context));
     ServletContextInitializer[] initializersToUse = mergeInitializers(initializers);
     host.addChild(context);
@@ -293,29 +289,6 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     defaultServlet.setOverridable(true);
     context.addChild(defaultServlet);
     context.addServletMappingDecoded("/", "default");
-  }
-
-  private void addJspServlet(Context context, JspProperties jsp) {
-    Wrapper jspServlet = context.createWrapper();
-    jspServlet.setName("jsp");
-    jspServlet.setServletClass(jsp.getClassName());
-    jspServlet.addInitParameter("fork", "false");
-    jsp.getInitParameters().forEach(jspServlet::addInitParameter);
-    jspServlet.setLoadOnStartup(3);
-    context.addChild(jspServlet);
-    context.addServletMappingDecoded("*.jsp", "jsp");
-    context.addServletMappingDecoded("*.jspx", "jsp");
-  }
-
-  private void addJasperInitializer(TomcatEmbeddedContext context) {
-    try {
-      var initializer = ClassUtils.<ServletContainerInitializer>forName(
-              "org.apache.jasper.servlet.JasperInitializer").getDeclaredConstructor().newInstance();
-      context.addServletContainerInitializer(initializer, null);
-    }
-    catch (Exception ex) {
-      // Probably not Tomcat 8
-    }
   }
 
   // Needs to be protected so it can be used by subclasses

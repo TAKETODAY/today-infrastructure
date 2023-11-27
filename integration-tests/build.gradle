@@ -56,7 +56,6 @@ dependencies {
   testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
   testImplementation 'org.eclipse.jetty:jetty-http'
   testImplementation 'org.eclipse.jetty:jetty-client'
-  testImplementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
   testImplementation 'org.eclipse.jetty:jetty-alpn-server'
   testImplementation 'org.eclipse.jetty:jetty-alpn-java-server'
   testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'

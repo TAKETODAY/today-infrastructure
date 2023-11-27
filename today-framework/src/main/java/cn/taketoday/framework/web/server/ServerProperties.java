@@ -36,7 +36,6 @@ import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.format.annotation.DurationUnit;
 import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.framework.web.servlet.server.ConfigurableServletWebServerFactory;
-import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.session.config.SessionProperties;
@@ -323,7 +322,6 @@ public class ServerProperties {
     }
 
     factory.setSession(session);
-    factory.setJsp(servlet.jsp);
     factory.setInitParameters(servlet.contextParameters);
     factory.setRegisterDefaultServlet(servlet.registerDefaultServlet);
 
@@ -362,9 +360,6 @@ public class ServerProperties {
      * Whether to register the default Servlet with the container.
      */
     private boolean registerDefaultServlet = false;
-
-    @NestedConfigurationProperty
-    private final JspProperties jsp = new JspProperties();
 
     @Nullable
     public String getContextPath() {
@@ -406,10 +401,6 @@ public class ServerProperties {
 
     public Map<String, String> getContextParameters() {
       return this.contextParameters;
-    }
-
-    public JspProperties getJsp() {
-      return this.jsp;
     }
 
   }

@@ -85,7 +85,6 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
-import cn.taketoday.framework.web.servlet.server.JspProperties;
 import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
@@ -265,10 +264,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     if (isRegisterDefaultServlet()) {
       addDefaultServlet(context);
     }
-    if (shouldRegisterJspServlet()) {
-      addJspServlet(context, getJsp());
-      context.addBean(new JasperInitializer(context), true);
-    }
+
     addLocaleMappings(context);
     ServletContextInitializer[] initializersToUse = mergeInitializers(initializers);
     Configuration[] configurations = getWebAppContextConfigurations(context, initializersToUse);
@@ -367,26 +363,6 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
     context.getServletHandler().addServletWithMapping(holder, "/");
     ServletMapping servletMapping = context.getServletHandler().getServletMapping("/");
     servletMapping.setFromDefaultDescriptor(true);
-  }
-
-  /**
-   * Add Jetty's {@code JspServlet} to the given {@link WebAppContext}.
-   *
-   * @param context the jetty {@link WebAppContext}
-   */
-  protected final void addJspServlet(WebAppContext context, JspProperties jsp) {
-    Assert.notNull(context, "Context is required");
-    ServletHolder holder = new ServletHolder();
-    holder.setName("jsp");
-    holder.setClassName(jsp.getClassName());
-    holder.setInitParameter("fork", "false");
-    holder.setInitParameters(jsp.getInitParameters());
-    holder.setInitOrder(3);
-    context.getServletHandler().addServlet(holder);
-    ServletMapping mapping = new ServletMapping();
-    mapping.setServletName("jsp");
-    mapping.setPathSpecs(new String[] { "*.jsp", "*.jspx" });
-    context.getServletHandler().addServletMapping(mapping);
   }
 
   /**

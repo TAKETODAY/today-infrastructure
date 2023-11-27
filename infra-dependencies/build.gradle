@@ -565,7 +565,6 @@ bom {
       modules = [
           "tomcat-embed-core",
           "tomcat-embed-el",
-          "tomcat-embed-jasper",
           "tomcat-embed-websocket"
       ]
     }

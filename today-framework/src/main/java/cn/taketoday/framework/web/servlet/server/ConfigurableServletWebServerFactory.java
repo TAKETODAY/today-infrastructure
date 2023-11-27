@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +28,6 @@ import cn.taketoday.framework.web.server.MimeMappings;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.WebListenerRegistry;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.session.config.SessionProperties;
 import jakarta.servlet.ServletContext;
@@ -44,6 +40,7 @@ import jakarta.servlet.ServletContext;
  * @author Stephane Nicoll
  * @author Eddú Meléndez
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ServletWebServerFactory
  * @see WebServerFactoryCustomizer
  * @since 4.0
@@ -117,13 +114,6 @@ public interface ConfigurableServletWebServerFactory
    * @see #setInitializers
    */
   void addInitializers(ServletContextInitializer... initializers);
-
-  /**
-   * Sets the configuration that will be applied to the server's JSP servlet.
-   *
-   * @param jsp the JSP servlet configuration
-   */
-  void setJsp(@Nullable JspProperties jsp);
 
   /**
    * Sets the Locale to Charset mappings.

@@ -48,7 +48,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.test.classpath.ClassPathExclusions;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.web.RequestContext;
@@ -73,7 +72,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Stephane Nicoll
  * @author Scott Frederick
  */
-@ClassPathExclusions("tomcat-embed-jasper*")
 class BasicErrorControllerIntegrationTests {
 
   private ConfigurableApplicationContext context;
