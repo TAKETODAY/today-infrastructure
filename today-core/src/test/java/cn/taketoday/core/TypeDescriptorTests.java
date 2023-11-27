@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import cn.taketoday.util.DefaultMultiValueMap;
@@ -698,6 +699,17 @@ public class TypeDescriptorTests {
     assertThat(descriptor.getSource()).isEqualTo(parameter);
 
     assertThat(TypeDescriptor.valueOf(Integer.class).getSource()).isEqualTo(Integer.class);
+  }
+
+  @Test
+  void equalityWithGenerics() {
+    ResolvableType rt1 = ResolvableType.forClassWithGenerics(Optional.class, Integer.class);
+    ResolvableType rt2 = ResolvableType.forClassWithGenerics(Optional.class, String.class);
+
+    TypeDescriptor td1 = new TypeDescriptor(rt1, null, (Annotation[]) null);
+    TypeDescriptor td2 = new TypeDescriptor(rt2, null, (Annotation[]) null);
+
+    assertThat(td1).isNotEqualTo(td2);
   }
 
   // Methods designed for test introspection
