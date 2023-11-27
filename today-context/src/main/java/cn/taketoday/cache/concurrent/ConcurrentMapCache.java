@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.cache.concurrent;
 
 import java.util.concurrent.Callable;
@@ -50,7 +51,7 @@ import cn.taketoday.lang.Nullable;
  * @author Costin Leau
  * @author Juergen Hoeller
  * @author Stephane Nicoll
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConcurrentMapCacheManager
  * @since 2019-12-17 12:29
  */
@@ -166,7 +167,8 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
   @Nullable
   public CompletableFuture<?> retrieve(Object key) {
     Object value = lookup(key);
-    return value != null ? CompletableFuture.completedFuture(fromStoreValue(value)) : null;
+    return value != null ? CompletableFuture.completedFuture(
+            allowNullValues ? toValueWrapper(value) : fromStoreValue(value)) : null;
   }
 
   @SuppressWarnings("unchecked")

@@ -142,7 +142,7 @@ public class CaffeineCache extends AbstractValueAdaptingCache {
   @Nullable
   public CompletableFuture<?> retrieve(Object key) {
     CompletableFuture<?> result = getAsyncCache().getIfPresent(key);
-    if (result != null && isAllowNullValues()) {
+    if (result != null && allowNullValues) {
       result = result.handle((value, ex) -> fromStoreValue(value));
     }
     return result;

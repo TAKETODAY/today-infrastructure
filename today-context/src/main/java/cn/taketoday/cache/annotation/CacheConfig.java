@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,17 +40,19 @@ import cn.taketoday.cache.interceptor.SimpleCacheResolver;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/9 21:36
  */
+@Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Documented
 public @interface CacheConfig {
 
   /**
    * Names of the default caches to consider for caching operations defined
    * in the annotated class.
    * <p>If none is set at the operation level, these are used instead of the default.
-   * <p>May be used to determine the target cache (or caches), matching the
-   * qualifier value or the bean names of a specific bean definition.
+   * <p>Names may be used to determine the target cache(s), to be resolved via the
+   * configured {@link #cacheResolver()} which typically delegates to
+   * {@link cn.taketoday.cache.CacheManager#getCache}.
+   * For further details see {@link Cacheable#cacheNames()}.
    */
   String[] cacheNames() default {};
 

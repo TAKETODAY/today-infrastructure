@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +16,8 @@
  */
 
 package cn.taketoday.cache.support;
+
+import java.util.Objects;
 
 import cn.taketoday.cache.Cache;
 import cn.taketoday.lang.Nullable;
@@ -52,6 +51,21 @@ public class SimpleValueWrapper implements Cache.ValueWrapper {
   @Nullable
   public Object get() {
     return this.value;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof Cache.ValueWrapper wrapper && Objects.equals(get(), wrapper.get())));
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(this.value);
+  }
+
+  @Override
+  public String toString() {
+    return "ValueWrapper for [" + this.value + "]";
   }
 
 }
