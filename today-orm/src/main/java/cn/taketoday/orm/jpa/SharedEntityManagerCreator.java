@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,6 +89,7 @@ public abstract class SharedEntityManagerCreator {
           "getResultStream",  // jakarta.persistence.Query.getResultStream()
           "getResultList",  // jakarta.persistence.Query.getResultList()
           "list",  // org.hibernate.query.Query.list()
+          "scroll",  // org.hibernate.query.Query.scroll()
           "stream",  // org.hibernate.query.Query.stream()
           "uniqueResult",  // org.hibernate.query.Query.uniqueResult()
           "uniqueResultOptional"  // org.hibernate.query.Query.uniqueResultOptional()
