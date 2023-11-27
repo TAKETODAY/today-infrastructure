@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,13 +51,13 @@ import static org.mockito.Mockito.verify;
  */
 class SimpleJdbcCallTests {
 
-  private final Connection connection = mock(Connection.class);
+  private final Connection connection = mock();
 
-  private final DatabaseMetaData databaseMetaData = mock(DatabaseMetaData.class);
+  private final DatabaseMetaData databaseMetaData = mock();
 
-  private final DataSource dataSource = mock(DataSource.class);
+  private final DataSource dataSource = mock();
 
-  private final CallableStatement callableStatement = mock(CallableStatement.class);
+  private final CallableStatement callableStatement = mock();
 
   @BeforeEach
   void setUp() throws Exception {
@@ -236,14 +233,15 @@ class SimpleJdbcCallTests {
   @Test
   // gh-26486
   void exceptionThrownWhileRetrievingColumnNamesFromMetadata() throws Exception {
-    ResultSet proceduresResultSet = mock(ResultSet.class);
-    ResultSet procedureColumnsResultSet = mock(ResultSet.class);
+    ResultSet proceduresResultSet = mock();
+    ResultSet procedureColumnsResultSet = mock();
 
     given(databaseMetaData.getDatabaseProductName()).willReturn("Oracle");
     given(databaseMetaData.getUserName()).willReturn("ME");
     given(databaseMetaData.storesUpperCaseIdentifiers()).willReturn(true);
-    given(databaseMetaData.getProcedures("", "ME", "ADD_INVOICE")).willReturn(proceduresResultSet);
-    given(databaseMetaData.getProcedureColumns("", "ME", "ADD_INVOICE", null)).willReturn(procedureColumnsResultSet);
+    given(databaseMetaData.getSearchStringEscape()).willReturn("@");
+    given(databaseMetaData.getProcedures("", "ME", "ADD@_INVOICE")).willReturn(proceduresResultSet);
+    given(databaseMetaData.getProcedureColumns("", "ME", "ADD@_INVOICE", null)).willReturn(procedureColumnsResultSet);
 
     given(proceduresResultSet.next()).willReturn(true, false);
     given(proceduresResultSet.getString("PROCEDURE_NAME")).willReturn("add_invoice");
@@ -303,13 +301,14 @@ class SimpleJdbcCallTests {
   }
 
   private void initializeAddInvoiceWithMetaData(boolean isFunction) throws SQLException {
-    ResultSet proceduresResultSet = mock(ResultSet.class);
-    ResultSet procedureColumnsResultSet = mock(ResultSet.class);
+    ResultSet proceduresResultSet = mock();
+    ResultSet procedureColumnsResultSet = mock();
     given(databaseMetaData.getDatabaseProductName()).willReturn("Oracle");
     given(databaseMetaData.getUserName()).willReturn("ME");
     given(databaseMetaData.storesUpperCaseIdentifiers()).willReturn(true);
-    given(databaseMetaData.getProcedures("", "ME", "ADD_INVOICE")).willReturn(proceduresResultSet);
-    given(databaseMetaData.getProcedureColumns("", "ME", "ADD_INVOICE", null)).willReturn(procedureColumnsResultSet);
+    given(databaseMetaData.getSearchStringEscape()).willReturn("@");
+    given(databaseMetaData.getProcedures("", "ME", "ADD@_INVOICE")).willReturn(proceduresResultSet);
+    given(databaseMetaData.getProcedureColumns("", "ME", "ADD@_INVOICE", null)).willReturn(procedureColumnsResultSet);
 
     given(proceduresResultSet.next()).willReturn(true, false);
     given(proceduresResultSet.getString("PROCEDURE_NAME")).willReturn("add_invoice");
@@ -332,8 +331,8 @@ class SimpleJdbcCallTests {
   }
 
   private void verifyAddInvoiceWithMetaData(boolean isFunction) throws SQLException {
-    ResultSet proceduresResultSet = databaseMetaData.getProcedures("", "ME", "ADD_INVOICE");
-    ResultSet procedureColumnsResultSet = databaseMetaData.getProcedureColumns("", "ME", "ADD_INVOICE", null);
+    ResultSet proceduresResultSet = databaseMetaData.getProcedures("", "ME", "ADD@_INVOICE");
+    ResultSet procedureColumnsResultSet = databaseMetaData.getProcedureColumns("", "ME", "ADD@_INVOICE", null);
     if (isFunction) {
       verify(callableStatement).registerOutParameter(1, 4);
       verify(callableStatement).setObject(2, 1103, 4);

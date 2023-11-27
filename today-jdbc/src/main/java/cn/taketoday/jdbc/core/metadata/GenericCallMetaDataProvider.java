@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.core.SqlInOutParameter;
@@ -60,7 +61,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
 
   private boolean procedureColumnMetaDataUsed = false;
 
-  private final List<CallParameterMetaData> callParameterMetaData = new ArrayList<>();
+  private final ArrayList<CallParameterMetaData> callParameterMetaData = new ArrayList<>();
 
   /**
    * Constructor used to initialize with provided database meta-data.
@@ -294,16 +295,25 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
     String metaDataCatalogName = metaDataCatalogNameToUse(catalogName);
     String metaDataSchemaName = metaDataSchemaNameToUse(schemaName);
     String metaDataProcedureName = procedureNameToUse(procedureName);
-    if (logger.isDebugEnabled()) {
-      logger.debug("Retrieving meta-data for {}/{}/{}", metaDataCatalogName, metaDataSchemaName, metaDataProcedureName);
-    }
 
     try {
+      String searchStringEscape = databaseMetaData.getSearchStringEscape();
+      String escapedSchemaName = escapeNamePattern(metaDataSchemaName, searchStringEscape);
+      String escapedProcedureName = escapeNamePattern(metaDataProcedureName, searchStringEscape);
+      if (logger.isDebugEnabled()) {
+        String schemaInfo = (Objects.equals(escapedSchemaName, metaDataSchemaName)
+                             ? metaDataSchemaName : metaDataCatalogName + "(" + escapedSchemaName + ")");
+        String procedureInfo = (Objects.equals(escapedProcedureName, metaDataProcedureName)
+                                ? metaDataProcedureName : metaDataProcedureName + "(" + escapedProcedureName + ")");
+        logger.debug("Retrieving meta-data for " + metaDataCatalogName + '/' +
+                schemaInfo + '/' + procedureInfo);
+      }
+
       List<String> found = new ArrayList<>();
       boolean function = false;
 
       try (ResultSet procedures = databaseMetaData.getProcedures(
-              metaDataCatalogName, metaDataSchemaName, metaDataProcedureName)) {
+              metaDataCatalogName, escapedSchemaName, escapedProcedureName)) {
         while (procedures.next()) {
           found.add(procedures.getString("PROCEDURE_CAT") + '.' + procedures.getString("PROCEDURE_SCHEM") +
                   '.' + procedures.getString("PROCEDURE_NAME"));
@@ -313,7 +323,7 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       if (found.isEmpty()) {
         // Functions not exposed as procedures anymore on PostgreSQL driver 42.2.11
         try (ResultSet functions = databaseMetaData.getFunctions(
-                metaDataCatalogName, metaDataSchemaName, metaDataProcedureName)) {
+                metaDataCatalogName, escapedSchemaName, escapedProcedureName)) {
           while (functions.next()) {
             found.add(functions.getString("FUNCTION_CAT") + '.' + functions.getString("FUNCTION_SCHEM") +
                     '.' + functions.getString("FUNCTION_NAME"));
@@ -354,8 +364,8 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
                 (function ? "function" : "procedure"), metaDataCatalogName, metaDataSchemaName, metaDataProcedureName);
       }
       try (ResultSet columns = function ?
-                               databaseMetaData.getFunctionColumns(metaDataCatalogName, metaDataSchemaName, metaDataProcedureName, null) :
-                               databaseMetaData.getProcedureColumns(metaDataCatalogName, metaDataSchemaName, metaDataProcedureName, null)) {
+                               databaseMetaData.getFunctionColumns(metaDataCatalogName, escapedSchemaName, escapedProcedureName, null) :
+                               databaseMetaData.getProcedureColumns(metaDataCatalogName, escapedSchemaName, escapedProcedureName, null)) {
         while (columns.next()) {
           String columnName = columns.getString("COLUMN_NAME");
           int columnType = columns.getInt("COLUMN_TYPE");
@@ -391,6 +401,16 @@ public class GenericCallMetaDataProvider implements CallMetaDataProvider {
       // not to do that here, since invocation of the stored procedure will
       // likely fail anyway with an incorrect argument list.
     }
+  }
+
+  @Nullable
+  private static String escapeNamePattern(@Nullable String name, @Nullable String escape) {
+    if (name == null || escape == null) {
+      return name;
+    }
+    return name.replace(escape, escape + escape)
+            .replace("_", escape + "_")
+            .replace("%", escape + "%");
   }
 
   private static boolean isInOrOutColumn(int columnType, boolean function) {
