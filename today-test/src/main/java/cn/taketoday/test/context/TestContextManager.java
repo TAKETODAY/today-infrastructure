@@ -21,13 +21,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
-import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -77,6 +78,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BootstrapWith
  * @see BootstrapContext
  * @see TestContextBootstrapper
@@ -91,14 +93,22 @@ public class TestContextManager {
 
   private static final Logger log = LoggerFactory.getLogger(TestContextManager.class);
 
+  private static final Set<Class<? extends Throwable>> skippedExceptionTypes = new LinkedHashSet<>(4);
+
+  static {
+    // JUnit Jupiter
+    registerSkippedExceptionType("org.opentest4j.TestAbortedException");
+    // JUnit 4
+    registerSkippedExceptionType("org.junit.AssumptionViolatedException");
+    // TestNG
+    registerSkippedExceptionType("org.testng.SkipException");
+  }
+
   private final TestContext testContext;
 
-  private final ThreadLocal<TestContext> testContextHolder = ThreadLocal.withInitial(
-          // Implemented as an anonymous inner class instead of a lambda expression due to a bug
-          // in Eclipse IDE: "The blank final field testContext may not have been initialized"
-          () -> copyTestContext(TestContextManager.this.testContext));
+  private final ThreadLocal<TestContext> testContextHolder;
 
-  private final List<TestExecutionListener> testExecutionListeners = new ArrayList<>();
+  private final List<TestExecutionListener> testExecutionListeners = new ArrayList<>(8);
 
   /**
    * Construct a new {@code TestContextManager} for the supplied {@linkplain Class test class}.
@@ -107,7 +117,7 @@ public class TestContextManager {
    * {@link BootstrapWith @BootstrapWith} annotation is present on the test
    * class, either directly or as a meta-annotation, then its
    * {@link BootstrapWith#value value} will be used as the bootstrapper type;
-   * otherwise, the {@link DefaultTestContextBootstrapper
+   * otherwise, the {@link cn.taketoday.test.context.support.DefaultTestContextBootstrapper
    * DefaultTestContextBootstrapper} will be used.
    *
    * @param testClass the test class to be managed
@@ -131,6 +141,7 @@ public class TestContextManager {
    */
   public TestContextManager(TestContextBootstrapper testContextBootstrapper) {
     this.testContext = testContextBootstrapper.buildTestContext();
+    this.testContextHolder = ThreadLocal.withInitial(() -> copyTestContext(this.testContext));
     registerTestExecutionListeners(testContextBootstrapper.getTestExecutionListeners());
   }
 
@@ -157,7 +168,9 @@ public class TestContextManager {
    */
   public void registerTestExecutionListeners(TestExecutionListener... testExecutionListeners) {
     for (TestExecutionListener listener : testExecutionListeners) {
-      log.trace("Registering TestExecutionListener: {}", listener);
+      if (log.isTraceEnabled()) {
+        log.trace("Registering TestExecutionListener: {}", typeName(listener));
+      }
       this.testExecutionListeners.add(listener);
     }
   }
@@ -185,8 +198,8 @@ public class TestContextManager {
   /**
    * Hook for pre-processing a test class <em>before</em> execution of any
    * tests within the class. Should be called prior to any framework-specific
-   * <em>before class methods</em> (e.g., methods annotated with JUnit 4's
-   * {@link org.junit.BeforeClass @BeforeClass}).
+   * <em>before class methods</em> &mdash; for example, methods annotated with
+   * JUnit Jupiter's {@link org.junit.jupiter.api.BeforeAll @BeforeAll}.
    * <p>An attempt will be made to give each registered
    * {@link TestExecutionListener} a chance to pre-process the test class
    * execution. If a listener throws an exception, however, the remaining
@@ -198,7 +211,9 @@ public class TestContextManager {
    */
   public void beforeTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();
-    log.trace("beforeTestClass(): class [{}]", testClass.getName());
+    if (log.isTraceEnabled()) {
+      log.trace("beforeTestClass(): class [{}]", typeName(testClass));
+    }
     getTestContext().updateState(null, null, null);
 
     for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
@@ -217,8 +232,8 @@ public class TestContextManager {
    * test methods &mdash; for example, to inject dependencies.
    * <p>This method should be called immediately after instantiation of the test
    * class or as soon after instantiation as possible (as is the case with the
-   * {@link InfraMethodRule
-   * ApplicationMethodRule}). In any case, this method must be called prior to any
+   * {@link cn.taketoday.test.context.junit4.rules.InfraMethodRule
+   * InfraMethodRule}). In any case, this method must be called prior to any
    * framework-specific lifecycle callbacks.
    * <p>The managed {@link TestContext} will be updated with the supplied
    * {@code testInstance}.
@@ -227,12 +242,14 @@ public class TestContextManager {
    * listener throws an exception, however, the remaining registered listeners
    * will <strong>not</strong> be called.
    *
-   * @param testInstance the test instance to prepare (never {@code null})
+   * @param testInstance the test instance to prepare
    * @throws Exception if a registered TestExecutionListener throws an exception
    * @see #getTestExecutionListeners()
    */
   public void prepareTestInstance(Object testInstance) throws Exception {
-    log.trace("prepareTestInstance(): instance [{}]", testInstance);
+    if (log.isTraceEnabled()) {
+      log.trace("prepareTestInstance(): instance [{}]", testInstance);
+    }
     getTestContext().updateState(testInstance, null, null);
 
     for (TestExecutionListener testExecutionListener : getTestExecutionListeners()) {
@@ -240,8 +257,20 @@ public class TestContextManager {
         testExecutionListener.prepareTestInstance(getTestContext());
       }
       catch (Throwable ex) {
-        log.error("Caught exception while allowing TestExecutionListener [{}] to prepare test instance [{}]",
-                testExecutionListener, testInstance, ex);
+        if (isSkippedException(ex)) {
+          if (log.isInfoEnabled()) {
+            log.info("""
+                    Caught exception while allowing TestExecutionListener [%s] to \
+                    prepare test instance [%s]"""
+                    .formatted(typeName(testExecutionListener), testInstance), ex);
+          }
+        }
+        else if (log.isWarnEnabled()) {
+          log.warn("""
+                  Caught exception while allowing TestExecutionListener [%s] to \
+                  prepare test instance [%s]"""
+                  .formatted(typeName(testExecutionListener), testInstance), ex);
+        }
         ReflectionUtils.rethrowException(ex);
       }
     }
@@ -252,10 +281,10 @@ public class TestContextManager {
    * lifecycle callbacks of the underlying test framework &mdash; for example,
    * setting up test fixtures, starting a transaction, etc.
    * <p>This method <strong>must</strong> be called immediately prior to
-   * framework-specific <em>before</em> lifecycle callbacks (e.g., methods
-   * annotated with JUnit 4's {@link org.junit.Before @Before}). For historical
-   * reasons, this method is named {@code beforeTestMethod}. Since the
-   * introduction of {@link #beforeTestExecution}, a more suitable name for
+   * framework-specific <em>before</em> lifecycle callbacks &mdash; for example, methods
+   * annotated with JUnit Jupiter's {@link org.junit.jupiter.api.BeforeEach @BeforeEach}.
+   * For historical reasons, this method is named {@code beforeTestMethod}. Since
+   * the introduction of {@link #beforeTestExecution}, a more suitable name for
    * this method might be something like {@code beforeTestSetUp} or
    * {@code beforeEach}; however, it is unfortunately impossible to rename
    * this method due to backward compatibility concerns.
@@ -266,7 +295,7 @@ public class TestContextManager {
    * If a listener throws an exception, however, the remaining registered
    * listeners will <strong>not</strong> be called.
    *
-   * @param testInstance the current test instance (never {@code null})
+   * @param testInstance the current test instance
    * @param testMethod the test method which is about to be executed on the
    * test instance
    * @throws Exception if a registered TestExecutionListener throws an exception
@@ -291,12 +320,12 @@ public class TestContextManager {
 
   /**
    * Hook for pre-processing a test <em>immediately before</em> execution of
-   * the {@linkplain Method test method} in the supplied
+   * the {@linkplain java.lang.reflect.Method test method} in the supplied
    * {@linkplain TestContext test context} &mdash; for example, for timing
    * or logging purposes.
    * <p>This method <strong>must</strong> be called after framework-specific
-   * <em>before</em> lifecycle callbacks (e.g., methods annotated with JUnit 4's
-   * {@link org.junit.Before @Before}).
+   * <em>before</em> lifecycle callbacks &mdash; for example, methods annotated
+   * with JUnit Jupiter's {@link org.junit.jupiter.api.BeforeEach @BeforeEach}.
    * <p>The managed {@link TestContext} will be updated with the supplied
    * {@code testInstance} and {@code testMethod}.
    * <p>An attempt will be made to give each registered
@@ -304,7 +333,7 @@ public class TestContextManager {
    * If a listener throws an exception, however, the remaining registered
    * listeners will <strong>not</strong> be called.
    *
-   * @param testInstance the current test instance (never {@code null})
+   * @param testInstance the current test instance
    * @param testMethod the test method which is about to be executed on the
    * test instance
    * @throws Exception if a registered TestExecutionListener throws an exception
@@ -330,12 +359,12 @@ public class TestContextManager {
 
   /**
    * Hook for post-processing a test <em>immediately after</em> execution of
-   * the {@linkplain Method test method} in the supplied
+   * the {@linkplain java.lang.reflect.Method test method} in the supplied
    * {@linkplain TestContext test context} &mdash; for example, for timing
    * or logging purposes.
    * <p>This method <strong>must</strong> be called before framework-specific
-   * <em>after</em> lifecycle callbacks (e.g., methods annotated with JUnit 4's
-   * {@link org.junit.After @After}).
+   * <em>after</em> lifecycle callbacks &mdash; for example, methods annotated
+   * with JUnit Jupiter's {@link org.junit.jupiter.api.AfterEach @AfterEach}.
    * <p>The managed {@link TestContext} will be updated with the supplied
    * {@code testInstance}, {@code testMethod}, and {@code exception}.
    * <p>Each registered {@link TestExecutionListener} will be given a chance
@@ -347,7 +376,7 @@ public class TestContextManager {
    * <p>Note that registered listeners will be executed in the opposite
    * order in which they were registered.
    *
-   * @param testInstance the current test instance (never {@code null})
+   * @param testInstance the current test instance
    * @param testMethod the test method which has just been executed on the
    * test instance
    * @param exception the exception that was thrown during execution of the
@@ -394,10 +423,10 @@ public class TestContextManager {
    * lifecycle callbacks of the underlying test framework &mdash; for example,
    * tearing down test fixtures, ending a transaction, etc.
    * <p>This method <strong>must</strong> be called immediately after
-   * framework-specific <em>after</em> lifecycle callbacks (e.g., methods
-   * annotated with JUnit 4's {@link org.junit.After @After}). For historical
-   * reasons, this method is named {@code afterTestMethod}. Since the
-   * introduction of {@link #afterTestExecution}, a more suitable name for
+   * framework-specific <em>after</em> lifecycle callbacks &mdash; for example, methods
+   * annotated with JUnit Jupiter's {@link org.junit.jupiter.api.AfterEach @AfterEach}.
+   * For historical reasons, this method is named {@code afterTestMethod}. Since
+   * the introduction of {@link #afterTestExecution}, a more suitable name for
    * this method might be something like {@code afterTestTearDown} or
    * {@code afterEach}; however, it is unfortunately impossible to rename
    * this method due to backward compatibility concerns.
@@ -411,7 +440,7 @@ public class TestContextManager {
    * the first exception.
    * <p>Note that registered listeners will be executed in the opposite
    *
-   * @param testInstance the current test instance (never {@code null})
+   * @param testInstance the current test instance
    * @param testMethod the test method which has just been executed on the
    * test instance
    * @param exception the exception that was thrown during execution of the test
@@ -455,8 +484,8 @@ public class TestContextManager {
   /**
    * Hook for post-processing a test class <em>after</em> execution of all
    * tests within the class. Should be called after any framework-specific
-   * <em>after class methods</em> (e.g., methods annotated with JUnit 4's
-   * {@link org.junit.AfterClass @AfterClass}).
+   * <em>after class methods</em> &mdash; for example, methods annotated with
+   * JUnit Jupiter's {@link org.junit.jupiter.api.AfterAll @AfterAll}.
    * <p>Each registered {@link TestExecutionListener} will be given a chance
    * to perform its post-processing. If a listener throws an exception, the
    * remaining registered listeners will still be called. After all listeners
@@ -472,7 +501,7 @@ public class TestContextManager {
   public void afterTestClass() throws Exception {
     Class<?> testClass = getTestContext().getTestClass();
     if (log.isTraceEnabled()) {
-      log.trace("afterTestClass(): class [{}]", testClass.getName());
+      log.trace("afterTestClass(): class [{}]", typeName(testClass));
     }
     getTestContext().updateState(null, null, null);
 
@@ -502,7 +531,9 @@ public class TestContextManager {
   }
 
   private void prepareForBeforeCallback(String callbackName, Object testInstance, Method testMethod) {
-    log.trace("{}(): instance [{}], method [{}]", callbackName, testInstance, testMethod);
+    if (log.isTraceEnabled()) {
+      log.trace("%s(): instance [%s], method [%s]".formatted(callbackName, testInstance, testMethod));
+    }
     getTestContext().updateState(testInstance, testMethod, null);
   }
 
@@ -510,8 +541,8 @@ public class TestContextManager {
           @Nullable Throwable exception) {
 
     if (log.isTraceEnabled()) {
-      log.trace("{}(): instance [{}], method [{}], exception [{}]",
-              callbackName, testInstance, testMethod, exception);
+      log.trace("%s(): instance [%s], method [%s], exception [%s]"
+              .formatted(callbackName, testInstance, testMethod, exception));
     }
     getTestContext().updateState(testInstance, testMethod, exception);
   }
@@ -526,15 +557,39 @@ public class TestContextManager {
   private void logException(
           Throwable ex, String callbackName, TestExecutionListener testExecutionListener, Class<?> testClass) {
 
-    log.warn("Caught exception while invoking '{}' callback on TestExecutionListener [{}] for test class [{}]",
-            callbackName, testExecutionListener, testClass, ex);
+    if (isSkippedException(ex)) {
+      if (log.isInfoEnabled()) {
+        log.info("""
+                Caught exception while invoking '%s' callback on TestExecutionListener [%s] \
+                for test class [%s]"""
+                .formatted(callbackName, typeName(testExecutionListener), typeName(testClass)), ex);
+      }
+    }
+    else if (log.isWarnEnabled()) {
+      log.warn("""
+              Caught exception while invoking '%s' callback on TestExecutionListener [%s] \
+              for test class [%s]"""
+              .formatted(callbackName, typeName(testExecutionListener), typeName(testClass)), ex);
+    }
   }
 
   private void logException(Throwable ex, String callbackName, TestExecutionListener testExecutionListener,
           Object testInstance, Method testMethod) {
-    log.warn("Caught exception while invoking '{}' callback on " +
-                    "TestExecutionListener [{}] for test method [{}] and test instance [{}]",
-            callbackName, testExecutionListener, testMethod, testInstance, ex);
+
+    if (isSkippedException(ex)) {
+      if (log.isInfoEnabled()) {
+        log.info("""
+                Caught exception while invoking '%s' callback on TestExecutionListener [%s] for \
+                test method [%s] and test instance [%s]"""
+                .formatted(callbackName, typeName(testExecutionListener), testMethod, testInstance), ex);
+      }
+    }
+    else if (log.isWarnEnabled()) {
+      log.warn("""
+              Caught exception while invoking '%s' callback on TestExecutionListener [%s] for \
+              test method [%s] and test instance [%s]"""
+              .formatted(callbackName, typeName(testExecutionListener), testMethod, testInstance), ex);
+    }
   }
 
   /**
@@ -551,14 +606,45 @@ public class TestContextManager {
         return constructor.newInstance(testContext);
       }
       catch (Exception ex) {
-        log.info("Failed to invoke copy constructor for [{}]; " +
-                        "concurrent test execution is therefore likely not supported.",
-                testContext, ex);
+        if (log.isInfoEnabled()) {
+          log.info("""
+                  Failed to invoke copy constructor for [%s]; concurrent test execution \
+                  is therefore likely not supported.""".formatted(testContext), ex);
+        }
       }
     }
 
     // Fallback to original instance
     return testContext;
+  }
+
+  private static String typeName(@Nullable Object obj) {
+    if (obj == null) {
+      return "null";
+    }
+    if (obj instanceof Class<?> type) {
+      return type.getName();
+    }
+    return obj.getClass().getName();
+  }
+
+  private static void registerSkippedExceptionType(String name) {
+    try {
+      Class<? extends Throwable> exceptionType = ClassUtils.forName(name, TestContextManager.class.getClassLoader());
+      skippedExceptionTypes.add(exceptionType);
+    }
+    catch (ClassNotFoundException | LinkageError ex) {
+      // ignore
+    }
+  }
+
+  private static boolean isSkippedException(Throwable ex) {
+    for (Class<? extends Throwable> skippedExceptionType : skippedExceptionTypes) {
+      if (skippedExceptionType.isInstance(ex)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
