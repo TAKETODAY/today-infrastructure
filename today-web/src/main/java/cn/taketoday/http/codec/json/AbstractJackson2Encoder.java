@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +67,7 @@ import reactor.util.context.ContextView;
  *
  * @author Sebastien Deleuze
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport implements HttpMessageEncoder<Object> {
@@ -207,8 +205,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
                 .doOnNext(dataBuffer -> Hints.touchDataBuffer(dataBuffer, hintsToUse, logger))
                 .doAfterTerminate(() -> {
                   try {
-                    byteBuilder.release();
                     generator.close();
+                    byteBuilder.release();
                   }
                   catch (IOException ex) {
                     logger.error("Could not close Encoder resources", ex);
