@@ -59,6 +59,7 @@ import cn.taketoday.util.function.SingletonSupplier;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
@@ -157,6 +158,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
     if (beanFactory instanceof ConfigurableBeanFactory configurableBeanFactory) {
       this.embeddedValueResolver = new EmbeddedValueResolver(configurableBeanFactory);
     }
+    this.executors.clear();
   }
 
   /**
