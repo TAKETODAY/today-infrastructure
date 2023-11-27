@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,14 +31,21 @@ import cn.taketoday.lang.Nullable;
  * This class is intended for internal use by the Simple JDBC classes.
  *
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class PostgresCallMetaDataProvider extends GenericCallMetaDataProvider {
 
   private static final String RETURN_VALUE_NAME = "returnValue";
 
+  private final String schemaName;
+
   public PostgresCallMetaDataProvider(DatabaseMetaData databaseMetaData) throws SQLException {
     super(databaseMetaData);
+
+    // Use current schema (or public schema) if no schema specified
+    String schema = databaseMetaData.getConnection().getSchema();
+    this.schemaName = (schema != null ? schema : "public");
   }
 
   @Override
@@ -62,8 +66,7 @@ public class PostgresCallMetaDataProvider extends GenericCallMetaDataProvider {
   @Override
   @Nullable
   public String metaDataSchemaNameToUse(@Nullable String schemaName) {
-    // Use public schema if no schema specified
-    return (schemaName == null ? "public" : super.metaDataSchemaNameToUse(schemaName));
+    return (schemaName == null ? this.schemaName : super.metaDataSchemaNameToUse(schemaName));
   }
 
   @Override
