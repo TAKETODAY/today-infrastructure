@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -152,8 +149,8 @@ public class ServerEndpointExporter extends WebApplicationObjectSupport
                     "cn.taketoday.web.servlet.ContextLoaderListener, " +
                     "i.e. after the ServletContext has been fully initialized?");
     try {
-      if (log.isDebugEnabled()) {
-        log.debug("Registering @ServerEndpoint class: {}", endpointClass);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Registering @ServerEndpoint class: {}", endpointClass);
       }
       serverContainer.addEndpoint(endpointClass);
     }
@@ -166,8 +163,8 @@ public class ServerEndpointExporter extends WebApplicationObjectSupport
     ServerContainer serverContainer = getServerContainer();
     Assert.state(serverContainer != null, "No ServerContainer set");
     try {
-      if (log.isDebugEnabled()) {
-        log.debug("Registering ServerEndpointConfig: {}", endpointConfig);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Registering ServerEndpointConfig: {}", endpointConfig);
       }
       serverContainer.addEndpoint(endpointConfig);
     }

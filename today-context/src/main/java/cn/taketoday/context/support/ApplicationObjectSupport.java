@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +48,8 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 2019-12-21 15:45
  */
 public abstract class ApplicationObjectSupport implements ApplicationContextAware {
-  protected final Logger log = LoggerFactory.getLogger(getClass());
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   protected ApplicationContext applicationContext;

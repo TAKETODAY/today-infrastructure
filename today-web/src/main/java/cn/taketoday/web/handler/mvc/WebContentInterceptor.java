@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -142,8 +139,8 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
     if (!cacheControlMappings.isEmpty()) {
       CacheControl control = lookupCacheControl(request.getLookupPath());
       if (control != null) {
-        if (log.isTraceEnabled()) {
-          log.trace("Applying {}", control);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Applying {}", control);
         }
         applyCacheControl(request, control);
         return true;
@@ -153,8 +150,8 @@ public class WebContentInterceptor extends WebContentGenerator implements Handle
     if (!cacheMappings.isEmpty()) {
       Integer cacheSeconds = lookupCacheSeconds(request.getLookupPath());
       if (cacheSeconds != null) {
-        if (log.isTraceEnabled()) {
-          log.trace("Applying cacheSeconds {}", cacheSeconds);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Applying cacheSeconds {}", cacheSeconds);
         }
         applyCacheSeconds(request, cacheSeconds);
         return true;

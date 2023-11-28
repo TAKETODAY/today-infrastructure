@@ -167,15 +167,15 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
     // If already included or response already committed, perform include, else forward.
     if (useInclude(servletRequest, servletResponse)) {
       request.setContentType(getContentType());
-      if (log.isDebugEnabled()) {
-        log.debug("Including [{}]", getUrl());
+      if (logger.isDebugEnabled()) {
+        logger.debug("Including [{}]", getUrl());
       }
       rd.include(servletRequest, servletResponse);
     }
     else {
       // Note: The forwarded resource is supposed to determine the content type itself.
-      if (log.isDebugEnabled()) {
-        log.debug("Forwarding to [{}]", getUrl());
+      if (logger.isDebugEnabled()) {
+        logger.debug("Forwarding to [{}]", getUrl());
       }
       rd.forward(servletRequest, servletResponse);
     }

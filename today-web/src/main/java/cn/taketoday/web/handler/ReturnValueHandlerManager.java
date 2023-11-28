@@ -277,7 +277,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport
    * register default return-value handlers
    */
   public void registerDefaultHandlers() {
-    log.debug("Registering default return-value handlers to {}", this);
+    logger.debug("Registering default return-value handlers to {}", this);
     ViewReturnValueHandler viewHandler = obtainViewHandler();
 
     ArrayList<ReturnValueHandler> internalHandlers = new ArrayList<>();

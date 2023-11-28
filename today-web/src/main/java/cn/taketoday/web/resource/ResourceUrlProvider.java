@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,8 +31,6 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
@@ -55,8 +50,6 @@ import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
  */
 public class ResourceUrlProvider extends ApplicationObjectSupport
         implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private PathMatcher pathMatcher = new AntPathMatcher();
 

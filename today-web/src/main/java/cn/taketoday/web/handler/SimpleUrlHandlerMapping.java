@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,7 +157,7 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
    */
   protected void registerHandlers(Map<String, Object> urlMap) throws BeansException {
     if (urlMap.isEmpty()) {
-      log.trace("No patterns in {}", formatMappingName());
+      logger.trace("No patterns in {}", formatMappingName());
     }
     else {
       for (Map.Entry<String, Object> entry : urlMap.entrySet()) {
@@ -184,8 +181,8 @@ public class SimpleUrlHandlerMapping extends AbstractUrlHandlerMapping {
     if (mappingsLogger.isDebugEnabled()) {
       mappingsLogger.debug("{}  {}", formatMappingName(), getHandlerMap());
     }
-    else if (log.isDebugEnabled()) {
-      log.debug("Patterns {} in {}", getHandlerMap().keySet(), formatMappingName());
+    else if (logger.isDebugEnabled()) {
+      logger.debug("Patterns {} in {}", getHandlerMap().keySet(), formatMappingName());
     }
   }
 

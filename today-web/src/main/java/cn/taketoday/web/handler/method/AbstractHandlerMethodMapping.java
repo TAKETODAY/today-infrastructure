@@ -200,8 +200,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param method the method
    */
   public void registerMapping(T mapping, Object handler, Method method) {
-    if (log.isTraceEnabled()) {
-      log.trace("Register \"{}\" to {}", mapping, method.toGenericString());
+    if (logger.isTraceEnabled()) {
+      logger.trace("Register \"{}\" to {}", mapping, method.toGenericString());
     }
     this.mappingRegistry.register(mapping, handler, method);
   }
@@ -213,8 +213,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    * @param mapping the mapping to unregister
    */
   public void unregisterMapping(T mapping) {
-    if (log.isTraceEnabled()) {
-      log.trace("Unregister mapping \"{}\"", mapping);
+    if (logger.isTraceEnabled()) {
+      logger.trace("Unregister mapping \"{}\"", mapping);
     }
     this.mappingRegistry.unregister(mapping);
   }
@@ -278,7 +278,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
     catch (Throwable ex) {
       // An unresolvable bean type, probably from a lazy bean - let's ignore it.
-      log.trace("Could not resolve type for bean '{}'", beanName, ex);
+      logger.trace("Could not resolve type for bean '{}'", beanName, ex);
     }
     if (beanType != null && isHandler(beanType)) {
       detectHandlerMethods(beanType, beanName);
@@ -320,8 +320,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
                         "Invalid mapping on handler class [" + userType.getName() + "]: " + method, ex);
               }
             });
-    if (log.isTraceEnabled()) {
-      log.trace(formatMappings(userType, methods));
+    if (logger.isTraceEnabled()) {
+      logger.trace(formatMappings(userType, methods));
     }
     else if (mappingsLogger.isDebugEnabled()) {
       mappingsLogger.debug(formatMappings(userType, methods));
@@ -391,8 +391,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   protected void handlerMethodsInitialized(Map<T, HandlerMethod> handlerMethods) {
     // Total includes detected mappings + explicit registrations via registerMapping
     int total = handlerMethods.size();
-    if ((log.isTraceEnabled() && total == 0) || (log.isDebugEnabled() && total > 0)) {
-      log.debug("{} mappings in {}", total, formatMappingName());
+    if ((logger.isTraceEnabled() && total == 0) || (logger.isDebugEnabled() && total > 0)) {
+      logger.debug("{} mappings in {}", total, formatMappingName());
     }
   }
 
@@ -447,8 +447,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
         var comparator = new MatchComparator(getMappingComparator(request));
         matches.sort(comparator);
         bestMatch = matches.get(0);
-        if (log.isTraceEnabled()) {
-          log.trace("{} matching mappings: {}", matches.size(), matches);
+        if (logger.isTraceEnabled()) {
+          logger.trace("{} matching mappings: {}", matches.size(), matches);
         }
         if (request.isPreFlightRequest()) {
           for (Match<T> match : matches) {

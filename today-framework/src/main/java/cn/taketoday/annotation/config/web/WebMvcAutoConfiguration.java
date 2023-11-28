@@ -367,7 +367,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
       addResourceHandler(registry, mvcProperties.getStaticPathPattern(), resourceProperties.getStaticLocations());
     }
     else {
-      log.debug("Default resource handling disabled");
+      logger.debug("Default resource handling disabled");
     }
     // User maybe override
     webMvcConfigurers.addResourceHandlers(registry);

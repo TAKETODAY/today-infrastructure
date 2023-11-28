@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -159,19 +156,19 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
     if (mappingsLogger.isDebugEnabled()) {
       routerFunctions.forEach(function -> mappingsLogger.debug("Mapped {}", function));
     }
-    else if (log.isDebugEnabled()) {
+    else if (logger.isDebugEnabled()) {
       int total = routerFunctions.size();
       String message = total + " RouterFunction(s) in " + formatMappingName();
-      if (log.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
         if (total > 0) {
-          routerFunctions.forEach(function -> log.trace("Mapped {}", function));
+          routerFunctions.forEach(function -> logger.trace("Mapped {}", function));
         }
         else {
-          log.trace(message);
+          logger.trace(message);
         }
       }
       else if (total > 0) {
-        log.debug(message);
+        logger.debug(message);
       }
     }
   }

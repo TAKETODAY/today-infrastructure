@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,8 +74,8 @@ public class BeanNameViewResolver extends ApplicationObjectSupport implements Vi
       return context.getBean(viewName, View.class);
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("Found bean named '{}' but it does not implement View", viewName);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Found bean named '{}' but it does not implement View", viewName);
     }
     // Since we're looking into the general ApplicationContext here,
     // let's accept this as a non-match and allow for chaining as well...

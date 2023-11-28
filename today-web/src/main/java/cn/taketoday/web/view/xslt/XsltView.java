@@ -84,7 +84,7 @@ public class XsltView extends AbstractUrlBasedView {
   @Nullable
   private URIResolver uriResolver;
 
-  private ErrorListener errorListener = new SimpleTransformErrorListener(log);
+  private ErrorListener errorListener = new SimpleTransformErrorListener(logger);
 
   private boolean indent = true;
 
@@ -140,7 +140,7 @@ public class XsltView extends AbstractUrlBasedView {
    * @see SimpleTransformErrorListener
    */
   public void setErrorListener(@Nullable ErrorListener errorListener) {
-    this.errorListener = errorListener != null ? errorListener : new SimpleTransformErrorListener(log);
+    this.errorListener = errorListener != null ? errorListener : new SimpleTransformErrorListener(logger);
   }
 
   /**
@@ -473,8 +473,8 @@ public class XsltView extends AbstractUrlBasedView {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
 
-    if (log.isDebugEnabled()) {
-      log.debug("Applying stylesheet [{}]", url);
+    if (logger.isDebugEnabled()) {
+      logger.debug("Applying stylesheet [{}]", url);
     }
     try {
       Resource resource = obtainApplicationContext().getResource(url);

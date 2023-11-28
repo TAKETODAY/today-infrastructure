@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -207,7 +204,7 @@ public class ContentNegotiatingViewResolver
       this.contentNegotiationManager = new ContentNegotiationManagerFactoryBean().build();
     }
     if (CollectionUtils.isEmpty(viewResolvers)) {
-      log.warn("No ViewResolvers configured");
+      logger.warn("No ViewResolvers configured");
     }
   }
 
@@ -224,15 +221,15 @@ public class ContentNegotiatingViewResolver
       }
     }
 
-    String mediaTypeInfo = log.isDebugEnabled() && requestedMediaTypes != null ? " given " + requestedMediaTypes : "";
+    String mediaTypeInfo = logger.isDebugEnabled() && requestedMediaTypes != null ? " given " + requestedMediaTypes : "";
     if (useNotAcceptableStatusCode) {
-      if (log.isDebugEnabled()) {
-        log.debug("Using 406 NOT_ACCEPTABLE {}", mediaTypeInfo);
+      if (logger.isDebugEnabled()) {
+        logger.debug("Using 406 NOT_ACCEPTABLE {}", mediaTypeInfo);
       }
       return NOT_ACCEPTABLE_VIEW;
     }
     else {
-      log.debug("View remains unresolved {}", mediaTypeInfo);
+      logger.debug("View remains unresolved {}", mediaTypeInfo);
       return null;
     }
   }
@@ -263,8 +260,8 @@ public class ContentNegotiatingViewResolver
       return selectedMediaTypes;
     }
     catch (HttpMediaTypeNotAcceptableException ex) {
-      if (log.isDebugEnabled()) {
-        log.debug(ex.getMessage());
+      if (logger.isDebugEnabled()) {
+        logger.debug(ex.getMessage());
       }
       return null;
     }
@@ -341,8 +338,8 @@ public class ContentNegotiatingViewResolver
           MediaType candidateContentType = MediaType.parseMediaType(candidateView.getContentType());
           if (mediaType.isCompatibleWith(candidateContentType)) {
             mediaType = mediaType.removeQualityValue();
-            if (log.isDebugEnabled()) {
-              log.debug("Selected '{}' given {}", mediaType, requestedMediaTypes);
+            if (logger.isDebugEnabled()) {
+              logger.debug("Selected '{}' given {}", mediaType, requestedMediaTypes);
             }
             context.setAttribute(View.SELECTED_CONTENT_TYPE, mediaType);
             return candidateView;

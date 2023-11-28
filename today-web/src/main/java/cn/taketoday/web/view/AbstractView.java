@@ -333,8 +333,8 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    */
   @Override
   public void render(@Nullable Map<String, ?> model, RequestContext context) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("View {}, model {} {}",
+    if (logger.isDebugEnabled()) {
+      logger.debug("View {}, model {} {}",
               formatViewName(),
               model != null ? model : Collections.emptyMap(),
               CollectionUtils.isEmpty(staticAttributes) ? "" : ", static attributes " + staticAttributes);

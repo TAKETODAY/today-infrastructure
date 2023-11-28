@@ -273,14 +273,14 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
    */
   protected final void prepareResponse(RequestContext response) {
     if (this.cacheControl != null) {
-      if (log.isTraceEnabled()) {
-        log.trace("Applying default {}", getCacheControl());
+      if (logger.isTraceEnabled()) {
+        logger.trace("Applying default {}", getCacheControl());
       }
       applyCacheControl(response, this.cacheControl);
     }
     else {
-      if (log.isTraceEnabled()) {
-        log.trace("Applying default cacheSeconds={}", this.cacheSeconds);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Applying default cacheSeconds={}", this.cacheSeconds);
       }
       applyCacheSeconds(response, this.cacheSeconds);
     }

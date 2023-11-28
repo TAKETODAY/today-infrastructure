@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -133,14 +130,14 @@ public class ServletForwardingController extends AbstractController implements B
     // If already included, include again, else forward.
     if (useInclude(servletRequest, servletResponse)) {
       rd.include(servletRequest, servletResponse);
-      if (log.isTraceEnabled()) {
-        log.trace("Included servlet [{}] in ServletForwardingController '{}'", servletName, beanName);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Included servlet [{}] in ServletForwardingController '{}'", servletName, beanName);
       }
     }
     else {
       rd.forward(servletRequest, servletResponse);
-      if (log.isTraceEnabled()) {
-        log.trace("Forwarded to servlet [{}] in ServletForwardingController '{}'", servletName, beanName);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Forwarded to servlet [{}] in ServletForwardingController '{}'", servletName, beanName);
       }
     }
 

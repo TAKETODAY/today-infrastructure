@@ -161,8 +161,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     }
     if (matches.size() > 1) {
       matches.sort(PathPattern.SPECIFICITY_COMPARATOR);
-      if (log.isTraceEnabled()) {
-        log.trace("Matching patterns {}", matches);
+      if (logger.isTraceEnabled()) {
+        logger.trace("Matching patterns {}", matches);
       }
     }
 
@@ -254,14 +254,14 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     }
     else {
       if (urlPath.equals("/")) {
-        if (log.isTraceEnabled()) {
-          log.trace("Root mapping to {}", getHandlerDescription(handler));
+        if (logger.isTraceEnabled()) {
+          logger.trace("Root mapping to {}", getHandlerDescription(handler));
         }
         setRootHandler(resolvedHandler);
       }
       else if (urlPath.equals("/*")) {
-        if (log.isTraceEnabled()) {
-          log.trace("Default mapping to {}", getHandlerDescription(handler));
+        if (logger.isTraceEnabled()) {
+          logger.trace("Default mapping to {}", getHandlerDescription(handler));
         }
         setDefaultHandler(resolvedHandler);
       }
@@ -269,8 +269,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
         PathPattern pathPattern = getPatternParser().parse(urlPath);
         duPutHandler(urlPath, resolvedHandler);
         doPutPathPattern(pathPattern, resolvedHandler);
-        if (log.isTraceEnabled()) {
-          log.trace("Mapped [{}] onto {}", urlPath, getHandlerDescription(handler));
+        if (logger.isTraceEnabled()) {
+          logger.trace("Mapped [{}] onto {}", urlPath, getHandlerDescription(handler));
         }
       }
     }

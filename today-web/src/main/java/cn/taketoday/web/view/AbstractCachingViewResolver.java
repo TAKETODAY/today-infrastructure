@@ -173,8 +173,8 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
         }
       }
       else {
-        if (log.isTraceEnabled()) {
-          log.trace("{}served from cache", formatKey(cacheKey));
+        if (logger.isTraceEnabled()) {
+          logger.trace("{}served from cache", formatKey(cacheKey));
         }
       }
       return view != UNRESOLVED_VIEW ? view : null;
@@ -211,7 +211,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
    */
   public void removeFromCache(String viewName, Locale locale) {
     if (!isCache()) {
-      log.warn("Caching is OFF (removal not necessary)");
+      logger.warn("Caching is OFF (removal not necessary)");
     }
     else {
       Object cacheKey = getCacheKey(viewName, locale);
@@ -220,9 +220,9 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
         viewAccessCache.remove(cacheKey);
         cachedView = viewCreationCache.remove(cacheKey);
       }
-      if (log.isDebugEnabled()) {
+      if (logger.isDebugEnabled()) {
         // Some debug output might be useful...
-        log.debug(formatKey(cacheKey) +
+        logger.debug(formatKey(cacheKey) +
                 (cachedView != null ? "cleared from cache" : "not found in the cache"));
       }
     }
@@ -233,7 +233,7 @@ public abstract class AbstractCachingViewResolver extends ApplicationObjectSuppo
    * Subsequent resolve calls will lead to recreation of demanded view objects.
    */
   public void clearCache() {
-    log.debug("Clearing all views from the cache");
+    logger.debug("Clearing all views from the cache");
     synchronized(viewCreationCache) {
       viewAccessCache.clear();
       viewCreationCache.clear();

@@ -182,11 +182,11 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
   public void registerWebViewXml() {
     ClassPathResource resource = new ClassPathResource(webMvcConfigLocation);
     if (resource.exists()) {
-      log.info("Using default web mvc configuration resource: '{}'", webMvcConfigLocation);
+      logger.info("Using default web mvc configuration resource: '{}'", webMvcConfigLocation);
       registerWebViewXml(resource);
     }
     else {
-      log.warn("Web mvc configuration resource not found.");
+      logger.warn("Web mvc configuration resource not found.");
     }
   }
 
@@ -256,7 +256,7 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
     try (InputStream inputStream = resource.getInputStream()) {
       Element root = builder.parse(inputStream).getDocumentElement();
       if (ROOT_ELEMENT.equals(root.getNodeName())) { // root element
-        log.debug("Found configuration file: [{}].", resource);
+        logger.debug("Found configuration file: [{}].", resource);
 
         NodeList nl = root.getChildNodes();
         int length = nl.getLength();
@@ -264,13 +264,13 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
           Node node = nl.item(i);
           if (node instanceof Element ele) {
             String nodeName = ele.getNodeName();
-            log.debug("Found Element: [{}]", nodeName);
+            logger.debug("Found Element: [{}]", nodeName);
 
             if (ELEMENT_CONTROLLER.equals(nodeName)) {
               configController(ele);
             } // ELEMENT_RESOURCES // TODO
             else {
-              log.warn("This element: [{}] is not supported in this version: [{}].", nodeName, Version.instance);
+              logger.warn("This element: [{}] is not supported in this version: [{}].", nodeName, Version.instance);
             }
           }
         }
@@ -302,7 +302,7 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
           processAction(prefix, suffix, (Element) node);
         }
         else {
-          log.warn("This element: [{}] is not supported.", nodeName);
+          logger.warn("This element: [{}] is not supported.", nodeName);
         }
       }
     }

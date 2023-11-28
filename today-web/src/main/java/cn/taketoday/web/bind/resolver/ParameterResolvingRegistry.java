@@ -218,13 +218,13 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    * register default {@link ParameterResolvingStrategy}s
    */
   public void registerDefaultStrategies(ParameterResolvingStrategies strategies) {
-    log.debug("Registering default parameter-resolvers to {}", strategies);
+    logger.debug("Registering default parameter-resolvers to {}", strategies);
 
     ApplicationContext context = obtainApplicationContext();
     ConfigurableBeanFactory beanFactory = context.unwrapFactory(ConfigurableBeanFactory.class);
     RedirectModelManager modelManager = getRedirectModelManager();
     if (modelManager == null) {
-      log.info("RedirectModel disabled");
+      logger.info("RedirectModel disabled");
     }
 
     // Annotation-based argument resolution
