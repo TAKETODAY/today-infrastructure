@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +32,7 @@ import cn.taketoday.web.socket.server.HandshakeInterceptor;
  * A helper class that assists with invoking a list of handshake interceptors.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class HandshakeInterceptorChain {
@@ -67,9 +65,7 @@ public class HandshakeInterceptorChain {
     return true;
   }
 
-  public void applyAfterHandshake(
-          RequestContext request, @Nullable Exception failure) {
-
+  public void applyAfterHandshake(RequestContext request, @Nullable Exception failure) {
     for (int i = this.interceptorIndex; i >= 0; i--) {
       HandshakeInterceptor interceptor = this.interceptors.get(i);
       try {

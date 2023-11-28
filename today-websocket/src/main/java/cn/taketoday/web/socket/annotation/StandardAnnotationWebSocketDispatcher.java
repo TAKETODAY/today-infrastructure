@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,6 @@ package cn.taketoday.web.socket.annotation;
 
 import java.util.List;
 
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.StandardWebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import jakarta.websocket.server.ServerEndpointConfig;
@@ -54,9 +50,9 @@ public class StandardAnnotationWebSocketDispatcher
   }
 
   @Override
-  public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
+  public void onOpen(WebSocketSession session) {
     session.setAttribute(WebSocketSession.JAVAX_ENDPOINT_CONFIG_KEY, getEndpointConfig());
-    super.afterHandshake(context, session);
+    super.onOpen(session);
   }
 
 }

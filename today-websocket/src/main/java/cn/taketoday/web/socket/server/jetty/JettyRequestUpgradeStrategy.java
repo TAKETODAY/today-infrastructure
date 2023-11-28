@@ -30,6 +30,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.jetty.JettyWebSocketHandler;
 import cn.taketoday.web.socket.jetty.JettyWebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
@@ -60,7 +61,7 @@ public class JettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   @Override
-  public void upgrade(RequestContext request, @Nullable String selectedProtocol,
+  public WebSocketSession upgrade(RequestContext request, @Nullable String selectedProtocol,
           List<WebSocketExtension> selectedExtensions, WebSocketHandler handler,
           Map<String, Object> attributes) throws HandshakeFailureException {
 
@@ -88,6 +89,7 @@ public class JettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
 
     try {
       container.upgrade(webSocketCreator, servletRequest, servletResponse);
+      return session;
     }
     catch (UndeclaredThrowableException ex) {
       throw new HandshakeFailureException("Failed to upgrade", ex.getUndeclaredThrowable());

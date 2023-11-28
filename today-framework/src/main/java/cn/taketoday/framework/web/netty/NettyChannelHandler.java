@@ -34,9 +34,6 @@ import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.TextMessage;
-import cn.taketoday.web.socket.WebSocketHandler;
-import cn.taketoday.web.socket.WebSocketSession;
-import cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -53,6 +50,8 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
+
+import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
 /**
  * ChannelInboundHandler
@@ -178,14 +177,13 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
     static boolean isErrorHandled(ChannelHandlerContext ctx, Throwable cause, Logger logger) {
       Channel channel = ctx.channel();
-      var socketHandler = channel.attr(NettyRequestUpgradeStrategy.SOCKET_HANDLER_KEY).get();
-      var webSocketSession = channel.attr(NettyRequestUpgradeStrategy.SOCKET_SESSION_KEY).get();
-      if (socketHandler != null && webSocketSession != null) {
+      var socketHolder = channel.attr(NettyRequestUpgradeStrategy.WebSocketHolder).get();
+      if (socketHolder != null) {
         try {
-          socketHandler.onError(webSocketSession, cause);
+          socketHolder.wsHandler.onError(socketHolder.session, cause);
         }
         catch (Exception e) {
-          ExceptionWebSocketHandlerDecorator.tryCloseWithError(webSocketSession, e, logger);
+          tryCloseWithError(socketHolder.session, e, logger);
         }
         return true;
       }
@@ -201,17 +199,16 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     static void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame, Logger logger) {
       Channel channel = ctx.channel();
 
-      WebSocketHandler socketHandler = channel.attr(NettyRequestUpgradeStrategy.SOCKET_HANDLER_KEY).get();
-      WebSocketSession webSocketSession = channel.attr(NettyRequestUpgradeStrategy.SOCKET_SESSION_KEY).get();
+      WebSocketHolder socketHolder = channel.attr(NettyRequestUpgradeStrategy.WebSocketHolder).get();
       if (frame instanceof CloseWebSocketFrame closeFrame) {
         int statusCode = closeFrame.statusCode();
         String reasonText = closeFrame.reasonText();
         CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
         try {
-          socketHandler.onClose(webSocketSession, closeStatus);
+          socketHolder.wsHandler.onClose(socketHolder.session, closeStatus);
         }
         catch (Exception ex) {
-          logger.warn("Unhandled on-close exception for {}", webSocketSession, ex);
+          logger.warn("Unhandled on-close exception for {}", socketHolder.session, ex);
         }
         ctx.close();
       }
@@ -219,10 +216,10 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
         Message<?> message = adaptMessage(frame);
         if (message != null) {
           try {
-            socketHandler.handleMessage(webSocketSession, message);
+            socketHolder.wsHandler.handleMessage(socketHolder.session, message);
           }
           catch (Exception e) {
-            ExceptionWebSocketHandlerDecorator.tryCloseWithError(webSocketSession, e, logger);
+            tryCloseWithError(socketHolder.session, e, logger);
           }
         }
       }

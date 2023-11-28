@@ -18,6 +18,7 @@
 package cn.taketoday.framework.web.netty;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
@@ -126,6 +127,12 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
   public void close(CloseStatus status) throws IOException {
     ctx.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
             .addListener(ChannelFutureListener.CLOSE);
+  }
+
+  @Nullable
+  @Override
+  public InetSocketAddress getRemoteAddress() {
+    return (InetSocketAddress) ctx.channel().remoteAddress();
   }
 
   @Nullable

@@ -17,6 +17,7 @@
 
 package cn.taketoday.web.socket;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -30,7 +31,7 @@ import cn.taketoday.web.RequestContext;
  *
  * <p>Here is an example of a simple endpoint that echoes any incoming text message back to the sender.
  * <pre>{@code
- * public class EchoWebSocketHandler implements WebSocketHandler {
+ * public class EchoWebSocketHandler extends WebSocketHandler {
  *
  *  @Override
  *  public void handleMessage(WebSocketSession session, Message<?> message)
@@ -43,8 +44,8 @@ import cn.taketoday.web.RequestContext;
  * <p>
  * this handler Wraps another {@link WebSocketHandler} instance and delegates to it.
  *
- * @author TODAY 2021/4/3 13:41
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/4/3 13:41
  */
 public abstract class WebSocketHandler {
 
@@ -73,9 +74,9 @@ public abstract class WebSocketHandler {
   /**
    * called after Handshake
    */
-  public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
+  public void afterHandshake(RequestContext request, @Nullable WebSocketSession session) throws Throwable {
     if (delegate != null) {
-      delegate.afterHandshake(context, session);
+      delegate.afterHandshake(request, session);
     }
   }
 

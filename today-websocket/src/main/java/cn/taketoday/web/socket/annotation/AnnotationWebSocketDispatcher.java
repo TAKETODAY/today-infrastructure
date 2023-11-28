@@ -22,6 +22,7 @@ import java.util.Map;
 
 import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.socket.CloseStatus;
@@ -41,7 +42,9 @@ import cn.taketoday.web.util.pattern.PathPattern;
  */
 public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   protected final WebSocketHandlerDelegate socketHandler;
+
   protected final List<EndpointParameterResolver> resolvers;
+
   private final boolean supportPartialMessage;
 
   public AnnotationWebSocketDispatcher(WebSocketHandlerDelegate socketHandler,
@@ -52,18 +55,20 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   }
 
   @Override
-  public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
-    context.setAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY, session);
-    // invoke after handshake callback
-    socketHandler.afterHandshake(context);
-    if (socketHandler.containsPathVariable) {
-      // for path variables handling
-      PathPattern pathPattern = socketHandler.pathPattern;
-      PathContainer lookupPath = context.getLookupPath();
-      PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(lookupPath);
-      Assert.state(pathMatchInfo != null, "Path match error");
-      Map<String, String> uriVariables = pathMatchInfo.getUriVariables();
-      session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, uriVariables);
+  public void afterHandshake(RequestContext context, @Nullable WebSocketSession session) throws Throwable {
+    if (session != null) {
+      context.setAttribute(WebSocketSession.WEBSOCKET_SESSION_KEY, session);
+      // invoke after handshake callback
+      socketHandler.afterHandshake(context);
+      if (socketHandler.containsPathVariable) {
+        // for path variables handling
+        PathPattern pathPattern = socketHandler.pathPattern;
+        PathContainer lookupPath = context.getLookupPath();
+        PathMatchInfo pathMatchInfo = pathPattern.matchAndExtract(lookupPath);
+        Assert.state(pathMatchInfo != null, "Path match error");
+        Map<String, String> uriVariables = pathMatchInfo.getUriVariables();
+        session.setAttribute(WebSocketSession.URI_TEMPLATE_VARIABLES, uriVariables);
+      }
     }
   }
 

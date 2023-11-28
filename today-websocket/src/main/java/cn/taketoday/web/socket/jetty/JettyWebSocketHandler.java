@@ -55,6 +55,7 @@ public class JettyWebSocketHandler {
   private static final ByteBuffer EMPTY_PAYLOAD = ByteBuffer.wrap(Constant.EMPTY_BYTES);
 
   private final JettyWebSocketSession wsSession;
+
   private final WebSocketHandler webSocketHandler;
 
   public JettyWebSocketHandler(WebSocketHandler webSocketHandler, JettyWebSocketSession wsSession) {

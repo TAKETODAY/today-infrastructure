@@ -58,7 +58,7 @@ public class WebSocketHttpRequestHandlerTests {
   private final MockHttpServletResponse response = new MockHttpServletResponse();
 
   @Test
-  public void success() throws ServletException, IOException {
+  public void success() throws Throwable {
     TestInterceptor interceptor = new TestInterceptor(true);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
     ServletRequestContext request = new ServletRequestContext(
@@ -92,7 +92,7 @@ public class WebSocketHttpRequestHandlerTests {
   }
 
   @Test // gh-23179
-  public void handshakeNotAllowed() throws ServletException, IOException {
+  public void handshakeNotAllowed() throws Throwable {
     TestInterceptor interceptor = new TestInterceptor(false);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
 

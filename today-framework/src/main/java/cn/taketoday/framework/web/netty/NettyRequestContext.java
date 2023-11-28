@@ -111,7 +111,7 @@ public class NettyRequestContext extends RequestContext {
   /**
    * response headers
    */
-  private final HttpHeaders nettyResponseHeaders;
+  final HttpHeaders nettyResponseHeaders;
 
   @Nullable
   private Integer queryStringIndex;
@@ -208,6 +208,9 @@ public class NettyRequestContext extends RequestContext {
   @Override
   public String getRequestURL() {
     String host = request.headers().get(DefaultHttpHeaders.HOST);
+    if (host == null) {
+      host = "localhost";
+    }
     return getScheme() + "://" + host + StringUtils.prependLeadingSlash(getRequestURI());
   }
 

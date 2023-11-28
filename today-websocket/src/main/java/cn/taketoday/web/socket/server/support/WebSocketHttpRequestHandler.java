@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +29,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.WebSocketHandler;
+import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.HandshakeInterceptor;
@@ -50,7 +48,9 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
   private static final Logger logger = LoggerFactory.getLogger(WebSocketHttpRequestHandler.class);
 
   private final WebSocketHandler wsHandler;
+
   private final HandshakeHandler handshakeHandler;
+
   private final ArrayList<HandshakeInterceptor> interceptors = new ArrayList<>();
 
   public WebSocketHttpRequestHandler(WebSocketHandler wsHandler) {
@@ -62,20 +62,6 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
     Assert.notNull(handshakeHandler, "handshakeHandler is required");
     this.wsHandler = wsHandler;
     this.handshakeHandler = handshakeHandler;
-  }
-
-  /**
-   * Return the WebSocketHandler.
-   */
-  public WebSocketHandler getWebSocketHandler() {
-    return this.wsHandler;
-  }
-
-  /**
-   * Return the HandshakeHandler.
-   */
-  public HandshakeHandler getHandshakeHandler() {
-    return this.handshakeHandler;
   }
 
   /**
@@ -97,31 +83,32 @@ public class WebSocketHttpRequestHandler implements HttpRequestHandler {
 
   @Nullable
   @Override
-  public Object handleRequest(RequestContext request) {
+  public Object handleRequest(RequestContext request) throws Throwable {
     HandshakeInterceptorChain chain = new HandshakeInterceptorChain(interceptors, wsHandler);
     HandshakeFailureException failure = null;
-
     try {
       if (logger.isDebugEnabled()) {
         logger.debug(request);
       }
+
       Map<String, Object> attributes = new HashMap<>();
-      if (!chain.applyBeforeHandshake(request, attributes)) {
-        return NONE_RETURN_VALUE;
+      if (chain.applyBeforeHandshake(request, attributes)) {
+        WebSocketSession session = handshakeHandler.doHandshake(request, wsHandler, attributes);
+        chain.applyAfterHandshake(request, null);
+        wsHandler.afterHandshake(request, session);
       }
-      handshakeHandler.doHandshake(request, wsHandler, attributes);
-      chain.applyAfterHandshake(request, null);
     }
     catch (HandshakeFailureException ex) {
       failure = ex;
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       failure = new HandshakeFailureException(
               "Uncaught failure for request " + request.getURI() + " - " + ex.getMessage(), ex);
     }
     finally {
       if (failure != null) {
         chain.applyAfterHandshake(request, failure);
+        wsHandler.afterHandshake(request, null);
         throw failure;
       }
     }

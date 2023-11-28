@@ -94,7 +94,7 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
   }
 
   @Override
-  public void upgrade(RequestContext request, @Nullable String selectedProtocol,
+  public WebSocketSession upgrade(RequestContext request, @Nullable String selectedProtocol,
           List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler,
           Map<String, Object> attrs) throws HandshakeFailureException {
 
@@ -116,14 +116,14 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
     }
 
     upgradeInternal(request, selectedProtocol, extensions, endpoint);
+    return session;
   }
 
   protected WebSocketSession createSession(HttpHeaders headers) {
     return new StandardWebSocketSession(headers, null, null);
   }
 
-  protected abstract void upgradeInternal(RequestContext request,
-          @Nullable String selectedProtocol,
+  protected abstract void upgradeInternal(RequestContext request, @Nullable String selectedProtocol,
           List<Extension> selectedExtensions, Endpoint endpoint) throws HandshakeFailureException;
 
 }

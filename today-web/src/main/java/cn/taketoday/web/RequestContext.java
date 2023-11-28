@@ -455,6 +455,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public String getRequestURL() {
     String host = requestHeaders().getFirst(HttpHeaders.HOST);
+    if (host == null) {
+      host = "localhost";
+    }
     return getScheme() + "://" + host + StringUtils.prependLeadingSlash(getRequestURI());
   }
 

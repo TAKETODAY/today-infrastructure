@@ -19,7 +19,6 @@ package cn.taketoday.web.socket.handler;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.WebSocketHandler;
@@ -39,16 +38,6 @@ public class ExceptionWebSocketHandlerDecorator extends WebSocketHandler {
 
   public ExceptionWebSocketHandlerDecorator(WebSocketHandler delegate) {
     super(delegate);
-  }
-
-  @Override
-  public void afterHandshake(RequestContext context, WebSocketSession session) throws Throwable {
-    try {
-      super.afterHandshake(context, session);
-    }
-    catch (Exception ex) {
-      tryCloseWithError(session, ex, logger);
-    }
   }
 
   @Override

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.Decorator;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -45,8 +44,7 @@ import io.netty.util.AttributeKey;
  * @since 4.0 2022/12/22 21:43
  */
 public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
-  public static AttributeKey<WebSocketHandler> SOCKET_HANDLER_KEY = AttributeKey.valueOf("WebSocketHandler");
-  public static AttributeKey<WebSocketSession> SOCKET_SESSION_KEY = AttributeKey.valueOf("WebSocketSession");
+  static final AttributeKey<WebSocketHolder> WebSocketHolder = AttributeKey.valueOf("WebSocketHolder");
 
   private static final String[] SUPPORTED_VERSIONS = new String[] { "13" };
 
@@ -57,14 +55,21 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     this.sessionDecorator = sessionDecorator;
   }
 
-  protected WebSocketSession createSession(RequestContext context) {
+  protected WebSocketSession createSession(RequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
     if (!(context instanceof NettyRequestContext nettyContext)) {
       throw new IllegalStateException("not running in netty");
     }
+
     ChannelHandlerContext channelContext = nettyContext.getChannelContext();
     String scheme = nettyContext.getScheme();
-    return new NettyWebSocketSession(context.getHeaders(),
+
+    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(),
             Constant.HTTPS.equals(scheme) || "wss".equals(scheme), channelContext);
+
+    if (sessionDecorator != null) {
+      session = sessionDecorator.decorate(session);
+    }
+    return session;
   }
 
   @Override
@@ -78,14 +83,10 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   @Override
-  public void upgrade(RequestContext context, @Nullable String selectedProtocol,
-          List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler,
-          Map<String, Object> attributes) throws HandshakeFailureException {
+  public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
+          WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException {
 
-    WebSocketSession session = createSession(context);
-    if (sessionDecorator != null) {
-      session = sessionDecorator.decorate(session);
-    }
+    WebSocketSession session = createSession(context, sessionDecorator);
 
     NettyRequestContext nettyContext = (NettyRequestContext) context; // just cast
     FullHttpRequest request = nettyContext.nativeRequest();
@@ -95,14 +96,14 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     Channel channel = channelContext.channel();
     if (handShaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
+      return null;
     }
     else {
-      channel.attr(SOCKET_HANDLER_KEY).set(wsHandler);
-      channel.attr(SOCKET_SESSION_KEY).set(session);
-      HttpHeaders responseHeaders = nettyContext.responseHeaders();
-      handShaker.handshake(channel, request,
-              ((NettyHttpHeaders) responseHeaders).headers, channel.newPromise());
+      channel.attr(WebSocketHolder).set(new WebSocketHolder(wsHandler, session));
+      handShaker.handshake(channel, request, nettyContext.nettyResponseHeaders, channel.newPromise())
+              .addListener(future -> wsHandler.onOpen(session));
     }
+    return session;
   }
 
 }

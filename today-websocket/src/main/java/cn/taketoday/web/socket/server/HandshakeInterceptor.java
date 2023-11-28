@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,8 +43,8 @@ public interface HandshakeInterceptor {
    * session; the provided attributes are copied, the original map is not used.
    * @return whether to proceed with the handshake ({@code true}) or abort ({@code false})
    */
-  boolean beforeHandshake(RequestContext request,
-          WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception;
+  boolean beforeHandshake(RequestContext request, WebSocketHandler wsHandler, Map<String, Object> attributes)
+          throws Exception;
 
   /**
    * Invoked after the handshake is done. The response status and headers indicate
@@ -57,7 +54,6 @@ public interface HandshakeInterceptor {
    * @param wsHandler the target WebSocket handler
    * @param exception an exception raised during the handshake, or {@code null} if none
    */
-  void afterHandshake(RequestContext request,
-          WebSocketHandler wsHandler, @Nullable Exception exception);
+  void afterHandshake(RequestContext request, WebSocketHandler wsHandler, @Nullable Exception exception);
 
 }
