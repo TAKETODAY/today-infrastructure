@@ -56,7 +56,7 @@ public class StandardEndpoint extends Endpoint {
     // The following inner classes need to remain since lambdas would not retain their
     // declared generic types (which need to be seen by the underlying WebSocket engine)
 
-    if (socketHandler.supportPartialMessage()) {
+    if (socketHandler.supportsPartialMessage()) {
       stdSession.addMessageHandler(new MessageHandler.Partial<String>() {
         @Override
         public void onMessage(String partialMessage, boolean last) {

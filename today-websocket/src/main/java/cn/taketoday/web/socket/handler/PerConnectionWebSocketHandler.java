@@ -99,7 +99,7 @@ public class PerConnectionWebSocketHandler extends WebSocketHandler implements B
   }
 
   @Override
-  public boolean supportPartialMessage() {
+  public boolean supportsPartialMessage() {
     return this.supportsPartialMessages;
   }
 

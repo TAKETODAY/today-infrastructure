@@ -131,7 +131,7 @@ public class AnnotationWebSocketDispatcher extends WebSocketHandler {
   }
 
   @Override
-  public boolean supportPartialMessage() {
+  public boolean supportsPartialMessage() {
     return supportPartialMessage;
   }
 

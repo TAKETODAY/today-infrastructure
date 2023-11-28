@@ -167,33 +167,33 @@ public abstract class WebSocketHandler {
     throw new IllegalArgumentException("Not support message: " + message);
   }
 
-  protected void handlePingMessage(WebSocketSession session, PingMessage message) {
+  protected void handlePingMessage(WebSocketSession session, PingMessage message) throws Exception {
     if (delegate != null) {
       delegate.handlePingMessage(session, message);
     }
   }
 
-  protected void handlePongMessage(WebSocketSession session, PongMessage message) {
+  protected void handlePongMessage(WebSocketSession session, PongMessage message) throws Exception {
     if (delegate != null) {
       delegate.handlePongMessage(session, message);
     }
   }
 
-  protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+  protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
     if (delegate != null) {
       delegate.handleTextMessage(session, message);
     }
   }
 
-  protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) {
+  protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
     if (delegate != null) {
       delegate.handleBinaryMessage(session, message);
     }
   }
 
-  public boolean supportPartialMessage() {
+  public boolean supportsPartialMessage() {
     if (delegate != null) {
-      return delegate.supportPartialMessage();
+      return delegate.supportsPartialMessage();
     }
     return false;
   }
