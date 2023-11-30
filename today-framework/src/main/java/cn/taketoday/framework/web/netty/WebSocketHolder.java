@@ -17,20 +17,35 @@
 
 package cn.taketoday.framework.web.netty;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/11/28 17:32
  */
 final class WebSocketHolder {
+  private static final AttributeKey<WebSocketHolder> KEY = AttributeKey.valueOf(WebSocketHolder.class, "KEY");
+
   public final WebSocketHandler wsHandler;
 
   public final WebSocketSession session;
 
-  WebSocketHolder(WebSocketHandler wsHandler, WebSocketSession session) {
+  private WebSocketHolder(WebSocketHandler wsHandler, WebSocketSession session) {
     this.wsHandler = wsHandler;
     this.session = session;
   }
+
+  public static void bind(Channel channel, WebSocketHandler wsHandler, WebSocketSession session) {
+    channel.attr(KEY).set(new WebSocketHolder(wsHandler, session));
+  }
+
+  @Nullable
+  public static WebSocketHolder find(Channel channel) {
+    return channel.attr(KEY).get();
+  }
+
 }

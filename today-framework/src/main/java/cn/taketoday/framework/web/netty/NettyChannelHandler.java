@@ -34,7 +34,6 @@ import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.TextMessage;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
@@ -56,7 +55,8 @@ import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator
 /**
  * ChannelInboundHandler
  *
- * @author TODAY 2019-07-04 21:50
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-07-04 21:50
  */
 public class NettyChannelHandler extends DispatcherHandler implements ChannelInboundHandler, SmartInitializingSingleton {
 
@@ -98,13 +98,11 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
         ReferenceCountUtil.safeRelease(httpRequest);
       }
     }
+    else if (websocketPresent && msg instanceof WebSocketFrame) {
+      WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg, logger);
+    }
     else {
-      if (websocketPresent && msg instanceof WebSocketFrame) {
-        WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg, logger);
-      }
-      else {
-        ctx.fireChannelRead(msg);
-      }
+      ctx.fireChannelRead(msg);
     }
   }
 
@@ -176,8 +174,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   static class WebSocketDelegate {
 
     static boolean isErrorHandled(ChannelHandlerContext ctx, Throwable cause, Logger logger) {
-      Channel channel = ctx.channel();
-      var socketHolder = channel.attr(NettyRequestUpgradeStrategy.WebSocketHolder).get();
+      var socketHolder = WebSocketHolder.find(ctx.channel());
       if (socketHolder != null) {
         try {
           socketHolder.wsHandler.onError(socketHolder.session, cause);
@@ -197,9 +194,10 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
      * @param frame WebSocket Request
      */
     static void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame, Logger logger) {
-      Channel channel = ctx.channel();
-
-      WebSocketHolder socketHolder = channel.attr(NettyRequestUpgradeStrategy.WebSocketHolder).get();
+      WebSocketHolder socketHolder = WebSocketHolder.find(ctx.channel());
+      if (socketHolder == null) {
+        return;
+      }
       if (frame instanceof CloseWebSocketFrame closeFrame) {
         int statusCode = closeFrame.statusCode();
         String reasonText = closeFrame.reasonText();
