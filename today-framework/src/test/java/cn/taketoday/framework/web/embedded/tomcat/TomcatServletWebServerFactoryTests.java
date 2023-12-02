@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.embedded.tomcat;
@@ -234,11 +234,23 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   void tomcatAdditionalConnectors() {
     TomcatServletWebServerFactory factory = getFactory();
     Connector[] connectors = new Connector[4];
-    Arrays.setAll(connectors, (i) -> new Connector());
+    Arrays.setAll(connectors, (i) -> {
+      Connector connector = new Connector();
+      connector.setPort(0);
+      return connector;
+    });
     factory.addAdditionalTomcatConnectors(connectors);
     this.webServer = factory.getWebServer();
-    Map<Service, Connector[]> connectorsByService = ((TomcatWebServer) this.webServer).getServiceConnectors();
+    Map<Service, Connector[]> connectorsByService = new HashMap<>(
+            ((TomcatWebServer) this.webServer).getServiceConnectors());
     assertThat(connectorsByService.values().iterator().next()).hasSize(connectors.length + 1);
+    this.webServer.start();
+    this.webServer.stop();
+    connectorsByService.forEach((service, serviceConnectors) -> {
+      for (Connector connector : serviceConnectors) {
+        assertThat(connector.getProtocolHandler()).extracting("endpoint.serverSock").isNull();
+      }
+    });
   }
 
   @Test
@@ -568,7 +580,6 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     assertThatExceptionOfType(WebServerException.class).isThrownBy(
             () -> factory.getWebServer((context) -> context.addListener(new FailingServletContextListener())));
   }
-
 
   @Override
   protected void assertThatSslWithInvalidAliasCallFails(ThrowingCallable call) {
