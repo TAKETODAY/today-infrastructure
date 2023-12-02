@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource;
@@ -49,17 +46,22 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getConnection()
  * @see Connection#close()
  * @see DataSourceUtils#releaseConnection
  * @since 4.0
  */
-public class SingleConnectionDataSource extends DriverManagerDataSource implements SmartDataSource, DisposableBean {
+public class SingleConnectionDataSource extends DriverManagerDataSource
+        implements SmartDataSource, DisposableBean, AutoCloseable {
 
-  /** Create a close-suppressing proxy?. */
+  /** Create a close-suppressing proxy? */
   private boolean suppressClose;
 
-  /** Override auto-commit state?. */
+  /** Explicit rollback before close? */
+  private boolean rollbackBeforeClose;
+
+  /** Override auto-commit state? */
   @Nullable
   private Boolean autoCommit;
 
@@ -126,7 +128,7 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
   }
 
   /**
-   * Set whether the returned Connection should be a close-suppressing proxy
+   * Specify whether the returned Connection should be a close-suppressing proxy
    * or the physical Connection.
    */
   public void setSuppressClose(boolean suppressClose) {
@@ -142,10 +144,27 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
   }
 
   /**
-   * Set whether the returned Connection's "autoCommit" setting should be overridden.
+   * Specify whether the shared Connection should be explicitly rolled back
+   * before close (if not in auto-commit mode).
+   * <p>This is recommended for the Oracle JDBC driver in testing scenarios.
+   */
+  public void setRollbackBeforeClose(boolean rollbackBeforeClose) {
+    this.rollbackBeforeClose = rollbackBeforeClose;
+  }
+
+  /**
+   * Return whether the shared Connection should be explicitly rolled back
+   * before close (if not in auto-commit mode).
+   */
+  protected boolean isRollbackBeforeClose() {
+    return this.rollbackBeforeClose;
+  }
+
+  /**
+   * Specify whether the returned Connection's "autoCommit" setting should be overridden.
    */
   public void setAutoCommit(boolean autoCommit) {
-    this.autoCommit = (autoCommit);
+    this.autoCommit = autoCommit;
   }
 
   /**
@@ -181,8 +200,8 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
    */
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
-    if (ObjectUtils.nullSafeEquals(username, getUsername()) &&
-            ObjectUtils.nullSafeEquals(password, getPassword())) {
+    if (ObjectUtils.nullSafeEquals(username, getUsername())
+            && ObjectUtils.nullSafeEquals(password, getPassword())) {
       return getConnection();
     }
     else {
@@ -203,13 +222,26 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
   /**
    * Close the underlying Connection.
    * The provider of this DataSource needs to care for proper shutdown.
-   * <p>As this bean implements DisposableBean, a bean factory will
-   * automatically invoke this on destruction of its cached singletons.
+   * <p>As this class implements {@link AutoCloseable}, it can be used
+   * with a try-with-resource statement.
+   */
+  @Override
+  public void close() {
+    destroy();
+  }
+
+  /**
+   * Close the underlying Connection.
+   * The provider of this DataSource needs to care for proper shutdown.
+   * <p>As this bean implements {@link DisposableBean}, a bean factory
+   * will automatically invoke this on destruction of the bean.
    */
   @Override
   public void destroy() {
     synchronized(this.connectionMonitor) {
-      closeConnection();
+      if (this.target != null) {
+        closeConnection(this.target);
+      }
     }
   }
 
@@ -221,7 +253,9 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
       throw new IllegalStateException("'url' property is required for lazily initializing a Connection");
     }
     synchronized(this.connectionMonitor) {
-      closeConnection();
+      if (this.target != null) {
+        closeConnection(this.target);
+      }
       this.target = getConnectionFromDriver(getUsername(), getPassword());
       prepareConnection(this.target);
       if (logger.isDebugEnabled()) {
@@ -236,7 +270,9 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
    */
   public void resetConnection() {
     synchronized(this.connectionMonitor) {
-      closeConnection();
+      if (this.target != null) {
+        closeConnection(this.target);
+      }
       this.target = null;
       this.connection = null;
     }
@@ -260,14 +296,22 @@ public class SingleConnectionDataSource extends DriverManagerDataSource implemen
   /**
    * Close the underlying shared Connection.
    */
-  private void closeConnection() {
-    if (this.target != null) {
+  protected void closeConnection(Connection con) {
+    if (isRollbackBeforeClose()) {
       try {
-        this.target.close();
+        if (!con.getAutoCommit()) {
+          con.rollback();
+        }
       }
       catch (Throwable ex) {
-        logger.info("Could not close shared JDBC Connection", ex);
+        logger.info("Could not roll back shared JDBC Connection before close", ex);
       }
+    }
+    try {
+      con.close();
+    }
+    catch (Throwable ex) {
+      logger.info("Could not close shared JDBC Connection", ex);
     }
   }
 
