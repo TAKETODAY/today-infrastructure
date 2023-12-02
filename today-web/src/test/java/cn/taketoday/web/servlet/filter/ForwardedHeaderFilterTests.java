@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet.filter;
@@ -33,6 +33,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -182,8 +183,8 @@ class ForwardedHeaderFilterTests {
     assertThat(actual.getHeader("foo")).isEqualTo("bar");
   }
 
-  @Test // SPR-16983
-  public void forwardedRequestWithServletForward() throws Exception {
+  @Test
+  public void forwardedRequestWithForwardDispatch() throws Exception {
     this.request.setRequestURI("/foo");
     this.request.addHeader(X_FORWARDED_PROTO, "https");
     this.request.addHeader(X_FORWARDED_HOST, "www.mycompany.example");
@@ -202,6 +203,26 @@ class ForwardedHeaderFilterTests {
     assertThat(actual).isNotNull();
     assertThat(actual.getRequestURI()).isEqualTo("/bar");
     assertThat(actual.getRequestURL().toString()).isEqualTo("https://www.mycompany.example/bar");
+  }
+
+  @Test
+  public void forwardedRequestWithErrorDispatch() throws Exception {
+    this.request.setRequestURI("/foo");
+    this.request.setDispatcherType(DispatcherType.ERROR);
+    this.request.addHeader(X_FORWARDED_PROTO, "https");
+    this.request.addHeader(X_FORWARDED_HOST, "www.mycompany.example");
+    this.request.addHeader(X_FORWARDED_PORT, "443");
+    this.request.addHeader(X_FORWARDED_PREFIX, "/app");
+    this.request.setAttribute(RequestDispatcher.ERROR_REQUEST_URI, "/foo");
+
+    this.filter.doFilter(this.request, new MockHttpServletResponse(), this.filterChain);
+
+    HttpServletRequest wrappedRequest = (HttpServletRequest) this.filterChain.getRequest();
+
+    assertThat(wrappedRequest).isNotNull();
+    assertThat(wrappedRequest.getRequestURI()).isEqualTo("/app/foo");
+    assertThat(wrappedRequest.getRequestURL().toString()).isEqualTo("https://www.mycompany.example/app/foo");
+    assertThat(wrappedRequest.getAttribute(RequestDispatcher.ERROR_REQUEST_URI)).isEqualTo("/app/foo");
   }
 
   @Nested

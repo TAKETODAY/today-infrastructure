@@ -30,6 +30,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
@@ -38,7 +39,9 @@ import cn.taketoday.web.util.ForwardedHeaderUtils;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -304,6 +307,15 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
     public int getRemotePort() {
       return (this.remoteAddress != null ? this.remoteAddress.getPort() : super.getRemotePort());
     }
+
+    @Override
+    public Object getAttribute(String name) {
+      if (name.equals(RequestDispatcher.ERROR_REQUEST_URI)) {
+        return this.forwardedPrefixExtractor.getErrorRequestUri();
+      }
+      return super.getAttribute(name);
+    }
+
   }
 
   /**
@@ -411,6 +423,18 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
         this.requestUrl = initRequestUrl();
       }
     }
+
+    @Nullable
+    public String getErrorRequestUri() {
+      HttpServletRequest request = this.delegate.get();
+      String requestUri = (String) request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
+      if (this.forwardedPrefix == null || requestUri == null) {
+        return requestUri;
+      }
+      ErrorPathRequest errorRequest = new ErrorPathRequest(request);
+      return this.forwardedPrefix + UrlPathHelper.rawPathInstance.getPathWithinApplication(errorRequest);
+    }
+
   }
 
   private static class ForwardedHeaderExtractingResponse extends HttpServletResponseWrapper {
@@ -462,6 +486,21 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
 
       super.sendRedirect(result);
     }
+  }
+
+  private static class ErrorPathRequest extends HttpServletRequestWrapper {
+
+    ErrorPathRequest(ServletRequest request) {
+      super((HttpServletRequest) request);
+    }
+
+    @Override
+    public String getRequestURI() {
+      String requestUri = (String) getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
+      Assert.isTrue(requestUri != null, "Expected ERROR requestUri attribute");
+      return requestUri;
+    }
+
   }
 
 }
