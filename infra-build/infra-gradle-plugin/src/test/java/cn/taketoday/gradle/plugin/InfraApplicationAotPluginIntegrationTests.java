@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -107,8 +107,20 @@ class InfraApplicationAotPluginIntegrationTests {
 
   @TestTemplate
   void processTestAotDoesNotHaveDevelopmentOnlyDependenciesOnItsClasspath() {
-    String output = this.gradleBuild.build("processTestAotClasspath", "--stacktrace").getOutput();
+    String output = this.gradleBuild.build("processTestAotClasspath").getOutput();
     assertThat(output).doesNotContain("commons-lang");
+  }
+
+  @TestTemplate
+  void processAotDoesNotHaveTestAndDevelopmentOnlyDependenciesOnItsClasspath() {
+    String output = this.gradleBuild.build("processAotClasspath").getOutput();
+    assertThat(output).doesNotContain("commons-lang");
+  }
+
+  @TestTemplate
+  void processTestAotHasTestAndDevelopmentOnlyDependenciesOnItsClasspath() {
+    String output = this.gradleBuild.build("processTestAotClasspath").getOutput();
+    assertThat(output).contains("commons-lang");
   }
 
   @TestTemplate

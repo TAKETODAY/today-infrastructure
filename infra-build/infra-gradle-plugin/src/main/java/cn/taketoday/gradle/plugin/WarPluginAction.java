@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -73,18 +73,17 @@ class WarPluginAction implements PluginApplicationAction {
   }
 
   private TaskProvider<InfraWar> configureInfraWarTask(Project project) {
-    Configuration developmentOnly = project.getConfigurations()
-            .getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
-    Configuration productionRuntimeClasspath = project.getConfigurations()
-            .getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
-    SourceSet mainSourceSet = project.getExtensions()
-            .getByType(SourceSetContainer.class)
-            .getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    Configuration runtimeClasspath = project.getConfigurations()
-            .getByName(mainSourceSet.getRuntimeClasspathConfigurationName());
+    ConfigurationContainer container = project.getConfigurations();
+    Configuration developmentOnly = container.getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration testAndDevelopmentOnly = container.getByName(InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration productionRuntimeClasspath = container.getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
+    SourceSet mainSourceSet = project.getExtensions().getByType(SourceSetContainer.class).getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    Configuration runtimeClasspath = container.getByName(mainSourceSet.getRuntimeClasspathConfigurationName());
+
     Callable<FileCollection> classpath = () -> mainSourceSet.getRuntimeClasspath()
             .minus(providedRuntimeConfiguration(project))
-            .minus((developmentOnly.minus(productionRuntimeClasspath)))
+            .minus(developmentOnly.minus(productionRuntimeClasspath))
+            .minus(testAndDevelopmentOnly.minus(productionRuntimeClasspath))
             .filter(new JarTypeFileSpec());
     TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks()
             .named(InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);

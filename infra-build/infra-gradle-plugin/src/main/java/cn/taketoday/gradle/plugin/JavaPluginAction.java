@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -22,12 +22,10 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.api.attributes.Bundling;
-import org.gradle.api.attributes.LibraryElements;
-import org.gradle.api.attributes.Usage;
 import org.gradle.api.file.FileCollection;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.ApplicationPlugin;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.ExtensionContainer;
@@ -35,6 +33,7 @@ import org.gradle.api.plugins.JavaApplication;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
@@ -51,7 +50,6 @@ import cn.taketoday.gradle.dsl.InfraApplicationExtension;
 import cn.taketoday.gradle.tasks.bundling.InfraBuildImage;
 import cn.taketoday.gradle.tasks.bundling.InfraJar;
 import cn.taketoday.gradle.tasks.run.InfraRun;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -80,7 +78,9 @@ final class JavaPluginAction implements PluginApplicationAction {
   @Override
   public void execute(Project project) {
     configureBuildTask(project);
+    configureProductionRuntimeClasspathConfiguration(project);
     configureDevelopmentOnlyConfiguration(project);
+    configureTestAndDevelopmentOnlyConfiguration(project);
     TaskProvider<ResolveMainClassName> resolveMainClassName = configureResolveMainClassNameTask(project);
     TaskProvider<InfraJar> infraJar = configureInfraJarTask(project, resolveMainClassName);
     configureInfraBuildImageTask(project, infraJar);
@@ -114,8 +114,8 @@ final class JavaPluginAction implements PluginApplicationAction {
         if (javaApplicationMainClass != null) {
           return javaApplicationMainClass;
         }
-        var infraApplicationExtension = project.getExtensions().getByType(InfraApplicationExtension.class);
-        return infraApplicationExtension.getMainClass().getOrNull();
+        InfraApplicationExtension extension = project.getExtensions().getByType(InfraApplicationExtension.class);
+        return extension.getMainClass().getOrNull();
       }));
       resolveMainClassName.getOutputFile()
               .set(project.getLayout().getBuildDirectory().file("resolvedMainClassName"));
@@ -137,7 +137,6 @@ final class JavaPluginAction implements PluginApplicationAction {
     });
   }
 
-  @Nullable
   private static String getJavaApplicationMainClass(ExtensionContainer extensions) {
     JavaApplication javaApplication = extensions.findByType(JavaApplication.class);
     if (javaApplication == null) {
@@ -147,24 +146,25 @@ final class JavaPluginAction implements PluginApplicationAction {
   }
 
   private TaskProvider<InfraJar> configureInfraJarTask(Project project, TaskProvider<ResolveMainClassName> resolveMainClassName) {
+    ConfigurationContainer config = project.getConfigurations();
     SourceSet mainSourceSet = javaPluginExtension(project).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-    Configuration runtimeClasspath = project.getConfigurations().getByName(mainSourceSet.getRuntimeClasspathConfigurationName());
-    Configuration developmentOnly = project.getConfigurations().getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
-    Configuration productionRuntimeClasspath = project.getConfigurations().getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
-
+    Configuration developmentOnly = config.getByName(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration testAndDevelopmentOnly = config.getByName(InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    Configuration productionRuntimeClasspath = config.getByName(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
+    Configuration runtimeClasspath = config.getByName(mainSourceSet.getRuntimeClasspathConfigurationName());
     Callable<FileCollection> classpath = () -> mainSourceSet.getRuntimeClasspath()
-            .minus((developmentOnly.minus(productionRuntimeClasspath)))
+            .minus(developmentOnly.minus(productionRuntimeClasspath))
+            .minus(testAndDevelopmentOnly.minus(productionRuntimeClasspath))
             .filter(new JarTypeFileSpec());
 
-    return project.getTasks().register(InfraApplicationPlugin.INFRA_JAR_TASK_NAME, InfraJar.class, (infraJar) -> {
+    return project.getTasks().register(InfraApplicationPlugin.INFRA_JAR_TASK_NAME, InfraJar.class, infraJar -> {
       infraJar.setDescription("Assembles an executable jar archive containing the main classes and their dependencies.");
-      infraJar.classpath(classpath);
       infraJar.setGroup(BasePlugin.BUILD_GROUP);
+      infraJar.classpath(classpath);
       Provider<String> manifestStartClass = project.provider(
               () -> (String) infraJar.getManifest().getAttributes().get("Start-Class"));
-
-      infraJar.getMainClass().convention(
-              resolveMainClassName.flatMap(resolver -> manifestStartClass.isPresent() ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
+      infraJar.getMainClass().convention(resolveMainClassName.flatMap(
+              resolver -> manifestStartClass.isPresent() ? manifestStartClass : resolveMainClassName.get().readMainClassName()));
       infraJar.getTargetJavaVersion().set(project.provider(() -> javaPluginExtension(project).getTargetCompatibility()));
       infraJar.resolvedArtifacts(runtimeClasspath.getIncoming().getArtifacts().getResolvedArtifacts());
     });
@@ -187,7 +187,7 @@ final class JavaPluginAction implements PluginApplicationAction {
             .getByName(SourceSet.MAIN_SOURCE_SET_NAME)
             .getRuntimeClasspath()
             .filter(new JarTypeFileSpec());
-    project.getTasks().register(InfraApplicationPlugin.INFRA_RUN_TASK_NAME, InfraRun.class, run -> {
+    project.getTasks().register(InfraApplicationPlugin.INFRA_RUN_TASK_NAME, InfraRun.class, (run) -> {
       run.setDescription("Runs this project as a Infra application.");
       run.setGroup(ApplicationPlugin.APPLICATION_GROUP);
       run.classpath(classpath);
@@ -240,7 +240,7 @@ final class JavaPluginAction implements PluginApplicationAction {
   }
 
   private void configureAdditionalMetadataLocations(Project project) {
-    project.afterEvaluate((evaluated) -> evaluated.getTasks()
+    project.afterEvaluate(evaluated -> evaluated.getTasks()
             .withType(JavaCompile.class)
             .configureEach(this::configureAdditionalMetadataLocations));
   }
@@ -251,32 +251,48 @@ final class JavaPluginAction implements PluginApplicationAction {
             .getByType(JavaPluginExtension.class)
             .getSourceSets();
     sourceSets.stream()
-            .filter((candidate) -> candidate.getCompileJavaTaskName().equals(compile.getName()))
-            .map((match) -> match.getResources().getSrcDirs())
+            .filter(candidate -> candidate.getCompileJavaTaskName().equals(compile.getName()))
+            .map(match -> match.getResources().getSrcDirs())
             .findFirst()
-            .ifPresent((locations) -> compile.doFirst(new AdditionalMetadataLocationsConfigurer(locations)));
+            .ifPresent(locations -> compile.doFirst(new AdditionalMetadataLocationsConfigurer(locations)));
   }
 
-  private void configureDevelopmentOnlyConfiguration(Project project) {
-    Configuration developmentOnly = project.getConfigurations()
-            .create(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
-    developmentOnly
-            .setDescription("Configuration for development-only dependencies such as Infra DevTools.");
-    Configuration runtimeClasspath = project.getConfigurations()
-            .getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
-    Configuration productionRuntimeClasspath = project.getConfigurations()
-            .create(InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
-    AttributeContainer attributes = productionRuntimeClasspath.getAttributes();
-    ObjectFactory objectFactory = project.getObjects();
-    attributes.attribute(Usage.USAGE_ATTRIBUTE, objectFactory.named(Usage.class, Usage.JAVA_RUNTIME));
-    attributes.attribute(Bundling.BUNDLING_ATTRIBUTE, objectFactory.named(Bundling.class, Bundling.EXTERNAL));
-    attributes.attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-            objectFactory.named(LibraryElements.class, LibraryElements.JAR));
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void configureProductionRuntimeClasspathConfiguration(Project project) {
+    Configuration productionRuntimeClasspath = project.getConfigurations().create(
+            InfraApplicationPlugin.PRODUCTION_RUNTIME_CLASSPATH_CONFIGURATION_NAME);
     productionRuntimeClasspath.setVisible(false);
+    Configuration runtimeClasspath = project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
+    productionRuntimeClasspath.attributes(attributes -> {
+      ProviderFactory providers = project.getProviders();
+      AttributeContainer sourceAttributes = runtimeClasspath.getAttributes();
+      for (Attribute attribute : sourceAttributes.keySet()) {
+        attributes.attributeProvider(attribute, providers.provider(() -> sourceAttributes.getAttribute(attribute)));
+      }
+    });
     productionRuntimeClasspath.setExtendsFrom(runtimeClasspath.getExtendsFrom());
     productionRuntimeClasspath.setCanBeResolved(runtimeClasspath.isCanBeResolved());
     productionRuntimeClasspath.setCanBeConsumed(runtimeClasspath.isCanBeConsumed());
+  }
+
+  private void configureDevelopmentOnlyConfiguration(Project project) {
+    Configuration developmentOnly = project.getConfigurations().create(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    developmentOnly.setDescription("Configuration for development-only dependencies such as Infra DevTools.");
+    Configuration runtimeClasspath = project.getConfigurations()
+            .getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
     runtimeClasspath.extendsFrom(developmentOnly);
+  }
+
+  private void configureTestAndDevelopmentOnlyConfiguration(Project project) {
+    ConfigurationContainer container = project.getConfigurations();
+    Configuration testAndDevelopmentOnly = container.create(InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME);
+    testAndDevelopmentOnly.setDescription("Configuration for test and development-only dependencies such as Infra DevTools.");
+
+    Configuration runtimeClasspath = container.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME);
+    Configuration testImplementation = container.getByName(JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME);
+
+    runtimeClasspath.extendsFrom(testAndDevelopmentOnly);
+    testImplementation.extendsFrom(testAndDevelopmentOnly);
   }
 
   /**

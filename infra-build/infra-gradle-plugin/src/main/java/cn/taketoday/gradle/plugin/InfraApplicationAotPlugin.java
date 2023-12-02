@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -83,10 +83,10 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
       JavaPluginExtension javaPluginExtension = project.getExtensions().getByType(JavaPluginExtension.class);
       SourceSetContainer sourceSets = javaPluginExtension.getSourceSets();
       SourceSet mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-      SourceSet aotSourceSet = configureSourceSet(project, "aot", mainSourceSet);
+      SourceSet aotSourceSet = configureSourceSet(project, AOT_SOURCE_SET_NAME, mainSourceSet);
       SourceSet testSourceSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
-      SourceSet aotTestSourceSet = configureSourceSet(project, "aotTest", testSourceSet);
-      plugins.withType(InfraApplicationPlugin.class).all((bootPlugin) -> {
+      SourceSet aotTestSourceSet = configureSourceSet(project, AOT_TEST_SOURCE_SET_NAME, testSourceSet);
+      plugins.withType(InfraApplicationPlugin.class).all(plugin -> {
         registerProcessAotTask(project, aotSourceSet, mainSourceSet);
         registerProcessTestAotTask(project, mainSourceSet, aotTestSourceSet, testSourceSet);
       });
@@ -119,9 +119,10 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
   }
 
   private void registerProcessAotTask(Project project, SourceSet aotSourceSet, SourceSet mainSourceSet) {
-    TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks()
-            .named(InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
-    Configuration aotClasspath = createAotProcessingClasspath(project, PROCESS_AOT_TASK_NAME, mainSourceSet);
+    TaskProvider<ResolveMainClassName> resolveMainClassName = project.getTasks().named(InfraApplicationPlugin.RESOLVE_MAIN_CLASS_NAME_TASK_NAME, ResolveMainClassName.class);
+    Configuration aotClasspath = createAotProcessingClasspath(project, PROCESS_AOT_TASK_NAME, mainSourceSet,
+            Set.of(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME,
+                    InfraApplicationPlugin.TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME));
     project.getDependencies().add(aotClasspath.getName(), project.files(mainSourceSet.getOutput()));
     Configuration compileClasspath = project.getConfigurations()
             .getByName(aotSourceSet.getCompileClasspathConfigurationName());
@@ -129,13 +130,12 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     Provider<Directory> resourcesOutput = project.getLayout()
             .getBuildDirectory()
             .dir("generated/" + aotSourceSet.getName() + "Resources");
-    TaskProvider<ProcessAot> processAot = project.getTasks()
-            .register(PROCESS_AOT_TASK_NAME, ProcessAot.class, (task) -> {
-              configureAotTask(project, aotSourceSet, task, mainSourceSet, resourcesOutput);
-              task.getApplicationMainClass()
-                      .set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
-              task.setClasspath(aotClasspath);
-            });
+    TaskProvider<ProcessAot> processAot = project.getTasks().register(PROCESS_AOT_TASK_NAME, ProcessAot.class, (task) -> {
+      configureAotTask(project, aotSourceSet, task, resourcesOutput);
+      task.getApplicationMainClass()
+              .set(resolveMainClassName.flatMap(ResolveMainClassName::readMainClassName));
+      task.setClasspath(aotClasspath);
+    });
     aotSourceSet.getJava().srcDir(processAot.map(ProcessAot::getSourcesOutput));
     aotSourceSet.getResources().srcDir(resourcesOutput);
     ConfigurableFileCollection classesOutputFiles = project.files(processAot.map(ProcessAot::getClassesOutput));
@@ -144,8 +144,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     configureDependsOn(project, aotSourceSet, processAot);
   }
 
-  private void configureAotTask(Project project, SourceSet sourceSet, AbstractAot task, SourceSet inputSourceSet,
-          Provider<Directory> resourcesOutput) {
+  private void configureAotTask(Project project, SourceSet sourceSet, AbstractAot task, Provider<Directory> resourcesOutput) {
     task.getSourcesOutput()
             .set(project.getLayout().getBuildDirectory().dir("generated/" + sourceSet.getName() + "Sources"));
     task.getResourcesOutput().set(resourcesOutput);
@@ -163,14 +162,19 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private Configuration createAotProcessingClasspath(Project project, String taskName, SourceSet inputSourceSet) {
+  private Configuration createAotProcessingClasspath(Project project, String taskName, SourceSet inputSourceSet,
+          Set<String> developmentOnlyConfigurationNames) {
     Configuration base = project.getConfigurations()
             .getByName(inputSourceSet.getRuntimeClasspathConfigurationName());
     return project.getConfigurations().create(taskName + "Classpath", (classpath) -> {
       classpath.setCanBeConsumed(false);
+      if (!classpath.isCanBeResolved()) {
+        throw new IllegalStateException("Unexpected");
+      }
       classpath.setCanBeResolved(true);
       classpath.setDescription("Classpath of the " + taskName + " task.");
-      removeDevelopmentOnly(base.getExtendsFrom()).forEach(classpath::extendsFrom);
+      removeDevelopmentOnly(base.getExtendsFrom(), developmentOnlyConfigurationNames)
+              .forEach(classpath::extendsFrom);
       classpath.attributes((attributes) -> {
         ProviderFactory providers = project.getProviders();
         AttributeContainer baseAttributes = base.getAttributes();
@@ -182,12 +186,10 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
     });
   }
 
-  private Stream<Configuration> removeDevelopmentOnly(Set<Configuration> configurations) {
-    return configurations.stream().filter(this::isNotDevelopmentOnly);
-  }
-
-  private boolean isNotDevelopmentOnly(Configuration configuration) {
-    return !InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME.equals(configuration.getName());
+  private Stream<Configuration> removeDevelopmentOnly(Set<Configuration> configurations,
+          Set<String> developmentOnlyConfigurationNames) {
+    return configurations.stream().filter(
+            configuration -> !developmentOnlyConfigurationNames.contains(configuration.getName()));
   }
 
   private void configureDependsOn(Project project, SourceSet aotSourceSet,
@@ -197,9 +199,9 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
             .configure((processResources) -> processResources.dependsOn(processAot));
   }
 
-  private void registerProcessTestAotTask(Project project, SourceSet mainSourceSet, SourceSet aotTestSourceSet,
-          SourceSet testSourceSet) {
-    Configuration aotClasspath = createAotProcessingClasspath(project, PROCESS_TEST_AOT_TASK_NAME, testSourceSet);
+  private void registerProcessTestAotTask(Project project, SourceSet mainSourceSet, SourceSet aotTestSourceSet, SourceSet testSourceSet) {
+    Configuration aotClasspath = createAotProcessingClasspath(project, PROCESS_TEST_AOT_TASK_NAME, testSourceSet,
+            Set.of(InfraApplicationPlugin.DEVELOPMENT_ONLY_CONFIGURATION_NAME));
     addJUnitPlatformLauncherDependency(project, aotClasspath);
     Configuration compileClasspath = project.getConfigurations()
             .getByName(aotTestSourceSet.getCompileClasspathConfigurationName());
@@ -209,7 +211,7 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
             .dir("generated/" + aotTestSourceSet.getName() + "Resources");
     TaskProvider<ProcessTestAot> processTestAot = project.getTasks()
             .register(PROCESS_TEST_AOT_TASK_NAME, ProcessTestAot.class, (task) -> {
-              configureAotTask(project, aotTestSourceSet, task, testSourceSet, resourcesOutput);
+              configureAotTask(project, aotTestSourceSet, task, resourcesOutput);
               task.setClasspath(aotClasspath);
               task.setClasspathRoots(testSourceSet.getOutput());
             });
@@ -226,10 +228,10 @@ public class InfraApplicationAotPlugin implements Plugin<Project> {
 
   private void addJUnitPlatformLauncherDependency(Project project, Configuration configuration) {
     DependencyHandler dependencyHandler = project.getDependencies();
-    Dependency infraApplicationDependencies = dependencyHandler
+    Dependency springBootDependencies = dependencyHandler
             .create(dependencyHandler.platform(InfraApplicationPlugin.BOM_COORDINATES));
     DependencySet dependencies = configuration.getDependencies();
-    dependencies.add(infraApplicationDependencies);
+    dependencies.add(springBootDependencies);
     dependencies.add(dependencyHandler.create("org.junit.platform:junit-platform-launcher"));
   }
 

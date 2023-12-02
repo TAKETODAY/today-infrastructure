@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -76,6 +76,11 @@ public class InfraApplicationPlugin implements Plugin<Project> {
    * The name of the {@code developmentOnly} configuration.
    */
   public static final String DEVELOPMENT_ONLY_CONFIGURATION_NAME = "developmentOnly";
+
+  /**
+   * The name of the {@code testAndDevelopmentOnly} configuration.
+   */
+  public static final String TEST_AND_DEVELOPMENT_ONLY_CONFIGURATION_NAME = "testAndDevelopmentOnly";
 
   /**
    * The name of the {@code productionRuntimeClasspath} configuration.

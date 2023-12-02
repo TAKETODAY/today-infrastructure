@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -30,6 +30,8 @@ import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.JarOutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import cn.taketoday.gradle.junit.GradleCompatibility;
 import cn.taketoday.gradle.testkit.GradleBuild;
@@ -48,7 +50,7 @@ class JavaPluginActionIntegrationTests {
 
   @TestTemplate
   void noInfraJarTaskWithoutJavaPluginApplied() {
-    assertThat(this.gradleBuild.build("tasks").getOutput()).doesNotContain("infraJar");
+    assertThat(this.gradleBuild.build("tasks").getOutput()).doesNotContain("bootJar");
   }
 
   @TestTemplate
@@ -141,15 +143,61 @@ class JavaPluginActionIntegrationTests {
 
   @TestTemplate
   void applyingJavaPluginCreatesDevelopmentOnlyConfiguration() {
-    assertThat(this.gradleBuild.build("build").getOutput()).contains("developmentOnly exists = true");
+    assertThat(this.gradleBuild.build("help").getOutput()).contains("developmentOnly exists = true");
   }
 
   @TestTemplate
-  void productionRuntimeClasspathIsConfiguredWithAttributes() {
-    assertThat(this.gradleBuild.build("build").getOutput()).contains("3 productionRuntimeClasspath attributes:")
-            .contains("org.gradle.usage: java-runtime")
-            .contains("org.gradle.libraryelements: jar")
-            .contains("org.gradle.dependency.bundling: external");
+  void applyingJavaPluginCreatesTestAndDevelopmentOnlyConfiguration() {
+    assertThat(this.gradleBuild.build("help").getOutput()).contains("testAndDevelopmentOnly exists = true");
+  }
+
+  @TestTemplate
+  void testCompileClasspathIncludesTestAndDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).contains("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void testRuntimeClasspathIncludesTestAndDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).contains("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void testCompileClasspathDoesNotIncludeDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).doesNotContain("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void testRuntimeClasspathDoesNotIncludeDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).doesNotContain("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void compileClasspathDoesNotIncludeTestAndDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).doesNotContain("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void runtimeClasspathIncludesTestAndDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).contains("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void compileClasspathDoesNotIncludeDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).doesNotContain("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void runtimeClasspathIncludesDevelopmentOnlyDependencies() {
+    assertThat(this.gradleBuild.build("help").getOutput()).contains("commons-lang3-3.12.0.jar");
+  }
+
+  @TestTemplate
+  void productionRuntimeClasspathIsConfiguredWithAttributesThatMatchRuntimeClasspath() {
+    String output = this.gradleBuild.build("build").getOutput();
+    Matcher matcher = Pattern.compile("runtimeClasspath: (\\[.*\\])").matcher(output);
+    assertThat(matcher.find()).as("%s found in %s", matcher, output).isTrue();
+    String attributes = matcher.group(1);
+    assertThat(output).contains("productionRuntimeClasspath: " + attributes);
   }
 
   @TestTemplate
