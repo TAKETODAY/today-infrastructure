@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jmx.export.naming;
@@ -49,11 +46,14 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ObjectNamingStrategy
  * @see AnnotationJmxAttributeSource
  * @since 4.0
  */
 public class MetadataNamingStrategy implements ObjectNamingStrategy, InitializingBean {
+
+  private static final char[] QUOTABLE_CHARS = new char[] { ',', '=', ':', '"' };
 
   /**
    * The {@code JmxAttributeSource} implementation to use for reading metadata.
@@ -134,10 +134,23 @@ public class MetadataNamingStrategy implements ObjectNamingStrategy, Initializin
         }
         Hashtable<String, String> properties = new Hashtable<>();
         properties.put("type", ClassUtils.getShortName(managedClass));
-        properties.put("name", beanKey);
+        properties.put("name", quoteIfNecessary(beanKey));
         return ObjectNameManager.getInstance(domain, properties);
       }
     }
+  }
+
+  private static String quoteIfNecessary(String value) {
+    return shouldQuote(value) ? ObjectName.quote(value) : value;
+  }
+
+  private static boolean shouldQuote(String value) {
+    for (char quotableChar : QUOTABLE_CHARS) {
+      if (value.indexOf(quotableChar) != -1) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
