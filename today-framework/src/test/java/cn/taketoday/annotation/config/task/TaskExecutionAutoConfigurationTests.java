@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.task;
@@ -83,10 +83,13 @@ class TaskExecutionAutoConfigurationTests {
   void simpleAsyncTaskExecutorBuilderShouldReadProperties() {
     this.contextRunner
             .withPropertyValues("infra.task.execution.thread-name-prefix=mytest-",
-                    "infra.task.execution.simple.concurrency-limit=1")
+                    "infra.task.execution.simple.concurrency-limit=1",
+                    "infra.task.execution.shutdown.await-termination=true",
+                    "infra.task.execution.shutdown.await-termination-period=30s")
             .run(assertSimpleAsyncTaskExecutor((taskExecutor) -> {
               assertThat(taskExecutor.getConcurrencyLimit()).isEqualTo(1);
               assertThat(taskExecutor.getThreadNamePrefix()).isEqualTo("mytest-");
+              assertThat(taskExecutor).hasFieldOrPropertyWithValue("taskTerminationTimeout", 30000L);
             }));
   }
 

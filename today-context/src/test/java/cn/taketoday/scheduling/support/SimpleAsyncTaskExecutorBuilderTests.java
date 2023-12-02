@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.support;
@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Set;
 
@@ -71,15 +72,15 @@ class SimpleAsyncTaskExecutorBuilderTests {
   @Test
   void customizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.customizers((SimpleAsyncTaskExecutorCustomizer[]) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.customizers((SimpleAsyncTaskExecutorCustomizer[]) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
   void customizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.customizers((Set<SimpleAsyncTaskExecutorCustomizer>) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.customizers((Set<SimpleAsyncTaskExecutorCustomizer>) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -94,15 +95,15 @@ class SimpleAsyncTaskExecutorBuilderTests {
     TaskDecorator taskDecorator = mock(TaskDecorator.class);
     SimpleAsyncTaskExecutor executor = spy(new SimpleAsyncTaskExecutor());
     this.builder.threadNamePrefix("test-")
-        .virtualThreads(true)
-        .concurrencyLimit(1)
-        .taskDecorator(taskDecorator)
-        .additionalCustomizers((taskExecutor) -> {
-          then(taskExecutor).should().setConcurrencyLimit(1);
-          then(taskExecutor).should().setVirtualThreads(true);
-          then(taskExecutor).should().setThreadNamePrefix("test-");
-          then(taskExecutor).should().setTaskDecorator(taskDecorator);
-        });
+            .virtualThreads(true)
+            .concurrencyLimit(1)
+            .taskDecorator(taskDecorator)
+            .additionalCustomizers((taskExecutor) -> {
+              then(taskExecutor).should().setConcurrencyLimit(1);
+              then(taskExecutor).should().setVirtualThreads(true);
+              then(taskExecutor).should().setThreadNamePrefix("test-");
+              then(taskExecutor).should().setTaskDecorator(taskDecorator);
+            });
     this.builder.configure(executor);
   }
 
@@ -111,8 +112,8 @@ class SimpleAsyncTaskExecutorBuilderTests {
     SimpleAsyncTaskExecutorCustomizer customizer1 = mock(SimpleAsyncTaskExecutorCustomizer.class);
     SimpleAsyncTaskExecutorCustomizer customizer2 = mock(SimpleAsyncTaskExecutorCustomizer.class);
     SimpleAsyncTaskExecutor executor = this.builder.customizers(customizer1)
-        .customizers(Collections.singleton(customizer2))
-        .build();
+            .customizers(Collections.singleton(customizer2))
+            .build();
     then(customizer1).shouldHaveNoInteractions();
     then(customizer2).should().customize(executor);
   }
@@ -120,15 +121,15 @@ class SimpleAsyncTaskExecutorBuilderTests {
   @Test
   void additionalCustomizersWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.additionalCustomizers((SimpleAsyncTaskExecutorCustomizer[]) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.additionalCustomizers((SimpleAsyncTaskExecutorCustomizer[]) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
   void additionalCustomizersCollectionWhenCustomizersAreNullShouldThrowException() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> this.builder.additionalCustomizers((Set<SimpleAsyncTaskExecutorCustomizer>) null))
-        .withMessageContaining("Customizers is required");
+            .isThrownBy(() -> this.builder.additionalCustomizers((Set<SimpleAsyncTaskExecutorCustomizer>) null))
+            .withMessageContaining("Customizers is required");
   }
 
   @Test
@@ -136,10 +137,16 @@ class SimpleAsyncTaskExecutorBuilderTests {
     SimpleAsyncTaskExecutorCustomizer customizer1 = mock(SimpleAsyncTaskExecutorCustomizer.class);
     SimpleAsyncTaskExecutorCustomizer customizer2 = mock(SimpleAsyncTaskExecutorCustomizer.class);
     SimpleAsyncTaskExecutor executor = this.builder.customizers(customizer1)
-        .additionalCustomizers(customizer2)
-        .build();
+            .additionalCustomizers(customizer2)
+            .build();
     then(customizer1).should().customize(executor);
     then(customizer2).should().customize(executor);
+  }
+
+  @Test
+  void taskTerminationTimeoutShouldApply() {
+    SimpleAsyncTaskExecutor executor = this.builder.taskTerminationTimeout(Duration.ofSeconds(1)).build();
+    assertThat(executor).extracting("taskTerminationTimeout").isEqualTo(1000L);
   }
 
 }

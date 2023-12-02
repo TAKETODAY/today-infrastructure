@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.support;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -62,17 +63,21 @@ public class SimpleAsyncTaskExecutorBuilder {
   @Nullable
   private final Set<SimpleAsyncTaskExecutorCustomizer> customizers;
 
+  @Nullable
+  private final Duration taskTerminationTimeout;
+
   public SimpleAsyncTaskExecutorBuilder() {
-    this(null, null, null, null, null);
+    this(null, null, null, null, null, null);
   }
 
-  private SimpleAsyncTaskExecutorBuilder(@Nullable Boolean virtualThreads, @Nullable String threadNamePrefix,
-          @Nullable Integer concurrencyLimit, @Nullable TaskDecorator taskDecorator, @Nullable Set<SimpleAsyncTaskExecutorCustomizer> customizers) {
+  private SimpleAsyncTaskExecutorBuilder(@Nullable Boolean virtualThreads, @Nullable String threadNamePrefix, @Nullable Integer concurrencyLimit,
+          @Nullable TaskDecorator taskDecorator, @Nullable Set<SimpleAsyncTaskExecutorCustomizer> customizers, @Nullable Duration taskTerminationTimeout) {
     this.virtualThreads = virtualThreads;
     this.threadNamePrefix = threadNamePrefix;
     this.concurrencyLimit = concurrencyLimit;
     this.taskDecorator = taskDecorator;
     this.customizers = customizers;
+    this.taskTerminationTimeout = taskTerminationTimeout;
   }
 
   /**
@@ -83,7 +88,7 @@ public class SimpleAsyncTaskExecutorBuilder {
    */
   public SimpleAsyncTaskExecutorBuilder threadNamePrefix(String threadNamePrefix) {
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, threadNamePrefix, this.concurrencyLimit,
-            this.taskDecorator, this.customizers);
+            this.taskDecorator, this.customizers, this.taskTerminationTimeout);
   }
 
   /**
@@ -94,7 +99,7 @@ public class SimpleAsyncTaskExecutorBuilder {
    */
   public SimpleAsyncTaskExecutorBuilder virtualThreads(Boolean virtualThreads) {
     return new SimpleAsyncTaskExecutorBuilder(virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-            this.taskDecorator, this.customizers);
+            this.taskDecorator, this.customizers, this.taskTerminationTimeout);
   }
 
   /**
@@ -103,9 +108,9 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @param concurrencyLimit the concurrency limit
    * @return a new builder instance
    */
-  public SimpleAsyncTaskExecutorBuilder concurrencyLimit(Integer concurrencyLimit) {
+  public SimpleAsyncTaskExecutorBuilder concurrencyLimit(@Nullable Integer concurrencyLimit) {
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, concurrencyLimit,
-            this.taskDecorator, this.customizers);
+            this.taskDecorator, this.customizers, this.taskTerminationTimeout);
   }
 
   /**
@@ -114,9 +119,20 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @param taskDecorator the task decorator to use
    * @return a new builder instance
    */
-  public SimpleAsyncTaskExecutorBuilder taskDecorator(TaskDecorator taskDecorator) {
+  public SimpleAsyncTaskExecutorBuilder taskDecorator(@Nullable TaskDecorator taskDecorator) {
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-            taskDecorator, this.customizers);
+            taskDecorator, this.customizers, this.taskTerminationTimeout);
+  }
+
+  /**
+   * Set the task termination timeout.
+   *
+   * @param taskTerminationTimeout the task termination timeout
+   * @return a new builder instance
+   */
+  public SimpleAsyncTaskExecutorBuilder taskTerminationTimeout(@Nullable Duration taskTerminationTimeout) {
+    return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
+            this.taskDecorator, this.customizers, taskTerminationTimeout);
   }
 
   /**
@@ -147,7 +163,7 @@ public class SimpleAsyncTaskExecutorBuilder {
   public SimpleAsyncTaskExecutorBuilder customizers(Iterable<? extends SimpleAsyncTaskExecutorCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-            this.taskDecorator, append(null, customizers));
+            this.taskDecorator, append(null, customizers), this.taskTerminationTimeout);
   }
 
   /**
@@ -176,7 +192,7 @@ public class SimpleAsyncTaskExecutorBuilder {
   public SimpleAsyncTaskExecutorBuilder additionalCustomizers(Iterable<? extends SimpleAsyncTaskExecutorCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
     return new SimpleAsyncTaskExecutorBuilder(this.virtualThreads, this.threadNamePrefix, this.concurrencyLimit,
-            this.taskDecorator, append(this.customizers, customizers));
+            this.taskDecorator, append(this.customizers, customizers), this.taskTerminationTimeout);
   }
 
   /**
@@ -220,6 +236,7 @@ public class SimpleAsyncTaskExecutorBuilder {
     map.from(this.threadNamePrefix).whenHasText().to(taskExecutor::setThreadNamePrefix);
     map.from(this.concurrencyLimit).to(taskExecutor::setConcurrencyLimit);
     map.from(this.taskDecorator).to(taskExecutor::setTaskDecorator);
+    map.from(this.taskTerminationTimeout).as(Duration::toMillis).to(taskExecutor::setTaskTerminationTimeout);
     if (CollectionUtils.isNotEmpty(customizers)) {
       for (SimpleAsyncTaskExecutorCustomizer customizer : customizers) {
         customizer.customize(taskExecutor);

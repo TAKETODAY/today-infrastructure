@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.task;
@@ -112,6 +112,11 @@ public class TaskExecutionAutoConfiguration {
     builder = builder.taskDecorator(taskDecorator.getIfUnique());
     var simple = properties.getSimple();
     builder = builder.concurrencyLimit(simple.getConcurrencyLimit());
+
+    var shutdown = properties.getShutdown();
+    if (shutdown.isAwaitTermination()) {
+      builder = builder.taskTerminationTimeout(shutdown.getAwaitTerminationPeriod());
+    }
 
     if (Threading.VIRTUAL.isActive(environment)) {
       builder = builder.virtualThreads(true);
