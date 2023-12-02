@@ -12,12 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.aot;
 
-import org.junit.jupiter.api.condition.DisabledIf;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * <p>If a test class is annotated with {@code @DisabledInAotMode}, all other test
  * classes which specify configuration to load the same {@code ApplicationContext}
  * must also be annotated with {@code @DisabledInAotMode}. Failure to annotate
- * all such test classes will result in a exception, either at build time or
+ * all such test classes will result in an exception, either at build time or
  * run time.
  *
  * <p>When used with JUnit Jupiter based tests, {@code @DisabledInAotMode} also
@@ -49,6 +49,7 @@ import java.lang.annotation.Target;
  * annotation.
  *
  * @author Sam Brannen
+ * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.aot.AotDetector#useGeneratedArtifacts() AotDetector.useGeneratedArtifacts()
  * @see org.junit.jupiter.api.condition.EnabledInNativeImage @EnabledInNativeImage
@@ -58,8 +59,7 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE, ElementType.METHOD })
-@DisabledIf(value = "cn.taketoday.aot.AotDetector#useGeneratedArtifacts",
-            disabledReason = "Disabled in Infra AOT mode")
+@ExtendWith(DisabledInAotModeCondition.class)
 public @interface DisabledInAotMode {
 
 }
