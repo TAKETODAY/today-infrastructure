@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.propertyeditors;
@@ -47,6 +44,7 @@ import cn.taketoday.util.ResourceUtils;
  * if no existing context-relative resource could be found.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Path
  * @see Paths#get(URI)
  * @see ResourceEditor
@@ -82,8 +80,10 @@ public class PathEditor extends PropertyEditorSupport {
     if (nioPathCandidate && !text.startsWith("/")) {
       try {
         URI uri = ResourceUtils.toURI(text);
-        if (uri.getScheme() != null) {
-          nioPathCandidate = false;
+        String scheme = uri.getScheme();
+        if (scheme != null) {
+          // No NIO candidate except for "C:" style drive letters
+          nioPathCandidate = (scheme.length() == 1);
           // Let's try NIO file system providers via Paths.get(URI)
           setValue(Paths.get(uri).normalize());
           return;
@@ -91,12 +91,12 @@ public class PathEditor extends PropertyEditorSupport {
       }
       catch (URISyntaxException ex) {
         // Not a valid URI; potentially a Windows-style path after
-        // a file prefix (let's try as Framework resource location)
+        // a file prefix (let's try as Infra resource location)
         nioPathCandidate = !text.startsWith(ResourceUtils.FILE_URL_PREFIX);
       }
       catch (FileSystemNotFoundException ex) {
         // URI scheme not registered for NIO (let's try URL
-        // protocol handlers via Framework's resource mechanism).
+        // protocol handlers via Infra resource mechanism).
       }
     }
 
@@ -113,7 +113,8 @@ public class PathEditor extends PropertyEditorSupport {
         setValue(resource.getFile().toPath());
       }
       catch (IOException ex) {
-        throw new IllegalArgumentException("Failed to retrieve file for " + resource, ex);
+        throw new IllegalArgumentException(
+                "Could not retrieve file for " + resource + ": " + ex.getMessage());
       }
     }
   }
