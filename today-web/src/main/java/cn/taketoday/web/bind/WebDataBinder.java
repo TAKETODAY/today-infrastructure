@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind;
@@ -26,6 +26,7 @@ import java.util.function.BiFunction;
 import cn.taketoday.beans.ConfigurablePropertyAccessor;
 import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
+import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.validation.BindException;
@@ -408,6 +409,14 @@ public class WebDataBinder extends DataBinder {
    */
   public void construct(RequestContext request) {
     construct(new RequestValueResolver(request, this));
+  }
+
+  @Override
+  protected boolean shouldConstructArgument(MethodParameter param) {
+    Class<?> type = param.nestedIfOptional().getNestedParameterType();
+    return super.shouldConstructArgument(param)
+            && !MultipartFile.class.isAssignableFrom(type)
+            && !(ServletDetector.isPresent && Part.class.isAssignableFrom(type));
   }
 
   /**

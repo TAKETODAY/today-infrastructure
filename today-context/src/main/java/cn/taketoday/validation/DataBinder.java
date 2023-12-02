@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation;
@@ -119,6 +119,7 @@ import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
  * @see DefaultMessageCodesResolver
  * @see DefaultBindingErrorProcessor
  * @see cn.taketoday.context.MessageSource
+ * @since 4.0
  */
 public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 
@@ -954,7 +955,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         Class<?> paramType = paramTypes[i];
         Object value = valueResolver.resolveValue(paramPath, paramType);
 
-        if (value == null && shouldCreateObject(param)) {
+        if (value == null && shouldConstructArgument(param)) {
           ResolvableType type = ResolvableType.forMethodParameter(param);
           args[i] = createObject(type, paramPath + ".", valueResolver);
         }
@@ -1003,10 +1004,19 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     return (isOptional && !nestedPath.isEmpty() ? Optional.ofNullable(result) : result);
   }
 
-  private static boolean shouldCreateObject(MethodParameter param) {
+  /**
+   * Whether to instantiate the constructor argument of the given type,
+   * matching its own constructor arguments to bind values.
+   * <p>By default, simple value types, maps, collections, and arrays are
+   * excluded from nested constructor binding initialization.
+   */
+  protected boolean shouldConstructArgument(MethodParameter param) {
     Class<?> type = param.nestedIfOptional().getNestedParameterType();
-    return !(BeanUtils.isSimpleValueType(type) ||
-            Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type) || type.isArray());
+    return !(BeanUtils.isSimpleValueType(type)
+            || Collection.class.isAssignableFrom(type)
+            || Map.class.isAssignableFrom(type)
+            || type.isArray()
+            || type.getPackageName().startsWith("java."));
   }
 
   private void validateConstructorArgument(
