@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -177,13 +177,13 @@ public class TypeConverterDelegate {
           return (T) convertToTypedArray(convertedValue, propertyName, requiredType.getComponentType());
         }
         else if (convertedValue.getClass().isArray()) {
-          if (Array.getLength(convertedValue) == 1) {
-            convertedValue = Array.get(convertedValue, 0);
-            standardConversion = true;
-          }
-          else if (Collection.class.isAssignableFrom(requiredType)) {
+          if (Collection.class.isAssignableFrom(requiredType)) {
             convertedValue = convertToTypedCollection(CollectionUtils.arrayToList(convertedValue),
                     propertyName, requiredType, typeDescriptor);
+            standardConversion = true;
+          }
+          else if (Array.getLength(convertedValue) == 1) {
+            convertedValue = Array.get(convertedValue, 0);
             standardConversion = true;
           }
         }

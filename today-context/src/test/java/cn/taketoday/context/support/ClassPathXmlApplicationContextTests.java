@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -223,6 +223,10 @@ public class ClassPathXmlApplicationContextTests {
     Service service = ctx.getBean("service", Service.class);
     assertThat(service.getResources()).containsExactlyInAnyOrder(contextA, contextB, contextC);
     assertThat(service.getResourceSet()).containsExactlyInAnyOrder(contextA, contextB, contextC);
+
+    Service service3 = ctx.getBean("service3", Service.class);
+    assertThat(service3.getResources()).containsOnly(new ClassPathResource(FQ_CONTEXT_A));
+    assertThat(service3.getResourceSet()).containsOnly(new ClassPathResource(FQ_CONTEXT_A));
     ctx.close();
   }
 

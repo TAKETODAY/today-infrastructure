@@ -13,7 +13,7 @@
   ~ GNU General Public License for more details.
   ~
   ~ You should have received a copy of the GNU General Public License
-  ~ along with this program.  If not, see [http://www.gnu.org/licenses/]
+  ~ along with this program. If not, see [https://www.gnu.org/licenses/]
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -39,6 +39,11 @@
 
 	<bean name="service2" class="cn.taketoday.context.support.Service" autowire="byName" depends-on="service">
 		<property name="resources" value="/cn/taketoday/context/support/test/context*.xml"/>
+	</bean>
+
+	<bean name="service3" class="cn.taketoday.context.support.Service">
+		<property name="resources" value="/cn/taketoday/context/support/test/contextA.xml"/>
+		<property name="resourceSet" value="/cn/taketoday/context/support/test/contextA.xml"/>
 	</bean>
 
 	<bean name="autowiredService" class="cn.taketoday.context.support.AutowiredService" autowire="byName"/>
