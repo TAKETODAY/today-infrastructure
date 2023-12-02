@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -1351,6 +1351,21 @@ class ApplicationTests {
             .atMost(Duration.ofSeconds(30))
             .untilAsserted(() -> assertThat(getCurrentThreads())
                     .filteredOn((thread) -> thread.getName().equals("keep-alive")));
+  }
+
+  @Test
+  void shouldReportFriendlyErrorIfAotInitializerNotFound() {
+    Application application = new Application(TestApplication.class);
+    application.setApplicationType(ApplicationType.NORMAL);
+    application.setMainApplicationClass(TestApplication.class);
+    System.setProperty(AotDetector.AOT_ENABLED, "true");
+    try {
+      assertThatIllegalStateException().isThrownBy(application::run)
+              .withMessageContaining("but AOT processing hasn't happened");
+    }
+    finally {
+      System.clearProperty(AotDetector.AOT_ENABLED);
+    }
   }
 
   @Test
