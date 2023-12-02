@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.socket;
@@ -105,10 +105,20 @@ class WebSocketAutoConfigurationTests {
   }
 
   @Test
-  void jettyWebSocketUpgradeFilterIsAddedToServletContext() {
-    try (var context = new AnnotationConfigServletWebServerApplicationContext(JettyConfiguration.class, WebSocketAutoConfiguration.JettyWebSocketConfiguration.class)) {
+  void jettyWebSocketUpgradeFilterIsAddedToServletContextOfJettyServer() {
+    try (AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext(
+            JettyConfiguration.class, WebSocketAutoConfiguration.JettyWebSocketConfiguration.class)) {
       assertThat(context.getServletContext().getFilterRegistration(WebSocketUpgradeFilter.class.getName()))
               .isNotNull();
+    }
+  }
+
+  @Test
+  void jettyWebSocketUpgradeFilterIsNotAddedToServletContextOfTomcatServer() {
+    try (AnnotationConfigServletWebServerApplicationContext context = new AnnotationConfigServletWebServerApplicationContext(
+            TomcatConfiguration.class, WebSocketAutoConfiguration.JettyWebSocketConfiguration.class)) {
+      assertThat(context.getServletContext().getFilterRegistration(WebSocketUpgradeFilter.class.getName()))
+              .isNull();
     }
   }
 

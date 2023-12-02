@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.socket;
@@ -24,7 +24,6 @@ import org.eclipse.jetty.ee10.websocket.servlet.WebSocketUpgradeFilter;
 
 import java.util.EnumSet;
 
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
@@ -36,8 +35,9 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
 import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
-import cn.taketoday.framework.web.servlet.ServletContextInitializer;
+import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -45,7 +45,6 @@ import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 import jakarta.servlet.DispatcherType;
-import jakarta.servlet.FilterRegistration;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} WebSocket
@@ -82,15 +81,16 @@ public class WebSocketAutoConfiguration {
       return new JettyWebSocketServletWebServerCustomizer();
     }
 
-    @Bean
+    @Component
     @Order(Ordered.LOWEST_PRECEDENCE)
-    @ConditionalOnMissingBean(name = "websocketUpgradeFilterServletContextInitializer")
-    ServletContextInitializer websocketUpgradeFilterServletContextInitializer() {
-      return (servletContext) -> {
-        FilterRegistration.Dynamic registration = servletContext.addFilter(WebSocketUpgradeFilter.class.getName(),
-                new WebSocketUpgradeFilter());
-        registration.setAsyncSupported(true);
-        registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+    @ConditionalOnMissingBean(name = "websocketUpgradeFilterWebServerCustomizer")
+    static WebServerFactoryCustomizer<JettyServletWebServerFactory> websocketUpgradeFilterWebServerCustomizer() {
+      return factory -> {
+        factory.addInitializers(servletContext -> {
+          var registration = servletContext.addFilter(WebSocketUpgradeFilter.class.getName(), new WebSocketUpgradeFilter());
+          registration.setAsyncSupported(true);
+          registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+        });
       };
     }
 

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.support;
@@ -57,6 +57,7 @@ import cn.taketoday.util.ResourceUtils;
  * @author Sam Brannen
  * @author Juergen Hoeller
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #generateDefaultLocations
  * @see #getResourceSuffixes
  * @see #modifyLocations
