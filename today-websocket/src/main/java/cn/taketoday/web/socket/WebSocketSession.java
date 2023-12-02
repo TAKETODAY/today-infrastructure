@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket;
@@ -31,13 +31,15 @@ import cn.taketoday.util.AlternativeJdkIdGenerator;
  * A WebSocket session abstraction. Allows sending messages over a WebSocket
  * connection and closing it.
  *
- * @author TODAY 2021/4/5 14:16
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/4/5 14:16
  */
 public abstract class WebSocketSession extends AttributeAccessorSupport implements AttributeAccessor {
 
   public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
+
   public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
+
   public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
 
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();

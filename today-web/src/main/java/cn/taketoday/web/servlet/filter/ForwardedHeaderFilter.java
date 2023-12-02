@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet.filter;
@@ -136,17 +136,15 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-          FilterChain filterChain) throws ServletException, IOException {
-
-    if (this.removeOnly) {
+  protected void doFilterInternal(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException //
+  {
+    if (removeOnly) {
       ForwardedHeaderRemovingRequest wrappedRequest = new ForwardedHeaderRemovingRequest(request);
       filterChain.doFilter(wrappedRequest, response);
     }
     else {
-      HttpServletRequest wrappedRequest =
-              new ForwardedHeaderExtractingRequest(request);
-
+      HttpServletRequest wrappedRequest = new ForwardedHeaderExtractingRequest(request);
       HttpServletResponse wrappedResponse =
               relativeRedirects ?
               RelativeRedirectResponseWrapper.wrapIfNecessary(response, HttpStatus.SEE_OTHER) :
@@ -157,8 +155,8 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
-          FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterNestedErrorDispatch(HttpServletRequest request,
+          HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
     doFilterInternal(request, response, filterChain);
   }
@@ -247,10 +245,10 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
       this.port = (port == -1 ? (this.secure ? 443 : 80) : port);
 
       this.remoteAddress = ForwardedHeaderUtils.parseForwardedFor(uri, headers, request.getRemoteAddress());
-
-      String baseUrl = this.scheme + "://" + this.host + (port == -1 ? "" : ":" + port);
-      Supplier<HttpServletRequest> delegateRequest = () -> (HttpServletRequest) getRequest();
-      this.forwardedPrefixExtractor = new ForwardedPrefixExtractor(delegateRequest, baseUrl);
+      // Use Supplier as Tomcat updates delegate request on FORWARD
+      Supplier<HttpServletRequest> requestSupplier = () -> (HttpServletRequest) getRequest();
+      this.forwardedPrefixExtractor = new ForwardedPrefixExtractor(
+              requestSupplier, (this.scheme + "://" + this.host + (port == -1 ? "" : ":" + port)));
     }
 
     @Override
@@ -332,19 +330,21 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
     /**
      * Constructor with required information.
      *
-     * @param delegateRequest supplier for the current
+     * @param delegate supplier for the current
      * {@link HttpServletRequestWrapper#getRequest() delegate request} which
      * may change during a forward (e.g. Tomcat.
      * @param baseUrl the host, scheme, and port based on forwarded headers
      */
-    public ForwardedPrefixExtractor(Supplier<HttpServletRequest> delegateRequest, String baseUrl) {
-      this.delegate = delegateRequest;
+    public ForwardedPrefixExtractor(Supplier<HttpServletRequest> delegate, String baseUrl) {
+      this.delegate = delegate;
       this.baseUrl = baseUrl;
-      this.actualRequestUri = delegateRequest.get().getRequestURI();
+      HttpServletRequest request = delegate.get();
+      this.actualRequestUri = request.getRequestURI();
 
-      this.forwardedPrefix = initForwardedPrefix(delegateRequest.get());
+      // Keep call order
+      this.forwardedPrefix = initForwardedPrefix(request);
       this.requestUri = initRequestUri();
-      this.requestUrl = initRequestUrl(); // Keep the order: depends on requestUri
+      this.requestUrl = initRequestUrl();
     }
 
     @Nullable
@@ -402,11 +402,13 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
     }
 
     private void recalculatePathsIfNecessary() {
-      if (!this.actualRequestUri.equals(this.delegate.get().getRequestURI())) {
-        // Underlying path change (e.g. Servlet FORWARD).
-        this.actualRequestUri = this.delegate.get().getRequestURI();
+      // Path of delegate request changed, e.g. FORWARD on Tomcat
+      HttpServletRequest request = this.delegate.get();
+      if (!this.actualRequestUri.equals(request.getRequestURI())) {
+        this.actualRequestUri = request.getRequestURI();
+        // Keep call order
         this.requestUri = initRequestUri();
-        this.requestUrl = initRequestUrl(); // Keep the order: depends on requestUri
+        this.requestUrl = initRequestUrl();
       }
     }
   }

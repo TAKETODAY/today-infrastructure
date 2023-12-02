@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.jetty;
@@ -37,8 +37,8 @@ import cn.taketoday.web.socket.PongMessage;
 /**
  * Jetty WebSocketSession
  *
- * @author TODAY 2021/5/6 21:40
- * @since 3.0.1
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0.1 2021/5/6 21:40
  */
 public class JettyWebSocketSession extends NativeWebSocketSession<Session> {
 
