@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -32,7 +29,9 @@ import java.util.Date;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
@@ -133,6 +132,17 @@ class ConditionalOnBeanTests {
               assertThat(context).hasBean("bar");
               assertThat(context).hasSingleBean(ExampleBean.class);
             });
+  }
+
+  @Test
+  void beanProducedByFactoryBeanIsConsideredWhenMatchingOnAnnotation2() {
+    this.contextRunner.withUserConfiguration(EarlyInitializationFactoryBeanConfiguration.class,
+            EarlyInitializationOnAnnotationFactoryBeanConfiguration.class).run((context) -> {
+      assertThat(EarlyInitializationFactoryBeanConfiguration.calledWhenNoFrozen).as("calledWhenNoFrozen")
+              .isFalse();
+      assertThat(context).hasBean("bar");
+      assertThat(context).hasSingleBean(ExampleBean.class);
+    });
   }
 
   private void hasBarBean(AssertableApplicationContext context) {
@@ -329,6 +339,34 @@ class ConditionalOnBeanTests {
   }
 
   @Configuration(proxyBeanMethods = false)
+  static class EarlyInitializationFactoryBeanConfiguration {
+
+    static boolean calledWhenNoFrozen;
+
+    @Bean
+    @TestAnnotation
+    static FactoryBean<?> exampleBeanFactoryBean(ApplicationContext applicationContext) {
+      // NOTE: must be static and return raw FactoryBean and not the subclass so
+      // Infra can't guess type
+      ConfigurableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+      calledWhenNoFrozen = calledWhenNoFrozen || !beanFactory.isConfigurationFrozen();
+      return new ExampleFactoryBean();
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnBean(annotation = TestAnnotation.class)
+  static class EarlyInitializationOnAnnotationFactoryBeanConfiguration {
+
+    @Bean
+    String bar() {
+      return "bar";
+    }
+
+  }
+
+  @Configuration(proxyBeanMethods = false)
   @Import(WithPropertyPlaceholderClassNameRegistrar.class)
   static class WithPropertyPlaceholderClassName {
 
@@ -519,7 +557,7 @@ class ConditionalOnBeanTests {
 
   }
 
-  @Target(ElementType.TYPE)
+  @Target({ ElementType.TYPE, ElementType.METHOD })
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @interface TestAnnotation {

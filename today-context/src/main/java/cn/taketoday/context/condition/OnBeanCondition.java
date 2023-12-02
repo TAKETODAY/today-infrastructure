@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -38,6 +38,7 @@ import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
+import cn.taketoday.beans.factory.config.SingletonBeanRegistry;
 import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.ConfigurationCondition;
@@ -284,7 +285,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
 
   private Set<String> collectBeanNamesForAnnotation(BeanFactory beanFactory,
           Class<? extends Annotation> annotationType, boolean considerHierarchy, Set<String> result) {
-    result = addAll(result, beanFactory.getBeanNamesForAnnotation(annotationType));
+    result = addAll(result, getBeanNamesForAnnotation(beanFactory, annotationType));
     if (considerHierarchy && beanFactory instanceof HierarchicalBeanFactory hierarchical) {
       BeanFactory parent = hierarchical.getParentBeanFactory();
       if (parent != null) {
@@ -292,6 +293,29 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       }
     }
     return result;
+  }
+
+  private Set<String> getBeanNamesForAnnotation(BeanFactory beanFactory, Class<? extends Annotation> annotationType) {
+    LinkedHashSet<String> foundBeanNames = new LinkedHashSet<>();
+    for (String beanName : beanFactory.getBeanDefinitionNames()) {
+      if (beanFactory instanceof ConfigurableBeanFactory cbf) {
+        BeanDefinition beanDefinition = cbf.getBeanDefinition(beanName);
+        if (beanDefinition != null && beanDefinition.isAbstract()) {
+          continue;
+        }
+      }
+      if (beanFactory.findAnnotationOnBean(beanName, annotationType, false) != null) {
+        foundBeanNames.add(beanName);
+      }
+    }
+    if (beanFactory instanceof SingletonBeanRegistry singletonBeanRegistry) {
+      for (String beanName : singletonBeanRegistry.getSingletonNames()) {
+        if (beanFactory.findAnnotationOnBean(beanName, annotationType) != null) {
+          foundBeanNames.add(beanName);
+        }
+      }
+    }
+    return foundBeanNames;
   }
 
   private boolean containsBean(ConfigurableBeanFactory beanFactory, String beanName, boolean considerHierarchy) {
