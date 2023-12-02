@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache;
@@ -202,6 +202,10 @@ public class CacheReproTests {
     assertThat(tb).isNotNull();
     assertThat(bean.findById("tb2").join()).isNotSameAs(tb);
     assertThat(cache.get("tb2")).isNull();
+
+    assertThat(bean.findByIdEmpty("").join()).isNull();
+    assertThat(bean.findByIdEmpty("").join()).isNull();
+    assertThat(cache.get("").get()).isNull();
 
     context.close();
   }
@@ -554,6 +558,11 @@ public class CacheReproTests {
     @Cacheable(value = "itemCache", unless = "#result.name == 'tb2'")
     public CompletableFuture<TestBean> findById(String id) {
       return CompletableFuture.completedFuture(new TestBean(id));
+    }
+
+    @Cacheable(value = "itemCache")
+    public CompletableFuture<TestBean> findByIdEmpty(String id) {
+      return CompletableFuture.completedFuture(null);
     }
 
     @CachePut(cacheNames = "itemCache", key = "#item.name")

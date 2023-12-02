@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
@@ -1046,13 +1046,13 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
         if (adapter.isMultiValue()) {
           return adapter.fromPublisher(Flux.from(
                           Mono.fromFuture(cachedFuture)
-                                  .flatMap(value -> (Mono<?>) evaluate(Mono.just(unwrapCacheValue(value)), invoker, method, contexts)))
+                                  .flatMap(value -> (Mono<?>) evaluate(Mono.justOrEmpty(unwrapCacheValue(value)), invoker, method, contexts)))
                   .flatMap(v -> (v instanceof Iterable<?> iv ? Flux.fromIterable(iv) : Flux.just(v)))
                   .switchIfEmpty(Flux.defer(() -> (Flux<?>) evaluate(null, invoker, method, contexts))));
         }
         else {
           return adapter.fromPublisher(Mono.fromFuture(cachedFuture)
-                  .flatMap(value -> (Mono<?>) evaluate(Mono.just(unwrapCacheValue(value)), invoker, method, contexts))
+                  .flatMap(value -> (Mono<?>) evaluate(Mono.justOrEmpty(unwrapCacheValue(value)), invoker, method, contexts))
                   .switchIfEmpty(Mono.defer(() -> (Mono) evaluate(null, invoker, method, contexts))));
         }
       }
