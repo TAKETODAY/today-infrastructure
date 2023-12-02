@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.server.support;
@@ -60,8 +60,7 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  *
  * <p>If the negotiation succeeds, the actual upgrade is delegated to a server-specific
  * {@link cn.taketoday.web.socket.server.RequestUpgradeStrategy}, which will update
- * the response as necessary and initialize the WebSocket. Currently, supported servers are
- * Jetty 9.0-9.3, Tomcat 7.0.47+ and 8.x, Undertow 1.0-1.3, GlassFish 4.1+, WebLogic 12.1.3+.
+ * the response as necessary and initialize the WebSocket.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
