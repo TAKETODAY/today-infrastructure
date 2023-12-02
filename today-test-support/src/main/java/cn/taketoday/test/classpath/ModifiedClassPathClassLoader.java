@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.classpath;
@@ -37,6 +37,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -323,7 +324,11 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
     private boolean isExcluded(URL url) {
       if ("file".equals(url.getProtocol())) {
         try {
-          String name = new File(url.toURI()).getName();
+          URI uri = url.toURI();
+          File file = new File(uri);
+          String name = (!uri.toString().endsWith("/"))
+                        ? file.getName()
+                        : file.getParentFile().getParentFile().getName();
           for (String exclusion : this.exclusions) {
             if (this.matcher.match(exclusion, name)) {
               return true;
