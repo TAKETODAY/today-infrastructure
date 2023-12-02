@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -61,8 +61,7 @@ import cn.taketoday.util.StringUtils;
  * @see ChildBeanDefinition
  * @since 4.0 2022/3/8 21:11
  */
-public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor
-        implements BeanDefinition, Cloneable {
+public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition, Cloneable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -164,6 +163,18 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * @see cn.taketoday.beans.factory.support.RootBeanDefinition#getPreferredConstructors()
    */
   public static final String PREFERRED_CONSTRUCTORS_ATTRIBUTE = "preferredConstructors";
+
+  /**
+   * The name of an attribute that can be
+   * {@link cn.taketoday.core.AttributeAccessor#setAttribute set} on a
+   * {@link cn.taketoday.beans.factory.config.BeanDefinition} so that
+   * bean definitions can indicate the sort order for the targeted bean.
+   * This is analogous to the {@code @Order} annotation.
+   *
+   * @see cn.taketoday.core.annotation.Order
+   * @see cn.taketoday.core.Ordered
+   */
+  public static final String ORDER_ATTRIBUTE = "order";
 
   @Nullable
   private volatile Object beanClass;

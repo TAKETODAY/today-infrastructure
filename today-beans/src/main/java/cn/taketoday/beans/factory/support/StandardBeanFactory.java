@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -74,6 +75,7 @@ import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NullValue;
@@ -912,19 +914,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   private OrderSourceProvider createFactoryAwareOrderSourceProvider(Map<String, ?> beans) {
-    return new FactoryAwareOrderSourceProvider(this, beans);
+    return new FactoryAwareOrderSourceProvider(beans);
   }
 
   @Override
-  public <T> Map<String, T> getBeansOfType(
-          Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public <T> Map<String, T> getBeansOfType(Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeansOfType(ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> Map<String, T> getBeansOfType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     Set<String> beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
     Map<String, T> beans = CollectionUtils.newLinkedHashMap(beanNames.size());
     for (String beanName : beanNames) {
@@ -963,9 +963,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Set<String> getBeanNamesForType(
-          Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-
+  public Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
       return doGetBeanNamesForType(
               ResolvableType.forRawClass(requiredType), includeNonSingletons, allowEagerInit);
@@ -992,8 +990,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Set<String> getBeanNamesForType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public Set<String> getBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+
     Class<?> resolved = requiredType.resolve();
     if (resolved != null && !requiredType.hasGenerics()) {
       return getBeanNamesForType(resolved, includeNonSingletons, allowEagerInit);
@@ -1003,10 +1001,9 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
-  private Set<String> doGetBeanNamesForType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
-    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
+  private Set<String> doGetBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
 
+    LinkedHashSet<String> beanNames = new LinkedHashSet<>();
     // 1. Check all bean definitions.
     for (String beanName : beanDefinitionNames) {
       // Only consider bean as eligible if the bean name is not defined as alias for some other bean.
@@ -1117,8 +1114,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public Map<String, Object> getBeansWithAnnotation(
-          Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
+  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons) {
     Assert.notNull(annotationType, "annotationType is required");
 
     Set<String> beanNames = getBeanNamesForAnnotation(annotationType);
@@ -1221,7 +1217,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
-  public <A extends Annotation> Set<A> findAllAnnotationsOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
+  public <A extends Annotation> Set<A> findAllAnnotationsOnBean(
+          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit) throws NoSuchBeanDefinitionException {
 
     var annotations = new LinkedHashSet<A>();
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
@@ -2330,6 +2327,67 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         return getValue();
       }
     }
+  }
+
+  /**
+   * An {@link cn.taketoday.core.OrderSourceProvider} implementation
+   * that is aware of the bean metadata of the instances to sort.
+   * <p>Lookup for the method factory of an instance to sort, if any, and let the
+   * comparator retrieve the {@link Order}
+   * value defined on it. This essentially allows for the following construct:
+   *
+   * <p>this class takes the {@link AbstractBeanDefinition#ORDER_ATTRIBUTE}
+   * attribute into account.
+   *
+   * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+   * @since 4.0 2021/12/19 17:26
+   */
+  final class FactoryAwareOrderSourceProvider implements OrderSourceProvider {
+
+    private final IdentityHashMap<Object, String> instancesToBeanNames;
+
+    public FactoryAwareOrderSourceProvider(Map<String, ?> beans) {
+      this.instancesToBeanNames = new IdentityHashMap<>();
+      for (Map.Entry<String, ?> entry : beans.entrySet()) {
+        instancesToBeanNames.put(entry.getValue(), entry.getKey());
+      }
+    }
+
+    @Override
+    @Nullable
+    public Object getOrderSource(Object obj) {
+      String beanName = this.instancesToBeanNames.get(obj);
+      if (beanName == null) {
+        return null;
+      }
+      try {
+        var beanDefinition = (RootBeanDefinition) getMergedBeanDefinition(beanName);
+        ArrayList<Object> sources = new ArrayList<>(3);
+        Object orderAttribute = beanDefinition.getAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE);
+        if (orderAttribute != null) {
+          if (orderAttribute instanceof Integer order) {
+            sources.add((Ordered) () -> order);
+          }
+          else {
+            throw new IllegalStateException("Invalid value type for attribute '" +
+                    AbstractBeanDefinition.ORDER_ATTRIBUTE + "': " + orderAttribute.getClass().getName());
+          }
+        }
+        Method factoryMethod = beanDefinition.getResolvedFactoryMethod();
+        if (factoryMethod != null) {
+          sources.add(factoryMethod);
+        }
+        Class<?> targetType = beanDefinition.getTargetType();
+        if (targetType != null && targetType != obj.getClass()) {
+          sources.add(targetType);
+        }
+        return sources.toArray();
+      }
+      catch (NoSuchBeanDefinitionException ex) {
+        return null;
+      }
+    }
+
   }
 
 }

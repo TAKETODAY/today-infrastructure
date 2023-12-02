@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -85,10 +85,12 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.conversion.support.GenericConversionService;
 import cn.taketoday.core.io.Resource;
@@ -1455,6 +1457,55 @@ class StandardBeanFactoryTests {
   }
 
   @Test
+  void orderFromAttribute() {
+    GenericBeanDefinition bd1 = new GenericBeanDefinition();
+    bd1.setBeanClass(TestBean.class);
+    bd1.setPropertyValues(new PropertyValues(List.of(new PropertyValue("name", "lowest"))));
+    bd1.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.LOWEST_PRECEDENCE);
+    lbf.registerBeanDefinition("bean1", bd1);
+    GenericBeanDefinition bd2 = new GenericBeanDefinition();
+    bd2.setBeanClass(TestBean.class);
+    bd2.setPropertyValues(new PropertyValues(List.of(new PropertyValue("name", "highest"))));
+    bd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.HIGHEST_PRECEDENCE);
+    lbf.registerBeanDefinition("bean2", bd2);
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
+            .containsExactly("highest", "lowest");
+  }
+
+  @Test
+  void orderFromAttributeOverrideAnnotation() {
+    lbf.setDependencyComparator(AnnotationAwareOrderComparator.INSTANCE);
+    RootBeanDefinition rbd1 = new RootBeanDefinition(LowestPrecedenceTestBeanFactoryBean.class);
+    rbd1.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.HIGHEST_PRECEDENCE);
+    lbf.registerBeanDefinition("lowestPrecedenceFactory", rbd1);
+    RootBeanDefinition rbd2 = new RootBeanDefinition(HighestPrecedenceTestBeanFactoryBean.class);
+    rbd2.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Ordered.LOWEST_PRECEDENCE);
+    lbf.registerBeanDefinition("highestPrecedenceFactory", rbd2);
+    GenericBeanDefinition bd1 = new GenericBeanDefinition();
+    bd1.setFactoryBeanName("highestPrecedenceFactory");
+    lbf.registerBeanDefinition("bean1", bd1);
+    GenericBeanDefinition bd2 = new GenericBeanDefinition();
+    bd2.setFactoryBeanName("lowestPrecedenceFactory");
+    lbf.registerBeanDefinition("bean2", bd2);
+    assertThat(lbf.getBeanProvider(TestBean.class).orderedStream().map(TestBean::getName))
+            .containsExactly("fromLowestPrecedenceTestBeanFactoryBean", "fromHighestPrecedenceTestBeanFactoryBean");
+  }
+
+  @Test
+  void invalidOrderAttribute() {
+    GenericBeanDefinition bd1 = new GenericBeanDefinition();
+    bd1.setBeanClass(TestBean.class);
+    bd1.setAttribute(AbstractBeanDefinition.ORDER_ATTRIBUTE, Boolean.TRUE);
+    lbf.registerBeanDefinition("bean1", bd1);
+    GenericBeanDefinition bd2 = new GenericBeanDefinition();
+    bd2.setBeanClass(TestBean.class);
+    lbf.registerBeanDefinition("bean", bd2);
+    assertThatIllegalStateException()
+            .isThrownBy(() -> lbf.getBeanProvider(TestBean.class).orderedStream().collect(Collectors.toList()))
+            .withMessageContaining("Invalid value type for attribute");
+  }
+
+  @Test
   void dependsOnCycle() {
     RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
     bd1.setDependsOn("tb2");
@@ -1462,8 +1513,8 @@ class StandardBeanFactoryTests {
     RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
     bd2.setDependsOn("tb1");
     lbf.registerBeanDefinition("tb2", bd2);
-    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
-                    lbf.preInstantiateSingletons())
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(lbf::preInstantiateSingletons)
             .withMessageContaining("Circular")
             .withMessageContaining("'tb2'")
             .withMessageContaining("'tb1'");
@@ -3298,4 +3349,33 @@ class StandardBeanFactoryTests {
     }
   }
 
+  @Order
+  private static class LowestPrecedenceTestBeanFactoryBean implements FactoryBean<TestBean> {
+
+    @Override
+    public TestBean getObject() {
+      return new TestBean("fromLowestPrecedenceTestBeanFactoryBean");
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      return TestBean.class;
+    }
+
+  }
+
+  @Order(Ordered.HIGHEST_PRECEDENCE)
+  private static class HighestPrecedenceTestBeanFactoryBean implements FactoryBean<TestBean> {
+
+    @Override
+    public TestBean getObject() {
+      return new TestBean("fromHighestPrecedenceTestBeanFactoryBean");
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+      return TestBean.class;
+    }
+
+  }
 }
