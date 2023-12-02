@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util;
@@ -40,35 +40,13 @@ public class DisconnectedClientHelper {
           Set.of("broken pipe", "connection reset by peer");
 
   private static final Set<String> EXCEPTION_TYPE_NAMES =
-          Set.of("ClientAbortException", "EOFException", "EofException");
+          Set.of("AbortedException", "ClientAbortException", "EOFException", "EofException");
 
   private final Logger logger;
 
   public DisconnectedClientHelper(String logCategory) {
     Assert.notNull(logCategory, "'logCategory' is required");
     this.logger = LoggerFactory.getLogger(logCategory);
-  }
-
-  /**
-   * Whether the given exception indicates the client has gone away.
-   * Known cases covered:
-   * <ul>
-   * <li>ClientAbortException or EOFException for Tomcat
-   * <li>EofException for Jetty
-   * <li>IOException "Broken pipe" or "connection reset by peer"
-   * </ul>
-   */
-  public boolean isClientDisconnectedException(Throwable ex) {
-    String message = ExceptionUtils.getMostSpecificCause(ex).getMessage();
-    if (message != null) {
-      String text = message.toLowerCase();
-      for (String phrase : EXCEPTION_PHRASES) {
-        if (text.contains(phrase)) {
-          return true;
-        }
-      }
-    }
-    return EXCEPTION_TYPE_NAMES.contains(ex.getClass().getSimpleName());
   }
 
   /**
@@ -83,12 +61,34 @@ public class DisconnectedClientHelper {
         logger.trace("Looks like the client has gone away", ex);
       }
       else if (logger.isDebugEnabled()) {
-        logger.debug("Looks like the client has gone away: {} (For a full stack trace, set the log category '{}' to TRACE level.)",
-                ex, logger);
+        logger.debug("Looks like the client has gone away: " + ex +
+                " (For a full stack trace, set the log category '" + logger + "' to TRACE level.)");
       }
       return true;
     }
     return false;
+  }
+
+  /**
+   * Whether the given exception indicates the client has gone away.
+   * Known cases covered:
+   * <ul>
+   * <li>ClientAbortException or EOFException for Tomcat
+   * <li>EofException for Jetty
+   * <li>IOException "Broken pipe" or "connection reset by peer"
+   * </ul>
+   */
+  public static boolean isClientDisconnectedException(Throwable ex) {
+    String message = ExceptionUtils.getMostSpecificCause(ex).getMessage();
+    if (message != null) {
+      String text = message.toLowerCase();
+      for (String phrase : EXCEPTION_PHRASES) {
+        if (text.contains(phrase)) {
+          return true;
+        }
+      }
+    }
+    return EXCEPTION_TYPE_NAMES.contains(ex.getClass().getSimpleName());
   }
 
 }
