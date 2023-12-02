@@ -12,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client.config;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
-import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
@@ -195,7 +194,8 @@ public abstract class ClientHttpRequestFactories {
                 options.getEnabledProtocols(), options.getCiphers(), new DefaultHostnameVerifier());
         connectionManagerBuilder.setSSLSocketFactory(socketFactory);
       }
-      PoolingHttpClientConnectionManager connectionManager = connectionManagerBuilder.build();
+
+      var connectionManager = connectionManagerBuilder.useSystemProperties().build();
       return HttpClientBuilder.create()
               .useSystemProperties()
               .setConnectionManager(connectionManager).build();
