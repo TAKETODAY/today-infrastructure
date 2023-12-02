@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -143,8 +143,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 2018-09-09 22:02
  */
 @SuppressWarnings({ "unchecked" })
-public abstract class AbstractApplicationContext extends DefaultResourceLoader
-        implements ConfigurableApplicationContext {
+public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -1626,7 +1625,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
     publishEvent(new ContextRefreshedEvent(this));
 
     applyState(State.STARTED);
-    logger.info("Application context startup in {}ms", System.currentTimeMillis() - getStartupDate());
+    logger.info("Application context startup in {} ms", System.currentTimeMillis() - getStartupDate());
   }
 
   //---------------------------------------------------------------------

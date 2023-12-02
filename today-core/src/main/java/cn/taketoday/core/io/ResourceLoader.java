@@ -12,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.io;
 
 import cn.taketoday.lang.Nullable;
@@ -41,7 +42,9 @@ import cn.taketoday.lang.Nullable;
  */
 public interface ResourceLoader {
 
-  /** Pseudo URL prefix for loading from the class path: "classpath:". */
+  /**
+   * Pseudo URL prefix for loading from the class path: "classpath:".
+   */
   String CLASSPATH_URL_PREFIX = "classpath:";
 
   /**

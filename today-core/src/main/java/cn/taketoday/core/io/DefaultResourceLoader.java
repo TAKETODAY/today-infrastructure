@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io;
@@ -40,8 +40,8 @@ import cn.taketoday.util.StringUtils;
  * "classpath:" pseudo-URL.
  *
  * @author Juergen Hoeller
- * @author TODAY 2021/10/7 17:06
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/10/7 17:06
  */
 public class DefaultResourceLoader implements ResourceLoader {
 
@@ -109,7 +109,7 @@ public class DefaultResourceLoader implements ResourceLoader {
     if (protocolResolvers == null) {
       this.protocolResolvers = new LinkedHashSet<>(4);
     }
-    this.protocolResolvers.add(resolver);
+    protocolResolvers.add(resolver);
   }
 
   /**

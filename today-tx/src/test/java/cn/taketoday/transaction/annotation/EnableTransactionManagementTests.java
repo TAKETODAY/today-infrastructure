@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.annotation;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -27,6 +28,7 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AdviceMode;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ConditionContext;
 import cn.taketoday.context.annotation.Conditional;
@@ -35,7 +37,6 @@ import cn.taketoday.context.annotation.ConfigurationCondition;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.stereotype.Service;
 import cn.taketoday.transaction.PlatformTransactionManager;
@@ -288,6 +289,22 @@ class EnableTransactionManagementTests {
     ctx.close();
   }
 
+  @Test
+  @Disabled
+  public void gh24502AppliesTransactionOnlyOnAnnotatedInterface() {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(Gh24502ConfigA.class);
+    Object bean = ctx.getBean("testBean");
+    CallCountingTransactionManager txManager = ctx.getBean(CallCountingTransactionManager.class);
+
+    ((TransactionalInterface) bean).methodOne();
+    ((NonTransactionalInterface) bean).methodTwo();
+    assertThat(txManager.begun).isEqualTo(1);
+    assertThat(txManager.commits).isEqualTo(1);
+    assertThat(txManager.rollbacks).isEqualTo(0);
+
+    ctx.close();
+  }
+
   @Service
   public static class TransactionalTestBean {
 
@@ -528,6 +545,45 @@ class EnableTransactionManagementTests {
     public PlatformTransactionManager txManager() {
       return new CallCountingTransactionManager();
     }
+  }
+
+  @Transactional
+  interface TransactionalInterface {
+
+    void methodOne();
+
+  }
+
+  interface NonTransactionalInterface {
+
+    void methodTwo();
+  }
+
+  static class MixedTransactionalTestService implements TransactionalInterface, NonTransactionalInterface {
+
+    @Override
+    public void methodOne() {
+    }
+
+    @Override
+    public void methodTwo() {
+    }
+  }
+
+  @Configuration
+  @EnableTransactionManagement(proxyTargetClass = false)
+  static class Gh24502ConfigA {
+
+    @Bean
+    public MixedTransactionalTestService testBean() {
+      return new MixedTransactionalTestService();
+    }
+
+    @Bean
+    public PlatformTransactionManager txManager() {
+      return new CallCountingTransactionManager();
+    }
+
   }
 
 }
