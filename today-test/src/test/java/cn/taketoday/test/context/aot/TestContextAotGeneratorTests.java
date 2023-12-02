@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.aot;
@@ -156,6 +156,12 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     assertReflectionRegistered(runtimeHints, AotTestAttributesCodeGenerator.GENERATED_ATTRIBUTES_CLASS_NAME, INVOKE_PUBLIC_METHODS);
 
     Stream.of(
+            "org.opentest4j.TestAbortedException",
+            "org.junit.AssumptionViolatedException",
+            "org.testng.SkipException"
+    ).forEach(type -> assertReflectionRegistered(runtimeHints, type));
+
+    Stream.of(
             cn.taketoday.test.context.cache.DefaultCacheAwareContextLoaderDelegate.class,
             cn.taketoday.test.context.support.DefaultBootstrapContext.class
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_PUBLIC_CONSTRUCTORS));
@@ -229,6 +235,12 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     assertThat(resource().forResource("cn/taketoday/test/context/jdbc/schema.sql"))
             .accepts(runtimeHints);
     assertThat(resource().forResource("cn/taketoday/test/context/aot/samples/jdbc/SqlScriptsInfraJupiterTests.test.sql"))
+            .accepts(runtimeHints);
+  }
+
+  private static void assertReflectionRegistered(RuntimeHints runtimeHints, String type) {
+    assertThat(reflection().onType(TypeReference.of(type)))
+            .as("Reflection hint for %s", type)
             .accepts(runtimeHints);
   }
 

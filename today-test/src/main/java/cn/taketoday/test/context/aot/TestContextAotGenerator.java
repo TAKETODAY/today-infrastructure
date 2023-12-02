@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.aot;
@@ -215,6 +215,7 @@ public class TestContextAotGenerator {
       MultiValueMap<ClassName, Class<?>> initializerClassMappings = processAheadOfTime(mergedConfigMappings);
       generateAotTestContextInitializerMappings(initializerClassMappings);
       generateAotTestAttributeMappings();
+      registerSkippedExceptionTypes();
     }
     finally {
       resetAotFactories();
@@ -433,6 +434,16 @@ public class TestContextAotGenerator {
 
   private void registerDeclaredConstructors(Class<?> type) {
     this.runtimeHints.reflection().registerType(type, INVOKE_DECLARED_CONSTRUCTORS);
+  }
+
+  /**
+   * Register hints for skipped exception types loaded via reflection in
+   * {@link cn.taketoday.test.context.TestContextManager}.
+   */
+  private void registerSkippedExceptionTypes() {
+    Stream.of("org.opentest4j.TestAbortedException", "org.junit.AssumptionViolatedException", "org.testng.SkipException")
+            .map(TypeReference::of)
+            .forEach(this.runtimeHints.reflection()::registerType);
   }
 
   private static boolean getFailOnErrorFlag() {
