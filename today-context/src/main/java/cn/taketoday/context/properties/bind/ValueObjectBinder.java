@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -42,6 +39,8 @@ import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -56,6 +55,8 @@ import cn.taketoday.util.CollectionUtils;
  */
 class ValueObjectBinder implements DataObjectBinder {
 
+  private static final Logger logger = LoggerFactory.getLogger(ValueObjectBinder.class);
+
   private final BindConstructorProvider constructorProvider;
 
   ValueObjectBinder(BindConstructorProvider constructorProvider) {
@@ -63,15 +64,16 @@ class ValueObjectBinder implements DataObjectBinder {
   }
 
   @Override
-  public <T> T bind(ConfigurationPropertyName name,
-          Bindable<T> target, Binder.Context context, DataObjectPropertyBinder propertyBinder) {
+  public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
+          Binder.Context context, DataObjectPropertyBinder propertyBinder) {
+
     ValueObject<T> valueObject = ValueObject.get(target, this.constructorProvider, context);
     if (valueObject == null) {
       return null;
     }
     context.pushConstructorBoundTypes(target.getType().resolve());
     List<ConstructorParameter> parameters = valueObject.getConstructorParameters();
-    List<Object> args = new ArrayList<>(parameters.size());
+    ArrayList<Object> args = new ArrayList<>(parameters.size());
     boolean bound = false;
     for (ConstructorParameter parameter : parameters) {
       Object arg = parameter.bind(propertyBinder);
@@ -91,7 +93,7 @@ class ValueObjectBinder implements DataObjectBinder {
       return null;
     }
     List<ConstructorParameter> parameters = valueObject.getConstructorParameters();
-    List<Object> args = new ArrayList<>(parameters.size());
+    ArrayList<Object> args = new ArrayList<>(parameters.size());
     for (ConstructorParameter parameter : parameters) {
       args.add(getDefaultValue(context, parameter));
     }
@@ -210,28 +212,9 @@ class ValueObjectBinder implements DataObjectBinder {
 
     private final List<ConstructorParameter> constructorParameters;
 
-    private DefaultValueObject(Constructor<T> constructor, ResolvableType type) {
+    private DefaultValueObject(Constructor<T> constructor, List<ConstructorParameter> constructorParameters) {
       super(constructor);
-      this.constructorParameters = parseConstructorParameters(constructor, type);
-    }
-
-    private static List<ConstructorParameter> parseConstructorParameters(
-            Constructor<?> constructor, ResolvableType type) {
-      String[] names = ParameterNameDiscoverer.findParameterNames(constructor);
-      if (names == null) {
-        throw new IllegalStateException("Failed to extract parameter names for " + constructor);
-      }
-      Parameter[] parameters = constructor.getParameters();
-      var result = new ArrayList<ConstructorParameter>(parameters.length);
-      for (int i = 0; i < parameters.length; i++) {
-        String name = MergedAnnotations.from(parameters[i]).get(Name.class)
-                .getValue(MergedAnnotation.VALUE, String.class).orElse(names[i]);
-
-        var parameterType = ResolvableType.forMethodParameter(new MethodParameter(constructor, i), type);
-        Annotation[] annotations = parameters[i].getDeclaredAnnotations();
-        result.add(new ConstructorParameter(name, parameterType, annotations));
-      }
-      return Collections.unmodifiableList(result);
+      this.constructorParameters = constructorParameters;
     }
 
     @Override
@@ -239,9 +222,32 @@ class ValueObjectBinder implements DataObjectBinder {
       return this.constructorParameters;
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
-    static <T> ValueObject<T> get(Constructor<?> bindConstructor, ResolvableType type) {
-      return new DefaultValueObject<>((Constructor<T>) bindConstructor, type);
+    static <T> ValueObject<T> get(Constructor<?> constructor, ResolvableType type) {
+      String[] names = ParameterNameDiscoverer.findParameterNames(constructor);
+      if (names == null) {
+        logger.debug("Unable to use value object binding with {} as parameter names cannot be discovered", constructor);
+        return null;
+      }
+      List<ConstructorParameter> constructorParameters = parseConstructorParameters(constructor, type, names);
+      return new DefaultValueObject<>((Constructor<T>) constructor, constructorParameters);
+    }
+
+    private static List<ConstructorParameter> parseConstructorParameters(
+            Constructor<?> constructor, ResolvableType type, String[] names) {
+      Parameter[] parameters = constructor.getParameters();
+      List<ConstructorParameter> result = new ArrayList<>(parameters.length);
+      for (int i = 0; i < parameters.length; i++) {
+        String name = MergedAnnotations.from(parameters[i])
+                .get(Name.class)
+                .getValue(MergedAnnotation.VALUE, String.class)
+                .orElse(names[i]);
+        ResolvableType parameterType = ResolvableType.forMethodParameter(new MethodParameter(constructor, i), type);
+        Annotation[] annotations = parameters[i].getDeclaredAnnotations();
+        result.add(new ConstructorParameter(name, parameterType, annotations));
+      }
+      return Collections.unmodifiableList(result);
     }
 
   }

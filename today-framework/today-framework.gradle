@@ -164,5 +164,6 @@ dependencies {
   testImplementation 'org.mybatis:mybatis:3.5.9'
   testImplementation 'javax.cache:cache-api'
   testImplementation 'org.reactivestreams:reactive-streams'
+  testImplementation 'com.jayway.jsonpath:json-path'
 
 }

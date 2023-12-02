@@ -12,15 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import com.jayway.jsonpath.JsonPath;
 
-import java.io.File;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,6 +34,7 @@ import java.util.Optional;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MockConfigurationPropertySource;
+import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.test.tools.SourceFile;
@@ -43,7 +44,7 @@ import cn.taketoday.lang.Assert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Tests for {@link ValueObjectBinder}.
@@ -367,7 +368,7 @@ class ValueObjectBinderTests {
   }
 
   @Test
-  void bindToRecordWithDefaultValue(@TempDir File tempDir) {
+  void bindToRecordWithDefaultValue() {
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("test.record.property1", "value-from-config-1");
     this.sources.add(source);
@@ -388,6 +389,25 @@ class ValueObjectBinderTests {
         fail("Expected generated class 'RecordProperties' not found", ex);
       }
     });
+  }
+
+  @Test
+  void bindWithNonExtractableParameterNamesAndNonIterablePropertySource() throws Exception {
+    verifyJsonPathParametersCannotBeResolved();
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    source.put("test.value", "test");
+    this.sources.add(source.nonIterable());
+    Bindable<NonExtractableParameterName> target = Bindable.of(NonExtractableParameterName.class);
+    NonExtractableParameterName bound = this.binder.bindOrCreate("test", target);
+    assertThat(bound.getValue()).isEqualTo("test");
+  }
+
+  private void verifyJsonPathParametersCannotBeResolved() throws NoSuchFieldException {
+    Class<?> jsonPathClass = NonExtractableParameterName.class.getDeclaredField("jsonPath").getType();
+    Constructor<?>[] constructors = jsonPathClass.getDeclaredConstructors();
+    assertThat(constructors).hasSize(1);
+    constructors[0].setAccessible(true);
+    assertThat(ParameterNameDiscoverer.findParameterNames(constructors[0])).hasSize(2);
   }
 
   private void noConfigurationProperty(BindException ex) {
@@ -623,7 +643,7 @@ class ValueObjectBinderTests {
     private final String bar;
 
     ValidatingConstructorBean(String foo, String bar) {
-      Assert.notNull(foo, "Foo is required");
+      Assert.notNull(foo, "Foo must not be null");
       this.foo = foo;
       this.bar = bar;
     }
@@ -840,6 +860,30 @@ class ValueObjectBinderTests {
 
     String getImportName() {
       return this.importName;
+    }
+
+  }
+
+  static class NonExtractableParameterName {
+
+    private String value;
+
+    private JsonPath jsonPath;
+
+    String getValue() {
+      return this.value;
+    }
+
+    void setValue(String value) {
+      this.value = value;
+    }
+
+    JsonPath getJsonPath() {
+      return this.jsonPath;
+    }
+
+    void setJsonPath(JsonPath jsonPath) {
+      this.jsonPath = jsonPath;
     }
 
   }
