@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,7 +54,9 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.context.aot.AotApplicationContextInitializer;
+import cn.taketoday.context.event.ApplicationContextEvent;
 import cn.taketoday.context.event.ContextClosedEvent;
+import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
 import cn.taketoday.context.properties.bind.Binder;
@@ -580,9 +583,7 @@ public class Application {
     }
 
     if (keepAlive) {
-      KeepAlive keepAlive = new KeepAlive();
-      keepAlive.start();
-      context.addApplicationListener(keepAlive);
+      context.addApplicationListener(new KeepAlive());
     }
 
     if (CollectionUtils.isNotEmpty(defaultProperties)) {
@@ -1708,28 +1709,44 @@ public class Application {
    * A non-daemon thread to keep the JVM alive. Reacts to {@link ContextClosedEvent} to
    * stop itself when the application context is closed.
    */
-  private static final class KeepAlive extends Thread implements ApplicationListener<ContextClosedEvent> {
+  private static final class KeepAlive implements ApplicationListener<ApplicationContextEvent> {
 
-    KeepAlive() {
-      setName("keep-alive");
-      setDaemon(false);
-    }
+    private final AtomicReference<Thread> thread = new AtomicReference<>();
 
     @Override
-    public void onApplicationEvent(ContextClosedEvent event) {
-      interrupt();
-    }
-
-    @Override
-    public void run() {
-      while (true) {
-        try {
-          Thread.sleep(Long.MAX_VALUE);
-        }
-        catch (InterruptedException ex) {
-          break;
-        }
+    public void onApplicationEvent(ApplicationContextEvent event) {
+      if (event instanceof ContextRefreshedEvent) {
+        startKeepAliveThread();
       }
+      else if (event instanceof ContextClosedEvent) {
+        stopKeepAliveThread();
+      }
+    }
+
+    private void startKeepAliveThread() {
+      Thread thread = new Thread(() -> {
+        while (true) {
+          try {
+            Thread.sleep(Long.MAX_VALUE);
+          }
+          catch (InterruptedException ex) {
+            break;
+          }
+        }
+      });
+      if (this.thread.compareAndSet(null, thread)) {
+        thread.setDaemon(false);
+        thread.setName("keep-alive");
+        thread.start();
+      }
+    }
+
+    private void stopKeepAliveThread() {
+      Thread thread = this.thread.getAndSet(null);
+      if (thread == null) {
+        return;
+      }
+      thread.interrupt();
     }
 
   }
