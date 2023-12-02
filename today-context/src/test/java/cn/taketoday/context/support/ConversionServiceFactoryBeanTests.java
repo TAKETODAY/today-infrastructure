@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -119,14 +119,14 @@ public class ConversionServiceFactoryBeanTests {
   private void doTestConversionServiceInApplicationContext(String fileName, Class<?> resourceClass) {
     ConfigurableApplicationContext ctx = new ClassPathXmlApplicationContext(fileName, getClass());
     ResourceTestBean tb = ctx.getBean("resourceTestBean", ResourceTestBean.class);
-    assertThat(resourceClass.isInstance(tb.getResource())).isTrue();
+    assertThat(tb.getResource()).isInstanceOf(resourceClass);
     assertThat(tb.getResourceArray()).hasSize(1);
-    assertThat(resourceClass.isInstance(tb.getResourceArray()[0])).isTrue();
+    assertThat(tb.getResourceArray()[0]).isInstanceOf(resourceClass);
     assertThat(tb.getResourceMap()).hasSize(1);
-    assertThat(resourceClass.isInstance(tb.getResourceMap().get("key1"))).isTrue();
+    assertThat(tb.getResourceMap().get("key1")).isInstanceOf(resourceClass);
     assertThat(tb.getResourceArrayMap()).hasSize(1);
     assertThat(tb.getResourceArrayMap().get("key1")).isNotEmpty();
-    assertThat(resourceClass.isInstance(tb.getResourceArrayMap().get("key1")[0])).isTrue();
+    assertThat(tb.getResourceArrayMap().get("key1")[0]).isInstanceOf(resourceClass);
     ctx.close();
   }
 
