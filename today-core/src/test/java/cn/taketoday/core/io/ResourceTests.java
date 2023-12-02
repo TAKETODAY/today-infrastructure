@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io;
@@ -283,7 +283,7 @@ class ResourceTests {
   @Nested
   class UrlResourceTests {
 
-    private MockWebServer server = new MockWebServer();
+    private final MockWebServer server = new MockWebServer();
 
     @Test
     void sameResourceWithRelativePathIsEqual() throws Exception {
@@ -293,9 +293,26 @@ class ResourceTests {
 
     @Test
     void filenameIsExtractedFromFilePath() throws Exception {
+      assertThat(new UrlResource("file:test?argh").getName()).isEqualTo("test");
+      assertThat(new UrlResource("file:/test?argh").getName()).isEqualTo("test");
+      assertThat(new UrlResource("file:test.txt?argh").getName()).isEqualTo("test.txt");
+      assertThat(new UrlResource("file:/test.txt?argh").getName()).isEqualTo("test.txt");
+      assertThat(new UrlResource("file:/dir/test?argh").getName()).isEqualTo("test");
       assertThat(new UrlResource("file:/dir/test.txt?argh").getName()).isEqualTo("test.txt");
       assertThat(new UrlResource("file:\\dir\\test.txt?argh").getName()).isEqualTo("test.txt");
       assertThat(new UrlResource("file:\\dir/test.txt?argh").getName()).isEqualTo("test.txt");
+    }
+
+    @Test
+    void filenameIsExtractedFromURL() throws Exception {
+      assertThat(new UrlResource(new URL("file:test?argh")).getName()).isEqualTo("test");
+      assertThat(new UrlResource(new URL("file:/test?argh")).getName()).isEqualTo("test");
+      assertThat(new UrlResource(new URL("file:test.txt?argh")).getName()).isEqualTo("test.txt");
+      assertThat(new UrlResource(new URL("file:/test.txt?argh")).getName()).isEqualTo("test.txt");
+      assertThat(new UrlResource(new URL("file:/dir/test?argh")).getName()).isEqualTo("test");
+      assertThat(new UrlResource(new URL("file:/dir/test.txt?argh")).getName()).isEqualTo("test.txt");
+      assertThat(new UrlResource(new URL("file:\\dir\\test.txt?argh")).getName()).isEqualTo("test.txt");
+      assertThat(new UrlResource(new URL("file:\\dir/test.txt?argh")).getName()).isEqualTo("test.txt");
     }
 
     @Test

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.core.io;
 
@@ -272,13 +272,15 @@ public class UrlResource extends AbstractFileResolvingResource {
   @Nullable
   public String getName() {
     if (this.uri != null) {
-      // URI path is decoded and has standard separators
-      return StringUtils.getFilename(this.uri.getPath());
+      String path = this.uri.getPath();
+      if (path != null) {
+        // Prefer URI path: decoded and has standard separators
+        return StringUtils.getFilename(this.uri.getPath());
+      }
     }
-    else {
-      String filename = StringUtils.getFilename(StringUtils.cleanPath(this.url.getPath()));
-      return (filename != null ? URLDecoder.decode(filename, StandardCharsets.UTF_8) : null);
-    }
+    // Otherwise, process URL path
+    String filename = StringUtils.getFilename(StringUtils.cleanPath(this.url.getPath()));
+    return (filename != null ? URLDecoder.decode(filename, StandardCharsets.UTF_8) : null);
   }
 
   /**
