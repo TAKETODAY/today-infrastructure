@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -339,6 +339,23 @@ class RestClientIntegrationTests {
             .uri("/null")
             .retrieve()
             .body(Map.class);
+
+    assertThat(result).isNull();
+  }
+
+  @ParameterizedRestClientTest
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  void retrieveJsonEmpty(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response
+            .setResponseCode(200)
+            .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+    Pojo result = this.restClient.get()
+            .uri("/null")
+            .retrieve()
+            .body(Pojo.class);
 
     assertThat(result).isNull();
   }

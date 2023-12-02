@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -160,13 +160,18 @@ final class DefaultRestClient implements RestClient {
     return new DefaultRestClientBuilder(this.builder);
   }
 
+  @Nullable
   @SuppressWarnings({ "rawtypes", "unchecked" })
   private <T> T readWithMessageConverters(ClientHttpResponse clientResponse, @Nullable Runnable callback, Type bodyType, Class<T> bodyClass) {
     MediaType contentType = getContentType(clientResponse);
 
-    try (clientResponse) {
+    try (IntrospectingClientHttpResponse responseWrapper = new IntrospectingClientHttpResponse(clientResponse)) {
       if (callback != null) {
         callback.run();
+      }
+
+      if (!responseWrapper.hasMessageBody() || responseWrapper.hasEmptyMessageBody()) {
+        return null;
       }
 
       for (HttpMessageConverter<?> messageConverter : this.messageConverters) {
@@ -175,19 +180,19 @@ final class DefaultRestClient implements RestClient {
             if (logger.isDebugEnabled()) {
               logger.debug("Reading to [{}]", ResolvableType.forType(bodyType));
             }
-            return (T) genericHttpMessageConverter.read(bodyType, null, clientResponse);
+            return (T) genericHttpMessageConverter.read(bodyType, null, responseWrapper);
           }
         }
         if (messageConverter.canRead(bodyClass, contentType)) {
           if (logger.isDebugEnabled()) {
             logger.debug("Reading to [{}] as \"{}\"", bodyClass.getName(), contentType);
           }
-          return (T) messageConverter.read((Class) bodyClass, clientResponse);
+          return (T) messageConverter.read((Class) bodyClass, responseWrapper);
         }
       }
       throw new UnknownContentTypeException(bodyType, contentType,
-              clientResponse.getStatusCode(), clientResponse.getStatusText(),
-              clientResponse.getHeaders(), RestClientUtils.getBody(clientResponse));
+              responseWrapper.getStatusCode(), responseWrapper.getStatusText(),
+              responseWrapper.getHeaders(), RestClientUtils.getBody(responseWrapper));
     }
     catch (UncheckedIOException | IOException | HttpMessageNotReadableException ex) {
       throw new RestClientException("Error while extracting response for type [" +
