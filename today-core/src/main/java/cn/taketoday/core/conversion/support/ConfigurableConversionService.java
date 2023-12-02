@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,11 +30,11 @@ import cn.taketoday.core.conversion.ConverterRegistry;
  * instance in application context bootstrapping code.
  *
  * @author Chris Beams
- * @author TODAY 2021/3/21 17:57
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.core.env.ConfigurablePropertyResolver#getConversionService()
  * @see cn.taketoday.core.env.ConfigurableEnvironment
  * @see cn.taketoday.context.ConfigurableApplicationContext#getEnvironment()
- * @since 3.0
+ * @since 3.0 2021/3/21 17:57
  */
 public interface ConfigurableConversionService extends ConversionService, ConverterRegistry {
 

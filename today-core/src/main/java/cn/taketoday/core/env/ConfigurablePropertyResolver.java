@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +26,7 @@ import cn.taketoday.lang.Nullable;
  * used when converting property values from one type to another.
  *
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ConfigurablePropertyResolver extends PropertyResolver {
@@ -38,10 +36,10 @@ public interface ConfigurablePropertyResolver extends PropertyResolver {
    * conversions on properties.
    * <p>The configurable nature of the returned conversion service allows for
    * the convenient addition and removal of individual {@code Converter} instances:
-   * <pre class="code">
+   * <pre>{@code
    * ConfigurableConversionService cs = env.getConversionService();
    * cs.addConverter(new FooConverter());
-   * </pre>
+   * }</pre>
    *
    * @see PropertyResolver#getProperty(String, Class)
    * @see cn.taketoday.core.conversion.ConverterRegistry#addConverter

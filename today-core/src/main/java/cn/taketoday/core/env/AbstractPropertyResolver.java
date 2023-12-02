@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +20,8 @@ package cn.taketoday.core.env;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 
-import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.ConfigurableConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -38,6 +35,7 @@ import cn.taketoday.util.PropertyPlaceholderHandler;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractPropertyResolver implements ConfigurablePropertyResolver, PlaceholderResolver {
@@ -213,16 +211,20 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   @Override
   public String resolvePlaceholders(String text) {
+    PropertyPlaceholderHandler nonStrictHelper = this.nonStrictHelper;
     if (nonStrictHelper == null) {
       nonStrictHelper = createPlaceholderHelper(true);
+      this.nonStrictHelper = nonStrictHelper;
     }
     return nonStrictHelper.replacePlaceholders(text, this);
   }
 
   @Override
   public String resolveRequiredPlaceholders(String text) throws IllegalArgumentException {
+    PropertyPlaceholderHandler strictHelper = this.strictHelper;
     if (strictHelper == null) {
       strictHelper = createPlaceholderHelper(false);
+      this.strictHelper = strictHelper;
     }
     return strictHelper.replacePlaceholders(text, this);
   }
@@ -249,9 +251,7 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
   }
 
   private PropertyPlaceholderHandler createPlaceholderHelper(boolean ignoreUnresolvablePlaceholders) {
-    return new PropertyPlaceholderHandler(
-            placeholderPrefix, placeholderSuffix,
-            valueSeparator, ignoreUnresolvablePlaceholders);
+    return new PropertyPlaceholderHandler(placeholderPrefix, placeholderSuffix, valueSeparator, ignoreUnresolvablePlaceholders);
   }
 
   @Nullable

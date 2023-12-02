@@ -31,8 +31,8 @@ import cn.taketoday.logging.LoggerFactory;
 /**
  * Map PropertyResolver implementation
  *
- * @author TODAY 2021/10/3 15:04
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/10/3 15:04
  */
 public class MapPropertyResolver extends TypedPropertyResolver implements IterablePropertyResolver {
 

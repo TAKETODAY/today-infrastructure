@@ -27,8 +27,8 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Keith Donald
  * @author Phillip Webb
- * @author TODAY 2021/3/19 20:59
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/3/19 20:59
  */
 public interface ConversionService {
 

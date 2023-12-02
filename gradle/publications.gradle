@@ -19,7 +19,7 @@ publishing.publications.withType(MavenPublication.class) {
     licenses {
       license {
         name = "GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007"
-        url = "https://www.gnu.org/licenses/gpl.txt"
+        url = "https://www.gnu.org/licenses/gpl-3.0.txt"
         distribution = "repo"
       }
     }
