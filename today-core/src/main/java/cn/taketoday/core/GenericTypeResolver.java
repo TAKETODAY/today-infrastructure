@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -39,8 +39,8 @@ import cn.taketoday.lang.Nullable;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Sam Brannen
- * @author TODAY 2021/3/8 18:22
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/3/8 18:22
  */
 public abstract class GenericTypeResolver {
 
@@ -139,9 +139,9 @@ public abstract class GenericTypeResolver {
    */
   public static Type resolveType(Type genericType, @Nullable Class<?> contextClass) {
     if (contextClass != null) {
-      if (genericType instanceof TypeVariable) {
+      if (genericType instanceof TypeVariable<?> typeVariable) {
         ResolvableType resolvedTypeVariable = resolveVariable(
-                (TypeVariable<?>) genericType, ResolvableType.forClass(contextClass));
+                typeVariable, ResolvableType.forClass(contextClass));
         if (resolvedTypeVariable != ResolvableType.NONE) {
           Class<?> resolved = resolvedTypeVariable.resolve();
           if (resolved != null) {
@@ -151,30 +151,29 @@ public abstract class GenericTypeResolver {
       }
       else if (genericType instanceof ParameterizedType parameterizedType) {
         ResolvableType resolvedType = ResolvableType.forType(genericType);
-        Class<?>[] generics = new Class<?>[parameterizedType.getActualTypeArguments().length];
-        Type[] typeArguments = parameterizedType.getActualTypeArguments();
-        ResolvableType contextType = ResolvableType.forClass(contextClass);
-        for (int i = 0; i < typeArguments.length; i++) {
-          Type typeArgument = typeArguments[i];
-          if (typeArgument instanceof TypeVariable<?> typeVariable) {
-            ResolvableType resolvedTypeArgument = resolveVariable(typeVariable, contextType);
-            if (resolvedTypeArgument != ResolvableType.NONE) {
-              generics[i] = resolvedTypeArgument.resolve();
+        if (resolvedType.hasUnresolvableGenerics()) {
+          Class<?>[] generics = new Class<?>[parameterizedType.getActualTypeArguments().length];
+          Type[] typeArguments = parameterizedType.getActualTypeArguments();
+          ResolvableType contextType = ResolvableType.forClass(contextClass);
+          for (int i = 0; i < typeArguments.length; i++) {
+            Type typeArgument = typeArguments[i];
+            if (typeArgument instanceof TypeVariable<?> typeVariable) {
+              ResolvableType resolvedTypeArgument = resolveVariable(typeVariable, contextType);
+              if (resolvedTypeArgument != ResolvableType.NONE) {
+                generics[i] = resolvedTypeArgument.resolve();
+              }
+              else {
+                generics[i] = ResolvableType.forType(typeArgument).resolve();
+              }
             }
             else {
               generics[i] = ResolvableType.forType(typeArgument).resolve();
             }
           }
-          else if (typeArgument instanceof WildcardType wildcardType) {
-            generics[i] = resolveWildcard(wildcardType, contextType).resolve();
+          Class<?> rawClass = resolvedType.getRawClass();
+          if (rawClass != null) {
+            return ResolvableType.forClassWithGenerics(rawClass, generics).getType();
           }
-          else {
-            generics[i] = ResolvableType.forType(typeArgument).resolve();
-          }
-        }
-        Class<?> rawClass = resolvedType.getRawClass();
-        if (rawClass != null) {
-          return ResolvableType.forClassWithGenerics(rawClass, generics).getType();
         }
       }
     }
@@ -208,26 +207,6 @@ public abstract class GenericTypeResolver {
       }
     }
     return ResolvableType.NONE;
-  }
-
-  private static ResolvableType resolveWildcard(WildcardType wildcardType, ResolvableType contextType) {
-    for (Type bound : wildcardType.getUpperBounds()) {
-      if (bound instanceof TypeVariable<?> typeVariable) {
-        ResolvableType resolvedTypeArgument = resolveVariable(typeVariable, contextType);
-        if (resolvedTypeArgument != ResolvableType.NONE) {
-          return resolvedTypeArgument;
-        }
-      }
-    }
-    for (Type bound : wildcardType.getLowerBounds()) {
-      if (bound instanceof TypeVariable<?> typeVariable) {
-        ResolvableType resolvedTypeArgument = resolveVariable(typeVariable, contextType);
-        if (resolvedTypeArgument != ResolvableType.NONE) {
-          return resolvedTypeArgument;
-        }
-      }
-    }
-    return ResolvableType.forType(wildcardType);
   }
 
   /**

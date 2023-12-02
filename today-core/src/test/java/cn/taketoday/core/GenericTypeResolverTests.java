@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -64,7 +64,7 @@ public class GenericTypeResolverTests {
   @Test
   void nullIfNotResolvable() {
     GenericClass<String> obj = new GenericClass<>();
-    assertThat((Object) resolveTypeArgument(obj.getClass(), GenericClass.class)).isNull();
+    assertThat(resolveTypeArgument(obj.getClass(), GenericClass.class)).isNull();
   }
 
   @Test
@@ -146,13 +146,13 @@ public class GenericTypeResolverTests {
   @Test
   void getGenericsCannotBeResolved() {
     Class<?>[] resolved = GenericTypeResolver.resolveTypeArguments(List.class, Iterable.class);
-    assertThat((Object) resolved).isNull();
+    assertThat(resolved).isNull();
   }
 
   @Test
   void getRawMapTypeCannotBeResolved() {
     Class<?>[] resolved = GenericTypeResolver.resolveTypeArguments(Map.class, Map.class);
-    assertThat((Object) resolved).isNull();
+    assertThat(resolved).isNull();
   }
 
   @Test
@@ -186,55 +186,12 @@ public class GenericTypeResolverTests {
   }
 
   @Test
-  void resolveWildcardTypeWithUpperBound() {
-    Method method = method(MySimpleSuperclassType.class, "upperBound", List.class);
-    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
-    ResolvableType resolvableType = ResolvableType.forType(resolved);
-    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
-    assertThat(resolvableType.resolveGenerics()).containsExactly(String.class);
-  }
-
-  @Test
-  void resolveWildcardTypeWithUpperBoundWithResolvedType() {
-    Method method = method(MySimpleSuperclassType.class, "upperBoundWithResolvedType", List.class);
-    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
-    ResolvableType resolvableType = ResolvableType.forType(resolved);
-    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
-    assertThat(resolvableType.resolveGenerics()).containsExactly(Integer.class);
-  }
-
-  @Test
-  void resolveWildcardTypeWithLowerBound() {
-    Method method = method(MySimpleSuperclassType.class, "lowerBound", List.class);
-    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
-    ResolvableType resolvableType = ResolvableType.forType(resolved);
-    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
-    assertThat(resolvableType.resolveGenerics()).containsExactly(String.class);
-  }
-
-  @Test
-  void resolveWildcardTypeWithLowerBoundWithResolvedType() {
-    Method method = method(MySimpleSuperclassType.class, "lowerBoundWithResolvedType", List.class);
-    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
-    ResolvableType resolvableType = ResolvableType.forType(resolved);
-    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
-    assertThat(resolvableType.resolveGenerics()).containsExactly(Integer.class);
-  }
-
-  @Test
-  void resolveWildcardTypeWithUnbounded() {
-    Method method = method(MySimpleSuperclassType.class, "unbounded", List.class);
-    Type resolved = resolveType(method.getGenericParameterTypes()[0], MySimpleSuperclassType.class);
-    ResolvableType resolvableType = ResolvableType.forType(resolved);
-    assertThat(resolvableType.hasUnresolvableGenerics()).isFalse();
-    assertThat(resolvableType.resolveGenerics()).containsExactly(Object.class);
-  }
-
-  @Test
-  void resolveGenericWithDifferentInterfaceOrder() {
-    Type f = First.class.getTypeParameters()[0];
-    assertThat(resolveType(f, FirstSecondService.class)).isEqualTo(Integer.class);
-    assertThat(resolveType(f, SecondFirstService.class)).isEqualTo(Integer.class);
+  public void resolveMethodParameterWithNestedGenerics() {
+    Method method = method(WithMethodParameter.class, "nestedGenerics", List.class);
+    MethodParameter methodParameter = new MethodParameter(method, 0);
+    Type resolvedType = resolveType(methodParameter.getGenericParameterType(), WithMethodParameter.class);
+    ParameterizedTypeReference<List<Map<String, Integer>>> reference = new ParameterizedTypeReference<>() { };
+    assertThat(resolvedType).isEqualTo(reference.getType());
   }
 
   private static Method method(Class<?> target, String methodName, Class<?>... parameterTypes) {
@@ -259,21 +216,6 @@ public class GenericTypeResolverTests {
   }
 
   public abstract class MySuperclassType<T> {
-
-    public void upperBound(List<? extends T> list) {
-    }
-
-    public void upperBoundWithResolvedType(List<? extends Integer> list) {
-    }
-
-    public void lowerBound(List<? extends T> list) {
-    }
-
-    public void lowerBoundWithResolvedType(List<? super Integer> list) {
-    }
-
-    public void unbounded(List<?> list) {
-    }
   }
 
   public class MySimpleSuperclassType extends MySuperclassType<String> {
@@ -426,16 +368,16 @@ public class GenericTypeResolverTests {
   interface IdFixingRepository<T> extends Repository<T, Long> {
   }
 
-  interface First<F extends Number> {
+  interface First<N extends Number> {
 
-    default void foo(F f) {
+    default void foo(N f) {
       // ...
     }
   }
 
-  interface Second<B> {
+  interface Second<T> {
 
-    default void bar(B b) {
+    default void bar(T b) {
       // ...
     }
   }
@@ -444,6 +386,11 @@ public class GenericTypeResolverTests {
   }
 
   static class SecondFirstService implements Second<String>, First<Integer> {
+  }
+
+  static class WithMethodParameter {
+    public void nestedGenerics(List<Map<String, Integer>> input) {
+    }
   }
 
 }
