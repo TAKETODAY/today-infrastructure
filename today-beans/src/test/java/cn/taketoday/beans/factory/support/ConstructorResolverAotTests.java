@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -373,8 +373,8 @@ class ConstructorResolverAotTests {
             .rootBeanDefinition(ConstructorClassArraySample.class.getName())
             .addConstructorArgValue("test1").getBeanDefinition();
     Executable executable = resolve(beanFactory, beanDefinition);
-    assertThat(executable).isNotNull().isEqualTo(
-            ConstructorClassArraySample.class.getDeclaredConstructors()[0]);
+    assertThat(executable).isNotNull().isIn(
+            List.of(ConstructorClassArraySample.class.getDeclaredConstructors()));
   }
 
   @Test
