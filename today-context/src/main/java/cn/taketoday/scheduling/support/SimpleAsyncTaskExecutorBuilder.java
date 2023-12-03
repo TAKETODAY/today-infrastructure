@@ -29,7 +29,6 @@ import cn.taketoday.core.task.TaskDecorator;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.PropertyMapper;
 
 /**
  * Builder that can be used to configure and create a {@link SimpleAsyncTaskExecutor}.
@@ -231,12 +230,22 @@ public class SimpleAsyncTaskExecutorBuilder {
    * @see #build(Class)
    */
   public <T extends SimpleAsyncTaskExecutor> T configure(T taskExecutor) {
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(this.virtualThreads).to(taskExecutor::setVirtualThreads);
-    map.from(this.threadNamePrefix).whenHasText().to(taskExecutor::setThreadNamePrefix);
-    map.from(this.concurrencyLimit).to(taskExecutor::setConcurrencyLimit);
-    map.from(this.taskDecorator).to(taskExecutor::setTaskDecorator);
-    map.from(this.taskTerminationTimeout).as(Duration::toMillis).to(taskExecutor::setTaskTerminationTimeout);
+    if (threadNamePrefix != null) {
+      taskExecutor.setThreadNamePrefix(threadNamePrefix);
+    }
+    if (concurrencyLimit != null) {
+      taskExecutor.setConcurrencyLimit(concurrencyLimit);
+    }
+    if (virtualThreads != null) {
+      taskExecutor.setVirtualThreads(virtualThreads);
+    }
+    if (taskDecorator != null) {
+      taskExecutor.setTaskDecorator(taskDecorator);
+    }
+    if (taskTerminationTimeout != null) {
+      taskExecutor.setTaskTerminationTimeout(taskTerminationTimeout.toMillis());
+    }
+
     if (CollectionUtils.isNotEmpty(customizers)) {
       for (SimpleAsyncTaskExecutorCustomizer customizer : customizers) {
         customizer.customize(taskExecutor);

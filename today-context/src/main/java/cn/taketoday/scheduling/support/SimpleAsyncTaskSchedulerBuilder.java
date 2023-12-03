@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.support;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -26,7 +27,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.PropertyMapper;
 
 /**
  * Builder that can be used to configure and create a {@link SimpleAsyncTaskScheduler}.
@@ -55,16 +55,21 @@ public class SimpleAsyncTaskSchedulerBuilder {
   @Nullable
   private final Set<SimpleAsyncTaskSchedulerCustomizer> customizers;
 
+  @Nullable
+  private final Duration taskTerminationTimeout;
+
   public SimpleAsyncTaskSchedulerBuilder() {
-    this(null, null, null, null);
+    this(null, null,
+            null, null, null);
   }
 
-  private SimpleAsyncTaskSchedulerBuilder(@Nullable String threadNamePrefix, @Nullable Integer concurrencyLimit,
-          @Nullable Boolean virtualThreads, @Nullable Set<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers) {
+  private SimpleAsyncTaskSchedulerBuilder(@Nullable String threadNamePrefix, @Nullable Integer concurrencyLimit, @Nullable Boolean virtualThreads,
+          @Nullable Set<SimpleAsyncTaskSchedulerCustomizer> taskSchedulerCustomizers, @Nullable Duration taskTerminationTimeout) {
     this.threadNamePrefix = threadNamePrefix;
     this.concurrencyLimit = concurrencyLimit;
     this.virtualThreads = virtualThreads;
     this.customizers = taskSchedulerCustomizers;
+    this.taskTerminationTimeout = taskTerminationTimeout;
   }
 
   /**
@@ -74,8 +79,8 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @return a new builder instance
    */
   public SimpleAsyncTaskSchedulerBuilder threadNamePrefix(String threadNamePrefix) {
-    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, this.concurrencyLimit, this.virtualThreads,
-            this.customizers);
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, this.virtualThreads,
+            customizers, taskTerminationTimeout);
   }
 
   /**
@@ -85,8 +90,8 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @return a new builder instance
    */
   public SimpleAsyncTaskSchedulerBuilder concurrencyLimit(Integer concurrencyLimit) {
-    return new SimpleAsyncTaskSchedulerBuilder(this.threadNamePrefix, concurrencyLimit, this.virtualThreads,
-            this.customizers);
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
+            customizers, taskTerminationTimeout);
   }
 
   /**
@@ -96,8 +101,19 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @return a new builder instance
    */
   public SimpleAsyncTaskSchedulerBuilder virtualThreads(Boolean virtualThreads) {
-    return new SimpleAsyncTaskSchedulerBuilder(this.threadNamePrefix, this.concurrencyLimit, virtualThreads,
-            this.customizers);
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
+            customizers, taskTerminationTimeout);
+  }
+
+  /**
+   * Set the task termination timeout.
+   *
+   * @param taskTerminationTimeout the task termination timeout
+   * @return a new builder instance
+   */
+  public SimpleAsyncTaskSchedulerBuilder taskTerminationTimeout(Duration taskTerminationTimeout) {
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
+            customizers, taskTerminationTimeout);
   }
 
   /**
@@ -125,11 +141,10 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @return a new builder instance
    * @see #additionalCustomizers(Iterable)
    */
-  public SimpleAsyncTaskSchedulerBuilder customizers(
-          Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
+  public SimpleAsyncTaskSchedulerBuilder customizers(Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
-    return new SimpleAsyncTaskSchedulerBuilder(this.threadNamePrefix, this.concurrencyLimit, this.virtualThreads,
-            append(null, customizers));
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
+            append(null, customizers), taskTerminationTimeout);
   }
 
   /**
@@ -155,11 +170,10 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @return a new builder instance
    * @see #customizers(Iterable)
    */
-  public SimpleAsyncTaskSchedulerBuilder additionalCustomizers(
-          Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
+  public SimpleAsyncTaskSchedulerBuilder additionalCustomizers(Iterable<? extends SimpleAsyncTaskSchedulerCustomizer> customizers) {
     Assert.notNull(customizers, "Customizers is required");
-    return new SimpleAsyncTaskSchedulerBuilder(this.threadNamePrefix, this.concurrencyLimit, this.virtualThreads,
-            append(this.customizers, customizers));
+    return new SimpleAsyncTaskSchedulerBuilder(threadNamePrefix, concurrencyLimit, virtualThreads,
+            append(this.customizers, customizers), taskTerminationTimeout);
   }
 
   /**
@@ -183,10 +197,20 @@ public class SimpleAsyncTaskSchedulerBuilder {
    * @see #build()
    */
   public <T extends SimpleAsyncTaskScheduler> T configure(T taskScheduler) {
-    PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(this.threadNamePrefix).to(taskScheduler::setThreadNamePrefix);
-    map.from(this.concurrencyLimit).to(taskScheduler::setConcurrencyLimit);
-    map.from(this.virtualThreads).to(taskScheduler::setVirtualThreads);
+    if (threadNamePrefix != null) {
+      taskScheduler.setThreadNamePrefix(threadNamePrefix);
+    }
+    if (concurrencyLimit != null) {
+      taskScheduler.setConcurrencyLimit(concurrencyLimit);
+    }
+
+    if (virtualThreads != null) {
+      taskScheduler.setVirtualThreads(virtualThreads);
+    }
+    if (taskTerminationTimeout != null) {
+      taskScheduler.setTaskTerminationTimeout(taskTerminationTimeout.toMillis());
+    }
+
     if (CollectionUtils.isNotEmpty(this.customizers)) {
       for (SimpleAsyncTaskSchedulerCustomizer customizer : customizers) {
         customizer.customize(taskScheduler);

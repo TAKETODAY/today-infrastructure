@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.task;
@@ -111,15 +111,17 @@ class TaskSchedulingAutoConfigurationTests {
 
   @Test
   void simpleAsyncTaskSchedulerBuilderShouldReadProperties() {
-    this.contextRunner
-            .withPropertyValues("infra.task.scheduling.simple.concurrency-limit=1",
-                    "infra.task.scheduling.thread-name-prefix=scheduling-test-")
+    this.contextRunner.withPropertyValues("infra.task.scheduling.simple.concurrency-limit=1",
+                    "infra.task.scheduling.thread-name-prefix=scheduling-test-",
+                    "infra.task.scheduling.shutdown.await-termination=true",
+                    "infra.task.scheduling.shutdown.await-termination-period=30s")
             .withUserConfiguration(SchedulingConfiguration.class)
             .run((context) -> {
               assertThat(context).hasSingleBean(SimpleAsyncTaskSchedulerBuilder.class);
               SimpleAsyncTaskSchedulerBuilder builder = context.getBean(SimpleAsyncTaskSchedulerBuilder.class);
               assertThat(builder).hasFieldOrPropertyWithValue("threadNamePrefix", "scheduling-test-");
               assertThat(builder).hasFieldOrPropertyWithValue("concurrencyLimit", 1);
+              assertThat(builder).hasFieldOrPropertyWithValue("taskTerminationTimeout", Duration.ofSeconds(30));
             });
   }
 
