@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -23,6 +20,7 @@ package cn.taketoday.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -47,10 +45,10 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Craig Andrews
  * @author Juergen Hoeller
- * @author TODAY 2021/8/21 01:18
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #resize
  * @see ResizableByteArrayOutputStream
- * @since 4.0
+ * @since 4.0 2021/8/21 01:18
  */
 public class FastByteArrayOutputStream extends OutputStream {
 
@@ -170,7 +168,25 @@ public class FastByteArrayOutputStream extends OutputStream {
    */
   @Override
   public String toString() {
-    return new String(toByteArrayUnsafe());
+    return toString(Charset.defaultCharset());
+  }
+
+  /**
+   * Convert this stream's contents to a string by decoding the bytes using the
+   * specified {@link Charset}.
+   *
+   * @param charset the {@link Charset} to use to decode the bytes
+   * @return a String decoded from this stream's contents
+   * @see #toString()
+   */
+  public String toString(Charset charset) {
+    if (size() == 0) {
+      return "";
+    }
+    if (this.buffers.size() == 1) {
+      return new String(this.buffers.getFirst(), 0, this.index, charset);
+    }
+    return new String(toByteArrayUnsafe(), charset);
   }
 
   // Custom methods

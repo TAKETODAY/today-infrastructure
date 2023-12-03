@@ -200,7 +200,7 @@ public class ContentCachingRequestWrapper extends HttpServletRequestWrapper {
    * @see #getContentAsByteArray()
    */
   public String getContentAsString() {
-    return new String(cachedContent.toByteArrayUnsafe(), Charset.forName(getCharacterEncoding()));
+    return this.cachedContent.toString(Charset.forName(getCharacterEncoding()));
   }
 
   /**

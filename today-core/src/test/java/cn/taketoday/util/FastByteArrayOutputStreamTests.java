@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -56,6 +53,26 @@ class FastByteArrayOutputStreamTests {
     this.os.resize(64);
     assertByteArrayEqualsString(this.os);
     assertThat(this.os.size()).isEqualTo(sizeBefore);
+  }
+
+  @Test
+  void stringConversion() throws Exception {
+    this.os.write(this.helloBytes);
+    assertThat(this.os.toString()).isEqualTo("Hello World");
+    assertThat(this.os.toString(StandardCharsets.UTF_8)).isEqualTo("Hello World");
+
+    @SuppressWarnings("resource")
+    FastByteArrayOutputStream empty = new FastByteArrayOutputStream();
+    assertThat(empty.toString()).isEqualTo("");
+    assertThat(empty.toString(StandardCharsets.US_ASCII)).isEqualTo("");
+
+    @SuppressWarnings("resource")
+    FastByteArrayOutputStream outputStream = new FastByteArrayOutputStream(5);
+    // Add bytes in multiple writes to ensure we get more than one buffer internally
+    outputStream.write(this.helloBytes, 0, 5);
+    outputStream.write(this.helloBytes, 5, 6);
+    assertThat(outputStream.toString()).isEqualTo("Hello World");
+    assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEqualTo("Hello World");
   }
 
   @Test
