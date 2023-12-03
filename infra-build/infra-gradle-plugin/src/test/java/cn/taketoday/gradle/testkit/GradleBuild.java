@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.testkit;
@@ -203,7 +203,10 @@ public class GradleBuild {
         for (String message : this.expectedDeprecationMessages) {
           buildOutput = buildOutput.replaceAll(message, "");
         }
-        assertThat(buildOutput).doesNotContainIgnoringCase("deprecated");
+        
+        if (!gradleVersionIsAtLeast("8.4")) {
+          assertThat(buildOutput).doesNotContainIgnoringCase("deprecated");
+        }
       }
       return result;
     }

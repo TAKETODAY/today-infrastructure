@@ -1,0 +1,31 @@
+plugins {
+	id 'cn.taketoday.application'
+	id 'java'
+}
+
+apply plugin: 'cn.taketoday.application.aot'
+
+repositories {
+	mavenCentral()
+	maven { url 'file:repository' }
+}
+
+configurations.all {
+	resolutionStrategy {
+		eachDependency {
+			if (it.requested.group == 'cn.taketoday') {
+				it.useVersion project.infraVersion
+			}
+		}
+	}
+}
+
+dependencies {
+	testAndDevelopmentOnly("org.apache.commons:commons-lang3:3.12.0")
+}
+
+task('processTestAotClasspath') {
+	doFirst {
+		tasks.processTestAot.classpath.each { println it }
+	}
+}

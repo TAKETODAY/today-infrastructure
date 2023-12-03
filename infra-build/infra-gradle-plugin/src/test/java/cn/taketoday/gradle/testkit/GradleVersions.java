@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.testkit;
@@ -40,7 +40,7 @@ public final class GradleVersions {
     if (isJavaVersion(JavaVersion.VERSION_20)) {
       return Arrays.asList("8.1.1", "8.3");
     }
-    return Arrays.asList("7.5.1", GradleVersion.current().getVersion(), "8.0.2", "8.3");
+    return Arrays.asList("7.5.1", GradleVersion.current().getVersion(), "8.4", "8.3");
   }
 
   public static String minimumCompatible() {
