@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author TODAY <br>
  * 2020-01-19 19:58
  */
-public class CollectionUtilsTest {
+public class CollectionUtilsTests {
 
   private static class INNER {
 

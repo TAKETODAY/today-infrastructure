@@ -12,8 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+package cn.taketoday.core.task;
+
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Internal delegate for virtual thread handling on JDK 21.
@@ -36,8 +39,8 @@ class VirtualThreadDelegate {
     return this.threadBuilder.name(threadNamePrefix, 0).factory();
   }
 
-  public Thread startVirtualThread(String name, Runnable task) {
-    return this.threadBuilder.name(name).start(task);
+  public Thread newVirtualThread(String name, Runnable task) {
+    return this.threadBuilder.name(name).unstarted(task);
   }
 
 }

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.core.io;
 
@@ -46,12 +46,12 @@ class PathMatchingPatternResourceLoaderTests {
   private PathMatchingPatternResourceLoader resolver = new PathMatchingPatternResourceLoader();
 
   private static final String[] CLASSES_IN_CORE_IO_SUPPORT = {
-          "EncodedResource.class",
-          "PathMatchingPatternResourceLoader.class",
-          "PropertiesLoaderSupport.class",
-          "PropertiesUtils.class",
-          "ResourceArrayPropertyEditor.class",
-          "PatternResourceLoader.class",
+          "EncodedResourceTests.class",
+          "PathMatchingPatternResourceLoaderTests.class",
+          "PropertySourceProcessorTests.class",
+          "PropertiesUtilsTests.class",
+          "ResourceArrayPropertyEditorTests.class",
+          "ModuleResourceTests.class",
   };
 
   private static final String[] TEST_CLASSES_IN_CORE_IO_SUPPORT = {

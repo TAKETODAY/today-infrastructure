@@ -1,11 +1,21 @@
 import cn.taketoday.build.shadow.ShadowSource
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
+plugins {
+  id 'me.champeau.mrjar' version '0.1.1'
+}
+
 description = "Infra Core Technologies"
 
 def javapoetVersion = "1.13.0"
 
+multiRelease {
+  targetVersions 17, 21
+}
+
 configurations {
+  java21Api.extendsFrom(api)
+  java21Implementation.extendsFrom(implementation)
   graalvm
   javapoet
 }
