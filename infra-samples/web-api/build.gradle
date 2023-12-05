@@ -11,7 +11,7 @@ dependencies {
   api 'org.yaml:snakeyaml'
 
   compileOnly 'org.projectlombok:lombok'
-  annotationProcessor 'org.projectlombok:lombok:1.18.28'
+  annotationProcessor 'org.projectlombok:lombok'
 
 }
 

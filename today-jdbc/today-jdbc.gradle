@@ -16,7 +16,7 @@ dependencies {
   testImplementation 'jakarta.transaction:jakarta.transaction-api:2.0.0'
   testImplementation 'com.google.guava:guava:31.0.1-jre'
   testImplementation 'org.zapodot:embedded-db-junit:1.0.0'
-  testImplementation 'org.projectlombok:lombok:1.18.22'
+  testImplementation 'org.projectlombok:lombok'
   testImplementation 'commons-dbutils:commons-dbutils:1.7'
   testImplementation 'org.hibernate:hibernate-core-jakarta:5.6.10.Final'
   testImplementation 'org.jooq:jooq:3.3.0'

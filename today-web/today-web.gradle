@@ -113,7 +113,7 @@ dependencies {
   testFixturesImplementation("org.xmlunit:xmlunit-assertj")
   testFixturesImplementation("org.xmlunit:xmlunit-matchers")
   testFixturesImplementation 'org.projectlombok:lombok'
-  testFixturesAnnotationProcessor("org.projectlombok:lombok:1.18.22")
+  testFixturesAnnotationProcessor("org.projectlombok:lombok")
 
   testImplementation(project(":today-core-test"))
 

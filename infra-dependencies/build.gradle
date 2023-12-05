@@ -721,7 +721,7 @@ dependencies {
     api("org.webjars:underscorejs:1.8.3")
     api("org.webjars:webjars-locator-core:0.53")
     api("org.yaml:snakeyaml:2.0")
-    api("org.projectlombok:lombok:1.18.28")
+    api("org.projectlombok:lombok:1.18.30")
     api("org.htmlunit:htmlunit:3.1.0")
     api("org.seleniumhq.selenium:htmlunit-driver:4.8.1")
     api("org.seleniumhq.selenium:selenium-java:3.141.59")

@@ -15,5 +15,4 @@ dependencies {
   testFixturesImplementation("org.assertj:assertj-core")
 
   testImplementation 'org.projectlombok:lombok'
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.22")
 }

@@ -135,7 +135,7 @@ dependencies {
   testImplementation 'org.hibernate:hibernate-envers:5.6.15.Final'
 
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic'
-  testImplementation 'org.projectlombok:lombok:1.18.22'
+  testImplementation 'org.projectlombok:lombok'
   testImplementation 'org.apache.tomcat:tomcat-jdbc:10.0.16'
   testImplementation 'com.zaxxer:HikariCP:5.0.0'
 

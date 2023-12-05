@@ -93,7 +93,6 @@ dependencies {
   testImplementation 'org.hibernate.orm:hibernate-envers:6.1.4.Final'
 
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
-  testImplementation 'org.projectlombok:lombok:1.18.22'
   testImplementation 'org.apache.tomcat:tomcat-jdbc:10.0.16'
   testImplementation 'com.zaxxer:HikariCP:5.0.0'
 
