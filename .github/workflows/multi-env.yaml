@@ -11,11 +11,15 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        java: [ 21 ]
       fail-fast: false
       max-parallel: 4
     name: JDK ${{ matrix.java }} on ${{ matrix.os }}
 
     steps:
+      - name: Fix Git Config
+        run: git config --system core.longpaths true
+
       - name: Checkout project sources
         uses: actions/checkout@v3
 
@@ -23,7 +27,7 @@ jobs:
         uses: oracle-actions/setup-java@v1
         with:
           website: jdk.java.net
-          release: 21
+          release: ${{ matrix.java }}
 
       - name: Print JDK Version
         run: java -version
