@@ -37,4 +37,4 @@ jobs:
         uses: gradle/gradle-build-action@v2.7.1
 
       - name: Build with Gradle
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 check
+        run: ./gradlew -DCI=true --no-daemon --max-workers=4 -PtestToolchain=21 check
