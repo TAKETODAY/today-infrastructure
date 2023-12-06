@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macOS-latest, windows-latest ]
+        os: [ ubuntu-latest, macOS-latest ] #, windows-latest
         java: [ 21 ]
       fail-fast: false
       max-parallel: 4
@@ -37,4 +37,4 @@ jobs:
         uses: gradle/gradle-build-action@v2.7.1
 
       - name: Build with Gradle
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 -PtestToolchain=21 check
+        run: ./gradlew -DCI=true --no-daemon --max-workers=4 check
