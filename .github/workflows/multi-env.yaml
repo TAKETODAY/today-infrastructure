@@ -19,6 +19,7 @@ jobs:
     steps:
       - name: Fix Git Config
         run: git config --system core.longpaths true
+        if: ${{ matrix.os == 'windows-latest' }}
 
       - name: Checkout project sources
         uses: actions/checkout@v3
