@@ -1,5 +1,8 @@
 description = "Infra Web"
 
+configurations {
+  testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)
+}
 
 dependencies {
   api(project(":today-beans"))
