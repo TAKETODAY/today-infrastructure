@@ -10,8 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macOS-latest ] #, windows-latest
-        java: [ 17, 21 ]
+        os: [ ubuntu-latest, macOS-latest, windows-latest ]
       fail-fast: false
       max-parallel: 4
     name: JDK ${{ matrix.java }} on ${{ matrix.os }}
@@ -20,18 +19,12 @@ jobs:
       - name: Checkout project sources
         uses: actions/checkout@v3
 
-      - name: Set JDK ${{ matrix.java }} from jdk.java.net
+      - name: Setup JDK 21
         uses: oracle-actions/setup-java@v1
         with:
           website: jdk.java.net
-          release: ${{ matrix.java }}
-        if: ${{ matrix.java != '17' }}
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: zulu
-        if: ${{ matrix.java == '17' }}
+          release: 21
+
       - name: Print JDK Version
         run: java -version
 
