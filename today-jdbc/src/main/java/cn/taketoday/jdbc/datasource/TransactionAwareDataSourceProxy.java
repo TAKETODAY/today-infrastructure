@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource;
@@ -71,6 +68,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * properly. Use {@link Connection#unwrap} to retrieve the native JDBC Connection.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataSource#getConnection()
  * @see Connection#close()
  * @see DataSourceUtils#doGetConnection
@@ -79,6 +77,8 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * @since 4.0
  */
 public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
+
+  private boolean lazyTransactionalConnections = true;
 
   private boolean reobtainTransactionalConnections = false;
 
@@ -99,6 +99,16 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
   }
 
   /**
+   * Specify whether to obtain the transactional target Connection lazily on
+   * actual data access.
+   * <p>The default is "true". Specify "false" to immediately obtain a target
+   * Connection when a transaction-aware Connection handle is retrieved.
+   */
+  public void setLazyTransactionalConnections(boolean lazyTransactionalConnections) {
+    this.lazyTransactionalConnections = lazyTransactionalConnections;
+  }
+
+  /**
    * Specify whether to reobtain the target Connection for each operation
    * performed within a transaction.
    * <p>The default is "false". Specify "true" to reobtain transactional
@@ -112,7 +122,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
   }
 
   /**
-   * Delegates to DataSourceUtils for automatically participating in Framework-managed
+   * Delegates to DataSourceUtils for automatically participating in Infra-managed
    * transactions. Throws the original SQLException, if any.
    * <p>The returned Connection handle implements the ConnectionProxy interface,
    * allowing to retrieve the underlying target Connection.
@@ -123,7 +133,12 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    */
   @Override
   public Connection getConnection() throws SQLException {
-    return getTransactionAwareConnectionProxy(obtainTargetDataSource());
+    DataSource ds = obtainTargetDataSource();
+    Connection con = getTransactionAwareConnectionProxy(ds);
+    if (!lazyTransactionalConnections && shouldObtainFixedConnection(ds)) {
+      ((ConnectionProxy) con).getTargetConnection();
+    }
+    return con;
   }
 
   /**
@@ -132,7 +147,7 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    *
    * @param targetDataSource the DataSource that the Connection came from
    * @return the wrapped Connection
-   * @see Connection#close()
+   * @see java.sql.Connection#close()
    * @see DataSourceUtils#doReleaseConnection
    */
   protected Connection getTransactionAwareConnectionProxy(DataSource targetDataSource) {
@@ -154,7 +169,8 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
    * @param targetDataSource the target DataSource
    */
   protected boolean shouldObtainFixedConnection(DataSource targetDataSource) {
-    return !TransactionSynchronizationManager.isSynchronizationActive() || !this.reobtainTransactionalConnections;
+    return !reobtainTransactionalConnections
+            || !TransactionSynchronizationManager.isSynchronizationActive();
   }
 
   /**
@@ -180,13 +196,15 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
       // Invocation on ConnectionProxy interface coming in...
 
       switch (method.getName()) {
-        case "equals":
+        case "equals" -> {
           // Only considered as equal when proxies are identical.
           return (proxy == args[0]);
-        case "hashCode":
+        }
+        case "hashCode" -> {
           // Use hashCode of Connection proxy.
           return System.identityHashCode(proxy);
-        case "toString":
+        }
+        case "toString" -> {
           // Allow for differentiating between the proxy and the raw Connection.
           StringBuilder sb = new StringBuilder("Transaction-aware proxy for target Connection ");
           if (this.target != null) {
@@ -196,23 +214,26 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
             sb.append(" from DataSource [").append(this.targetDataSource).append(']');
           }
           return sb.toString();
-        case "close":
+        }
+        case "close" -> {
           // Handle close method: only close if not within a transaction.
           DataSourceUtils.doReleaseConnection(this.target, this.targetDataSource);
           this.closed = true;
           return null;
-        case "isClosed":
+        }
+        case "isClosed" -> {
           return this.closed;
-        case "unwrap":
+        }
+        case "unwrap" -> {
           if (((Class<?>) args[0]).isInstance(proxy)) {
             return proxy;
           }
-          break;
-        case "isWrapperFor":
+        }
+        case "isWrapperFor" -> {
           if (((Class<?>) args[0]).isInstance(proxy)) {
             return true;
           }
-          break;
+        }
       }
 
       if (this.target == null) {
@@ -243,8 +264,8 @@ public class TransactionAwareDataSourceProxy extends DelegatingDataSource {
 
         // If return value is a Statement, apply transaction timeout.
         // Applies to createStatement, prepareStatement, prepareCall.
-        if (retVal instanceof Statement) {
-          DataSourceUtils.applyTransactionTimeout((Statement) retVal, this.targetDataSource);
+        if (retVal instanceof Statement statement) {
+          DataSourceUtils.applyTransactionTimeout(statement, this.targetDataSource);
         }
 
         return retVal;

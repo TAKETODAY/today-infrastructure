@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource;
@@ -46,6 +46,7 @@ import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.TransactionTimedOutException;
 import cn.taketoday.transaction.UnexpectedRollbackException;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
+import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
 import cn.taketoday.transaction.support.TransactionSynchronization;
 import cn.taketoday.transaction.support.TransactionSynchronizationManager;
 import cn.taketoday.transaction.support.TransactionTemplate;
@@ -62,23 +63,29 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Juergen Hoeller
  * @see cn.taketoday.jdbc.support.JdbcTransactionManagerTests
  * @since 04.07.2003
  */
-public class DataSourceTransactionManagerTests {
+public class DataSourceTransactionManagerTests<T extends DataSourceTransactionManager> {
 
-  private DataSource ds = mock();
+  protected DataSource ds = mock();
 
-  private Connection con = mock();
+  protected Connection con = mock();
 
-  private DataSourceTransactionManager tm = new DataSourceTransactionManager(ds);
+  protected DataSourceTransactionManager tm;
 
   @BeforeEach
   public void setup() throws Exception {
+    tm = createTransactionManager(ds);
     given(ds.getConnection()).willReturn(con);
+  }
+
+  protected DataSourceTransactionManager createTransactionManager(DataSource ds) {
+    return new DataSourceTransactionManager(ds);
   }
 
   @AfterEach
@@ -122,23 +129,20 @@ public class DataSourceTransactionManagerTests {
   private void doTestTransactionCommitRestoringAutoCommit(
           boolean autoCommit, boolean lazyConnection, final boolean createStatement) throws Exception {
 
+    given(con.getAutoCommit()).willReturn(autoCommit);
+
     if (lazyConnection) {
-      given(con.getAutoCommit()).willReturn(autoCommit);
       given(con.getTransactionIsolation()).willReturn(Connection.TRANSACTION_READ_COMMITTED);
       given(con.getWarnings()).willThrow(new SQLException());
     }
 
-    if (!lazyConnection || createStatement) {
-      given(con.getAutoCommit()).willReturn(autoCommit);
-    }
-
     final DataSource dsToUse = (lazyConnection ? new LazyConnectionDataSourceProxy(ds) : ds);
-    tm = new DataSourceTransactionManager(dsToUse);
+    tm = createTransactionManager(dsToUse);
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThat(TransactionSynchronizationManager.hasResource(dsToUse)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(TransactionSynchronizationManager.hasResource(dsToUse)).isTrue();
       assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
@@ -209,24 +213,21 @@ public class DataSourceTransactionManagerTests {
   private void doTestTransactionRollbackRestoringAutoCommit(
           boolean autoCommit, boolean lazyConnection, final boolean createStatement) throws Exception {
 
+    given(con.getAutoCommit()).willReturn(autoCommit);
+
     if (lazyConnection) {
-      given(con.getAutoCommit()).willReturn(autoCommit);
       given(con.getTransactionIsolation()).willReturn(Connection.TRANSACTION_READ_COMMITTED);
     }
 
-    if (!lazyConnection || createStatement) {
-      given(con.getAutoCommit()).willReturn(autoCommit);
-    }
-
     final DataSource dsToUse = (lazyConnection ? new LazyConnectionDataSourceProxy(ds) : ds);
-    tm = new DataSourceTransactionManager(dsToUse);
+    tm = createTransactionManager(dsToUse);
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThat(TransactionSynchronizationManager.hasResource(dsToUse)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
     final RuntimeException ex = new RuntimeException("Application exception");
     assertThatRuntimeException().isThrownBy(() ->
-                    tt.executeWithoutResult(status -> {
+                    tt.execute((TransactionCallbackWithoutResult) status -> {
                       assertThat(TransactionSynchronizationManager.hasResource(dsToUse)).isTrue();
                       assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
                       assertThat(status.isNewTransaction()).isTrue();
@@ -271,7 +272,7 @@ public class DataSourceTransactionManagerTests {
     TransactionSynchronizationManager.bindResource(ds, conHolder);
     final RuntimeException ex = new RuntimeException("Application exception");
     try {
-      tt.executeWithoutResult(status -> {
+      tt.execute((TransactionCallbackWithoutResult) status -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
         assertThat(status.isNewTransaction()).isFalse();
@@ -319,10 +320,10 @@ public class DataSourceTransactionManagerTests {
       assertThat(ts.isNewTransaction()).isTrue();
 
       final TransactionTemplate tt = new TransactionTemplate(tm);
-      tt.executeWithoutResult(status -> {
+      tt.execute((TransactionCallbackWithoutResult) status -> {
         assertThat(status.isNewTransaction()).isFalse();
         assertThat(status.isRollbackOnly()).isFalse();
-        tt.executeWithoutResult(status1 -> {
+        tt.execute((TransactionCallbackWithoutResult) status1 -> {
           assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
           assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
           assertThat(status1.isNewTransaction()).isFalse();
@@ -371,9 +372,9 @@ public class DataSourceTransactionManagerTests {
       final TransactionTemplate tt2 = new TransactionTemplate(tm);
       tt2.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
 
-      tt.executeWithoutResult(status -> {
+      tt.execute((TransactionCallbackWithoutResult) status -> {
         assertThat(status.isRollbackOnly()).isFalse();
-        tt2.executeWithoutResult(status1 -> status1.setRollbackOnly());
+        tt2.execute((TransactionCallbackWithoutResult) TransactionExecution::setRollbackOnly);
         assertThat(status.isRollbackOnly()).isTrue();
       });
     });
@@ -399,7 +400,7 @@ public class DataSourceTransactionManagerTests {
 
       tt.executeWithoutResult(status -> {
         assertThat(status.isRollbackOnly()).isFalse();
-        tt2.executeWithoutResult(status1 -> status1.setRollbackOnly());
+        tt2.executeWithoutResult(TransactionExecution::setRollbackOnly);
         assertThat(status.isRollbackOnly()).isTrue();
       });
     });
@@ -461,7 +462,9 @@ public class DataSourceTransactionManagerTests {
               }
             };
 
-    tt.executeWithoutResult(status -> TransactionSynchronizationManager.registerSynchronization(synch));
+    tt.executeWithoutResult(status -> {
+      TransactionSynchronizationManager.registerSynchronization(synch);
+    });
 
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(synch.beforeCommitCalled).isTrue();
@@ -477,7 +480,7 @@ public class DataSourceTransactionManagerTests {
   @Test
   public void testParticipatingTransactionWithRollbackOnlyAndInnerSynch() throws Exception {
     tm.setTransactionSynchronization(DataSourceTransactionManager.SYNCHRONIZATION_NEVER);
-    DataSourceTransactionManager tm2 = new DataSourceTransactionManager(ds);
+    DataSourceTransactionManager tm2 = createTransactionManager(ds);
     // tm has no synch enabled (used at outer level), tm2 has synch enabled (inner level)
 
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
@@ -490,10 +493,10 @@ public class DataSourceTransactionManagerTests {
     assertThatExceptionOfType(UnexpectedRollbackException.class).isThrownBy(() -> {
       assertThat(ts.isNewTransaction()).isTrue();
       final TransactionTemplate tt = new TransactionTemplate(tm2);
-      tt.executeWithoutResult(status -> {
+      tt.execute((TransactionCallbackWithoutResult) status -> {
         assertThat(status.isNewTransaction()).isFalse();
         assertThat(status.isRollbackOnly()).isFalse();
-        tt.executeWithoutResult(status1 -> {
+        tt.execute((TransactionCallbackWithoutResult) status1 -> {
           assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
           assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
           assertThat(status1.isNewTransaction()).isFalse();
@@ -523,12 +526,12 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
       assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
       assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      tt.executeWithoutResult(status1 -> {
+      tt.execute((TransactionCallbackWithoutResult) status1 -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
         assertThat(status1.isNewTransaction()).isTrue();
@@ -556,7 +559,7 @@ public class DataSourceTransactionManagerTests {
     final TransactionTemplate tt = new TransactionTemplate(tm);
     tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
-    PlatformTransactionManager tm2 = new DataSourceTransactionManager(ds2);
+    PlatformTransactionManager tm2 = createTransactionManager(ds2);
     final TransactionTemplate tt2 = new TransactionTemplate(tm2);
     tt2.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
@@ -564,12 +567,12 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds2)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
       assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
       assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      tt2.executeWithoutResult(status1 -> {
+      tt2.execute((TransactionCallbackWithoutResult) status1 -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
         assertThat(status1.isNewTransaction()).isTrue();
@@ -599,7 +602,7 @@ public class DataSourceTransactionManagerTests {
     final TransactionTemplate tt = new TransactionTemplate(tm);
     tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 
-    DataSourceTransactionManager tm2 = new DataSourceTransactionManager(ds2);
+    DataSourceTransactionManager tm2 = createTransactionManager(ds2);
     tm2.setTransactionSynchronization(DataSourceTransactionManager.SYNCHRONIZATION_NEVER);
     final TransactionTemplate tt2 = new TransactionTemplate(tm2);
     tt2.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -609,7 +612,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
     assertThatExceptionOfType(CannotCreateTransactionException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
+            tt.execute((TransactionCallbackWithoutResult) status -> {
               assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
               assertThat(status.hasTransaction()).isTrue();
               assertThat(status.isNewTransaction()).isTrue();
@@ -617,7 +620,9 @@ public class DataSourceTransactionManagerTests {
               assertThat(status.isReadOnly()).isFalse();
               assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
               assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-              tt2.executeWithoutResult(TransactionExecution::setRollbackOnly);
+              tt2.execute((TransactionCallbackWithoutResult) status1 -> {
+                status1.setRollbackOnly();
+              });
             })).withCause(failure);
 
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
@@ -633,14 +638,14 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
       assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
       assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
       tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
-      tt.executeWithoutResult(status1 -> {
+      tt.execute((TransactionCallbackWithoutResult) status1 -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
         assertThat(status1.hasTransaction()).isFalse();
@@ -669,12 +674,14 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
     assertThatExceptionOfType(IllegalTransactionStateException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
+            tt.execute((TransactionCallbackWithoutResult) status -> {
               assertThat(status.hasTransaction()).isTrue();
               assertThat(status.isNewTransaction()).isTrue();
               assertThat(status.isNested()).isFalse();
               tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NEVER);
-              tt.executeWithoutResult(status1 -> fail("Should have thrown IllegalTransactionStateException"));
+              tt.execute((TransactionCallbackWithoutResult) status1 -> {
+                fail("Should have thrown IllegalTransactionStateException");
+              });
               fail("Should have thrown IllegalTransactionStateException");
             }));
 
@@ -690,14 +697,14 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
       assertThat(status.hasTransaction()).isFalse();
       assertThat(status.isNewTransaction()).isFalse();
       assertThat(status.isNested()).isFalse();
       TransactionTemplate tt2 = new TransactionTemplate(tm);
       tt2.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-      tt2.executeWithoutResult(status1 -> {
+      tt2.execute((TransactionCallbackWithoutResult) status1 -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
         assertThat(status1.hasTransaction()).isTrue();
@@ -724,7 +731,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
       assertThat(DataSourceUtils.getConnection(ds)).isSameAs(con1);
       assertThat(DataSourceUtils.getConnection(ds)).isSameAs(con1);
@@ -733,7 +740,7 @@ public class DataSourceTransactionManagerTests {
       assertThat(status.isNested()).isFalse();
       TransactionTemplate tt2 = new TransactionTemplate(tm);
       tt2.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-      tt2.executeWithoutResult(status1 -> {
+      tt2.execute((TransactionCallbackWithoutResult) status1 -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
         assertThat(DataSourceUtils.getConnection(ds)).isSameAs(con2);
@@ -753,16 +760,127 @@ public class DataSourceTransactionManagerTests {
 
   @Test
   public void testTransactionWithIsolationAndReadOnly() throws Exception {
-    given(con.getTransactionIsolation()).willReturn(Connection.TRANSACTION_READ_COMMITTED);
+    given(con.getTransactionIsolation()).willReturn(Connection.TRANSACTION_READ_UNCOMMITTED);
     given(con.getAutoCommit()).willReturn(true);
 
+    doTestTransactionReadOnly(TransactionDefinition.ISOLATION_REPEATABLE_READ, false);
+
+    InOrder ordered = inOrder(con);
+    ordered.verify(con).setReadOnly(true);
+    ordered.verify(con).getTransactionIsolation();
+    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+    ordered.verify(con).getAutoCommit();
+    ordered.verify(con).setAutoCommit(false);
+    ordered.verify(con).commit();
+    ordered.verify(con).setAutoCommit(true);
+    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+    ordered.verify(con).setReadOnly(false);
+    ordered.verify(con).close();
+    verifyNoMoreInteractions(con);
+  }
+
+  @Test
+  public void testTransactionWithEnforceReadOnly() throws Exception {
+    tm.setEnforceReadOnly(true);
+
+    given(con.getAutoCommit()).willReturn(true);
+    Statement stmt = mock();
+    given(con.createStatement()).willReturn(stmt);
+
+    doTestTransactionReadOnly(TransactionDefinition.ISOLATION_DEFAULT, false);
+
+    InOrder ordered = inOrder(con, stmt);
+    ordered.verify(con).setReadOnly(true);
+    ordered.verify(con).getAutoCommit();
+    ordered.verify(con).setAutoCommit(false);
+    ordered.verify(con).createStatement();
+    ordered.verify(stmt).executeUpdate("SET TRANSACTION READ ONLY");
+    ordered.verify(stmt).close();
+    ordered.verify(con).commit();
+    ordered.verify(con).setAutoCommit(true);
+    ordered.verify(con).setReadOnly(false);
+    ordered.verify(con).close();
+    verifyNoMoreInteractions(con);
+  }
+
+  @Test
+  public void testTransactionWithLazyConnectionDataSourceAndStatement() throws Exception {
+    LazyConnectionDataSourceProxy dsProxy = new LazyConnectionDataSourceProxy();
+    dsProxy.setTargetDataSource(ds);
+    dsProxy.setDefaultAutoCommit(true);
+    dsProxy.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    tm = createTransactionManager(dsProxy);
+
+    doTestTransactionReadOnly(TransactionDefinition.ISOLATION_SERIALIZABLE, true);
+
+    InOrder ordered = inOrder(con);
+    ordered.verify(con).setReadOnly(true);
+    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+    ordered.verify(con).setAutoCommit(false);
+    ordered.verify(con).createStatement();
+    ordered.verify(con).commit();
+    ordered.verify(con).setAutoCommit(true);
+    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    ordered.verify(con).setReadOnly(false);
+    ordered.verify(con).close();
+    verifyNoMoreInteractions(con);
+  }
+
+  @Test
+  public void testTransactionWithLazyConnectionDataSourceNoStatement() throws Exception {
+    LazyConnectionDataSourceProxy dsProxy = new LazyConnectionDataSourceProxy();
+    dsProxy.setTargetDataSource(ds);
+    dsProxy.setDefaultAutoCommit(true);
+    dsProxy.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    tm = createTransactionManager(dsProxy);
+
+    doTestTransactionReadOnly(TransactionDefinition.ISOLATION_SERIALIZABLE, false);
+
+    verifyNoMoreInteractions(con);
+  }
+
+  @Test
+  public void testTransactionWithReadOnlyDataSourceAndStatement() throws Exception {
+    LazyConnectionDataSourceProxy dsProxy = new LazyConnectionDataSourceProxy();
+    dsProxy.setReadOnlyDataSource(ds);
+    dsProxy.setDefaultAutoCommit(false);
+    dsProxy.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    tm = createTransactionManager(dsProxy);
+
+    doTestTransactionReadOnly(TransactionDefinition.ISOLATION_SERIALIZABLE, true);
+
+    InOrder ordered = inOrder(con);
+    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+    ordered.verify(con).createStatement();
+    ordered.verify(con).commit();
+    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    ordered.verify(con).close();
+    verifyNoMoreInteractions(con);
+  }
+
+  @Test
+  public void testTransactionWithReadOnlyDataSourceNoStatement() throws Exception {
+    LazyConnectionDataSourceProxy dsProxy = new LazyConnectionDataSourceProxy();
+    dsProxy.setReadOnlyDataSource(ds);
+    dsProxy.setDefaultAutoCommit(false);
+    dsProxy.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+    tm = createTransactionManager(dsProxy);
+
+    doTestTransactionReadOnly(TransactionDefinition.ISOLATION_SERIALIZABLE, false);
+
+    verifyNoMoreInteractions(con);
+  }
+
+  private void doTestTransactionReadOnly(int isolationLevel, boolean withStatement) {
     TransactionTemplate tt = new TransactionTemplate(tm);
     tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-    tt.setIsolationLevel(TransactionDefinition.ISOLATION_SERIALIZABLE);
+    tt.setIsolationLevel(isolationLevel);
     tt.setReadOnly(true);
     tt.setName("my-transaction");
+
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
-    tt.executeWithoutResult(status -> {
+
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       // something transactional
       assertThat(status.getTransactionName()).isEqualTo("my-transaction");
       assertThat(status.hasTransaction()).isTrue();
@@ -774,56 +892,17 @@ public class DataSourceTransactionManagerTests {
       assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
       assertThat(status.isRollbackOnly()).isFalse();
       assertThat(status.isCompleted()).isFalse();
+      if (withStatement) {
+        try {
+          DataSourceUtils.getConnection(tm.getDataSource()).createStatement();
+        }
+        catch (SQLException ex) {
+          throw new IllegalStateException(ex);
+        }
+      }
     });
 
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
-    InOrder ordered = inOrder(con);
-    ordered.verify(con).setReadOnly(true);
-    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-    ordered.verify(con).setAutoCommit(false);
-    ordered.verify(con).commit();
-    ordered.verify(con).setAutoCommit(true);
-    ordered.verify(con).setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-    ordered.verify(con).setReadOnly(false);
-    verify(con).close();
-  }
-
-  @Test
-  public void testTransactionWithEnforceReadOnly() throws Exception {
-    tm.setEnforceReadOnly(true);
-
-    given(con.getAutoCommit()).willReturn(true);
-    Statement stmt = mock();
-    given(con.createStatement()).willReturn(stmt);
-
-    TransactionTemplate tt = new TransactionTemplate(tm);
-    tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-    tt.setReadOnly(true);
-    assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
-    tt.executeWithoutResult(status -> {
-      // something transactional
-      assertThat(status.getTransactionName()).isEmpty();
-      assertThat(status.hasTransaction()).isTrue();
-      assertThat(status.isNewTransaction()).isTrue();
-      assertThat(status.isNested()).isFalse();
-      assertThat(status.hasSavepoint()).isFalse();
-      assertThat(status.isReadOnly()).isTrue();
-      assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isTrue();
-      assertThat(TransactionSynchronizationManager.isActualTransactionActive()).isTrue();
-      assertThat(status.isRollbackOnly()).isFalse();
-      assertThat(status.isCompleted()).isFalse();
-    });
-
-    assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
-    InOrder ordered = inOrder(con, stmt);
-    ordered.verify(con).setReadOnly(true);
-    ordered.verify(con).setAutoCommit(false);
-    ordered.verify(stmt).executeUpdate("SET TRANSACTION READ ONLY");
-    ordered.verify(stmt).close();
-    ordered.verify(con).commit();
-    ordered.verify(con).setAutoCommit(true);
-    ordered.verify(con).setReadOnly(false);
-    ordered.verify(con).close();
   }
 
   @ParameterizedTest(name = "transaction with {0} second timeout")
@@ -839,7 +918,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
 
     try {
-      tt.executeWithoutResult(status -> {
+      tt.execute((TransactionCallbackWithoutResult) status -> {
         try {
           Thread.sleep(1500);
         }
@@ -888,13 +967,46 @@ public class DataSourceTransactionManagerTests {
 
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       // something transactional
       assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
       TransactionAwareDataSourceProxy dsProxy = new TransactionAwareDataSourceProxy(ds);
       try {
         Connection tCon = dsProxy.getConnection();
         tCon.getWarnings();
+        tCon.clearWarnings();
+        assertThat(((ConnectionProxy) dsProxy.getConnection()).getTargetConnection()).isEqualTo(con);
+        // should be ignored
+        dsProxy.getConnection().close();
+      }
+      catch (SQLException ex) {
+        throw new UncategorizedSQLException("", "", ex);
+      }
+    });
+
+    assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
+    InOrder ordered = inOrder(con);
+    ordered.verify(con).setAutoCommit(false);
+    ordered.verify(con).commit();
+    ordered.verify(con).setAutoCommit(true);
+    verify(con).close();
+  }
+
+  @Test
+  public void testTransactionAwareDataSourceProxyWithLazyFalse() throws Exception {
+    given(con.getAutoCommit()).willReturn(true);
+    given(con.getWarnings()).willThrow(new SQLException());
+
+    TransactionTemplate tt = new TransactionTemplate(tm);
+    assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
+    tt.execute((TransactionCallbackWithoutResult) status -> {
+      // something transactional
+      assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
+      TransactionAwareDataSourceProxy dsProxy = new TransactionAwareDataSourceProxy(ds);
+      dsProxy.setLazyTransactionalConnections(false);
+      try {
+        Connection tCon = dsProxy.getConnection();
+        assertThatExceptionOfType(SQLException.class).isThrownBy(tCon::getWarnings);
         tCon.clearWarnings();
         assertThat(((ConnectionProxy) dsProxy.getConnection()).getTargetConnection()).isEqualTo(con);
         // should be ignored
@@ -921,7 +1033,7 @@ public class DataSourceTransactionManagerTests {
     tt.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRES_NEW);
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       // something transactional
       assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
       final TransactionAwareDataSourceProxy dsProxy = new TransactionAwareDataSourceProxy(ds);
@@ -934,7 +1046,7 @@ public class DataSourceTransactionManagerTests {
         throw new UncategorizedSQLException("", "", ex);
       }
 
-      tt.executeWithoutResult(status1 -> {
+      tt.execute((TransactionCallbackWithoutResult) status1 -> {
         // something transactional
         assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
         try {
@@ -973,7 +1085,7 @@ public class DataSourceTransactionManagerTests {
     tt.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRES_NEW);
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       // something transactional
       assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
       final TransactionAwareDataSourceProxy dsProxy = new TransactionAwareDataSourceProxy(ds);
@@ -987,7 +1099,7 @@ public class DataSourceTransactionManagerTests {
         throw new UncategorizedSQLException("", "", ex);
       }
 
-      tt.executeWithoutResult(status1 -> {
+      tt.execute((TransactionCallbackWithoutResult) status1 -> {
         // something transactional
         assertThat(DataSourceUtils.getConnection(ds)).isEqualTo(con);
         try {
@@ -1027,7 +1139,7 @@ public class DataSourceTransactionManagerTests {
 
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThatExceptionOfType(CannotCreateTransactionException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
+            tt.execute((TransactionCallbackWithoutResult) status -> {
               // something transactional
             }));
 
@@ -1041,7 +1153,7 @@ public class DataSourceTransactionManagerTests {
 
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
+            tt.execute((TransactionCallbackWithoutResult) status -> {
               // something transactional
             }));
 
@@ -1056,7 +1168,7 @@ public class DataSourceTransactionManagerTests {
     tm.setRollbackOnCommitFailure(true);
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
+            tt.execute((TransactionCallbackWithoutResult) status -> {
               // something transactional
             }));
 
@@ -1072,7 +1184,7 @@ public class DataSourceTransactionManagerTests {
 
     TransactionTemplate tt = new TransactionTemplate(tm);
     assertThatExceptionOfType(TransactionSystemException.class).isThrownBy(() ->
-            tt.executeWithoutResult(status -> {
+            tt.execute((TransactionCallbackWithoutResult) status -> {
               assertThat(status.getTransactionName()).isEmpty();
               assertThat(status.hasTransaction()).isTrue();
               assertThat(status.isNewTransaction()).isTrue();
@@ -1099,7 +1211,7 @@ public class DataSourceTransactionManagerTests {
     tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_SUPPORTS);
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
       assertThat(status.isNewTransaction()).isFalse();
       assertThat(TransactionSynchronizationManager.isCurrentTransactionReadOnly()).isFalse();
@@ -1115,7 +1227,7 @@ public class DataSourceTransactionManagerTests {
     tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
       assertThat(status.isNewTransaction()).isFalse();
     });
@@ -1129,7 +1241,7 @@ public class DataSourceTransactionManagerTests {
     tt.setPropagationBehavior(TransactionDefinition.PROPAGATION_NEVER);
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
       assertThat(status.isNewTransaction()).isFalse();
     });
@@ -1162,13 +1274,13 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
       assertThat(status.hasSavepoint()).isFalse();
       for (int i = 0; i < count; i++) {
-        tt.executeWithoutResult(status1 -> {
+        tt.execute((TransactionCallbackWithoutResult) status1 -> {
           assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
           assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
           assertThat(status1.hasTransaction()).isTrue();
@@ -1203,12 +1315,12 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
       assertThat(status.hasSavepoint()).isFalse();
-      tt.executeWithoutResult(status1 -> {
+      tt.execute((TransactionCallbackWithoutResult) status1 -> {
         assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
         assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
         assertThat(status1.hasTransaction()).isTrue();
@@ -1244,27 +1356,27 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
       assertThat(status.hasSavepoint()).isFalse();
       assertThatIllegalStateException().isThrownBy(() ->
-              tt.executeWithoutResult(status12 -> {
+              tt.execute((TransactionCallbackWithoutResult) status1 -> {
                 assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
                 assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
-                assertThat(status12.hasTransaction()).isTrue();
-                assertThat(status12.isNewTransaction()).isFalse();
-                assertThat(status12.isNested()).isTrue();
-                assertThat(status12.hasSavepoint()).isTrue();
+                assertThat(status1.hasTransaction()).isTrue();
+                assertThat(status1.isNewTransaction()).isFalse();
+                assertThat(status1.isNested()).isTrue();
+                assertThat(status1.hasSavepoint()).isTrue();
                 TransactionTemplate ntt = new TransactionTemplate(tm);
-                ntt.executeWithoutResult(status1 -> {
+                ntt.execute((TransactionCallbackWithoutResult) status11 -> {
                   assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
                   assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
-                  assertThat(status1.hasTransaction()).isTrue();
-                  assertThat(status1.isNewTransaction()).isFalse();
-                  assertThat(status1.isNested()).isFalse();
-                  assertThat(status1.hasSavepoint()).isFalse();
+                  assertThat(status11.hasTransaction()).isTrue();
+                  assertThat(status11.isNewTransaction()).isFalse();
+                  assertThat(status11.isNested()).isFalse();
+                  assertThat(status11.hasSavepoint()).isFalse();
                   throw new IllegalStateException();
                 });
               }));
@@ -1295,13 +1407,13 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
       assertThat(status.hasSavepoint()).isFalse();
       assertThatExceptionOfType(UnexpectedRollbackException.class).isThrownBy(() ->
-              tt.executeWithoutResult(status12 -> {
+              tt.execute((TransactionCallbackWithoutResult) status12 -> {
                 assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
                 assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
                 assertThat(status12.hasTransaction()).isTrue();
@@ -1309,7 +1421,7 @@ public class DataSourceTransactionManagerTests {
                 assertThat(status12.isNested()).isTrue();
                 assertThat(status12.hasSavepoint()).isTrue();
                 TransactionTemplate ntt = new TransactionTemplate(tm);
-                ntt.executeWithoutResult(status1 -> {
+                ntt.execute((TransactionCallbackWithoutResult) status1 -> {
                   assertThat(TransactionSynchronizationManager.hasResource(ds)).isTrue();
                   assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isTrue();
                   assertThat(status1.hasTransaction()).isTrue();
@@ -1346,7 +1458,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
@@ -1376,7 +1488,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
       assertThat(status.isNested()).isFalse();
@@ -1398,7 +1510,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.getTransactionName()).isEmpty();
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();
@@ -1421,7 +1533,7 @@ public class DataSourceTransactionManagerTests {
     assertThat(TransactionSynchronizationManager.hasResource(ds)).isFalse();
     assertThat(TransactionSynchronizationManager.isSynchronizationActive()).isFalse();
 
-    tt.executeWithoutResult(status -> {
+    tt.execute((TransactionCallbackWithoutResult) status -> {
       assertThat(status.getTransactionName()).isEmpty();
       assertThat(status.hasTransaction()).isTrue();
       assertThat(status.isNewTransaction()).isTrue();

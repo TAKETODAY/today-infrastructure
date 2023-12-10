@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource;
@@ -87,32 +87,36 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    * defined in {@link java.sql.Connection}.
    */
   static final Map<String, Integer> constants = Map.of(
-      "TRANSACTION_READ_UNCOMMITTED", Connection.TRANSACTION_READ_UNCOMMITTED,
-      "TRANSACTION_READ_COMMITTED", Connection.TRANSACTION_READ_COMMITTED,
-      "TRANSACTION_REPEATABLE_READ", Connection.TRANSACTION_REPEATABLE_READ,
-      "TRANSACTION_SERIALIZABLE", Connection.TRANSACTION_SERIALIZABLE
+          "TRANSACTION_READ_UNCOMMITTED", Connection.TRANSACTION_READ_UNCOMMITTED,
+          "TRANSACTION_READ_COMMITTED", Connection.TRANSACTION_READ_COMMITTED,
+          "TRANSACTION_REPEATABLE_READ", Connection.TRANSACTION_REPEATABLE_READ,
+          "TRANSACTION_SERIALIZABLE", Connection.TRANSACTION_SERIALIZABLE
   );
 
   private static final Logger logger = LoggerFactory.getLogger(LazyConnectionDataSourceProxy.class);
 
   @Nullable
-  private Boolean defaultAutoCommit;
+  private DataSource readOnlyDataSource;
 
   @Nullable
-  private Integer defaultTransactionIsolation;
+  private volatile Boolean defaultAutoCommit;
+
+  @Nullable
+  private volatile Integer defaultTransactionIsolation;
 
   /**
    * Create a new LazyConnectionDataSourceProxy.
    *
    * @see #setTargetDataSource
+   * @see #setReadOnlyDataSource
    */
-  public LazyConnectionDataSourceProxy() {
-  }
+  public LazyConnectionDataSourceProxy() { }
 
   /**
    * Create a new LazyConnectionDataSourceProxy.
    *
    * @param targetDataSource the target DataSource
+   * @see #setTargetDataSource
    */
   public LazyConnectionDataSourceProxy(DataSource targetDataSource) {
     setTargetDataSource(targetDataSource);
@@ -120,16 +124,53 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
   }
 
   /**
+   * Specify a variant of the target DataSource to use for read-only transactions.
+   * <p>If available, a Connection from such a read-only DataSource will be lazily
+   * obtained within a Infra-managed transaction that has been marked as read-only.
+   * The {@link Connection#setReadOnly} flag will be left untouched, expecting it
+   * to be pre-configured as a default on the read-only DataSource, avoiding the
+   * overhead of switching it at the beginning and end of every transaction.
+   * Also, the default auto-commit and isolation level settings are expected to
+   * match the default connection properties of the primary target DataSource.
+   *
+   * @see #setTargetDataSource
+   * @see #setDefaultAutoCommit
+   * @see #setDefaultTransactionIsolation
+   * @see cn.taketoday.transaction.TransactionDefinition#isReadOnly()
+   */
+  public void setReadOnlyDataSource(@Nullable DataSource readOnlyDataSource) {
+    this.readOnlyDataSource = readOnlyDataSource;
+  }
+
+  /**
    * Set the default auto-commit mode to expose when no target Connection
    * has been fetched yet (when the actual JDBC Connection default is not known yet).
-   * <p>If not specified, the default gets determined by checking a target
-   * Connection on startup. If that check fails, the default will be determined
-   * lazily on first access of a Connection.
+   * <p>If not specified, the default gets determined by checking lazily on first
+   * access of a Connection.
    *
-   * @see Connection#setAutoCommit
+   * @see java.sql.Connection#setAutoCommit
    */
   public void setDefaultAutoCommit(boolean defaultAutoCommit) {
     this.defaultAutoCommit = defaultAutoCommit;
+  }
+
+  /**
+   * Set the default transaction isolation level by the name of the corresponding
+   * constant in {@link java.sql.Connection} &mdash; for example,
+   * {@code "TRANSACTION_SERIALIZABLE"}.
+   *
+   * @param constantName name of the constant
+   * @see #setDefaultTransactionIsolation
+   * @see java.sql.Connection#TRANSACTION_READ_UNCOMMITTED
+   * @see java.sql.Connection#TRANSACTION_READ_COMMITTED
+   * @see java.sql.Connection#TRANSACTION_REPEATABLE_READ
+   * @see java.sql.Connection#TRANSACTION_SERIALIZABLE
+   */
+  public void setDefaultTransactionIsolationName(String constantName) {
+    Assert.hasText(constantName, "'constantName' must not be null or blank");
+    Integer defaultTransactionIsolation = constants.get(constantName);
+    Assert.notNull(defaultTransactionIsolation, "Only transaction isolation constants allowed");
+    this.defaultTransactionIsolation = defaultTransactionIsolation;
   }
 
   /**
@@ -139,43 +180,25 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    * {@link java.sql.Connection} interface; it is mainly intended for programmatic
    * use. Consider using the "defaultTransactionIsolationName" property for setting
    * the value by name (for example, {@code "TRANSACTION_SERIALIZABLE"}).
-   * <p>If not specified, the default gets determined by checking a target
-   * Connection on startup. If that check fails, the default will be determined
-   * lazily on first access of a Connection.
+   * <p>If not specified, the default gets determined by checking lazily on first
+   * access of a Connection.
    *
    * @see #setDefaultTransactionIsolationName
    * @see java.sql.Connection#setTransactionIsolation
    */
   public void setDefaultTransactionIsolation(int defaultTransactionIsolation) {
     Assert.isTrue(constants.containsValue(defaultTransactionIsolation),
-        "Only values of transaction isolation constants allowed");
+            "Only values of transaction isolation constants allowed");
     this.defaultTransactionIsolation = defaultTransactionIsolation;
   }
 
   /**
-   * Set the default transaction isolation level by the name of the corresponding
-   * constant in {@link Connection}, e.g. "TRANSACTION_SERIALIZABLE".
+   * Determine default auto-commit and transaction isolation
+   * via a Connection from the target DataSource, if possible.
    *
-   * @param constantName name of the constant
-   * @see #setDefaultTransactionIsolation
-   * @see Connection#TRANSACTION_READ_UNCOMMITTED
-   * @see Connection#TRANSACTION_READ_COMMITTED
-   * @see Connection#TRANSACTION_REPEATABLE_READ
-   * @see Connection#TRANSACTION_SERIALIZABLE
+   * @see #checkDefaultConnectionProperties(Connection)
    */
-  public void setDefaultTransactionIsolationName(String constantName) {
-    Assert.hasText(constantName, "'constantName' must not be null or blank");
-    Integer defaultTransactionIsolation = constants.get(constantName);
-    Assert.notNull(defaultTransactionIsolation, "Only transaction isolation constants allowed");
-    this.defaultTransactionIsolation = defaultTransactionIsolation;
-  }
-
-  @Override
-  public void afterPropertiesSet() {
-    super.afterPropertiesSet();
-
-    // Determine default auto-commit and transaction isolation
-    // via a Connection from the target DataSource, if possible.
+  public void checkDefaultConnectionProperties() {
     if (this.defaultAutoCommit == null || this.defaultTransactionIsolation == null) {
       try {
         try (Connection con = obtainTargetDataSource().getConnection()) {
@@ -191,15 +214,12 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
   /**
    * Check the default connection properties (auto-commit, transaction isolation),
    * keeping them to be able to expose them correctly without fetching an actual
-   * JDBC Connection from the target DataSource.
-   * <p>This will be invoked once on startup, but also for each retrieval of a
-   * target Connection. If the check failed on startup (because the database was
-   * down), we'll lazily retrieve those settings.
+   * JDBC Connection from the target DataSource later on.
    *
    * @param con the Connection to use for checking
    * @throws SQLException if thrown by Connection methods
    */
-  protected synchronized void checkDefaultConnectionProperties(Connection con) throws SQLException {
+  protected void checkDefaultConnectionProperties(Connection con) throws SQLException {
     if (this.defaultAutoCommit == null) {
       this.defaultAutoCommit = con.getAutoCommit();
     }
@@ -235,10 +255,11 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    */
   @Override
   public Connection getConnection() throws SQLException {
+    checkDefaultConnectionProperties();
     return (Connection) Proxy.newProxyInstance(
-        ConnectionProxy.class.getClassLoader(),
-        new Class<?>[] { ConnectionProxy.class },
-        new LazyConnectionInvocationHandler());
+            ConnectionProxy.class.getClassLoader(),
+            new Class<?>[] { ConnectionProxy.class },
+            new LazyConnectionInvocationHandler());
   }
 
   /**
@@ -254,10 +275,11 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
    */
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
+    checkDefaultConnectionProperties();
     return (Connection) Proxy.newProxyInstance(
-        ConnectionProxy.class.getClassLoader(),
-        new Class<?>[] { ConnectionProxy.class },
-        new LazyConnectionInvocationHandler(username, password));
+            ConnectionProxy.class.getClassLoader(),
+            new Class<?>[] { ConnectionProxy.class },
+            new LazyConnectionInvocationHandler(username, password));
   }
 
   /**
@@ -293,6 +315,7 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
     }
 
     public LazyConnectionInvocationHandler(String username, String password) {
+      this();
       this.username = username;
       this.password = password;
     }
@@ -303,28 +326,31 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
       // Invocation on ConnectionProxy interface coming in...
 
       switch (method.getName()) {
-        case "equals":
+        case "equals" -> {
           // We must avoid fetching a target Connection for "equals".
           // Only consider equal when proxies are identical.
           return (proxy == args[0]);
-        case "hashCode":
+        }
+        case "hashCode" -> {
           // We must avoid fetching a target Connection for "hashCode",
           // and we must return the same hash code even when the target
           // Connection has been fetched: use hashCode of Connection proxy.
           return System.identityHashCode(proxy);
-        case "getTargetConnection":
+        }
+        case "getTargetConnection" -> {
           // Handle getTargetConnection method: return underlying connection.
           return getTargetConnection(method);
-        case "unwrap":
+        }
+        case "unwrap" -> {
           if (((Class<?>) args[0]).isInstance(proxy)) {
             return proxy;
           }
-          break;
-        case "isWrapperFor":
+        }
+        case "isWrapperFor" -> {
           if (((Class<?>) args[0]).isInstance(proxy)) {
             return true;
           }
-          break;
+        }
       }
 
       if (!hasTargetConnection()) {
@@ -333,59 +359,74 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
         // a physical JDBC Connection until absolutely necessary.
 
         switch (method.getName()) {
-          case "toString":
+          case "toString" -> {
             return "Lazy Connection proxy for target DataSource [" + getTargetDataSource() + "]";
-          case "getAutoCommit":
+          }
+          case "getAutoCommit" -> {
             if (this.autoCommit != null) {
               return this.autoCommit;
             }
             // Else fetch actual Connection and check there,
             // because we didn't have a default specified.
-            break;
-          case "setAutoCommit":
+          }
+          case "setAutoCommit" -> {
             this.autoCommit = (Boolean) args[0];
             return null;
-          case "getTransactionIsolation":
+          }
+          case "getTransactionIsolation" -> {
             if (this.transactionIsolation != null) {
               return this.transactionIsolation;
             }
             // Else fetch actual Connection and check there,
             // because we didn't have a default specified.
-            break;
-          case "setTransactionIsolation":
+          }
+          case "setTransactionIsolation" -> {
             this.transactionIsolation = (Integer) args[0];
             return null;
-          case "isReadOnly":
+          }
+          case "isReadOnly" -> {
             return this.readOnly;
-          case "setReadOnly":
+          }
+          case "setReadOnly" -> {
             this.readOnly = (Boolean) args[0];
             return null;
-          case "getHoldability":
+          }
+          case "getHoldability" -> {
             return this.holdability;
-          case "setHoldability":
+          }
+          case "setHoldability" -> {
             this.holdability = (Integer) args[0];
             return null;
-          case "commit":
-          case "rollback":
+          }
+          case "commit", "rollback" -> {
             // Ignore: no statements created yet.
             return null;
-          case "getWarnings":
-          case "clearWarnings":
+          }
+          case "getWarnings", "clearWarnings" -> {
             // Ignore: no warnings to expose yet.
             return null;
-          case "close":
+          }
+          case "close" -> {
             // Ignore: no target connection yet.
             this.closed = true;
             return null;
-          case "isClosed":
+          }
+          case "isClosed" -> {
             return this.closed;
-          default:
+          }
+          default -> {
             if (this.closed) {
               // Connection proxy closed, without ever having fetched a
               // physical JDBC Connection: throw corresponding SQLException.
               throw new SQLException("Illegal operation: connection is closed");
             }
+          }
         }
+      }
+
+      if (readOnlyDataSource != null && "setReadOnly".equals(method.getName())) {
+        // Suppress setReadOnly reset call in case of dedicated read-only DataSource
+        return null;
       }
 
       // Target Connection already fetched,
@@ -417,15 +458,15 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
         }
 
         // Fetch physical Connection from DataSource.
-        this.target = (this.username != null) ?
-                      obtainTargetDataSource().getConnection(this.username, this.password) :
-                      obtainTargetDataSource().getConnection();
-
-        // If we still lack default connection properties, check them now.
-        checkDefaultConnectionProperties(this.target);
+        DataSource dataSource = getDataSourceToUse();
+        this.target = (this.username != null ? dataSource.getConnection(this.username, this.password) :
+                       dataSource.getConnection());
+        if (this.target == null) {
+          throw new IllegalStateException("DataSource returned null from getConnection(): " + dataSource);
+        }
 
         // Apply kept transaction settings, if any.
-        if (this.readOnly) {
+        if (this.readOnly && readOnlyDataSource == null) {
           try {
             this.target.setReadOnly(true);
           }
@@ -434,11 +475,11 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
             logger.debug("Could not set JDBC Connection read-only", ex);
           }
         }
-        if (this.transactionIsolation != null
-            && !this.transactionIsolation.equals(defaultTransactionIsolation())) {
+        if (this.transactionIsolation != null &&
+                !this.transactionIsolation.equals(defaultTransactionIsolation())) {
           this.target.setTransactionIsolation(this.transactionIsolation);
         }
-        if (this.autoCommit != null && this.autoCommit != this.target.getAutoCommit()) {
+        if (this.autoCommit != null && this.autoCommit != defaultAutoCommit()) {
           this.target.setAutoCommit(this.autoCommit);
         }
       }
@@ -451,6 +492,10 @@ public class LazyConnectionDataSourceProxy extends DelegatingDataSource {
       }
 
       return this.target;
+    }
+
+    private DataSource getDataSourceToUse() {
+      return (this.readOnly && readOnlyDataSource != null ? readOnlyDataSource : obtainTargetDataSource());
     }
   }
 
