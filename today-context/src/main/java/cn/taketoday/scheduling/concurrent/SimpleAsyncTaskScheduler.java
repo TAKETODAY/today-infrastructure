@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -38,6 +38,7 @@ import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.Trigger;
+import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
 import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ErrorHandler;
 
@@ -187,6 +188,10 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
     return () -> execute(task);
   }
 
+  private Runnable taskOnSchedulerThread(Runnable task) {
+    return new DelegatingErrorHandlingRunnable(task, TaskUtils.getDefaultErrorHandler(true));
+  }
+
   @Override
   @Nullable
   public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
@@ -240,7 +245,7 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
       // Blocking task on scheduler thread for fixed delay semantics
-      return this.scheduledExecutor.scheduleWithFixedDelay(task,
+      return this.scheduledExecutor.scheduleWithFixedDelay(taskOnSchedulerThread(task),
               NANO.convert(initialDelay), NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
@@ -252,7 +257,7 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Duration delay) {
     try {
       // Blocking task on scheduler thread for fixed delay semantics
-      return this.scheduledExecutor.scheduleWithFixedDelay(task,
+      return this.scheduledExecutor.scheduleWithFixedDelay(taskOnSchedulerThread(task),
               0, NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
