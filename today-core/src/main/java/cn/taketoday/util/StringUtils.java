@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -914,7 +914,6 @@ else */
    * @param str the input {@code String} (potentially {@code null} or empty)
    * @return an array of strings, or the empty array in case of empty input
    */
-
   public static String[] commaDelimitedListToStringArray(@Nullable String str) {
     return delimitedListToStringArray(str, ",");
   }

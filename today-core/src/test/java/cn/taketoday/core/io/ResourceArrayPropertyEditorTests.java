@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io;
@@ -49,7 +46,7 @@ class ResourceArrayPropertyEditorTests {
     // N.B. this will sometimes fail if you use classpath: instead of classpath*:.
     // The result depends on the classpath - if test-classes are segregated from classes
     // and they come first on the classpath (like in Maven) then it breaks, if classes
-    // comes first (like in Framework Build) then it is OK.
+    // comes first (like in Infra Build) then it is OK.
     PropertyEditor editor = new ResourceArrayPropertyEditor();
     editor.setAsText("classpath*:cn/taketoday/core/io/Resource*Editor.class");
     Resource[] resources = (Resource[]) editor.getValue();
@@ -67,7 +64,7 @@ class ResourceArrayPropertyEditorTests {
       assertThat(resources[0].getName()).isEqualTo("foo");
     }
     finally {
-      System.getProperties().remove("test.prop");
+      System.clearProperty("test.prop");
     }
   }
 
@@ -82,8 +79,37 @@ class ResourceArrayPropertyEditorTests {
               editor.setAsText("${test.prop}-${bar}"));
     }
     finally {
-      System.getProperties().remove("test.prop");
+      System.clearProperty("test.prop");
     }
+  }
+
+  @Test
+  void commaDelimitedResourcesWithSingleResource() {
+    PropertyEditor editor = new ResourceArrayPropertyEditor();
+    editor.setAsText("classpath:cn/taketoday/core/io/ResourceArrayPropertyEditor.class,     file:/test.txt");
+    Resource[] resources = (Resource[]) editor.getValue();
+    assertThat(resources).isNotNull();
+    assertThat(resources[0]).isInstanceOfSatisfying(ClassPathResource.class,
+            resource -> assertThat(resource.exists()).isTrue());
+    assertThat(resources[1]).isInstanceOfSatisfying(FileUrlResource.class,
+            resource -> assertThat(resource.getName()).isEqualTo("test.txt"));
+  }
+
+  @Test
+  void commaDelimitedResourcesWithMultipleResources() {
+    PropertyEditor editor = new ResourceArrayPropertyEditor();
+    editor.setAsText("file:/test.txt, classpath:cn/taketoday/core/io/test-resources/*.txt");
+    Resource[] resources = (Resource[]) editor.getValue();
+    assertThat(resources).isNotNull();
+    assertThat(resources[0]).isInstanceOfSatisfying(FileUrlResource.class,
+            resource -> assertThat(resource.getName()).isEqualTo("test.txt"));
+
+    assertThat(resources).anySatisfy(candidate ->
+            assertThat(candidate.getName()).isEqualTo("resource1.txt"));
+
+    assertThat(resources).anySatisfy(candidate ->
+            assertThat(candidate.getName()).isEqualTo("resource2.txt"));
+    assertThat(resources).hasSize(3);
   }
 
 }
