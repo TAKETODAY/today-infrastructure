@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -239,9 +239,8 @@ class ConfigurationClassParser {
    */
   @Nullable
   protected final SourceClass doProcessConfigurationClass(
-          ConfigurationClass configClass, SourceClass sourceClass, Predicate<String> filter)
-          throws IOException //
-  {
+          ConfigurationClass configClass, SourceClass sourceClass, Predicate<String> filter) throws IOException {
+
     if (configClass.metadata.isAnnotated(Component.class.getName())) {
       // Recursively process any member (nested) classes first
       processMemberClasses(configClass, sourceClass, filter);
@@ -263,7 +262,15 @@ class ConfigurationClassParser {
 
     // Process any @ComponentScan annotations
 
-    var componentScans = sourceClass.metadata.getMergedRepeatableAnnotation(ComponentScan.class, ComponentScans.class);
+    var componentScans = sourceClass.metadata.getMergedRepeatableAnnotation(ComponentScan.class, ComponentScans.class,
+            false, MergedAnnotation::isDirectlyPresent);
+
+    // Fall back to searching for @ComponentScan meta-annotations (which indirectly
+    // includes locally declared composed annotations).
+    if (componentScans.isEmpty()) {
+      componentScans = sourceClass.metadata.getMergedRepeatableAnnotation(
+              ComponentScan.class, ComponentScans.class, false, MergedAnnotation::isMetaPresent);
+    }
 
     if (!componentScans.isEmpty()
             && bootstrapContext.passCondition(sourceClass.metadata, ConfigurationPhase.REGISTER_BEAN)) {

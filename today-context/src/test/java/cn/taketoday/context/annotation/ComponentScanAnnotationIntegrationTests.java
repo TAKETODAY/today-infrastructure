@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -74,7 +74,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0
  */
 @SuppressWarnings("resource")
-public class ComponentScanAnnotationIntegrationTests {
+class ComponentScanAnnotationIntegrationTests {
 
   @Test
   void controlScan() {
@@ -136,6 +136,50 @@ public class ComponentScanAnnotationIntegrationTests {
     assertContextContainsBean(ctx, "componentScanAnnotationIntegrationTests.MultipleComposedAnnotationsConfig");
     assertContextContainsBean(ctx, "simpleComponent");
     assertContextContainsBean(ctx, "barComponent");
+  }
+
+  @Test
+  void localAnnotationOverridesMultipleMetaAnnotations() {  // gh-31704
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(LocalAnnotationOverridesMultipleMetaAnnotationsConfig.class);
+
+    assertContextContainsBean(ctx, "componentScanAnnotationIntegrationTests.LocalAnnotationOverridesMultipleMetaAnnotationsConfig");
+    assertContextContainsBean(ctx, "barComponent");
+
+    assertContextDoesNotContainBean(ctx, "simpleComponent");
+    assertContextDoesNotContainBean(ctx, "configurableComponent");
+  }
+
+  @Test
+  void localAnnotationOverridesMultipleComposedAnnotations() {  // gh-31704
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(LocalAnnotationOverridesMultipleComposedAnnotationsConfig.class);
+
+    assertContextContainsBean(ctx, "componentScanAnnotationIntegrationTests.LocalAnnotationOverridesMultipleComposedAnnotationsConfig");
+    assertContextContainsBean(ctx, "barComponent");
+
+    assertContextDoesNotContainBean(ctx, "simpleComponent");
+    assertContextDoesNotContainBean(ctx, "configurableComponent");
+  }
+
+  @Test
+  void localRepeatedAnnotationsOverrideComposedAnnotations() {  // gh-31704
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(LocalRepeatedAnnotationsOverrideComposedAnnotationsConfig.class);
+
+    assertContextContainsBean(ctx, "componentScanAnnotationIntegrationTests.LocalRepeatedAnnotationsOverrideComposedAnnotationsConfig");
+    assertContextContainsBean(ctx, "barComponent");
+    assertContextContainsBean(ctx, "configurableComponent");
+
+    assertContextDoesNotContainBean(ctx, "simpleComponent");
+  }
+
+  @Test
+  void localRepeatedAnnotationsInContainerOverrideComposedAnnotations() {  // gh-31704
+    ApplicationContext ctx = new AnnotationConfigApplicationContext(LocalRepeatedAnnotationsInContainerOverrideComposedAnnotationsConfig.class);
+
+    assertContextContainsBean(ctx, "componentScanAnnotationIntegrationTests.LocalRepeatedAnnotationsInContainerOverrideComposedAnnotationsConfig");
+    assertContextContainsBean(ctx, "barComponent");
+    assertContextContainsBean(ctx, "configurableComponent");
+
+    assertContextDoesNotContainBean(ctx, "simpleComponent");
   }
 
   @Test
@@ -300,6 +344,20 @@ public class ComponentScanAnnotationIntegrationTests {
     String[] basePackages() default {};
   }
 
+  @Configuration
+  @ComponentScan("cn.taketoday.context.annotation.componentscan.simple")
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @interface MetaConfiguration1 {
+  }
+
+  @Configuration
+  @ComponentScan("example.scannable_implicitbasepackage")
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @interface MetaConfiguration2 {
+  }
+
   @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
   static class ComposedAnnotationConfig {
   }
@@ -307,6 +365,32 @@ public class ComponentScanAnnotationIntegrationTests {
   @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
   @ComposedConfiguration2(basePackages = "example.scannable.sub")
   static class MultipleComposedAnnotationsConfig {
+  }
+
+  @MetaConfiguration1
+  @MetaConfiguration2
+  @ComponentScan("example.scannable.sub")
+  static class LocalAnnotationOverridesMultipleMetaAnnotationsConfig {
+  }
+
+  @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
+  @ComposedConfiguration2(basePackages = "example.scannable_implicitbasepackage")
+  @ComponentScan("example.scannable.sub")
+  static class LocalAnnotationOverridesMultipleComposedAnnotationsConfig {
+  }
+
+  @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
+  @ComponentScan("example.scannable_implicitbasepackage")
+  @ComponentScan("example.scannable.sub")
+  static class LocalRepeatedAnnotationsOverrideComposedAnnotationsConfig {
+  }
+
+  @ComposedConfiguration(basePackages = "cn.taketoday.context.annotation.componentscan.simple")
+  @ComponentScans({
+          @ComponentScan("example.scannable_implicitbasepackage"),
+          @ComponentScan("example.scannable.sub")
+  })
+  static class LocalRepeatedAnnotationsInContainerOverrideComposedAnnotationsConfig {
   }
 
   static class AwareTypeFilter implements TypeFilter, EnvironmentAware,
@@ -346,7 +430,6 @@ public class ComponentScanAnnotationIntegrationTests {
       assertThat(this.environment).isNotNull();
       return false;
     }
-
   }
 
 }

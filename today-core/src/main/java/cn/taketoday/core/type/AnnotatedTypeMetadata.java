@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type;
@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -259,8 +260,7 @@ public interface AnnotatedTypeMetadata {
    * {@code null} if no matching annotation is found
    */
   @Nullable
-  default Map<String, Object> getAnnotationAttributes(
-          Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+  default Map<String, Object> getAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
     return getAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
@@ -336,8 +336,7 @@ public interface AnnotatedTypeMetadata {
    * @see #getAllAnnotationAttributes(String)
    */
   @Nullable
-  default MultiValueMap<String, Object> getAllAnnotationAttributes(
-          Class<? extends Annotation> annotationType, boolean classValuesAsString) {
+  default MultiValueMap<String, Object> getAllAnnotationAttributes(Class<? extends Annotation> annotationType, boolean classValuesAsString) {
     return getAllAnnotationAttributes(annotationType.getName(), classValuesAsString);
   }
 
@@ -355,9 +354,7 @@ public interface AnnotatedTypeMetadata {
    * @see #getAllAnnotationAttributes(String)
    */
   @Nullable
-  default MultiValueMap<String, Object> getAllAnnotationAttributes(
-          String annotationName, boolean classValuesAsString) {
-
+  default MultiValueMap<String, Object> getAllAnnotationAttributes(String annotationName, boolean classValuesAsString) {
     Adapt[] adaptations = Adapt.values(classValuesAsString, true);
     return getAnnotations().stream(annotationName)
             .filter(MergedAnnotationPredicates.unique(MergedAnnotation::getMetaTypes))
@@ -386,9 +383,8 @@ public interface AnnotatedTypeMetadata {
    * or an empty set if none were found
    * @see #getMergedRepeatableAnnotationAttributes(Class, Class, boolean, boolean)
    */
-  default Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(
-          Class<? extends Annotation> annotationType, Class<? extends Annotation> containerType,
-          boolean classValuesAsString) {
+  default Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(Class<? extends Annotation> annotationType,
+          Class<? extends Annotation> containerType, boolean classValuesAsString) {
 
     return getMergedRepeatableAnnotationAttributes(annotationType, containerType, classValuesAsString, false);
   }
@@ -421,19 +417,53 @@ public interface AnnotatedTypeMetadata {
    * or an empty set if none were found
    * @see #getMergedRepeatableAnnotationAttributes(Class, Class, boolean)
    */
-  default Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(
-          Class<? extends Annotation> annotationType, Class<? extends Annotation> containerType,
-          boolean classValuesAsString, boolean sortByReversedMetaDistance) {
+  default Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(Class<? extends Annotation> annotationType,
+          Class<? extends Annotation> containerType, boolean classValuesAsString, boolean sortByReversedMetaDistance) {
 
-    Stream<MergedAnnotation<Annotation>> stream = getAnnotations().stream()
-            .filter(MergedAnnotationPredicates.typeIn(containerType, annotationType));
+    return getMergedRepeatableAnnotationAttributes(annotationType, containerType, classValuesAsString, sortByReversedMetaDistance, null);
+  }
 
-    if (sortByReversedMetaDistance) {
-      stream = stream.sorted(reversedMetaDistance());
-    }
+  /**
+   * Retrieve all <em>repeatable annotations</em> of the given type within the
+   * annotation hierarchy <em>above</em> the underlying element (as direct
+   * annotation or meta-annotation); and for each annotation found, merge that
+   * annotation's attributes with <em>matching</em> attributes from annotations
+   * in lower levels of the annotation hierarchy and store the results in an
+   * instance of {@link AnnotationAttributes}.
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
+   * <p>The supplied {@link Predicate} will be used to filter the results. For
+   * example, supply {@code mergedAnnotation -> true} to include all annotations
+   * in the results; supply {@code MergedAnnotation::isDirectlyPresent} to limit
+   * the results to directly declared annotations, etc.
+   * <p>If the {@code sortByReversedMetaDistance} flag is set to {@code true},
+   * the results will be sorted in {@link Comparator#reversed() reversed} order
+   * based on each annotation's {@linkplain MergedAnnotation#getDistance()
+   * meta distance}, which effectively orders meta-annotations before annotations
+   * that are declared directly on the underlying element.
+   *
+   * @param annotationType the annotation type to find
+   * @param containerType the type of the container that holds the annotations
+   * @param predicate a {@code Predicate} to apply to each {@code MergedAnnotation}
+   * to determine if it should be included in the results
+   * @param classValuesAsString whether to convert class references to {@code String}
+   * class names for exposure as values in the returned {@code AnnotationAttributes},
+   * instead of {@code Class} references which might potentially have to be loaded
+   * first
+   * @param sortByReversedMetaDistance {@code true} if the results should be
+   * sorted in reversed order based on each annotation's meta distance
+   * @return the set of all merged repeatable {@code AnnotationAttributes} found,
+   * or an empty set if none were found
+   * @see #getMergedRepeatableAnnotationAttributes(Class, Class, boolean)
+   * @see #getMergedRepeatableAnnotationAttributes(Class, Class, boolean, boolean)
+   */
+  default Set<AnnotationAttributes> getMergedRepeatableAnnotationAttributes(Class<? extends Annotation> annotationType,
+          Class<? extends Annotation> containerType, boolean classValuesAsString, boolean sortByReversedMetaDistance,
+          @Nullable Predicate<MergedAnnotation<? extends Annotation>> predicate) {
 
     Adapt[] adaptations = Adapt.values(classValuesAsString, true);
-    return stream
+    return stream(annotationType, containerType, sortByReversedMetaDistance, predicate)
             .map(annotation -> annotation.asAnnotationAttributes(adaptations))
             .flatMap(attributes -> {
               if (containerType.equals(attributes.annotationType())) {
@@ -491,24 +521,65 @@ public interface AnnotatedTypeMetadata {
    * or an empty set if none were found
    * @see #getMergedRepeatableAnnotation(Class, Class, boolean)
    */
-  @SuppressWarnings("unchecked")
   default <A extends Annotation> Set<MergedAnnotation<A>> getMergedRepeatableAnnotation(
           Class<A> annotationType, Class<? extends Annotation> containerType, boolean sortByReversedMetaDistance) {
 
-    Stream<MergedAnnotation<Annotation>> stream = getAnnotations().stream()
-            .filter(MergedAnnotationPredicates.typeIn(containerType, annotationType));
+    return getMergedRepeatableAnnotation(annotationType, containerType, sortByReversedMetaDistance, null);
+  }
 
-    if (sortByReversedMetaDistance) {
-      stream = stream.sorted(reversedMetaDistance());
-    }
+  /**
+   * Retrieve all <em>repeatable annotations</em> of the given type within the
+   * annotation hierarchy <em>above</em> the underlying element (as direct
+   * annotation or meta-annotation); and for each annotation found, merge that
+   * annotation's attributes with <em>matching</em> attributes from annotations
+   * in lower levels of the annotation hierarchy and store the results in an
+   * instance of {@link MergedAnnotation}.
+   * <p>{@link cn.taketoday.core.annotation.AliasFor @AliasFor} semantics
+   * are fully supported, both within a single annotation and within annotation
+   * hierarchies.
+   * <p>If the {@code sortByReversedMetaDistance} flag is set to {@code true},
+   * the results will be sorted in {@link Comparator#reversed() reversed} order
+   * based on each annotation's {@linkplain MergedAnnotation#getDistance()
+   * meta distance}, which effectively orders meta-annotations before annotations
+   * that are declared directly on the underlying element.
+   *
+   * @param annotationType the annotation type to find
+   * @param containerType the type of the container that holds the annotations
+   * @param sortByReversedMetaDistance {@code true} if the results should be
+   * @param predicate a {@code Predicate} to apply to each {@code MergedAnnotation}
+   * to determine if it should be included in the results
+   * sorted in reversed order based on each annotation's meta distance
+   * @return the set of all merged repeatable {@code MergedAnnotation} found,
+   * or an empty set if none were found
+   * @see #getMergedRepeatableAnnotation(Class, Class, boolean)
+   */
+  @SuppressWarnings("unchecked")
+  default <A extends Annotation> Set<MergedAnnotation<A>> getMergedRepeatableAnnotation(
+          Class<A> annotationType, Class<? extends Annotation> containerType, boolean sortByReversedMetaDistance,
+          @Nullable Predicate<MergedAnnotation<? extends Annotation>> predicate) {
 
-    return stream.flatMap(annotation -> {
+    return stream(annotationType, containerType, sortByReversedMetaDistance, predicate)
+            .flatMap(annotation -> {
               if (containerType.equals(annotation.getType())) {
                 return Stream.of(annotation.getAnnotationArray(MergedAnnotation.VALUE, annotationType));
               }
               return Stream.of((MergedAnnotation<A>) annotation);
             })
             .collect(Collectors.toCollection(LinkedHashSet::new));
+  }
+
+  private <A extends Annotation> Stream<MergedAnnotation<Annotation>> stream(Class<A> annotationType,
+          Class<? extends Annotation> containerType, boolean sortByReversedMetaDistance,
+          @Nullable Predicate<MergedAnnotation<? extends Annotation>> predicate) {
+    var stream = getAnnotations().stream();
+    if (predicate != null) {
+      stream = stream.filter(predicate);
+    }
+    stream = stream.filter(MergedAnnotationPredicates.typeIn(containerType, annotationType));
+    if (sortByReversedMetaDistance) {
+      return stream.sorted(reversedMetaDistance());
+    }
+    return stream;
   }
 
   private static Comparator<MergedAnnotation<Annotation>> reversedMetaDistance() {
