@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -315,7 +315,7 @@ public abstract class MimeTypeUtils {
    */
   public static void sortBySpecificity(List<? extends MimeType> mimeTypes) {
     Assert.notNull(mimeTypes, "'mimeTypes' is required");
-    if (mimeTypes.size() >= 50) {
+    if (mimeTypes.size() > 50) {
       throw new InvalidMimeTypeException(mimeTypes.toString(), "Too many elements");
     }
     bubbleSort(mimeTypes, MimeType::isLessSpecific);
