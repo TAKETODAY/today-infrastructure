@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core;
@@ -58,6 +55,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Thomas Risberg
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PreparedStatementSetter
  * @see PreparedStatementCreator
  * @see CallableStatementCreator
@@ -83,11 +81,12 @@ public abstract class StatementCreatorUtils {
    */
   public static final String IGNORE_GETPARAMETERTYPE_PROPERTY_NAME = "today.jdbc.getParameterType.ignore";
 
-  static boolean shouldIgnoreGetParameterType = TodayStrategies.getFlag(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
-
   private static final Logger log = LoggerFactory.getLogger(StatementCreatorUtils.class);
 
   private static final Map<Class<?>, Integer> javaTypeToSqlTypeMap = new HashMap<>(32);
+
+  @Nullable
+  static Boolean shouldIgnoreGetParameterType;
 
   static {
     javaTypeToSqlTypeMap.put(boolean.class, Types.BOOLEAN);
@@ -116,6 +115,11 @@ public abstract class StatementCreatorUtils {
     javaTypeToSqlTypeMap.put(java.sql.Timestamp.class, Types.TIMESTAMP);
     javaTypeToSqlTypeMap.put(Blob.class, Types.BLOB);
     javaTypeToSqlTypeMap.put(Clob.class, Types.CLOB);
+
+    String flag = TodayStrategies.getProperty(IGNORE_GETPARAMETERTYPE_PROPERTY_NAME);
+    if (flag != null) {
+      shouldIgnoreGetParameterType = Boolean.valueOf(flag);
+    }
   }
 
   /**
@@ -255,9 +259,26 @@ public abstract class StatementCreatorUtils {
           throws SQLException {
 
     if (sqlType == SqlTypeValue.TYPE_UNKNOWN || (sqlType == Types.OTHER && typeName == null)) {
+      boolean callGetParameterType = false;
       boolean useSetObject = false;
       Integer sqlTypeToUse = null;
-      if (!shouldIgnoreGetParameterType) {
+      if (shouldIgnoreGetParameterType != null) {
+        callGetParameterType = !shouldIgnoreGetParameterType;
+      }
+      else {
+        String jdbcDriverName = ps.getConnection().getMetaData().getDriverName();
+        if (jdbcDriverName.startsWith("PostgreSQL")) {
+          sqlTypeToUse = Types.NULL;
+        }
+        else if (jdbcDriverName.startsWith("Microsoft") && jdbcDriverName.contains("SQL Server")) {
+          sqlTypeToUse = Types.NULL;
+          useSetObject = true;
+        }
+        else {
+          callGetParameterType = true;
+        }
+      }
+      if (callGetParameterType) {
         try {
           sqlTypeToUse = ps.getParameterMetaData().getParameterType(paramIndex);
         }
