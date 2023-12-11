@@ -12,15 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLSession;
@@ -34,7 +34,7 @@ import cn.taketoday.http.support.Netty4HeadersAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.cookie.Cookie;
@@ -77,10 +77,10 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
 
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
-    DefaultMultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
-    for (Map.Entry<CharSequence, Set<Cookie>> entry : request.cookies().entrySet()) {
-      CharSequence name = entry.getKey();
-      for (Cookie cookie : entry.getValue()) {
+    LinkedMultiValueMap<String, HttpCookie> cookies = MultiValueMap.forLinkedHashMap();
+    Map<CharSequence, List<Cookie>> allCookies = this.request.allCookies();
+    for (CharSequence name : allCookies.keySet()) {
+      for (Cookie cookie : allCookies.get(name)) {
         HttpCookie httpCookie = new HttpCookie(name.toString(), cookie.value());
         cookies.add(name.toString(), httpCookie);
       }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -35,9 +32,11 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
+import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.UndertowHttpServer;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 /**
  * @author Rossen Stoyanchev
@@ -56,24 +55,18 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
   public void basicTest(HttpServer httpServer) throws Exception {
     startServer(httpServer);
 
-    URI url = new URI("http://localhost:" + port);
+    URI url = URI.create("http://localhost:" + port);
     String header = "SID=31d4d96e407aad42; lang=en-US";
     ResponseEntity<Void> response = new RestTemplate().exchange(
             RequestEntity.get(url).header("Cookie", header).build(), Void.class);
 
     Map<String, List<HttpCookie>> requestCookies = this.cookieHandler.requestCookies;
-    assertThat(requestCookies.size()).isEqualTo(2);
-
-    List<HttpCookie> list = requestCookies.get("SID");
-    assertThat(list.size()).isEqualTo(1);
-    assertThat(list.iterator().next().getValue()).isEqualTo("31d4d96e407aad42");
-
-    list = requestCookies.get("lang");
-    assertThat(list.size()).isEqualTo(1);
-    assertThat(list.iterator().next().getValue()).isEqualTo("en-US");
+    assertThat(requestCookies).hasSize(2);
+    assertThat(requestCookies.get("SID")).extracting(HttpCookie::getValue).containsExactly("31d4d96e407aad42");
+    assertThat(requestCookies.get("lang")).extracting(HttpCookie::getValue).containsExactly("en-US");
 
     List<String> headerValues = response.getHeaders().get("Set-Cookie");
-    assertThat(headerValues.size()).isEqualTo(2);
+    assertThat(headerValues).hasSize(2);
 
     List<String> cookie0 = splitCookie(headerValues.get(0));
     assertThat(cookie0.remove("SID=31d4d96e407aad42")).as("SID").isTrue();
@@ -83,6 +76,23 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
     assertThat(cookie1.remove("lang=en-US")).as("lang").isTrue();
     assertThat(cookie1.stream().map(String::toLowerCase))
             .containsExactlyInAnyOrder("path=/", "domain=example.com");
+  }
+
+  @ParameterizedHttpServerTest
+  public void cookiesWithSameNameTest(HttpServer httpServer) throws Exception {
+    assumeFalse(httpServer instanceof UndertowHttpServer, "Bug in Undertow in Cookies with same name handling");
+
+    startServer(httpServer);
+
+    URI url = new URI("http://localhost:" + port);
+    String header = "SID=31d4d96e407aad42; lang=en-US; lang=zh-CN";
+    new RestTemplate().exchange(
+            RequestEntity.get(url).header("Cookie", header).build(), Void.class);
+
+    Map<String, List<HttpCookie>> requestCookies = this.cookieHandler.requestCookies;
+    assertThat(requestCookies.size()).isEqualTo(2);
+    assertThat(requestCookies.get("SID")).extracting(HttpCookie::getValue).containsExactly("31d4d96e407aad42");
+    assertThat(requestCookies.get("lang")).extracting(HttpCookie::getValue).containsExactly("en-US", "zh-CN");
   }
 
   // No client side HttpCookie support yet

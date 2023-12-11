@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -20,6 +20,8 @@ package cn.taketoday.http.server.reactive;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLSession;
@@ -145,8 +147,9 @@ class ReactorNetty2ServerHttpRequest extends AbstractServerHttpRequest {
   @Override
   protected MultiValueMap<String, HttpCookie> initCookies() {
     MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
-    for (CharSequence name : this.request.cookies().keySet()) {
-      for (HttpCookiePair cookie : this.request.cookies().get(name)) {
+    Map<CharSequence, List<HttpCookiePair>> allCookies = this.request.allCookies();
+    for (CharSequence name : allCookies.keySet()) {
+      for (HttpCookiePair cookie : allCookies.get(name)) {
         CharSequence cookieValue = cookie.value();
         HttpCookie httpCookie = new HttpCookie(name.toString(), cookieValue != null ? cookieValue.toString() : null);
         cookies.add(name.toString(), httpCookie);
