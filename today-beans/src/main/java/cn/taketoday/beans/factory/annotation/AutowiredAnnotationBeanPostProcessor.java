@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.annotation;
@@ -157,6 +157,8 @@ import cn.taketoday.util.StringUtils;
 public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationAwareBeanPostProcessor,
         MergedBeanDefinitionPostProcessor, BeanRegistrationAotProcessor, PriorityOrdered, BeanFactoryAware, DependenciesBeanPostProcessor {
 
+  private static final Constructor<?>[] EMPTY_CONSTRUCTOR_ARRAY = new Constructor<?>[0];
+
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
   private final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
@@ -278,8 +280,26 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   @Override
   public void postProcessMergedBeanDefinition(RootBeanDefinition beanDefinition, Class<?> beanType, String beanName) {
     if (beanDefinition.isEnableDependencyInjection()) {
+      // Register externally managed config members on bean definition.
       findInjectionMetadata(beanName, beanType, beanDefinition);
+
+      // Use opportunity to clear caches which are not needed after singleton instantiation.
+      // The injectionMetadataCache itself is left intact since it cannot be reliably
+      // reconstructed in terms of externally managed config members otherwise.
+      if (beanDefinition.isSingleton()) {
+        this.candidateConstructorsCache.remove(beanType);
+        // With actual lookup overrides, keep it intact along with bean definition.
+        if (!beanDefinition.hasMethodOverrides()) {
+          this.lookupMethodsChecked.remove(beanName);
+        }
+      }
     }
+  }
+
+  @Override
+  public void resetBeanDefinition(String beanName) {
+    this.lookupMethodsChecked.remove(beanName);
+    this.injectionMetadataCache.remove(beanName);
   }
 
   @Override
@@ -316,12 +336,6 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     InjectionMetadata metadata = findAutowiringMetadata(beanName, beanType, null);
     metadata.checkConfigMembers(beanDefinition);
     return metadata;
-  }
-
-  @Override
-  public void resetBeanDefinition(String beanName) {
-    this.lookupMethodsChecked.remove(beanName);
-    this.injectionMetadataCache.remove(beanName);
   }
 
   @Override
@@ -413,13 +427,13 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
                         "default constructor to fall back to: {}", beanName, candidates.get(0));
               }
             }
-            candidateConstructors = candidates.toArray(new Constructor<?>[0]);
+            candidateConstructors = candidates.toArray(EMPTY_CONSTRUCTOR_ARRAY);
           }
           else if (rawCandidates.length == 1 && rawCandidates[0].getParameterCount() > 0) {
             candidateConstructors = new Constructor<?>[] { rawCandidates[0] };
           }
           else {
-            candidateConstructors = new Constructor<?>[0];
+            candidateConstructors = EMPTY_CONSTRUCTOR_ARRAY;
           }
           this.candidateConstructorsCache.put(beanClass, candidateConstructors);
         }
