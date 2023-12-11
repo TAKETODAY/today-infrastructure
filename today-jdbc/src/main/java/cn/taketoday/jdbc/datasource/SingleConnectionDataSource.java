@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.jdbc.support.WrappedConnection;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
