@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.hint;
@@ -91,15 +91,17 @@ public class BindingReflectionHintsRegistrar {
               registerRecordHints(hints, seen, recordComponent.getAccessor());
             }
           }
-          typeHint.withMembers(MemberCategory.DECLARED_FIELDS,
-                  MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+          if (clazz.isEnum()) {
+            typeHint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS);
+          }
+          typeHint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
           for (Method method : clazz.getMethods()) {
             String methodName = method.getName();
             if (methodName.startsWith("set") && method.getParameterCount() == 1) {
               registerPropertyHints(hints, seen, method, 0);
             }
-            else if ((methodName.startsWith("get") && method.getParameterCount() == 0 && method.getReturnType() != Void.TYPE) ||
-                    (methodName.startsWith("is") && method.getParameterCount() == 0 && method.getReturnType() == boolean.class)) {
+            else if ((methodName.startsWith("get") && method.getParameterCount() == 0 && method.getReturnType() != Void.TYPE)
+                    || (methodName.startsWith("is") && method.getParameterCount() == 0 && method.getReturnType() == boolean.class)) {
               registerPropertyHints(hints, seen, method, -1);
             }
           }

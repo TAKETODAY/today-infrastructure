@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.hint;
@@ -231,8 +231,8 @@ class BindingReflectionHintsRegistrarTests {
   @Test
   void registerTypeForSerializationWithEnum() {
     bindingRegistrar.registerReflectionHints(this.hints.reflection(), SampleEnum.class);
-    assertThat(this.hints.reflection().typeHints()).singleElement()
-            .satisfies(typeHint -> assertThat(typeHint.getType()).isEqualTo(TypeReference.of(SampleEnum.class)));
+    assertThat(RuntimeHintsPredicates.reflection().onType(SampleEnum.class).withMemberCategories(
+            MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
   }
 
   @Test
