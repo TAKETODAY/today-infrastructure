@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.persistenceunit;
@@ -27,7 +24,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -48,15 +44,12 @@ import cn.taketoday.jdbc.datasource.lookup.MapDataSourceLookup;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ResourceUtils;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.SharedCacheMode;
 import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.PersistenceUnitInfo;
-import jakarta.validation.NoProviderFoundException;
-import jakarta.validation.Validation;
 
 /**
  * Default implementation of the {@link PersistenceUnitManager} interface.
@@ -76,14 +69,14 @@ import jakarta.validation.Validation;
  *
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setPersistenceXmlLocations
  * @see #setDataSourceLookup
  * @see #setLoadTimeWeaver
  * @see cn.taketoday.orm.jpa.LocalContainerEntityManagerFactoryBean#setPersistenceUnitManager
  * @since 4.0
  */
-public class DefaultPersistenceUnitManager
-        implements PersistenceUnitManager, ResourceLoaderAware, LoadTimeWeaverAware, InitializingBean {
+public class DefaultPersistenceUnitManager implements PersistenceUnitManager, ResourceLoaderAware, LoadTimeWeaverAware, InitializingBean {
 
   private static final String DEFAULT_ORM_XML_RESOURCE = "META-INF/orm.xml";
 
@@ -105,9 +98,6 @@ public class DefaultPersistenceUnitManager
    * Default persistence unit name.
    */
   public static final String ORIGINAL_DEFAULT_PERSISTENCE_UNIT_NAME = "default";
-
-  private static final boolean beanValidationPresent = ClassUtils.isPresent(
-          "jakarta.validation.Validation", DefaultPersistenceUnitManager.class.getClassLoader());
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -150,9 +140,9 @@ public class DefaultPersistenceUnitManager
 
   private PatternResourceLoader patternResourceLoader = new PathMatchingPatternResourceLoader();
 
-  private final Set<String> persistenceUnitInfoNames = new HashSet<>();
+  private final HashSet<String> persistenceUnitInfoNames = new HashSet<>();
 
-  private final Map<String, PersistenceUnitInfo> persistenceUnitInfos = new HashMap<>();
+  private final HashMap<String, PersistenceUnitInfo> persistenceUnitInfos = new HashMap<>();
 
   /**
    * Specify the location of the {@code persistence.xml} files to load.
@@ -479,14 +469,10 @@ public class DefaultPersistenceUnitManager
         pui.setSharedCacheMode(this.sharedCacheMode);
       }
 
-      // Override validation mode or pre-resolve provider detection
+      // Setting validationMode != ValidationMode.AUTO will ignore bean validation
+      // during schema generation, see https://hibernate.atlassian.net/browse/HHH-12287
       if (this.validationMode != null) {
         pui.setValidationMode(this.validationMode);
-      }
-      else if (pui.getValidationMode() == ValidationMode.AUTO) {
-        pui.setValidationMode(
-                beanValidationPresent && BeanValidationDelegate.isValidationProviderPresent() ?
-                ValidationMode.CALLBACK : ValidationMode.NONE);
       }
 
       // Initialize persistence unit ClassLoader
@@ -723,22 +709,6 @@ public class DefaultPersistenceUnitManager
       }
     }
     return pui;
-  }
-
-  /**
-   * Inner class to avoid a hard dependency on the Bean Validation API at runtime.
-   */
-  private static class BeanValidationDelegate {
-
-    public static boolean isValidationProviderPresent() {
-      try {
-        Validation.byDefaultProvider().configure();
-        return true;
-      }
-      catch (NoProviderFoundException ex) {
-        return false;
-      }
-    }
   }
 
 }
