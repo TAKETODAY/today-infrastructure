@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type;
@@ -339,11 +339,13 @@ class AnnotationMetadataTests {
 
   private static void assertRepeatableAnnotations(AnnotationMetadata metadata) {
     Set<AnnotationAttributes> attributesSet =
-            metadata.getMergedRepeatableAnnotationAttributes(TestComponentScan.class, TestComponentScans.class, false);
+            metadata.getMergedRepeatableAnnotationAttributes(TestComponentScan.class, TestComponentScans.class, true);
     assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("value")).flatMap(Arrays::stream))
             .containsExactly("A", "B", "C", "D");
     assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("basePackages")).flatMap(Arrays::stream))
             .containsExactly("A", "B", "C", "D");
+    assertThat(attributesSet.stream().map(attributes -> attributes.getStringArray("basePackageClasses")).flatMap(Arrays::stream))
+            .containsExactly("java.lang.String", "java.lang.Integer");
   }
 
   private static void assertRepeatableAnnotationsSortedByReversedMetaDistance(AnnotationMetadata metadata) {
@@ -713,16 +715,16 @@ class AnnotationMetadataTests {
   public @interface ScanPackagesCandD {
   }
 
-  @TestComponentScan("A")
+  @TestComponentScan(basePackages = "A", basePackageClasses = String.class)
   @ScanPackageC
   @ScanPackageD
-  @TestComponentScan("B")
+  @TestComponentScan(basePackages = "B", basePackageClasses = Integer.class)
   static class MultipleComposedRepeatableAnnotationsClass {
   }
 
-  @TestComponentScan("A")
+  @TestComponentScan(basePackages = "A", basePackageClasses = String.class)
   @ScanPackagesCandD
-  @TestComponentScans(@TestComponentScan("B"))
+  @TestComponentScans(@TestComponentScan(basePackages = "B", basePackageClasses = Integer.class))
   static class MultipleRepeatableAnnotationsInContainersClass {
   }
 
