@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.json;
@@ -24,6 +24,7 @@ import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
+import org.assertj.core.api.Assertions;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,14 +38,18 @@ import java.util.List;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
+import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
 import cn.taketoday.core.testfixture.io.buffer.AbstractLeakCheckingTests;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.CompositeByteBuf;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Arjen Poutsma
@@ -331,9 +336,32 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
                 assertThat(numberType).isEqualTo(JsonParser.NumberType.BIG_DECIMAL);
               }
               catch (IOException ex) {
-                fail(ex);
+                Assertions.fail(ex.getMessage(), ex);
               }
             })
+            .verifyComplete();
+  }
+
+  // gh-31747
+  @Test
+  public void compositeNettyBuffer() {
+    ByteBufAllocator allocator = UnpooledByteBufAllocator.DEFAULT;
+    ByteBuf firstByteBuf = allocator.buffer();
+    firstByteBuf.writeBytes("{\"foo\": \"foofoo\"".getBytes(StandardCharsets.UTF_8));
+    ByteBuf secondBuf = allocator.buffer();
+    secondBuf.writeBytes(", \"bar\": \"barbar\"}".getBytes(StandardCharsets.UTF_8));
+    CompositeByteBuf composite = allocator.compositeBuffer();
+    composite.addComponent(true, firstByteBuf);
+    composite.addComponent(true, secondBuf);
+
+    NettyDataBufferFactory bufferFactory = new NettyDataBufferFactory(allocator);
+    Flux<DataBuffer> source = Flux.just(bufferFactory.wrap(composite));
+    Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(source, this.jsonFactory, this.objectMapper, false, false, -1);
+
+    Flux<String> strings = tokens.map(this::tokenToString);
+
+    StepVerifier.create(strings)
+            .assertNext(s -> assertThat(s).isEqualTo("{\"foo\":\"foofoo\",\"bar\":\"barbar\"}"))
             .verifyComplete();
   }
 
@@ -343,16 +371,17 @@ public class Jackson2TokenizerTests extends AbstractLeakCheckingTests {
             Flux.fromIterable(source).map(this::stringBuffer),
             this.jsonFactory, this.objectMapper, tokenize, false, maxInMemorySize);
 
-    return tokens
-            .map(tokenBuffer -> {
-              try {
-                TreeNode root = this.objectMapper.readTree(tokenBuffer.asParser());
-                return this.objectMapper.writeValueAsString(root);
-              }
-              catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-              }
-            });
+    return tokens.map(this::tokenToString);
+  }
+
+  private String tokenToString(TokenBuffer tokenBuffer) {
+    try {
+      TreeNode root = this.objectMapper.readTree(tokenBuffer.asParser());
+      return this.objectMapper.writeValueAsString(root);
+    }
+    catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
   }
 
   private DataBuffer stringBuffer(String value) {

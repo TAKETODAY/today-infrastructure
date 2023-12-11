@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.json;
@@ -53,21 +50,28 @@ import reactor.core.publisher.Flux;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class Jackson2Tokenizer {
 
   private final JsonParser parser;
-  private final NonBlockingInputFeeder inputFeeder;
+
   private final DeserializationContext deserializationContext;
 
-  private final int maxInMemorySize;
-  private final boolean forceUseOfBigDecimal;
+  private final NonBlockingInputFeeder inputFeeder;
+
   private final boolean tokenizeArrayElements;
 
-  private int byteCount;
-  private int arrayDepth;
+  private final boolean forceUseOfBigDecimal;
+
+  private final int maxInMemorySize;
+
   private int objectDepth;
+
+  private int arrayDepth;
+
+  private int byteCount;
 
   private TokenBuffer tokenBuffer;
 
@@ -75,32 +79,34 @@ final class Jackson2Tokenizer {
           boolean tokenizeArrayElements, boolean forceUseOfBigDecimal, int maxInMemorySize) {
 
     this.parser = parser;
-    this.maxInMemorySize = maxInMemorySize;
-    this.forceUseOfBigDecimal = forceUseOfBigDecimal;
-    this.tokenizeArrayElements = tokenizeArrayElements;
     this.deserializationContext = deserializationContext;
-    this.inputFeeder = parser.getNonBlockingInputFeeder();
+    this.inputFeeder = this.parser.getNonBlockingInputFeeder();
+    this.tokenizeArrayElements = tokenizeArrayElements;
+    this.forceUseOfBigDecimal = forceUseOfBigDecimal;
+    this.maxInMemorySize = maxInMemorySize;
     this.tokenBuffer = createToken();
   }
 
   private List<TokenBuffer> tokenize(DataBuffer dataBuffer) {
     try {
       int bufferSize = dataBuffer.readableByteCount();
-      if (inputFeeder instanceof ByteBufferFeeder byteBufferFeeder) {
+      ArrayList<TokenBuffer> tokens = new ArrayList<>();
+      if (this.inputFeeder instanceof ByteBufferFeeder byteBufferFeeder) {
         try (DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
           while (iterator.hasNext()) {
             byteBufferFeeder.feedInput(iterator.next());
+            parseTokens(tokens);
           }
         }
       }
-      else if (inputFeeder instanceof ByteArrayFeeder byteArrayFeeder) {
+      else if (this.inputFeeder instanceof ByteArrayFeeder byteArrayFeeder) {
         byte[] bytes = new byte[bufferSize];
         dataBuffer.read(bytes);
         byteArrayFeeder.feedInput(bytes, 0, bufferSize);
+        parseTokens(tokens);
       }
-      List<TokenBuffer> result = parseTokenBufferFlux();
-      assertInMemorySize(bufferSize, result);
-      return result;
+      assertInMemorySize(bufferSize, tokens);
+      return tokens;
     }
     catch (JsonProcessingException ex) {
       throw new DecodingException("JSON decoding error: " + ex.getOriginalMessage(), ex);
@@ -117,7 +123,9 @@ final class Jackson2Tokenizer {
     return Flux.defer(() -> {
       this.inputFeeder.endOfInput();
       try {
-        return Flux.fromIterable(parseTokenBufferFlux());
+        ArrayList<TokenBuffer> tokens = new ArrayList<>();
+        parseTokens(tokens);
+        return Flux.fromIterable(tokens);
       }
       catch (JsonProcessingException ex) {
         throw new DecodingException("JSON decoding error: " + ex.getOriginalMessage(), ex);
@@ -128,14 +136,13 @@ final class Jackson2Tokenizer {
     });
   }
 
-  private ArrayList<TokenBuffer> parseTokenBufferFlux() throws IOException {
-    ArrayList<TokenBuffer> result = new ArrayList<>();
-
+  private void parseTokens(ArrayList<TokenBuffer> tokens) throws IOException {
     // SPR-16151: Smile data format uses null to separate documents
     boolean previousNull = false;
     while (!this.parser.isClosed()) {
       JsonToken token = this.parser.nextToken();
-      if (token == JsonToken.NOT_AVAILABLE || token == null && previousNull) {
+      if (token == JsonToken.NOT_AVAILABLE ||
+              token == null && previousNull) {
         break;
       }
       else if (token == null) { // !previousNull
@@ -147,13 +154,12 @@ final class Jackson2Tokenizer {
       }
       updateDepth(token);
       if (!this.tokenizeArrayElements) {
-        processTokenNormal(token, result);
+        processTokenNormal(token, tokens);
       }
       else {
-        processTokenArray(token, result);
+        processTokenArray(token, tokens);
       }
     }
-    return result;
   }
 
   private void updateDepth(JsonToken token) {
@@ -233,8 +239,7 @@ final class Jackson2Tokenizer {
    * @param maxInMemorySize maximum memory size
    * @return the resulting token buffers
    */
-  public static Flux<TokenBuffer> tokenize(
-          Flux<DataBuffer> dataBuffers, JsonFactory jsonFactory,
+  public static Flux<TokenBuffer> tokenize(Flux<DataBuffer> dataBuffers, JsonFactory jsonFactory,
           ObjectMapper objectMapper, boolean tokenizeArrays, boolean forceUseOfBigDecimal, int maxInMemorySize) {
 
     try {
@@ -247,9 +252,9 @@ final class Jackson2Tokenizer {
         parser = jsonFactory.createNonBlockingByteBufferParser();
       }
       DeserializationContext context = objectMapper.getDeserializationContext();
-      if (context instanceof DefaultDeserializationContext) {
-        context = ((DefaultDeserializationContext) context).createInstance(
-                objectMapper.getDeserializationConfig(), parser, objectMapper.getInjectableValues());
+      if (context instanceof DefaultDeserializationContext ddc) {
+        context = ddc.createInstance(objectMapper.getDeserializationConfig(),
+                parser, objectMapper.getInjectableValues());
       }
       Jackson2Tokenizer tokenizer =
               new Jackson2Tokenizer(parser, context, tokenizeArrays, forceUseOfBigDecimal, maxInMemorySize);
