@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.multipart.support;
@@ -24,7 +21,9 @@ import java.io.IOException;
 
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
 import jakarta.servlet.http.Part;
 
@@ -37,6 +36,7 @@ import jakarta.servlet.http.Part;
 public final class ServletPartFormData extends AbstractMultipart {
   private final Part part;
 
+  @Nullable
   private String value;
 
   public ServletPartFormData(Part part) {
@@ -56,6 +56,11 @@ public final class ServletPartFormData extends AbstractMultipart {
       this.value = value;
     }
     return value;
+  }
+
+  @Override
+  public byte[] getBytes() throws IOException {
+    return FileCopyUtils.copyToByteArray(part.getInputStream());
   }
 
   @Override
