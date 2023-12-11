@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core.metadata;
@@ -34,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * {@link cn.taketoday.jdbc.core.simple.SimpleJdbcCall}.
  *
  * @author Thomas Risberg
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface CallMetaDataProvider {
@@ -107,6 +105,14 @@ public interface CallMetaDataProvider {
    */
   @Nullable
   String parameterNameToUse(@Nullable String parameterName);
+
+  /**
+   * Return the name of the named parameter to use for binding the given parameter name.
+   *
+   * @param parameterName the name of the parameter to bind
+   * @return the name of the named parameter to use for binding the given parameter name
+   */
+  String namedParameterBindingToUse(@Nullable String parameterName);
 
   /**
    * Create a default out parameter based on the provided meta-data.

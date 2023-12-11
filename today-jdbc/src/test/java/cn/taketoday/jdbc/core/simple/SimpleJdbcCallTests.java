@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core.simple;
@@ -346,6 +346,19 @@ class SimpleJdbcCallTests {
     verify(callableStatement).close();
     verify(proceduresResultSet).close();
     verify(procedureColumnsResultSet).close();
+  }
+
+  @Test
+  void correctSybaseFunctionStatementNamed() throws Exception {
+    given(databaseMetaData.getDatabaseProductName()).willReturn("Sybase");
+    SimpleJdbcCall adder = new SimpleJdbcCall(dataSource)
+            .withoutProcedureColumnMetaDataAccess()
+            .withNamedBinding()
+            .withProcedureName("ADD_INVOICE")
+            .declareParameters(new SqlParameter("@AMOUNT", Types.NUMERIC))
+            .declareParameters(new SqlParameter("@CUSTID", Types.NUMERIC));
+    adder.compile();
+    verifyStatement(adder, "{call ADD_INVOICE(@AMOUNT = ?, @CUSTID = ?)}");
   }
 
 }
