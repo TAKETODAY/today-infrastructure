@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.support;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -32,6 +30,7 @@ import javax.sql.DataSource;
 import cn.taketoday.jdbc.support.incrementer.DataFieldMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.HanaSequenceMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.HsqlMaxValueIncrementer;
+import cn.taketoday.jdbc.support.incrementer.MySQLIdentityColumnMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.MySQLMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.OracleSequenceMaxValueIncrementer;
 import cn.taketoday.jdbc.support.incrementer.PostgresSequenceMaxValueIncrementer;
@@ -137,6 +136,33 @@ class DataFieldMaxValueIncrementerTests {
     verify(statement).executeUpdate("delete from myseq where seq in (-1, 0, 1)");
     verify(statement).executeUpdate("delete from myseq where seq in (2, 3, 4)");
     verify(resultSet, times(6)).close();
+    verify(statement, times(2)).close();
+    verify(connection, times(2)).close();
+  }
+
+  @Test
+  void mySQLIdentityColumnMaxValueIncrementer() throws SQLException {
+    given(dataSource.getConnection()).willReturn(connection);
+    given(connection.createStatement()).willReturn(statement);
+    given(statement.executeQuery("select last_insert_id()")).willReturn(resultSet);
+    given(resultSet.next()).willReturn(true);
+    given(resultSet.getLong(1)).willReturn(1L, 2L, 3L, 4L);
+
+    MySQLIdentityColumnMaxValueIncrementer incrementer = new MySQLIdentityColumnMaxValueIncrementer();
+    incrementer.setDataSource(dataSource);
+    incrementer.setIncrementerName("myseq");
+    incrementer.setColumnName("seq");
+    incrementer.setCacheSize(2);
+    incrementer.setPaddingLength(1);
+    incrementer.afterPropertiesSet();
+
+    Assertions.assertThat(incrementer.nextIntValue()).isEqualTo(1);
+    Assertions.assertThat(incrementer.nextLongValue()).isEqualTo(2);
+    Assertions.assertThat(incrementer.nextStringValue()).isEqualTo("3");
+    Assertions.assertThat(incrementer.nextLongValue()).isEqualTo(4);
+
+    verify(statement, times(4)).executeUpdate("insert into myseq () values ()");
+    verify(resultSet, times(4)).close();
     verify(statement, times(2)).close();
     verify(connection, times(2)).close();
   }
