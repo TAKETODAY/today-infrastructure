@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
 
 import java.util.Set;
+import java.util.function.Predicate;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.OrderedSupport;
@@ -60,33 +61,35 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
 
   private boolean preventResponseCaching = false;
 
+  @Nullable
+  private Predicate<Object> mappedHandlerPredicate;
+
   /**
-   * Specify the set of handlers that this exception handler should apply to.
-   * <p>The exception mappings and the default error view will only apply to the specified handlers.
-   * <p>If no handlers or handler classes are set, the exception mappings and the default error
-   * view will apply to all handlers. This means that a specified default error view will be used
-   * as a fallback for all exceptions; any further HandlerExceptionHandlers in the chain will be
-   * ignored in this case.
+   * Specify the set of handlers that this exception resolver should apply to.
+   * <p>If no handler predicate, nor handlers, nor handler classes are set,
+   * the exception resolver applies to all handlers.
+   *
+   * @see #setMappedHandlerPredicate(Predicate)
    */
   public void setMappedHandlers(@Nullable Set<?> mappedHandlers) {
     this.mappedHandlers = mappedHandlers;
   }
 
   /**
-   * Specify the set of classes that this exception handler should apply to.
-   * <p>The exception mappings and the default error view will only apply to handlers of the
-   * specified types; the specified types may be interfaces or superclasses of handlers as well.
-   * <p>If no handlers or handler classes are set, the exception mappings and the default error
-   * view will apply to all handlers. This means that a specified default error view will be used
-   * as a fallback for all exceptions; any further HandlerExceptionHandlers in the chain will be
-   * ignored in this case.
+   * Specify the set of classes that this exception resolver should apply to.
+   * The resolver will only apply to handlers of the specified types; the
+   * specified types may be interfaces or superclasses of handlers as well.
+   * <p>If no handler predicate, nor handlers, nor handler classes are set,
+   * the exception resolver applies to all handlers.
+   *
+   * @see #setMappedHandlerPredicate(Predicate)
    */
   public void setMappedHandlerClasses(Class<?>... mappedHandlerClasses) {
     this.mappedHandlerClasses = mappedHandlerClasses;
   }
 
   /**
-   * Add a mapped handler class.
+   * Alternative to {@link #setMappedHandlerClasses(Class[])}.
    */
   public void addMappedHandlerClass(Class<?> mappedHandlerClass) {
     this.mappedHandlerClasses =
@@ -132,6 +135,18 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   }
 
   /**
+   * Use a {@code Predicate} to determine which handlers this exception
+   * resolver applies to, including when the request was not mapped in which
+   * case the handler is {@code null}.
+   * <p>If no handler predicate, nor handlers, nor handler classes are set,
+   * the exception resolver applies to all handlers.
+   */
+  public void setMappedHandlerPredicate(Predicate<Object> predicate) {
+    this.mappedHandlerPredicate =
+            (this.mappedHandlerPredicate != null ? this.mappedHandlerPredicate.and(predicate) : predicate);
+  }
+
+  /**
    * Check whether this handler is supposed to apply (i.e. if the supplied handler
    * matches any of the configured {@linkplain #setMappedHandlers handlers} or
    * {@linkplain #setMappedHandlerClasses handler classes}), and then delegate
@@ -161,6 +176,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   /**
    * Check whether this handler is supposed to apply to the given handler.
    * <p>The default implementation checks against the configured
+   * {@linkplain #setMappedHandlerPredicate(Predicate) handlerPredicate}
    * {@linkplain #setMappedHandlers handlers} and
    * {@linkplain #setMappedHandlerClasses handler classes}, if any.
    *
@@ -173,6 +189,9 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @see #setMappedHandlerClasses
    */
   protected boolean shouldApplyTo(RequestContext request, @Nullable Object handler) {
+    if (this.mappedHandlerPredicate != null) {
+      return this.mappedHandlerPredicate.test(handler);
+    }
     if (handler != null) {
       if (this.mappedHandlers != null && this.mappedHandlers.contains(handler)) {
         return true;
@@ -193,7 +212,9 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * {@link #setMappedHandlers(Set)} or {@link #setMappedHandlerClasses(Class[])}.
    */
   protected boolean hasHandlerMappings() {
-    return mappedHandlers != null || mappedHandlerClasses != null;
+    return this.mappedHandlers != null
+            || this.mappedHandlerClasses != null
+            || this.mappedHandlerPredicate != null;
   }
 
   /**
@@ -276,7 +297,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * or {@code null} for default processing in the resolution chain
    */
   @Nullable
-  protected abstract Object handleInternal(
-          RequestContext request, @Nullable Object handler, Throwable ex) throws Exception;
+  protected abstract Object handleInternal(RequestContext request, @Nullable Object handler, Throwable ex)
+          throws Exception;
 
 }
