@@ -75,9 +75,10 @@ public abstract class AbstractDataSource implements DataSource {
     throw new UnsupportedOperationException("setLogWriter");
   }
 
-  //---------------------------------------------------------------------
-  // Implementation of JDBC 4.0's Wrapper interface
-  //---------------------------------------------------------------------
+  @Override
+  public java.util.logging.Logger getParentLogger() {
+    return java.util.logging.Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
+  }
 
   @Override
   @SuppressWarnings("unchecked")
@@ -92,15 +93,6 @@ public abstract class AbstractDataSource implements DataSource {
   @Override
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
     return iface.isInstance(this);
-  }
-
-  //---------------------------------------------------------------------
-  // Implementation of JDBC 4.1's getParentLogger method
-  //---------------------------------------------------------------------
-
-  @Override
-  public java.util.logging.Logger getParentLogger() {
-    return java.util.logging.Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
   }
 
 }

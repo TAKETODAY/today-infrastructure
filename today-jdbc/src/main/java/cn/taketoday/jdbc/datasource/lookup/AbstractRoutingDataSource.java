@@ -12,13 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource.lookup;
 
 import java.sql.Connection;
+import java.sql.ConnectionBuilder;
 import java.sql.SQLException;
+import java.sql.ShardingKeyBuilder;
 import java.util.Collections;
 import java.util.Map;
 
@@ -216,6 +218,16 @@ public abstract class AbstractRoutingDataSource extends AbstractDataSource imple
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
     return determineTargetDataSource().getConnection(username, password);
+  }
+
+  @Override
+  public ConnectionBuilder createConnectionBuilder() throws SQLException {
+    return determineTargetDataSource().createConnectionBuilder();
+  }
+
+  @Override
+  public ShardingKeyBuilder createShardingKeyBuilder() throws SQLException {
+    return determineTargetDataSource().createShardingKeyBuilder();
   }
 
   @Override
