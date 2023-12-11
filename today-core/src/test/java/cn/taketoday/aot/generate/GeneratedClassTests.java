@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +12,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.generate;
-
-import cn.taketoday.javapoet.ClassName;
-import cn.taketoday.javapoet.MethodSpec;
-import cn.taketoday.javapoet.TypeSpec;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
 import javax.lang.model.element.Modifier;
+
+import cn.taketoday.javapoet.ClassName;
+import cn.taketoday.javapoet.MethodSpec;
+import cn.taketoday.javapoet.TypeSpec;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -96,6 +93,14 @@ class GeneratedClassTests {
     GeneratedClass innerGeneratedClass2 = generatedClass.getOrAdd("Inner", emptyTypeCustomizer);
     GeneratedClass innerGeneratedClass3 = generatedClass.getOrAdd("Inner", emptyTypeCustomizer);
     assertThat(innerGeneratedClass).isSameAs(innerGeneratedClass2).isSameAs(innerGeneratedClass3);
+  }
+
+  @Test
+  void generateJavaFileIsAnnotatedWithGenerated() {
+    GeneratedClass generatedClass = createGeneratedClass(TEST_CLASS_NAME);
+    assertThat(generatedClass.generateJavaFile().toString())
+            .contains("@Generated")
+            .contains("import " + Generated.class.getName() + ";");
   }
 
   @Test
