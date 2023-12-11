@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util;
@@ -481,6 +481,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    *
    * @see UriComponents#toUriString()
    */
+  @Override
   public String toUriString() {
     return (this.uriVariables.isEmpty() ? build().encode().toUriString() :
             buildInternal(EncodingHint.ENCODE_TEMPLATE).toUriString());

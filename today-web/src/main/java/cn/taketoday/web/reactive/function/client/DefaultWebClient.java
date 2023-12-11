@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -188,7 +188,7 @@ class DefaultWebClient implements WebClient {
     @Nullable
     private BodyInserter<?, ? super ClientHttpRequest> inserter;
 
-    private final Map<String, Object> attributes = new LinkedHashMap<>(4);
+    private final LinkedHashMap<String, Object> attributes = new LinkedHashMap<>(4);
 
     @Nullable
     private Function<Context, Context> contextModifier;
@@ -202,8 +202,9 @@ class DefaultWebClient implements WebClient {
 
     @Override
     public RequestBodySpec uri(String uriTemplate, Object... uriVariables) {
-      attribute(URI_TEMPLATE_ATTRIBUTE, uriTemplate);
-      return uri(uriBuilderFactory.expand(uriTemplate, uriVariables));
+      UriBuilder uriBuilder = uriBuilderFactory.uriString(uriTemplate);
+      attribute(URI_TEMPLATE_ATTRIBUTE, uriBuilder.toUriString());
+      return uri(uriBuilder.build(uriVariables));
     }
 
     @Override
