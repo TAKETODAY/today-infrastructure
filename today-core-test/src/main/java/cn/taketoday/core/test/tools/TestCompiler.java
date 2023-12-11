@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.test.tools;
@@ -347,9 +347,7 @@ public final class TestCompiler {
       Errors errors = new Errors(this.locale);
       CompilationTask task = this.compiler.getTask(null, fileManager, errors,
               this.compilerOptions, null, compilationUnits);
-      if (!this.processors.isEmpty()) {
-        task.setProcessors(this.processors);
-      }
+      task.setProcessors(this.processors);
       boolean result = task.call();
       if (!result || errors.hasReportedErrors()) {
         throw new CompilationException(errors.toString(), this.sourceFiles, this.resourceFiles);
