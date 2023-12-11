@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -298,6 +298,22 @@ public class DefaultPartHttpMessageReaderTests {
     StepVerifier.create(result)
             .consumeNextWith(part -> testPart(part, null, LOREM_IPSUM, latch))
             .consumeNextWith(part -> testPart(part, null, MUSPI_MEROL, latch))
+            .verifyComplete();
+
+    latch.await();
+  }
+
+  @ParameterizedDefaultPartHttpMessageReaderTest
+  void emptyLastPart(String displayName, DefaultPartHttpMessageReader reader) throws InterruptedException {
+    MockServerHttpRequest request = createRequest(
+            new ClassPathResource("empty-part.multipart", getClass()), "LiG0chJ0k7YtLt-FzTklYFgz50i88xJCW5jD");
+
+    Flux<Part> result = reader.read(forClass(Part.class), request, emptyMap());
+
+    CountDownLatch latch = new CountDownLatch(2);
+    StepVerifier.create(result)
+            .consumeNextWith(part -> testPart(part, null, "", latch))
+            .consumeNextWith(part -> testPart(part, null, "", latch))
             .verifyComplete();
 
     latch.await();

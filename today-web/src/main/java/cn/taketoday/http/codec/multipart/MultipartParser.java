@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -522,7 +522,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
           while ((prev = this.queue.pollLast()) != null) {
             int prevByteCount = prev.readableByteCount();
             int prevLen = prevByteCount + len;
-            if (prevLen > 0) {
+            if (prevLen >= 0) {
               // slice body part of previous buffer, and flush it
               DataBuffer body = prev.split(prevLen + prev.readPosition());
               DataBufferUtils.release(prev);
