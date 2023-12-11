@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -28,18 +25,20 @@ import javax.naming.NamingException;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.jndi.JndiLocatorDelegate;
 import cn.taketoday.jndi.JndiTemplate;
-import cn.taketoday.lang.Nullable;
 
 /**
  * JNDI-based variant of {@link ConcurrentTaskScheduler}, performing a default lookup for
  * JSR-236's "java:comp/DefaultManagedScheduledExecutorService" in a Jakarta EE environment.
+ * Expected to be exposed as a bean, in particular as the default lookup happens in the
+ * standard {@link InitializingBean#afterPropertiesSet()} callback.
  *
  * <p>Note: This class is not strictly JSR-236 based; it can work with any regular
- * {@link ScheduledExecutorService} that can be found in JNDI.
+ * {@link java.util.concurrent.ScheduledExecutorService} that can be found in JNDI.
  * The actual adapting to {@link jakarta.enterprise.concurrent.ManagedScheduledExecutorService}
  * happens in the base class {@link ConcurrentTaskScheduler} itself.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see jakarta.enterprise.concurrent.ManagedScheduledExecutorService
  * @since 4.0
  */
@@ -47,8 +46,12 @@ public class DefaultManagedTaskScheduler extends ConcurrentTaskScheduler impleme
 
   private final JndiLocatorDelegate jndiLocator = new JndiLocatorDelegate();
 
-  @Nullable
   private String jndiName = "java:comp/DefaultManagedScheduledExecutorService";
+
+  public DefaultManagedTaskScheduler() {
+    // Executor initialization happens in afterPropertiesSet
+    super(null);
+  }
 
   /**
    * Set the JNDI template to use for JNDI lookups.
@@ -94,11 +97,9 @@ public class DefaultManagedTaskScheduler extends ConcurrentTaskScheduler impleme
 
   @Override
   public void afterPropertiesSet() throws NamingException {
-    if (this.jndiName != null) {
-      ScheduledExecutorService executor = this.jndiLocator.lookup(this.jndiName, ScheduledExecutorService.class);
-      setConcurrentExecutor(executor);
-      setScheduledExecutor(executor);
-    }
+    ScheduledExecutorService executor = this.jndiLocator.lookup(this.jndiName, ScheduledExecutorService.class);
+    setConcurrentExecutor(executor);
+    setScheduledExecutor(executor);
   }
 
 }

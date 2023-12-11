@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -81,6 +78,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
           ConcurrentTaskScheduler.class.getClassLoader()
   );
 
+  @Nullable
   private ScheduledExecutorService scheduledExecutor;
 
   private boolean enterpriseConcurrentScheduler = false;
@@ -159,11 +157,18 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
     initScheduledExecutor(scheduledExecutor);
   }
 
+  private ScheduledExecutorService getScheduledExecutor() {
+    if (this.scheduledExecutor == null) {
+      throw new IllegalStateException("No ScheduledExecutor is configured");
+    }
+    return this.scheduledExecutor;
+  }
+
   /**
    * Provide an {@link ErrorHandler} strategy.
    */
   public void setErrorHandler(ErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ErrorHandler is required");
+    Assert.notNull(errorHandler, "ErrorHandler must not be null");
     this.errorHandler = errorHandler;
   }
 
@@ -185,6 +190,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   @Override
   @Nullable
   public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
+    ScheduledExecutorService scheduleExecutorToUse = getScheduledExecutor();
     try {
       if (this.enterpriseConcurrentScheduler) {
         return new EnterpriseConcurrentTriggerScheduler().schedule(decorateTask(task, true), trigger);
@@ -192,69 +198,73 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
       else {
         ErrorHandler errorHandler =
                 (this.errorHandler != null ? this.errorHandler : TaskUtils.getDefaultErrorHandler(true));
-        return new ReschedulingRunnable(task, trigger, this.clock, this.scheduledExecutor, errorHandler).schedule();
+        return new ReschedulingRunnable(task, trigger, this.clock, scheduleExecutorToUse, errorHandler).schedule();
       }
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + this.scheduledExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(scheduleExecutorToUse, task, ex);
     }
   }
 
   @Override
   public ScheduledFuture<?> schedule(Runnable task, Instant startTime) {
-    Duration initialDelay = Duration.between(this.clock.instant(), startTime);
+    ScheduledExecutorService scheduleExecutorToUse = getScheduledExecutor();
+    Duration delay = Duration.between(this.clock.instant(), startTime);
     try {
-      return this.scheduledExecutor.schedule(decorateTask(task, false),
-              NANO.convert(initialDelay), NANO);
+      return scheduleExecutorToUse.schedule(decorateTask(task, false), NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + this.scheduledExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(scheduleExecutorToUse, task, ex);
     }
   }
 
   @Override
   public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Instant startTime, Duration period) {
+    ScheduledExecutorService scheduleExecutorToUse = getScheduledExecutor();
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
-      return this.scheduledExecutor.scheduleAtFixedRate(decorateTask(task, true),
+      return scheduleExecutorToUse.scheduleAtFixedRate(decorateTask(task, true),
               NANO.convert(initialDelay), NANO.convert(period), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + this.scheduledExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(scheduleExecutorToUse, task, ex);
     }
   }
 
   @Override
   public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Duration period) {
+    ScheduledExecutorService scheduleExecutorToUse = getScheduledExecutor();
     try {
-      return this.scheduledExecutor.scheduleAtFixedRate(decorateTask(task, true),
+      return scheduleExecutorToUse.scheduleAtFixedRate(decorateTask(task, true),
               0, NANO.convert(period), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + this.scheduledExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(scheduleExecutorToUse, task, ex);
     }
   }
 
   @Override
   public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Instant startTime, Duration delay) {
+    ScheduledExecutorService scheduleExecutorToUse = getScheduledExecutor();
     Duration initialDelay = Duration.between(this.clock.instant(), startTime);
     try {
-      return this.scheduledExecutor.scheduleWithFixedDelay(decorateTask(task, true),
+      return scheduleExecutorToUse.scheduleWithFixedDelay(decorateTask(task, true),
               NANO.convert(initialDelay), NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + this.scheduledExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(scheduleExecutorToUse, task, ex);
     }
   }
 
   @Override
   public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Duration delay) {
+    ScheduledExecutorService scheduleExecutorToUse = getScheduledExecutor();
     try {
-      return this.scheduledExecutor.scheduleWithFixedDelay(decorateTask(task, true),
+      return scheduleExecutorToUse.scheduleWithFixedDelay(decorateTask(task, true),
               0, NANO.convert(delay), NANO);
     }
     catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException("Executor [" + this.scheduledExecutor + "] did not accept task: " + task, ex);
+      throw new TaskRejectedException(scheduleExecutorToUse, task, ex);
     }
   }
 
@@ -267,13 +277,13 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   /**
-   * Delegate that adapts a Infra Trigger to a JSR-236 Trigger.
+   * Delegate that adapts a Spring Trigger to a JSR-236 Trigger.
    * Separated into an inner class in order to avoid a hard dependency on the JSR-236 API.
    */
   private class EnterpriseConcurrentTriggerScheduler {
 
     public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
-      ManagedScheduledExecutorService executor = (ManagedScheduledExecutorService) scheduledExecutor;
+      ManagedScheduledExecutorService executor = (ManagedScheduledExecutorService) getScheduledExecutor();
       return executor.schedule(task, new TriggerAdapter(trigger));
     }
 
