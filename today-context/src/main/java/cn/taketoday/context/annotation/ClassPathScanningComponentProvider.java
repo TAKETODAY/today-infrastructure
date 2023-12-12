@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -20,6 +20,7 @@ package cn.taketoday.context.annotation;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import cn.taketoday.beans.factory.BeanDefinitionStoreException;
 import cn.taketoday.bytecode.ClassReader;
 import cn.taketoday.context.ResourceLoaderAware;
 import cn.taketoday.context.index.CandidateComponentsIndex;
@@ -27,10 +28,12 @@ import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.ClassFormatException;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -50,6 +53,18 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
   private static final Logger log = LoggerFactory.getLogger(ClassPathScanningComponentProvider.class);
 
   public static final String DEFAULT_RESOURCE_PATTERN = "**/*.class";
+
+  /**
+   * System property that instructs Spring to ignore class format exceptions during
+   * classpath scanning, in particular for unsupported class file versions.
+   * By default, such a class format mismatch leads to a classpath scanning failure.
+   *
+   * @see ClassFormatException
+   */
+  public static final String IGNORE_CLASSFORMAT_PROPERTY_NAME = "infra.classformat.ignore";
+
+  private static final boolean shouldIgnoreClassFormatException =
+          TodayStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
 
   private String resourcePattern = DEFAULT_RESOURCE_PATTERN;
 
@@ -148,6 +163,8 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
   public void scan(String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     boolean traceEnabled = log.isTraceEnabled();
     String packageSearchPath = getPatternLocation(basePackage);
+    MetadataReaderFactory factory = getMetadataReaderFactory();
+
     getResourceLoader().scan(packageSearchPath, resource -> {
       String filename = resource.getName();
       if (filename != null && filename.contains(ClassUtils.CGLIB_CLASS_SEPARATOR)) {
@@ -158,13 +175,22 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
         log.trace("Scanning {}", resource);
       }
       try {
-        MetadataReaderFactory factory = getMetadataReaderFactory();
         MetadataReader metadataReader = factory.getMetadataReader(resource);
         metadataReaderConsumer.accept(metadataReader, factory);
       }
       catch (FileNotFoundException ex) {
         if (traceEnabled) {
           log.trace("Ignored non-readable {}: {}", resource, ex.getMessage());
+        }
+      }
+      catch (ClassFormatException ex) {
+        if (shouldIgnoreClassFormatException) {
+          log.debug("Ignored incompatible class format in {}: {}", resource, ex.getMessage());
+        }
+        else {
+          throw new BeanDefinitionStoreException("Incompatible class format in " + resource +
+                  ": set system property 'spring.classformat.ignore' to 'true' " +
+                  "if you mean to ignore such files during classpath scanning", ex);
         }
       }
     });

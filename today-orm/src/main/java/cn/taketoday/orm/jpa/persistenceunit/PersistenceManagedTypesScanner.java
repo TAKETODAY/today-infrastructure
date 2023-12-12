@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.persistenceunit;
@@ -34,11 +31,13 @@ import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.ClassFormatException;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import jakarta.persistence.Converter;
@@ -55,6 +54,11 @@ import jakarta.persistence.PersistenceException;
  * @since 4.0 2022/10/31 10:24
  */
 public final class PersistenceManagedTypesScanner {
+
+  public static final String IGNORE_CLASSFORMAT_PROPERTY_NAME = "infra.classformat.ignore";
+
+  private static final boolean shouldIgnoreClassFormatException =
+          TodayStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
 
   private static final String CLASS_RESOURCE_PATTERN = "/**/*.class";
 
@@ -128,6 +132,14 @@ public final class PersistenceManagedTypesScanner {
         }
         catch (FileNotFoundException ex) {
           // Ignore non-readable resource
+        }
+        catch (ClassFormatException ex) {
+          if (!shouldIgnoreClassFormatException) {
+            throw new PersistenceException("Incompatible class format in " + resource, ex);
+          }
+        }
+        catch (Throwable ex) {
+          throw new PersistenceException("Failed to read candidate component class: " + resource, ex);
         }
       }
     }

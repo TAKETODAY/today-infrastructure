@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.hibernate5;
@@ -56,12 +53,14 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
+import cn.taketoday.core.type.classreading.ClassFormatException;
 import cn.taketoday.core.type.classreading.MetadataReader;
 import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.core.type.filter.TypeFilter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.transaction.jta.JtaTransactionManager;
 import cn.taketoday.util.ClassUtils;
 import jakarta.persistence.Converter;
@@ -101,6 +100,11 @@ import jakarta.transaction.TransactionManager;
  */
 @SuppressWarnings("serial")
 public class LocalSessionFactoryBuilder extends Configuration {
+
+  public static final String IGNORE_CLASSFORMAT_PROPERTY_NAME = "infra.classformat.ignore";
+
+  private static final boolean shouldIgnoreClassFormatException =
+          TodayStrategies.getFlag(IGNORE_CLASSFORMAT_PROPERTY_NAME);
 
   private static final String RESOURCE_PATTERN = "/**/*.class";
 
@@ -160,8 +164,8 @@ public class LocalSessionFactoryBuilder extends Configuration {
    * @param resourceLoader the ResourceLoader to load application classes from
    * @param metadataSources the Hibernate MetadataSources service to use (e.g. reusing an existing one)
    */
-  public LocalSessionFactoryBuilder(
-          @Nullable DataSource dataSource, ResourceLoader resourceLoader, MetadataSources metadataSources) {
+  public LocalSessionFactoryBuilder(@Nullable DataSource dataSource,
+          ResourceLoader resourceLoader, MetadataSources metadataSources) {
     super(metadataSources);
     Properties properties = getProperties();
     properties.put(AvailableSettings.CURRENT_SESSION_CONTEXT_CLASS, HibernateSessionContext.class.getName());
@@ -341,6 +345,14 @@ public class LocalSessionFactoryBuilder extends Configuration {
           }
           catch (FileNotFoundException ex) {
             // Ignore non-readable resource
+          }
+          catch (ClassFormatException ex) {
+            if (!shouldIgnoreClassFormatException) {
+              throw new MappingException("Incompatible class format in " + resource, ex);
+            }
+          }
+          catch (Throwable ex) {
+            throw new MappingException("Failed to read candidate component class: " + resource, ex);
           }
         }
       }

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -82,11 +82,12 @@ import cn.taketoday.util.ClassUtils;
  * @see CandidateComponentsIndex
  * @since 4.0 2021/12/9 21:33
  */
-public class ClassPathScanningCandidateComponentProvider
-        extends ClassPathScanningComponentProvider implements EnvironmentCapable {
+public class ClassPathScanningCandidateComponentProvider extends ClassPathScanningComponentProvider implements EnvironmentCapable {
+
   private static final Logger log = LoggerFactory.getLogger(ClassPathScanningCandidateComponentProvider.class);
 
   private final ArrayList<TypeFilter> includeFilters = new ArrayList<>();
+
   private final ArrayList<TypeFilter> excludeFilters = new ArrayList<>();
 
   @Nullable
@@ -289,8 +290,7 @@ public class ClassPathScanningCandidateComponentProvider
    *
    * @param basePackage the package to check for annotated classes
    */
-  public void scanCandidateComponents(
-          String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
+  public void scanCandidateComponents(String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     if (componentsIndex != null && indexSupportsIncludeFilters()) {
       scanCandidateComponentsFromIndex(
               componentsIndex, basePackage, new FilteredMetadataReaderConsumer(metadataReaderConsumer));
@@ -354,9 +354,8 @@ public class ClassPathScanningCandidateComponentProvider
     return null;
   }
 
-  private void scanCandidateComponentsFromIndex(
-          CandidateComponentsIndex index, String basePackage,
-          MetadataReaderConsumer metadataReaderConsumer) throws IOException {
+  private void scanCandidateComponentsFromIndex(CandidateComponentsIndex index,
+          String basePackage, MetadataReaderConsumer metadataReaderConsumer) throws IOException {
     HashSet<String> types = new HashSet<>();
     for (TypeFilter filter : this.includeFilters) {
       String stereotype = extractStereotype(filter);
@@ -397,8 +396,7 @@ public class ClassPathScanningCandidateComponentProvider
    * for other classes (such as superclasses and interfaces)
    * @return whether the class qualifies as a candidate component
    */
-  protected boolean isCandidateComponent(
-          MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
+  protected boolean isCandidateComponent(MetadataReader metadataReader, MetadataReaderFactory factory) throws IOException {
     for (TypeFilter tf : excludeFilters) {
       if (tf.match(metadataReader, factory)) {
         return false;
