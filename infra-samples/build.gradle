@@ -1,6 +1,7 @@
 plugins {
   id 'de.undercouch.download' version '5.4.0'
 //  id 'org.graalvm.buildtools.native' version '0.9.23'
+  id 'org.graalvm.buildtools.native' version '0.9.28'
 }
 
 configure(subprojects) {
@@ -8,6 +9,7 @@ configure(subprojects) {
 
   apply plugin: 'java'
   apply plugin: "cn.taketoday.application"
+  apply plugin: "cn.taketoday.application.aot"
   apply plugin: 'io.spring.dependency-management'
 
   sourceCompatibility = JavaVersion.VERSION_17
