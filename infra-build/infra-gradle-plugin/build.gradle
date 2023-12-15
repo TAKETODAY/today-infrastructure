@@ -25,9 +25,9 @@ dependencies {
   implementation(project(":infra-build:infra-app-loader-tools"))
   implementation project(":infra-build:infra-buildpack-platform")
   implementation 'org.apache.commons:commons-compress:1.21'
-  implementation 'io.spring.gradle:dependency-management-plugin:1.1.2'
+  implementation 'io.spring.gradle:dependency-management-plugin:1.1.4'
 
-  optional('org.graalvm.buildtools:native-gradle-plugin:0.9.23')
+  optional('org.graalvm.buildtools:native-gradle-plugin:0.9.28')
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-framework"))
