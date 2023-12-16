@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -40,6 +40,8 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import cn.taketoday.core.Ordered;
+import cn.taketoday.core.annotation.AnnotationsScannerTests.Hello2Impl;
+import cn.taketoday.core.annotation.AnnotationsScannerTests.TestAnnotation1;
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
 import cn.taketoday.core.annotation.MergedAnnotations.Search;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
@@ -679,14 +681,21 @@ class MergedAnnotationsTests {
   }
 
   @Test
-  void getWithTypeHierarchyInheritedFromInterfaceMethod()
-          throws NoSuchMethodException {
-    Method method = ConcreteClassWithInheritedAnnotation.class.getMethod(
-            "handleFromInterface");
-    MergedAnnotation<?> annotation = MergedAnnotations.from(method,
-            SearchStrategy.TYPE_HIERARCHY).get(Order.class);
+  void getWithTypeHierarchyInheritedFromInterfaceMethod() throws Exception {
+    Method method = ConcreteClassWithInheritedAnnotation.class.getMethod("handleFromInterface");
+    MergedAnnotation<?> annotation = MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY).get(Order.class);
     assertThat(annotation.isPresent()).isTrue();
     assertThat(annotation.getAggregateIndex()).isEqualTo(1);
+  }
+
+  @Test
+  void streamWithTypeHierarchyInheritedFromSuperInterfaceMethod() throws Exception {
+    Method method = Hello2Impl.class.getMethod("method");
+    long count = MergedAnnotations.search(SearchStrategy.TYPE_HIERARCHY)
+            .from(method)
+            .stream(TestAnnotation1.class)
+            .count();
+    assertThat(count).isEqualTo(1);
   }
 
   @Test
