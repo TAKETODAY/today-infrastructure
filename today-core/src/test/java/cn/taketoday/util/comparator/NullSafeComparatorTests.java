@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.comparator;
@@ -35,19 +32,26 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class NullSafeComparatorTests {
 
-  @SuppressWarnings("unchecked")
   @Test
+  @SuppressWarnings("unchecked")
   void shouldCompareWithNullsLow() {
     Comparator<String> c = NullSafeComparator.NULLS_LOW;
-    assertThat(c.compare(null, "boo") < 0).isTrue();
+
+    assertThat(c.compare("boo", "boo")).isZero();
+    assertThat(c.compare(null, null)).isZero();
+    assertThat(c.compare(null, "boo")).isNegative();
+    assertThat(c.compare("boo", null)).isPositive();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
+  @SuppressWarnings("unchecked")
   void shouldCompareWithNullsHigh() {
     Comparator<String> c = NullSafeComparator.NULLS_HIGH;
-    assertThat(c.compare(null, "boo") > 0).isTrue();
-    assertThat(c.compare(null, null) == 0).isTrue();
+
+    assertThat(c.compare("boo", "boo")).isZero();
+    assertThat(c.compare(null, null)).isZero();
+    assertThat(c.compare(null, "boo")).isPositive();
+    assertThat(c.compare("boo", null)).isNegative();
   }
 
 }
