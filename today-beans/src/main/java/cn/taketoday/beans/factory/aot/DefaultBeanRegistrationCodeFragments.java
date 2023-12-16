@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -28,6 +28,8 @@ import cn.taketoday.aot.generate.AccessControl;
 import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.aot.generate.MethodReference;
 import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
+import cn.taketoday.aot.generate.ValueCodeGenerator;
+import cn.taketoday.aot.generate.ValueCodeGenerator.Delegate;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
@@ -52,6 +54,8 @@ import cn.taketoday.util.function.SingletonSupplier;
  * @since 4.0
  */
 class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragments {
+
+  private static final ValueCodeGenerator valueCodeGenerator = ValueCodeGenerator.withDefaults();
 
   private final BeanRegistrationsCode beanRegistrationsCode;
 
@@ -147,9 +151,9 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
 
   private CodeBlock generateBeanTypeCode(ResolvableType beanType) {
     if (!beanType.hasGenerics()) {
-      return CodeBlock.of("$T.class", ClassUtils.getUserClass(beanType.toClass()));
+      return valueCodeGenerator.generateCode(ClassUtils.getUserClass(beanType.toClass()));
     }
-    return ResolvableTypeCodeGenerator.generateCode(beanType);
+    return valueCodeGenerator.generateCode(beanType);
   }
 
   private boolean targetTypeNecessary(ResolvableType beanType, @Nullable Class<?> beanClass) {
@@ -164,16 +168,14 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
   }
 
   @Override
-  public CodeBlock generateSetBeanDefinitionPropertiesCode(
-          GenerationContext generationContext,
-          BeanRegistrationCode beanRegistrationCode, RootBeanDefinition beanDefinition,
-          Predicate<String> attributeFilter) {
+  public CodeBlock generateSetBeanDefinitionPropertiesCode(GenerationContext generationContext,
+          BeanRegistrationCode beanRegistrationCode, RootBeanDefinition beanDefinition, Predicate<String> attributeFilter) {
 
-    return new BeanDefinitionPropertiesCodeGenerator(
-            generationContext.getRuntimeHints(), attributeFilter,
-            beanRegistrationCode.getMethods(),
-            (name, value) -> generateValueCode(generationContext, name, value))
-            .generateCode(beanDefinition);
+    var loader = AotServices.factories(this.registeredBean.getBeanFactory().getBeanClassLoader());
+    List<Delegate> additionalDelegates = loader.load(Delegate.class).asList();
+    return new BeanDefinitionPropertiesCodeGenerator(generationContext.getRuntimeHints(),
+            attributeFilter, beanRegistrationCode.getMethods(), additionalDelegates,
+            (name, value) -> generateValueCode(generationContext, name, value)).generateCode(beanDefinition);
   }
 
   @Nullable

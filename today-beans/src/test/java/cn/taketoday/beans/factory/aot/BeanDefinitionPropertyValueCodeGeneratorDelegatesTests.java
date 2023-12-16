@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -40,6 +37,8 @@ import java.util.function.Supplier;
 import javax.lang.model.element.Modifier;
 
 import cn.taketoday.aot.generate.GeneratedClass;
+import cn.taketoday.aot.generate.ValueCodeGenerator;
+import cn.taketoday.aot.generate.ValueCodeGeneratorDelegates;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
 import cn.taketoday.beans.factory.config.BeanReference;
 import cn.taketoday.beans.factory.config.RuntimeBeanNameReference;
@@ -51,12 +50,14 @@ import cn.taketoday.beans.testfixture.beans.factory.aot.DeferredTypeBuilder;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.test.tools.Compiled;
 import cn.taketoday.core.test.tools.TestCompiler;
+import cn.taketoday.core.testfixture.aot.generate.value.EnumWithClassBody;
+import cn.taketoday.core.testfixture.aot.generate.value.ExampleClass;
+import cn.taketoday.core.testfixture.aot.generate.value.ExampleClass$$GeneratedBy;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.javapoet.MethodSpec;
 import cn.taketoday.javapoet.ParameterizedTypeName;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link BeanDefinitionPropertyValueCodeGenerator}.
@@ -64,20 +65,22 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Stephane Nicoll
  * @author Phillip Webb
  * @author Sebastien Deleuze
- * @see BeanDefinitionPropertyValueCodeGeneratorTests
+ * @see BeanDefinitionPropertyValueCodeGeneratorDelegatesTests
  * @since 4.0
  */
-class BeanDefinitionPropertyValueCodeGeneratorTests {
+class BeanDefinitionPropertyValueCodeGeneratorDelegatesTests {
 
-  private static BeanDefinitionPropertyValueCodeGenerator createPropertyValuesCodeGenerator(GeneratedClass generatedClass) {
-    return new BeanDefinitionPropertyValueCodeGenerator(generatedClass.getMethods(), null);
+  private static ValueCodeGenerator createValueCodeGenerator(GeneratedClass generatedClass) {
+    return ValueCodeGenerator.with(BeanDefinitionPropertyValueCodeGeneratorDelegates.INSTANCES)
+            .add(ValueCodeGeneratorDelegates.INSTANCES)
+            .scoped(generatedClass.getMethods());
   }
 
   private void compile(Object value, BiConsumer<Object, Compiled> result) {
     TestGenerationContext generationContext = new TestGenerationContext();
     DeferredTypeBuilder typeBuilder = new DeferredTypeBuilder();
     GeneratedClass generatedClass = generationContext.getGeneratedClasses().addForFeature("TestCode", typeBuilder);
-    CodeBlock generatedCode = createPropertyValuesCodeGenerator(generatedClass).generateCode(value);
+    CodeBlock generatedCode = createValueCodeGenerator(generatedClass).generateCode(value);
     typeBuilder.set(type -> {
       type.addModifiers(Modifier.PUBLIC);
       type.addSuperinterface(
@@ -105,90 +108,72 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
 
     @Test
     void generateWhenBoolean() {
-      compile(true, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(Boolean.TRUE);
-        assertThat(compiled.getSourceFile()).contains("true");
-      });
+      compile(true, (instance, compiled) ->
+              assertThat(instance).isEqualTo(Boolean.TRUE));
     }
 
     @Test
     void generateWhenByte() {
-      compile((byte) 2, (instance, compiled) -> {
-        assertThat(instance).isEqualTo((byte) 2);
-        assertThat(compiled.getSourceFile()).contains("(byte) 2");
-      });
+      compile((byte) 2, (instance, compiled) ->
+              assertThat(instance).isEqualTo((byte) 2));
     }
 
     @Test
     void generateWhenShort() {
-      compile((short) 3, (instance, compiled) -> {
-        assertThat(instance).isEqualTo((short) 3);
-        assertThat(compiled.getSourceFile()).contains("(short) 3");
-      });
+      compile((short) 3, (instance, compiled) ->
+              assertThat(instance).isEqualTo((short) 3));
     }
 
     @Test
     void generateWhenInt() {
-      compile(4, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(4);
-        assertThat(compiled.getSourceFile()).contains("return 4;");
-      });
+      compile(4, (instance, compiled) ->
+              assertThat(instance).isEqualTo(4));
     }
 
     @Test
     void generateWhenLong() {
-      compile(5L, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(5L);
-        assertThat(compiled.getSourceFile()).contains("5L");
-      });
+      compile(5L, (instance, compiled) ->
+              assertThat(instance).isEqualTo(5L));
     }
 
     @Test
     void generateWhenFloat() {
-      compile(0.1F, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(0.1F);
-        assertThat(compiled.getSourceFile()).contains("0.1F");
-      });
+      compile(0.1F, (instance, compiled) ->
+              assertThat(instance).isEqualTo(0.1F));
     }
 
     @Test
     void generateWhenDouble() {
-      compile(0.2, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(0.2);
-        assertThat(compiled.getSourceFile()).contains("(double) 0.2");
-      });
+      compile(0.2, (instance, compiled) ->
+              assertThat(instance).isEqualTo(0.2));
     }
 
     @Test
     void generateWhenChar() {
-      compile('a', (instance, compiled) -> {
-        assertThat(instance).isEqualTo('a');
-        assertThat(compiled.getSourceFile()).contains("'a'");
-      });
+      compile('a', (instance, compiled) ->
+              assertThat(instance).isEqualTo('a'));
     }
 
     @Test
     void generateWhenSimpleEscapedCharReturnsEscaped() {
-      testEscaped('\b', "'\\b'");
-      testEscaped('\t', "'\\t'");
-      testEscaped('\n', "'\\n'");
-      testEscaped('\f', "'\\f'");
-      testEscaped('\r', "'\\r'");
-      testEscaped('\"', "'\"'");
-      testEscaped('\'', "'\\''");
-      testEscaped('\\', "'\\\\'");
+      testEscaped('\b');
+      testEscaped('\t');
+      testEscaped('\n');
+      testEscaped('\f');
+      testEscaped('\r');
+      testEscaped('\"');
+      testEscaped('\'');
+      testEscaped('\\');
     }
 
     @Test
     void generatedWhenUnicodeEscapedCharReturnsEscaped() {
-      testEscaped('\u007f', "'\\u007f'");
+      testEscaped('\u007f');
     }
 
-    private void testEscaped(char value, String expectedSourceContent) {
-      compile(value, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(value);
-        assertThat(compiled.getSourceFile()).contains(expectedSourceContent);
-      });
+    private void testEscaped(char value) {
+      compile(value, (instance, compiled) ->
+              assertThat(instance).isEqualTo(value));
     }
 
   }
@@ -198,10 +183,8 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
 
     @Test
     void generateWhenString() {
-      compile("test\n", (instance, compiled) -> {
-        assertThat(instance).isEqualTo("test\n");
-        assertThat(compiled.getSourceFile()).contains("\n");
-      });
+      compile("test\n", (instance, compiled) ->
+              assertThat(instance).isEqualTo("test\n"));
     }
 
   }
@@ -211,10 +194,8 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
 
     @Test
     void generateWhenCharset() {
-      compile(StandardCharsets.UTF_8, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(Charset.forName("UTF-8"));
-        assertThat(compiled.getSourceFile()).contains("\"UTF-8\"");
-      });
+      compile(StandardCharsets.UTF_8, (instance, compiled) ->
+              assertThat(instance).isEqualTo(Charset.forName("UTF-8")));
     }
 
   }
@@ -224,18 +205,14 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
 
     @Test
     void generateWhenEnum() {
-      compile(ChronoUnit.DAYS, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(ChronoUnit.DAYS);
-        assertThat(compiled.getSourceFile()).contains("ChronoUnit.DAYS");
-      });
+      compile(ChronoUnit.DAYS, (instance, compiled) ->
+              assertThat(instance).isEqualTo(ChronoUnit.DAYS));
     }
 
     @Test
     void generateWhenEnumWithClassBody() {
-      compile(EnumWithClassBody.TWO, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(EnumWithClassBody.TWO);
-        assertThat(compiled.getSourceFile()).contains("EnumWithClassBody.TWO");
-      });
+      compile(EnumWithClassBody.TWO, (instance, compiled) ->
+              assertThat(instance).isEqualTo(EnumWithClassBody.TWO));
     }
 
   }
@@ -270,18 +247,16 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
     @Test
     void generateWhenNoneResolvableType() {
       ResolvableType resolvableType = ResolvableType.NONE;
-      compile(resolvableType, (instance, compiled) -> {
-        assertThat(instance).isEqualTo(resolvableType);
-        assertThat(compiled.getSourceFile()).contains("ResolvableType.NONE");
-      });
+      compile(resolvableType, (instance, compiled) ->
+              assertThat(instance).isEqualTo(resolvableType));
     }
 
     @Test
     void generateWhenGenericResolvableType() {
       ResolvableType resolvableType = ResolvableType
               .forClassWithGenerics(List.class, String.class);
-      compile(resolvableType, (instance, compiled) -> assertThat(instance)
-              .isEqualTo(resolvableType));
+      compile(resolvableType, (instance, compiled) ->
+              assertThat(instance).isEqualTo(resolvableType));
     }
 
     @Test
@@ -302,28 +277,22 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
     @Test
     void generateWhenPrimitiveArray() {
       byte[] bytes = { 0, 1, 2 };
-      compile(bytes, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(bytes);
-        assertThat(compiler.getSourceFile()).contains("new byte[]");
-      });
+      compile(bytes, (instance, compiler) ->
+              assertThat(instance).isEqualTo(bytes));
     }
 
     @Test
     void generateWhenWrapperArray() {
       Byte[] bytes = { 0, 1, 2 };
-      compile(bytes, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(bytes);
-        assertThat(compiler.getSourceFile()).contains("new Byte[]");
-      });
+      compile(bytes, (instance, compiler) ->
+              assertThat(instance).isEqualTo(bytes));
     }
 
     @Test
     void generateWhenClassArray() {
       Class<?>[] classes = new Class<?>[] { InputStream.class, OutputStream.class };
-      compile(classes, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(classes);
-        assertThat(compiler.getSourceFile()).contains("new Class[]");
-      });
+      compile(classes, (instance, compiler) ->
+              assertThat(instance).isEqualTo(classes));
     }
 
   }
@@ -406,10 +375,7 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
     @Test
     void generateWhenEmptyList() {
       List<String> list = List.of();
-      compile(list, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(list);
-        assertThat(compiler.getSourceFile()).contains("Collections.emptyList();");
-      });
+      compile(list, (instance, compiler) -> assertThat(instance).isEqualTo(list));
     }
 
   }
@@ -427,20 +393,14 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
     @Test
     void generateWhenEmptySet() {
       Set<String> set = Set.of();
-      compile(set, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(set);
-        assertThat(compiler.getSourceFile()).contains("Collections.emptySet();");
-      });
+      compile(set, (instance, compiler) -> assertThat(instance).isEqualTo(set));
     }
 
     @Test
     void generateWhenLinkedHashSet() {
       Set<String> set = new LinkedHashSet<>(List.of("a", "b", "c"));
-      compile(set, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(set).isInstanceOf(LinkedHashSet.class);
-        assertThat(compiler.getSourceFile())
-                .contains("new LinkedHashSet(List.of(");
-      });
+      compile(set, (instance, compiler) ->
+              assertThat(instance).isEqualTo(set).isInstanceOf(LinkedHashSet.class));
     }
 
     @Test
@@ -457,10 +417,8 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
     @Test
     void generateWhenSmallMap() {
       Map<String, String> map = Map.of("k1", "v1", "k2", "v2");
-      compile(map, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(map);
-        assertThat(compiler.getSourceFile()).contains("Map.of(");
-      });
+      compile(map, (instance, compiler) ->
+              assertThat(instance).isEqualTo(map));
     }
 
     @Test
@@ -469,10 +427,7 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
       for (int i = 1; i <= 11; i++) {
         map.put("k" + i, "v" + i);
       }
-      compile(map, (instance, compiler) -> {
-        assertThat(instance).isEqualTo(map);
-        assertThat(compiler.getSourceFile()).contains("Map.ofEntries(");
-      });
+      compile(map, (instance, compiler) -> assertThat(instance).isEqualTo(map));
     }
 
     @Test
@@ -519,49 +474,6 @@ class BeanDefinitionPropertyValueCodeGeneratorTests {
         assertThat(actual.getBeanType()).isEqualTo(String.class);
       });
     }
-
-  }
-
-  @Nested
-  static class ExceptionTests {
-
-    @Test
-    void generateWhenUnsupportedDataTypeThrowsException() {
-      SampleValue sampleValue = new SampleValue("one");
-      assertThatIllegalArgumentException().isThrownBy(() -> generateCode(sampleValue))
-              .withMessageContaining("Failed to generate code for")
-              .withMessageContaining(sampleValue.toString())
-              .withMessageContaining(SampleValue.class.getName())
-              .havingCause()
-              .withMessageContaining("Code generation does not support")
-              .withMessageContaining(SampleValue.class.getName());
-    }
-
-    @Test
-    void generateWhenListOfUnsupportedElement() {
-      SampleValue one = new SampleValue("one");
-      SampleValue two = new SampleValue("two");
-      List<SampleValue> list = List.of(one, two);
-      assertThatIllegalArgumentException().isThrownBy(() -> generateCode(list))
-              .withMessageContaining("Failed to generate code for")
-              .withMessageContaining(list.toString())
-              .withMessageContaining(list.getClass().getName())
-              .havingCause()
-              .withMessageContaining("Failed to generate code for")
-              .withMessageContaining(one.toString())
-              .withMessageContaining("?")
-              .havingCause()
-              .withMessageContaining("Code generation does not support ?");
-    }
-
-    private void generateCode(Object value) {
-      TestGenerationContext context = new TestGenerationContext();
-      GeneratedClass generatedClass = context.getGeneratedClasses()
-              .addForFeature("Test", type -> { });
-      createPropertyValuesCodeGenerator(generatedClass).generateCode(value);
-    }
-
-    record SampleValue(String name) { }
 
   }
 

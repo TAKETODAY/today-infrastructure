@@ -35,6 +35,9 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import cn.taketoday.aot.generate.GeneratedMethods;
+import cn.taketoday.aot.generate.ValueCodeGenerator;
+import cn.taketoday.aot.generate.ValueCodeGenerator.Delegate;
+import cn.taketoday.aot.generate.ValueCodeGeneratorDelegates;
 import cn.taketoday.aot.hint.ExecutableMode;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.RuntimeHints;
@@ -90,16 +93,20 @@ class BeanDefinitionPropertiesCodeGenerator {
 
   private final Predicate<String> attributeFilter;
 
-  private final BeanDefinitionPropertyValueCodeGenerator valueCodeGenerator;
+  private final ValueCodeGenerator valueCodeGenerator;
 
-  BeanDefinitionPropertiesCodeGenerator(RuntimeHints hints,
-          Predicate<String> attributeFilter, GeneratedMethods generatedMethods,
+  BeanDefinitionPropertiesCodeGenerator(RuntimeHints hints, Predicate<String> attributeFilter,
+          GeneratedMethods generatedMethods, List<Delegate> additionalDelegates,
           BiFunction<String, Object, CodeBlock> customValueCodeGenerator) {
 
     this.hints = hints;
     this.attributeFilter = attributeFilter;
-    this.valueCodeGenerator = new BeanDefinitionPropertyValueCodeGenerator(generatedMethods,
-            (object, type) -> customValueCodeGenerator.apply(PropertyNamesStack.peek(), object));
+    List<Delegate> allDelegates = new ArrayList<>();
+    allDelegates.add((valueCodeGenerator, value) -> customValueCodeGenerator.apply(PropertyNamesStack.peek(), value));
+    allDelegates.addAll(additionalDelegates);
+    allDelegates.addAll(BeanDefinitionPropertyValueCodeGeneratorDelegates.INSTANCES);
+    allDelegates.addAll(ValueCodeGeneratorDelegates.INSTANCES);
+    this.valueCodeGenerator = ValueCodeGenerator.with(allDelegates).scoped(generatedMethods);
   }
 
   CodeBlock generateCode(RootBeanDefinition beanDefinition) {
