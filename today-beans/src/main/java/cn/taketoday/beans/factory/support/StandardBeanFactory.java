@@ -1399,14 +1399,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     else if (injectProviderClass == dependencyType) {
       return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
     }
-    else {
-      Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
-              descriptor, requestingBeanName);
-      if (result == null) {
-        result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
+    else if (descriptor.supportsLazyResolution()) {
+      Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, requestingBeanName);
+      if (result != null) {
+        return result;
       }
-      return result;
     }
+    return doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
   }
 
   @Nullable

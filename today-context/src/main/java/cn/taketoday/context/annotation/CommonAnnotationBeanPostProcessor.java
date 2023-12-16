@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -594,11 +594,19 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
      */
     public final DependencyDescriptor getDependencyDescriptor() {
       if (member instanceof Field field) {
-        return new LookupDependencyDescriptor(field, lookupType);
+        return new LookupDependencyDescriptor(field, lookupType, isLazyLookup());
       }
       else {
-        return new LookupDependencyDescriptor((Method) member, lookupType);
+        return new LookupDependencyDescriptor((Method) member, lookupType, isLazyLookup());
       }
+    }
+
+    /**
+     * Determine whether this dependency is marked for lazy lookup.
+     * The default is {@code false}.
+     */
+    boolean isLazyLookup() {
+      return false;
     }
   }
 
@@ -645,6 +653,12 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
       return (this.lazyLookup ? buildLazyResourceProxy(this, requestingBeanName) :
               getResource(this, requestingBeanName));
     }
+
+    @Override
+    boolean isLazyLookup() {
+      return this.lazyLookup;
+    }
+
   }
 
   /**
@@ -691,6 +705,12 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
              ? buildLazyResourceProxy(this, requestingBeanName)
              : getResource(this, requestingBeanName);
     }
+
+    @Override
+    boolean isLazyLookup() {
+      return this.lazyLookup;
+    }
+
   }
 
   /**
@@ -753,25 +773,36 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
    * overriding the dependency type with the specified resource type.
    */
   private static class LookupDependencyDescriptor extends DependencyDescriptor {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
     private final Class<?> lookupType;
 
-    public LookupDependencyDescriptor(Field field, Class<?> lookupType) {
+    private final boolean lazyLookup;
+
+    public LookupDependencyDescriptor(Field field, Class<?> lookupType, boolean lazyLookup) {
       super(field, true);
       this.lookupType = lookupType;
+      this.lazyLookup = lazyLookup;
     }
 
-    public LookupDependencyDescriptor(Method method, Class<?> lookupType) {
+    public LookupDependencyDescriptor(Method method, Class<?> lookupType, boolean lazyLookup) {
       super(new MethodParameter(method, 0), true);
       this.lookupType = lookupType;
+      this.lazyLookup = lazyLookup;
     }
 
     @Override
     public Class<?> getDependencyType() {
       return this.lookupType;
     }
+
+    @Override
+    public boolean supportsLazyResolution() {
+      return !lazyLookup;
+    }
+
   }
 
 }

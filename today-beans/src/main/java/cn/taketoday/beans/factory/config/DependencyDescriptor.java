@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.config;
@@ -389,6 +389,16 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     else {
       return obtainMethodParameter().getNestedParameterType();
     }
+  }
+
+  /**
+   * Determine whether this dependency supports lazy resolution,
+   * e.g. through extra proxying. The default is {@code true}.
+   *
+   * @see cn.taketoday.beans.factory.support.AutowireCandidateResolver#getLazyResolutionProxyIfNecessary
+   */
+  public boolean supportsLazyResolution() {
+    return true;
   }
 
   @Override
