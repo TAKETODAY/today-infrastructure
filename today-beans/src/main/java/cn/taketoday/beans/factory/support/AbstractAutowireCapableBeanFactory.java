@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -235,15 +235,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     if (resolvedClass != null && !merged.hasBeanClass() && merged.getBeanClassName() != null) {
       mbdToUse = new RootBeanDefinition(merged);
       mbdToUse.setBeanClass(resolvedClass);
-    }
-
-    // Prepare method overrides.
-    try {
-      mbdToUse.prepareMethodOverrides();
-    }
-    catch (BeanDefinitionValidationException ex) {
-      throw new BeanDefinitionStoreException(mbdToUse.getResourceDescription(),
-              beanName, "Validation of method overrides failed", ex);
+      // Prepare method overrides.
+      try {
+        mbdToUse.prepareMethodOverrides();
+      }
+      catch (BeanDefinitionValidationException ex) {
+        throw new BeanDefinitionStoreException(mbdToUse.getResourceDescription(),
+                beanName, "Validation of method overrides failed", ex);
+      }
     }
 
     try {

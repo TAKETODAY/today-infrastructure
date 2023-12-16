@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -44,6 +44,7 @@ import cn.taketoday.beans.factory.BeanClassLoadFailedException;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanCurrentlyInCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanDefinitionValidationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.BeanIsAbstractException;
@@ -627,13 +628,21 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
       }
 
-      return merged.resolveBeanClass(beanClassLoader);
+      Class<?> beanClass = merged.resolveBeanClass(beanClassLoader);
+      if (merged.hasBeanClass()) {
+        merged.prepareMethodOverrides();
+      }
+      return beanClass;
     }
     catch (ClassNotFoundException ex) {
       throw new BeanClassLoadFailedException(merged.getResourceDescription(), beanName, beanClassName, ex);
     }
     catch (LinkageError err) {
       throw new BeanClassLoadFailedException(merged.getResourceDescription(), beanName, beanClassName, err);
+    }
+    catch (BeanDefinitionValidationException ex) {
+      throw new BeanDefinitionStoreException(merged.getResourceDescription(),
+              beanName, "Validation of method overrides failed", ex);
     }
   }
 

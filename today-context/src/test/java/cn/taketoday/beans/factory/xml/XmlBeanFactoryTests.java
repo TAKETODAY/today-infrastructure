@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.xml;
@@ -30,9 +27,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
@@ -62,6 +64,8 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.IndexedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
+import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.EncodedResource;
 import cn.taketoday.core.io.FileSystemResource;
@@ -1360,6 +1364,15 @@ class XmlBeanFactoryTests {
   }
 
   @Test
+  void replaceNonOverloadedInterfaceMethodWithoutSpecifyingExplicitArgTypes() {
+    try (ConfigurableApplicationContext context =
+            new ClassPathXmlApplicationContext(DELEGATION_OVERRIDES_CONTEXT.getPath())) {
+      EchoService echoService = context.getBean(EchoService.class);
+      assertThat(echoService.echo("foo", "bar")).containsExactly("bar", "foo");
+    }
+  }
+
+  @Test
   void lookupOverrideOneMethodWithConstructorInjection() {
     StandardBeanFactory xbf = new StandardBeanFactory();
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(xbf);
@@ -1914,5 +1927,22 @@ class MixedCollectionBean {
 
   public Collection<?> getJumble() {
     return jumble;
+  }
+}
+
+interface EchoService {
+
+  String[] echo(Object... objects);
+}
+
+class ReverseArrayMethodReplacer implements MethodReplacer {
+
+  @Override
+  public Object reimplement(Object obj, Method method, Object[] args) {
+    List<String> list = Arrays.stream((Object[]) args[0])
+            .map(Object::toString)
+            .collect(Collectors.toCollection(ArrayList::new));
+    Collections.reverse(list);
+    return list.toArray(String[]::new);
   }
 }
