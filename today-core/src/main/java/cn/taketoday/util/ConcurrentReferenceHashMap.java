@@ -616,8 +616,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
                 // they should be polled from the queue in a later restructure call.
                 if (entry != null) {
                   int index = getIndex(ref.getHash(), restructured);
-                  restructured[index] = this.referenceManager.createReference(
-                          entry, ref.getHash(), restructured[index]);
+                  restructured[index] = this.referenceManager.createReference(entry, ref.getHash(), restructured[index]);
                   newCount++;
                 }
               }
@@ -639,8 +638,7 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
                 // Also filter out null references that are now null
                 // they should be polled from the queue in a later restructure call.
                 if (entry != null) {
-                  purgedRef = this.referenceManager.createReference(
-                          entry, ref.getHash(), purgedRef);
+                  purgedRef = this.referenceManager.createReference(entry, ref.getHash(), purgedRef);
                 }
                 newCount++;
               }

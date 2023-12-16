@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -28,10 +25,13 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY 2021/10/12 22:39
- * @since 4.0
+ * {@link ApplicationContext} holder
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/10/12 22:39
  */
 public final class ApplicationContextHolder {
+
   private static final LinkedHashMap<String, ApplicationContext> contextMap = new LinkedHashMap<>();
 
   @Nullable
@@ -43,7 +43,7 @@ public final class ApplicationContextHolder {
     return Optional.ofNullable(contextMap.get(id));
   }
 
-  public static ApplicationContext getRequired(String id) {
+  public static ApplicationContext obtain(String id) {
     ApplicationContext context = get(id);
     if (context == null) {
       throw new IllegalStateException("No ApplicationContext: '" + id + "'");

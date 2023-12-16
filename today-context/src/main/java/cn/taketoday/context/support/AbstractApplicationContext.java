@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.CachedIntrospectionResults;
@@ -244,8 +245,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   /** Flag that indicates whether this context has been closed already. @since 4.0 */
   private final AtomicBoolean closed = new AtomicBoolean();
 
-  /** Synchronization monitor for the "refresh" and "destroy". */
-  private final Object startupShutdownMonitor = new Object();
+  /** Synchronization lock for "refresh" and "close". */
+  private final ReentrantLock startupShutdownLock = new ReentrantLock();
+
+  /** Currently active startup/shutdown thread. */
+  @Nullable
+  private volatile Thread startupShutdownThread;
 
   /**
    * Create a new AbstractApplicationContext with no parent.
@@ -506,7 +511,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
   @Override
   public void refresh() throws BeansException, IllegalStateException {
-    synchronized(this.startupShutdownMonitor) {
+    this.startupShutdownLock.lock();
+    try {
+      this.startupShutdownThread = Thread.currentThread();
 
       // Prepare this context for refreshing.
       prepareRefresh();
@@ -570,6 +577,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // Reset common introspection caches in core infrastructure.
         resetCommonCaches();
       }
+    }
+    finally {
+      this.startupShutdownThread = null;
+      this.startupShutdownLock.unlock();
     }
   }
 
@@ -891,13 +902,44 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
       this.shutdownHook = new Thread(SHUTDOWN_HOOK_THREAD_NAME) {
         @Override
         public void run() {
-          synchronized(startupShutdownMonitor) {
+          if (isStartupShutdownThreadStuck()) {
+            active.set(false);
+            return;
+          }
+          startupShutdownLock.lock();
+          try {
             doClose();
+          }
+          finally {
+            startupShutdownLock.unlock();
           }
         }
       };
       Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
+  }
+
+  /**
+   * Determine whether an active startup/shutdown thread is currently stuck,
+   * e.g. through a {@code System.exit} call in a user component.
+   */
+  private boolean isStartupShutdownThreadStuck() {
+    Thread activeThread = this.startupShutdownThread;
+    if (activeThread != null && activeThread.getState() == Thread.State.WAITING) {
+      // Indefinitely waiting: might be Thread.join or the like, or System.exit
+      activeThread.interrupt();
+      try {
+        // Leave just a little bit of time for the interruption to show effect
+        Thread.sleep(1);
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+      }
+
+      // Interrupted but still waiting: very likely a System.exit call
+      return activeThread.getState() == Thread.State.WAITING;
+    }
+    return false;
   }
 
   /**
@@ -910,8 +952,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   @Override
   public void close() {
-    synchronized(startupShutdownMonitor) {
-      applyState(State.CLOSING);
+    if (isStartupShutdownThreadStuck()) {
+      active.set(false);
+      return;
+    }
+    startupShutdownLock.lock();
+    applyState(State.CLOSING);
+    try {
+      startupShutdownThread = Thread.currentThread();
       doClose();
       // If we registered a JVM shutdown hook, we don't need it anymore now:
       // We've already explicitly closed the context.
@@ -923,8 +971,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
           // ignore - VM is already shutting down
         }
       }
+    }
+    finally {
       applyState(State.CLOSED);
       ApplicationContextHolder.remove(this);
+      startupShutdownThread = null;
+      startupShutdownLock.unlock();
     }
   }
 
