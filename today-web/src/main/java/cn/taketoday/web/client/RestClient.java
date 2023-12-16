@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -776,11 +776,14 @@ public interface RestClient {
   interface ResponseSpec {
 
     /**
-     * Provide a function to map specific error status codes to an error
-     * handler.
-     * <p>By default, if there are no matching status handlers, responses
-     * with status codes &gt;= 400 wil throw a
-     * {@link RestClientResponseException}.
+     * Provide a function to map specific error status codes to an error handler.
+     * <p>By default, if there are no matching status handlers, responses with
+     * status codes &gt;= 400 wil throw a {@link RestClientResponseException}.
+     * <p>Note that {@link IOException IOExceptions},
+     * {@link java.io.UncheckedIOException UncheckedIOExceptions}, and
+     * {@link cn.taketoday.http.converter.HttpMessageNotReadableException HttpMessageNotReadableExceptions}
+     * thrown from {@code errorHandler} will be wrapped in a
+     * {@link RestClientException}.
      *
      * @param statusPredicate to match responses with
      * @param errorHandler handler that typically, though not necessarily,
@@ -790,11 +793,14 @@ public interface RestClient {
     ResponseSpec onStatus(Predicate<HttpStatusCode> statusPredicate, ErrorHandler errorHandler);
 
     /**
-     * Provide a function to map specific error status codes to an error
-     * handler.
-     * <p>By default, if there are no matching status handlers, responses
-     * with status codes &gt;= 400 wil throw a
-     * {@link RestClientResponseException}.
+     * Provide a function to map specific error status codes to an error handler.
+     * <p>By default, if there are no matching status handlers, responses with
+     * status codes &gt;= 400 wil throw a {@link RestClientResponseException}.
+     * <p>Note that {@link IOException IOExceptions},
+     * {@link java.io.UncheckedIOException UncheckedIOExceptions}, and
+     * {@link cn.taketoday.http.converter.HttpMessageNotReadableException HttpMessageNotReadableExceptions}
+     * thrown from {@code errorHandler} will be wrapped in a
+     * {@link RestClientException}.
      *
      * @param errorHandler the error handler
      * @return this builder
