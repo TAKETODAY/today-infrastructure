@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -167,6 +167,10 @@ class BeanDefinitionPropertiesCodeGenerator {
     Method method = ReflectionUtils.findMethod(methodDeclaringClass, methodName);
     if (method != null) {
       this.hints.reflection().registerMethod(method, ExecutableMode.INVOKE);
+      Method interfaceMethod = ReflectionUtils.getInterfaceMethodIfPossible(method, beanUserClass);
+      if (!interfaceMethod.equals(method)) {
+        this.hints.reflection().registerMethod(interfaceMethod, ExecutableMode.INVOKE);
+      }
     }
   }
 
