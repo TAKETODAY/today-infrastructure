@@ -602,7 +602,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   private void performCacheEvicts(List<CacheOperationContext> contexts, @Nullable Object result) {
     for (CacheOperationContext context : contexts) {
       if (isConditionPassing(context, result)) {
-        Object key = null;
+        Object key = context.getGeneratedKey();
         CacheEvictOperation operation = (CacheEvictOperation) context.metadata.operation;
         for (Cache cache : context.getCaches()) {
           if (operation.isCacheWide()) {
@@ -782,6 +782,9 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     @Nullable
     public Boolean conditionPassing;
 
+    @Nullable
+    private Object key;
+
     public CacheOperationContext(CacheOperationMetadata metadata, Object[] args, Object target) {
       this.metadata = metadata;
       this.args = extractArgs(metadata.method, args);
@@ -860,9 +863,17 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
     protected Object generateKey(@Nullable Object result) {
       if (metadata.operation.hasKeyString()) {
         EvaluationContext evaluationContext = createEvaluationContext(result);
-        return evaluator.key(metadata.operation.getKey(), metadata.methodKey, evaluationContext);
+        this.key = evaluator.key(metadata.operation.getKey(), metadata.methodKey, evaluationContext);
       }
-      return metadata.keyGenerator.generate(target, metadata.method, args);
+      else {
+        this.key = metadata.keyGenerator.generate(this.target, this.metadata.method, this.args);
+      }
+      return this.key;
+    }
+
+    @Nullable
+    protected Object getGeneratedKey() {
+      return this.key;
     }
 
     private EvaluationContext createEvaluationContext(@Nullable Object result) {
@@ -955,7 +966,10 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
     public void performCachePut(@Nullable Object value) {
       if (this.context.canPutToCache(value)) {
-        Object key = generateKey(this.context, value);
+        Object key = this.context.getGeneratedKey();
+        if (key == null) {
+          key = generateKey(this.context, value);
+        }
         if (log.isTraceEnabled()) {
           log.trace("Creating cache entry for key '{}' in cache(s) {}", key, this.context.getCacheNames());
         }
