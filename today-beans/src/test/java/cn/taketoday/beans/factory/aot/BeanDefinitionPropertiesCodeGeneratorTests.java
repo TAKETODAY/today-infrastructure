@@ -24,6 +24,7 @@ import org.reactivestreams.Publisher;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +36,7 @@ import java.util.function.Supplier;
 import javax.lang.model.element.Modifier;
 
 import cn.taketoday.aot.generate.GeneratedClass;
+import cn.taketoday.aot.generate.ValueCodeGenerator.Delegate;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.aot.test.generate.TestGenerationContext;
@@ -51,6 +53,7 @@ import cn.taketoday.beans.factory.support.ManagedMap;
 import cn.taketoday.beans.factory.support.ManagedSet;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
+import cn.taketoday.beans.testfixture.beans.factory.aot.CustomPropertyValue;
 import cn.taketoday.beans.testfixture.beans.factory.aot.DeferredTypeBuilder;
 import cn.taketoday.core.test.tools.Compiled;
 import cn.taketoday.core.test.tools.TestCompiler;
@@ -286,7 +289,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       assertThat(actual.getPropertyValues().getPropertyValue("spring")).isEqualTo("framework");
     });
     assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
-    assertHasDecalredFieldsHint(PropertyValuesBean.class);
+    assertHasDeclaredFieldsHint(PropertyValuesBean.class);
   }
 
   @Test
@@ -299,8 +302,8 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       assertThat(actual.getPropertyValues().getPropertyValue("spring")).isEqualTo("framework");
     });
     assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
-    assertHasDecalredFieldsHint(ExtendedPropertyValuesBean.class);
-    assertHasDecalredFieldsHint(PropertyValuesBean.class);
+    assertHasDeclaredFieldsHint(ExtendedPropertyValuesBean.class);
+    assertHasDeclaredFieldsHint(PropertyValuesBean.class);
   }
 
   @Test
@@ -361,6 +364,21 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
       assertThat(actual.getPropertyValues().getPropertyValue("name")).isEqualTo("World");
     });
     assertHasMethodInvokeHints(PropertyValuesFactoryBean.class, "setPrefix", "setName");
+  }
+
+  @Test
+  void propertyValuesWhenCustomValuesUsingDelegate() {
+    this.beanDefinition.setTargetType(PropertyValuesBean.class);
+    this.beanDefinition.getPropertyValues().add("test", new CustomPropertyValue("test"));
+    this.beanDefinition.getPropertyValues().add("spring", new CustomPropertyValue("framework"));
+    compile(value -> true, List.of(new CustomPropertyValue.ValueCodeGeneratorDelegate()), (actual, compiled) -> {
+      assertThat(actual.getPropertyValues().get("test")).isInstanceOfSatisfying(CustomPropertyValue.class,
+              customPropertyValue -> assertThat(customPropertyValue.value()).isEqualTo("test"));
+      assertThat(actual.getPropertyValues().get("spring")).isInstanceOfSatisfying(CustomPropertyValue.class,
+              customPropertyValue -> assertThat(customPropertyValue.value()).isEqualTo("framework"));
+    });
+    assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
+    assertHasDeclaredFieldsHint(PropertyValuesBean.class);
   }
 
   @Test
@@ -533,7 +551,7 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
             .test(this.generationContext.getRuntimeHints()));
   }
 
-  private void assertHasDecalredFieldsHint(Class<?> beanType) {
+  private void assertHasDeclaredFieldsHint(Class<?> beanType) {
     assertThat(RuntimeHintsPredicates.reflection()
             .onType(beanType).withMemberCategory(MemberCategory.DECLARED_FIELDS))
             .accepts(this.generationContext.getRuntimeHints());
@@ -543,12 +561,18 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
     compile(attribute -> true, result);
   }
 
-  private void compile(Predicate<String> attributeFilter, BiConsumer<RootBeanDefinition, Compiled> result) {
+  private void compile(Predicate<String> attributeFilter,
+          BiConsumer<RootBeanDefinition, Compiled> result) {
+    compile(attributeFilter, Collections.emptyList(), result);
+  }
+
+  private void compile(Predicate<String> attributeFilter, List<Delegate> additionalDelegates,
+          BiConsumer<RootBeanDefinition, Compiled> result) {
     DeferredTypeBuilder typeBuilder = new DeferredTypeBuilder();
     GeneratedClass generatedClass = this.generationContext.getGeneratedClasses().addForFeature("TestCode", typeBuilder);
     BeanDefinitionPropertiesCodeGenerator codeGenerator = new BeanDefinitionPropertiesCodeGenerator(
             this.generationContext.getRuntimeHints(), attributeFilter,
-            generatedClass.getMethods(), (name, value) -> null);
+            generatedClass.getMethods(), additionalDelegates, (name, value) -> null);
     CodeBlock generatedCode = codeGenerator.generateCode(this.beanDefinition);
     typeBuilder.set(type -> {
       type.addModifiers(Modifier.PUBLIC);

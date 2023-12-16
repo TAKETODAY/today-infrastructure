@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -46,6 +46,8 @@ import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.AnnotatedBean;
 import cn.taketoday.beans.testfixture.beans.GenericBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.beans.testfixture.beans.factory.aot.CustomBean;
+import cn.taketoday.beans.testfixture.beans.factory.aot.CustomPropertyValue;
 import cn.taketoday.beans.testfixture.beans.factory.aot.InnerBeanConfiguration;
 import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanRegistrationsCode;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBean;
@@ -604,6 +606,23 @@ class BeanDefinitionMethodGeneratorTests {
       assertThat(compiled.getSourceFile(".*BeanDefinitions"))
               .contains("getSecondBeanDefinition()");
     });
+  }
+
+  @Test
+  void generateBeanDefinitionMethodWhenCustomPropertyValueUsesCustomDelegate() {
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(CustomBean.class);
+    beanDefinition.getPropertyValues().add(
+            "customPropertyValue", new CustomPropertyValue("test"));
+    RegisteredBean bean = registerBean(beanDefinition);
+    BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
+            this.methodGeneratorFactory, bean, "test",
+            Collections.emptyList());
+    MethodReference method = generator.generateBeanDefinitionMethod(
+            this.generationContext, this.beanRegistrationsCode);
+    compile(method, (actual, compiled) ->
+            assertThat(actual.getPropertyValues().getPropertyValue("customPropertyValue"))
+                    .isInstanceOfSatisfying(CustomPropertyValue.class, customPropertyValue
+                            -> assertThat(customPropertyValue.value()).isEqualTo("test")));
   }
 
   @Test
