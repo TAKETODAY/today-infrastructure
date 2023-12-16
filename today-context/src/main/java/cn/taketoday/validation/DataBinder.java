@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import cn.taketoday.beans.BeanInstantiationException;
@@ -955,7 +956,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
         Class<?> paramType = paramTypes[i];
         Object value = valueResolver.resolveValue(paramPath, paramType);
 
-        if (value == null && shouldConstructArgument(param)) {
+        if (value == null && shouldConstructArgument(param) && hasValuesFor(paramPath, valueResolver)) {
           ResolvableType type = ResolvableType.forMethodParameter(param);
           args[i] = createObject(type, paramPath + ".", valueResolver);
         }
@@ -1017,6 +1018,15 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
             || Map.class.isAssignableFrom(type)
             || type.isArray()
             || type.getPackageName().startsWith("java."));
+  }
+
+  private boolean hasValuesFor(String paramPath, ValueResolver resolver) {
+    for (String name : resolver.getNames()) {
+      if (name.startsWith(paramPath + ".")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void validateConstructorArgument(
@@ -1294,7 +1304,6 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
    * Strategy for {@link #construct constructor binding} to look up the values
    * to bind to a given constructor parameter.
    */
-  @FunctionalInterface
   public interface ValueResolver {
 
     /**
@@ -1308,6 +1317,10 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
     @Nullable
     Object resolveValue(String name, Class<?> type);
 
+    /**
+     * Return the names of all property values.
+     */
+    Set<String> getNames();
   }
 
   /**

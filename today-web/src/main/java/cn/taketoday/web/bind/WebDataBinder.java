@@ -19,8 +19,10 @@ package cn.taketoday.web.bind;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import cn.taketoday.beans.ConfigurablePropertyAccessor;
@@ -516,6 +518,9 @@ public class WebDataBinder extends DataBinder {
 
     private final WebDataBinder dataBinder;
 
+    @Nullable
+    private Set<String> parameterNames;
+
     protected RequestValueResolver(RequestContext request, WebDataBinder dataBinder) {
       this.request = request;
       this.dataBinder = dataBinder;
@@ -570,6 +575,19 @@ public class WebDataBinder extends DataBinder {
       }
       return null;
     }
+
+    @Override
+    public Set<String> getNames() {
+      if (this.parameterNames == null) {
+        this.parameterNames = initParameterNames(this.request);
+      }
+      return this.parameterNames;
+    }
+
+    protected Set<String> initParameterNames(RequestContext request) {
+      return new LinkedHashSet<>(request.getParameters().keySet());
+    }
+
   }
 
 }

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet;
@@ -68,7 +68,7 @@ public class MockServletRequestContext extends RequestContext implements Servlet
   public MockServletRequestContext(HttpServletRequest request, HttpServletResponse response) {
     this(null, request, response);
   }
- 
+
   public MockServletRequestContext(ApplicationContext context,
           HttpServletRequest request, HttpServletResponse response) {
     this(context, request, response, null);
@@ -187,11 +187,6 @@ public class MockServletRequestContext extends RequestContext implements Servlet
   @Override
   public Map<String, String[]> doGetParameters() {
     return request.getParameterMap();
-  }
-
-  @Override
-  public Iterator<String> getParameterNames() {
-    return request.getParameterNames().asIterator();
   }
 
   @Override

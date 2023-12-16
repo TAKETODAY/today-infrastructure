@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
@@ -32,8 +32,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -616,12 +616,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <code>String</code> containing the name of a request parameter; or an
    * empty <code>Iterator</code> if the request has no parameters
    */
-  public Iterator<String> getParameterNames() {
+  public Iterable<String> getParameterNames() {
     Map<String, String[]> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
-      return Collections.emptyIterator();
+      return Collections.emptyList();
     }
-    return parameters.keySet().iterator();
+    return new LinkedHashSet<>(parameters.keySet());
   }
 
   /**

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation;
@@ -22,10 +22,12 @@ import org.junit.jupiter.api.Test;
 import java.beans.ConstructorProperties;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.format.support.DefaultFormattingConversionService;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,6 +79,17 @@ public class DataBinderConstructTests {
   }
 
   @Test
+  void dataClassBindingWithNestedOptionalParameterWithMissingParameter() {
+    MapValueResolver valueResolver = new MapValueResolver(Map.of("param1", "value1"));
+    DataBinder binder = initDataBinder(NestedDataClass.class);
+    binder.construct(valueResolver);
+
+    NestedDataClass dataClass = getTarget(binder);
+    assertThat(dataClass.param1()).isEqualTo("value1");
+    assertThat(dataClass.nestedParam2()).isNull();
+  }
+
+  @Test
   void dataClassBindingWithConversionError() {
     MapValueResolver valueResolver = new MapValueResolver(Map.of("param1", "value1", "param2", "x"));
     DataBinder binder = initDataBinder(DataClass.class);
@@ -90,7 +103,7 @@ public class DataBinderConstructTests {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private static DataBinder initDataBinder(Class<DataClass> targetType) {
+  private static DataBinder initDataBinder(Class<?> targetType) {
     DataBinder binder = new DataBinder(null);
     binder.setTargetType(ResolvableType.forClass(targetType));
     binder.setConversionService(new DefaultFormattingConversionService());
@@ -135,6 +148,28 @@ public class DataBinderConstructTests {
     }
   }
 
+  private static class NestedDataClass {
+
+    private final String param1;
+
+    @Nullable
+    private final DataClass nestedParam2;
+
+    public NestedDataClass(String param1, @Nullable DataClass nestedParam2) {
+      this.param1 = param1;
+      this.nestedParam2 = nestedParam2;
+    }
+
+    public String param1() {
+      return this.param1;
+    }
+
+    @Nullable
+    public DataClass nestedParam2() {
+      return this.nestedParam2;
+    }
+  }
+
   private static class MapValueResolver implements DataBinder.ValueResolver {
 
     private final Map<String, Object> values;
@@ -146,6 +181,11 @@ public class DataBinderConstructTests {
     @Override
     public Object resolveValue(String name, Class<?> type) {
       return values.get(name);
+    }
+
+    @Override
+    public Set<String> getNames() {
+      return this.values.keySet();
     }
   }
 

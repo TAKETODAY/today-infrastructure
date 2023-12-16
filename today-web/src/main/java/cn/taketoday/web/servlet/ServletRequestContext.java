@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet;
@@ -211,11 +211,6 @@ public final class ServletRequestContext extends RequestContext implements Servl
   @Override
   public Map<String, String[]> doGetParameters() {
     return request.getParameterMap();
-  }
-
-  @Override
-  public Iterator<String> getParameterNames() {
-    return request.getParameterNames().asIterator();
   }
 
   @Override
