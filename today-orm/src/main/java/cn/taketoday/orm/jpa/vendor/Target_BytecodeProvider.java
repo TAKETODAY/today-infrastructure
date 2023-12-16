@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.vendor;
@@ -28,10 +28,10 @@ import java.util.Map;
 /**
  * Hibernate 6.3+ substitution designed to leniently return {@code null}, as authorized by the API, to avoid throwing an
  * {@code HibernateException}.
- * TODO Ask Hibernate team to fix this as it looks like a bug
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see <a href="https://hibernate.atlassian.net/browse/HHH-17568">HHH-17568</a>
  * @since 4.0
  */
 @TargetClass(className = "org.hibernate.bytecode.internal.none.BytecodeProviderImpl", onlyWith = SubstituteOnlyIfPresent.class)
