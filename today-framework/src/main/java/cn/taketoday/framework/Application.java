@@ -610,7 +610,7 @@ public class Application {
         Assert.state(ClassUtils.isPresent(initializerClassName, getClassLoader()),
                 "You are starting the application with AOT mode enabled but AOT processing hasn't happened. "
                         + "Please build your application with enabled AOT processing first, "
-                        + "or remove the system property 'spring.aot.enabled' to run the application in regular mode");
+                        + "or remove the system property 'infra.aot.enabled' to run the application in regular mode");
         aotInitializers.add(AotApplicationContextInitializer.forInitializerClasses(initializerClassName));
       }
       initializers.removeAll(aotInitializers);
