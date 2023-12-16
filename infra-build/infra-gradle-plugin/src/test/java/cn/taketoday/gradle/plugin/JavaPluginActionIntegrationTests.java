@@ -110,7 +110,8 @@ class JavaPluginActionIntegrationTests {
     assertThat(result.task(":jar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     File buildLibs = new File(this.gradleBuild.getProjectDir(), "build/libs");
     assertThat(buildLibs.listFiles()).containsExactlyInAnyOrder(
-            new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar"));
+            new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar"),
+            new File(buildLibs, this.gradleBuild.getProjectDir().getName() + "-plain.jar"));
   }
 
   @TestTemplate

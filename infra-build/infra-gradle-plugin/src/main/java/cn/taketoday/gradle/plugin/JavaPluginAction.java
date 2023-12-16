@@ -37,6 +37,7 @@ import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskProvider;
+import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.jvm.toolchain.JavaToolchainService;
 import org.gradle.jvm.toolchain.JavaToolchainSpec;
@@ -77,6 +78,7 @@ final class JavaPluginAction implements PluginApplicationAction {
 
   @Override
   public void execute(Project project) {
+    classifyJarTask(project);
     configureBuildTask(project);
     configureProductionRuntimeClasspathConfiguration(project);
     configureDevelopmentOnlyConfiguration(project);
@@ -91,6 +93,12 @@ final class JavaPluginAction implements PluginApplicationAction {
     project.afterEvaluate(this::configureUtf8Encoding);
     configureParametersCompilerArg(project);
     configureAdditionalMetadataLocations(project);
+  }
+
+  private void classifyJarTask(Project project) {
+    project.getTasks()
+            .named(JavaPlugin.JAR_TASK_NAME, Jar.class)
+            .configure(task -> task.getArchiveClassifier().convention("plain"));
   }
 
   private void configureBuildTask(Project project) {
