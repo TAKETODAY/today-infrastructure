@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -22,8 +22,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpRequest;
@@ -37,6 +37,7 @@ import cn.taketoday.lang.Nullable;
  * Exceptions that contain actual HTTP response data.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class WebClientResponseException extends WebClientException {
@@ -65,9 +66,8 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Constructor with response data only, and a default message.
    */
-  public WebClientResponseException(
-          int statusCode, String statusText, @Nullable HttpHeaders headers,
-          @Nullable byte[] body, @Nullable Charset charset) {
+  public WebClientResponseException(int statusCode, String statusText,
+          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset) {
 
     this(statusCode, statusText, headers, body, charset, null);
   }
@@ -75,8 +75,7 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Constructor with response data only, and a default message.
    */
-  public WebClientResponseException(
-          int status, String reasonPhrase, @Nullable HttpHeaders headers,
+  public WebClientResponseException(int status, String reasonPhrase, @Nullable HttpHeaders headers,
           @Nullable byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
     this(HttpStatusCode.valueOf(status), reasonPhrase, headers, body, charset, request);
   }
@@ -84,9 +83,8 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Constructor with response data only, and a default message.
    */
-  public WebClientResponseException(
-          HttpStatusCode statusCode, String reasonPhrase, @Nullable HttpHeaders headers,
-          @Nullable byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
+  public WebClientResponseException(HttpStatusCode statusCode, String reasonPhrase,
+          @Nullable HttpHeaders headers, @Nullable byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
 
     this(initMessage(statusCode, reasonPhrase, request),
             statusCode, reasonPhrase, headers, body, charset, request);
@@ -100,8 +98,7 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Constructor with a prepared message.
    */
-  public WebClientResponseException(
-          String message, int statusCode, String statusText,
+  public WebClientResponseException(String message, int statusCode, String statusText,
           @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset charset) {
 
     this(message, statusCode, statusText, headers, responseBody, charset, null);
@@ -110,8 +107,7 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Constructor with a prepared message.
    */
-  public WebClientResponseException(
-          String message, int statusCode, String statusText,
+  public WebClientResponseException(String message, int statusCode, String statusText,
           @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset charset,
           @Nullable HttpRequest request) {
 
@@ -121,9 +117,8 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Constructor with a prepared message.
    */
-  public WebClientResponseException(
-          String message, HttpStatusCode statusCode, String statusText, @Nullable HttpHeaders headers,
-          @Nullable byte[] responseBody, @Nullable Charset charset, @Nullable HttpRequest request) {
+  public WebClientResponseException(String message, HttpStatusCode statusCode, String statusText,
+          @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset charset, @Nullable HttpRequest request) {
     super(message);
 
     this.statusCode = statusCode;
@@ -247,8 +242,8 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Create {@code WebClientResponseException} or an HTTP status specific subclass.
    */
-  public static WebClientResponseException create(
-          int statusCode, String statusText, HttpHeaders headers, byte[] body, @Nullable Charset charset) {
+  public static WebClientResponseException create(int statusCode, String statusText,
+          HttpHeaders headers, byte[] body, @Nullable Charset charset) {
 
     return create(statusCode, statusText, headers, body, charset, null);
   }
@@ -256,9 +251,8 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Create {@code WebClientResponseException} or an HTTP status specific subclass.
    */
-  public static WebClientResponseException create(
-          int statusCode, String statusText, HttpHeaders headers,
-          byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
+  public static WebClientResponseException create(int statusCode, String statusText,
+          HttpHeaders headers, byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
 
     return create(HttpStatusCode.valueOf(statusCode), statusText, headers, body, charset, request);
   }
@@ -266,9 +260,8 @@ public class WebClientResponseException extends WebClientException {
   /**
    * Create {@code WebClientResponseException} or an HTTP status specific subclass.
    */
-  public static WebClientResponseException create(
-          HttpStatusCode statusCode, String statusText, HttpHeaders headers,
-          byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
+  public static WebClientResponseException create(HttpStatusCode statusCode, String statusText,
+          HttpHeaders headers, byte[] body, @Nullable Charset charset, @Nullable HttpRequest request) {
 
     if (statusCode instanceof HttpStatus httpStatus) {
       return switch (httpStatus) {

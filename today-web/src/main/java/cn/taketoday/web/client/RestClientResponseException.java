@@ -12,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
 
 import java.io.Serial;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
@@ -35,6 +34,7 @@ import cn.taketoday.lang.Nullable;
  * Common base class for exceptions that contain actual HTTP response data.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class RestClientResponseException extends RestClientException {
@@ -54,7 +54,7 @@ public class RestClientResponseException extends RestClientException {
   private final HttpHeaders responseHeaders;
 
   @Nullable
-  private final String responseCharset;
+  private final Charset responseCharset;
 
   @Nullable
   private transient Function<ResolvableType, ?> bodyConvertFunction;
@@ -68,9 +68,8 @@ public class RestClientResponseException extends RestClientException {
    * @param responseBody the response body content (may be {@code null})
    * @param responseCharset the response body charset (may be {@code null})
    */
-  public RestClientResponseException(
-          String message, int statusCode, String statusText, @Nullable HttpHeaders headers,
-          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+  public RestClientResponseException(@Nullable String message, int statusCode, String statusText,
+          @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
     this(message, HttpStatusCode.valueOf(statusCode), statusText, headers, responseBody, responseCharset);
   }
@@ -84,16 +83,15 @@ public class RestClientResponseException extends RestClientException {
    * @param responseBody the response body content (may be {@code null})
    * @param responseCharset the response body charset (may be {@code null})
    */
-  public RestClientResponseException(
-          String message, HttpStatusCode statusCode, String statusText, @Nullable HttpHeaders headers,
-          @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
+  public RestClientResponseException(@Nullable String message, HttpStatusCode statusCode, String statusText,
+          @Nullable HttpHeaders headers, @Nullable byte[] responseBody, @Nullable Charset responseCharset) {
 
     super(message);
     this.statusCode = statusCode;
     this.statusText = statusText;
     this.responseHeaders = headers;
     this.responseBody = (responseBody != null ? responseBody : Constant.EMPTY_BYTES);
-    this.responseCharset = (responseCharset != null ? responseCharset.name() : null);
+    this.responseCharset = responseCharset;
   }
 
   /**
@@ -147,16 +145,11 @@ public class RestClientResponseException extends RestClientException {
    * @param fallbackCharset the charset to use on if the response doesn't specify.
    */
   public String getResponseBodyAsString(Charset fallbackCharset) {
-    if (this.responseCharset == null) {
-      return new String(this.responseBody, fallbackCharset);
+    Charset charsetToUse = responseCharset;
+    if (charsetToUse == null) {
+      charsetToUse = fallbackCharset;
     }
-    try {
-      return new String(this.responseBody, this.responseCharset);
-    }
-    catch (UnsupportedEncodingException ex) {
-      // should not occur
-      throw new IllegalStateException(ex);
-    }
+    return new String(responseBody, charsetToUse);
   }
 
   /**
