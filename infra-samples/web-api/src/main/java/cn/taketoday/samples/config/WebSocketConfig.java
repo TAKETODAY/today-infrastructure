@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.samples.config;
@@ -23,6 +20,8 @@ package cn.taketoday.samples.config;
 import java.io.IOException;
 
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.socket.TextMessage;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -30,16 +29,15 @@ import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
 import cn.taketoday.web.socket.handler.TextWebSocketHandler;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/6 11:19
  */
-@Slf4j
 @EnableWebSocket
 @Configuration(proxyBeanMethods = false)
 public class WebSocketConfig implements WebSocketConfigurer {
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

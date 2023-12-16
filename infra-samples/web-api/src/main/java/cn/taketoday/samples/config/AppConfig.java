@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.samples.config;
@@ -23,11 +20,12 @@ package cn.taketoday.samples.config;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.handler.function.ServerRequest;
 import cn.taketoday.web.handler.function.ServerResponse;
-import lombok.extern.slf4j.Slf4j;
 
 import static cn.taketoday.web.handler.function.RequestPredicates.GET;
 import static cn.taketoday.web.handler.function.RequestPredicates.param;
@@ -39,10 +37,10 @@ import static cn.taketoday.web.handler.function.ServerResponse.ok;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/3/27 11:00
  */
-@Slf4j
 @Configuration(proxyBeanMethods = false)
 public class AppConfig {
-
+  private final Logger log = LoggerFactory.getLogger(getClass());
+  
   private ServerResponse params(ServerRequest request) {
     return ok()
             .contentType(MediaType.APPLICATION_JSON)

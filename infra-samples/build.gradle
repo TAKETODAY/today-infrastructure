@@ -11,9 +11,15 @@ configure(subprojects) {
   apply plugin: "cn.taketoday.application"
   apply plugin: "cn.taketoday.application.aot"
   apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'org.graalvm.buildtools.native'
 
   sourceCompatibility = JavaVersion.VERSION_17
   targetCompatibility = JavaVersion.VERSION_17
+
+  graalvmNative {
+    toolchainDetection = true
+    testSupport = false
+  }
 
   repositories {
     mavenLocal()
