@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -56,8 +56,7 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
   }
 
   @Override
-  protected Object bindAggregate(
-          ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
+  protected Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
     Map<Object, Object> map = CollectionUtils.createMap(
             (target.getValue() != null) ? Map.class : target.getType().resolve(Object.class), 0);
 
@@ -67,6 +66,7 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
       if (!ConfigurationPropertyName.EMPTY.equals(name)) {
         ConfigurationProperty property = source.getConfigurationProperty(name);
         if (property != null && !hasDescendants) {
+          context.setConfigurationProperty(property);
           return context.getConverter().convert(property.getValue(), target);
         }
         source = source.filter(name::isAncestorOf);

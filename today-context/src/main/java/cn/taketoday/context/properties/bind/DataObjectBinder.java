@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -38,11 +38,11 @@ interface DataObjectBinder {
    * Return a bound instance or {@code null} if the {@link DataObjectBinder} does not
    * support the specified {@link Bindable}.
    *
+   * @param <T> the source type
    * @param name the name being bound
    * @param target the bindable to bind
    * @param context the bind context
    * @param propertyBinder property binder
-   * @param <T> the source type
    * @return a bound instance or {@code null}
    */
   @Nullable
@@ -53,12 +53,25 @@ interface DataObjectBinder {
    * Return a newly created instance or {@code null} if the {@link DataObjectBinder}
    * does not support the specified {@link Bindable}.
    *
+   * @param <T> the source type
    * @param target the bindable to create
    * @param context the bind context
-   * @param <T> the source type
    * @return the created instance
    */
   @Nullable
   <T> T create(Bindable<T> target, Context context);
+
+  /**
+   * Callback that can be used to add additional suppressed exceptions when an instance
+   * cannot be created.
+   *
+   * @param <T> the source type
+   * @param target the bindable that was being created
+   * @param context the bind context
+   * @param exception the exception about to be thrown
+   */
+  default <T> void onUnableToCreateInstance(Bindable<T> target, Binder.Context context, RuntimeException exception) {
+    // noop
+  }
 
 }

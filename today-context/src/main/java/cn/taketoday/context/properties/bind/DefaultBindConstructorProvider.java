@@ -12,20 +12,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.ArrayList;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
@@ -99,16 +97,18 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
       }
 
       if (bind != null || isNestedConstructorBinding) {
-        Assert.state(!hasAutowiredConstructor,
-                () -> type.getName() + " declares @ConstructorBinding and @Autowired constructor");
+        if (hasAutowiredConstructor) {
+          throw new IllegalStateException(type.getName() + " declares @ConstructorBinding and @Autowired constructor");
+        }
       }
       return new Constructors(hasAutowiredConstructor, bind, deducedBindConstructor, immutableType);
     }
 
     private static boolean isAutowiredPresent(Class<?> type) {
-      if (Stream.of(type.getDeclaredConstructors()).map(MergedAnnotations::from)
-              .anyMatch((annotations) -> annotations.isPresent(Autowired.class))) {
-        return true;
+      for (Constructor<?> constructor : type.getDeclaredConstructors()) {
+        if (MergedAnnotations.from(constructor).isPresent(Autowired.class)) {
+          return true;
+        }
       }
       Class<?> userClass = ClassUtils.getUserClass(type);
       return userClass != type && isAutowiredPresent(userClass);
@@ -118,8 +118,14 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
       if (isInnerClass(type)) {
         return new Constructor<?>[0];
       }
-      return Arrays.stream(type.getDeclaredConstructors())
-              .filter((constructor) -> isNonSynthetic(constructor, type)).toArray(Constructor[]::new);
+
+      ArrayList<Constructor<?>> constructors = new ArrayList<>();
+      for (Constructor<?> constructor : type.getDeclaredConstructors()) {
+        if (!constructor.isSynthetic()) {
+          constructors.add(constructor);
+        }
+      }
+      return constructors.toArray(new Constructor[0]);
     }
 
     private static boolean isInnerClass(Class<?> type) {
@@ -129,10 +135,6 @@ class DefaultBindConstructorProvider implements BindConstructorProvider {
       catch (NoSuchFieldException ex) {
         return false;
       }
-    }
-
-    private static boolean isNonSynthetic(Constructor<?> constructor, Class<?> type) {
-      return !constructor.isSynthetic();
     }
 
     private static MergedAnnotations[] getAnnotations(Constructor<?>[] candidates) {

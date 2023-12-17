@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -85,8 +85,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
 
   @Nullable
   @Override
-  public final Object resolveArgument(
-          RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
+  public final Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
 
     MethodParameter methodParameter = resolvable.getParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);

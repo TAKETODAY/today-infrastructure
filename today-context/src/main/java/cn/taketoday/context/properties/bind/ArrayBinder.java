@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -31,6 +31,7 @@ import cn.taketoday.core.ResolvableType;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class ArrayBinder extends IndexedElementsBinder<Object> {
 
@@ -39,9 +40,7 @@ class ArrayBinder extends IndexedElementsBinder<Object> {
   }
 
   @Override
-  protected Object bindAggregate(
-          ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
-
+  protected Object bindAggregate(ConfigurationPropertyName name, Bindable<?> target, AggregateElementBinder elementBinder) {
     IndexedCollectionSupplier result = new IndexedCollectionSupplier(ArrayList::new);
     ResolvableType aggregateType = target.getType();
     ResolvableType elementType = target.getType().getComponentType();

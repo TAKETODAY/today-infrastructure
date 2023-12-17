@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -67,8 +67,7 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
    * @param elementType the element type
    * @param result the destination for results
    */
-  protected final void bindIndexed(
-          ConfigurationPropertyName name, Bindable<?> target,
+  protected final void bindIndexed(ConfigurationPropertyName name, Bindable<?> target,
           AggregateElementBinder elementBinder, ResolvableType aggregateType,
           ResolvableType elementType, IndexedCollectionSupplier result) {
 
@@ -97,7 +96,7 @@ abstract class IndexedElementsBinder<T> extends AggregateBinder<T> {
 
   private void bindValue(Bindable<?> target, Collection<Object> collection,
           ResolvableType aggregateType, ResolvableType elementType, @Nullable Object value) {
-    if (value == null || value instanceof CharSequence && ((CharSequence) value).length() == 0) {
+    if (value == null || value instanceof CharSequence sequence && sequence.isEmpty()) {
       return;
     }
     Object aggregate = convert(value, aggregateType, target.getAnnotations());

@@ -18,6 +18,7 @@
 package cn.taketoday.context.properties.bind;
 
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.internal.CharacterIndex;
 
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +35,7 @@ import java.util.Optional;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MockConfigurationPropertySource;
+import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.conversion.ConversionService;
@@ -392,7 +394,7 @@ class ValueObjectBinderTests {
   }
 
   @Test
-  void bindWithNonExtractableParameterNamesAndNonIterablePropertySource() throws Exception {
+  void bindWhenNonExtractableParameterNamesOnPropertyAndNonIterablePropertySource() throws Exception {
     verifyJsonPathParametersCannotBeResolved();
     MockConfigurationPropertySource source = new MockConfigurationPropertySource();
     source.put("test.value", "test");
@@ -400,6 +402,17 @@ class ValueObjectBinderTests {
     Bindable<NonExtractableParameterName> target = Bindable.of(NonExtractableParameterName.class);
     NonExtractableParameterName bound = this.binder.bindOrCreate("test", target);
     assertThat(bound.getValue()).isEqualTo("test");
+  }
+
+  @Test
+  void createWhenNonExtractableParameterNamesOnPropertyAndNonIterablePropertySource() throws Exception {
+    assertThat(new DefaultParameterNameDiscoverer()
+            .getParameterNames(CharacterIndex.class.getDeclaredConstructor(CharSequence.class))).isNull();
+    MockConfigurationPropertySource source = new MockConfigurationPropertySource();
+    this.sources.add(source.nonIterable());
+    Bindable<CharacterIndex> target = Bindable.of(CharacterIndex.class).withBindMethod(BindMethod.VALUE_OBJECT);
+    assertThatExceptionOfType(BindException.class).isThrownBy(() -> this.binder.bindOrCreate("test", target))
+            .withStackTraceContaining("Ensure that the compiler uses the '-parameters' flag");
   }
 
   private void verifyJsonPathParametersCannotBeResolved() throws NoSuchFieldException {

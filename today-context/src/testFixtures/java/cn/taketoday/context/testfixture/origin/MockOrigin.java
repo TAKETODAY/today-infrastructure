@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.testfixture.origin;
@@ -65,11 +65,13 @@ public final class MockOrigin implements Origin {
     return this.value;
   }
 
-  public static Origin of(String value) {
+  @Nullable
+  public static Origin of(@Nullable String value) {
     return of(value, null);
   }
 
-  public static Origin of(String value, @Nullable Origin parent) {
+  @Nullable
+  public static Origin of(@Nullable String value, @Nullable Origin parent) {
     return (value != null) ? new MockOrigin(value, parent) : null;
   }
 

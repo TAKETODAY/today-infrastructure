@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -110,8 +110,8 @@ class ApplicationShutdownHookTests {
     closing.await();
     Thread shutdownThread = new Thread(shutdownHook);
     shutdownThread.start();
-    // Shutdown thread should become blocked on monitor held by context thread
-    Awaitility.await().atMost(Duration.ofSeconds(30)).until(shutdownThread::getState, Thread.State.BLOCKED::equals);
+    // Shutdown thread should start waiting for context to become inactive
+    Awaitility.await().atMost(Duration.ofSeconds(30)).until(shutdownThread::getState, Thread.State.WAITING::equals);
     // Allow context thread to proceed, unblocking shutdown thread
     proceedWithClose.countDown();
     contextThread.join();

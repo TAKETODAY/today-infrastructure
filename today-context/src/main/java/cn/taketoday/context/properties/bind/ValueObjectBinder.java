@@ -20,6 +20,8 @@ package cn.taketoday.context.properties.bind;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -28,8 +30,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.context.properties.bind.Binder.Context;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ParameterNameDiscoverer;
@@ -37,8 +41,8 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.conversion.ConversionException;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -65,9 +69,9 @@ class ValueObjectBinder implements DataObjectBinder {
 
   @Override
   public <T> T bind(ConfigurationPropertyName name, Bindable<T> target,
-          Binder.Context context, DataObjectPropertyBinder propertyBinder) {
+          Context context, DataObjectPropertyBinder propertyBinder) {
 
-    ValueObject<T> valueObject = ValueObject.get(target, this.constructorProvider, context);
+    ValueObject<T> valueObject = ValueObject.get(target, constructorProvider, context, Discoverer.LENIENT);
     if (valueObject == null) {
       return null;
     }
@@ -87,8 +91,8 @@ class ValueObjectBinder implements DataObjectBinder {
   }
 
   @Override
-  public <T> T create(Bindable<T> target, Binder.Context context) {
-    ValueObject<T> valueObject = ValueObject.get(target, this.constructorProvider, context);
+  public <T> T create(Bindable<T> target, Context context) {
+    ValueObject<T> valueObject = ValueObject.get(target, this.constructorProvider, context, Discoverer.LENIENT);
     if (valueObject == null) {
       return null;
     }
@@ -100,8 +104,18 @@ class ValueObjectBinder implements DataObjectBinder {
     return valueObject.instantiate(args);
   }
 
+  @Override
+  public <T> void onUnableToCreateInstance(Bindable<T> target, Context context, RuntimeException exception) {
+    try {
+      ValueObject.get(target, this.constructorProvider, context, Discoverer.STRICT);
+    }
+    catch (Exception ex) {
+      exception.addSuppressed(ex);
+    }
+  }
+
   @Nullable
-  private <T> T getDefaultValue(Binder.Context context, ConstructorParameter parameter) {
+  private <T> T getDefaultValue(Context context, ConstructorParameter parameter) {
     ResolvableType type = parameter.type;
     Annotation[] annotations = parameter.annotations;
     for (Annotation annotation : annotations) {
@@ -133,10 +147,11 @@ class ValueObjectBinder implements DataObjectBinder {
 
   @Nullable
   @SuppressWarnings("unchecked")
-  private <T> T getNewDefaultValueInstanceIfPossible(Binder.Context context, ResolvableType type) {
+  private <T> T getNewDefaultValueInstanceIfPossible(Context context, ResolvableType type) {
     Class<T> resolved = (Class<T>) type.resolve();
-    Assert.state(resolved == null || isEmptyDefaultValueAllowed(resolved),
-            () -> "Parameter of type " + type + " must have a non-empty default value.");
+    if (!(resolved == null || isEmptyDefaultValueAllowed(resolved))) {
+      throw new IllegalStateException("Parameter of type " + type + " must have a non-empty default value.");
+    }
     if (resolved != null) {
       if (Optional.class == resolved) {
         return (T) Optional.empty();
@@ -188,18 +203,17 @@ class ValueObjectBinder implements DataObjectBinder {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    static <T> ValueObject<T> get(Bindable<T> bindable,
-            BindConstructorProvider constructorProvider, Binder.Context context) {
+    static <T> ValueObject<T> get(Bindable<T> bindable, BindConstructorProvider constructorProvider,
+            Binder.Context context, ParameterNameDiscoverer parameterNameDiscoverer) {
       Class<T> type = (Class<T>) bindable.getType().resolve();
       if (type == null || type.isEnum() || Modifier.isAbstract(type.getModifiers())) {
         return null;
       }
-      Constructor<?> bindConstructor = constructorProvider.getBindConstructor(bindable,
-              context.isNestedConstructorBinding());
+      Constructor<?> bindConstructor = constructorProvider.getBindConstructor(bindable, context.isNestedConstructorBinding());
       if (bindConstructor == null) {
         return null;
       }
-      return DefaultValueObject.get(bindConstructor, bindable.getType());
+      return DefaultValueObject.get(bindConstructor, bindable.getType(), parameterNameDiscoverer);
     }
 
   }
@@ -224,14 +238,14 @@ class ValueObjectBinder implements DataObjectBinder {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    static <T> ValueObject<T> get(Constructor<?> constructor, ResolvableType type) {
-      String[] names = ParameterNameDiscoverer.findParameterNames(constructor);
+    static <T> ValueObject<T> get(Constructor<?> bindConstructor, ResolvableType type,
+            ParameterNameDiscoverer parameterNameDiscoverer) {
+      String[] names = parameterNameDiscoverer.getParameterNames(bindConstructor);
       if (names == null) {
-        logger.debug("Unable to use value object binding with {} as parameter names cannot be discovered", constructor);
         return null;
       }
-      List<ConstructorParameter> constructorParameters = parseConstructorParameters(constructor, type, names);
-      return new DefaultValueObject<>((Constructor<T>) constructor, constructorParameters);
+      List<ConstructorParameter> constructorParameters = parseConstructorParameters(bindConstructor, type, names);
+      return new DefaultValueObject<>((Constructor<T>) bindConstructor, constructorParameters);
     }
 
     private static List<ConstructorParameter> parseConstructorParameters(
@@ -270,6 +284,52 @@ class ValueObjectBinder implements DataObjectBinder {
     @Nullable
     Object bind(DataObjectPropertyBinder propertyBinder) {
       return propertyBinder.bindProperty(this.name, Bindable.of(this.type).withAnnotations(this.annotations));
+    }
+
+  }
+
+  /**
+   * {@link ParameterNameDiscoverer} used for value data object binding.
+   */
+  static final class Discoverer extends ParameterNameDiscoverer {
+
+    private static final ParameterNameDiscoverer DEFAULT_DELEGATE = ParameterNameDiscoverer.getSharedInstance();
+
+    private static final ParameterNameDiscoverer LENIENT = new Discoverer(DEFAULT_DELEGATE, message -> {
+
+    });
+
+    private static final ParameterNameDiscoverer STRICT = new Discoverer(DEFAULT_DELEGATE, message -> {
+      throw new IllegalStateException(message.toString());
+    });
+
+    private final ParameterNameDiscoverer delegate;
+
+    private final Consumer<LogMessage> noParameterNamesHandler;
+
+    private Discoverer(ParameterNameDiscoverer delegate, Consumer<LogMessage> noParameterNamesHandler) {
+      this.delegate = delegate;
+      this.noParameterNamesHandler = noParameterNamesHandler;
+    }
+
+    @Nullable
+    @Override
+    public String[] getParameterNames(@Nullable Executable executable) {
+      if (executable instanceof Method) {
+        throw new UnsupportedOperationException();
+      }
+      else if (executable instanceof Constructor<?> constructor) {
+        String[] names = delegate.getParameterNames(constructor);
+        if (names != null) {
+          return names;
+        }
+        LogMessage message = LogMessage.format(
+                "Unable to use value object binding with constructor [{}] as parameter names cannot be discovered. "
+                        + "Ensure that the compiler uses the '-parameters' flag", constructor);
+        this.noParameterNamesHandler.accept(message);
+        logger.debug(message);
+      }
+      return null;
     }
 
   }
