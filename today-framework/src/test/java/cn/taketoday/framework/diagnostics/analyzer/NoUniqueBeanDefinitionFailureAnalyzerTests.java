@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.diagnostics.analyzer;
@@ -43,7 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class NoUniqueBeanDefinitionFailureAnalyzerTests {
 
-  private NoUniqueBeanDefinitionFailureAnalyzer analyzer;
+  private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
+  private NoUniqueBeanDefinitionFailureAnalyzer analyzer = new NoUniqueBeanDefinitionFailureAnalyzer(
+          this.context.getBeanFactory());
 
   @Test
   void failureAnalysisForFieldConsumer() {
@@ -93,12 +93,20 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
     assertFoundBeans(failureAnalysis);
   }
 
+  @Test
+  void failureAnalysisIncludesPossiblyMissingParameterNames() {
+    FailureAnalysis failureAnalysis = analyzeFailure(createFailure(MethodConsumer.class));
+    assertThat(failureAnalysis.getDescription()).contains(MissingParameterNamesFailureAnalyzer.POSSIBILITY);
+    assertThat(failureAnalysis.getAction()).contains(MissingParameterNamesFailureAnalyzer.ACTION);
+    assertFoundBeans(failureAnalysis);
+  }
+
   private BeanCreationException createFailure(Class<?> consumer) {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(DuplicateBeansProducer.class, consumer);
-    context.setParent(new AnnotationConfigApplicationContext(ParentProducer.class));
+    this.context.registerBean("beanOne", TestBean.class);
+    this.context.register(DuplicateBeansProducer.class, consumer);
+    this.context.setParent(new AnnotationConfigApplicationContext(ParentProducer.class));
     try {
-      context.refresh();
+      this.context.refresh();
     }
     catch (BeanCreationException ex) {
       analyzer = new NoUniqueBeanDefinitionFailureAnalyzer(context.getBeanFactory());
@@ -113,8 +121,7 @@ class NoUniqueBeanDefinitionFailureAnalyzerTests {
   }
 
   private void assertFoundBeans(FailureAnalysis analysis) {
-    assertThat(analysis.getDescription())
-            .contains("beanOne: defined by method 'beanOne' in " + DuplicateBeansProducer.class.getName());
+    assertThat(analysis.getDescription()).contains("beanOne: defined in unknown location");
     assertThat(analysis.getDescription())
             .contains("beanTwo: defined by method 'beanTwo' in " + DuplicateBeansProducer.class.getName());
     assertThat(analysis.getDescription())

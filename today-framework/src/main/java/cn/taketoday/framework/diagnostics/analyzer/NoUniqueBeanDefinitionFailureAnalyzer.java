@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.diagnostics.analyzer;
-
-import java.util.Collection;
 
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
@@ -38,8 +33,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class NoUniqueBeanDefinitionFailureAnalyzer
-        extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException> {
+class NoUniqueBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyzer<NoUniqueBeanDefinitionException> {
 
   private final ConfigurableBeanFactory beanFactory;
 
@@ -63,40 +57,42 @@ class NoUniqueBeanDefinitionFailureAnalyzer
     for (String beanName : beanNames) {
       buildMessage(message, beanName);
     }
-    return new FailureAnalysis(message.toString(),
-            "Consider marking one of the beans as @Primary, updating the consumer to"
-                    + " accept multiple beans, or using @Qualifier to identify the"
-                    + " bean that should be consumed", cause);
+    MissingParameterNamesFailureAnalyzer.appendPossibility(message);
+    StringBuilder action = new StringBuilder(
+            "Consider marking one of the beans as @Primary, updating the consumer to accept multiple beans, "
+                    + "or using @Qualifier to identify the bean that should be consumed");
+    action.append("%n%n%s".formatted(MissingParameterNamesFailureAnalyzer.ACTION));
+    return new FailureAnalysis(message.toString(), action.toString(), cause);
   }
 
   private void buildMessage(StringBuilder message, String beanName) {
     try {
-      BeanDefinition definition = beanFactory.getMergedBeanDefinition(beanName);
+      BeanDefinition definition = this.beanFactory.getMergedBeanDefinition(beanName);
       message.append(getDefinitionDescription(beanName, definition));
     }
     catch (NoSuchBeanDefinitionException ex) {
-      message.append(String.format("\t- %s: a programmatically registered singleton", beanName));
+      message.append(String.format("\t- %s: a programmatically registered singleton%n", beanName));
     }
   }
 
   private String getDefinitionDescription(String beanName, BeanDefinition definition) {
     if (StringUtils.hasText(definition.getFactoryMethodName())) {
       return String.format("\t- %s: defined by method '%s' in %s%n", beanName, definition.getFactoryMethodName(),
-              definition.getResourceDescription());
+              getResourceDescription(definition));
     }
-    return String.format("\t- %s: defined in %s%n", beanName, definition.getResourceDescription());
+    return String.format("\t- %s: defined in %s%n", beanName, getResourceDescription(definition));
+  }
+
+  private String getResourceDescription(BeanDefinition definition) {
+    String resourceDescription = definition.getResourceDescription();
+    return (resourceDescription != null) ? resourceDescription : "unknown location";
   }
 
   @Nullable
   private String[] extractBeanNames(NoUniqueBeanDefinitionException cause) {
-    Collection<String> beanNamesFound = cause.getBeanNamesFound();
-    if (beanNamesFound != null) {
-      return StringUtils.toStringArray(beanNamesFound);
-    }
-    String nestedMessage = cause.getNestedMessage();
-    if (nestedMessage.contains("but found")) {
+    if (cause.getMessage().contains("but found")) {
       return StringUtils.commaDelimitedListToStringArray(
-              nestedMessage.substring(nestedMessage.lastIndexOf(':') + 1).trim());
+              cause.getMessage().substring(cause.getMessage().lastIndexOf(':') + 1).trim());
     }
     return null;
   }
