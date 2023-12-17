@@ -372,9 +372,9 @@ class BeanDefinitionPropertiesCodeGeneratorTests {
     this.beanDefinition.getPropertyValues().add("test", new CustomPropertyValue("test"));
     this.beanDefinition.getPropertyValues().add("spring", new CustomPropertyValue("framework"));
     compile(value -> true, List.of(new CustomPropertyValue.ValueCodeGeneratorDelegate()), (actual, compiled) -> {
-      assertThat(actual.getPropertyValues().get("test")).isInstanceOfSatisfying(CustomPropertyValue.class,
+      assertThat(actual.getPropertyValues().getPropertyValue("test")).isInstanceOfSatisfying(CustomPropertyValue.class,
               customPropertyValue -> assertThat(customPropertyValue.value()).isEqualTo("test"));
-      assertThat(actual.getPropertyValues().get("spring")).isInstanceOfSatisfying(CustomPropertyValue.class,
+      assertThat(actual.getPropertyValues().getPropertyValue("spring")).isInstanceOfSatisfying(CustomPropertyValue.class,
               customPropertyValue -> assertThat(customPropertyValue.value()).isEqualTo("framework"));
     });
     assertHasMethodInvokeHints(PropertyValuesBean.class, "setTest", "setSpring");
