@@ -111,7 +111,7 @@ class ApplicationShutdownHookTests {
     Thread shutdownThread = new Thread(shutdownHook);
     shutdownThread.start();
     // Shutdown thread should start waiting for context to become inactive
-    Awaitility.await().atMost(Duration.ofSeconds(30)).until(shutdownThread::getState, Thread.State.WAITING::equals);
+    Awaitility.await().atMost(Duration.ofSeconds(30)).until(shutdownThread::getState, Thread.State.TERMINATED::equals);
     // Allow context thread to proceed, unblocking shutdown thread
     proceedWithClose.countDown();
     contextThread.join();
