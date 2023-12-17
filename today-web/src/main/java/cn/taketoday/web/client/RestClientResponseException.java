@@ -54,7 +54,7 @@ public class RestClientResponseException extends RestClientException {
   private final HttpHeaders responseHeaders;
 
   @Nullable
-  private final Charset responseCharset;
+  private transient final Charset responseCharset;
 
   @Nullable
   private transient Function<ResolvableType, ?> bodyConvertFunction;
