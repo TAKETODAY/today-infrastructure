@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -675,6 +675,20 @@ class ConfigurationPropertiesTests {
     assertThat(properties.getPerson().firstName).isEqualTo("John");
     assertThat(properties.getPerson().lastName).isEqualTo("Smith");
     assertThat(properties.getAlien().name).isEqualTo("rennaT flA");
+  }
+
+  @Test
+  void loadWhenBeanFactoryConversionServiceAndConverterBeanCanUseConverterBeanWithCollections() {
+    DefaultConversionService conversionService = new DefaultConversionService();
+    conversionService.addConverter(new PersonConverter());
+    this.context.getBeanFactory().setConversionService(conversionService);
+    load(new Class<?>[] { AlienConverterConfiguration.class, PersonAndAliensProperties.class },
+            "test.person=John Smith", "test.aliens=Alf Tanner,Gilbert");
+    PersonAndAliensProperties properties = this.context.getBean(PersonAndAliensProperties.class);
+    assertThat(properties.getPerson().firstName).isEqualTo("John");
+    assertThat(properties.getPerson().lastName).isEqualTo("Smith");
+    assertThat(properties.getAliens().get(0).name).isEqualTo("rennaT flA");
+    assertThat(properties.getAliens().get(1).name).isEqualTo("trebliG");
   }
 
   @Test
@@ -3205,6 +3219,32 @@ class ConfigurationPropertiesTests {
 
     CustomList(List<E> delegate) {
       super(delegate);
+    }
+
+  }
+
+  @EnableConfigurationProperties
+  @ConfigurationProperties(prefix = "test")
+  static class PersonAndAliensProperties {
+
+    private Person person;
+
+    private List<Alien> aliens;
+
+    Person getPerson() {
+      return this.person;
+    }
+
+    void setPerson(Person person) {
+      this.person = person;
+    }
+
+    List<Alien> getAliens() {
+      return this.aliens;
+    }
+
+    void setAliens(List<Alien> aliens) {
+      this.aliens = aliens;
     }
 
   }

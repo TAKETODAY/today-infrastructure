@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -29,6 +29,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.Converter;
 import cn.taketoday.core.conversion.GenericConverter;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.format.Formatter;
 import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
@@ -68,6 +69,7 @@ class ConversionServiceDeducer {
     ConverterBeans converterBeans = new ConverterBeans(applicationContext);
     if (!converterBeans.isEmpty()) {
       FormattingConversionService beansConverterService = new FormattingConversionService();
+      DefaultConversionService.addCollectionConverters(beansConverterService);
       converterBeans.addTo(beansConverterService);
       conversionServices.add(beansConverterService);
     }
