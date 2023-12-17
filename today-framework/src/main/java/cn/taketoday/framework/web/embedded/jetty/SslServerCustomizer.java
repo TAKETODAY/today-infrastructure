@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.embedded.jetty;
@@ -92,15 +92,13 @@ class SslServerCustomizer implements JettyServerCustomizer {
     return connector;
   }
 
-  private ServerConnector createServerConnector(Server server, SslContextFactory.Server sslContextFactory,
-          HttpConfiguration config) {
+  private ServerConnector createServerConnector(Server server,
+          SslContextFactory.Server sslContextFactory, HttpConfiguration config) {
     if (this.http2 == null || !this.http2.isEnabled()) {
       return createHttp11ServerConnector(config, sslContextFactory, server);
     }
-    Assert.state(isJettyAlpnPresent(),
-            () -> "An 'org.eclipse.jetty:jetty-alpn-*-server' dependency is required for HTTP/2 support.");
-    Assert.state(isJettyHttp2Present(),
-            () -> "The 'org.eclipse.jetty.http2:http2-server' dependency is required for HTTP/2 support.");
+    Assert.state(isJettyAlpnPresent(), "An 'org.eclipse.jetty:jetty-alpn-*-server' dependency is required for HTTP/2 support.");
+    Assert.state(isJettyHttp2Present(), "The 'org.eclipse.jetty.http2:jetty-http2-server' dependency is required for HTTP/2 support.");
     return createHttp2ServerConnector(config, sslContextFactory, server);
   }
 
