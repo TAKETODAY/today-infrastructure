@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.tasks.bundling;
@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
@@ -466,7 +467,9 @@ class InfraZipCopyAction implements CopyAction {
     private int getPermissions(FileCopyDetails details) {
       if (GradleVersion.current().compareTo(GradleVersion.version("8.3")) >= 0) {
         try {
-          Object permissions = details.getClass().getMethod("getPermissions").invoke(details);
+          Method getPermissionsMethod = details.getClass().getMethod("getPermissions");
+          getPermissionsMethod.setAccessible(true);
+          Object permissions = getPermissionsMethod.invoke(details);
           return (int) permissions.getClass().getMethod("toUnixNumeric").invoke(permissions);
         }
         catch (Exception ex) {
