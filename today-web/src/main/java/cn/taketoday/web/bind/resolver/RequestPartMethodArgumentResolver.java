@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -33,6 +30,7 @@ import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.handler.method.NamedValueInfo;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 
@@ -112,10 +110,9 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
     MethodParameter parameter = resolvable.getParameter();
-    RequestPart requestPart = parameter.getParameterAnnotation(RequestPart.class);
-    boolean isRequired = ((requestPart == null || requestPart.required()) && !parameter.isOptional());
 
-    String name = getPartName(parameter, requestPart);
+    NamedValueInfo namedValueInfo = resolvable.getNamedValueInfo();
+    String name = namedValueInfo.name;
     parameter = parameter.nestedIfOptional();
     Object arg = null;
 
@@ -130,13 +127,13 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
         validateIfApplicable(context, parameter, arg);
       }
       catch (MissingRequestPartException | MultipartException ex) {
-        if (isRequired) {
+        if (namedValueInfo.required) {
           throw ex;
         }
       }
     }
 
-    if (arg == null && isRequired) {
+    if (arg == null && namedValueInfo.required) {
       if (!context.isMultipart()) {
         throw new MultipartException("Current request is not a multipart request");
       }
@@ -145,19 +142,6 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
       }
     }
     return adaptArgumentIfNecessary(arg, parameter);
-  }
-
-  private String getPartName(MethodParameter methodParam, @Nullable RequestPart requestPart) {
-    String partName = requestPart != null ? requestPart.name() : "";
-    if (partName.isEmpty()) {
-      partName = methodParam.getParameterName();
-      if (partName == null) {
-        throw new IllegalArgumentException("Request part name for argument type [" +
-                methodParam.getNestedParameterType().getName() +
-                "] not specified, and parameter name information not found in class file either.");
-      }
-    }
-    return partName;
   }
 
   @Override

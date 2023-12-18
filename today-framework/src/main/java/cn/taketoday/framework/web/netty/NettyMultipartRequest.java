@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
+
+import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
@@ -49,15 +48,19 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
 
   @Override
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
-    HttpHeaders headers = HttpHeaders.create();
-    for (InterfaceHttpData bodyHttpData : context.requestDecoder().getBodyHttpDatas(paramOrFileName)) {
-      if (bodyHttpData instanceof FileUpload httpData) {
-        String contentType = httpData.getContentType();
-        headers.set(HttpHeaders.CONTENT_TYPE, contentType);
-        break;
+    List<InterfaceHttpData> bodyHttpDatas = context.requestDecoder().getBodyHttpDatas(paramOrFileName);
+    if (bodyHttpDatas != null) {
+      HttpHeaders headers = HttpHeaders.create();
+      for (InterfaceHttpData bodyHttpData : bodyHttpDatas) {
+        if (bodyHttpData instanceof FileUpload httpData) {
+          String contentType = httpData.getContentType();
+          headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+          break;
+        }
       }
+      return headers;
     }
-    return headers;
+    return null;
   }
 
   @Override

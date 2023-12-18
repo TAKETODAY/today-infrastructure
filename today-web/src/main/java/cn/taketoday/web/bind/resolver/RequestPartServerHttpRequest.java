@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -31,9 +28,11 @@ import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.support.HttpRequestDecorator;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.MultipartException;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -52,18 +51,22 @@ import jakarta.servlet.http.Part;
 public class RequestPartServerHttpRequest extends HttpRequestDecorator implements HttpInputMessage {
 
   private final RequestContext request;
+
   private final String requestPartName;
+
   private final HttpHeaders multipartHeaders;
+
   private final MultipartRequest multipartRequest;
+
   private final boolean runningInServlet;
 
   /**
-   * Create a new {@code RequestPartServletServerHttpRequest} instance.
+   * Create a new {@code RequestPartServerHttpRequest} instance.
    *
-   * @param request the current servlet request
+   * @param request the  request
    * @param requestPartName the name of the part to adapt to the {@link HttpRequest} contract
    * @throws MissingRequestPartException if the request part cannot be found
-   * @throws MultipartException if MultipartHttpServletRequest cannot be initialized
+   * @throws MultipartException if RequestPartServerHttpRequest cannot be initialized
    */
   public RequestPartServerHttpRequest(RequestContext request, String requestPartName)
           throws MissingRequestPartException {
@@ -94,10 +97,15 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
       }
     }
 
-    // Framework-style distinction between MultipartFile and String parameters
+    // Infra-style distinction between MultipartFile and String parameters
     MultipartFile file = multipartRequest.getFile(requestPartName);
     if (file != null) {
       return file.getInputStream();
+    }
+
+    Multipart multipart = CollectionUtils.firstElement(multipartRequest.multipartData(requestPartName));
+    if (multipart != null) {
+      return new ByteArrayInputStream(multipart.getBytes());
     }
 
     String paramValue = request.getParameter(requestPartName);
