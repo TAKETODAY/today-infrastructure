@@ -114,8 +114,8 @@ class JavaPluginActionIntegrationTests {
   }
 
   @TestTemplate
-  void assembleRunsInfraJarAndJarEnable() {
-    BuildResult result = this.gradleBuild.build("assemble","-PclassifyJar");
+  void assembleRunsInfraJarAndJarEnableClassifyJar() {
+    BuildResult result = this.gradleBuild.build("assemble", "-PclassifyJar");
     assertThat(result.task(":infraJar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     assertThat(result.task(":jar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     File buildLibs = new File(this.gradleBuild.getProjectDir(), "build/libs");
