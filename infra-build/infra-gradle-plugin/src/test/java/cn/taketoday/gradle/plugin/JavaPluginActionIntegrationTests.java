@@ -110,6 +110,16 @@ class JavaPluginActionIntegrationTests {
     assertThat(result.task(":jar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     File buildLibs = new File(this.gradleBuild.getProjectDir(), "build/libs");
     assertThat(buildLibs.listFiles()).containsExactlyInAnyOrder(
+            new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar"));
+  }
+
+  @TestTemplate
+  void assembleRunsInfraJarAndJarEnable() {
+    BuildResult result = this.gradleBuild.build("assemble","-PclassifyJar");
+    assertThat(result.task(":infraJar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    assertThat(result.task(":jar").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+    File buildLibs = new File(this.gradleBuild.getProjectDir(), "build/libs");
+    assertThat(buildLibs.listFiles()).containsExactlyInAnyOrder(
             new File(buildLibs, this.gradleBuild.getProjectDir().getName() + ".jar"),
             new File(buildLibs, this.gradleBuild.getProjectDir().getName() + "-plain.jar"));
   }
