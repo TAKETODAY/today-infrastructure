@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -35,13 +35,12 @@ import org.gradle.jvm.application.tasks.CreateStartScripts;
 import org.gradle.util.GradleVersion;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
-import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.gradle.tasks.run.InfraRun;
-import cn.taketoday.util.StreamUtils;
 
 /**
  * Action that is executed in response to the {@link ApplicationPlugin} being applied.
@@ -84,10 +83,10 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     createStartScripts.setDescription("Generates OS-specific start scripts to run the project as a Infra application.");
 
     ((TemplateBasedScriptGenerator) createStartScripts.getUnixStartScriptGenerator())
-            .setTemplate(project.getResources().getText().fromString(loadResource("unixStartScript.txt")));
+            .setTemplate(project.getResources().getText().fromString(loadResource("/unixStartScript.txt")));
 
     ((TemplateBasedScriptGenerator) createStartScripts.getWindowsStartScriptGenerator())
-            .setTemplate(project.getResources().getText().fromString(loadResource("windowsStartScript.txt")));
+            .setTemplate(project.getResources().getText().fromString(loadResource("/windowsStartScript.txt")));
 
     project.getConfigurations().all(configuration -> {
       if (InfraApplicationPlugin.INFRA_ARCHIVES_CONFIGURATION_NAME.equals(configuration.getName())) {
@@ -117,9 +116,14 @@ final class ApplicationPluginAction implements PluginApplicationAction {
   }
 
   private String loadResource(String name) {
-    ClassPathResource resource = new ClassPathResource(name);
-    try (InputStream inputStream = resource.getInputStream()) {
-      return StreamUtils.copyToString(inputStream);
+    try (InputStreamReader reader = new InputStreamReader(getClass().getResourceAsStream(name))) {
+      char[] buffer = new char[4096];
+      int read;
+      StringWriter writer = new StringWriter();
+      while ((read = reader.read(buffer)) > 0) {
+        writer.write(buffer, 0, read);
+      }
+      return writer.toString();
     }
     catch (IOException ex) {
       throw new GradleException("Failed to read '" + name + "'", ex);
