@@ -78,7 +78,9 @@ final class JavaPluginAction implements PluginApplicationAction {
 
   @Override
   public void execute(Project project) {
-    classifyJarTask(project);
+    if (project.hasProperty("classifyJar")) {
+      classifyJarTask(project);
+    }
     configureBuildTask(project);
     configureProductionRuntimeClasspathConfiguration(project);
     configureDevelopmentOnlyConfiguration(project);
