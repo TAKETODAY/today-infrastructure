@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -100,6 +100,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
     }
     else if (websocketPresent && msg instanceof WebSocketFrame) {
       WebSocketDelegate.handleWebSocketFrame(ctx, (WebSocketFrame) msg, logger);
+      ReferenceCountUtil.safeRelease(msg);
     }
     else {
       ctx.fireChannelRead(msg);
