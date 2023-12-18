@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web;
@@ -192,7 +192,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
               .append("<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
               .append("<div id='created'>").append(timestamp).append("</div><div>[")
               .append(requestId)
-              .append("]There was an unexpected error (type=").append(htmlEscape(model.get("error")))
+              .append("] There was an unexpected error (type=").append(htmlEscape(model.get("error")))
               .append(", status=").append(htmlEscape(model.get("status"))).append(").</div>");
       if (message != null) {
         builder.append("<div>").append(htmlEscape(message)).append("</div>");
