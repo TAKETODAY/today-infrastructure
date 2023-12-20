@@ -20,8 +20,8 @@ package cn.taketoday.framework.web.error;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
@@ -62,7 +62,7 @@ class DefaultErrorAttributesTests {
   void includeTimeStamp() {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
-    assertThat(attributes.get("timestamp")).isInstanceOf(Date.class);
+    assertThat(attributes.get("timestamp")).isInstanceOf(LocalDateTime.class);
   }
 
   @Test
