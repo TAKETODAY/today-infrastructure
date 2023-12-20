@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.error;
@@ -40,6 +37,7 @@ import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +88,7 @@ class DefaultErrorAttributesTests {
     request.setAttribute("jakarta.servlet.error.exception", ex);
     var attributes = errorAttributes.getErrorAttributes(webRequest, ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(errorAttributes.getError(webRequest)).isSameAs(ex);
-    assertThat(webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE)).isSameAs(ex);
+    assertThat(webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE)).isSameAs(ex);
 
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes.get("message")).isEqualTo("Test");
@@ -103,7 +101,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(ex);
-    assertThat(this.webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE))
+    assertThat(this.webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE))
             .isSameAs(ex);
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes.get("message")).isEqualTo("Test");
@@ -116,7 +114,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(ex);
-    assertThat(this.webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE))
+    assertThat(this.webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE))
             .isSameAs(ex);
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes).doesNotContainKey("message");
@@ -167,7 +165,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(wrapped);
-    assertThat(this.webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE))
+    assertThat(this.webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE))
             .isSameAs(wrapped);
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes.get("message")).isEqualTo("Test");
@@ -180,7 +178,7 @@ class DefaultErrorAttributesTests {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(error);
-    assertThat(this.webRequest.getAttribute(ErrorAttributes.ERROR_ATTRIBUTE))
+    assertThat(this.webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE))
             .isSameAs(error);
     assertThat(attributes).doesNotContainKey("exception");
     assertThat(attributes.get("message")).isEqualTo("Test error");

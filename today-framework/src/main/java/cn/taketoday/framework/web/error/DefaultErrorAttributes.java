@@ -12,14 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.error;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +72,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   @Override
   public Map<String, Object> getErrorAttributes(RequestContext context, ErrorAttributeOptions options) {
     HashMap<String, Object> errorAttributes = new HashMap<>();
-    errorAttributes.put("timestamp", new Date());
+    errorAttributes.put("timestamp", LocalDateTime.now());
     addPath(context, errorAttributes);
     addStatus(errorAttributes, context);
     addErrorDetails(errorAttributes, context, options);
@@ -205,7 +205,6 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     if (attribute instanceof Throwable exception) {
       // store the exception in a well-known attribute to make it available to metrics
       // instrumentation.
-      request.setAttribute(ErrorAttributes.ERROR_ATTRIBUTE, attribute);
       return exception;
     }
     return null;

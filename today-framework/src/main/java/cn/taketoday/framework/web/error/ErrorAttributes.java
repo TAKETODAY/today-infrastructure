@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.error;
@@ -38,12 +35,6 @@ import cn.taketoday.web.view.ModelAndView;
  * @since 4.0
  */
 public interface ErrorAttributes {
-
-  /**
-   * Name of the {@link RequestContext#getAttribute(String) request attribute}
-   * holding the error resolved by the {@code ErrorAttributes} implementation.
-   */
-  String ERROR_ATTRIBUTE = ErrorAttributes.class.getName() + ".error";
 
   /**
    * Returns a {@link Map} of the error attributes. The map can be used as the model of
