@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.server;
@@ -43,6 +43,8 @@ import cn.taketoday.util.DataSize;
 import cn.taketoday.util.StringUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.undertow.UndertowOptions;
 
@@ -1420,6 +1422,7 @@ public class ServerProperties {
       /**
        * Maximum thread idle time.
        */
+      @Nullable
       private Duration idleTimeout = Duration.ofMillis(60000);
 
       public Integer getAcceptors() {
@@ -1515,6 +1518,58 @@ public class ServerProperties {
     @Nullable
     private LogLevel loggingLevel;
 
+    /**
+     * the maximum length of the aggregated content.
+     * If the length of the aggregated content exceeds this value,
+     *
+     * @see HttpObjectAggregator#maxContentLength
+     */
+    private DataSize maxContentLength = DataSize.ofMegabytes(100);
+
+    /**
+     * If a 100-continue response is detected but the content
+     * length is too large then true means close the connection.
+     * otherwise the connection will remain open and data will be
+     * consumed and discarded until the next request is received.
+     *
+     * @see HttpObjectAggregator#closeOnExpectationFailed
+     */
+    private boolean closeOnExpectationFailed = false;
+
+    /**
+     * @see HttpObjectDecoder#maxChunkSize
+     */
+    private DataSize maxChunkSize = DataSize.ofBytes(8192);
+
+    /**
+     * For {@link HttpObjectDecoder.HeaderParser#maxLength}
+     *
+     * HTTP header cannot larger than {@code maxHeaderSize} bytes.
+     *
+     * @see io.netty.handler.codec.TooLongFrameException
+     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     */
+    private int maxHeaderSize = 8192;
+
+    /**
+     * For {@link HttpObjectDecoder.LineParser#maxLength}
+     *
+     * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
+     *
+     * @see io.netty.handler.codec.TooLongFrameException
+     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     */
+    private int maxInitialLineLength = 4096;
+
+    /**
+     * For validate HTTP request headers
+     *
+     * @see HttpObjectDecoder#validateHeaders
+     * @see io.netty.handler.codec.http.HttpHeaders
+     * @see io.netty.handler.codec.DefaultHeaders.NameValidator
+     */
+    private boolean validateHeaders = true;
+
     public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
       this.loggingLevel = loggingLevel;
     }
@@ -1560,6 +1615,97 @@ public class ServerProperties {
       return loggingLevel;
     }
 
+    /**
+     * Set {@link HttpObjectDecoder#maxChunkSize}
+     *
+     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     */
+    public void setMaxChunkSize(DataSize maxChunkSize) {
+      this.maxChunkSize = maxChunkSize;
+    }
+
+    /**
+     * Set {@link HttpObjectDecoder.HeaderParser#maxLength}
+     *
+     * HTTP header cannot larger than {@code maxHeaderSize} bytes.
+     *
+     * @see io.netty.handler.codec.TooLongFrameException
+     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     */
+    public void setMaxHeaderSize(int maxHeaderSize) {
+      this.maxHeaderSize = maxHeaderSize;
+    }
+
+    /**
+     * Set validate HTTP request headers
+     *
+     * @see HttpObjectDecoder#validateHeaders
+     * @see io.netty.handler.codec.http.HttpHeaders
+     * @see io.netty.handler.codec.DefaultHeaders.NameValidator
+     */
+    public void setValidateHeaders(boolean validateHeaders) {
+      this.validateHeaders = validateHeaders;
+    }
+
+    /**
+     * Set {@link HttpObjectDecoder.LineParser#maxLength}
+     *
+     * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
+     *
+     * @see io.netty.handler.codec.TooLongFrameException
+     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     */
+    public void setMaxInitialLineLength(int maxInitialLineLength) {
+      this.maxInitialLineLength = maxInitialLineLength;
+    }
+
+    /**
+     * Set If a 100-continue response is detected but the content
+     * length is too large then true means close the connection.
+     * otherwise the connection will remain open and data will be
+     * consumed and discarded until the next request is received.
+     *
+     * @see HttpObjectAggregator#closeOnExpectationFailed
+     */
+    public void setCloseOnExpectationFailed(boolean closeOnExpectationFailed) {
+      this.closeOnExpectationFailed = closeOnExpectationFailed;
+    }
+
+    /**
+     * Set the maximum length of the aggregated content.
+     * If the length of the aggregated content exceeds this value,
+     *
+     * @param maxContentLength the maximum length of the aggregated content.
+     * If the length of the aggregated content exceeds this value,
+     * @see HttpObjectAggregator#maxContentLength
+     */
+    public void setMaxContentLength(DataSize maxContentLength) {
+      this.maxContentLength = maxContentLength;
+    }
+
+    public DataSize getMaxContentLength() {
+      return maxContentLength;
+    }
+
+    public boolean isCloseOnExpectationFailed() {
+      return closeOnExpectationFailed;
+    }
+
+    public DataSize getMaxChunkSize() {
+      return maxChunkSize;
+    }
+
+    public int getMaxHeaderSize() {
+      return maxHeaderSize;
+    }
+
+    public int getMaxInitialLineLength() {
+      return maxInitialLineLength;
+    }
+
+    public boolean isValidateHeaders() {
+      return validateHeaders;
+    }
   }
 
   /**

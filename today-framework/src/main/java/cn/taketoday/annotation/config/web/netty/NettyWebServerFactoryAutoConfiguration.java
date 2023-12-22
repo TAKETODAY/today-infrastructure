@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.netty;
@@ -100,14 +100,21 @@ public class NettyWebServerFactoryAutoConfiguration {
    */
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyChannelInitializer nettyChannelInitializer(NettyChannelHandler channelHandler) {
-    return new NettyChannelInitializer(channelHandler);
+  static NettyChannelInitializer nettyChannelInitializer(ServerProperties serverProperties, NettyChannelHandler channelHandler) {
+    var netty = serverProperties.getNetty();
+    NettyChannelInitializer initializer = new NettyChannelInitializer(channelHandler);
+    initializer.setCloseOnExpectationFailed(netty.isCloseOnExpectationFailed());
+    initializer.setMaxContentLength(netty.getMaxContentLength().toBytesInt());
+    initializer.setMaxChunkSize(netty.getMaxChunkSize().toBytesInt());
+    initializer.setMaxInitialLineLength(netty.getMaxInitialLineLength());
+    initializer.setValidateHeaders(netty.isValidateHeaders());
+    initializer.setMaxHeaderSize(netty.getMaxHeaderSize());
+    return initializer;
   }
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyRequestConfig nettyRequestConfig(
-          MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
+  static NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
     String location = multipartConfig.getLocation();
     var factory = new DefaultHttpDataFactory(location != null);
     if (multipartConfig.getMaxRequestSize() != null) {
