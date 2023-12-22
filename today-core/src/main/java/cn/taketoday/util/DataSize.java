@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -215,6 +215,16 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
    */
   public long toBytes() {
     return this.bytes;
+  }
+
+  /**
+   * Return the number of bytes in this instance.
+   *
+   * @return the number of bytes
+   * @since 4.0
+   */
+  public int toBytesInt() {
+    return (int) this.bytes;
   }
 
   /**
