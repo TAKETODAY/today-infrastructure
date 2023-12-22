@@ -82,7 +82,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
 
   private void addPath(RequestContext request, HashMap<String, Object> attributes) {
     if (ServletDetector.runningInServlet(request)) {
-      Object path = getAttribute(request, RequestDispatcher.ERROR_REQUEST_URI);
+      Object path = request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
       if (path == null) {
         path = request.getRequestURI();
       }
@@ -94,9 +94,12 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   }
 
   private void addStatus(Map<String, Object> attributes, RequestContext request) {
-    Integer status;
+    Integer status = null;
     if (ServletDetector.runningInServlet(request)) {
-      status = getAttribute(request, RequestDispatcher.ERROR_STATUS_CODE);
+      Object attribute = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+      if (attribute instanceof Integer) {
+        status = (Integer) attribute;
+      }
     }
     else {
       status = request.getStatus();
@@ -175,13 +178,13 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    */
   protected String getMessage(RequestContext request, Throwable error) {
     if (ServletDetector.runningInServlet(request)) {
-      Object attribute = getAttribute(request, RequestDispatcher.ERROR_MESSAGE);
+      Object attribute = request.getAttribute(RequestDispatcher.ERROR_MESSAGE);
       if (attribute instanceof String message && StringUtils.hasText(message)) {
         return message;
       }
     }
 
-    Object attribute = getAttribute(request, WebUtils.ERROR_MESSAGE_ATTRIBUTE);
+    Object attribute = request.getAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE);
     if (attribute instanceof String message && StringUtils.hasText(message)) {
       return message;
     }
@@ -195,24 +198,21 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   @Override
   @Nullable
   public Throwable getError(RequestContext request) {
-    Object attribute = getAttribute(request, WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
-    if (!(attribute instanceof Throwable)) {
-      if (ServletDetector.runningInServlet(request)) {
-        attribute = getAttribute(request, RequestDispatcher.ERROR_EXCEPTION);
-      }
-    }
-
+    Object attribute = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
     if (attribute instanceof Throwable exception) {
-      // store the exception in a well-known attribute to make it available to metrics
-      // instrumentation.
       return exception;
     }
-    return null;
-  }
 
-  @SuppressWarnings("unchecked")
-  private <T> T getAttribute(RequestContext requestAttributes, String name) {
-    return (T) requestAttributes.getAttribute(name);
+    if (ServletDetector.runningInServlet(request)) {
+      attribute = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+      if (attribute instanceof Throwable exception) {
+        // store the exception in a well-known attribute to make it available to metrics
+        // instrumentation.
+        request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, attribute);
+        return exception;
+      }
+    }
+    return null;
   }
 
 }

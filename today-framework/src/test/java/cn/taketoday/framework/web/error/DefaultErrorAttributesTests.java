@@ -17,6 +17,7 @@
 
 package cn.taketoday.framework.web.error;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -173,6 +174,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void getError() {
+    Assertions.setMaxStackTraceElementsDisplayed(1000);
     Error error = new OutOfMemoryError("Test error");
     this.request.setAttribute("jakarta.servlet.error.exception", error);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
