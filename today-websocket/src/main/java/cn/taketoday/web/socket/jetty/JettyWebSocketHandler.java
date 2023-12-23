@@ -114,6 +114,9 @@ public class JettyWebSocketHandler {
         ExceptionWebSocketHandlerDecorator.tryCloseWithError(this.wsSession, ex, logger);
       }
     }
+    else {
+      callback.succeed();
+    }
   }
 
   private static ByteBuffer copyByteBuffer(ByteBuffer src) {
