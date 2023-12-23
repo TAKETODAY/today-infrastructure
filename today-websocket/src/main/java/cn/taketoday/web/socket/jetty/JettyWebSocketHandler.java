@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.jetty;
@@ -117,8 +117,9 @@ public class JettyWebSocketHandler {
   }
 
   private static ByteBuffer copyByteBuffer(ByteBuffer src) {
-    ByteBuffer dest = ByteBuffer.allocate(src.capacity());
-    dest.put(0, src, 0, src.remaining());
+    ByteBuffer dest = ByteBuffer.allocate(src.remaining());
+    dest.put(src);
+    dest.flip();
     return dest;
   }
 
