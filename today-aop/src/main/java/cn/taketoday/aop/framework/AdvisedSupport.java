@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.framework;
@@ -68,6 +68,7 @@ import cn.taketoday.util.CollectionUtils;
  * @since 3.0 2021/2/1 20:23
  */
 public class AdvisedSupport extends ProxyConfig implements Advised {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -98,7 +99,24 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    */
   private ArrayList<Advisor> advisors = new ArrayList<>();
 
+  /**
+   * List of minimal {@link AdvisorKeyEntry} instances,
+   * to be assigned to the {@link #advisors} field on reduction.
+   *
+   * @see #reduceToAdvisorKey
+   * @since 4.0
+   */
   ArrayList<Advisor> advisorKey = this.advisors;
+
+  /**
+   * Optional field for {@link AopProxy} implementations to store metadata in.
+   * Used for {@link JdkDynamicAopProxy.ProxiedInterfacesCache}.
+   *
+   * @see JdkDynamicAopProxy#JdkDynamicAopProxy(AdvisedSupport)
+   * @since 4.0
+   */
+  @Nullable
+  transient volatile Object proxyMetadataCache;
 
   /** The InterceptorChainFactory to use. */
   private InterceptorChainFactory interceptorChainFactory = DefaultInterceptorChainFactory.INSTANCE;
@@ -512,6 +530,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    */
   protected void adviceChanged() {
     this.methodCache.clear();
+    this.proxyMetadataCache = null;
   }
 
   /**

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.framework;
@@ -759,8 +759,19 @@ class CglibAopProxy implements AopProxy, Serializable {
   /**
    * CallbackFilter to assign Callbacks to methods.
    */
-  private record ProxyCallbackFilter(
-          AdvisedSupport advised, Map<Method, Integer> fixedInterceptorMap, int fixedInterceptorOffset) implements CallbackFilter {
+  private static class ProxyCallbackFilter implements CallbackFilter {
+
+    public final AdvisedSupport advised;
+
+    public final Map<Method, Integer> fixedInterceptorMap;
+
+    public final int fixedInterceptorOffset;
+
+    public ProxyCallbackFilter(AdvisedSupport advised, Map<Method, Integer> fixedInterceptorMap, int fixedInterceptorOffset) {
+      this.advised = advised;
+      this.fixedInterceptorMap = fixedInterceptorMap;
+      this.fixedInterceptorOffset = fixedInterceptorOffset;
+    }
 
     /**
      * Implementation of CallbackFilter.accept() to return the index of the callback

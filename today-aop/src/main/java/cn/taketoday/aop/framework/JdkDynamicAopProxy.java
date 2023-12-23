@@ -12,13 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.framework;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -87,16 +89,9 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
   private final AdvisedSupport advised;
 
   /**
-   * Is the {@link #equals} method defined on the proxied interfaces?
+   * Cached in {@link AdvisedSupport#proxyMetadataCache}.
    */
-  private boolean equalsDefined;
-
-  /**
-   * Is the {@link #hashCode} method defined on the proxied interfaces?
-   */
-  private boolean hashCodeDefined;
-
-  private final Class<?>[] proxiedInterfaces;
+  private transient ProxiedInterfacesCache cache;
 
   /**
    * Construct a new JdkDynamicAopProxy for the given AOP configuration.
@@ -108,8 +103,16 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
   public JdkDynamicAopProxy(AdvisedSupport config) {
     Assert.notNull(config, "AdvisedSupport is required");
     this.advised = config;
-    this.proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
-    findDefinedEqualsAndHashCodeMethods(this.proxiedInterfaces);
+    // Initialize ProxiedInterfacesCache if not cached already
+    ProxiedInterfacesCache cache;
+    if (config.proxyMetadataCache instanceof ProxiedInterfacesCache proxiedInterfacesCache) {
+      cache = proxiedInterfacesCache;
+    }
+    else {
+      cache = new ProxiedInterfacesCache(config);
+      config.proxyMetadataCache = cache;
+    }
+    this.cache = cache;
   }
 
   @Override
@@ -123,13 +126,13 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
       logger.trace("Creating JDK dynamic proxy: {}", this.advised.getTargetSource());
     }
 
-    return Proxy.newProxyInstance(determineClassLoader(classLoader), proxiedInterfaces, this);
+    return Proxy.newProxyInstance(determineClassLoader(classLoader), cache.proxiedInterfaces, this);
   }
 
   @SuppressWarnings("deprecation")
   @Override
   public Class<?> getProxyClass(@Nullable ClassLoader classLoader) {
-    return Proxy.getProxyClass(determineClassLoader(classLoader), this.proxiedInterfaces);
+    return Proxy.getProxyClass(determineClassLoader(classLoader), cache.proxiedInterfaces);
   }
 
   /**
@@ -159,29 +162,6 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
   }
 
   /**
-   * Finds any {@link #equals} or {@link #hashCode} method that may be defined
-   * on the supplied set of interfaces.
-   *
-   * @param proxiedInterfaces the interfaces to introspect
-   */
-  void findDefinedEqualsAndHashCodeMethods(Class<?>[] proxiedInterfaces) {
-    for (Class<?> proxiedInterface : proxiedInterfaces) {
-      Method[] methods = proxiedInterface.getDeclaredMethods();
-      for (Method method : methods) {
-        if (ReflectionUtils.isEqualsMethod(method)) {
-          this.equalsDefined = true;
-        }
-        if (ReflectionUtils.isHashCodeMethod(method)) {
-          this.hashCodeDefined = true;
-        }
-        if (this.equalsDefined && this.hashCodeDefined) {
-          return;
-        }
-      }
-    }
-  }
-
-  /**
    * Implementation of {@code InvocationHandler.invoke}.
    * <p>Callers will see exactly the exception thrown by the target,
    * unless a hook method throws an exception.
@@ -196,11 +176,11 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
     Object target = null;
 
     try {
-      if (!equalsDefined && ReflectionUtils.isEqualsMethod(method)) {
+      if (!cache.equalsDefined && ReflectionUtils.isEqualsMethod(method)) {
         // The target does not implement the equals(Object) method itself.
         return equals(args[0]);
       }
-      else if (!hashCodeDefined && ReflectionUtils.isHashCodeMethod(method)) {
+      else if (!cache.hashCodeDefined && ReflectionUtils.isHashCodeMethod(method)) {
         // The target does not implement the hashCode() method itself.
         return hashCode();
       }
@@ -321,6 +301,65 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
   @Override
   public int hashCode() {
     return JdkDynamicAopProxy.class.hashCode() * 13 + this.advised.getTargetSource().hashCode();
+  }
+
+  //---------------------------------------------------------------------
+  // Serialization support
+  //---------------------------------------------------------------------
+
+  @Serial
+  private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    // Rely on default serialization; just initialize state after deserialization.
+    ois.defaultReadObject();
+
+    // Initialize transient fields.
+    this.cache = new ProxiedInterfacesCache(this.advised);
+  }
+
+  /**
+   * Holder for the complete proxied interfaces and derived metadata,
+   * to be cached in {@link AdvisedSupport#proxyMetadataCache}.
+   *
+   * @since 4.0
+   */
+  static final class ProxiedInterfacesCache {
+
+    public final Class<?>[] proxiedInterfaces;
+
+    public final boolean equalsDefined;
+
+    public final boolean hashCodeDefined;
+
+    ProxiedInterfacesCache(AdvisedSupport config) {
+      this.proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(config, true);
+
+      // Find any {@link #equals} or {@link #hashCode} method that may be defined
+      // on the supplied set of interfaces.
+      boolean equalsDefined = false;
+      boolean hashCodeDefined = false;
+      for (Class<?> proxiedInterface : this.proxiedInterfaces) {
+        Method[] methods = proxiedInterface.getDeclaredMethods();
+        for (Method method : methods) {
+          if (ReflectionUtils.isEqualsMethod(method)) {
+            equalsDefined = true;
+            if (hashCodeDefined) {
+              break;
+            }
+          }
+          if (ReflectionUtils.isHashCodeMethod(method)) {
+            hashCodeDefined = true;
+            if (equalsDefined) {
+              break;
+            }
+          }
+        }
+        if (equalsDefined && hashCodeDefined) {
+          break;
+        }
+      }
+      this.equalsDefined = equalsDefined;
+      this.hashCodeDefined = hashCodeDefined;
+    }
   }
 
 }
