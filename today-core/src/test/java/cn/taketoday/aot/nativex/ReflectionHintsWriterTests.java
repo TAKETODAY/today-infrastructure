@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.nativex;
@@ -33,6 +33,8 @@ import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.core.codec.StringDecoder;
 import cn.taketoday.util.MimeType;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link ReflectionHintsWriter}.
@@ -60,6 +62,7 @@ public class ReflectionHintsWriterTests {
                     MemberCategory.PUBLIC_CLASSES, MemberCategory.DECLARED_CLASSES)
             .withField("DEFAULT_CHARSET")
             .withField("defaultCharset")
+            .withField("aScore")
             .withConstructor(TypeReference.listOf(List.class, boolean.class, MimeType.class), ExecutableMode.INTROSPECT)
             .withMethod("setDefaultCharset", List.of(TypeReference.of(Charset.class)), ExecutableMode.INVOKE)
             .withMethod("getDefaultCharset", Collections.emptyList(), ExecutableMode.INTROSPECT));
@@ -81,6 +84,7 @@ public class ReflectionHintsWriterTests {
             		"allPublicClasses": true,
             		"allDeclaredClasses": true,
             		"fields": [
+            			{ "name": "aScore" },
             			{ "name": "DEFAULT_CHARSET" },
             			{ "name": "defaultCharset" }
             		],
@@ -210,11 +214,77 @@ public class ReflectionHintsWriterTests {
     assertEquals("[]", hints);
   }
 
+  @Test
+  void sortTypeHints() {
+    ReflectionHints hints = new ReflectionHints();
+    hints.registerType(Integer.class, builder -> { });
+    hints.registerType(Long.class, builder -> { });
+
+    ReflectionHints hints2 = new ReflectionHints();
+    hints2.registerType(Long.class, builder -> { });
+    hints2.registerType(Integer.class, builder -> { });
+
+    assertThat(writeJson(hints)).isEqualTo(writeJson(hints2));
+  }
+
+  @Test
+  void sortFieldHints() {
+    ReflectionHints hints = new ReflectionHints();
+    hints.registerType(Integer.class, builder -> {
+      builder.withField("first");
+      builder.withField("second");
+    });
+    ReflectionHints hints2 = new ReflectionHints();
+    hints2.registerType(Integer.class, builder -> {
+      builder.withField("second");
+      builder.withField("first");
+    });
+    assertThat(writeJson(hints)).isEqualTo(writeJson(hints2));
+  }
+
+  @Test
+  void sortConstructorHints() {
+    ReflectionHints hints = new ReflectionHints();
+    hints.registerType(Integer.class, builder -> {
+      builder.withConstructor(List.of(TypeReference.of(String.class)), ExecutableMode.INVOKE);
+      builder.withConstructor(List.of(TypeReference.of(String.class),
+              TypeReference.of(Integer.class)), ExecutableMode.INVOKE);
+    });
+
+    ReflectionHints hints2 = new ReflectionHints();
+    hints2.registerType(Integer.class, builder -> {
+      builder.withConstructor(List.of(TypeReference.of(String.class),
+              TypeReference.of(Integer.class)), ExecutableMode.INVOKE);
+      builder.withConstructor(List.of(TypeReference.of(String.class)), ExecutableMode.INVOKE);
+    });
+    assertThat(writeJson(hints)).isEqualTo(writeJson(hints2));
+  }
+
+  @Test
+  void sortMethodHints() {
+    ReflectionHints hints = new ReflectionHints();
+    hints.registerType(Integer.class, builder -> {
+      builder.withMethod("test", Collections.emptyList(), ExecutableMode.INVOKE);
+      builder.withMethod("another", Collections.emptyList(), ExecutableMode.INVOKE);
+    });
+
+    ReflectionHints hints2 = new ReflectionHints();
+    hints2.registerType(Integer.class, builder -> {
+      builder.withMethod("another", Collections.emptyList(), ExecutableMode.INVOKE);
+      builder.withMethod("test", Collections.emptyList(), ExecutableMode.INVOKE);
+    });
+    assertThat(writeJson(hints)).isEqualTo(writeJson(hints2));
+  }
+
   private void assertEquals(String expectedString, ReflectionHints hints) throws JSONException {
+    JSONAssert.assertEquals(expectedString, writeJson(hints), JSONCompareMode.STRICT);
+  }
+
+  private String writeJson(ReflectionHints hints) {
     StringWriter out = new StringWriter();
     BasicJsonWriter writer = new BasicJsonWriter(out, "\t");
     ReflectionHintsWriter.write(writer, hints);
-    JSONAssert.assertEquals(expectedString, out.toString(), JSONCompareMode.NON_EXTENSIBLE);
+    return out.toString();
   }
 
   static class Inner {

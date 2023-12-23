@@ -12,16 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.nativex;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import cn.taketoday.aot.hint.JdkProxyHint;
 import cn.taketoday.aot.hint.ProxyHints;
+import cn.taketoday.aot.hint.TypeReference;
 
 /**
  * Write {@link JdkProxyHint}s contained in a {@link ProxyHints} to the JSON
@@ -31,14 +34,23 @@ import cn.taketoday.aot.hint.ProxyHints;
  * @author Sebastien Deleuze
  * @author Stephane Nicoll
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/DynamicProxy/">Dynamic Proxy in Native Image</a>
  * @see <a href="https://www.graalvm.org/22.1/reference-manual/native-image/BuildConfiguration/">Native Image Build Configuration</a>
  * @since 4.0
  */
 class ProxyHintsWriter {
 
+  private static final Comparator<JdkProxyHint> JDK_PROXY_HINT_COMPARATOR = (left, right) -> {
+    String leftSignature = left.getProxiedInterfaces().stream()
+            .map(TypeReference::getCanonicalName).collect(Collectors.joining(","));
+    String rightSignature = right.getProxiedInterfaces().stream()
+            .map(TypeReference::getCanonicalName).collect(Collectors.joining(","));
+    return leftSignature.compareTo(rightSignature);
+  };
+
   public static void write(BasicJsonWriter writer, ProxyHints hints) {
-    writer.writeArray(hints.jdkProxyHints().map(ProxyHintsWriter::toAttributes).toList());
+    writer.writeArray(hints.jdkProxyHints().sorted(JDK_PROXY_HINT_COMPARATOR).map(ProxyHintsWriter::toAttributes).toList());
   }
 
   private static Map<String, Object> toAttributes(JdkProxyHint hint) {

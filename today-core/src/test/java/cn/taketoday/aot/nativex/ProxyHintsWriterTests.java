@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.nativex;
@@ -25,6 +25,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 import java.io.StringWriter;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import cn.taketoday.aot.hint.ProxyHints;
 import cn.taketoday.aot.hint.TypeReference;
@@ -61,6 +62,18 @@ public class ProxyHintsWriterTests {
             [
             	{ "interfaces": [ "java.util.function.Function" ] },
             	{ "interfaces": [ "java.util.function.Function", "java.util.function.Consumer" ] }
+            ]""", hints);
+  }
+
+  @Test
+  void shouldWriteEntriesInNaturalOrder() throws JSONException {
+    ProxyHints hints = new ProxyHints();
+    hints.registerJdkProxy(Supplier.class);
+    hints.registerJdkProxy(Function.class);
+    assertEquals("""
+            [
+            	{ "interfaces": [ "java.util.function.Function" ] },
+            	{ "interfaces": [ "java.util.function.Supplier" ] }
             ]""", hints);
   }
 

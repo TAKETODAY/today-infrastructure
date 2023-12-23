@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.nativex;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,9 @@ import cn.taketoday.lang.Nullable;
 class ReflectionHintsWriter {
 
   public static void write(BasicJsonWriter writer, ReflectionHints hints) {
-    writer.writeArray(hints.typeHints().map(ReflectionHintsWriter::toAttributes).toList());
+    writer.writeArray(hints.typeHints()
+            .sorted(Comparator.comparing(TypeHint::getType))
+            .map(ReflectionHintsWriter::toAttributes).toList());
   }
 
   private static Map<String, Object> toAttributes(TypeHint hint) {
@@ -58,7 +61,8 @@ class ReflectionHintsWriter {
     handleCondition(attributes, hint);
     handleCategories(attributes, hint.getMemberCategories());
     handleFields(attributes, hint.fields());
-    handleExecutables(attributes, Stream.concat(hint.constructors(), hint.methods()).toList());
+    handleExecutables(attributes, Stream.concat(
+            hint.constructors(), hint.methods()).sorted().toList());
     return attributes;
   }
 
@@ -71,7 +75,8 @@ class ReflectionHintsWriter {
   }
 
   private static void handleFields(Map<String, Object> attributes, Stream<FieldHint> fields) {
-    addIfNotEmpty(attributes, "fields", fields.map(ReflectionHintsWriter::toAttributes).toList());
+    addIfNotEmpty(attributes, "fields", fields.sorted(Comparator.comparing(FieldHint::getName, String::compareToIgnoreCase))
+            .map(ReflectionHintsWriter::toAttributes).toList());
   }
 
   private static Map<String, Object> toAttributes(FieldHint hint) {
@@ -97,7 +102,7 @@ class ReflectionHintsWriter {
   }
 
   private static void handleCategories(Map<String, Object> attributes, Set<MemberCategory> categories) {
-    for (MemberCategory category : categories) {
+    categories.stream().sorted().forEach(category -> {
       switch (category) {
         case PUBLIC_FIELDS -> attributes.put("allPublicFields", true);
         case DECLARED_FIELDS -> attributes.put("allDeclaredFields", true);
@@ -112,7 +117,7 @@ class ReflectionHintsWriter {
         case PUBLIC_CLASSES -> attributes.put("allPublicClasses", true);
         case DECLARED_CLASSES -> attributes.put("allDeclaredClasses", true);
       }
-    }
+    });
   }
 
   private static void addIfNotEmpty(Map<String, Object> attributes, String name, @Nullable Object value) {

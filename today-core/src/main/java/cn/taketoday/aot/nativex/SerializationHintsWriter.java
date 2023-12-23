@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.nativex;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -39,7 +40,9 @@ import cn.taketoday.aot.hint.SerializationHints;
 class SerializationHintsWriter {
 
   public static void write(BasicJsonWriter writer, SerializationHints hints) {
-    writer.writeArray(hints.javaSerializationHints().map(SerializationHintsWriter::toAttributes).toList());
+    writer.writeArray(hints.javaSerializationHints()
+            .sorted(Comparator.comparing(JavaSerializationHint::getType))
+            .map(SerializationHintsWriter::toAttributes).toList());
   }
 
   private static Map<String, Object> toAttributes(JavaSerializationHint serializationHint) {
@@ -51,7 +54,7 @@ class SerializationHintsWriter {
 
   private static void handleCondition(Map<String, Object> attributes, ConditionalHint hint) {
     if (hint.getReachableType() != null) {
-      Map<String, Object> conditionAttributes = new LinkedHashMap<>();
+      var conditionAttributes = new LinkedHashMap<>();
       conditionAttributes.put("typeReachable", hint.getReachableType());
       attributes.put("condition", conditionAttributes);
     }

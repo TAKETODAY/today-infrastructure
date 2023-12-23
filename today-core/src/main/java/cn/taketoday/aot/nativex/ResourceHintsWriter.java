@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aot.nativex;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,12 @@ import cn.taketoday.lang.Nullable;
  */
 class ResourceHintsWriter {
 
+  private static final Comparator<ResourcePatternHint> RESOURCE_PATTERN_HINT_COMPARATOR =
+          Comparator.comparing(ResourcePatternHint::getPattern);
+
+  private static final Comparator<ResourceBundleHint> RESOURCE_BUNDLE_HINT_COMPARATOR =
+          Comparator.comparing(ResourceBundleHint::getBaseName);
+
   public static void write(BasicJsonWriter writer, ResourceHints hints) {
     Map<String, Object> attributes = new LinkedHashMap<>();
     addIfNotEmpty(attributes, "resources", toAttributes(hints));
@@ -53,15 +60,27 @@ class ResourceHintsWriter {
 
   private static Map<String, Object> toAttributes(ResourceHints hint) {
     Map<String, Object> attributes = new LinkedHashMap<>();
-    addIfNotEmpty(attributes, "includes", hint.resourcePatternHints().map(ResourcePatternHints::getIncludes)
-            .flatMap(List::stream).distinct().map(ResourceHintsWriter::toAttributes).toList());
-    addIfNotEmpty(attributes, "excludes", hint.resourcePatternHints().map(ResourcePatternHints::getExcludes)
-            .flatMap(List::stream).distinct().map(ResourceHintsWriter::toAttributes).toList());
+    addIfNotEmpty(attributes, "includes", hint.resourcePatternHints()
+            .map(ResourcePatternHints::getIncludes)
+            .flatMap(List::stream)
+            .distinct()
+            .sorted(RESOURCE_PATTERN_HINT_COMPARATOR)
+            .map(ResourceHintsWriter::toAttributes).toList()
+    );
+
+    addIfNotEmpty(attributes, "excludes", hint.resourcePatternHints()
+            .map(ResourcePatternHints::getExcludes)
+            .flatMap(List::stream)
+            .distinct()
+            .sorted(RESOURCE_PATTERN_HINT_COMPARATOR)
+            .map(ResourceHintsWriter::toAttributes).toList()
+    );
     return attributes;
   }
 
   private static void handleResourceBundles(Map<String, Object> attributes, Stream<ResourceBundleHint> ressourceBundles) {
-    addIfNotEmpty(attributes, "bundles", ressourceBundles.map(ResourceHintsWriter::toAttributes).toList());
+    addIfNotEmpty(attributes, "bundles",
+            ressourceBundles.sorted(RESOURCE_BUNDLE_HINT_COMPARATOR).map(ResourceHintsWriter::toAttributes).toList());
   }
 
   private static Map<String, Object> toAttributes(ResourceBundleHint hint) {
