@@ -147,14 +147,33 @@ public class ForwardedHeaderFilter extends OncePerRequestFilter {
       filterChain.doFilter(wrappedRequest, response);
     }
     else {
-      HttpServletRequest wrappedRequest = new ForwardedHeaderExtractingRequest(request);
-      HttpServletResponse wrappedResponse =
-              relativeRedirects ?
-              RelativeRedirectResponseWrapper.wrapIfNecessary(response, HttpStatus.SEE_OTHER) :
-              new ForwardedHeaderExtractingResponse(response, wrappedRequest);
-
+      HttpServletRequest wrappedRequest;
+      HttpServletResponse wrappedResponse;
+      try {
+        wrappedRequest = new ForwardedHeaderExtractingRequest(request);
+        wrappedResponse = this.relativeRedirects ?
+                          RelativeRedirectResponseWrapper.wrapIfNecessary(response, HttpStatus.SEE_OTHER) :
+                          new ForwardedHeaderExtractingResponse(response, wrappedRequest);
+      }
+      catch (Throwable ex) {
+        if (logger.isDebugEnabled()) {
+          logger.debug("Failed to apply forwarded headers to {}", formatRequest(request), ex);
+        }
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        return;
+      }
       filterChain.doFilter(wrappedRequest, wrappedResponse);
     }
+  }
+
+  /**
+   * Format the request for logging purposes including HTTP method and URL.
+   *
+   * @param request the request to format
+   * @return the String to display, never empty or {@code null}
+   */
+  protected String formatRequest(HttpServletRequest request) {
+    return "HTTP " + request.getMethod() + " \"" + request.getRequestURI() + "\"";
   }
 
   @Override

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util;
@@ -30,7 +30,7 @@ import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -163,7 +163,6 @@ class ForwardedHeaderUtilsTests {
   }
 
   @Test
-    // gh-26748
   void fromHttpRequestWithForwardedInvalidIPv6Address() {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.setScheme("http");
@@ -174,8 +173,9 @@ class ForwardedHeaderUtilsTests {
 
     HttpRequest httpRequest = new ServletServerHttpRequest(request);
 
-    assertThatIllegalArgumentException().isThrownBy(() ->
-            ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build());
+    assertThatThrownBy(() ->
+            ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build())
+            .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
