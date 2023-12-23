@@ -204,8 +204,8 @@ public class CacheReproTests {
     assertThat(cache.get("tb2")).isNull();
 
     assertThat(bean.findByIdEmpty("").join()).isNull();
-    assertThat(bean.findByIdEmpty("").join()).isNull();
     assertThat(cache.get("").get()).isNull();
+    assertThat(bean.findByIdEmpty("").join()).isNull();
 
     context.close();
   }
@@ -230,6 +230,10 @@ public class CacheReproTests {
     bean.insertItem(tb);
     assertThat(bean.findById("tb1").get()).isSameAs(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    assertThat(bean.findById("").join()).isNull();
+    assertThat(cache.get("").get()).isNull();
+    assertThat(bean.findById("").join()).isNull();
 
     context.close();
   }
@@ -262,6 +266,10 @@ public class CacheReproTests {
     assertThat(bean.findById("tb2").block()).isNotSameAs(tb);
     assertThat(cache.get("tb2")).isNull();
 
+    assertThat(bean.findByIdEmpty("").block()).isNull();
+    assertThat(cache.get("").get()).isNull();
+    assertThat(bean.findByIdEmpty("").block()).isNull();
+
     context.close();
   }
 
@@ -285,6 +293,10 @@ public class CacheReproTests {
     bean.insertItem(tb);
     assertThat(bean.findById("tb1").block()).isSameAs(tb);
     assertThat(cache.get("tb1").get()).isSameAs(tb);
+
+    assertThat(bean.findById("").block()).isNull();
+    assertThat(cache.get("").get()).isNull();
+    assertThat(bean.findById("").block()).isNull();
 
     context.close();
   }
@@ -317,6 +329,10 @@ public class CacheReproTests {
     assertThat(bean.findById("tb2").collectList().block()).isNotEqualTo(tb);
     assertThat(cache.get("tb2")).isNull();
 
+    assertThat(bean.findByIdEmpty("").collectList().block()).isEmpty();
+    assertThat(cache.get("").get()).isEqualTo(Collections.emptyList());
+    assertThat(bean.findByIdEmpty("").collectList().block()).isEmpty();
+
     context.close();
   }
 
@@ -340,6 +356,10 @@ public class CacheReproTests {
     bean.insertItem("tb1", tb);
     assertThat(bean.findById("tb1").collectList().block()).isEqualTo(tb);
     assertThat(cache.get("tb1").get()).isEqualTo(tb);
+
+    assertThat(bean.findById("").collectList().block()).isEmpty();
+    assertThat(cache.get("").get()).isEqualTo(Collections.emptyList());
+    assertThat(bean.findById("").collectList().block()).isEmpty();
 
     context.close();
   }
@@ -555,6 +575,8 @@ public class CacheReproTests {
 
   public static class Spr14235FutureService {
 
+    private boolean emptyCalled;
+
     @Cacheable(value = "itemCache", unless = "#result.name == 'tb2'")
     public CompletableFuture<TestBean> findById(String id) {
       return CompletableFuture.completedFuture(new TestBean(id));
@@ -562,6 +584,8 @@ public class CacheReproTests {
 
     @Cacheable(value = "itemCache")
     public CompletableFuture<TestBean> findByIdEmpty(String id) {
+      assertThat(emptyCalled).isFalse();
+      emptyCalled = true;
       return CompletableFuture.completedFuture(null);
     }
 
@@ -578,8 +602,15 @@ public class CacheReproTests {
 
   public static class Spr14235FutureServiceSync {
 
+    private boolean emptyCalled;
+
     @Cacheable(value = "itemCache", sync = true)
     public CompletableFuture<TestBean> findById(String id) {
+      if (id.isEmpty()) {
+        assertThat(emptyCalled).isFalse();
+        emptyCalled = true;
+        return CompletableFuture.completedFuture(null);
+      }
       return CompletableFuture.completedFuture(new TestBean(id));
     }
 
@@ -591,9 +622,18 @@ public class CacheReproTests {
 
   public static class Spr14235MonoService {
 
+    private boolean emptyCalled;
+
     @Cacheable(value = "itemCache", unless = "#result.name == 'tb2'")
     public Mono<TestBean> findById(String id) {
       return Mono.just(new TestBean(id));
+    }
+
+    @Cacheable(value = "itemCache")
+    public Mono<TestBean> findByIdEmpty(String id) {
+      assertThat(emptyCalled).isFalse();
+      emptyCalled = true;
+      return Mono.empty();
     }
 
     @CachePut(cacheNames = "itemCache", key = "#item.name")
@@ -609,8 +649,15 @@ public class CacheReproTests {
 
   public static class Spr14235MonoServiceSync {
 
+    private boolean emptyCalled;
+
     @Cacheable(value = "itemCache", sync = true)
     public Mono<TestBean> findById(String id) {
+      if (id.isEmpty()) {
+        assertThat(emptyCalled).isFalse();
+        emptyCalled = true;
+        return Mono.empty();
+      }
       return Mono.just(new TestBean(id));
     }
 
@@ -624,9 +671,18 @@ public class CacheReproTests {
 
     private int counter = 0;
 
+    private boolean emptyCalled;
+
     @Cacheable(value = "itemCache", unless = "#result[0].name == 'tb2'")
     public Flux<TestBean> findById(String id) {
       return Flux.just(new TestBean(id), new TestBean(id + (counter++)));
+    }
+
+    @Cacheable(value = "itemCache")
+    public Flux<TestBean> findByIdEmpty(String id) {
+      assertThat(emptyCalled).isFalse();
+      emptyCalled = true;
+      return Flux.empty();
     }
 
     @CachePut(cacheNames = "itemCache", key = "#id")
@@ -644,8 +700,15 @@ public class CacheReproTests {
 
     private int counter = 0;
 
+    private boolean emptyCalled;
+
     @Cacheable(value = "itemCache", sync = true)
     public Flux<TestBean> findById(String id) {
+      if (id.isEmpty()) {
+        assertThat(emptyCalled).isFalse();
+        emptyCalled = true;
+        return Flux.empty();
+      }
       return Flux.just(new TestBean(id), new TestBean(id + (counter++)));
     }
 

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.annotation;
@@ -28,10 +28,10 @@ import cn.taketoday.cache.Cache;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.cache.concurrent.ConcurrentMapCacheManager;
-import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -51,7 +51,7 @@ public class ReactiveCachingTests {
           LateCacheHitDeterminationConfig.class,
           LateCacheHitDeterminationWithValueWrapperConfig.class })
   void cacheHitDetermination(Class<?> configClass) {
-    ApplicationContext ctx = new AnnotationConfigApplicationContext(configClass, ReactiveCacheableService.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(configClass, ReactiveCacheableService.class);
     ReactiveCacheableService service = ctx.getBean(ReactiveCacheableService.class);
 
     Object key = new Object();
@@ -107,6 +107,8 @@ public class ReactiveCachingTests {
 
     assertThat(r1).isNotNull();
     assertThat(r1).isSameAs(r2).isSameAs(r3);
+
+    ctx.close();
   }
 
   @CacheConfig(cacheNames = "first")
@@ -166,6 +168,12 @@ public class ReactiveCachingTests {
             public CompletableFuture<?> retrieve(Object key) {
               return CompletableFuture.completedFuture(lookup(key));
             }
+
+            @Override
+            public void put(Object key, @Nullable Object value) {
+              assertThat(get(key)).as("Double put").isNull();
+              super.put(key, value);
+            }
           };
         }
       };
@@ -186,6 +194,12 @@ public class ReactiveCachingTests {
             public CompletableFuture<?> retrieve(Object key) {
               Object value = lookup(key);
               return CompletableFuture.completedFuture(value != null ? toValueWrapper(value) : null);
+            }
+
+            @Override
+            public void put(Object key, @Nullable Object value) {
+              assertThat(get(key)).as("Double put").isNull();
+              super.put(key, value);
             }
           };
         }
