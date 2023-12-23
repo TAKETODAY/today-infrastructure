@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -38,6 +38,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DefaultDataBufferFactory
  * @since 4.0
  */
@@ -367,7 +368,7 @@ public class DefaultDataBuffer implements DataBuffer {
             .slice();
     this.writePosition = Math.max(this.writePosition, index) - index;
     this.readPosition = Math.max(this.readPosition, index) - index;
-    capacity(this.byteBuffer.capacity());
+    this.capacity = this.byteBuffer.capacity();
 
     return result;
   }
