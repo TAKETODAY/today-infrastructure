@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.vendor;
@@ -30,7 +27,9 @@ import org.hibernate.dialect.HANAColumnStoreDialect;
 import org.hibernate.dialect.HSQLDialect;
 import org.hibernate.dialect.Informix10Dialect;
 import org.hibernate.dialect.MySQL57Dialect;
+import org.hibernate.dialect.MySQLDialect;
 import org.hibernate.dialect.Oracle12cDialect;
+import org.hibernate.dialect.OracleDialect;
 import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.hibernate.dialect.SQLServer2012Dialect;
 import org.hibernate.dialect.SybaseDialect;
@@ -40,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceProvider;
@@ -68,10 +68,14 @@ import jakarta.persistence.spi.PersistenceUnitTransactionType;
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HibernateJpaDialect
  * @since 4.0
  */
 public class HibernateJpaVendorAdapter extends AbstractJpaVendorAdapter {
+
+  private static final boolean oldDialectsPresent = ClassUtils.isPresent(
+          "org.hibernate.dialect.PostgreSQL95Dialect", HibernateJpaVendorAdapter.class.getClassLoader());
 
   private final HibernateJpaDialect jpaDialect = new HibernateJpaDialect();
 
@@ -174,20 +178,37 @@ public class HibernateJpaVendorAdapter extends AbstractJpaVendorAdapter {
    */
   @Nullable
   protected Class<?> determineDatabaseDialectClass(Database database) {
-    return switch (database) {
-      case DB2 -> DB2Dialect.class;
-      case DERBY -> DerbyTenSevenDialect.class;
-      case H2 -> H2Dialect.class;
-      case HANA -> HANAColumnStoreDialect.class;
-      case HSQL -> HSQLDialect.class;
-      case INFORMIX -> Informix10Dialect.class;
-      case MYSQL -> MySQL57Dialect.class;
-      case ORACLE -> Oracle12cDialect.class;
-      case POSTGRESQL -> PostgreSQL95Dialect.class;
-      case SQL_SERVER -> SQLServer2012Dialect.class;
-      case SYBASE -> SybaseDialect.class;
-      default -> null;
-    };
+    if (oldDialectsPresent) {  // Hibernate <6.2
+      return switch (database) {
+        case DB2 -> DB2Dialect.class;
+        case DERBY -> DerbyTenSevenDialect.class;
+        case H2 -> H2Dialect.class;
+        case HANA -> HANAColumnStoreDialect.class;
+        case HSQL -> HSQLDialect.class;
+        case INFORMIX -> Informix10Dialect.class;
+        case MYSQL -> MySQL57Dialect.class;
+        case ORACLE -> Oracle12cDialect.class;
+        case POSTGRESQL -> PostgreSQL95Dialect.class;
+        case SQL_SERVER -> SQLServer2012Dialect.class;
+        case SYBASE -> SybaseDialect.class;
+        default -> null;
+      };
+    }
+    else {  // Hibernate 6.2+ aligned
+      return switch (database) {
+        case DB2 -> DB2Dialect.class;
+        case DERBY -> org.hibernate.dialect.DerbyDialect.class;
+        case H2 -> H2Dialect.class;
+        case HANA -> HANAColumnStoreDialect.class;
+        case HSQL -> HSQLDialect.class;
+        case MYSQL -> MySQLDialect.class;
+        case ORACLE -> OracleDialect.class;
+        case POSTGRESQL -> org.hibernate.dialect.PostgreSQLDialect.class;
+        case SQL_SERVER -> SQLServer2012Dialect.class;
+        case SYBASE -> SybaseDialect.class;
+        default -> null;
+      };
+    }
   }
 
   @Override
