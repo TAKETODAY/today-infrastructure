@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.method;
@@ -33,12 +33,11 @@ import cn.taketoday.validation.ObjectError;
  * {@link Errors#getAllErrors()}, but this subclass provides access to the same
  * as {@link FieldError}s.
  *
- * <p>When the method parameter is a container with multiple elements such as a
- * {@link List}, {@link java.util.Set}, array, {@link java.util.Map}, or others,
- * then a separate {@link ParameterErrors} is created for each element that has
- * errors. In that case, the {@link #getContainer() container},
- * {@link #getContainerIndex() containerIndex}, and {@link #getContainerKey() containerKey}
- * provide additional context.
+ * <p>When the method parameter is a container such as a {@link List}, array,
+ * or {@link java.util.Map}, then a separate {@link ParameterErrors} is created
+ * for each element that has errors. In that case, the properties
+ * {@link #getContainer() container}, {@link #getContainerIndex() containerIndex},
+ * and {@link #getContainerKey() containerKey} provide additional context.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

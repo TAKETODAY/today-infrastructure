@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.beanvalidation;
@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -269,12 +271,10 @@ public class MethodValidationAdapter implements MethodValidator {
     return execVal.validateReturnValue(target, method, returnValue, groups);
   }
 
-  private MethodValidationResult adaptViolations(
-          Object target, Method method, Set<ConstraintViolation<Object>> violations,
-          Function<Integer, MethodParameter> parameterFunction,
-          Function<Integer, Object> argumentFunction) {
+  private MethodValidationResult adaptViolations(Object target, Method method, Set<ConstraintViolation<Object>> violations,
+          Function<Integer, MethodParameter> parameterFunction, Function<Integer, Object> argumentFunction) {
 
-    LinkedHashMap<BeanResultKey, BeanResultBuilder> beanViolations = new LinkedHashMap<>();
+    LinkedHashMap<Path.Node, BeanResultBuilder> beanViolations = new LinkedHashMap<>();
     LinkedHashMap<MethodParameter, ParamResultBuilder> paramViolations = new LinkedHashMap<>();
 
     for (ConstraintViolation<Object> violation : violations) {
@@ -301,10 +301,43 @@ public class MethodValidationAdapter implements MethodValidator {
                   .addViolation(violation);
         }
         else {
-          Object leafBean = violation.getLeafBean();
-          BeanResultKey key = new BeanResultKey(node, leafBean);
+          // https://github.com/jakartaee/validation/issues/194
+          // If the argument is a container of elements, we need the element, but
+          // the only option is to see if the next part of the property path has
+          // a container index/key for its parent and use it.
+
+          Path.Node paramNode = node;
+          node = itr.next();
+
+          Object bean;
+          Object container;
+          Integer containerIndex = node.getIndex();
+          Object containerKey = node.getKey();
+          if (containerIndex != null && arg instanceof List<?> list) {
+            bean = list.get(containerIndex);
+            container = list;
+          }
+          else if (containerIndex != null && arg instanceof Object[] array) {
+            bean = array[containerIndex];
+            container = array;
+          }
+          else if (containerKey != null && arg instanceof Map<?, ?> map) {
+            bean = map.get(containerKey);
+            container = map;
+          }
+          else if (arg instanceof Optional<?> optional) {
+            bean = optional.orElse(null);
+            container = optional;
+          }
+          else {
+            Assert.state(!node.isInIterable(), "No way to unwrap Iterable without index");
+            bean = arg;
+            container = null;
+          }
+
           beanViolations
-                  .computeIfAbsent(key, k -> new BeanResultBuilder(parameter, arg, itr.next(), leafBean))
+                  .computeIfAbsent(paramNode, k ->
+                          new BeanResultBuilder(parameter, bean, container, containerIndex, containerKey))
                   .addViolation(violation);
         }
         break;
@@ -417,15 +450,17 @@ public class MethodValidationAdapter implements MethodValidator {
 
     private final Errors errors;
 
-    private final Set<ConstraintViolation<Object>> violations = new LinkedHashSet<>();
+    private final LinkedHashSet<ConstraintViolation<Object>> violations = new LinkedHashSet<>();
 
-    public BeanResultBuilder(MethodParameter param, @Nullable Object arg, Path.Node node, @Nullable Object leafBean) {
+    public BeanResultBuilder(MethodParameter param, @Nullable Object bean, @Nullable Object container,
+            @Nullable Integer containerIndex, @Nullable Object containerKey) {
+
       this.parameter = param;
-      this.bean = leafBean;
-      this.container = (arg != null && !arg.equals(leafBean) ? arg : null);
-      this.containerIndex = node.getIndex();
-      this.containerKey = node.getKey();
-      this.errors = createBindingResult(param, leafBean);
+      this.bean = bean;
+      this.container = container;
+      this.containerIndex = containerIndex;
+      this.containerKey = containerKey;
+      this.errors = createBindingResult(param, this.bean);
     }
 
     public void addViolation(ConstraintViolation<Object> violation) {
@@ -434,27 +469,10 @@ public class MethodValidationAdapter implements MethodValidator {
 
     public ParameterErrors build() {
       validatorAdapter.processConstraintViolations(this.violations, this.errors);
-      return new ParameterErrors(
-              this.parameter, this.bean, this.errors, this.container,
-              this.containerIndex, this.containerKey);
+      return new ParameterErrors(this.parameter, this.bean, this.errors,
+              this.container, this.containerIndex, this.containerKey);
     }
   }
-
-  /**
-   * Unique key for cascaded violations associated with a bean.
-   * <p>The bean may be an element within a container such as a List, Set, array,
-   * Map, Optional, and others. In that case the {@link Path.Node} represents
-   * the container element with its index or key, if applicable, while the
-   * {@link ConstraintViolation#getLeafBean() leafBean} is the actual
-   * element instance. The pair should be unique. For example in a Set, the
-   * node is the same but element instances are unique. In a List or Map the
-   * node is further qualified by an index or key while element instances
-   * may be the same.
-   *
-   * @param node the path to the bean associated with the violation
-   * @param leafBean the bean instance
-   */
-  record BeanResultKey(Path.Node node, Object leafBean) { }
 
   /**
    * Default algorithm to select an object name, as described in
