@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.support;
@@ -204,15 +204,27 @@ public class CaffeineCacheManager implements CacheManager {
    * Set the common cache type that this cache manager builds to async.
    * This applies to {@link #setCacheNames} as well as on-demand caches.
    * <p>Individual cache registrations (such as {@link #registerCustomCache(String, AsyncCache)}
-   * and {@link #registerCustomCache(String, com.github.benmanes.caffeine.cache.Cache)}
+   * and {@link #registerCustomCache(String, com.github.benmanes.caffeine.cache.Cache)})
    * are not dependent on this setting.
    * <p>By default, this cache manager builds regular native Caffeine caches.
    * To switch to async caches which can also be used through the synchronous API
    * but come with support for {@code Cache#retrieve}, set this flag to {@code true}.
+   * <p>Note that while null values in the cache are tolerated in async cache mode,
+   * the recommendation is to disallow null values through
+   * {@link #setAllowNullValues setAllowNullValues(false)}. This makes the semantics
+   * of CompletableFuture-based access simpler and optimizes retrieval performance
+   * since a Caffeine-provided CompletableFuture handle does not have to get wrapped.
+   * <p>If you come here for the adaptation of reactive types such as a Reactor
+   * {@code Mono} or {@code Flux} onto asynchronous caching, we recommend the standard
+   * arrangement for caching the produced values asynchronously in 4.0 through enabling
+   * this Caffeine mode. If this is not immediately possible/desirable for existing
+   * apps, you may set the system property "infra.cache.reactivestreams.ignore=true"
+   * to restore 4.0 behavior where reactive handles are treated as regular values.
    *
    * @see Caffeine#buildAsync()
    * @see Cache#retrieve(Object)
    * @see Cache#retrieve(Object, Supplier)
+   * @see cn.taketoday.cache.interceptor.CacheAspectSupport#IGNORE_REACTIVESTREAMS_PROPERTY_NAME
    * @since 4.0
    */
   public void setAsyncCacheMode(boolean asyncCacheMode) {

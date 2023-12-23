@@ -53,6 +53,7 @@ import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -96,6 +97,27 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
 
   private static final Logger log = LoggerFactory.getLogger(CacheAspectSupport.class);
 
+  /**
+   * System property that instructs Infra caching infrastructure to ignore the
+   * presence of Reactive Streams, in particular Reactor's {@link Mono}/{@link Flux}
+   * in {@link cn.taketoday.cache.annotation.Cacheable} method return type
+   * declarations.
+   * <p>By default Reactive Streams Publishers such as Reactor's
+   * {@link Mono}/{@link Flux} will be specifically processed for asynchronous
+   * caching of their produced values rather than trying to cache the returned
+   * {@code Publisher} instances themselves.
+   * <p>Switch this flag to "true" in order to ignore Reactive Streams Publishers and
+   * process them as regular return values through synchronous caching, restoring 6.0
+   * behavior. Note that this is not recommended and only works in very limited
+   * scenarios, e.g. with manual {@code Mono.cache()}/{@code Flux.cache()} calls.
+   *
+   * @see org.reactivestreams.Publisher
+   */
+  public static final String IGNORE_REACTIVESTREAMS_PROPERTY_NAME = "infra.cache.reactivestreams.ignore";
+
+  private static final boolean shouldIgnoreReactiveStreams =
+          TodayStrategies.getFlag(IGNORE_REACTIVESTREAMS_PROPERTY_NAME);
+
   private final ConcurrentHashMap<CacheOperationCacheKey, CacheOperationMetadata> metadataCache = new ConcurrentHashMap<>(1024);
 
   private final StandardEvaluationContext sharedContext = new StandardEvaluationContext();
@@ -103,7 +125,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   private final CacheOperationExpressionEvaluator evaluator = new CacheOperationExpressionEvaluator(sharedContext);
 
   @Nullable
-  private final ReactiveCachingHandler reactiveCachingHandler = ReactiveStreams.isPresent ? new ReactiveCachingHandler() : null;
+  private final ReactiveCachingHandler reactiveCachingHandler =
+          ReactiveStreams.isPresent && !shouldIgnoreReactiveStreams ? new ReactiveCachingHandler() : null;
 
   @Nullable
   private CacheOperationSource cacheOperationSource;
