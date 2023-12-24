@@ -774,14 +774,14 @@ public abstract class AnnotatedElementUtils {
       };
     }
 
-    return MergedAnnotations.from(annotated, SearchStrategy.DIRECT, RepeatableContainers.none())
+    return MergedAnnotations.from(annotated, SearchStrategy.DIRECT, RepeatableContainers.NONE)
             .stream(annotationType)
             .map(MergedAnnotation::asAnnotationAttributes)
             .toArray(AnnotationAttributes[]::new);
   }
 
   private static MergedAnnotations getAnnotations(AnnotatedElement element) {
-    return MergedAnnotations.from(element, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none());
+    return MergedAnnotations.from(element, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE);
   }
 
   private static MergedAnnotations getRepeatableAnnotations(AnnotatedElement element,
@@ -808,7 +808,7 @@ public abstract class AnnotatedElementUtils {
   }
 
   private static MergedAnnotations findAnnotations(AnnotatedElement element) {
-    return MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
+    return MergedAnnotations.from(element, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE);
   }
 
   private static MergedAnnotations findRepeatableAnnotations(AnnotatedElement element,

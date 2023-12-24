@@ -46,7 +46,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
    * Shared instance that can be used when there are no annotations.
    */
   static final MergedAnnotations NONE = new TypeMappedAnnotations(
-          null, new Annotation[0], RepeatableContainers.none(), AnnotationFilter.ALL);
+          null, new Annotation[0], RepeatableContainers.NONE, AnnotationFilter.ALL);
 
   @Nullable
   private final Object source;
@@ -343,8 +343,7 @@ final class TypeMappedAnnotations implements MergedAnnotations {
       return null;
     }
 
-    static IsPresent get(RepeatableContainers repeatableContainers,
-            AnnotationFilter annotationFilter, boolean directOnly) {
+    static IsPresent get(RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter, boolean directOnly) {
       // Use a single shared instance for common combinations
       if (annotationFilter == AnnotationFilter.PLAIN) {
         if (repeatableContainers == RepeatableContainers.NONE) {

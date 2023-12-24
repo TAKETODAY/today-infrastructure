@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context;
@@ -578,7 +578,7 @@ public abstract class TestContextAnnotationUtils {
      */
     public Set<T> findAllLocalMergedAnnotations() {
       SearchStrategy searchStrategy = SearchStrategy.TYPE_HIERARCHY;
-      return MergedAnnotations.from(getRootDeclaringClass(), searchStrategy, RepeatableContainers.none())
+      return MergedAnnotations.from(getRootDeclaringClass(), searchStrategy, RepeatableContainers.NONE)
               .stream(getAnnotationType())
               .filter(MergedAnnotationPredicates.firstRunOf(MergedAnnotation::getAggregateIndex))
               .collect(MergedAnnotationCollectors.toAnnotationSet());

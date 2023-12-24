@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type;
@@ -42,6 +39,7 @@ import cn.taketoday.util.MultiValueMap;
  * @author Chris Beams
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
 public class StandardMethodMetadata implements MethodMetadata {
@@ -76,8 +74,7 @@ public class StandardMethodMetadata implements MethodMetadata {
     Assert.notNull(introspectedMethod, "Method is required");
     this.introspectedMethod = introspectedMethod;
     this.nestedAnnotationsAsMap = nestedAnnotationsAsMap;
-    this.mergedAnnotations = MergedAnnotations.from(
-            introspectedMethod, SearchStrategy.DIRECT, RepeatableContainers.none());
+    this.mergedAnnotations = MergedAnnotations.from(introspectedMethod, SearchStrategy.DIRECT, RepeatableContainers.NONE);
   }
 
   @Override

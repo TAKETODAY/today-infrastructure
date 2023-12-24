@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -503,7 +503,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
 
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
     return (beanType != null
-            ? MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
+            ? MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
                     .get(annotationType) : null);
   }
 

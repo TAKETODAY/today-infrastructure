@@ -274,7 +274,7 @@ public abstract class AnnotationUtils {
       return null;
     }
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(annotation, new Annotation[] { annotation }, RepeatableContainers.none())
+    return MergedAnnotations.from(annotation, new Annotation[] { annotation }, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
             .synthesize(AnnotationUtils::isSingleLevelPresent).orElse(null);
   }
@@ -299,7 +299,7 @@ public abstract class AnnotationUtils {
       return annotatedElement.getAnnotation(annotationType);
     }
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(annotatedElement, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none())
+    return MergedAnnotations.from(annotatedElement, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE)
             .get(annotationType)
             .withNonMergedAttributes()
             .synthesize(AnnotationUtils::isSingleLevelPresent)
@@ -559,7 +559,7 @@ public abstract class AnnotationUtils {
     }
 
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(annotatedElement, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.none())
+    return MergedAnnotations.from(annotatedElement, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
             .synthesize(MergedAnnotation::isPresent).orElse(null);
   }
@@ -593,7 +593,7 @@ public abstract class AnnotationUtils {
     }
 
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
+    return MergedAnnotations.from(method, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
             .synthesize(MergedAnnotation::isPresent).orElse(null);
   }
@@ -644,7 +644,7 @@ public abstract class AnnotationUtils {
     }
 
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(clazz, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none())
+    return MergedAnnotations.from(clazz, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
             .get(annotationType).withNonMergedAttributes()
             .synthesize(MergedAnnotation::isPresent).orElse(null);
   }
@@ -784,9 +784,8 @@ public abstract class AnnotationUtils {
       return annotationType.isAnnotationPresent(metaAnnotationType);
     }
     // Exhaustive retrieval of merged annotations...
-    return MergedAnnotations.from(
-            annotationType, SearchStrategy.INHERITED_ANNOTATIONS,
-            RepeatableContainers.none()).isPresent(metaAnnotationType);
+    return MergedAnnotations.from(annotationType, SearchStrategy.INHERITED_ANNOTATIONS, RepeatableContainers.NONE)
+            .isPresent(metaAnnotationType);
   }
 
   /**
