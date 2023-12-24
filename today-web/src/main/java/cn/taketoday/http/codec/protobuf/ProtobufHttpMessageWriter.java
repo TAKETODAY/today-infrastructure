@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.protobuf;
@@ -33,12 +30,12 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.DecodingException;
 import cn.taketoday.core.codec.Encoder;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.http.codec.EncoderHttpMessageWriter;
 import cn.taketoday.http.codec.HttpMessageEncoder;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.http.MediaType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -51,6 +48,7 @@ import reactor.core.publisher.Mono;
  * {@code new DecoderHttpMessageReader(new ProtobufDecoder())}.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ProtobufEncoder
  * @since 4.0
  */
@@ -79,8 +77,7 @@ public class ProtobufHttpMessageWriter extends EncoderHttpMessageWriter<Message>
   }
 
   @Override
-  public Mono<Void> write(
-          Publisher<? extends Message> inputStream, ResolvableType elementType,
+  public Mono<Void> write(Publisher<? extends Message> inputStream, ResolvableType elementType,
           @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
     try {
       HttpHeaders headers = message.getHeaders();

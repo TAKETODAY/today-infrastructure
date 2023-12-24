@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter;
@@ -163,9 +163,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final MediaType DEFAULT_FORM_DATA_MEDIA_TYPE =
-          new MediaType(MediaType.APPLICATION_FORM_URLENCODED, DEFAULT_CHARSET);
+          MediaType.APPLICATION_FORM_URLENCODED.withCharset(DEFAULT_CHARSET);
 
-  private List<MediaType> supportedMediaTypes = new ArrayList<>();
+  private ArrayList<MediaType> supportedMediaTypes = new ArrayList<>();
 
   private List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
 
@@ -431,7 +431,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       return DEFAULT_FORM_DATA_MEDIA_TYPE;
     }
     else if (contentType.getCharset() == null) {
-      return new MediaType(contentType, this.charset);
+      return contentType.withCharset(this.charset);
     }
     else {
       return contentType;

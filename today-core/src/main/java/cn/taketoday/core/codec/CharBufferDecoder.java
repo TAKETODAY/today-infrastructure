@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -24,6 +24,7 @@ import java.util.List;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
@@ -75,7 +76,7 @@ public final class CharBufferDecoder extends AbstractCharSequenceDecoder<CharBuf
    * input strings
    */
   public static CharBufferDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
-    var textPlain = new MimeType("text", "plain", DEFAULT_CHARSET);
+    var textPlain = MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET);
     return new CharBufferDecoder(delimiters, stripDelimiter, textPlain);
   }
 
@@ -94,7 +95,7 @@ public final class CharBufferDecoder extends AbstractCharSequenceDecoder<CharBuf
    * input strings
    */
   public static CharBufferDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
-    var textPlain = new MimeType("text", "plain", DEFAULT_CHARSET);
+    var textPlain = MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET);
     return new CharBufferDecoder(delimiters, stripDelimiter, textPlain, MimeTypeUtils.ALL);
   }
 

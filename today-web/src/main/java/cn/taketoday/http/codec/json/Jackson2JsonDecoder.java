@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.json;
@@ -79,7 +79,7 @@ public class Jackson2JsonDecoder extends AbstractJackson2Decoder {
     }
 
     // Re-encode as UTF-8.
-    MimeType textMimeType = new MimeType(MimeTypeUtils.TEXT_PLAIN, charset);
+    MimeType textMimeType = MimeTypeUtils.TEXT_PLAIN.withCharset(charset);
     Flux<CharBuffer> decoded = CHAR_BUFFER_DECODER.decode(input, CHAR_BUFFER_TYPE, textMimeType, null);
     return decoded.map(charBuffer -> DefaultDataBufferFactory.sharedInstance.wrap(StandardCharsets.UTF_8.encode(charBuffer)));
   }

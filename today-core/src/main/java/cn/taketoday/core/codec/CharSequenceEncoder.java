@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -33,6 +30,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeType;
@@ -126,14 +124,14 @@ public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
    * Create a {@code CharSequenceEncoder} that supports only "text/plain".
    */
   public static CharSequenceEncoder textPlainOnly() {
-    return new CharSequenceEncoder(new MimeType("text", "plain", DEFAULT_CHARSET));
+    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET));
   }
 
   /**
    * Create a {@code CharSequenceEncoder} that supports all MIME types.
    */
   public static CharSequenceEncoder allMimeTypes() {
-    return new CharSequenceEncoder(new MimeType("text", "plain", DEFAULT_CHARSET), MimeTypeUtils.ALL);
+    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET), MimeTypeUtils.ALL);
   }
 
 }

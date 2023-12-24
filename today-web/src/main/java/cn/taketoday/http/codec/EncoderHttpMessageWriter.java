@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -56,12 +53,14 @@ import reactor.core.publisher.Mono;
  * @author Rossen Stoyanchev
  * @author Brian Clozel
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
   private static final Logger logger = HttpLogging.forLogName(EncoderHttpMessageWriter.class);
 
   private final Encoder<T> encoder;
+
   private final List<MediaType> mediaTypes;
 
   @Nullable
@@ -115,7 +114,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
 
   @Override
   public Mono<Void> write(Publisher<? extends T> inputStream, ResolvableType elementType,
-                          @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
+          @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
     MediaType contentType = updateContentType(message, mediaType);
 
@@ -123,8 +122,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
             inputStream, message.bufferFactory(), elementType, contentType, hints);
 
     if (inputStream instanceof Mono) {
-      return body
-              .singleOrEmpty()
+      return body.singleOrEmpty()
               .switchIfEmpty(Mono.defer(() -> {
                 message.getHeaders().setContentLength(0);
                 return message.setComplete().then(Mono.empty());
@@ -174,7 +172,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
 
   private static MediaType addDefaultCharset(MediaType main, @Nullable MediaType defaultType) {
     if (main.getCharset() == null && defaultType != null && defaultType.getCharset() != null) {
-      return new MediaType(main, defaultType.getCharset());
+      return main.withCharset(defaultType.getCharset());
     }
     return main;
   }
@@ -205,8 +203,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
   // Server side only...
 
   @Override
-  public Mono<Void> write(
-          Publisher<? extends T> inputStream, ResolvableType actualType,
+  public Mono<Void> write(Publisher<? extends T> inputStream, ResolvableType actualType,
           ResolvableType elementType, @Nullable MediaType mediaType, ServerHttpRequest request,
           ServerHttpResponse response, Map<String, Object> hints) {
 
@@ -221,8 +218,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
    * or annotations from controller method parameters. By default, delegate to
    * the encoder if it is an instance of {@link HttpMessageEncoder}.
    */
-  protected Map<String, Object> getWriteHints(
-          ResolvableType streamType, ResolvableType elementType,
+  protected Map<String, Object> getWriteHints(ResolvableType streamType, ResolvableType elementType,
           @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
     if (this.encoder instanceof HttpMessageEncoder<?> encoder) {

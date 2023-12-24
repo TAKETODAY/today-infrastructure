@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter.feed;
@@ -29,7 +29,6 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.http.HttpInputMessage;
 import cn.taketoday.http.HttpOutputMessage;
@@ -37,6 +36,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.AbstractHttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -46,17 +46,12 @@ import cn.taketoday.util.StringUtils;
  *
  * @param <T> the converted object type
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AtomFeedHttpMessageConverter
  * @see RssChannelHttpMessageConverter
  * @since 4.0
  */
-public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed>
-        extends AbstractHttpMessageConverter<T> {
-
-  /**
-   * The default charset used by the converter.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed> extends AbstractHttpMessageConverter<T> {
 
   protected AbstractWireFeedHttpMessageConverter(MediaType supportedMediaType) {
     super(supportedMediaType);
@@ -70,7 +65,7 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed>
     WireFeedInput feedInput = new WireFeedInput();
     MediaType contentType = inputMessage.getHeaders().getContentType();
     Charset charset = contentType != null && contentType.getCharset() != null
-                      ? contentType.getCharset() : DEFAULT_CHARSET;
+                      ? contentType.getCharset() : Constant.DEFAULT_CHARSET;
     try {
       InputStream inputStream = StreamUtils.nonClosing(inputMessage.getBody());
       Reader reader = new InputStreamReader(inputStream, charset);
@@ -82,13 +77,11 @@ public abstract class AbstractWireFeedHttpMessageConverter<T extends WireFeed>
   }
 
   @Override
-  protected void writeInternal(T wireFeed, HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException {
-    Charset charset = (StringUtils.isNotEmpty(wireFeed.getEncoding())
-                       ? Charset.forName(wireFeed.getEncoding()) : DEFAULT_CHARSET);
+  protected void writeInternal(T wireFeed, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
+    Charset charset = StringUtils.isNotEmpty(wireFeed.getEncoding()) ? Charset.forName(wireFeed.getEncoding()) : Constant.DEFAULT_CHARSET;
     MediaType contentType = outputMessage.getHeaders().getContentType();
     if (contentType != null) {
-      contentType = new MediaType(contentType, charset);
+      contentType = contentType.withCharset(charset);
       outputMessage.getHeaders().setContentType(contentType);
     }
 

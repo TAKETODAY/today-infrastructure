@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -37,8 +37,6 @@ import cn.taketoday.util.InvalidMimeTypeException;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.StringUtils;
-
-import static java.util.Collections.singletonMap;
 
 /**
  * A subclass of {@link MimeType} that adds support for quality parameters as
@@ -269,7 +267,7 @@ public class MediaType extends MimeType implements Serializable {
    * @throws IllegalArgumentException if any of the parameters contain illegal characters
    */
   public MediaType(String type, String subtype) {
-    super(type, subtype, Collections.emptyMap());
+    super(type, subtype);
   }
 
   /**
@@ -295,7 +293,7 @@ public class MediaType extends MimeType implements Serializable {
    * @throws IllegalArgumentException if any of the parameters contain illegal characters
    */
   public MediaType(String type, String subtype, double qualityValue) {
-    this(type, subtype, singletonMap(PARAM_QUALITY_FACTOR, Double.toString(qualityValue)));
+    this(type, subtype, Map.of(PARAM_QUALITY_FACTOR, Double.toString(qualityValue)));
   }
 
   /**
@@ -305,6 +303,7 @@ public class MediaType extends MimeType implements Serializable {
    * @param other the other media type
    * @param charset the character set
    * @throws IllegalArgumentException if any of the parameters contain illegal characters
+   * @see #withCharset(Charset)
    */
   public MediaType(MediaType other, Charset charset) {
     super(other, charset);
@@ -332,6 +331,21 @@ public class MediaType extends MimeType implements Serializable {
    */
   public MediaType(String type, String subtype, @Nullable Map<String, String> parameters) {
     super(type, subtype, parameters);
+  }
+
+  /**
+   * Create a new {@code MediaType} for the given {@link MimeType}.
+   * The type, subtype and parameters information is copied and {@code MediaType}-specific
+   * checks on parameters are performed.
+   *
+   * @param mimeType the MIME type
+   * @throws IllegalArgumentException if any of the parameters contain illegal characters
+   */
+  private MediaType(MimeType mimeType) {
+    super(mimeType);
+    for (Map.Entry<String, String> entry : getParameters().entrySet()) {
+      checkParameters(entry.getKey(), entry.getValue());
+    }
   }
 
   @Override
@@ -390,7 +404,7 @@ public class MediaType extends MimeType implements Serializable {
    * @return {@code true} if this media type is compatible with the given media
    * type; {@code false} otherwise
    */
-  public boolean isCompatibleWith(MediaType other) {
+  public boolean isCompatibleWith(@Nullable MediaType other) {
     return super.isCompatibleWith(other);
   }
 
@@ -426,6 +440,18 @@ public class MediaType extends MimeType implements Serializable {
   }
 
   /**
+   * Copy that copies the type, subtype and parameters of the given
+   * {@code MediaType}, and allows to set the specified character set.
+   *
+   * @param charset the character set
+   * @throws IllegalArgumentException if any of the parameters contain illegal characters
+   */
+  @Override
+  public MediaType withCharset(Charset charset) {
+    return new MediaType(this, charset);
+  }
+
+  /**
    * Parse the given String value into a {@code MediaType} object
    *
    * @param value the string to parse
@@ -444,18 +470,17 @@ public class MediaType extends MimeType implements Serializable {
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
   public static MediaType parseMediaType(String mediaType) {
-    MimeType type;
     try {
-      type = MimeTypeUtils.parseMimeType(mediaType);
+      MimeType type = MimeTypeUtils.parseMimeType(mediaType);
+      try {
+        return new MediaType(type);
+      }
+      catch (IllegalArgumentException ex) {
+        throw new InvalidMediaTypeException(mediaType, ex.getMessage());
+      }
     }
     catch (InvalidMimeTypeException ex) {
       throw new InvalidMediaTypeException(ex);
-    }
-    try {
-      return new MediaType(type.getType(), type.getSubtype(), type.getParameters());
-    }
-    catch (IllegalArgumentException ex) {
-      throw new InvalidMediaTypeException(mediaType, ex.getMessage());
     }
   }
 
@@ -476,7 +501,7 @@ public class MediaType extends MimeType implements Serializable {
     List<String> tokenizedTypes = MimeTypeUtils.tokenize(mediaTypes);
     ArrayList<MediaType> result = new ArrayList<>(tokenizedTypes.size());
     for (String type : tokenizedTypes) {
-      if (StringUtils.isNotEmpty(type)) {
+      if (StringUtils.hasText(type)) {
         result.add(parseMediaType(type));
       }
     }
@@ -515,7 +540,7 @@ public class MediaType extends MimeType implements Serializable {
   public static List<MediaType> asMediaTypes(List<MimeType> mimeTypes) {
     ArrayList<MediaType> mediaTypes = new ArrayList<>(mimeTypes.size());
     for (MimeType mimeType : mimeTypes) {
-      mediaTypes.add(MediaType.asMediaType(mimeType));
+      mediaTypes.add(asMediaType(mimeType));
     }
     return mediaTypes;
   }
@@ -526,7 +551,7 @@ public class MediaType extends MimeType implements Serializable {
   public static MediaType asMediaType(MimeType mimeType) {
     return mimeType instanceof MediaType
            ? (MediaType) mimeType
-           : new MediaType(mimeType.getType(), mimeType.getSubtype(), mimeType.getParameters());
+           : new MediaType(mimeType);
   }
 
   /**

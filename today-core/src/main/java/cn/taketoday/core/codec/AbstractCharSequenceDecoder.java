@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -20,7 +20,6 @@ package cn.taketoday.core.codec;
 import org.reactivestreams.Publisher;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +32,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.LimitedDataBufferList;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MimeType;
@@ -50,9 +50,6 @@ import reactor.core.publisher.Mono;
  */
 public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extends AbstractDataBufferDecoder<T> {
 
-  /** The default charset to use, i.e. "UTF-8". */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   /** The default delimiter strings to use, i.e. {@code \r\n} and {@code \n}. */
   public static final List<String> DEFAULT_DELIMITERS = List.of("\r\n", "\n");
 
@@ -60,7 +57,7 @@ public abstract class AbstractCharSequenceDecoder<T extends CharSequence> extend
 
   private final boolean stripDelimiter;
 
-  private Charset defaultCharset = DEFAULT_CHARSET;
+  private Charset defaultCharset = Constant.DEFAULT_CHARSET;
 
   private final ConcurrentHashMap<Charset, byte[][]> delimitersCache = new ConcurrentHashMap<>();
 

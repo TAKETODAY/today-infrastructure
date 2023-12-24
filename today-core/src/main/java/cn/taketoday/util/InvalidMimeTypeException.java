@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 /**
@@ -25,8 +23,8 @@ package cn.taketoday.util;
  *
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
- * @author TODAY <br>
- * 2019-12-08 19:28
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-12-08 19:28
  */
 @SuppressWarnings("serial")
 public class InvalidMimeTypeException extends IllegalArgumentException {

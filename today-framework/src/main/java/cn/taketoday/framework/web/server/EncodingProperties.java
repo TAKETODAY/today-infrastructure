@@ -12,17 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.server;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -38,15 +38,10 @@ import cn.taketoday.lang.Nullable;
 public class EncodingProperties {
 
   /**
-   * Default HTTP encoding for Servlet applications.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
-  /**
    * Charset of HTTP requests and responses. Added to the "Content-Type" header if not
    * set explicitly.
    */
-  private Charset charset = DEFAULT_CHARSET;
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   /**
    * Locale in which to encode mapping.

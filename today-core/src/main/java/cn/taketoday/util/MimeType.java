@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -67,7 +67,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
 
   public static final String WILDCARD_TYPE = "*";
 
-  private static final String PARAM_CHARSET = "charset";
+  public static final String PARAM_CHARSET = "charset";
 
   private static final BitSet TOKEN;
 
@@ -106,9 +106,11 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     TOKEN.andNot(separators);
   }
 
-  private final String type;
-  private final String subtype;
-  private final Map<String, String> parameters;
+  protected final String type;
+
+  protected final String subtype;
+
+  protected final Map<String, String> parameters;
 
   @Nullable
   private transient Charset resolvedCharset;
@@ -151,7 +153,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
    */
   public MimeType(String type, String subtype, Charset charset) {
-    this(type, subtype, Collections.singletonMap(PARAM_CHARSET, charset.name()));
+    this(type, subtype, Map.of(PARAM_CHARSET, charset.name()));
     this.resolvedCharset = charset;
   }
 
@@ -162,10 +164,10 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @param other the other MimeType
    * @param charset the character set
    * @throws IllegalArgumentException if any of the parameters contains illegal characters
+   * @see #withCharset(Charset)
    */
   public MimeType(MimeType other, Charset charset) {
-    this(other.getType(), other.getSubtype(), addCharsetParameter(charset, other.getParameters()));
-    this.resolvedCharset = charset;
+    this(other.type, other.type, addCharsetParameter(charset, other.getParameters()), charset);
   }
 
   /**
@@ -225,6 +227,16 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     this.parameters = other.parameters;
     this.toStringValue = other.toStringValue;
     this.resolvedCharset = other.resolvedCharset;
+  }
+
+  /**
+   * @since 4.0
+   */
+  private MimeType(String type, String subtype, Map<String, String> parameters, Charset charset) {
+    this.type = type;
+    this.subtype = subtype;
+    this.parameters = parameters;
+    this.resolvedCharset = charset;
   }
 
   /**
@@ -358,6 +370,17 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    */
   public Map<String, String> getParameters() {
     return this.parameters;
+  }
+
+  /**
+   * Copy that copies the type, subtype, parameters of the given
+   * {@code MimeType}, and allows to set the specified character set.
+   *
+   * @param charset the character set
+   * @throws IllegalArgumentException if any of the parameters contains illegal characters
+   */
+  public MimeType withCharset(Charset charset) {
+    return new MimeType(this, charset);
   }
 
   /**
@@ -734,7 +757,13 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     return MimeTypeUtils.parseMimeType(value);
   }
 
+  /**
+   * @throws NullPointerException if charset is null
+   */
   private static Map<String, String> addCharsetParameter(Charset charset, Map<String, String> parameters) {
+    if (parameters.isEmpty()) {
+      return Map.of(PARAM_CHARSET, charset.name());
+    }
     LinkedHashMap<String, String> map = new LinkedHashMap<>(parameters);
     map.put(PARAM_CHARSET, charset.name());
     return map;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -58,27 +55,22 @@ import reactor.core.publisher.Mono;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.http.codec.multipart.MultipartHttpMessageWriter
  * @since 4.0
  */
-public class FormHttpMessageWriter extends LoggingCodecSupport
-        implements HttpMessageWriter<MultiValueMap<String, String>> {
-
-  /**
-   * The default charset used by the writer.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
+public class FormHttpMessageWriter extends LoggingCodecSupport implements HttpMessageWriter<MultiValueMap<String, String>> {
 
   private static final MediaType DEFAULT_FORM_DATA_MEDIA_TYPE =
-          new MediaType(MediaType.APPLICATION_FORM_URLENCODED, DEFAULT_CHARSET);
+          MediaType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8);
 
   private static final List<MediaType> MEDIA_TYPES =
           Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED);
 
-  private static final ResolvableType MULTIVALUE_TYPE =
+  private static final ResolvableType MULTI_VALUE_TYPE =
           ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
-  private Charset defaultCharset = DEFAULT_CHARSET;
+  private Charset defaultCharset = StandardCharsets.UTF_8;
 
   /**
    * Set the default character set to use for writing form data when the response
@@ -104,23 +96,21 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
 
   @Override
   public boolean canWrite(ResolvableType elementType, @Nullable MediaType mediaType) {
-    if (!MultiValueMap.class.isAssignableFrom(elementType.toClass())) {
-      return false;
-    }
-    if (MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(mediaType)) {
-      // Optimistically, any MultiValueMap with or without generics
-      return true;
-    }
-    if (mediaType == null) {
-      // Only String-based MultiValueMap
-      return MULTIVALUE_TYPE.isAssignableFrom(elementType);
+    if (MultiValueMap.class.isAssignableFrom(elementType.toClass())) {
+      if (MediaType.APPLICATION_FORM_URLENCODED.isCompatibleWith(mediaType)) {
+        // Optimistically, any MultiValueMap with or without generics
+        return true;
+      }
+      if (mediaType == null) {
+        // Only String-based MultiValueMap
+        return MULTI_VALUE_TYPE.isAssignableFrom(elementType);
+      }
     }
     return false;
   }
 
   @Override
-  public Mono<Void> write(
-          Publisher<? extends MultiValueMap<String, String>> inputStream, ResolvableType elementType,
+  public Mono<Void> write(Publisher<? extends MultiValueMap<String, String>> inputStream, ResolvableType elementType,
           @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
     mediaType = getMediaType(mediaType);
@@ -145,7 +135,7 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
       return DEFAULT_FORM_DATA_MEDIA_TYPE;
     }
     else if (mediaType.getCharset() == null) {
-      return new MediaType(mediaType, getDefaultCharset());
+      return mediaType.withCharset(getDefaultCharset());
     }
     else {
       return mediaType;
@@ -165,7 +155,7 @@ public class FormHttpMessageWriter extends LoggingCodecSupport
       String name = entry.getKey();
       List<String> values = entry.getValue();
       for (String value : values) {
-        if (builder.length() != 0) {
+        if (!builder.isEmpty()) {
           builder.append('&');
         }
         builder.append(URLEncoder.encode(name, charset));

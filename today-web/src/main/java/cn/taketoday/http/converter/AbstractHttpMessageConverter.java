@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter;
@@ -261,7 +261,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
         if (contentTypeToUse.getCharset() == null) {
           Charset defaultCharset = getDefaultCharset();
           if (defaultCharset != null) {
-            contentTypeToUse = new MediaType(contentTypeToUse, defaultCharset);
+            contentTypeToUse = contentTypeToUse.withCharset(defaultCharset);
           }
         }
         headers.setContentType(contentTypeToUse);
