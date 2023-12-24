@@ -19,7 +19,6 @@ package cn.taketoday.web.client;
 
 import java.io.Serial;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
 import cn.taketoday.core.ParameterizedTypeReference;
@@ -41,8 +40,6 @@ public class RestClientResponseException extends RestClientException {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private final HttpStatusCode statusCode;
 
@@ -135,7 +132,7 @@ public class RestClientResponseException extends RestClientException {
    * of the response "Content-Type" or otherwise {@code "UTF-8"}.
    */
   public String getResponseBodyAsString() {
-    return getResponseBodyAsString(DEFAULT_CHARSET);
+    return getResponseBodyAsString(Constant.DEFAULT_CHARSET);
   }
 
   /**

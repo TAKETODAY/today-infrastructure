@@ -45,7 +45,6 @@ import org.apache.tomcat.util.scan.StandardJarScanFilter;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +67,7 @@ import cn.taketoday.framework.web.servlet.ServletContextInitializer;
 import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
 import cn.taketoday.framework.web.servlet.server.CookieSameSiteSupplier;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.config.SameSite;
 import cn.taketoday.util.ClassUtils;
@@ -101,8 +101,6 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class TomcatServletWebServerFactory extends AbstractServletWebServerFactory
         implements ConfigurableTomcatWebServerFactory, ResourceLoaderAware {
-
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final Set<Class<?>> NO_CLASSES = Collections.emptySet();
 
@@ -139,7 +137,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   private final Set<String> tldScanPatterns = new LinkedHashSet<>(TldPatterns.DEFAULT_SCAN);
 
-  private Charset uriEncoding = DEFAULT_CHARSET;
+  private Charset uriEncoding = Constant.DEFAULT_CHARSET;
 
   private int backgroundProcessorDelay;
 
@@ -261,8 +259,8 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
    * @param context the context to reset
    */
   private void resetDefaultLocaleMapping(TomcatEmbeddedContext context) {
-    context.addLocaleEncodingMappingParameter(Locale.ENGLISH.toString(), DEFAULT_CHARSET.displayName());
-    context.addLocaleEncodingMappingParameter(Locale.FRENCH.toString(), DEFAULT_CHARSET.displayName());
+    context.addLocaleEncodingMappingParameter(Locale.ENGLISH.toString(), Constant.DEFAULT_CHARSET.displayName());
+    context.addLocaleEncodingMappingParameter(Locale.FRENCH.toString(), Constant.DEFAULT_CHARSET.displayName());
   }
 
   private void addLocaleMappings(TomcatEmbeddedContext context) {
@@ -726,7 +724,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
 
   @Override
   public void setUriEncoding(@Nullable Charset uriEncoding) {
-    this.uriEncoding = uriEncoding == null ? DEFAULT_CHARSET : uriEncoding;
+    this.uriEncoding = uriEncoding == null ? Constant.DEFAULT_CHARSET : uriEncoding;
   }
 
   /**

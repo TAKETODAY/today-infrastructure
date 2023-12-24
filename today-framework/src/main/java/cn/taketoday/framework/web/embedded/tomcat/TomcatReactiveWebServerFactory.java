@@ -34,7 +34,6 @@ import org.apache.tomcat.util.scan.StandardJarScanFilter;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +49,7 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.TomcatHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -70,8 +70,6 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
         implements ConfigurableTomcatWebServerFactory {
 
   private static final Logger log = LoggerFactory.getLogger(TomcatServletWebServerFactory.class);
-
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * The class name of default protocol used.
@@ -97,7 +95,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
 
   private String protocol = DEFAULT_PROTOCOL;
 
-  private Charset uriEncoding = DEFAULT_CHARSET;
+  private Charset uriEncoding = Constant.DEFAULT_CHARSET;
 
   private int backgroundProcessorDelay;
 
@@ -394,7 +392,7 @@ public class TomcatReactiveWebServerFactory extends AbstractReactiveWebServerFac
    */
   @Override
   public void setUriEncoding(@Nullable Charset uriEncoding) {
-    this.uriEncoding = uriEncoding == null ? DEFAULT_CHARSET : uriEncoding;
+    this.uriEncoding = uriEncoding == null ? Constant.DEFAULT_CHARSET : uriEncoding;
   }
 
   /**

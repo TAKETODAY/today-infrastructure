@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +12,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.template;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.web.view.ViewResolver;
@@ -44,8 +41,6 @@ import cn.taketoday.web.view.ViewResolver;
 public abstract class AbstractViewResolverProperties {
 
   private static final MimeType DEFAULT_CONTENT_TYPE = MediaType.TEXT_HTML;
-
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * Whether to enable MVC view resolution for this technology.
@@ -65,7 +60,7 @@ public abstract class AbstractViewResolverProperties {
   /**
    * Template encoding.
    */
-  private Charset charset = DEFAULT_CHARSET;
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   /**
    * View names that can be resolved.
@@ -132,7 +127,7 @@ public abstract class AbstractViewResolverProperties {
   }
 
   public void setCharset(@Nullable Charset charset) {
-    this.charset = charset == null ? DEFAULT_CHARSET : charset;
+    this.charset = charset == null ? Constant.DEFAULT_CHARSET : charset;
   }
 
 }

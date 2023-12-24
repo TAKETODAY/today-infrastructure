@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import cn.taketoday.lang.Constant;
@@ -38,8 +33,6 @@ import cn.taketoday.lang.Constant;
  * @since 4.0 2022/4/15 12:34
  */
 public abstract class Base64Utils {
-
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   /**
    * Base64-encode the given byte array.
@@ -105,7 +98,7 @@ public abstract class Base64Utils {
     if (src.length == 0) {
       return "";
     }
-    return new String(encode(src), DEFAULT_CHARSET);
+    return new String(encode(src), Constant.DEFAULT_CHARSET);
   }
 
   /**
@@ -118,7 +111,7 @@ public abstract class Base64Utils {
     if (src.isEmpty()) {
       return Constant.EMPTY_BYTES;
     }
-    return decode(src.getBytes(DEFAULT_CHARSET));
+    return decode(src.getBytes(Constant.DEFAULT_CHARSET));
   }
 
   /**
@@ -129,7 +122,7 @@ public abstract class Base64Utils {
    * @return the encoded byte array as a UTF-8 String
    */
   public static String encodeToUrlSafeString(byte[] src) {
-    return new String(encodeUrlSafe(src), DEFAULT_CHARSET);
+    return new String(encodeUrlSafe(src), Constant.DEFAULT_CHARSET);
   }
 
   /**
@@ -140,7 +133,7 @@ public abstract class Base64Utils {
    * @return the original byte array
    */
   public static byte[] decodeFromUrlSafeString(String src) {
-    return decodeUrlSafe(src.getBytes(DEFAULT_CHARSET));
+    return decodeUrlSafe(src.getBytes(Constant.DEFAULT_CHARSET));
   }
 
 }

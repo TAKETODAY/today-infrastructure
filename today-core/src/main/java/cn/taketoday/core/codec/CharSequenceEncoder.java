@@ -21,7 +21,6 @@ import org.reactivestreams.Publisher;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CoderMalfunctionError;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -43,15 +42,11 @@ import reactor.core.publisher.Flux;
  * @author Sebastien Deleuze
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see StringDecoder
  * @since 4.0
  */
 public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
-
-  /**
-   * The default charset used by the encoder.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private final ConcurrentMap<Charset, Float> charsetToMaxBytesPerChar = new ConcurrentHashMap<>(3);
 
@@ -116,7 +111,7 @@ public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
       return mimeType.getCharset();
     }
     else {
-      return DEFAULT_CHARSET;
+      return Constant.DEFAULT_CHARSET;
     }
   }
 

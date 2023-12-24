@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter.protobuf;
@@ -31,7 +31,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -44,6 +43,7 @@ import cn.taketoday.http.converter.HttpMessageConversionException;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
@@ -77,14 +77,9 @@ import static cn.taketoday.http.MediaType.TEXT_PLAIN;
 public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<Message> {
 
   /**
-   * The default charset used by the converter.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
-  /**
    * The media-type for protobuf {@code application/x-protobuf}.
    */
-  public static final MediaType PROTOBUF = new MediaType("application", "x-protobuf", DEFAULT_CHARSET);
+  public static final MediaType PROTOBUF = new MediaType("application", "x-protobuf", Constant.DEFAULT_CHARSET);
 
   /**
    * The HTTP header containing the protobuf schema.
@@ -160,7 +155,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
     Charset charset = contentType.getCharset();
     if (charset == null) {
-      charset = DEFAULT_CHARSET;
+      charset = Constant.DEFAULT_CHARSET;
     }
 
     Message.Builder builder = getMessageBuilder(clazz);
@@ -215,7 +210,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
     Charset charset = contentType.getCharset();
     if (charset == null) {
-      charset = DEFAULT_CHARSET;
+      charset = Constant.DEFAULT_CHARSET;
     }
 
     if (PROTOBUF.isCompatibleWith(contentType)) {

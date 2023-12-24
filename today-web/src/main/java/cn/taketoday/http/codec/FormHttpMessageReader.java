@@ -19,7 +19,6 @@ package cn.taketoday.http.codec;
 
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,7 @@ import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -50,15 +50,10 @@ import reactor.core.publisher.Mono;
 public class FormHttpMessageReader extends LoggingCodecSupport
         implements HttpMessageReader<MultiValueMap<String, String>> {
 
-  /**
-   * The default charset used by the reader.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   private static final ResolvableType MULTIVALUE_STRINGS_TYPE =
           ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
 
-  private Charset defaultCharset = DEFAULT_CHARSET;
+  private Charset defaultCharset = Constant.DEFAULT_CHARSET;
 
   private int maxInMemorySize = 256 * 1024;
 

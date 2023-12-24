@@ -39,6 +39,7 @@ import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.StreamingHttpOutputMessage;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.DefaultMultiValueMap;
@@ -157,19 +158,14 @@ import jakarta.mail.internet.MimeUtility;
  */
 public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {
 
-  /**
-   * The default charset used by the converter.
-   */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   private static final MediaType DEFAULT_FORM_DATA_MEDIA_TYPE =
-          MediaType.APPLICATION_FORM_URLENCODED.withCharset(DEFAULT_CHARSET);
+          MediaType.APPLICATION_FORM_URLENCODED.withCharset(Constant.DEFAULT_CHARSET);
 
   private ArrayList<MediaType> supportedMediaTypes = new ArrayList<>();
 
   private List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
 
-  private Charset charset = DEFAULT_CHARSET;
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   @Nullable
   private Charset multipartCharset;
@@ -265,7 +261,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    */
   public void setCharset(@Nullable Charset charset) {
     if (charset != this.charset) {
-      this.charset = (charset != null ? charset : DEFAULT_CHARSET);
+      this.charset = (charset != null ? charset : Constant.DEFAULT_CHARSET);
       applyDefaultCharset();
     }
   }

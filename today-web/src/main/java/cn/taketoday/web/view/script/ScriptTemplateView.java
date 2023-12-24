@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view.script;
@@ -23,7 +20,6 @@ package cn.taketoday.web.view.script;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -45,6 +41,7 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.scripting.support.StandardScriptEvalException;
 import cn.taketoday.scripting.support.StandardScriptUtils;
@@ -81,8 +78,6 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
    * The default content type for the view.
    */
   public static final String DEFAULT_CONTENT_TYPE = "text/html";
-
-  private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   private static final String DEFAULT_RESOURCE_LOADER_PATH = "classpath:";
 
@@ -235,7 +230,7 @@ public class ScriptTemplateView extends AbstractUrlBasedView {
       setContentType(viewConfig.getContentType() != null ? viewConfig.getContentType() : DEFAULT_CONTENT_TYPE);
     }
     if (this.charset == null) {
-      this.charset = viewConfig.getCharset() != null ? viewConfig.getCharset() : DEFAULT_CHARSET;
+      this.charset = viewConfig.getCharset() != null ? viewConfig.getCharset() : Constant.DEFAULT_CHARSET;
     }
     if (this.resourceLoaderPaths == null) {
       String resourceLoaderPath = viewConfig.getResourceLoaderPath();

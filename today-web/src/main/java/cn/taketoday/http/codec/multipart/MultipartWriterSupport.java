@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -32,6 +29,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FastByteArrayOutputStream;
 import cn.taketoday.util.MimeTypeUtils;
@@ -41,16 +39,14 @@ import reactor.core.publisher.Mono;
  * Support class for multipart HTTP message writers.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class MultipartWriterSupport extends LoggingCodecSupport {
 
-  /** THe default charset used by the writer. */
-  public static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-
   private final List<MediaType> supportedMediaTypes;
 
-  private Charset charset = DEFAULT_CHARSET;
+  private Charset charset = Constant.DEFAULT_CHARSET;
 
   /**
    * Constructor with the list of supported media types.

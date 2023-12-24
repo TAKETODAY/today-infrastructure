@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.lang;
@@ -79,6 +79,10 @@ public interface Constant extends Serializable {
   String DEFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
   String DEFAULT_ENCODING = "UTF-8";
+
+  /**
+   * The default charset.
+   */
   Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
 
   String SPLIT_REGEXP = "[;|,]";
