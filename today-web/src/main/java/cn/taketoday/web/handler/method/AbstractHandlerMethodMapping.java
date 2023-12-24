@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -369,8 +369,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   protected HandlerMethod createHandlerMethod(Object handler, Method method) {
     if (handler instanceof String beanName) {
       ApplicationContext context = obtainApplicationContext();
-      return new HandlerMethod(beanName,
-              context.getAutowireCapableBeanFactory(), context, method);
+      return new HandlerMethod(beanName, context.getBeanFactory(), context, method);
     }
     return new HandlerMethod(handler, method);
   }
@@ -403,13 +402,18 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   @Nullable
   @Override
-  protected HandlerMethod getHandlerInternal(RequestContext context) {
-    String directLookupPath = context.getLookupPath().value();
+  protected HandlerMethod getHandlerInternal(RequestContext request) {
+    String directLookupPath = request.getLookupPath().value();
     this.mappingRegistry.acquireReadLock();
     try {
-      HandlerMethod handlerMethod = lookupHandlerMethod(directLookupPath, context);
+      HandlerMethod handlerMethod = lookupHandlerMethod(directLookupPath, request);
       if (handlerMethod != null) {
-        return handlerMethod.createWithResolvedBean();
+        Object handler = handlerMethod.getBean();
+        if (handler instanceof String beanName) {
+          handler = obtainApplicationContext().getBean(beanName);
+          return handlerMethod.withBean(handler);
+        }
+        return handlerMethod;
       }
       return null;
     }
@@ -476,8 +480,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
   }
 
-  private void addMatchingMappings(Collection<T> mappings,
-          ArrayList<Match<T>> matches, RequestContext request) {
+  private void addMatchingMappings(Collection<T> mappings, ArrayList<Match<T>> matches, RequestContext request) {
     var registrations = mappingRegistry.registrations;
     for (T mapping : mappings) {
       T match = getMatchingMapping(mapping, request);

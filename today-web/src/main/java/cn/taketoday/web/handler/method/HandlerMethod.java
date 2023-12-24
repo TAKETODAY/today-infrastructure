@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -48,11 +47,9 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.handler.AsyncHandler;
@@ -66,7 +63,7 @@ import cn.taketoday.web.handler.HandlerWrapper;
  * method annotations, etc.
  *
  * <p>The class may be created with a bean instance or with a bean name
- * (e.g. lazy-init bean, prototype bean). Use {@link #createWithResolvedBean()}
+ * (e.g. lazy-init bean, prototype bean). Use {@link #withBean(Object)}}
  * to obtain a {@code HandlerMethod} instance with a bean instance resolved
  * through the associated {@link BeanFactory}.
  *
@@ -74,31 +71,15 @@ import cn.taketoday.web.handler.HandlerWrapper;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY 2018-06-25 20:03:11
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-06-25 20:03:11
  */
 public class HandlerMethod implements AsyncHandler {
+
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
 
-  /** @since 3.0 @Produce */
-  @Nullable
-  private String contentType;
-
-  /** @since 4.0 */
-  @Nullable
-  private Boolean responseBody;
-
-  /** @since 4.0 */
-  @Nullable
-  private volatile List<Annotation[][]> interfaceParameterAnnotations;
-
   private final Object bean;
-
-  @Nullable
-  private final BeanFactory beanFactory;
-
-  @Nullable
-  private final MessageSource messageSource;
 
   private final Class<?> beanType;
 
@@ -108,8 +89,18 @@ public class HandlerMethod implements AsyncHandler {
   private final Method bridgedMethod;
 
   /** parameter list **/
-  // @Nullable
   private final MethodParameter[] parameters;
+
+  private final String description;
+
+  /** @since 2.3.7 */
+  private final Class<?> returnType;
+
+  @Nullable
+  private final MessageSource messageSource;
+
+  /** @since 4.0 */
+  private final boolean responseBody;
 
   @Nullable
   private HttpStatusCode responseStatus;
@@ -120,36 +111,27 @@ public class HandlerMethod implements AsyncHandler {
   @Nullable
   private HandlerMethod resolvedFromHandlerMethod;
 
-  private final String description;
-
-  /** @since 2.3.7 */
-  private final Class<?> returnType;
+  /** @since 4.0 */
+  @Nullable
+  private volatile ArrayList<Annotation[][]> interfaceParameterAnnotations;
 
   /**
    * Create an instance from a bean instance and a method.
    */
   public HandlerMethod(Object bean, Method method) {
-    this(bean, method, null);
-  }
-
-  /**
-   * Variant of {@link #HandlerMethod(Object, Method)} that
-   * also accepts a {@link MessageSource} for use from sub-classes.
-   */
-  protected HandlerMethod(Object bean, Method method, @Nullable MessageSource messageSource) {
     Assert.notNull(bean, "Bean is required");
     Assert.notNull(method, "Method is required");
     this.bean = bean;
-    this.beanFactory = null;
-    this.messageSource = messageSource;
+    this.messageSource = null;
     this.beanType = ClassUtils.getUserClass(bean);
     this.method = method;
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
     this.returnType = bridgedMethod.getReturnType();
     ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
-    evaluateResponseStatus();
     this.description = initDescription(beanType, method);
+    this.responseBody = computeResponseBody();
+    evaluateResponseStatus();
   }
 
   /**
@@ -161,7 +143,6 @@ public class HandlerMethod implements AsyncHandler {
     Assert.notNull(bean, "Bean is required");
     Assert.notNull(methodName, "Method name is required");
     this.bean = bean;
-    this.beanFactory = null;
     this.messageSource = null;
     this.beanType = ClassUtils.getUserClass(bean);
     this.method = bean.getClass().getMethod(methodName, parameterTypes);
@@ -169,14 +150,13 @@ public class HandlerMethod implements AsyncHandler {
     this.returnType = bridgedMethod.getReturnType();
     ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
-    evaluateResponseStatus();
     this.description = initDescription(beanType, method);
+    this.responseBody = computeResponseBody();
+    evaluateResponseStatus();
   }
 
   /**
    * Create an instance from a bean name, a method, and a {@code BeanFactory}.
-   * The method {@link #createWithResolvedBean()} may be used later to
-   * re-create the {@code HandlerMethod} with an initialized bean.
    */
   public HandlerMethod(String beanName, BeanFactory beanFactory, Method method) {
     this(beanName, beanFactory, null, method);
@@ -186,15 +166,13 @@ public class HandlerMethod implements AsyncHandler {
    * Variant of {@link #HandlerMethod(String, BeanFactory, Method)} that
    * also accepts a {@link MessageSource}.
    */
-  public HandlerMethod(String beanName, BeanFactory beanFactory,
-          @Nullable MessageSource messageSource, Method method) {
+  public HandlerMethod(String beanName, BeanFactory beanFactory, @Nullable MessageSource messageSource, Method method) {
     Assert.notNull(method, "Method is required");
     Assert.hasText(beanName, "Bean name is required");
     Assert.notNull(beanFactory, "BeanFactory is required");
 
-    this.bean = beanName;
+    this.bean = beanFactory.isSingleton(beanName) ? beanFactory.getBean(beanName) : beanName;
     this.method = method;
-    this.beanFactory = beanFactory;
     this.messageSource = messageSource;
     Class<?> beanType = beanFactory.getType(beanName);
     if (beanType == null) {
@@ -205,8 +183,9 @@ public class HandlerMethod implements AsyncHandler {
     this.returnType = bridgedMethod.getReturnType();
     ReflectionUtils.makeAccessible(bridgedMethod);
     this.parameters = initMethodParameters();
-    evaluateResponseStatus();
     this.description = initDescription(this.beanType, method);
+    this.responseBody = computeResponseBody();
+    evaluateResponseStatus();
   }
 
   /**
@@ -215,7 +194,6 @@ public class HandlerMethod implements AsyncHandler {
   protected HandlerMethod(HandlerMethod handlerMethod) {
     Assert.notNull(handlerMethod, "HandlerMethod is required");
     this.bean = handlerMethod.bean;
-    this.beanFactory = handlerMethod.beanFactory;
     this.messageSource = handlerMethod.messageSource;
     this.method = handlerMethod.method;
     this.beanType = handlerMethod.beanType;
@@ -232,11 +210,8 @@ public class HandlerMethod implements AsyncHandler {
   /**
    * Re-create HandlerMethod with the resolved handler.
    */
-  private HandlerMethod(HandlerMethod handlerMethod, Object handler) {
-    Assert.notNull(handlerMethod, "HandlerMethod is required");
-    Assert.notNull(handler, "Handler object is required");
+  HandlerMethod(HandlerMethod handlerMethod, Object handler) {
     this.bean = handler;
-    this.beanFactory = handlerMethod.beanFactory;
     this.messageSource = handlerMethod.messageSource;
     this.beanType = handlerMethod.beanType;
     this.method = handlerMethod.method;
@@ -391,29 +366,23 @@ public class HandlerMethod implements AsyncHandler {
   // handleRequest
   // -----------------------------------------
 
-  public void setContentType(@Nullable String contentType) {
-    this.contentType = contentType;
-  }
-
-  @Nullable
-  public String getContentType() {
-    return contentType;
-  }
-
   /**
    * ResponseBody present?
    */
   public boolean isResponseBody() {
-    Boolean responseBody = this.responseBody;
-    if (responseBody == null) {
-      responseBody = computeResponseBody();
-      this.responseBody = responseBody;
-    }
-    return responseBody;
+    return this.responseBody;
   }
 
   protected boolean computeResponseBody() {
-    return isResponseBody(method);
+    MergedAnnotation<ResponseBody> annotation = MergedAnnotations.from(method).get(ResponseBody.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean(MergedAnnotation.VALUE);
+    }
+    annotation = MergedAnnotations.from(method.getDeclaringClass()).get(ResponseBody.class);
+    if (annotation.isPresent()) {
+      return annotation.getBoolean(MergedAnnotation.VALUE);
+    }
+    return false;
   }
 
   /**
@@ -451,7 +420,7 @@ public class HandlerMethod implements AsyncHandler {
 
   /**
    * Return the HandlerMethod from which this HandlerMethod instance was
-   * resolved via {@link #createWithResolvedBean()}.
+   * resolved via {@link #withBean(Object)}.
    *
    * @since 4.0
    */
@@ -460,22 +429,17 @@ public class HandlerMethod implements AsyncHandler {
     return this.resolvedFromHandlerMethod;
   }
 
+  @Override
   public ConcurrentResultHandlerMethod wrapConcurrentResult(Object result) {
-    return new ConcurrentResultHandlerMethod(result, new ConcurrentResultMethodParameter(result), this);
+    return new ConcurrentResultHandlerMethod(new ConcurrentResultMethodParameter(result), this);
   }
 
   /**
-   * If the provided instance contains a bean name rather than an object instance,
-   * the bean name is resolved before a {@link HandlerMethod} is created and returned.
+   * create with a new bean
    *
    * @since 4.0
    */
-  public HandlerMethod createWithResolvedBean() {
-    Object handler = this.bean;
-    if (handler instanceof String beanName) {
-      Assert.state(beanFactory != null, "Cannot resolve bean name without BeanFactory");
-      handler = beanFactory.getBean(beanName);
-    }
+  public HandlerMethod withBean(Object handler) {
     return new HandlerMethod(this, handler);
   }
 
@@ -489,8 +453,8 @@ public class HandlerMethod implements AsyncHandler {
             "[" + this.method.getParameterCount() + " args]";
   }
 
-  private List<Annotation[][]> getInterfaceParameterAnnotations() {
-    List<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
+  private ArrayList<Annotation[][]> getInterfaceParameterAnnotations() {
+    ArrayList<Annotation[][]> parameterAnnotations = this.interfaceParameterAnnotations;
     if (parameterAnnotations == null) {
       parameterAnnotations = new ArrayList<>();
       for (Class<?> ifc : ClassUtils.getAllInterfacesForClassAsSet(this.method.getDeclaringClass())) {
@@ -596,23 +560,6 @@ public class HandlerMethod implements AsyncHandler {
             "with argument values:\n" + formattedArgs;
   }
 
-  // static
-
-  /**
-   * @since 4.0
-   */
-  public static boolean isResponseBody(Method method) {
-    MergedAnnotation<ResponseBody> annotation = MergedAnnotations.from(method).get(ResponseBody.class);
-    if (annotation.isPresent()) {
-      return annotation.getBoolean(MergedAnnotation.VALUE);
-    }
-    annotation = MergedAnnotations.from(method.getDeclaringClass()).get(ResponseBody.class);
-    if (annotation.isPresent()) {
-      return annotation.getBoolean(MergedAnnotation.VALUE);
-    }
-    return false;
-  }
-
   // ResponseStatus
 
   public static int getStatusValue(Throwable ex) {
@@ -654,23 +601,12 @@ public class HandlerMethod implements AsyncHandler {
   protected static class ConcurrentResultHandlerMethod extends HandlerMethod {
     private final HandlerMethod target;
 
-    private final Object asyncResult;
     private final MethodParameter returnType;
 
-    public ConcurrentResultHandlerMethod(
-            final Object asyncResult, ConcurrentResultMethodParameter returnType, HandlerMethod target) {
+    public ConcurrentResultHandlerMethod(ConcurrentResultMethodParameter returnType, HandlerMethod target) {
       super(target);
       this.target = target;
       this.returnType = returnType;
-      this.asyncResult = asyncResult;
-    }
-
-    @Nullable
-    public Object invokeForRequest(RequestContext request) {
-      if (asyncResult instanceof Throwable) {
-        throw ExceptionUtils.sneakyThrow((Throwable) asyncResult);
-      }
-      return asyncResult;
     }
 
     /**

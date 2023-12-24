@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -52,16 +49,16 @@ import cn.taketoday.web.RequestContext;
 public class JsonViewResponseBodyAdvice extends AbstractMappingJacksonResponseBodyAdvice {
 
   @Override
-  public boolean supports(@Nullable Object body,
-          @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
+  public boolean supports(@Nullable Object body, @Nullable MethodParameter returnType, HttpMessageConverter<?> converter) {
     return super.supports(body, returnType, converter)
             && returnType != null
             && returnType.hasMethodAnnotation(JsonView.class);
   }
 
   @Override
-  protected void beforeBodyWriteInternal(
-          MappingJacksonValue value, MediaType contentType, MethodParameter returnType, RequestContext request) {
+  protected void beforeBodyWriteInternal(MappingJacksonValue value,
+          MediaType contentType, MethodParameter returnType, RequestContext request) {
+
     JsonView ann = returnType.getMethodAnnotation(JsonView.class);
     Assert.state(ann != null, "No JsonView annotation");
 

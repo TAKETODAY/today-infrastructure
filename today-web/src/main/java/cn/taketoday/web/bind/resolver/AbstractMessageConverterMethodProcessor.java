@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -227,7 +227,6 @@ public abstract class AbstractMessageConverterMethodProcessor
       }
 
       ArrayList<MediaType> compatibleMediaTypes = new ArrayList<>();
-
       determineCompatibleMediaTypes(acceptableTypes, producibleTypes, compatibleMediaTypes);
 
       // For ProblemDetail, fall back on RFC 7807 format
@@ -266,7 +265,7 @@ public abstract class AbstractMessageConverterMethodProcessor
     if (selectedMediaType != null) {
       RequestResponseBodyAdviceChain advice = getAdvice();
       selectedMediaType = selectedMediaType.removeQualityValue();
-      for (HttpMessageConverter<?> converter : messageConverters) {
+      for (HttpMessageConverter converter : messageConverters) {
         var generic = converter instanceof GenericHttpMessageConverter
                       ? (GenericHttpMessageConverter) converter : null;
         if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType)
@@ -284,8 +283,7 @@ public abstract class AbstractMessageConverterMethodProcessor
               generic.write(body, targetType, selectedMediaType, context.asHttpOutputMessage());
             }
             else {
-              ((HttpMessageConverter) converter).write(
-                      body, selectedMediaType, context.asHttpOutputMessage());
+              converter.write(body, selectedMediaType, context.asHttpOutputMessage());
             }
           }
           else if (log.isDebugEnabled()) {
@@ -364,9 +362,7 @@ public abstract class AbstractMessageConverterMethodProcessor
    * <li>{@link MediaType#ALL}
    * </ul>
    */
-  protected List<MediaType> getProducibleMediaTypes(
-          RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
-
+  protected List<MediaType> getProducibleMediaTypes(RequestContext request, Class<?> valueClass, @Nullable Type targetType) {
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
       MediaType[] mediaTypes = matchingMetadata.getProducibleMediaTypes();
@@ -388,13 +384,12 @@ public abstract class AbstractMessageConverterMethodProcessor
     return result.isEmpty() ? Collections.singletonList(MediaType.ALL) : new ArrayList<>(result);
   }
 
-  private List<MediaType> getAcceptableMediaTypes(RequestContext request)
-          throws HttpMediaTypeNotAcceptableException {
+  private List<MediaType> getAcceptableMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     return this.contentNegotiationManager.resolveMediaTypes(request);
   }
 
-  private void determineCompatibleMediaTypes(
-          List<MediaType> acceptableTypes, List<MediaType> producibleTypes, List<MediaType> mediaTypesToUse) {
+  private void determineCompatibleMediaTypes(List<MediaType> acceptableTypes,
+          List<MediaType> producibleTypes, List<MediaType> mediaTypesToUse) {
 
     for (MediaType requestedType : acceptableTypes) {
       for (MediaType producibleType : producibleTypes) {

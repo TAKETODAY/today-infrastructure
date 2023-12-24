@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -175,8 +175,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   @Override
   protected boolean isHandler(Class<?> beanType) {
-    var annotations = MergedAnnotations.from(
-            beanType, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.none());
+    var annotations = MergedAnnotations.from(beanType, SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE);
     return annotations.isPresent(Controller.class)
             || annotations.isPresent(RequestMapping.class);
   }
@@ -186,7 +185,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
     if (handler instanceof String beanName) {
       ApplicationContext context = obtainApplicationContext();
       return new InvocableHandlerMethod(beanName,
-              context.getAutowireCapableBeanFactory(), context, method, parameterFactory);
+              context.getBeanFactory(), context, method, parameterFactory);
     }
     return new InvocableHandlerMethod(handler, method, parameterFactory);
   }

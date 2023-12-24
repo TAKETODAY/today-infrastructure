@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -72,6 +72,16 @@ public class InvocableHandlerMethod extends HandlerMethod {
           @Nullable MessageSource messageSource, Method method, ResolvableParameterFactory factory) {
     super(beanName, beanFactory, messageSource, method);
     this.resolvableParameters = factory.getParameters(this);
+  }
+
+  private InvocableHandlerMethod(HandlerMethod handlerMethod, Object handler, ResolvableMethodParameter[] resolvableParameters) {
+    super(handlerMethod, handler);
+    this.resolvableParameters = resolvableParameters;
+  }
+
+  @Override
+  public HandlerMethod withBean(Object handler) {
+    return new InvocableHandlerMethod(this, handler, resolvableParameters);
   }
 
   /**
