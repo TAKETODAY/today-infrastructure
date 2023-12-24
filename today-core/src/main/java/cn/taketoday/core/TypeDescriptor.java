@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -82,6 +82,9 @@ public class TypeDescriptor implements Serializable {
   private final ResolvableType resolvableType;
 
   private final AnnotatedElementAdapter annotatedElement;
+
+  @Nullable
+  private Integer hash;
 
   /**
    * Create a new type descriptor from a {@link Field}.
@@ -600,7 +603,12 @@ public class TypeDescriptor implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, resolvableType, annotatedElement);
+    Integer hash = this.hash;
+    if (hash == null) {
+      hash = Objects.hash(type, resolvableType, annotatedElement);
+      this.hash = hash;
+    }
+    return hash;
   }
 
   @Override
