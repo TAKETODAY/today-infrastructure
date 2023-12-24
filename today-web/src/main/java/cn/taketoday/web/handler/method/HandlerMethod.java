@@ -96,6 +96,12 @@ public class HandlerMethod implements AsyncHandler {
   /** @since 2.3.7 */
   private final Class<?> returnType;
 
+  /**
+   * @since 4.0
+   */
+  @Nullable
+  private MethodParameter returnTypeParameter;
+
   @Nullable
   private final MessageSource messageSource;
 
@@ -338,7 +344,12 @@ public class HandlerMethod implements AsyncHandler {
    * Return the HandlerMethod return type.
    */
   public MethodParameter getReturnType() {
-    return new HandlerMethodParameter(-1);
+    MethodParameter returnType = returnTypeParameter;
+    if (returnType == null) {
+      returnType = new HandlerMethodParameter(-1);
+      this.returnTypeParameter = returnType;
+    }
+    return returnType;
   }
 
   /**

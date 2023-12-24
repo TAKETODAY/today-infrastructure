@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -92,7 +92,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
    * @param manager for detecting streaming media types
    */
   public ResponseBodyEmitterReturnValueHandler(List<HttpMessageConverter<?>> messageConverters,
-      ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
+          ReactiveAdapterRegistry registry, TaskExecutor executor, ContentNegotiationManager manager) {
     Assert.notEmpty(messageConverters, "HttpMessageConverter List must not be empty");
     this.sseMessageConverters = initSseConverters(messageConverters);
     this.reactiveHandler = new ReactiveTypeHandler(registry, executor, manager);
@@ -124,8 +124,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
     HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
     if (handlerMethod != null) {
-      MethodParameter returnType = handlerMethod.getReturnValueType(returnValue);
-      return supportsReturnType(returnType) || supportsReturnValue(returnValue);
+      return supportsReturnValue(returnValue)
+              || supportsReturnType(handlerMethod.getReturnValueType(returnValue));
     }
     return supportsReturnValue(returnValue);
   }
@@ -135,9 +135,9 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
                         ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
                         : returnType.getParameterType();
     return bodyType != null
-        && (
-        ResponseBodyEmitter.class.isAssignableFrom(bodyType)
-            || reactiveHandler.isReactiveType(bodyType)
+            && (
+            ResponseBodyEmitter.class.isAssignableFrom(bodyType)
+                    || reactiveHandler.isReactiveType(bodyType)
     );
   }
 
@@ -148,7 +148,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
 
   @Override
   public void handleReturnValue(RequestContext request,
-      @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -186,7 +186,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     else {
       // should not happen
       throw new UnsupportedOperationException(
-          "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
+              "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
     }
     emitter.extendResponse(request);
 
@@ -202,7 +202,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
       DeferredResult<?> deferredResult = new DeferredResult<>(emitter.getTimeout());
 
       request.getAsyncManager()
-          .startDeferredResultProcessing(deferredResult, handler);
+              .startDeferredResultProcessing(deferredResult, handler);
 
       responseBodyEmitter = new HttpMessageConvertingHandler(request, deferredResult);
     }
