@@ -109,7 +109,9 @@ public abstract class MimeTypeUtils {
   public static final String TEXT_HTML_VALUE = "text/html";
 
   /** Public constant mime type for {@code text/plain}. */
-  public static final MimeType TEXT_PLAIN;
+  public static final MimeType TEXT_PLAIN = new MimeType("text", "plain");
+
+  public static final MimeType TEXT_PLAIN_UTF8 = TEXT_PLAIN.withCharset(StandardCharsets.UTF_8);
 
   /** A String equivalent of {@link MimeTypeUtils#TEXT_PLAIN}. */
   public static final String TEXT_PLAIN_VALUE = "text/plain";
@@ -133,7 +135,6 @@ public abstract class MimeTypeUtils {
     IMAGE_GIF = new MimeType("image", "gif");
     IMAGE_PNG = new MimeType("image", "png");
     TEXT_HTML = new MimeType("text", "html");
-    TEXT_PLAIN = new MimeType("text", "plain");
     IMAGE_JPEG = new MimeType("image", "jpeg");
     APPLICATION_XML = new MimeType("application", "xml");
     APPLICATION_JSON = new MimeType("application", "json");

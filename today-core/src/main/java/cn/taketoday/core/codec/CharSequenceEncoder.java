@@ -119,14 +119,14 @@ public final class CharSequenceEncoder extends AbstractEncoder<CharSequence> {
    * Create a {@code CharSequenceEncoder} that supports only "text/plain".
    */
   public static CharSequenceEncoder textPlainOnly() {
-    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET));
+    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN_UTF8);
   }
 
   /**
    * Create a {@code CharSequenceEncoder} that supports all MIME types.
    */
   public static CharSequenceEncoder allMimeTypes() {
-    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET), MimeTypeUtils.ALL);
+    return new CharSequenceEncoder(MimeTypeUtils.TEXT_PLAIN_UTF8, MimeTypeUtils.ALL);
   }
 
 }

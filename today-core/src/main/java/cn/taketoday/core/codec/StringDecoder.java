@@ -22,7 +22,6 @@ import java.util.List;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.io.buffer.DataBuffer;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
@@ -74,7 +73,7 @@ public final class StringDecoder extends AbstractCharSequenceDecoder<String> {
    * input strings
    */
   public static StringDecoder textPlainOnly(List<String> delimiters, boolean stripDelimiter) {
-    return new StringDecoder(delimiters, stripDelimiter, MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET));
+    return new StringDecoder(delimiters, stripDelimiter, MimeTypeUtils.TEXT_PLAIN_UTF8);
   }
 
   /**
@@ -92,8 +91,7 @@ public final class StringDecoder extends AbstractCharSequenceDecoder<String> {
    * input strings
    */
   public static StringDecoder allMimeTypes(List<String> delimiters, boolean stripDelimiter) {
-    return new StringDecoder(delimiters, stripDelimiter,
-            MimeTypeUtils.TEXT_PLAIN.withCharset(Constant.DEFAULT_CHARSET), MimeTypeUtils.ALL);
+    return new StringDecoder(delimiters, stripDelimiter, MimeTypeUtils.TEXT_PLAIN_UTF8, MimeTypeUtils.ALL);
   }
 
 }
