@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -26,7 +23,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.conversion.ConverterNotFoundException;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -40,7 +36,6 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport implements TypeConverter {
 
-  @Nullable
   protected TypeConverterDelegate typeConverterDelegate;
 
   @Override
@@ -79,9 +74,8 @@ public abstract class TypeConverterSupport extends PropertyEditorRegistrySupport
   private <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object value,
           @Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws TypeMismatchException {
 
-    Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
     try {
-      return this.typeConverterDelegate.convertIfNecessary(
+      return typeConverterDelegate.convertIfNecessary(
               propertyName, null, value, requiredType, typeDescriptor);
     }
     catch (ConverterNotFoundException | IllegalStateException ex) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -481,7 +478,7 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
         }
       }
       if (editorHolder != null) {
-        return editorHolder.getRegisteredType();
+        return editorHolder.registeredType;
       }
     }
     return null;
@@ -513,14 +510,12 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
             String editorNestedProperty = editorPath.substring(0, pos);
             String editorNestedPath = editorPath.substring(pos + 1);
             if (editorNestedProperty.equals(nestedProperty) || editorNestedProperty.equals(actualPropertyName)) {
-              target.registerCustomEditor(
-                      editorHolder.getRegisteredType(), editorNestedPath, editorHolder.getPropertyEditor());
+              target.registerCustomEditor(editorHolder.registeredType, editorNestedPath, editorHolder.propertyEditor);
             }
           }
         }
         else {
-          target.registerCustomEditor(
-                  editorHolder.getRegisteredType(), editorPath, editorHolder.getPropertyEditor());
+          target.registerCustomEditor(editorHolder.registeredType, editorPath, editorHolder.propertyEditor);
         }
       }
     }
@@ -556,20 +551,16 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * Holder for a registered custom editor with property name.
    * Keeps the PropertyEditor itself plus the type it was registered for.
    */
-  private record CustomEditorHolder(PropertyEditor propertyEditor, @Nullable Class<?> registeredType) {
+  private static class CustomEditorHolder {
+
+    @Nullable
+    public final Class<?> registeredType;
+
+    public final PropertyEditor propertyEditor;
 
     private CustomEditorHolder(PropertyEditor propertyEditor, @Nullable Class<?> registeredType) {
       this.propertyEditor = propertyEditor;
       this.registeredType = registeredType;
-    }
-
-    private PropertyEditor getPropertyEditor() {
-      return this.propertyEditor;
-    }
-
-    @Nullable
-    private Class<?> getRegisteredType() {
-      return this.registeredType;
     }
 
     @Nullable

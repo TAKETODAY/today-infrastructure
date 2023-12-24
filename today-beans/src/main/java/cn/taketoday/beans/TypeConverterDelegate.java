@@ -54,7 +54,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/2/17 17:46
  */
 public class TypeConverterDelegate {
-  private final Logger logger = LoggerFactory.getLogger(getClass());
+  private static final Logger logger = LoggerFactory.getLogger(TypeConverterDelegate.class);
 
   private final PropertyEditorRegistrySupport propertyEditorRegistry;
 

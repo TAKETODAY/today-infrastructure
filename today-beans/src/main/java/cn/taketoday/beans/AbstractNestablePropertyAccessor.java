@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -196,17 +196,21 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    * @param rootObject the root object at the top of the path
    */
   public void setWrappedInstance(Object object, @Nullable String nestedPath, @Nullable Object rootObject) {
-    this.wrappedObject = ObjectUtils.unwrapOptional(object);
-    Assert.notNull(this.wrappedObject, "Target object is required");
-    this.nestedPath = nestedPath != null ? nestedPath : "";
-    this.rootObject = !this.nestedPath.isEmpty() ? rootObject : this.wrappedObject;
+    Object wrappedObject = ObjectUtils.unwrapOptional(object);
+    Assert.notNull(wrappedObject, "Target object is required");
+    if (nestedPath == null) {
+      nestedPath = "";
+    }
+    this.nestedPath = nestedPath;
+    this.wrappedObject = wrappedObject;
+    this.rootObject = !nestedPath.isEmpty() ? rootObject : wrappedObject;
     this.nestedPropertyAccessors = null;
-    this.typeConverterDelegate = new TypeConverterDelegate(this, this.wrappedObject);
+    this.typeConverterDelegate = new TypeConverterDelegate(this, wrappedObject);
   }
 
   public final Object getWrappedInstance() {
-    Assert.state(this.wrappedObject != null, "No wrapped object");
-    return this.wrappedObject;
+    Assert.state(wrappedObject != null, "No wrapped object");
+    return wrappedObject;
   }
 
   public final Class<?> getWrappedClass() {
@@ -415,7 +419,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
   private void processLocalProperty(PropertyTokenHolder tokens, PropertyValue pv) {
     PropertyHandler ph = getLocalPropertyHandler(tokens.actualName);
-    if (ph == null || !ph.isWritable()) {
+    if (ph == null || !ph.writable) {
       if (pv.isOptional()) {
         if (log.isDebugEnabled()) {
           log.debug("Ignoring optional value for property '{}' - property not found on bean class [{}]",
@@ -440,7 +444,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           valueToApply = pv.getConvertedValue();
         }
         else {
-          if (isExtractOldValueForEditor() && ph.isReadable()) {
+          if (isExtractOldValueForEditor() && ph.readable) {
             try {
               oldValue = ph.getValue();
             }
@@ -449,8 +453,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
                 if (ex instanceof PrivilegedActionException) {
                   ex = ((PrivilegedActionException) ex).getException();
                 }
-                log.debug("Could not read previous value of property '{}{}'",
-                        nestedPath, tokens.canonicalName, ex);
+                log.debug("Could not read previous value of property '{}{}'", nestedPath, tokens.canonicalName, ex);
               }
             }
           }
@@ -468,7 +471,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       PropertyChangeEvent event = new PropertyChangeEvent(
               getRootInstance(), this.nestedPath + tokens.canonicalName, oldValue, pv.getValue());
       if (ex.getTargetException() instanceof ClassCastException) {
-        throw new TypeMismatchException(event, ph.getPropertyType(), ex.getTargetException());
+        throw new TypeMismatchException(event, ph.propertyType, ex.getTargetException());
       }
       else {
         Throwable cause = ex.getTargetException();
@@ -492,7 +495,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     try {
       PropertyHandler ph = getPropertyHandler(propertyName);
       if (ph != null) {
-        return ph.getPropertyType();
+        return ph.propertyType;
       }
       else {
         // Maybe an indexed/mapped property...
@@ -524,12 +527,12 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       PropertyHandler handler = nestedPa.getLocalPropertyHandler(tokens.actualName);
       if (handler != null) {
         if (tokens.keys != null) {
-          if (handler.isReadable() || handler.isWritable()) {
+          if (handler.readable || handler.writable) {
             return handler.nested(tokens.keys.length);
           }
         }
         else {
-          if (handler.isReadable() || handler.isWritable()) {
+          if (handler.readable || handler.writable) {
             return handler.toTypeDescriptor();
           }
         }
@@ -546,7 +549,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     try {
       PropertyHandler ph = getPropertyHandler(propertyName);
       if (ph != null) {
-        return ph.isReadable();
+        return ph.readable;
       }
       else {
         // Maybe an indexed/mapped property...
@@ -565,7 +568,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     try {
       PropertyHandler ph = getPropertyHandler(propertyName);
       if (ph != null) {
-        return ph.isWritable();
+        return ph.writable;
       }
       else {
         // Maybe an indexed/mapped property...
@@ -583,9 +586,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   private Object convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue,
           @Nullable Object newValue, @Nullable Class<?> requiredType, @Nullable TypeDescriptor td) throws TypeMismatchException {
 
-    Assert.state(this.typeConverterDelegate != null, "No TypeConverterDelegate");
     try {
-      return this.typeConverterDelegate.convertIfNecessary(propertyName, oldValue, newValue, requiredType, td);
+      return typeConverterDelegate.convertIfNecessary(propertyName, oldValue, newValue, requiredType, td);
     }
     catch (ConverterNotFoundException | IllegalStateException ex) {
       var pce = new PropertyChangeEvent(getRootInstance(),
@@ -601,8 +603,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
 
   @Nullable
   protected Object convertForProperty(String propertyName,
-          @Nullable Object oldValue, @Nullable Object newValue, TypeDescriptor td)
-          throws TypeMismatchException {
+          @Nullable Object oldValue, @Nullable Object newValue, TypeDescriptor td) throws TypeMismatchException {
 
     return convertIfNecessary(propertyName, oldValue, newValue, td.getType(), td);
   }
@@ -621,7 +622,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     String actualName = tokens.actualName;
     String propertyName = tokens.canonicalName;
     PropertyHandler handler = getLocalPropertyHandler(actualName);
-    if (handler == null || !handler.isReadable()) {
+    if (handler == null || !handler.readable) {
       throw new NotReadablePropertyException(getRootClass(), this.nestedPath + propertyName);
     }
     try {
@@ -1019,28 +1020,16 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
    */
   protected abstract static class PropertyHandler {
 
-    private final Class<?> propertyType;
+    public final Class<?> propertyType;
 
-    private final boolean readable;
+    public final boolean readable;
 
-    private final boolean writable;
+    public final boolean writable;
 
     public PropertyHandler(Class<?> propertyType, boolean readable, boolean writable) {
       this.propertyType = propertyType;
       this.readable = readable;
       this.writable = writable;
-    }
-
-    public Class<?> getPropertyType() {
-      return this.propertyType;
-    }
-
-    public boolean isReadable() {
-      return this.readable;
-    }
-
-    public boolean isWritable() {
-      return this.writable;
     }
 
     public abstract TypeDescriptor toTypeDescriptor();
