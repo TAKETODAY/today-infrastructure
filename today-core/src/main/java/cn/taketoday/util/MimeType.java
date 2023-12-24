@@ -167,7 +167,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
    * @see #withCharset(Charset)
    */
   public MimeType(MimeType other, Charset charset) {
-    this(other.type, other.type, addCharsetParameter(charset, other.getParameters()), charset);
+    this(other.type, other.subtype, addCharsetParameter(charset, other.getParameters()), charset);
   }
 
   /**
