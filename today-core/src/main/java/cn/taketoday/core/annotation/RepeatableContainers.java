@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -73,8 +73,7 @@ public class RepeatableContainers {
    * @param repeatable the repeatable annotation type
    * @return a new {@link RepeatableContainers} instance
    */
-  public RepeatableContainers and(
-          Class<? extends Annotation> container, Class<? extends Annotation> repeatable) {
+  public RepeatableContainers and(Class<? extends Annotation> container, Class<? extends Annotation> repeatable) {
     return new ExplicitRepeatableContainer(this, repeatable, container);
   }
 
@@ -140,9 +139,7 @@ public class RepeatableContainers {
    * @throws AnnotationConfigurationException if the supplied container type
    * is not a properly configured container for a repeatable annotation
    */
-  public static RepeatableContainers valueOf(
-          Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
-
+  public static RepeatableContainers valueOf(Class<? extends Annotation> repeatable, @Nullable Class<? extends Annotation> container) {
     return new ExplicitRepeatableContainer(null, repeatable, container);
   }
 
@@ -163,8 +160,8 @@ public class RepeatableContainers {
    * Standard {@link RepeatableContainers} implementation that searches using
    * Java's {@link Repeatable @Repeatable} annotation.
    */
-  private static class StandardRepeatableContainers
-          extends RepeatableContainers implements Function<Class<? extends Annotation>, Object> {
+  private static class StandardRepeatableContainers extends RepeatableContainers
+          implements Function<Class<? extends Annotation>, Object> {
 
     private static final Object NONE = new Object();
 

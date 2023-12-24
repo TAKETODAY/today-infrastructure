@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -206,8 +206,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotation} instance
    * @see MergedAnnotationPredicates
    */
-  <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType,
-          @Nullable Predicate<? super MergedAnnotation<A>> predicate);
+  <A extends Annotation> MergedAnnotation<A> get(Class<A> annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate);
 
   /**
    * Get a matching annotation or meta-annotation of the specified type, or
@@ -249,8 +248,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotation} instance
    * @see MergedAnnotationPredicates
    */
-  <A extends Annotation> MergedAnnotation<A> get(String annotationType,
-          @Nullable Predicate<? super MergedAnnotation<A>> predicate);
+  <A extends Annotation> MergedAnnotation<A> get(String annotationType, @Nullable Predicate<? super MergedAnnotation<A>> predicate);
 
   /**
    * Get a matching annotation or meta-annotation of the specified type, or
@@ -352,9 +350,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * element annotations
    * @see #search(SearchStrategy)
    */
-  static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
-          RepeatableContainers repeatableContainers) {
-
+  static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy, RepeatableContainers repeatableContainers) {
     return from(element, searchStrategy, repeatableContainers, AnnotationFilter.PLAIN);
   }
 
@@ -380,16 +376,14 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
   }
 
   private static MergedAnnotations from(AnnotatedElement element, SearchStrategy searchStrategy,
-          Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers,
-          AnnotationFilter annotationFilter) {
+          Predicate<Class<?>> searchEnclosingClass, RepeatableContainers repeatableContainers, AnnotationFilter annotationFilter) {
 
     Assert.notNull(element, "AnnotatedElement is required");
     Assert.notNull(searchStrategy, "SearchStrategy is required");
     Assert.notNull(searchEnclosingClass, "Predicate is required");
     Assert.notNull(annotationFilter, "AnnotationFilter is required");
     Assert.notNull(repeatableContainers, "RepeatableContainers is required");
-    return TypeMappedAnnotations.from(element, searchStrategy, searchEnclosingClass,
-            repeatableContainers, annotationFilter);
+    return TypeMappedAnnotations.from(element, searchStrategy, searchEnclosingClass, repeatableContainers, annotationFilter);
   }
 
   /**
@@ -435,8 +429,7 @@ public interface MergedAnnotations extends Iterable<MergedAnnotation<Annotation>
    * @return a {@link MergedAnnotations} instance containing the annotations
    * @see #search(SearchStrategy)
    */
-  static MergedAnnotations from(Object source, Annotation[] annotations,
-          RepeatableContainers repeatableContainers) {
+  static MergedAnnotations from(Object source, Annotation[] annotations, RepeatableContainers repeatableContainers) {
     return from(source, annotations, repeatableContainers, AnnotationFilter.PLAIN);
   }
 
