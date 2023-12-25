@@ -35,11 +35,11 @@ import io.netty.handler.codec.http.multipart.FileUpload;
  * @see FileUpload
  * @since 2019-11-14 13:11
  */
-final class FileUploadMultipartFile extends AbstractMultipartFile implements MultipartFile {
+final class NettyMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private final FileUpload fileUpload;
 
-  public FileUploadMultipartFile(FileUpload fileUpload) {
+  public NettyMultipartFile(FileUpload fileUpload) {
     this.fileUpload = fileUpload;
   }
 

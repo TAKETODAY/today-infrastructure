@@ -77,7 +77,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
         String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
         ContentDisposition disposition = ContentDisposition.parse(headerValue);
         String filename = disposition.getFilename();
-        files.add(part.getName(), new ServletPartMultipartFile(part, filename));
+        files.add(part.getName(), new ServletMultipartFile(part, filename));
       }
       return files;
     }

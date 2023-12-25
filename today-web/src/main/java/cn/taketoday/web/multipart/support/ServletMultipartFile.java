@@ -37,13 +37,13 @@ import jakarta.servlet.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-06-28 22:40:32
  */
-final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
+final class ServletMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private final Part part;
 
   private final String filename;
 
-  public ServletPartMultipartFile(Part part, @Nullable String filename) {
+  public ServletMultipartFile(Part part, @Nullable String filename) {
     this.part = part;
     this.filename = filename == null ? part.getSubmittedFileName() : filename;
   }
@@ -75,7 +75,7 @@ final class ServletPartMultipartFile extends AbstractMultipartFile implements Mu
 
   @Override
   protected DefaultHttpHeaders createHttpHeaders() {
-    return ServletPartFormData.createHeaders(part);
+    return ServletFormData.createHeaders(part);
   }
 
   /**
@@ -138,8 +138,8 @@ final class ServletPartMultipartFile extends AbstractMultipartFile implements Mu
   @Override
   public boolean equals(Object obj) {
     return this == obj
-            || (obj instanceof ServletPartMultipartFile
-            && Objects.equals(part, ((ServletPartMultipartFile) obj).part));
+            || (obj instanceof ServletMultipartFile
+            && Objects.equals(part, ((ServletMultipartFile) obj).part));
   }
 
 }

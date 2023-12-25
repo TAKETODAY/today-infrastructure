@@ -27,6 +27,8 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.web.multipart.MultipartFile;
 
 /**
+ * Abstract multipart-file
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2021/4/18 20:38
  */
@@ -89,4 +91,10 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   }
 
   protected abstract void deleteInternal() throws IOException;
+
+  @Override
+  public String toString() {
+    return "%s: '%s'".formatted(getClass().getSimpleName(), getName());
+  }
+
 }

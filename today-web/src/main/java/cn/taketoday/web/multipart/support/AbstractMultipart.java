@@ -23,6 +23,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.Multipart;
 
 /**
+ * Abstract multipart
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/13 11:06
  */
@@ -48,6 +50,11 @@ public abstract class AbstractMultipart implements Multipart {
       headers.set(HttpHeaders.CONTENT_TYPE, contentType);
     }
     return headers;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + ": " + getName() + "=" + getValue();
   }
 
 }

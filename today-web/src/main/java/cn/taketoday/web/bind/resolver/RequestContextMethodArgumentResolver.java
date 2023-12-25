@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -36,17 +33,23 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * Resolves servlet backed request-related method arguments. Supports values of the
  * following types:
  * <ul>
  * <li>{@link RequestContext}
+ * <li>{@link MultipartRequest}
  * <li>{@link InputStream}
+ * <li>{@link OutputStream}
  * <li>{@link Reader}
+ * <li>{@link Writer}
  * <li>{@link HttpMethod}
  * <li>{@link Locale}
  * <li>{@link TimeZone}
+ * <li>{@link InputStreamSource}
+ * <li>{@link OutputStreamSource}
  * <li>{@link java.time.ZoneId}
  * </ul>
  *
@@ -62,6 +65,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
     Class<?> paramType = resolvable.getParameterType();
     return RequestContext.class.isAssignableFrom(paramType)
+            || MultipartRequest.class.isAssignableFrom(paramType)
             || InputStream.class.isAssignableFrom(paramType)
             || OutputStream.class.isAssignableFrom(paramType)
             || Reader.class.isAssignableFrom(paramType)
@@ -85,6 +89,14 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
       }
       throw new IllegalStateException(
               "Current request is not of type [" + paramType.getName() + "]: " + request);
+    }
+    if (MultipartRequest.class.isAssignableFrom(paramType)) {
+      MultipartRequest multipartRequest = request.getMultipartRequest();
+      if (paramType.isInstance(multipartRequest)) {
+        return multipartRequest;
+      }
+      throw new IllegalStateException(
+              "Current multipart request is not of type [" + paramType.getName() + "]: " + multipartRequest);
     }
     if (InputStream.class.isAssignableFrom(paramType)) {
       InputStream inputStream = request.getInputStream();

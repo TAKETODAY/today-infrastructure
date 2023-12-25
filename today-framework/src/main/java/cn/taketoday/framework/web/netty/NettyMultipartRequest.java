@@ -68,7 +68,7 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
     var map = MultiValueMap.<String, Multipart>forLinkedHashMap();
     for (InterfaceHttpData data : context.requestDecoder().getBodyHttpDatas()) {
       if (data instanceof FileUpload fileUpload) {
-        map.add(data.getName(), new FileUploadMultipartFile(fileUpload));
+        map.add(data.getName(), new NettyMultipartFile(fileUpload));
       }
       else if (data instanceof Attribute attribute) {
         NettyFormData nettyFormData = new NettyFormData(attribute);
