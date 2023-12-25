@@ -24,6 +24,7 @@ import java.util.List;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.Multipart;
@@ -49,17 +50,17 @@ final class MultipartResolutionDelegate {
 
   public static boolean isMultipartArgument(MethodParameter parameter) {
     Class<?> paramType = parameter.getNestedParameterType();
-    return Multipart.class == paramType
-            || MultipartFile.class == paramType
-            || isMultipartFileCollection(parameter)
-            || isMultipartFileArray(parameter)
+    return Multipart.class.isAssignableFrom(paramType)
+            || isMultipartCollection(parameter, paramType)
+            || isMultipartArray(paramType)
             || (
             ServletDetector.isPresent
                     && (
                     ServletDelegate.isPart(paramType)
-                            || ServletDelegate.isPartArray(parameter)
-                            || ServletDelegate.isPartCollection(parameter)
-            ));
+                            || ServletDelegate.isPartArray(paramType)
+                            || ServletDelegate.isPartCollection(parameter, paramType)
+            )
+    );
   }
 
   @Nullable
@@ -72,38 +73,42 @@ final class MultipartResolutionDelegate {
     }
 
     Class<?> parameterType = parameter.getNestedParameterType();
-    if (Multipart.class == parameterType) {
+    if (Multipart.class.isAssignableFrom(parameterType)) {
+      return CollectionUtils.firstElement(request.getMultipartRequest().multipartData(name));
+    }
+    else if (isMultipartCollection(parameter, parameterType)) {
       return request.getMultipartRequest().multipartData(name);
     }
-    else if (MultipartFile.class == parameterType) {
-      return request.getMultipartRequest().getFile(name);
-    }
-    else if (isMultipartFileCollection(parameter)) {
-      return request.getMultipartRequest().getFiles(name);
-    }
-    else if (isMultipartFileArray(parameter)) {
-      List<MultipartFile> files = request.getMultipartRequest().getFiles(name);
-      return files != null ? files.toArray(new MultipartFile[0]) : null;
+    else if (isMultipartArray(parameterType)) {
+      List<Multipart> parts = request.getMultipartRequest().multipartData(name);
+      if (parts == null) {
+        return null;
+      }
+      if (parameterType.getComponentType() == MultipartFile.class) {
+        return parts.toArray(new MultipartFile[parts.size()]);
+      }
+      return parts.toArray(new Multipart[parts.size()]);
     }
     else {
       if (ServletDetector.runningInServlet(request)) {
-        return ServletDelegate.resolvePart(request, name, parameter);
+        return ServletDelegate.resolvePart(request, name, parameter, parameterType);
       }
     }
     return UNRESOLVABLE;
   }
 
-  private static boolean isMultipartFileCollection(MethodParameter methodParam) {
-    return MultipartFile.class == getCollectionParameterType(methodParam);
+  private static boolean isMultipartCollection(MethodParameter methodParam, Class<?> parameterType) {
+    parameterType = getCollectionParameterType(methodParam, parameterType);
+    return parameterType != null && Multipart.class.isAssignableFrom(parameterType);
   }
 
-  private static boolean isMultipartFileArray(MethodParameter methodParam) {
-    return MultipartFile.class == methodParam.getNestedParameterType().getComponentType();
+  private static boolean isMultipartArray(Class<?> parameterType) {
+    Class<?> componentType = parameterType.getComponentType();
+    return componentType != null && Multipart.class.isAssignableFrom(componentType);
   }
 
   @Nullable
-  private static Class<?> getCollectionParameterType(MethodParameter methodParam) {
-    Class<?> paramType = methodParam.getNestedParameterType();
+  private static Class<?> getCollectionParameterType(MethodParameter methodParam, Class<?> paramType) {
     if (Collection.class == paramType || List.class.isAssignableFrom(paramType)) {
       return ResolvableType.forMethodParameter(methodParam).asCollection().resolveGeneric();
     }
@@ -112,17 +117,18 @@ final class MultipartResolutionDelegate {
 
   static class ServletDelegate {
 
-    static Object resolvePart(RequestContext request, String name, MethodParameter parameter) throws Exception {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+    static Object resolvePart(RequestContext request,
+            String name, MethodParameter parameter, Class<?> paramType) throws Exception {
 
-      if (Part.class == parameter.getNestedParameterType()) {
+      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+      if (Part.class == paramType) {
         return ServletUtils.getPart(servletRequest, name);
       }
-      else if (isPartCollection(parameter)) {
+      else if (isPartCollection(parameter, paramType)) {
         List<Part> parts = resolvePartList(servletRequest, name);
         return !parts.isEmpty() ? parts : null;
       }
-      else if (isPartArray(parameter)) {
+      else if (isPartArray(paramType)) {
         List<Part> parts = resolvePartList(servletRequest, name);
         return !parts.isEmpty() ? parts.toArray(new Part[0]) : null;
       }
@@ -131,7 +137,7 @@ final class MultipartResolutionDelegate {
 
     static List<Part> resolvePartList(HttpServletRequest request, String name) throws Exception {
       Collection<Part> parts = request.getParts();
-      List<Part> result = new ArrayList<>(parts.size());
+      ArrayList<Part> result = new ArrayList<>(parts.size());
       for (Part part : parts) {
         if (part.getName().equals(name)) {
           result.add(part);
@@ -144,12 +150,12 @@ final class MultipartResolutionDelegate {
       return Part.class == paramType;
     }
 
-    static boolean isPartCollection(MethodParameter methodParam) {
-      return Part.class == getCollectionParameterType(methodParam);
+    static boolean isPartCollection(MethodParameter methodParam, Class<?> paramType) {
+      return Part.class == getCollectionParameterType(methodParam, paramType);
     }
 
-    static boolean isPartArray(MethodParameter methodParam) {
-      return Part.class == methodParam.getNestedParameterType().getComponentType();
+    static boolean isPartArray(Class<?> paramType) {
+      return Part.class == paramType.getComponentType();
     }
 
   }

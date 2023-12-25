@@ -111,6 +111,11 @@ final class ServletMultipartFile extends AbstractMultipartFile implements Multip
   }
 
   @Override
+  public void acceptWithException(OutputStream out) throws Exception {
+    part.getInputStream().transferTo(out);
+  }
+
+  @Override
   public boolean isEmpty() {
     return part.getSize() == 0;
   }
