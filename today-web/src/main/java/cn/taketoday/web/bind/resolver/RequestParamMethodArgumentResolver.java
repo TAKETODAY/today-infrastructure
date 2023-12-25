@@ -42,6 +42,7 @@ import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.support.UriComponentsContributor;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -162,24 +163,23 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     }
 
     Object arg = null;
-    if (request.isMultipart()) {
-      MultipartRequest multipartRequest = request.getMultipartRequest();
-      List<MultipartFile> files = multipartRequest.getFiles(name);
-      if (files != null) {
-        arg = files.size() == 1 ? files.get(0) : files;
+    String[] paramValues = request.getParameters(name);
+    if (paramValues != null) {
+      arg = paramValues.length == 1 ? paramValues[0] : paramValues;
+    }
+    else {
+      // fallback path-variable, can resolve a none-annotated param
+      HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
+      if (matchingMetadata != null) {
+        arg = matchingMetadata.getUriVariable(name);
       }
     }
 
     if (arg == null) {
-      String[] paramValues = request.getParameters(name);
-      if (paramValues != null) {
-        arg = paramValues.length == 1 ? paramValues[0] : paramValues;
-      }
-      else {
-        // fallback path-variable, can resolve a none-annotated param
-        HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
-        if (matchingMetadata != null) {
-          return matchingMetadata.getUriVariable(name);
+      if (request.isMultipart()) {
+        List<Multipart> parts = request.getMultipartRequest().multipartData(name);
+        if (parts != null) {
+          arg = parts.size() == 1 ? parts.get(0) : parts;
         }
       }
     }

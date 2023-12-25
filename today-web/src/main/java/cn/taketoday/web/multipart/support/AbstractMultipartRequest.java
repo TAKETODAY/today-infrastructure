@@ -82,8 +82,8 @@ public abstract class AbstractMultipartRequest implements MultipartRequest {
       multipartFiles = MultiValueMap.forLinkedHashMap();
       for (Map.Entry<String, List<Multipart>> entry : multipartData().entrySet()) {
         for (Multipart multipart : entry.getValue()) {
-          if (multipart instanceof MultipartFile file) {
-            multipartFiles.add(entry.getKey(), file);
+          if (!multipart.isFormField()) {
+            multipartFiles.add(entry.getKey(), (MultipartFile) multipart);
           }
         }
       }

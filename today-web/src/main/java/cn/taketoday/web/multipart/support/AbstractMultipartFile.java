@@ -70,7 +70,7 @@ public abstract class AbstractMultipartFile extends AbstractMultipart implements
   protected abstract byte[] doGetBytes() throws IOException;
 
   @Override
-  public boolean isFormField() {
+  public final boolean isFormField() {
     return false;
   }
 

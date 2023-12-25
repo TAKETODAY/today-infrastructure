@@ -43,6 +43,10 @@ final class NettyMultipartRequest extends AbstractMultipartRequest {
   @Nullable
   @Override
   public String getMultipartContentType(String paramOrFileName) {
+    HttpHeaders multipartHeaders = getMultipartHeaders(paramOrFileName);
+    if (multipartHeaders != null) {
+      return multipartHeaders.getFirst(HttpHeaders.CONTENT_TYPE);
+    }
     return null;
   }
 
