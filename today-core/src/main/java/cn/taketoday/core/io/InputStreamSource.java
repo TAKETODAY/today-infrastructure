@@ -26,6 +26,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 import cn.taketoday.lang.Constant;
+import cn.taketoday.util.function.ThrowingConsumer;
 
 /**
  * Simple interface for objects that are sources for an {@link InputStream}.
@@ -48,7 +49,7 @@ import cn.taketoday.lang.Constant;
  * @since 2.1.6 2019-07-08 00:12
  */
 @FunctionalInterface
-public interface InputStreamSource {
+public interface InputStreamSource extends ThrowingConsumer<OutputStream> {
 
   /**
    * Return an {@link InputStream} for the content of an underlying resource.
@@ -128,6 +129,15 @@ public interface InputStreamSource {
    */
   default long transferTo(OutputStream out) throws IOException {
     return getInputStream().transferTo(out);
+  }
+
+  /**
+   * @param out the output stream, non-null
+   * @see #transferTo(OutputStream)
+   */
+  @Override
+  default void acceptWithException(OutputStream out) throws Exception {
+    transferTo(out);
   }
 
 }
