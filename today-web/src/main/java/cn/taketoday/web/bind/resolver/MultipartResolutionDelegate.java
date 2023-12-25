@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -31,7 +28,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
@@ -44,7 +40,7 @@ import jakarta.servlet.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 15:44
  */
-public final class MultipartResolutionDelegate {
+final class MultipartResolutionDelegate {
 
   /**
    * Indicates an unresolvable value.
@@ -67,8 +63,7 @@ public final class MultipartResolutionDelegate {
   }
 
   @Nullable
-  public static Object resolveMultipartArgument(
-          String name, MethodParameter parameter, RequestContext request) throws Exception {
+  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) throws Exception {
     if (!request.isMultipart()) {
       if (isMultipartArgument(parameter)) {
         return null;
@@ -76,18 +71,19 @@ public final class MultipartResolutionDelegate {
       return UNRESOLVABLE;
     }
 
-    MultipartRequest multipartRequest = request.getMultipartRequest();
-
-    if (MultipartFile.class == parameter.getNestedParameterType()) {
-      return multipartRequest.getFile(name);
+    Class<?> parameterType = parameter.getNestedParameterType();
+    if (Multipart.class == parameterType) {
+      return request.getMultipartRequest().multipartData(name);
+    }
+    else if (MultipartFile.class == parameterType) {
+      return request.getMultipartRequest().getFile(name);
     }
     else if (isMultipartFileCollection(parameter)) {
-      List<MultipartFile> files = multipartRequest.getFiles(name);
-      return !files.isEmpty() ? files : null;
+      return request.getMultipartRequest().getFiles(name);
     }
     else if (isMultipartFileArray(parameter)) {
-      List<MultipartFile> files = multipartRequest.getFiles(name);
-      return !files.isEmpty() ? files.toArray(new MultipartFile[0]) : null;
+      List<MultipartFile> files = request.getMultipartRequest().getFiles(name);
+      return files != null ? files.toArray(new MultipartFile[0]) : null;
     }
     else {
       if (ServletDetector.runningInServlet(request)) {

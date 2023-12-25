@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -34,6 +31,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
+import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -82,8 +80,10 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // MultiValueMap
       Class<?> valueType = resolvableType.as(MultiValueMap.class).getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
-        MultipartRequest multipartRequest = context.getMultipartRequest();
-        return multipartRequest != null ? multipartRequest.getMultipartFiles() : new LinkedMultiValueMap<>();
+        return context.getMultipartRequest().getMultipartFiles();
+      }
+      else if (valueType == Multipart.class) {
+        return context.getMultipartRequest().multipartData();
       }
       else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {
@@ -113,8 +113,10 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       // Regular Map
       Class<?> valueType = resolvableType.asMap().getGeneric(1).resolve();
       if (valueType == MultipartFile.class) {
-        MultipartRequest multipartRequest = context.getMultipartRequest();
-        return multipartRequest.getFileMap();
+        return context.getMultipartRequest().getFileMap();
+      }
+      else if (valueType == Multipart.class) {
+        return context.getMultipartRequest().multipartData().toSingleValueMap();
       }
       else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {

@@ -97,14 +97,11 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
       }
     }
 
-    // Infra-style distinction between MultipartFile and String parameters
-    MultipartFile file = multipartRequest.getFile(requestPartName);
-    if (file != null) {
+    Multipart multipart = CollectionUtils.firstElement(multipartRequest.multipartData(requestPartName));
+    if (multipart instanceof MultipartFile file) {
       return file.getInputStream();
     }
-
-    Multipart multipart = CollectionUtils.firstElement(multipartRequest.multipartData(requestPartName));
-    if (multipart != null) {
+    else if (multipart != null) {
       return new ByteArrayInputStream(multipart.getBytes());
     }
 
@@ -113,7 +110,7 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
       return new ByteArrayInputStream(paramValue.getBytes(determineCharset()));
     }
 
-    throw new IllegalStateException("No body available for request part '" + requestPartName + "'");
+    throw new MissingRequestPartException(requestPartName);
   }
 
   private Charset determineCharset() {

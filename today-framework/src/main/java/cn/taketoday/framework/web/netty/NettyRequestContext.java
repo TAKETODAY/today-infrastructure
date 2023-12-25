@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -36,6 +36,7 @@ import java.util.function.Function;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpCookie;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
@@ -72,7 +73,8 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.util.ReferenceCountUtil;
@@ -285,14 +287,12 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
-    super.postGetParameters(parameters);
-
-    if (isMultipart()) {
+    HttpMethod method = getMethod();
+    if (method != HttpMethod.GET && method != HttpMethod.HEAD) {
       for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
         if (data instanceof Attribute) {
           try {
-            String name = data.getName();
-            parameters.add(name, ((Attribute) data).getValue());
+            parameters.add(data.getName(), ((Attribute) data).getValue());
           }
           catch (IOException e) {
             throw new ParameterReadFailedException("Netty http-data read failed", e);
@@ -303,11 +303,18 @@ public class NettyRequestContext extends RequestContext {
   }
 
   InterfaceHttpPostRequestDecoder requestDecoder() {
+    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
       Charset charset = config.getPostRequestDecoderCharset();
       HttpDataFactory httpDataFactory = config.getHttpDataFactory();
-      this.requestDecoder = new HttpPostRequestDecoder(httpDataFactory, request, charset);
+      if (isMultipart()) {
+        requestDecoder = new HttpPostMultipartRequestDecoder(httpDataFactory, request, charset);
+      }
+      else {
+        requestDecoder = new HttpPostStandardRequestDecoder(httpDataFactory, request, charset);
+      }
       requestDecoder.setDiscardThreshold(0);
+      this.requestDecoder = requestDecoder;
     }
     return requestDecoder;
   }

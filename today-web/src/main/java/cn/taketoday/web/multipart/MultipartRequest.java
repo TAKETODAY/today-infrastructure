@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.multipart;
@@ -68,6 +65,7 @@ public interface MultipartRequest {
    * @param name a String specifying the parameter name of the multipart file
    * @return the uploaded content in the form of a {@link MultipartFile} list
    */
+  @Nullable
   List<MultipartFile> getFiles(String name);
 
   /**
@@ -76,6 +74,7 @@ public interface MultipartRequest {
    *
    * @param name a String specifying the parameter name of the multipart
    */
+  @Nullable
   List<Multipart> multipartData(String name);
 
   /**
