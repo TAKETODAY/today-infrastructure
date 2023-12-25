@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io;
@@ -23,6 +20,7 @@ package cn.taketoday.core.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -102,6 +100,34 @@ public interface InputStreamSource {
    */
   default ReadableByteChannel readableChannel() throws IOException {
     return Channels.newChannel(getInputStream());
+  }
+
+  /**
+   * Reads all bytes from this {@link #getInputStream()} and writes the bytes to the
+   * given output stream in the order that they are read. On return, this
+   * input stream will be at end of stream. This method does not close either
+   * stream.
+   * <p>
+   * This method may block indefinitely reading from the input stream, or
+   * writing to the output stream. The behavior for the case where the input
+   * and/or output stream is <i>asynchronously closed</i>, or the thread
+   * interrupted during the transfer, is highly input and output stream
+   * specific, and therefore not specified.
+   * <p>
+   * If an I/O error occurs reading from the input stream or writing to the
+   * output stream, then it may do so after some bytes have been read or
+   * written. Consequently the input stream may not be at end of stream and
+   * one, or both, streams may be in an inconsistent state. It is strongly
+   * recommended that both streams be promptly closed if an I/O error occurs.
+   *
+   * @param out the output stream, non-null
+   * @return the number of bytes transferred
+   * @throws IOException if an I/O error occurs when reading or writing
+   * @throws NullPointerException if {@code out} is {@code null}
+   * @since 4.0
+   */
+  default long transferTo(OutputStream out) throws IOException {
+    return getInputStream().transferTo(out);
   }
 
 }

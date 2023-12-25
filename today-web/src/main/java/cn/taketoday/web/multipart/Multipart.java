@@ -20,6 +20,7 @@ package cn.taketoday.web.multipart;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Representation for a part in a "multipart/form-data" request.
@@ -49,6 +50,17 @@ public interface Multipart {
    * Return the form field value.
    */
   String getValue();
+
+  /**
+   * Return the content type of the part.
+   *
+   * @return the content type, or {@code null} if not defined
+   * (or no part has been chosen in the multipart form)
+   */
+  @Nullable
+  default String getContentType() {
+    return null;
+  }
 
   /**
    * Returns the contents of the file item as an array of bytes.<br>

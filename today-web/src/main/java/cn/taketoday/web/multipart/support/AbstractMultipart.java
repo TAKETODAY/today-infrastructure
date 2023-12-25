@@ -17,6 +17,7 @@
 
 package cn.taketoday.web.multipart.support;
 
+import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.multipart.Multipart;
@@ -41,7 +42,12 @@ public abstract class AbstractMultipart implements Multipart {
   }
 
   protected HttpHeaders createHttpHeaders() {
-    return HttpHeaders.create();
+    DefaultHttpHeaders headers = HttpHeaders.create();
+    String contentType = getContentType();
+    if (contentType != null) {
+      headers.set(HttpHeaders.CONTENT_TYPE, contentType);
+    }
+    return headers;
   }
 
 }

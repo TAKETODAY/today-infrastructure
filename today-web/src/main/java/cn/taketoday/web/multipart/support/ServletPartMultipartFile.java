@@ -20,7 +20,7 @@ package cn.taketoday.web.multipart.support;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serial;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -38,9 +38,6 @@ import jakarta.servlet.http.Part;
  * @since 2018-06-28 22:40:32
  */
 final class ServletPartMultipartFile extends AbstractMultipartFile implements MultipartFile {
-
-  @Serial
-  private static final long serialVersionUID = 1L;
 
   private final Part part;
 
@@ -109,6 +106,11 @@ final class ServletPartMultipartFile extends AbstractMultipartFile implements Mu
   }
 
   @Override
+  public long transferTo(OutputStream out) throws IOException {
+    return part.getInputStream().transferTo(out);
+  }
+
+  @Override
   public boolean isEmpty() {
     return part.getSize() == 0;
   }
@@ -119,24 +121,25 @@ final class ServletPartMultipartFile extends AbstractMultipartFile implements Mu
   }
 
   @Override
+  public Part getOriginalResource() {
+    return part;
+  }
+
+  @Override
+  protected void deleteInternal() throws IOException {
+    part.delete();
+  }
+
+  @Override
   public int hashCode() {
     return Objects.hash(part);
   }
 
   @Override
   public boolean equals(Object obj) {
-    return this == obj //
-            || (obj instanceof ServletPartMultipartFile && Objects.equals(part, ((ServletPartMultipartFile) obj).part));
-  }
-
-  @Override
-  public Part getOriginalResource() {
-    return part;
-  }
-
-  @Override
-  public void delete() throws IOException {
-    part.delete();
+    return this == obj
+            || (obj instanceof ServletPartMultipartFile
+            && Objects.equals(part, ((ServletPartMultipartFile) obj).part));
   }
 
 }

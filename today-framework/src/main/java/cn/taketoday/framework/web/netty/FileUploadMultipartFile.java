@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +12,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.framework.web.netty;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serial;
+import java.io.OutputStream;
 
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.AbstractMultipartFile;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.multipart.FileUpload;
 
 /**
  * Netty MultipartFile
  *
- * @author TODAY 2019-11-14 13:11
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FileUpload
+ * @since 2019-11-14 13:11
  */
-final class FileUploadMultipartFile
-        extends AbstractMultipartFile implements MultipartFile {
-  @Serial
-  private static final long serialVersionUID = 1L;
+final class FileUploadMultipartFile extends AbstractMultipartFile implements MultipartFile {
+
   private final FileUpload fileUpload;
 
   public FileUploadMultipartFile(FileUpload fileUpload) {
@@ -47,7 +45,7 @@ final class FileUploadMultipartFile
 
   @Override
   public InputStream getInputStream() throws IOException {
-    return new ByteArrayInputStream(getBytes());
+    return new ByteBufInputStream(fileUpload.getByteBuf());
   }
 
   @Override
@@ -76,6 +74,14 @@ final class FileUploadMultipartFile
   }
 
   @Override
+  public long transferTo(OutputStream out) throws IOException {
+    ByteBuf byteBuf = fileUpload.getByteBuf();
+    int length = byteBuf.readableBytes();
+    byteBuf.readBytes(out, length);
+    return length;
+  }
+
+  @Override
   public boolean isEmpty() {
     return getSize() == 0;
   }
@@ -91,7 +97,7 @@ final class FileUploadMultipartFile
   }
 
   @Override
-  public void delete() {
+  protected void deleteInternal() {
     fileUpload.delete();
   }
 
