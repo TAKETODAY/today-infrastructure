@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core;
 
 import java.io.Serial;
@@ -45,9 +43,8 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @author TODAY <br>
- * 2020-02-22 12:47
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.7 2020-02-22 12:47
  */
 public abstract class AttributeAccessorSupport implements AttributeAccessor, Serializable {
 
@@ -85,15 +82,16 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
     if (attributes == null) {
       T value = computeFunction.apply(name);
       if (value == null) {
-        throw new IllegalStateException("Compute function must not return null for attribute named '" + name + '\'');
+        throw new IllegalStateException("Compute function must not return null for attribute named '%s'".formatted(name));
       }
       setAttribute(name, value);
       return value;
     }
     else {
       Object value = attributes.computeIfAbsent(name, computeFunction);
-      Assert.state(value != null,
-              () -> String.format("Compute function must not return null for attribute named '%s'", name));
+      if (value == null) {
+        throw new IllegalStateException("Compute function must not return null for attribute named '%s'".formatted(name));
+      }
       return (T) value;
     }
   }
@@ -188,8 +186,10 @@ public abstract class AttributeAccessorSupport implements AttributeAccessor, Ser
 
   @Override
   public Map<String, Object> getAttributes() {
+    Map<String, Object> attributes = this.attributes;
     if (attributes == null) {
-      this.attributes = createAttributes();
+      attributes = createAttributes();
+      this.attributes = attributes;
     }
     return attributes;
   }

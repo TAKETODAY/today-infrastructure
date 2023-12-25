@@ -107,8 +107,7 @@ public class TypeDescriptor implements Serializable {
    * @param type the backing type (or {@code null} if it should get resolved)
    * @param annotations the type annotations
    */
-  public TypeDescriptor(ResolvableType resolvableType,
-          @Nullable Class<?> type, @Nullable Annotation[] annotations) {
+  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
     this.type = type != null ? type : resolvableType.toClass();
     this.annotatedElement = new AnnotatedElementAdapter(annotations, null);
@@ -124,8 +123,7 @@ public class TypeDescriptor implements Serializable {
    * @param annotated annotated-element
    * @since 4.0
    */
-  public TypeDescriptor(ResolvableType resolvableType,
-          @Nullable Class<?> type, @Nullable AnnotatedElement annotated) {
+  public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable AnnotatedElement annotated) {
     this.resolvableType = resolvableType;
     this.type = type != null ? type : resolvableType.toClass();
     if (annotated instanceof AnnotatedElementAdapter adapter) {
@@ -404,10 +402,7 @@ public class TypeDescriptor implements Serializable {
     }
   }
 
-  private boolean isNestedAssignable(
-          @Nullable TypeDescriptor nestedTypeDescriptor,
-          @Nullable TypeDescriptor otherNestedTypeDescriptor) {
-
+  private boolean isNestedAssignable(@Nullable TypeDescriptor nestedTypeDescriptor, @Nullable TypeDescriptor otherNestedTypeDescriptor) {
     return (nestedTypeDescriptor == null || otherNestedTypeDescriptor == null ||
             nestedTypeDescriptor.isAssignableTo(otherNestedTypeDescriptor));
   }
@@ -670,17 +665,16 @@ public class TypeDescriptor implements Serializable {
    * like: {@code collection(List.class, TypeDescriptor.valueOf(EmailAddress.class));}
    *
    * @param collectionType the collection type, which must implement {@link Collection}.
-   * @param elementDescriptor a descriptor for the collection's element type,
+   * @param elementDesc a descriptor for the collection's element type,
    * used to convert collection elements
    * @return the collection type descriptor
    */
-  public static TypeDescriptor collection(
-          Class<?> collectionType, @Nullable TypeDescriptor elementDescriptor) {
+  public static TypeDescriptor collection(Class<?> collectionType, @Nullable TypeDescriptor elementDesc) {
     Assert.notNull(collectionType, "Collection type is required");
     if (!Collection.class.isAssignableFrom(collectionType)) {
       throw new IllegalArgumentException("Collection type must be a [java.util.Collection]");
     }
-    ResolvableType element = (elementDescriptor != null ? elementDescriptor.resolvableType : null);
+    ResolvableType element = elementDesc != null ? elementDesc.resolvableType : null;
     return new TypeDescriptor(ResolvableType.forClassWithGenerics(collectionType, element), null, (Annotation[]) null);
   }
 
@@ -699,18 +693,17 @@ public class TypeDescriptor implements Serializable {
    * </pre>
    *
    * @param mapType the map type, which must implement {@link Map}
-   * @param keyDescriptor a descriptor for the map's key type, used to convert map keys
-   * @param valueDescriptor the map's value type, used to convert map values
+   * @param keyDesc a descriptor for the map's key type, used to convert map keys
+   * @param valueDesc the map's value type, used to convert map values
    * @return the map type descriptor
    */
-  public static TypeDescriptor map(Class<?> mapType,
-          @Nullable TypeDescriptor keyDescriptor, @Nullable TypeDescriptor valueDescriptor) {
+  public static TypeDescriptor map(Class<?> mapType, @Nullable TypeDescriptor keyDesc, @Nullable TypeDescriptor valueDesc) {
     Assert.notNull(mapType, "Map type is required");
     if (!Map.class.isAssignableFrom(mapType)) {
       throw new IllegalArgumentException("Map type must be a [java.util.Map]");
     }
-    ResolvableType key = (keyDescriptor != null ? keyDescriptor.resolvableType : null);
-    ResolvableType value = (valueDescriptor != null ? valueDescriptor.resolvableType : null);
+    ResolvableType key = keyDesc != null ? keyDesc.resolvableType : null;
+    ResolvableType value = valueDesc != null ? valueDesc.resolvableType : null;
     return new TypeDescriptor(ResolvableType.forClassWithGenerics(mapType, key, value), null, (Annotation[]) null);
   }
 
@@ -829,8 +822,7 @@ public class TypeDescriptor implements Serializable {
     @Nullable
     private final AnnotatedElement annotated;
 
-    public AnnotatedElementAdapter(@Nullable Annotation[] annotations,
-            @Nullable AnnotatedElement annotated) {
+    public AnnotatedElementAdapter(@Nullable Annotation[] annotations, @Nullable AnnotatedElement annotated) {
       this.annotations = annotations;
       this.annotated = annotated;
     }

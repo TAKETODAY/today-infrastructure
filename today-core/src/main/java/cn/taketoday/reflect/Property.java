@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.reflect;
@@ -106,16 +106,12 @@ public class Property implements Member, AnnotatedElement, Serializable {
     this(field.getName(), field);
   }
 
-  public Property(@Nullable Method readMethod,
-          @Nullable Method writeMethod,
-          @Nullable Class<?> declaringClass) {
+  public Property(@Nullable Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     this(null, readMethod, writeMethod, declaringClass);
   }
 
-  public Property(@Nullable String name,
-          @Nullable Method readMethod,
-          @Nullable Method writeMethod,
-          @Nullable Class<?> declaringClass) {
+  public Property(@Nullable String name, @Nullable Method readMethod,
+          @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     if (readMethod == null && writeMethod == null) {
       throw new IllegalArgumentException(
               "Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
@@ -447,7 +443,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
       annotations = resolveAnnotations();
       this.annotations = annotations;
     }
-    return clone ? annotations.clone() : annotations;
+    if (clone && annotations.length > 0) {
+      return annotations.clone();
+    }
+    return annotations;
   }
 
   private Annotation[] resolveAnnotations() {

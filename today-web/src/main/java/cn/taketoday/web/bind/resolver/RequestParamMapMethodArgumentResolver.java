@@ -87,8 +87,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       }
       else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {
-          HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
-          Collection<Part> parts = servletRequest.getParts();
+          Collection<Part> parts = ServletUtils.getServletRequest(context).getParts();
           LinkedMultiValueMap<String, Part> result = new LinkedMultiValueMap<>(parts.size());
           for (Part part : parts) {
             result.add(part.getName(), part);
@@ -120,8 +119,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       }
       else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
         if (context.isMultipart()) {
-          HttpServletRequest servletRequest = ServletUtils.getServletRequest(context);
-          Collection<Part> parts = servletRequest.getParts();
+          Collection<Part> parts = ServletUtils.getServletRequest(context).getParts();
           LinkedHashMap<String, Part> result = CollectionUtils.newLinkedHashMap(parts.size());
           for (Part part : parts) {
             if (!result.containsKey(part.getName())) {

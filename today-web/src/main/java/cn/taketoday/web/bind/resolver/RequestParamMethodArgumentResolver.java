@@ -103,8 +103,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
    * is treated as a request parameter even if it isn't annotated, the
    * request parameter name is derived from the method parameter name.
    */
-  public RequestParamMethodArgumentResolver(
-          @Nullable ConfigurableBeanFactory beanFactory, boolean useDefaultResolution) {
+  public RequestParamMethodArgumentResolver(@Nullable ConfigurableBeanFactory beanFactory, boolean useDefaultResolution) {
     super(beanFactory);
     this.useDefaultResolution = useDefaultResolution;
   }
@@ -197,8 +196,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
     handleMissingValueInternal(name, parameter, request, true);
   }
 
-  protected void handleMissingValueInternal(
-          String name, MethodParameter parameter, RequestContext request, boolean missingAfterConversion) throws Exception {
+  protected void handleMissingValueInternal(String name,
+          MethodParameter parameter, RequestContext request, boolean missingAfterConversion) throws Exception {
+
     if (MultipartResolutionDelegate.isMultipartArgument(parameter)) {
       if (!request.isMultipart()) {
         throw new MultipartException("Current request is not a multipart request");
@@ -251,8 +251,8 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
   }
 
   @Nullable
-  protected String formatUriValue(
-          @Nullable ConversionService cs, @Nullable TypeDescriptor sourceType, @Nullable Object value) {
+  protected String formatUriValue(@Nullable ConversionService cs,
+          @Nullable TypeDescriptor sourceType, @Nullable Object value) {
 
     if (value == null) {
       return null;

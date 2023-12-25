@@ -86,7 +86,6 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   @Nullable
   @Override
   public final Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-
     MethodParameter methodParameter = resolvable.getParameter();
     NamedValueInfo namedValueInfo = getNamedValueInfo(resolvable);
     MethodParameter nestedParameter = methodParameter.nestedIfOptional();
@@ -139,6 +138,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
   @Nullable
   private static Object convertIfNecessary(RequestContext context, BindingContext bindingContext,
           NamedValueInfo namedValueInfo, MethodParameter methodParameter, Object arg) throws Throwable {
+
     WebDataBinder binder = bindingContext.createBinder(context, namedValueInfo.name);
     try {
       arg = binder.convertIfNecessary(arg, methodParameter.getParameterType(), methodParameter);
@@ -226,9 +226,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    * @param request the current request
    */
-  protected void handleMissingValueAfterConversion(
-          String name, MethodParameter parameter, RequestContext request) throws Exception {
-
+  protected void handleMissingValueAfterConversion(String name, MethodParameter parameter, RequestContext request) throws Exception {
     handleMissingValue(name, parameter, request);
   }
 
@@ -259,8 +257,8 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param resolvable the argument parameter type
    * @param context the current request
    */
-  protected void handleResolvedValue(
-          @Nullable Object arg, String name, ResolvableMethodParameter resolvable, RequestContext context) {
+  protected void handleResolvedValue(@Nullable Object arg,
+          String name, ResolvableMethodParameter resolvable, RequestContext context) {
 
   }
 

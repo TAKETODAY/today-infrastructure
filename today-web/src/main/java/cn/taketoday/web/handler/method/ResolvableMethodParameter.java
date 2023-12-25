@@ -14,8 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.handler.method;
 
+import java.io.Serial;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -43,14 +45,16 @@ import cn.taketoday.web.annotation.RequestParam;
  * {@link RequestParam}
  * </p>
  *
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MethodParameter
  * @see #resolveParameter(RequestContext)
  * @see Nullable
  * @since 2.3.7
  */
-@SuppressWarnings("serial")
 public class ResolvableMethodParameter extends AttributeAccessorSupport {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /**
    * @since 3.0.1
@@ -186,8 +190,10 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
   }
 
   public ResolvableType getResolvableType() {
+    ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
       resolvableType = ResolvableType.forMethodParameter(getParameter());
+      this.resolvableType = resolvableType;
     }
     return resolvableType;
   }
