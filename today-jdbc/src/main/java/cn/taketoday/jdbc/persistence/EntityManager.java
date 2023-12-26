@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -196,6 +196,7 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
+  @Nullable
   <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions)
           throws DataAccessException;
 
@@ -214,6 +215,7 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
+  @Nullable
   <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions)
           throws DataAccessException;
 
