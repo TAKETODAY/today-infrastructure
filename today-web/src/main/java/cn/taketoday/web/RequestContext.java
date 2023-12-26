@@ -36,7 +36,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -140,7 +139,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** @since 4.0 */
   protected RequestPath requestPath;
   /** @since 3.0 */
-  protected Map<String, String[]> parameters;
+  protected MultiValueMap<String, String> parameters;
   /** @since 3.0 */
   protected String queryString;
 
@@ -584,7 +583,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * as map values. The keys in the parameter map are of type String. The
    * values in the parameter map are of type String array.
    */
-  public Map<String, String[]> getParameters() {
+  public MultiValueMap<String, String> getParameters() {
     var parameters = this.parameters;
     if (parameters == null) {
       parameters = doGetParameters();
@@ -593,14 +592,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return parameters;
   }
 
-  protected Map<String, String[]> doGetParameters() {
+  protected MultiValueMap<String, String> doGetParameters() {
     String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
     MultiValueMap<String, String> parameters = RequestContextUtils.parseParameters(queryString);
     postGetParameters(parameters);
-    if (!parameters.isEmpty()) {
-      return parameters.toArrayMap(String[]::new);
-    }
-    return Collections.emptyMap();
+    return parameters;
   }
 
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
@@ -617,7 +613,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * empty <code>Iterator</code> if the request has no parameters
    */
   public Iterable<String> getParameterNames() {
-    Map<String, String[]> parameters = getParameters();
+    MultiValueMap<String, String> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return Collections.emptyList();
     }
@@ -640,11 +636,11 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   @Nullable
   public String[] getParameters(String name) {
-    Map<String, String[]> parameters = getParameters();
+    MultiValueMap<String, String> parameters = getParameters();
     if (CollectionUtils.isEmpty(parameters)) {
       return null;
     }
-    return parameters.get(name);
+    return StringUtils.toStringArray(parameters.get(name));
   }
 
   /**

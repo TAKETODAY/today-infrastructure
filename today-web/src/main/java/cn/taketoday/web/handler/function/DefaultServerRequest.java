@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -39,7 +39,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ResolvableType;
@@ -382,12 +381,7 @@ class DefaultServerRequest implements ServerRequest {
 
     @Override
     public Set<Entry<String, List<String>>> entrySet() {
-      return this.requestContext.getParameters().entrySet().stream()
-              .map(entry -> {
-                List<String> value = Arrays.asList(entry.getValue());
-                return new SimpleImmutableEntry<>(entry.getKey(), value);
-              })
-              .collect(Collectors.toSet());
+      return this.requestContext.getParameters().entrySet();
     }
 
     @Override

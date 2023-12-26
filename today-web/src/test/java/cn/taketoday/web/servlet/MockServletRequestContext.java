@@ -41,6 +41,7 @@ import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
@@ -185,8 +186,17 @@ public class MockServletRequestContext extends RequestContext implements Servlet
   }
 
   @Override
-  public Map<String, String[]> doGetParameters() {
-    return request.getParameterMap();
+  @SuppressWarnings("unchecked")
+  public MultiValueMap<String, String> doGetParameters() {
+    var ret = MultiValueMap.forLinkedHashMap(MultiValueMap.smartListMappingFunction);
+    Map<String, String[]> parameterMap = request.getParameterMap();
+    for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
+      String key = entry.getKey();
+      for (String value : entry.getValue()) {
+        ret.add(key, value);
+      }
+    }
+    return ret;
   }
 
   @Override
@@ -437,7 +447,7 @@ public class MockServletRequestContext extends RequestContext implements Servlet
     this.requestURI = requestPath;
   }
 
-  public void setParameters(Map<String, String[]> parameters) {
+  public void setParameters(MultiValueMap<String, String> parameters) {
     this.parameters = parameters;
   }
 

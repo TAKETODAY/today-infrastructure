@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
@@ -185,7 +184,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
 
     @Override
     protected boolean matchName(RequestContext request) {
-      Map<String, String[]> parameters = request.getParameters();
+      var parameters = request.getParameters();
       for (String current : namesToMatch) {
         if (parameters.get(current) != null) {
           return true;

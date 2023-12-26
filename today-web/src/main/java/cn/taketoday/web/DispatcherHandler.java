@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
@@ -20,7 +20,6 @@ package cn.taketoday.web;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -585,7 +584,7 @@ public class DispatcherHandler extends InfraHandler {
       }
       else if (isEnableLoggingRequestDetails()) {
         params = request.getParameters().entrySet().stream()
-                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
+                .map(entry -> entry.getKey() + ":" + entry.getValue())
                 .collect(Collectors.joining(", "));
       }
       else {
