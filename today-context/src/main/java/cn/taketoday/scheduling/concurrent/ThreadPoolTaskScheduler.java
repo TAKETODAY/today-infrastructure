@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -47,7 +47,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
- * A standard implementation of Spring's {@link TaskScheduler} interface, wrapping
+ * A standard implementation of Infra {@link TaskScheduler} interface, wrapping
  * a native {@link java.util.concurrent.ScheduledThreadPoolExecutor} and providing
  * all applicable configuration options for it.
  *
