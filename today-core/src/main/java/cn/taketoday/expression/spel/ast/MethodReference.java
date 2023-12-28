@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -207,14 +207,13 @@ public class MethodReference extends SpelNodeImpl {
     return null;
   }
 
-  private MethodExecutor findAccessorForMethod(List<TypeDescriptor> argumentTypes, Object targetObject,
-          EvaluationContext evaluationContext) throws SpelEvaluationException {
+  private MethodExecutor findAccessorForMethod(List<TypeDescriptor> argumentTypes,
+          Object targetObject, EvaluationContext evaluationContext) throws SpelEvaluationException {
 
     AccessException accessException = null;
     for (MethodResolver methodResolver : evaluationContext.getMethodResolvers()) {
       try {
-        MethodExecutor methodExecutor = methodResolver.resolve(
-                evaluationContext, targetObject, this.name, argumentTypes);
+        MethodExecutor methodExecutor = methodResolver.resolve(evaluationContext, targetObject, this.name, argumentTypes);
         if (methodExecutor != null) {
           return methodExecutor;
         }

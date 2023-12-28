@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.support;
@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.core.BridgeMethodResolver;
@@ -60,7 +59,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
   private final boolean useDistance;
 
   @Nullable
-  private Map<Class<?>, MethodFilter> filters;
+  private HashMap<Class<?>, MethodFilter> filters;
 
   public ReflectiveMethodResolver() {
     this.useDistance = true;
@@ -111,24 +110,31 @@ public class ReflectiveMethodResolver implements MethodResolver {
    */
   @Override
   @Nullable
-  public MethodExecutor resolve(EvaluationContext context, Object targetObject, String name,
-          List<TypeDescriptor> argumentTypes) throws AccessException {
+  public MethodExecutor resolve(EvaluationContext context, Object targetObject,
+          String name, List<TypeDescriptor> argumentTypes) throws AccessException {
 
     try {
       TypeConverter typeConverter = context.getTypeConverter();
-      Class<?> type = (targetObject instanceof Class ? (Class<?>) targetObject : targetObject.getClass());
-      ArrayList<Method> methods = new ArrayList<>(getMethods(type, targetObject));
-      methods.removeIf(method -> !method.getName().equals(name));
+      Class<?> type = targetObject instanceof Class ? (Class<?>) targetObject : targetObject.getClass();
+
+      Set<Method> methodSet = getMethods(type, targetObject);
+      ArrayList<Method> methods = new ArrayList<>(3);
+      for (Method method : methodSet) {
+        if (method.getName().equals(name)) {
+          methods.add(method);
+        }
+      }
 
       // If a filter is registered for this type, call it
       MethodFilter filter = (this.filters != null ? this.filters.get(type) : null);
       if (filter != null) {
         List<Method> filtered = filter.filter(methods);
-        methods = (filtered instanceof ArrayList ? (ArrayList<Method>) filtered : new ArrayList<>(filtered));
+        methods = filtered instanceof ArrayList ? (ArrayList<Method>) filtered : new ArrayList<>(filtered);
       }
 
       // Sort methods into a sensible order
-      if (methods.size() > 1) {
+      int size = methods.size();
+      if (size > 1) {
         methods.sort((m1, m2) -> {
           int m1pl = m1.getParameterCount();
           int m2pl = m2.getParameterCount();
@@ -149,12 +155,15 @@ public class ReflectiveMethodResolver implements MethodResolver {
       }
 
       // Resolve any bridge methods
-      for (int i = 0; i < methods.size(); i++) {
-        methods.set(i, BridgeMethodResolver.findBridgedMethod(methods.get(i)));
+      for (int i = 0; i < size; i++) {
+        Method bridgeMethod = methods.get(i);
+        if (bridgeMethod.isBridge()) {
+          methods.set(i, BridgeMethodResolver.findBridgedMethod(bridgeMethod));
+        }
       }
 
       // Remove duplicate methods (possible due to resolved bridge methods)
-      Set<Method> methodsToIterate = new LinkedHashSet<>(methods);
+      LinkedHashSet<Method> methodsToIterate = new LinkedHashSet<>(methods);
 
       Method closeMatch = null;
       int closeMatchDistance = Integer.MAX_VALUE;
@@ -163,7 +172,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
 
       for (Method method : methodsToIterate) {
         int paramCount = method.getParameterCount();
-        List<TypeDescriptor> paramDescriptors = new ArrayList<>(paramCount);
+        ArrayList<TypeDescriptor> paramDescriptors = new ArrayList<>(paramCount);
         for (int i = 0; i < paramCount; i++) {
           paramDescriptors.add(new TypeDescriptor(new MethodParameter(method, i)));
         }
@@ -224,7 +233,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
 
   private Set<Method> getMethods(Class<?> type, Object targetObject) {
     if (targetObject instanceof Class) {
-      Set<Method> result = new LinkedHashSet<>();
+      LinkedHashSet<Method> result = new LinkedHashSet<>();
       // Add these so that static methods are invocable on the type: e.g. Float.valueOf(..)
       for (Method method : getMethods(type)) {
         if (Modifier.isStatic(method.getModifiers())) {
@@ -236,7 +245,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
       return result;
     }
     else if (Proxy.isProxyClass(type)) {
-      Set<Method> result = new LinkedHashSet<>();
+      LinkedHashSet<Method> result = new LinkedHashSet<>();
       // Expose interface methods (not proxy-declared overrides) for proper vararg introspection
       for (Class<?> ifc : type.getInterfaces()) {
         for (Method method : getMethods(ifc)) {
@@ -256,7 +265,7 @@ public class ReflectiveMethodResolver implements MethodResolver {
       return result;
     }
     else {
-      Set<Method> result = new LinkedHashSet<>();
+      LinkedHashSet<Method> result = new LinkedHashSet<>();
       Method[] methods = getMethods(type);
       for (Method method : methods) {
         if (isCandidateForInvocation(method, type)) {

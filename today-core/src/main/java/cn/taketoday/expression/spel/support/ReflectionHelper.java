@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.support;
@@ -45,6 +45,7 @@ import cn.taketoday.util.ReflectiveMethodInvoker;
  * @author Andy Clement
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class ReflectionHelper {
@@ -61,8 +62,8 @@ public abstract class ReflectionHelper {
    * or {@code null} if it was not a match
    */
   @Nullable
-  static ArgumentsMatchInfo compareArguments(
-          List<TypeDescriptor> expectedArgTypes, List<TypeDescriptor> suppliedArgTypes, TypeConverter typeConverter) {
+  static ArgumentsMatchInfo compareArguments(List<TypeDescriptor> expectedArgTypes,
+          List<TypeDescriptor> suppliedArgTypes, TypeConverter typeConverter) {
 
     Assert.isTrue(expectedArgTypes.size() == suppliedArgTypes.size(),
             "Expected argument types and supplied argument types should be arrays of same length");
@@ -99,7 +100,8 @@ public abstract class ReflectionHelper {
    */
   public static int getTypeDifferenceWeight(List<TypeDescriptor> paramTypes, List<TypeDescriptor> argTypes) {
     int result = 0;
-    for (int i = 0; i < paramTypes.size(); i++) {
+    int size = paramTypes.size();
+    for (int i = 0; i < size; i++) {
       TypeDescriptor paramType = paramTypes.get(i);
       TypeDescriptor argType = (i < argTypes.size() ? argTypes.get(i) : null);
       if (argType == null) {
@@ -150,8 +152,8 @@ public abstract class ReflectionHelper {
    * or {@code null} if it was not a match
    */
   @Nullable
-  static ArgumentsMatchInfo compareArgumentsVarargs(
-          List<TypeDescriptor> expectedArgTypes, List<TypeDescriptor> suppliedArgTypes, TypeConverter typeConverter) {
+  static ArgumentsMatchInfo compareArgumentsVarargs(List<TypeDescriptor> expectedArgTypes,
+          List<TypeDescriptor> suppliedArgTypes, TypeConverter typeConverter) {
 
     Assert.isTrue(CollectionUtils.isNotEmpty(expectedArgTypes),
             "Expected arguments must at least include one array (the varargs parameter)");
@@ -194,9 +196,8 @@ public abstract class ReflectionHelper {
       return null;
     }
 
-    if (suppliedArgTypes.size() == expectedArgTypes.size() &&
-            expectedArgTypes.get(expectedArgTypes.size() - 1).equals(
-                    suppliedArgTypes.get(suppliedArgTypes.size() - 1))) {
+    if (suppliedArgTypes.size() == expectedArgTypes.size()
+            && expectedArgTypes.get(expectedArgTypes.size() - 1).equals(suppliedArgTypes.get(suppliedArgTypes.size() - 1))) {
       // Special case: there is one parameter left and it is an array and it matches the varargs
       // expected argument - that is a match, the caller has already built the array. Proceed with it.
     }
@@ -272,8 +273,8 @@ public abstract class ReflectionHelper {
    * @return {@code true} if some kind of conversion occurred on an argument
    * @throws EvaluationException if a problem occurs during conversion
    */
-  static boolean convertArguments(TypeConverter converter, Object[] arguments, Executable executable,
-          @Nullable Integer varargsPosition) throws EvaluationException {
+  static boolean convertArguments(TypeConverter converter, Object[] arguments,
+          Executable executable, @Nullable Integer varargsPosition) throws EvaluationException {
 
     boolean conversionOccurred = false;
     if (varargsPosition == null) {
@@ -351,8 +352,9 @@ public abstract class ReflectionHelper {
    * @return {@code true} if some kind of conversion occurred on an argument
    * @throws EvaluationException if a problem occurs during conversion
    */
-  public static boolean convertAllMethodHandleArguments(TypeConverter converter, Object[] arguments,
-          MethodHandle methodHandle, @Nullable Integer varargsPosition) throws EvaluationException {
+  public static boolean convertAllMethodHandleArguments(TypeConverter converter,
+          Object[] arguments, MethodHandle methodHandle, @Nullable Integer varargsPosition) throws EvaluationException {
+
     boolean conversionOccurred = false;
     final MethodType methodHandleArgumentTypes = methodHandle.type();
     if (varargsPosition == null) {
