@@ -289,13 +289,15 @@ public class NettyRequestContext extends RequestContext {
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
     HttpMethod method = getMethod();
     if (method != HttpMethod.GET && method != HttpMethod.HEAD) {
-      for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
-        if (data instanceof Attribute) {
-          try {
-            parameters.add(data.getName(), ((Attribute) data).getValue());
-          }
-          catch (IOException e) {
-            throw new ParameterReadFailedException("Netty http-data read failed", e);
+      if (cn.taketoday.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED.equals(getContentType())) {
+        for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
+          if (data instanceof Attribute) {
+            try {
+              parameters.add(data.getName(), ((Attribute) data).getValue());
+            }
+            catch (IOException e) {
+              throw new ParameterReadFailedException("Netty http-data read failed", e);
+            }
           }
         }
       }
