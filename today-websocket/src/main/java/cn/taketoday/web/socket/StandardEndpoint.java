@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket;
@@ -33,8 +33,8 @@ import static cn.taketoday.web.socket.handler.WebSocketSessionDecorator.unwrapRe
 /**
  * Websocket Main Endpoint
  *
- * @author TODAY 2021/5/3 22:56
- * @since 3.0.1
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0.1 2021/5/3 22:56
  */
 public class StandardEndpoint extends Endpoint {
   private static final Logger logger = LoggerFactory.getLogger(StandardEndpoint.class);
@@ -112,7 +112,8 @@ public class StandardEndpoint extends Endpoint {
   @Override
   public void onClose(Session stdSession, CloseReason closeReason) {
     try {
-      socketHandler.onClose(session);
+      socketHandler.onClose(session, new CloseStatus(
+              closeReason.getCloseCode().getCode(), closeReason.getReasonPhrase()));
     }
     catch (Exception ex) {
       logger.warn("Unhandled on-close exception for {}", session, ex);
