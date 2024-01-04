@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -128,6 +128,9 @@ public @interface Scheduled {
    * last invocation and the start of the next.
    * <p>The time unit is milliseconds by default but can be overridden via
    * {@link #timeUnit}.
+   * <p><b>NOTE: With virtual threads, fixed rates and cron triggers are recommended
+   * over fixed delays.</b> Fixed-delay tasks operate on a single scheduler thread
+   * with {@link cn.taketoday.scheduling.concurrent.SimpleAsyncTaskScheduler}.
    *
    * @return the delay
    */
@@ -140,6 +143,9 @@ public @interface Scheduled {
    * {@link #timeUnit}.
    * <p>This attribute variant supports Infra-style "${...}" placeholders
    * as well as SpEL expressions.
+   * <p><b>NOTE: With virtual threads, fixed rates and cron triggers are recommended
+   * over fixed delays.</b> Fixed-delay tasks operate on a single scheduler thread
+   * with {@link cn.taketoday.scheduling.concurrent.SimpleAsyncTaskScheduler}.
    *
    * @return the delay as a String value &mdash; for example, a placeholder
    * or a {@link java.time.Duration#parse java.time.Duration} compliant value
