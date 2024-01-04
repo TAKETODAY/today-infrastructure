@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.event;
@@ -145,6 +145,13 @@ public class TransactionalApplicationListenerMethodAdapterTests {
   }
 
   @Test
+  public void withTransactionalNotSupportedAnnotation() {
+    RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
+    Method m = ReflectionUtils.findMethod(SampleEvents.class, "withTransactionalNotSupportedAnnotation", String.class);
+    assertThatNoException().isThrownBy(() -> factory.createApplicationListener("test", SampleEvents.class, m));
+  }
+
+  @Test
   public void withAsyncTransactionalAnnotation() {
     RestrictedTransactionalEventListenerFactory factory = new RestrictedTransactionalEventListenerFactory();
     Method m = ReflectionUtils.findMethod(SampleEvents.class, "withAsyncTransactionalAnnotation", String.class);
@@ -229,6 +236,11 @@ public class TransactionalApplicationListenerMethodAdapterTests {
     @TransactionalEventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void withTransactionalRequiresNewAnnotation(String data) {
+    }
+
+    @TransactionalEventListener
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void withTransactionalNotSupportedAnnotation(String data) {
     }
 
     @TransactionalEventListener
