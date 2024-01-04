@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import org.hibernate.dialect.Oracle12cDialect;
 import org.hibernate.dialect.OracleDialect;
 import org.hibernate.dialect.PostgreSQL95Dialect;
 import org.hibernate.dialect.SQLServer2012Dialect;
+import org.hibernate.dialect.SQLServerDialect;
 import org.hibernate.dialect.SybaseDialect;
 import org.hibernate.resource.jdbc.spi.PhysicalConnectionHandlingMode;
 
@@ -204,7 +205,7 @@ public class HibernateJpaVendorAdapter extends AbstractJpaVendorAdapter {
         case MYSQL -> MySQLDialect.class;
         case ORACLE -> OracleDialect.class;
         case POSTGRESQL -> org.hibernate.dialect.PostgreSQLDialect.class;
-        case SQL_SERVER -> SQLServer2012Dialect.class;
+        case SQL_SERVER -> SQLServerDialect.class;
         case SYBASE -> SybaseDialect.class;
         default -> null;
       };
