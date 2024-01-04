@@ -52,7 +52,7 @@ bom {
       ]
     }
   }
-  library("AssertJ", "3.24.2") {
+  library("AssertJ", "3.25.1") {
     group("org.assertj") {
       imports = [
           "assertj-bom"
