@@ -178,6 +178,7 @@ public class HibernateJpaVendorAdapter extends AbstractJpaVendorAdapter {
    * @return the Hibernate database dialect class, or {@code null} if none found
    */
   @Nullable
+  @SuppressWarnings("deprecation")  // for DerbyDialect and PostgreSQLDialect on Hibernate 6.2
   protected Class<?> determineDatabaseDialectClass(Database database) {
     if (oldDialectsPresent) {  // Hibernate <6.2
       return switch (database) {
