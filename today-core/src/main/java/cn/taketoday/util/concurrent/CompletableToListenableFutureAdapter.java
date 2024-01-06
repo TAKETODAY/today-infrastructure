@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -25,6 +22,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
+
+import cn.taketoday.lang.Nullable;
 
 /**
  * Adapts a {@link CompletableFuture} or {@link CompletionStage} into a
@@ -33,10 +33,10 @@ import java.util.concurrent.TimeoutException;
  * @param <T> the result type returned by this Future's {@code get} method
  * @author Sebastien Deleuze
  * @author Juergen Hoeller
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class CompletableToListenableFutureAdapter<T> implements ListenableFuture<T> {
+public class CompletableToListenableFutureAdapter<T> implements ListenableFuture<T>, BiConsumer<T, Throwable> {
 
   private final CompletableFuture<T> completableFuture;
 
@@ -53,15 +53,17 @@ public class CompletableToListenableFutureAdapter<T> implements ListenableFuture
    * Create a new adapter for the given {@link CompletableFuture}.
    */
   public CompletableToListenableFutureAdapter(CompletableFuture<T> completableFuture) {
-    this.completableFuture = completableFuture;
-    this.completableFuture.whenComplete((result, ex) -> {
-      if (ex != null) {
-        this.callbacks.failure(ex);
-      }
-      else {
-        this.callbacks.success(result);
-      }
-    });
+    this.completableFuture = completableFuture.whenComplete(this);
+  }
+
+  @Override
+  public void accept(T result, @Nullable Throwable ex) {
+    if (ex != null) {
+      this.callbacks.failure(ex);
+    }
+    else {
+      this.callbacks.success(result);
+    }
   }
 
   @Override
