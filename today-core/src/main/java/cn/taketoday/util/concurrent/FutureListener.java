@@ -17,6 +17,8 @@
 
 package cn.taketoday.util.concurrent;
 
+import cn.taketoday.lang.Nullable;
+
 /**
  * Callback mechanism for the outcome, success or failure, from a
  * {@link ListenableFuture}.
@@ -27,6 +29,36 @@ package cn.taketoday.util.concurrent;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface ListenableFutureCallback<T> extends SuccessCallback<T>, FailureCallback {
+public interface FutureListener<T> extends SuccessCallback<T>, FailureCallback {
+
+  /**
+   * Called when the {@link ListenableFuture} completes with success.
+   * <p>Note that Exceptions raised by this method are ignored.
+   *
+   * @param result the result
+   */
+  void onSuccess(@Nullable T result);
+
+  /**
+   * Called when the {@link ListenableFuture} completes with failure.
+   * <p>Note that Exceptions raised by this method are ignored.
+   *
+   * @param ex the failure
+   */
+  void onFailure(Throwable ex);
+
+  static <T> FutureListener<T> forListenable(SuccessCallback<T> successCallback, FailureCallback failureCallback) {
+    return new FutureListener<>() {
+      @Override
+      public void onSuccess(@Nullable T result) {
+        successCallback.onSuccess(result);
+      }
+
+      @Override
+      public void onFailure(Throwable ex) {
+        failureCallback.onFailure(ex);
+      }
+    };
+  }
 
 }

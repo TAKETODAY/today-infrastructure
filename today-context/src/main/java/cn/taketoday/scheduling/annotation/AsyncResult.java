@@ -23,10 +23,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.concurrent.FailureCallback;
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.ListenableFutureCallback;
-import cn.taketoday.util.concurrent.SuccessCallback;
+import cn.taketoday.util.concurrent.FutureListener;
 
 /**
  * A pass-through {@code Future} handle that can be used for method signatures
@@ -108,18 +106,13 @@ public class AsyncResult<V> implements ListenableFuture<V> {
   }
 
   @Override
-  public void addCallback(ListenableFutureCallback<? super V> callback) {
-    addCallback(callback, callback);
-  }
-
-  @Override
-  public void addCallback(SuccessCallback<? super V> successCallback, FailureCallback failureCallback) {
+  public void addListener(FutureListener<? super V> listener) {
     try {
       if (this.executionException != null) {
-        failureCallback.onFailure(exposedException(this.executionException));
+        listener.onFailure(exposedException(this.executionException));
       }
       else {
-        successCallback.onSuccess(this.value);
+        listener.onSuccess(this.value);
       }
     }
     catch (Throwable ex) {

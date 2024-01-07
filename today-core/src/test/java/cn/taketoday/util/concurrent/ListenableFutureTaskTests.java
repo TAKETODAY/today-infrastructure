@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -46,7 +43,7 @@ class ListenableFutureTaskTests {
     Callable<String> callable = () -> s;
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addCallback(new ListenableFutureCallback<String>() {
+    task.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         assertThat(result).isEqualTo(s);
@@ -72,7 +69,7 @@ class ListenableFutureTaskTests {
     };
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addCallback(new ListenableFutureCallback<String>() {
+    task.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         fail("onSuccess not expected");
@@ -103,7 +100,7 @@ class ListenableFutureTaskTests {
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addCallback(successCallback, failureCallback);
+    task.addListener(successCallback, failureCallback);
     task.run();
     verify(successCallback).onSuccess(s);
     verifyNoInteractions(failureCallback);
@@ -124,7 +121,7 @@ class ListenableFutureTaskTests {
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addCallback(successCallback, failureCallback);
+    task.addListener(successCallback, failureCallback);
     task.run();
     verify(failureCallback).onFailure(ex);
     verifyNoInteractions(successCallback);

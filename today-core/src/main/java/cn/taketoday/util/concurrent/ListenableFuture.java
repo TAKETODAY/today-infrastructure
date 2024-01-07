@@ -39,11 +39,11 @@ import java.util.concurrent.Future;
 public interface ListenableFuture<T> extends Future<T> {
 
   /**
-   * Register the given {@code ListenableFutureCallback}.
+   * Register the given {@code FutureListener}.
    *
-   * @param callback the callback to register
+   * @param listener the callback to register
    */
-  void addCallback(ListenableFutureCallback<? super T> callback);
+  void addListener(FutureListener<? super T> listener);
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
@@ -51,14 +51,16 @@ public interface ListenableFuture<T> extends Future<T> {
    * @param successCallback the success callback
    * @param failureCallback the failure callback
    */
-  void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback);
+  default void addListener(SuccessCallback<T> successCallback, FailureCallback failureCallback) {
+    addListener(FutureListener.forListenable(successCallback, failureCallback));
+  }
 
   /**
    * Expose this {@link ListenableFuture} as a JDK {@link CompletableFuture}.
    */
   default CompletableFuture<T> completable() {
     DelegatingCompletableFuture<T> completable = new DelegatingCompletableFuture<>(this);
-    addCallback(completable);
+    addListener(completable);
     return completable;
   }
 

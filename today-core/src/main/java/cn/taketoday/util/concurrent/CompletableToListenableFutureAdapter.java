@@ -40,7 +40,7 @@ public class CompletableToListenableFutureAdapter<T> implements ListenableFuture
 
   private final CompletableFuture<T> completableFuture;
 
-  private final ListenableFutureCallbackRegistry<T> callbacks = new ListenableFutureCallbackRegistry<>();
+  private final ListenableFutureListenerRegistry<T> callbacks = new ListenableFutureListenerRegistry<>();
 
   /**
    * Create a new adapter for the given {@link CompletionStage}.
@@ -67,14 +67,8 @@ public class CompletableToListenableFutureAdapter<T> implements ListenableFuture
   }
 
   @Override
-  public void addCallback(ListenableFutureCallback<? super T> callback) {
-    this.callbacks.addCallback(callback);
-  }
-
-  @Override
-  public void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback) {
-    this.callbacks.addSuccessCallback(successCallback);
-    this.callbacks.addFailureCallback(failureCallback);
+  public void addListener(FutureListener<? super T> listener) {
+    this.callbacks.addListener(listener);
   }
 
   @Override

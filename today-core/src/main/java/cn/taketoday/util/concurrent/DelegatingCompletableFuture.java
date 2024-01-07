@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class DelegatingCompletableFuture<T> extends CompletableFuture<T> implements ListenableFutureCallback<T> {
+class DelegatingCompletableFuture<T> extends CompletableFuture<T> implements FutureListener<T> {
 
   private final Future<T> delegate;
 

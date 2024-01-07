@@ -73,13 +73,8 @@ public class SettableListenableFuture<T> implements ListenableFuture<T> {
   }
 
   @Override
-  public void addCallback(ListenableFutureCallback<? super T> callback) {
-    this.settableTask.addCallback(callback);
-  }
-
-  @Override
-  public void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback) {
-    this.settableTask.addCallback(successCallback, failureCallback);
+  public void addListener(FutureListener<? super T> listener) {
+    this.settableTask.addListener(listener);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.event;
@@ -57,6 +57,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.FutureListener;
 
 /**
  * {@link GenericApplicationListener} adapter that delegates the processing of
@@ -74,7 +75,8 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/5 11:51
  */
-public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered {
+public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered, FutureListener<Object> {
+
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
   private final Method method;
@@ -374,12 +376,22 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
         }
       });
     }
-    else if (result instanceof ListenableFuture) {
-      ((ListenableFuture<?>) result).addCallback(this::publishEvents, this::handleAsyncError);
+    else if (result instanceof ListenableFuture<?> d) {
+      d.addListener(this);
     }
     else {
       publishEvents(result);
     }
+  }
+
+  @Override
+  public void onSuccess(Object result) {
+    publishEvents(result);
+  }
+
+  @Override
+  public void onFailure(Throwable ex) {
+    handleAsyncError(ex);
   }
 
   private void publishEvents(Object result) {

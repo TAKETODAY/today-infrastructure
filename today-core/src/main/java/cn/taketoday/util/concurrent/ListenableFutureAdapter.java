@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
  * Abstract class that adapts a {@link ListenableFuture} parameterized over S into a
  * {@code ListenableFuture} parameterized over T. All methods are delegated to the
  * adaptee, where {@link #get()}, {@link #get(long, java.util.concurrent.TimeUnit)},
- * and {@link ListenableFutureCallback#onSuccess(Object)} call {@link #adapt(Object)}
+ * and {@link FutureListener#onSuccess(Object)} call {@link #adapt(Object)}
  * on the adaptee's result.
  *
  * @param <T> the type of this {@code Future}
@@ -46,14 +46,9 @@ public abstract class ListenableFutureAdapter<T, S> extends FutureAdapter<T, S> 
   }
 
   @Override
-  public void addCallback(final ListenableFutureCallback<? super T> callback) {
-    addCallback(callback, callback);
-  }
-
-  @Override
-  public void addCallback(final SuccessCallback<? super T> successCallback, final FailureCallback failureCallback) {
+  public void addListener(final FutureListener<? super T> listener) {
     ListenableFuture<S> listenableAdaptee = (ListenableFuture<S>) getAdaptee();
-    listenableAdaptee.addCallback(new ListenableFutureCallback<>() {
+    listenableAdaptee.addListener(new FutureListener<>() {
       @Override
       public void onSuccess(@Nullable S result) {
         T adapted = null;
@@ -71,12 +66,12 @@ public abstract class ListenableFutureAdapter<T, S> extends FutureAdapter<T, S> 
             return;
           }
         }
-        successCallback.onSuccess(adapted);
+        listener.onSuccess(adapted);
       }
 
       @Override
       public void onFailure(Throwable ex) {
-        failureCallback.onFailure(ex);
+        listener.onFailure(ex);
       }
     });
   }

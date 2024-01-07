@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  */
 public class ListenableFutureTask<T> extends FutureTask<T> implements ListenableFuture<T> {
 
-  private final ListenableFutureCallbackRegistry<T> callbacks = new ListenableFutureCallbackRegistry<>();
+  private final ListenableFutureListenerRegistry<T> callbacks = new ListenableFutureListenerRegistry<>();
 
   /**
    * Create a new {@code ListenableFutureTask} that will, upon running,
@@ -59,20 +59,14 @@ public class ListenableFutureTask<T> extends FutureTask<T> implements Listenable
   }
 
   @Override
-  public void addCallback(ListenableFutureCallback<? super T> callback) {
-    this.callbacks.addCallback(callback);
-  }
-
-  @Override
-  public void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback) {
-    this.callbacks.addSuccessCallback(successCallback);
-    this.callbacks.addFailureCallback(failureCallback);
+  public void addListener(FutureListener<? super T> listener) {
+    this.callbacks.addListener(listener);
   }
 
   @Override
   public CompletableFuture<T> completable() {
     var completable = new DelegatingCompletableFuture<>(this);
-    this.callbacks.addCallback(completable);
+    this.callbacks.addListener(completable);
     return completable;
   }
 

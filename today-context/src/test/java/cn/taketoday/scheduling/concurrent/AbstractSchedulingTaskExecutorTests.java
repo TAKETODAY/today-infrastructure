@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -127,7 +124,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     TestTask task = new TestTask(this.testName, 1);
     // Act
     ListenableFuture<?> future = executor.submitListenable(task);
-    future.addCallback(result -> outcome = result, ex -> outcome = ex);
+    future.addListener(result -> outcome = result, ex -> outcome = ex);
     // Assert
     Awaitility.await()
             .atMost(1, TimeUnit.SECONDS)
@@ -141,7 +138,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   void submitFailingListenableRunnable() throws Exception {
     TestTask task = new TestTask(this.testName, 0);
     ListenableFuture<?> future = executor.submitListenable(task);
-    future.addCallback(result -> outcome = result, ex -> outcome = ex);
+    future.addListener(result -> outcome = result, ex -> outcome = ex);
 
     Awaitility.await()
             .dontCatchUncaughtExceptions()
@@ -214,7 +211,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     TestCallable task = new TestCallable(this.testName, 1);
     // Act
     ListenableFuture<String> future = executor.submitListenable(task);
-    future.addCallback(result -> outcome = result, ex -> outcome = ex);
+    future.addListener(result -> outcome = result, ex -> outcome = ex);
     // Assert
     Awaitility.await()
             .atMost(1, TimeUnit.SECONDS)
@@ -228,7 +225,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     TestCallable task = new TestCallable(this.testName, 0);
     // Act
     ListenableFuture<String> future = executor.submitListenable(task);
-    future.addCallback(result -> outcome = result, ex -> outcome = ex);
+    future.addListener(result -> outcome = result, ex -> outcome = ex);
     // Assert
     Awaitility.await()
             .dontCatchUncaughtExceptions()
