@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -647,7 +647,7 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   static CookieHeaderNames.SameSite forSameSite(@Nullable String name) {
     if (name != null) {
-      for (CookieHeaderNames.SameSite each : CookieHeaderNames.SameSite.class.getEnumConstants()) {
+      for (var each : CookieHeaderNames.SameSite.class.getEnumConstants()) {
         if (each.name().equalsIgnoreCase(name)) {
           return each;
         }
