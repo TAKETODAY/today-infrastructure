@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.http.converter.protobuf;
 
-import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
@@ -99,6 +98,11 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   private final ProtobufFormatSupport protobufFormatSupport;
 
   /**
+   * Flag populate protobuf headers to response
+   */
+  private boolean populateProtoHeader = true;
+
+  /**
    * Construct a new {@code ProtobufHttpMessageConverter}.
    */
   public ProtobufHttpMessageConverter() {
@@ -115,9 +119,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     this(null, extensionRegistry);
   }
 
-  ProtobufHttpMessageConverter(@Nullable ProtobufFormatSupport formatSupport,
-          @Nullable ExtensionRegistry extensionRegistry) {
-
+  ProtobufHttpMessageConverter(@Nullable ProtobufFormatSupport formatSupport, @Nullable ExtensionRegistry extensionRegistry) {
     if (formatSupport != null) {
       this.protobufFormatSupport = formatSupport;
     }
@@ -133,6 +135,18 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
             this.protobufFormatSupport.supportedMediaTypes() : new MediaType[] { PROTOBUF, TEXT_PLAIN }));
 
     this.extensionRegistry = (extensionRegistry == null ? ExtensionRegistry.newInstance() : extensionRegistry);
+  }
+
+  /**
+   * Flag populate protobuf headers to response
+   *
+   * @param populateProtoHeader populate protobuf headers to response
+   * @see #X_PROTOBUF_SCHEMA_HEADER
+   * @see #X_PROTOBUF_MESSAGE_HEADER
+   * @see #setProtoHeader(HttpOutputMessage, Message)
+   */
+  public void setPopulateProtoHeader(boolean populateProtoHeader) {
+    this.populateProtoHeader = populateProtoHeader;
   }
 
   @Override
@@ -214,10 +228,10 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
 
     if (PROTOBUF.isCompatibleWith(contentType)) {
-      setProtoHeader(outputMessage, message);
-      CodedOutputStream codedOutputStream = CodedOutputStream.newInstance(outputMessage.getBody());
-      message.writeTo(codedOutputStream);
-      codedOutputStream.flush();
+      if (populateProtoHeader) {
+        setProtoHeader(outputMessage, message);
+      }
+      message.writeTo(outputMessage.getBody());
     }
     else if (TEXT_PLAIN.isCompatibleWith(contentType)) {
       OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputMessage.getBody(), charset);
@@ -237,7 +251,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * <p><b>Note:</b> <code>outputMessage.getBody()</code> should not have been called
    * before because it writes HTTP headers (making them read only).</p>
    */
-  private void setProtoHeader(HttpOutputMessage response, Message message) {
+  protected void setProtoHeader(HttpOutputMessage response, Message message) {
     HttpHeaders headers = response.getHeaders();
     Descriptors.Descriptor descriptorForType = message.getDescriptorForType();
     headers.set(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());

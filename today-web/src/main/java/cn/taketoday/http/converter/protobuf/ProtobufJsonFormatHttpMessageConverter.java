@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter.protobuf;
@@ -38,6 +35,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JsonFormat#parser()
  * @see JsonFormat#printer()
  * @see #ProtobufJsonFormatHttpMessageConverter(com.google.protobuf.util.JsonFormat.Parser, com.google.protobuf.util.JsonFormat.Printer)
@@ -61,9 +59,7 @@ public class ProtobufJsonFormatHttpMessageConverter extends ProtobufHttpMessageC
    * {@link com.google.protobuf.util.JsonFormat.Printer JsonFormat.Printer},
    * and a default instance of {@link ExtensionRegistry}.
    */
-  public ProtobufJsonFormatHttpMessageConverter(
-          @Nullable JsonFormat.Parser parser, @Nullable JsonFormat.Printer printer) {
-
+  public ProtobufJsonFormatHttpMessageConverter(@Nullable JsonFormat.Parser parser, @Nullable JsonFormat.Printer printer) {
     this(parser, printer, null);
   }
 
@@ -73,8 +69,7 @@ public class ProtobufJsonFormatHttpMessageConverter extends ProtobufHttpMessageC
    * {@link com.google.protobuf.util.JsonFormat.Printer JsonFormat.Printer},
    * and {@link ExtensionRegistry}.
    */
-  public ProtobufJsonFormatHttpMessageConverter(
-          @Nullable JsonFormat.Parser parser,
+  public ProtobufJsonFormatHttpMessageConverter(@Nullable JsonFormat.Parser parser,
           @Nullable JsonFormat.Printer printer, @Nullable ExtensionRegistry extensionRegistry) {
 
     super(new ProtobufJavaUtilSupport(parser, printer), extensionRegistry);
