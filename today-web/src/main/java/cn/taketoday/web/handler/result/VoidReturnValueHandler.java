@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.result;
@@ -31,7 +31,7 @@ import cn.taketoday.web.view.ViewReturnValueHandler;
  *
  * @author TODAY 2019-07-14 00:53
  */
-public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class VoidReturnValueHandler implements SmartReturnValueHandler {
   private final ViewReturnValueHandler delegate;
 
   public VoidReturnValueHandler(ViewReturnValueHandler delegate) {
@@ -40,14 +40,17 @@ public class VoidReturnValueHandler implements HandlerMethodReturnValueHandler {
   }
 
   @Override
-  public boolean supportsHandlerMethod(HandlerMethod handlerMethod) {
-    return handlerMethod.isReturn(void.class)
-            || handlerMethod.isReturn(Void.class);
+  public boolean supportsReturnValue(Object returnValue) {
+    return returnValue == null;
   }
 
   @Override
-  public boolean supportsReturnValue(Object returnValue) {
-    return returnValue == null;
+  public boolean supportsHandler(Object handler, @Nullable Object returnValue) {
+    if (returnValue == null) {
+      HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+      return handlerMethod == null || handlerMethod.isReturn(void.class) || handlerMethod.isReturn(Void.class);
+    }
+    return false;
   }
 
   /**
