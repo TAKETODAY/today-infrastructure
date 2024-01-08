@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.protobuf;
@@ -73,6 +70,7 @@ import reactor.core.publisher.Mono;
  * the official {@code "com.google.protobuf:protobuf-java"} library.
  *
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ProtobufEncoder
  * @since 4.0
  */
@@ -128,8 +126,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
   }
 
   @Override
-  public Flux<Message> decode(
-          Publisher<DataBuffer> inputStream, ResolvableType elementType,
+  public Flux<Message> decode(Publisher<DataBuffer> inputStream, ResolvableType elementType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     MessageDecoderFunction decoderFunction =
@@ -145,12 +142,11 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     return DataBufferUtils.join(inputStream, this.maxMessageSize)
-            .map(dataBuffer -> decode(dataBuffer, elementType, mimeType, hints));
+            .mapNotNull(dataBuffer -> decode(dataBuffer, elementType, mimeType, hints));
   }
 
   @Override
-  public Message decode(
-          DataBuffer dataBuffer, ResolvableType targetType,
+  public Message decode(DataBuffer dataBuffer, ResolvableType targetType,
           @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) throws DecodingException {
 
     try {
@@ -210,7 +206,7 @@ public class ProtobufDecoder extends ProtobufCodecSupport implements Decoder<Mes
     @Override
     public Iterable<? extends Message> apply(DataBuffer input) {
       try {
-        List<Message> messages = new ArrayList<>();
+        ArrayList<Message> messages = new ArrayList<>();
         int remainingBytesToRead;
         int chunkBytesToRead;
 
