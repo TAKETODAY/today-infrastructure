@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function;
@@ -123,7 +123,7 @@ public abstract class BodyInserters {
   public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(T producer, Class<?> elementClass) {
     Assert.notNull(producer, "'producer' is required");
     Assert.notNull(elementClass, "'elementClass' is required");
-    ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(producer.getClass());
+    ReactiveAdapter adapter = registry.getAdapter(producer.getClass());
     Assert.notNull(adapter, "'producer' type is unknown to ReactiveAdapterRegistry");
     return (message, context) ->
             writeWithMessageWriters(message, context, producer, ResolvableType.forClass(elementClass), adapter);
@@ -142,12 +142,11 @@ public abstract class BodyInserters {
    * @param elementTypeRef the type of values to be produced
    * @return the inserter to write a producer
    */
-  public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(
-          T producer, ParameterizedTypeReference<?> elementTypeRef) {
+  public static <T> BodyInserter<T, ReactiveHttpOutputMessage> fromProducer(T producer, ParameterizedTypeReference<?> elementTypeRef) {
 
     Assert.notNull(producer, "'producer' is required");
     Assert.notNull(elementTypeRef, "'elementTypeRef' is required");
-    ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(producer.getClass());
+    ReactiveAdapter adapter = registry.getAdapter(producer.getClass());
     Assert.notNull(adapter, "'producer' type is unknown to ReactiveAdapterRegistry");
     return (message, context) ->
             writeWithMessageWriters(message, context, producer, ResolvableType.forType(elementTypeRef), adapter);
@@ -165,9 +164,7 @@ public abstract class BodyInserters {
    * @param <P> the {@code Publisher} type
    * @return the inserter to write a {@code Publisher}
    */
-  public static <T, P extends Publisher<T>> BodyInserter<P, ReactiveHttpOutputMessage> fromPublisher(
-          P publisher, Class<T> elementClass) {
-
+  public static <T, P extends Publisher<T>> BodyInserter<P, ReactiveHttpOutputMessage> fromPublisher(P publisher, Class<T> elementClass) {
     Assert.notNull(publisher, "'publisher' is required");
     Assert.notNull(elementClass, "'elementClass' is required");
     return (message, context) ->
@@ -316,9 +313,7 @@ public abstract class BodyInserters {
    * @param elementClass the class contained in the {@code publisher}
    * @return the inserter that allows adding more parts
    */
-  public static <T, P extends Publisher<T>> MultipartInserter fromMultipartAsyncData(
-          String name, P publisher, Class<T> elementClass) {
-
+  public static <T, P extends Publisher<T>> MultipartInserter fromMultipartAsyncData(String name, P publisher, Class<T> elementClass) {
     return new DefaultMultipartInserter().withPublisher(name, publisher, elementClass);
   }
 
@@ -395,8 +390,7 @@ public abstract class BodyInserters {
     Assert.isTrue(chunkSize > 0, "Chunk size must be > 0");
 
     return (outputMessage, context) -> outputMessage.writeWith(
-            DataBufferUtils.outputStreamPublisher(outputStreamConsumer,
-                    outputMessage.bufferFactory(), executor, chunkSize));
+            DataBufferUtils.outputStreamPublisher(outputStreamConsumer, outputMessage.bufferFactory(), executor, chunkSize));
   }
 
   private static <M extends ReactiveHttpOutputMessage> Mono<Void> writeWithMessageWriters(
