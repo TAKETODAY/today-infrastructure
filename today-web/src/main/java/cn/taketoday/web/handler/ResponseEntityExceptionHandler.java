@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -78,20 +78,6 @@ import jakarta.servlet.RequestDispatcher;
  * @since 4.0 2022/3/2 18:12
  */
 public class ResponseEntityExceptionHandler {
-
-  /**
-   * Log category to use when no mapped handler is found for a request.
-   *
-   * @see #pageNotFoundLogger
-   */
-  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = NotFoundHandler.PAGE_NOT_FOUND_LOG_CATEGORY;
-
-  /**
-   * Specific logger to use when no mapped handler is found for a request.
-   *
-   * @see #PAGE_NOT_FOUND_LOG_CATEGORY
-   */
-  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
 
   /**
    * Common logger for use in subclasses.
@@ -171,27 +157,21 @@ public class ResponseEntityExceptionHandler {
     }
 
     // Other, lower level exceptions
-    HttpHeaders headers = HttpHeaders.create();
 
-    if (ex instanceof ConversionNotSupportedException) {
-      HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
-      return handleConversionNotSupported((ConversionNotSupportedException) ex, headers, status, request);
+    if (ex instanceof ConversionNotSupportedException subEx) {
+      return handleConversionNotSupported(subEx, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
-    else if (ex instanceof TypeMismatchException) {
-      HttpStatusCode status = HttpStatus.BAD_REQUEST;
-      return handleTypeMismatch((TypeMismatchException) ex, headers, status, request);
+    else if (ex instanceof TypeMismatchException subEx) {
+      return handleTypeMismatch(subEx, HttpStatus.BAD_REQUEST, request);
     }
-    else if (ex instanceof HttpMessageNotReadableException) {
-      HttpStatusCode status = HttpStatus.BAD_REQUEST;
-      return handleHttpMessageNotReadable((HttpMessageNotReadableException) ex, headers, status, request);
+    else if (ex instanceof HttpMessageNotReadableException subEx) {
+      return handleHttpMessageNotReadable(subEx, HttpStatus.BAD_REQUEST, request);
     }
-    else if (ex instanceof HttpMessageNotWritableException) {
-      HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
-      return handleHttpMessageNotWritable((HttpMessageNotWritableException) ex, headers, status, request);
+    else if (ex instanceof HttpMessageNotWritableException subEx) {
+      return handleHttpMessageNotWritable(subEx, HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
-    else if (ex instanceof BindException) {
-      HttpStatusCode status = HttpStatus.BAD_REQUEST;
-      return handleBindException((BindException) ex, headers, status, request);
+    else if (ex instanceof BindException subEx) {
+      return handleBindException(subEx, HttpStatus.BAD_REQUEST, request);
     }
     else {
       // Unknown exception, typically a wrapper with a common MVC exception as cause
@@ -217,7 +197,7 @@ public class ResponseEntityExceptionHandler {
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
           HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
-    pageNotFoundLogger.warn(ex.getMessage());
+    NotFoundHandler.pageNotFoundLogger.warn(ex.getMessage());
     return handleExceptionInternal(ex, null, headers, status, request);
   }
 
@@ -409,7 +389,6 @@ public class ResponseEntityExceptionHandler {
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
-   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
@@ -417,12 +396,12 @@ public class ResponseEntityExceptionHandler {
    */
   @Nullable
   protected ResponseEntity<Object> handleConversionNotSupported(
-          ConversionNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
+          ConversionNotSupportedException ex, HttpStatusCode status, RequestContext request) {
 
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status,
             "Failed to convert '" + ex.getPropertyName() + "' with value: '" + ex.getValue() + "'");
 
-    return handleExceptionInternal(ex, body, headers, status, request);
+    return handleExceptionInternal(ex, body, null, status, request);
   }
 
   /**
@@ -450,20 +429,17 @@ public class ResponseEntityExceptionHandler {
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
-   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleTypeMismatch(
-          TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
-
+  protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpStatusCode status, RequestContext request) {
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status,
             "Unexpected type for '" + ex.getPropertyName() + "' with value: '" + ex.getValue() + "'");
 
-    return handleExceptionInternal(ex, body, headers, status, request);
+    return handleExceptionInternal(ex, body, null, status, request);
   }
 
   /**
@@ -473,18 +449,15 @@ public class ResponseEntityExceptionHandler {
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
-   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleHttpMessageNotReadable(
-          HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
-
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpStatusCode status, RequestContext request) {
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Failed to read request body");
-    return handleExceptionInternal(ex, body, headers, status, request);
+    return handleExceptionInternal(ex, body, null, status, request);
   }
 
   /**
@@ -494,18 +467,15 @@ public class ResponseEntityExceptionHandler {
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
-   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleHttpMessageNotWritable(
-          HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
-
+  protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, HttpStatusCode status, RequestContext request) {
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Failed to write response body");
-    return handleExceptionInternal(ex, body, headers, status, request);
+    return handleExceptionInternal(ex, body, null, status, request);
   }
 
   /**
@@ -515,18 +485,15 @@ public class ResponseEntityExceptionHandler {
    * {@link #handleExceptionInternal}.
    *
    * @param ex the exception to handle
-   * @param headers the headers to use for the response
    * @param status the status code to use for the response
    * @param request the current request
    * @return a {@code ResponseEntity} for the response to use, possibly
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleBindException(
-          BindException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
-
+  protected ResponseEntity<Object> handleBindException(BindException ex, HttpStatusCode status, RequestContext request) {
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Failed to bind request");
-    return handleExceptionInternal(ex, body, headers, status, request);
+    return handleExceptionInternal(ex, body, null, status, request);
   }
 
   /**
@@ -550,8 +517,9 @@ public class ResponseEntityExceptionHandler {
    * {@code null} when the response is already committed
    */
   @Nullable
-  protected ResponseEntity<Object> handleExceptionInternal(Exception ex, @Nullable Object body,
-          HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
+  protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
+          @Nullable Object body, @Nullable HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
+
     if (ServletDetector.runningInServlet(request)) {
       if (request.isCommitted()) {
         if (logger.isWarnEnabled()) {
@@ -560,12 +528,12 @@ public class ResponseEntityExceptionHandler {
         return null;
       }
       // set jakarta.servlet.error.exception to ex
-      if (HttpStatus.INTERNAL_SERVER_ERROR.equals(statusCode)) {
+      if (HttpStatus.INTERNAL_SERVER_ERROR.isSameCodeAs(statusCode)) {
         request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, ex);
       }
     }
 
-    if (HttpStatus.INTERNAL_SERVER_ERROR.equals(statusCode)) {
+    if (HttpStatus.INTERNAL_SERVER_ERROR.isSameCodeAs(statusCode)) {
       request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     }
 
@@ -589,7 +557,7 @@ public class ResponseEntityExceptionHandler {
    * @return the {@code ResponseEntity} instance to use
    */
   protected ResponseEntity<Object> createResponseEntity(@Nullable Object body,
-          HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
+          @Nullable HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
 
     return new ResponseEntity<>(body, headers, statusCode);
   }

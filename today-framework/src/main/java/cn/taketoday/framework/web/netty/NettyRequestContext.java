@@ -40,6 +40,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
+import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -47,7 +48,6 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
@@ -78,6 +78,8 @@ import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 import io.netty.util.ReferenceCountUtil;
+
+import static cn.taketoday.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED;
 
 /**
  * Netty Request context
@@ -289,14 +291,14 @@ public class NettyRequestContext extends RequestContext {
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
     HttpMethod method = getMethod();
     if (method != HttpMethod.GET && method != HttpMethod.HEAD) {
-      if (cn.taketoday.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED.equals(getContentType())) {
+      if (APPLICATION_X_WWW_FORM_URLENCODED.equals(getContentType())) {
         for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
           if (data instanceof Attribute) {
             try {
               parameters.add(data.getName(), ((Attribute) data).getValue());
             }
             catch (IOException e) {
-              throw new ParameterReadFailedException("Netty http-data read failed", e);
+              throw new HttpMessageNotReadableException("Netty 'application/x-www-form-urlencoded' content read failed", e, this);
             }
           }
         }

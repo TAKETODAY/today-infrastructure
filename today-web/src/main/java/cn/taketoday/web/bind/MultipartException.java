@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,35 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.bind;
 
 import java.io.Serial;
 
-import cn.taketoday.web.bind.resolver.ParameterReadFailedException;
+import cn.taketoday.http.converter.HttpMessageNotReadableException;
 
 /**
  * Multipart cannot be parsed include
  * {@link cn.taketoday.web.multipart.MultipartFile} and normal part
  *
- * @author TODAY 2021/1/17 10:41
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/1/17 10:41
  */
-public class MultipartException extends ParameterReadFailedException {
+public class MultipartException extends HttpMessageNotReadableException {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public MultipartException() {
-    super();
-  }
-
   public MultipartException(String message) {
     super(message);
-  }
-
-  public MultipartException(Throwable cause) {
-    super(cause);
   }
 
   public MultipartException(String message, Throwable cause) {
