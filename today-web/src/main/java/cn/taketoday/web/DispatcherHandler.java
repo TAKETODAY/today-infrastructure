@@ -42,10 +42,9 @@ import cn.taketoday.web.handler.HandlerAdapterAware;
 import cn.taketoday.web.handler.HandlerAdapters;
 import cn.taketoday.web.handler.HandlerNotFoundException;
 import cn.taketoday.web.handler.HandlerWrapper;
-import cn.taketoday.web.handler.InfraHandler;
-import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.ReturnValueHandlerNotFoundException;
+import cn.taketoday.web.handler.SimpleNotFoundHandler;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.handler.result.AsyncReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
@@ -81,7 +80,7 @@ public class DispatcherHandler extends InfraHandler {
   /** Detect all HandlerExceptionHandlers or just expect "HandlerExceptionHandler" bean?. */
   private boolean detectAllHandlerExceptionHandlers = true;
 
-  private HttpRequestHandler notFoundHandler;
+  private NotFoundHandler notFoundHandler;
 
   private final ArrayHolder<RequestCompletedListener> requestCompletedActions = ArrayHolder.forGenerator(RequestCompletedListener[]::new);
 
@@ -177,15 +176,15 @@ public class DispatcherHandler extends InfraHandler {
   /**
    * Initialize the NotFoundHandler used by this class.
    * <p>If no NotFoundHandler beans are defined in the BeanFactory for this namespace,
-   * we default to {@link NotFoundHandler}.
+   * we default to {@link SimpleNotFoundHandler}.
    *
-   * @see NotFoundHandler
+   * @see SimpleNotFoundHandler
    */
   private void initNotFoundHandler(ApplicationContext context) {
     if (notFoundHandler == null) {
       notFoundHandler = BeanFactoryUtils.find(context, NotFoundHandler.class);
       if (notFoundHandler == null) {
-        setNotFoundHandler(NotFoundHandler.instance);
+        setNotFoundHandler(NotFoundHandler.sharedInstance);
       }
       logStrategy(notFoundHandler);
     }
@@ -215,7 +214,6 @@ public class DispatcherHandler extends InfraHandler {
     AnnotationAwareOrderComparator.sort(handlers);
 
     addRequestCompletedActions(handlers);
-    addRequestCompletedActions(RequestContext::requestCompleted);
   }
 
   // ------------------------------------------------------------------------
@@ -441,14 +439,19 @@ public class DispatcherHandler extends InfraHandler {
               request.getMethodValue(), request.getRequestURI(), request.requestHeaders());
     }
     else {
-      return notFoundHandler.handleRequest(request);
+      return notFoundHandler.handleNotFound(request);
     }
   }
 
   protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
-    for (RequestCompletedListener action : requestCompletedActions) {
-      action.requestCompleted(request, notHandled);
+    RequestCompletedListener[] completedListeners = requestCompletedActions.get();
+    if (completedListeners != null) {
+      for (RequestCompletedListener action : completedListeners) {
+        action.requestCompleted(request, notHandled);
+      }
     }
+
+    request.requestCompleted(notHandled);
 
     // exception not handled
     if (notHandled != null) {
@@ -527,8 +530,8 @@ public class DispatcherHandler extends InfraHandler {
    * @param notFoundHandler HttpRequestHandler
    * @since 4.0
    */
-  public void setNotFoundHandler(HttpRequestHandler notFoundHandler) {
-    Assert.notNull(notFoundHandler, "notFoundHandler is required");
+  public void setNotFoundHandler(NotFoundHandler notFoundHandler) {
+    Assert.notNull(notFoundHandler, "NotFoundHandler is required");
     this.notFoundHandler = notFoundHandler;
   }
 

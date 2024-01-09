@@ -37,6 +37,7 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
+import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.ControllerAdvice;

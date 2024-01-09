@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.context.support;
+
+import java.io.Serial;
 
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.lang.Nullable;
@@ -32,8 +31,10 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.context.ApplicationContext#publishEvent
  * @since 4.0 2022/4/15 13:16
  */
-@SuppressWarnings("serial")
 public class RequestHandledEvent extends ApplicationEvent {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /** Session id that applied to the request, if any. */
   @Nullable
@@ -74,8 +75,8 @@ public class RequestHandledEvent extends ApplicationEvent {
    * request, if any (usually the UserPrincipal)
    * @param processingTimeMillis the processing time of the request in milliseconds
    */
-  public RequestHandledEvent(Object source, String requestUrl,
-          String clientAddress, String method, @Nullable String sessionId, @Nullable String userName, long processingTimeMillis) {
+  public RequestHandledEvent(Object source, String requestUrl, String clientAddress, String method,
+          @Nullable String sessionId, @Nullable String userName, long processingTimeMillis) {
     super(source);
     this.method = method;
     this.statusCode = -1;
@@ -99,9 +100,8 @@ public class RequestHandledEvent extends ApplicationEvent {
    * @param processingTimeMillis the processing time of the request in milliseconds
    * @param notHandled the cause of failure, if any
    */
-  public RequestHandledEvent(Object source, String requestUrl,
-          String clientAddress, String method, @Nullable String sessionId,
-          @Nullable String userName, long processingTimeMillis, @Nullable Throwable notHandled) {
+  public RequestHandledEvent(Object source, String requestUrl, String clientAddress, String method,
+          @Nullable String sessionId, @Nullable String userName, long processingTimeMillis, @Nullable Throwable notHandled) {
 
     super(source);
     this.method = method;

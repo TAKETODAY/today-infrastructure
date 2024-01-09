@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -35,7 +35,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
-import cn.taketoday.web.handler.NotFoundHandler;
+import cn.taketoday.web.handler.SimpleNotFoundHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -211,7 +211,7 @@ public class ResourceHttpRequestHandlerTests {
         this.response = new MockHttpServletResponse();
         requestContext = new ServletRequestContext(null, request, response);
 
-        assertThat(this.handler.handleRequest(requestContext)).isEqualTo(NotFoundHandler.NONE_RETURN_VALUE);
+        assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
       }
     }
 
@@ -668,7 +668,7 @@ public class ResourceHttpRequestHandlerTests {
 
     @SneakyThrows
     private void assertNotFound() {
-      assertThat(this.handler.handleRequest(requestContext)).isEqualTo(NotFoundHandler.NONE_RETURN_VALUE);
+      assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
     }
 
     @Test
@@ -804,7 +804,7 @@ public class ResourceHttpRequestHandlerTests {
     @Test
     void noPathWithinHandlerMappingAttribute() throws Throwable {
       this.handler.afterPropertiesSet();
-      assertThat(this.handler.handleRequest(requestContext)).isEqualTo(NotFoundHandler.NONE_RETURN_VALUE);
+      assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
     }
 
     @Test

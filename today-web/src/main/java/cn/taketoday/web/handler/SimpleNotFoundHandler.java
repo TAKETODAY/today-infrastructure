@@ -20,10 +20,7 @@ package cn.taketoday.web.handler;
 import java.io.IOException;
 
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -31,29 +28,13 @@ import cn.taketoday.web.RequestContext;
  *
  * @author TODAY 2019-12-20 19:15
  */
-public class NotFoundHandler implements HttpRequestHandler {
-
-  /** Log category to use when no mapped handler is found for a request. */
-  public static final String PAGE_NOT_FOUND_LOG_CATEGORY = "cn.taketoday.web.handler.PageNotFound";
-
-  /** Additional logger to use when no mapped handler is found for a request. */
-  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(PAGE_NOT_FOUND_LOG_CATEGORY);
-
-  /**
-   * NotFoundHandler default instance
-   */
-  public static final NotFoundHandler instance = new NotFoundHandler();
-
-  @Nullable
-  @Override
-  public Object handleRequest(RequestContext request) throws Throwable {
-    return handleNotFound(request);
-  }
+public class SimpleNotFoundHandler implements NotFoundHandler {
 
   /**
    * Process not found
    */
-  protected Object handleNotFound(RequestContext request) throws IOException {
+  @Override
+  public Object handleNotFound(RequestContext request) throws IOException {
     logNotFound(request);
 
     request.sendError(HttpStatus.NOT_FOUND);
@@ -61,8 +42,8 @@ public class NotFoundHandler implements HttpRequestHandler {
   }
 
   protected void logNotFound(RequestContext context) {
-    if (pageNotFoundLogger.isDebugEnabled()) {
-      pageNotFoundLogger.debug("No mapping for {} {}", context.getMethodValue(), context.getRequestURI());
+    if (pageNotFoundLogger.isWarnEnabled()) {
+      pageNotFoundLogger.warn("No mapping for {} {}", context.getMethodValue(), context.getRequestURI());
     }
   }
 
