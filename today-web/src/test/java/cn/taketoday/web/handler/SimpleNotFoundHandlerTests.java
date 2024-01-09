@@ -41,7 +41,7 @@ class SimpleNotFoundHandlerTests {
   void handleNotFound() throws Throwable {
     request.setRequestURI("/not-found");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, response);
-    assertThat(notFoundHandler.handleRequest(requestContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
+    assertThat(notFoundHandler.handleNotFound(requestContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
     assertThat(requestContext.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
     assertThat(response.isCommitted()).isTrue();
 
