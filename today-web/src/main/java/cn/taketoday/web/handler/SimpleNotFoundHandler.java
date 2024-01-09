@@ -41,7 +41,7 @@ public class SimpleNotFoundHandler implements NotFoundHandler {
     return NONE_RETURN_VALUE;
   }
 
-  protected void logNotFound(RequestContext context) {
+  public static void logNotFound(RequestContext context) {
     if (pageNotFoundLogger.isWarnEnabled()) {
       pageNotFoundLogger.warn("No mapping for {} {}", context.getMethodValue(), context.getRequestURI());
     }
