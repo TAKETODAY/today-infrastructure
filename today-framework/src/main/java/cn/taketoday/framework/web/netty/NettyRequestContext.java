@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,7 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
+import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -371,6 +373,50 @@ public class NettyRequestContext extends RequestContext {
 
   protected ByteBuf createResponseBody(ChannelHandlerContext channelContext, NettyRequestConfig config) {
     return channelContext.alloc().ioBuffer(config.getBodyInitialSize());
+  }
+
+  @Override
+  public ServerHttpResponse asHttpOutputMessage() {
+    return new NettyHttpOutputMessage();
+  }
+
+  final class NettyHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setStatusCode(HttpStatusCode status) {
+      setStatus(status);
+    }
+
+    @Override
+    public void flush() {
+      NettyRequestContext.this.flush();
+    }
+
+    @Override
+    public void close() {
+      writeHeaders();
+    }
+
+    @Override
+    public OutputStream getBody() throws IOException {
+      return getOutputStream();
+    }
+
+    @Override
+    public cn.taketoday.http.HttpHeaders getHeaders() {
+      return responseHeaders();
+    }
+
+    @Override
+    public boolean supportsZeroCopy() {
+      return true;
+    }
+
+    @Override
+    public void sendFile(Path file, long position, long count) {
+      channelContext.writeAndFlush(responseBody);
+    }
+
   }
 
   @Override
