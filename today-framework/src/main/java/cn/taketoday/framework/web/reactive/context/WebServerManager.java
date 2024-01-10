@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.reactive.context;
@@ -41,11 +38,11 @@ import reactor.core.publisher.Mono;
  */
 class WebServerManager {
 
-  private final ReactiveWebServerApplicationContext applicationContext;
+  public final ReactiveWebServerApplicationContext applicationContext;
 
-  private final DelayedInitializationHttpHandler handler;
+  public final DelayedInitializationHttpHandler handler;
 
-  private final WebServer webServer;
+  public final WebServer webServer;
 
   WebServerManager(ReactiveWebServerApplicationContext applicationContext,
           ReactiveWebServerFactory factory, Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
@@ -68,14 +65,6 @@ class WebServerManager {
 
   void stop() {
     webServer.stop();
-  }
-
-  WebServer getWebServer() {
-    return webServer;
-  }
-
-  HttpHandler getHandler() {
-    return handler;
   }
 
   /**
@@ -122,7 +111,7 @@ class WebServerManager {
 
     @Override
     public Mono<Void> handle(ServerHttpRequest request, ServerHttpResponse response) {
-      return delegate.flatMap((handler) -> handler.handle(request, response));
+      return delegate.flatMap(handler -> handler.handle(request, response));
     }
 
   }

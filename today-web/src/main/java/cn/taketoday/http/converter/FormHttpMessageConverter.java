@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -330,8 +330,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   }
 
   @Override
-  public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz,
-          HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+  public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz, HttpInputMessage inputMessage)
+          throws IOException, HttpMessageNotReadableException //
+  {
 
     MediaType contentType = inputMessage.getHeaders().getContentType();
     Charset charset = (contentType != null && contentType.getCharset() != null ?
@@ -385,30 +386,16 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
           @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     contentType = getFormContentType(contentType);
-    outputMessage.getHeaders().setContentType(contentType);
+    HttpHeaders headers = outputMessage.getHeaders();
+    headers.setContentType(contentType);
 
     Charset charset = contentType.getCharset();
     Assert.notNull(charset, "No charset"); // should never occur
 
     byte[] bytes = serializeForm(formData, charset).getBytes(charset);
-    outputMessage.getHeaders().setContentLength(bytes.length);
+    headers.setContentLength(bytes.length);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
-      streaming.setBody(new StreamingHttpOutputMessage.Body() {
-        @Override
-        public void writeTo(OutputStream outputStream) throws IOException {
-          StreamUtils.copy(bytes, outputStream);
-        }
-
-        @Override
-        public boolean repeatable() {
-          return true;
-        }
-      });
-    }
-    else {
-      StreamUtils.copy(bytes, outputMessage.getBody());
-    }
+    StreamingHttpOutputMessage.writeBody(outputMessage, bytes);
   }
 
   /**
@@ -487,8 +474,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     contentType = new MediaType(contentType, parameters);
     outputMessage.getHeaders().setContentType(contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(outputStream -> {
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(outputStream -> {
         writeParts(outputStream, parts, boundary);
         writeEnd(outputStream, boundary);
       });

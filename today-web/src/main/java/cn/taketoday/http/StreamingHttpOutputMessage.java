@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Represents an HTTP output message that allows for setting a streaming body.
@@ -37,6 +39,29 @@ public interface StreamingHttpOutputMessage extends HttpOutputMessage {
    * @param body the streaming body callback
    */
   void setBody(Body body);
+
+  /**
+   * write body
+   */
+  static void writeBody(HttpOutputMessage outputMessage, byte[] body) throws IOException {
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(new Body() {
+
+        @Override
+        public void writeTo(OutputStream outputStream) throws IOException {
+          StreamUtils.copy(body, outputStream);
+        }
+
+        @Override
+        public boolean repeatable() {
+          return true;
+        }
+      });
+    }
+    else {
+      StreamUtils.copy(body, outputMessage.getBody());
+    }
+  }
 
   /**
    * Defines the contract for bodies that can be written directly to an

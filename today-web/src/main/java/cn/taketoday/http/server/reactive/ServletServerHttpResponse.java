@@ -53,10 +53,15 @@ import jakarta.servlet.http.HttpServletResponse;
 class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   private final int bufferSize;
+
   private volatile boolean flushOnNext;
+
   private final HttpServletResponse response;
+
   private final ServletOutputStream outputStream;
+
   private final ServletServerHttpRequest request;
+
   private final ResponseAsyncListener asyncListener;
 
   @Nullable

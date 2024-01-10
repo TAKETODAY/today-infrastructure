@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.reactive.context;
@@ -43,11 +40,13 @@ import cn.taketoday.util.StringUtils;
  * from a contained {@link ReactiveWebServerFactory} bean.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReactiveWebServerApplicationContext extends GenericReactiveWebApplicationContext
         implements ConfigurableWebServerApplicationContext {
 
+  @Nullable
   private volatile WebServerManager serverManager;
 
   private String serverNamespace;
@@ -76,7 +75,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     catch (RuntimeException ex) {
       WebServerManager serverManager = this.serverManager;
       if (serverManager != null) {
-        serverManager.getWebServer().stop();
+        serverManager.webServer.stop();
       }
       throw ex;
     }
@@ -104,7 +103,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
       this.serverManager = new WebServerManager(
               this, webServerFactory, this::getHttpHandler, lazyInit);
       beanFactory.registerSingleton("webServerGracefulShutdown",
-              new WebServerGracefulShutdownLifecycle(this.serverManager.getWebServer()));
+              new WebServerGracefulShutdownLifecycle(this.serverManager.webServer));
       beanFactory.registerSingleton("webServerStartStop",
               new WebServerStartStopLifecycle(this.serverManager));
     }
@@ -168,7 +167,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   @Override
   public WebServer getWebServer() {
     WebServerManager serverManager = this.serverManager;
-    return (serverManager != null) ? serverManager.getWebServer() : null;
+    return (serverManager != null) ? serverManager.webServer : null;
   }
 
   @Nullable

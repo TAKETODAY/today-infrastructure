@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
@@ -34,7 +31,6 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 
@@ -49,21 +45,23 @@ import reactor.core.publisher.Flux;
 class HttpComponentsClientHttpResponse implements ClientHttpResponse {
 
   private final DataBufferFactory dataBufferFactory;
+
   private final Message<HttpResponse, Publisher<ByteBuffer>> message;
 
   private final HttpHeaders headers;
+
   private final HttpClientContext context;
+
   private final AtomicBoolean rejectSubscribers = new AtomicBoolean();
 
-  public HttpComponentsClientHttpResponse(
-          DataBufferFactory dataBufferFactory,
+  public HttpComponentsClientHttpResponse(DataBufferFactory dataBufferFactory,
           Message<HttpResponse, Publisher<ByteBuffer>> message, HttpClientContext context) {
 
     this.dataBufferFactory = dataBufferFactory;
     this.message = message;
     this.context = context;
 
-    MultiValueMap<String, String> adapter = new HttpComponentsHeadersAdapter(message.getHead());
+    var adapter = new HttpComponentsHeadersAdapter(message.getHead());
     this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
   }
 
@@ -74,7 +72,7 @@ class HttpComponentsClientHttpResponse implements ClientHttpResponse {
 
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
-    DefaultMultiValueMap<String, ResponseCookie> result = MultiValueMap.forLinkedHashMap();
+    var result = MultiValueMap.<String, ResponseCookie>forLinkedHashMap();
     List<Cookie> cookies = context.getCookieStore().getCookies();
     for (Cookie cookie : cookies) {
       result.add(cookie.getName(),

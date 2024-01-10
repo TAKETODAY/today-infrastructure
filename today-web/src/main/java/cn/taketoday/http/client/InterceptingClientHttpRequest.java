@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -26,8 +26,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.StreamingHttpOutputMessage;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.util.StreamUtils;
 
 /**
  * Wrapper for a {@link ClientHttpRequest} that has support for {@link ClientHttpRequestInterceptor
@@ -40,12 +38,15 @@ import cn.taketoday.util.StreamUtils;
 final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpRequest {
 
   private final URI uri;
+
   private final HttpMethod method;
+
   private final ClientHttpRequestFactory requestFactory;
+
   private final List<ClientHttpRequestInterceptor> interceptors;
 
   InterceptingClientHttpRequest(ClientHttpRequestFactory requestFactory,
-      List<ClientHttpRequestInterceptor> interceptors, URI uri, HttpMethod method) {
+          List<ClientHttpRequestInterceptor> interceptors, URI uri, HttpMethod method) {
 
     this.requestFactory = requestFactory;
     this.interceptors = interceptors;
@@ -79,22 +80,18 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
 
     @Override
     public ClientHttpResponse execute(HttpRequest request, byte[] body) throws IOException {
-      if (this.iterator.hasNext()) {
-        ClientHttpRequestInterceptor nextInterceptor = this.iterator.next();
+      if (iterator.hasNext()) {
+        ClientHttpRequestInterceptor nextInterceptor = iterator.next();
         return nextInterceptor.intercept(request, body, this);
       }
       else {
         HttpMethod method = request.getMethod();
-        Assert.state(method != null, "No standard HTTP method");
+        // Assert.state(method != null, "No standard HTTP method");
         ClientHttpRequest delegate = requestFactory.createRequest(request.getURI(), method);
         delegate.getHeaders().addAll(request.getHeaders());
         if (body.length > 0) {
-          if (delegate instanceof StreamingHttpOutputMessage message) {
-            message.setBody(outputStream -> StreamUtils.copy(body, outputStream));
-          }
-          else {
-            StreamUtils.copy(body, delegate.getBody());
-          }
+          StreamingHttpOutputMessage.writeBody(delegate, body);
+
         }
         return delegate.execute();
       }
