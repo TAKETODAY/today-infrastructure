@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -41,6 +38,7 @@ import reactor.core.publisher.Mono;
  * @param <T> the type of elements in the input stream
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface Encoder<T> {
@@ -71,8 +69,7 @@ public interface Encoder<T> {
    * @param hints additional information about how to encode
    * @return the output stream
    */
-  Flux<DataBuffer> encode(
-          Publisher<? extends T> inputStream, DataBufferFactory bufferFactory,
+  Flux<DataBuffer> encode(Publisher<? extends T> inputStream, DataBufferFactory bufferFactory,
           ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints);
 
   /**
@@ -90,8 +87,7 @@ public interface Encoder<T> {
    * @param hints additional information about how to encode
    * @return the encoded content
    */
-  default DataBuffer encodeValue(
-          T value, DataBufferFactory bufferFactory,
+  default DataBuffer encodeValue(T value, DataBufferFactory bufferFactory,
           ResolvableType valueType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
     // It may not be possible to produce a single DataBuffer synchronously
     throw new UnsupportedOperationException();

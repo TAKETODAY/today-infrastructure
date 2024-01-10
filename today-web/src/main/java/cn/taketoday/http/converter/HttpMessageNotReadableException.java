@@ -33,6 +33,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class HttpMessageNotReadableException extends HttpMessageConversionException {
+
   @Serial
   private static final long serialVersionUID = 1L;
 

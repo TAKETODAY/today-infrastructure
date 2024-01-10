@@ -20,6 +20,7 @@ package cn.taketoday.web.bind;
 import java.io.Serial;
 
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Multipart cannot be parsed include
@@ -37,7 +38,7 @@ public class MultipartException extends HttpMessageNotReadableException {
     super(message);
   }
 
-  public MultipartException(String message, Throwable cause) {
+  public MultipartException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 }

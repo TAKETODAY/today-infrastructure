@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter;
@@ -42,6 +42,7 @@ import cn.taketoday.util.StreamUtils;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Kazuki Shimizu
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<Resource> {
@@ -63,7 +64,6 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
    *
    * @param supportsReadStreaming whether the converter should support
    * read streaming, i.e. convert to {@code InputStreamResource}
-   * @since 4.0
    */
   public ResourceHttpMessageConverter(boolean supportsReadStreaming) {
     super(MediaType.ALL);
@@ -77,7 +77,8 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
 
   @Override
   protected Resource readInternal(Class<? extends Resource> clazz, HttpInputMessage inputMessage)
-          throws IOException, HttpMessageNotReadableException {
+          throws IOException, HttpMessageNotReadableException //
+  {
 
     if (this.supportsReadStreaming && InputStreamResource.class == clazz) {
       return new InputStreamResource(inputMessage.getBody()) {
@@ -122,13 +123,6 @@ public class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<R
     }
     long contentLength = resource.contentLength();
     return (contentLength < 0 ? null : contentLength);
-  }
-
-  /**
-   * Adds the default headers for the given resource to the given message.
-   */
-  public void addDefaultHeaders(HttpOutputMessage message, Resource resource, @Nullable MediaType contentType) throws IOException {
-    addDefaultHeaders(message.getHeaders(), resource, contentType);
   }
 
   @Override
