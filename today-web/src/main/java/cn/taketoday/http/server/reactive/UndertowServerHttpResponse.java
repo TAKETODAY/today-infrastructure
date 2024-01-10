@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
 
 import org.reactivestreams.Processor;
 import org.reactivestreams.Publisher;
+import org.xnio.ChannelListener;
 import org.xnio.channels.StreamSinkChannel;
 
 import java.io.IOException;
@@ -45,6 +43,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 
@@ -63,10 +62,10 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
   private StreamSinkChannel responseChannel;
 
   private final HttpServerExchange exchange;
+
   private final UndertowServerHttpRequest request;
 
-  UndertowServerHttpResponse(HttpServerExchange exchange,
-          DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
+  UndertowServerHttpResponse(HttpServerExchange exchange, DataBufferFactory bufferFactory, UndertowServerHttpRequest request) {
     super(bufferFactory, createHeaders(exchange));
     Assert.notNull(exchange, "HttpServerExchange is required");
     this.exchange = exchange;
@@ -136,9 +135,9 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
       try {
         FileChannel source = FileChannel.open(file, StandardOpenOption.READ);
         TransferBodyListener listener = new TransferBodyListener(source, position, count, sink);
-        sink.onDispose(listener::closeSource);
+        sink.onDispose(listener);
         StreamSinkChannel destination = this.exchange.getResponseChannel();
-        destination.getWriteSetter().set(listener::transfer);
+        destination.getWriteSetter().set(listener);
         listener.transfer(destination);
       }
       catch (IOException ex) {
@@ -295,11 +294,14 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
     }
   }
 
-  private static class TransferBodyListener {
+  private static class TransferBodyListener implements Disposable, ChannelListener<StreamSinkChannel> {
 
     private long count;
+
     private long position;
+
     private final FileChannel source;
+
     private final MonoSink<Void> sink;
 
     public TransferBodyListener(FileChannel source, long position, long count, MonoSink<Void> sink) {
@@ -307,6 +309,11 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
       this.sink = sink;
       this.position = position;
       this.count = count;
+    }
+
+    @Override
+    public void handleEvent(StreamSinkChannel destination) {
+      transfer(destination);
     }
 
     public void transfer(StreamSinkChannel destination) {
@@ -330,13 +337,13 @@ class UndertowServerHttpResponse extends AbstractListenerServerHttpResponse impl
 
     }
 
-    public void closeSource() {
+    @Override
+    public void dispose() {
       try {
         this.source.close();
       }
       catch (IOException ignore) { }
     }
-
   }
 
 }
