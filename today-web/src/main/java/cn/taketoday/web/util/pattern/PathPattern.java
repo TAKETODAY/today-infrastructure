@@ -81,7 +81,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class PathPattern implements Comparable<PathPattern> {
 
-  private static final PathContainer EMPTY_PATH = PathContainer.parsePath("");
+  private static final PathContainer EMPTY_PATH = PathContainer.empty();
 
   /**
    * Comparator that sorts patterns by specificity as follows:
