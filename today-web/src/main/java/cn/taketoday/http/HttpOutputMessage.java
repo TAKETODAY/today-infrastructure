@@ -17,8 +17,15 @@
 
 package cn.taketoday.http;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Represents an HTTP output message, consisting of {@linkplain #getHeaders() headers}
@@ -40,5 +47,48 @@ public interface HttpOutputMessage extends HttpMessage {
    * @throws IOException in case of I/O errors
    */
   OutputStream getBody() throws IOException;
+
+  default boolean supportsZeroCopy() {
+    return false;
+  }
+
+  /**
+   * Use the given {@link File} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   */
+  default void sendFile(File file) {
+    sendFile(file, 0, file.length());
+  }
+
+  /**
+   * Use the given {@link File} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   * @param position the position within the file from which the transfer is to begin
+   * @param count the number of bytes to be transferred
+   */
+  default void sendFile(File file, long position, long count) {
+    sendFile(file.toPath(), position, count);
+  }
+
+  /**
+   * Use the given {@link Path} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   * @param position the position within the file from which the transfer is to begin
+   * @param count the number of bytes to be transferred
+   */
+  default void sendFile(Path file, long position, long count) {
+    try (InputStream inputStream = Files.newInputStream(file)) {
+      StreamUtils.copyRange(inputStream, getBody(), position, count);
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
 
 }

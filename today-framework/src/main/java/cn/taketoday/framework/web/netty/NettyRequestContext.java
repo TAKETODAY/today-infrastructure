@@ -17,6 +17,7 @@
 
 package cn.taketoday.framework.web.netty;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -57,6 +58,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.CombinedHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -113,6 +115,9 @@ public class NettyRequestContext extends RequestContext {
 
   @Nullable
   private /* volatile ?*/ ByteBuf responseBody;
+
+  @Nullable
+  private DefaultFileRegion fileToSend;
 
   /**
    * response headers
@@ -414,7 +419,12 @@ public class NettyRequestContext extends RequestContext {
 
     @Override
     public void sendFile(Path file, long position, long count) {
-      channelContext.writeAndFlush(responseBody);
+      sendFile(file.toFile(), position, count);
+    }
+
+    @Override
+    public void sendFile(File file, long position, long count) {
+      fileToSend = new DefaultFileRegion(file, position, count);
     }
 
   }
@@ -426,11 +436,16 @@ public class NettyRequestContext extends RequestContext {
     }
 
     writeHeaders();
+
+    DefaultFileRegion fileToSend;
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
       // DefaultHttpContent
       channelContext.writeAndFlush(responseBody);
+    }
+    else if ((fileToSend = this.fileToSend) != null) {
+      channelContext.writeAndFlush(fileToSend);
     }
   }
 
