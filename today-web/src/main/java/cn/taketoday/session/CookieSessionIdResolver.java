@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.session;
-
-import java.util.ArrayList;
 
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Assert;
@@ -59,6 +54,7 @@ import cn.taketoday.web.RequestContext;
 public class CookieSessionIdResolver implements SessionIdResolver {
 
   private final String cookieName;
+
   private final CookieProperties config;
 
   public CookieSessionIdResolver() {
@@ -92,10 +88,11 @@ public class CookieSessionIdResolver implements SessionIdResolver {
     HttpCookie cookie = context.getCookie(cookieName);
     if (cookie == null) {
       // fallback to response cookies
-      ArrayList<HttpCookie> httpCookies = context.responseCookies();
-      for (HttpCookie httpCookie : httpCookies) {
-        if (cookieName.equals(httpCookie.getName())) {
-          return httpCookie.getValue();
+      if (context.hasResponseCookie()) {
+        for (HttpCookie httpCookie : context.responseCookies()) {
+          if (cookieName.equals(httpCookie.getName())) {
+            return httpCookie.getValue();
+          }
         }
       }
       return null;
