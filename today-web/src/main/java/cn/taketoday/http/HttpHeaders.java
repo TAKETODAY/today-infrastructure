@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -520,7 +520,9 @@ public abstract class HttpHeaders
    * RFC 7232</a>
    */
   public static final Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
+
   public static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
+
   public static final ZoneId GMT = ZoneId.of("GMT");
 
   /**
@@ -1101,7 +1103,7 @@ public abstract class HttpHeaders
    * Set the {@linkplain MediaType media type} of the body, as specified by the
    * {@code Content-Type} header.
    */
-  public void setContentType(MediaType mediaType) {
+  public void setContentType(@Nullable MediaType mediaType) {
     if (mediaType != null) {
       Assert.isTrue(!mediaType.isWildcardType(), "Content-Type cannot contain wildcard type '*'");
       Assert.isTrue(!mediaType.isWildcardSubtype(), "Content-Type cannot contain wildcard subtype '*'");

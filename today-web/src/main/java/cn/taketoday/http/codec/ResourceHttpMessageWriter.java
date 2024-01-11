@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -70,11 +70,15 @@ import reactor.core.scheduler.Schedulers;
  * @since 4.0
  */
 public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
+
   private static final Logger logger = HttpLogging.forLogName(ResourceHttpMessageWriter.class);
+
   private static final ResolvableType REGION_TYPE = ResolvableType.forClass(ResourceRegion.class);
 
   private final ResourceEncoder encoder;
+
   private final List<MediaType> mediaTypes;
+
   private final ResourceRegionEncoder regionEncoder;
 
   public ResourceHttpMessageWriter() {
@@ -254,9 +258,7 @@ public class ResourceHttpMessageWriter implements HttpMessageWriter<Resource> {
     });
   }
 
-  private Mono<Void> writeSingleRegion(ResourceRegion region,
-          ReactiveHttpOutputMessage message, Map<String, Object> hints) {
-
+  private Mono<Void> writeSingleRegion(ResourceRegion region, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
     Mono<Void> result = zeroCopy(region.getResource(), region, message, hints);
     if (result != null) {
       return result;

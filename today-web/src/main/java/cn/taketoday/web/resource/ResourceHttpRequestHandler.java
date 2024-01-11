@@ -561,14 +561,15 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     // Content phase
     ServerHttpResponse outputMessage = request.asHttpOutputMessage();
     if (request.requestHeaders().get(HttpHeaders.RANGE) == null) {
-      Assert.state(resourceHttpMessageConverter != null, "Not initialized");
+      ResourceHttpMessageConverter converter = this.resourceHttpMessageConverter;
+      Assert.state(converter != null, "Not initialized");
 
       if (HttpMethod.HEAD == request.getMethod()) {
-        resourceHttpMessageConverter.addDefaultHeaders(request.responseHeaders(), resource, mediaType);
+        converter.addDefaultHeaders(request.responseHeaders(), resource, mediaType);
         outputMessage.flush();
       }
       else {
-        resourceHttpMessageConverter.write(resource, mediaType, outputMessage);
+        converter.write(resource, mediaType, outputMessage);
       }
     }
     else {
@@ -577,8 +578,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       try {
         List<HttpRange> httpRanges = request.getHeaders().getRange();
         request.setStatus(HttpStatus.PARTIAL_CONTENT);
-        converter.write(HttpRange.toResourceRegions(httpRanges, resource),
-                mediaType, outputMessage);
+        converter.write(HttpRange.toResourceRegions(httpRanges, resource), mediaType, outputMessage);
       }
       catch (IllegalArgumentException ex) {
         request.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + resource.contentLength());

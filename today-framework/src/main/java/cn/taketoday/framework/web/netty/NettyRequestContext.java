@@ -59,6 +59,7 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DefaultHeaders;
 import io.netty.handler.codec.http.CombinedHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
@@ -81,7 +82,6 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
-import io.netty.util.ReferenceCountUtil;
 
 import static cn.taketoday.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED;
 
@@ -117,7 +117,7 @@ public class NettyRequestContext extends RequestContext {
   private /* volatile ?*/ ByteBuf responseBody;
 
   @Nullable
-  private DefaultFileRegion fileToSend;
+  private FileRegion fileToSend;
 
   /**
    * response headers
@@ -437,7 +437,7 @@ public class NettyRequestContext extends RequestContext {
 
     writeHeaders();
 
-    DefaultFileRegion fileToSend;
+    FileRegion fileToSend;
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
       this.responseBody = null;
@@ -518,6 +518,7 @@ public class NettyRequestContext extends RequestContext {
               .addListener(ChannelFutureListener.CLOSE);
     }
 
+    InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
@@ -579,7 +580,7 @@ public class NettyRequestContext extends RequestContext {
       }
 
       // write response
-      HttpVersion httpVersion = config.getHttpVersion(); // todo http version
+      HttpVersion httpVersion = config.getHttpVersion();
       if (isKeepAlive()) {
         HttpUtil.setKeepAlive(responseHeaders, httpVersion, true);
       }
@@ -607,11 +608,9 @@ public class NettyRequestContext extends RequestContext {
 
     ByteBuf responseBody = this.responseBody;
     if (responseBody != null) {
-      this.responseBody = null;
-      if (writer != null) {
-        writer.flush(); // flush to responseBody
-      }
-      ReferenceCountUtil.safeRelease(responseBody);
+      responseBody.resetWriterIndex();
+      responseBody.resetReaderIndex();
+      writer = null;
     }
     status = HttpResponseStatus.OK;
   }

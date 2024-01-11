@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io.buffer;
@@ -148,8 +148,7 @@ public abstract class DataBufferUtils {
    * @return a Flux of data buffers read from the given channel
    */
   public static Flux<DataBuffer> readAsynchronousFileChannel(
-          Callable<AsynchronousFileChannel> channelSupplier, long position,
-          DataBufferFactory bufferFactory, int bufferSize) {
+          Callable<AsynchronousFileChannel> channelSupplier, long position, DataBufferFactory bufferFactory, int bufferSize) {
 
     Assert.notNull(channelSupplier, "'channelSupplier' is required");
     Assert.notNull(bufferFactory, "'bufferFactory' is required");
@@ -192,8 +191,7 @@ public abstract class DataBufferUtils {
       }
     }
 
-    return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(path, options),
-            bufferFactory, bufferSize);
+    return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(path, options), bufferFactory, bufferSize);
   }
 
   /**
@@ -232,8 +230,7 @@ public abstract class DataBufferUtils {
     try {
       if (resource.isFile()) {
         File file = resource.getFile();
-        return readAsynchronousFileChannel(
-                () -> AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ),
+        return readAsynchronousFileChannel(() -> AsynchronousFileChannel.open(file.toPath(), StandardOpenOption.READ),
                 position, bufferFactory, bufferSize);
       }
     }
@@ -372,12 +369,8 @@ public abstract class DataBufferUtils {
       try {
         AsynchronousFileChannel channel = AsynchronousFileChannel.open(destination, optionSet, null);
         sink.onDispose(() -> closeChannel(channel));
-        write(source, channel).subscribe(
-                DataBufferUtils::release,
-                sink::error,
-                sink::success,
-                Context.of(sink.contextView())
-        );
+        write(source, channel)
+                .subscribe(DataBufferUtils::release, sink::error, sink::success, Context.of(sink.contextView()));
       }
       catch (IOException ex) {
         sink.error(ex);
@@ -954,12 +947,12 @@ public abstract class DataBufferUtils {
   private static class ReadableByteChannelGenerator implements Consumer<SynchronousSink<DataBuffer>> {
 
     private final int bufferSize;
+
     private final ReadableByteChannel channel;
+
     private final DataBufferFactory dataBufferFactory;
 
-    public ReadableByteChannelGenerator(
-            ReadableByteChannel channel, DataBufferFactory dataBufferFactory, int bufferSize) {
-
+    public ReadableByteChannelGenerator(ReadableByteChannel channel, DataBufferFactory dataBufferFactory, int bufferSize) {
       this.channel = channel;
       this.dataBufferFactory = dataBufferFactory;
       this.bufferSize = bufferSize;
