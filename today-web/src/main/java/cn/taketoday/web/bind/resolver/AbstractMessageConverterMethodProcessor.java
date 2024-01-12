@@ -92,14 +92,16 @@ public abstract class AbstractMessageConverterMethodProcessor
   );
 
   private static final Set<String> SAFE_MEDIA_BASE_TYPES = Set.of("audio", "image", "video");
+
   private static final List<MediaType> ALL_APPLICATION_MEDIA_TYPES = List.of(MediaType.ALL, new MediaType("application"));
+
   private static final Type RESOURCE_REGION_LIST_TYPE =
           new ParameterizedTypeReference<List<ResourceRegion>>() { }.getType();
 
-  private final ContentNegotiationManager contentNegotiationManager;
-
-  private final List<MediaType> problemMediaTypes =
+  private static final List<MediaType> problemMediaTypes =
           Arrays.asList(MediaType.APPLICATION_PROBLEM_JSON, MediaType.APPLICATION_PROBLEM_XML);
+
+  private final ContentNegotiationManager contentNegotiationManager;
 
   private final HashSet<String> safeExtensions = new HashSet<>();
 
@@ -232,7 +234,7 @@ public abstract class AbstractMessageConverterMethodProcessor
 
       // For ProblemDetail, fall back on RFC 7807 format
       if (compatibleMediaTypes.isEmpty() && ProblemDetail.class.isAssignableFrom(valueType)) {
-        determineCompatibleMediaTypes(this.problemMediaTypes, producibleTypes, compatibleMediaTypes);
+        determineCompatibleMediaTypes(problemMediaTypes, producibleTypes, compatibleMediaTypes);
       }
 
       if (compatibleMediaTypes.isEmpty()) {
