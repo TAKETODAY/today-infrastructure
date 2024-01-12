@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -147,7 +147,8 @@ public abstract class AbstractMessageConverterMethodProcessor
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected <T> void writeWithMessageConverters(@Nullable T value, @Nullable MethodParameter returnType, RequestContext context)
-          throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException {
+          throws IOException, HttpMediaTypeNotAcceptableException, HttpMessageNotWritableException //
+  {
 
     Object body;
     Type targetType;
@@ -177,7 +178,7 @@ public abstract class AbstractMessageConverterMethodProcessor
           Resource resource = (Resource) value;
           try {
             List<HttpRange> httpRanges = HttpRange.parseRanges(headerRange);
-            context.setStatus(HttpStatus.PARTIAL_CONTENT.value());
+            context.setStatus(HttpStatus.PARTIAL_CONTENT);
             body = HttpRange.toResourceRegions(httpRanges, resource);
             valueType = body.getClass();
             targetType = RESOURCE_REGION_LIST_TYPE;

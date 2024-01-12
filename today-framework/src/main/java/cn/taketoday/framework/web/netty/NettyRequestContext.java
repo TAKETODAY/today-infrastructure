@@ -260,6 +260,11 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
+  public boolean containsResponseHeader(String name) {
+    return nettyResponseHeaders.contains(name);
+  }
+
+  @Override
   protected cn.taketoday.http.HttpHeaders createResponseHeaders() {
     return new NettyHttpHeaders(nettyResponseHeaders);
   }

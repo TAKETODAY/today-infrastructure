@@ -102,7 +102,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setMethod("HEAD");
       this.request.setRequestURI("foo.css");
       this.handler.handleRequest(requestContext);
-
+      requestContext.requestCompleted();
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentLength()).isEqualTo(17);
@@ -149,8 +149,7 @@ public class ResourceHttpRequestHandlerTests {
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
 
-    @Test  // SPR-14577
-    @SuppressWarnings("deprecation")
+    @Test
     void getMediaTypeWithFavorPathExtensionOff() throws Throwable {
       ContentNegotiationManagerFactoryBean factory = new ContentNegotiationManagerFactoryBean();
       factory.setFavorPathExtension(false);

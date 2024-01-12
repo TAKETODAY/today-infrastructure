@@ -566,7 +566,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
 
       if (HttpMethod.HEAD == request.getMethod()) {
         converter.addDefaultHeaders(request.responseHeaders(), resource, mediaType);
-        outputMessage.flush();
       }
       else {
         converter.write(resource, mediaType, outputMessage);

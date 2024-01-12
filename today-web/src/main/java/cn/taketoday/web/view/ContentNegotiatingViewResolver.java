@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -76,13 +76,13 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
  * @author Arjen Poutsma
  * @author Juergen Hoeller
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ViewResolver
  * @see InternalResourceViewResolver
  * @see BeanNameViewResolver
  * @since 4.0
  */
-public class ContentNegotiatingViewResolver
-        extends ApplicationObjectSupport implements ViewResolver, Ordered, InitializingBean {
+public class ContentNegotiatingViewResolver extends ApplicationObjectSupport implements ViewResolver, Ordered, InitializingBean {
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
@@ -292,9 +292,7 @@ public class ContentNegotiatingViewResolver
     }
   }
 
-  private List<View> getCandidateViews(
-          String viewName, Locale locale, List<MediaType> requestedMediaTypes) throws Exception {
-
+  private List<View> getCandidateViews(String viewName, Locale locale, List<MediaType> requestedMediaTypes) throws Exception {
     ArrayList<View> candidateViews = new ArrayList<>();
     if (viewResolvers != null) {
       ContentNegotiationManager negotiationManager = getContentNegotiationManager();
@@ -323,8 +321,7 @@ public class ContentNegotiatingViewResolver
   }
 
   @Nullable
-  private View getBestView(
-          List<View> candidateViews, List<MediaType> requestedMediaTypes, RequestContext context) {
+  private View getBestView(List<View> candidateViews, List<MediaType> requestedMediaTypes, RequestContext context) {
     for (View candidateView : candidateViews) {
       if (candidateView instanceof SmartView smartView) {
         if (smartView.isRedirectView()) {
