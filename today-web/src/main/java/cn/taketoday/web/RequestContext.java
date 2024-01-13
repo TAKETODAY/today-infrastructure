@@ -62,7 +62,6 @@ import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -692,7 +691,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  @NonNull
   @Override
   public String getMethodValue() {
     String method = this.method;
@@ -703,7 +701,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return method;
   }
 
-  @NonNull
   @Override
   public HttpMethod getMethod() {
     HttpMethod httpMethod = this.httpMethod;
@@ -800,14 +797,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean isMultipart() {
+    Boolean multipartFlag = this.multipartFlag;
     if (multipartFlag == null) {
-      if (HttpMethod.GET == getMethod()) {
+      HttpMethod method = getMethod();
+      if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
         multipartFlag = false;
       }
       else {
-        String contentType = getContentType();
-        multipartFlag = contentType != null && contentType.toLowerCase().startsWith("multipart/");
+        multipartFlag = StringUtils.startsWithIgnoreCase(getContentType(), "multipart/");
       }
+      this.multipartFlag = multipartFlag;
     }
     return multipartFlag;
   }

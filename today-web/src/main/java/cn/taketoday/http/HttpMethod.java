@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -26,20 +26,15 @@ import cn.taketoday.web.annotation.RequestMapping;
  * Enumeration of HTTP request methods. Intended for use with the
  * {@link RequestMapping#method()} attribute of the {@link RequestMapping} annotation.
  *
- * @author TODAY 2018-06-27 19:01:04
- * @version 2.0.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @version 2.0.0 2018-06-27 19:01:04
  */
 public enum HttpMethod {
 
   GET, POST, PUT, DELETE, PATCH, TRACE, HEAD, OPTIONS, CONNECT;
 
-  private static final HashMap<String, HttpMethod> mappings = new HashMap<>(16);
-
-  static {
-    for (HttpMethod httpMethod : values()) {
-      mappings.put(httpMethod.name(), httpMethod);
-    }
-  }
+  private static final Map<String, HttpMethod> mappings = Map.of(GET.name(), GET, POST.name(), POST, PUT.name(), PUT, DELETE.name(),
+          DELETE, PATCH.name(), PATCH, TRACE.name(), TRACE, HEAD.name(), HEAD, OPTIONS.name(), OPTIONS, CONNECT.name(), CONNECT);
 
   /**
    * Determine whether this {@code HttpMethod} matches the given method value.

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -48,13 +45,13 @@ import reactor.core.publisher.Mono;
  * The purpose of this reader is to collect the parts into a map.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MultipartHttpMessageReader
-        extends LoggingCodecSupport implements HttpMessageReader<MultiValueMap<String, Part>> {
+public class MultipartHttpMessageReader extends LoggingCodecSupport implements HttpMessageReader<MultiValueMap<String, Part>> {
 
-  private static final ResolvableType MULTIPART_VALUE_TYPE = ResolvableType.forClassWithGenerics(
-          MultiValueMap.class, String.class, Part.class);
+  private static final ResolvableType MULTIPART_VALUE_TYPE =
+          ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, Part.class);
 
   static final List<MediaType> MIME_TYPES = List.of(
           MediaType.MULTIPART_FORM_DATA, MediaType.MULTIPART_MIXED, MediaType.MULTIPART_RELATED);
@@ -94,9 +91,7 @@ public class MultipartHttpMessageReader
   }
 
   @Override
-  public Flux<MultiValueMap<String, Part>> read(
-          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
-
+  public Flux<MultiValueMap<String, Part>> read(ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Flux.from(readMono(elementType, message, hints));
   }
 

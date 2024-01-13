@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -63,13 +63,19 @@ import reactor.core.scheduler.Schedulers;
 public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements HttpMessageReader<Part> {
 
   private int maxHeadersSize = 8 * 1024;
+
   private int maxInMemorySize = 256 * 1024;
+
   private long maxDiskUsagePerPart = -1;
 
   private int maxParts = -1;
+
   private boolean streaming;
+
   private Charset headersCharset = StandardCharsets.UTF_8;
+
   private Scheduler blockingOperationScheduler = Schedulers.boundedElastic();
+
   private FileStorage fileStorage = FileStorage.tempDirectory(this::getBlockingOperationScheduler);
 
   /**
@@ -208,14 +214,12 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
   }
 
   @Override
-  public Mono<Part> readMono(
-          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Mono<Part> readMono(ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Mono.error(new UnsupportedOperationException("Cannot read multipart request body into single Part"));
   }
 
   @Override
-  public Flux<Part> read(
-          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Flux<Part> read(ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
     return Flux.defer(() -> {
       byte[] boundary = MultipartUtils.boundary(message, this.headersCharset);
       if (boundary == null) {
@@ -223,11 +227,8 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
                 message.getHeaders().getContentType() + "\""));
       }
 
-      Flux<MultipartParser.Token> allPartsTokens = MultipartParser.parse(
-              message.getBody(), boundary, maxHeadersSize, headersCharset);
-
       AtomicInteger partCount = new AtomicInteger();
-      return allPartsTokens
+      return MultipartParser.parse(message.getBody(), boundary, maxHeadersSize, headersCharset)
               .windowUntil(MultipartParser.Token::isLast)
               .concatMap(partsTokens -> {
                 if (tooManyParts(partCount)) {
@@ -235,9 +236,8 @@ public class DefaultPartHttpMessageReader extends LoggingCodecSupport implements
                           this.maxParts + " allowed)"));
                 }
                 else {
-                  return PartGenerator.createPart(partsTokens,
-                          this.maxInMemorySize, this.maxDiskUsagePerPart, this.streaming,
-                          this.fileStorage.directory(), this.blockingOperationScheduler);
+                  return PartGenerator.createPart(partsTokens, this.maxInMemorySize, this.maxDiskUsagePerPart,
+                          this.streaming, this.fileStorage.directory(), this.blockingOperationScheduler);
                 }
               });
     });

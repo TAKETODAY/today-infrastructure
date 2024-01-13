@@ -83,8 +83,6 @@ import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
-import static cn.taketoday.http.HttpHeaders.APPLICATION_X_WWW_FORM_URLENCODED;
-
 /**
  * Netty Request context
  *
@@ -264,6 +262,19 @@ public class NettyRequestContext extends RequestContext {
     return nettyResponseHeaders.contains(name);
   }
 
+  @Nullable
+  @Override
+  public String getResponseContentType() {
+    String contentType = this.responseContentType;
+    if (contentType == null) {
+      contentType = nettyResponseHeaders.get(DefaultHttpHeaders.CONTENT_TYPE);
+      if (contentType != null) {
+        this.responseContentType = contentType;
+      }
+    }
+    return contentType;
+  }
+
   @Override
   protected cn.taketoday.http.HttpHeaders createResponseHeaders() {
     return new NettyHttpHeaders(nettyResponseHeaders);
@@ -302,16 +313,15 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected void postGetParameters(MultiValueMap<String, String> parameters) {
     HttpMethod method = getMethod();
-    if (method != HttpMethod.GET && method != HttpMethod.HEAD) {
-      if (APPLICATION_X_WWW_FORM_URLENCODED.equals(getContentType())) {
-        for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
-          if (data instanceof Attribute) {
-            try {
-              parameters.add(data.getName(), ((Attribute) data).getValue());
-            }
-            catch (IOException e) {
-              throw new HttpMessageNotReadableException("Netty 'application/x-www-form-urlencoded' content read failed", e, this);
-            }
+    if (method != HttpMethod.GET && method != HttpMethod.HEAD
+            && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+      for (InterfaceHttpData data : requestDecoder().getBodyHttpDatas()) {
+        if (data instanceof Attribute) {
+          try {
+            parameters.add(data.getName(), ((Attribute) data).getValue());
+          }
+          catch (IOException e) {
+            throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content netty read failed", e, this);
           }
         }
       }
@@ -390,50 +400,6 @@ public class NettyRequestContext extends RequestContext {
     return new NettyHttpOutputMessage();
   }
 
-  final class NettyHttpOutputMessage implements ServerHttpResponse {
-
-    @Override
-    public void setStatusCode(HttpStatusCode status) {
-      setStatus(status);
-    }
-
-    @Override
-    public void flush() {
-      NettyRequestContext.this.flush();
-    }
-
-    @Override
-    public void close() {
-      writeHeaders();
-    }
-
-    @Override
-    public OutputStream getBody() throws IOException {
-      return getOutputStream();
-    }
-
-    @Override
-    public cn.taketoday.http.HttpHeaders getHeaders() {
-      return responseHeaders();
-    }
-
-    @Override
-    public boolean supportsZeroCopy() {
-      return true;
-    }
-
-    @Override
-    public void sendFile(Path file, long position, long count) {
-      sendFile(file.toFile(), position, count);
-    }
-
-    @Override
-    public void sendFile(File file, long position, long count) {
-      fileToSend = new DefaultFileRegion(file, position, count);
-    }
-
-  }
-
   @Override
   public void flush() {
     if (writer != null) {
@@ -456,23 +422,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected OutputStream doGetOutputStream() {
-    return new ByteBufOutputStream();
-  }
-
-  final class ByteBufOutputStream extends OutputStream {
-
-    @Override
-    public void write(int b) {
-      responseBody().writeByte(b);
-    }
-
-    @Override
-    public void write(byte[] b, int off, int len) {
-      if (len != 0) {
-        responseBody().writeBytes(b, off, len);
-      }
-    }
-
+    return getMethod() == HttpMethod.HEAD ? new NoBodyOutputStream() : new ResponseBodyOutputStream();
   }
 
   @Override
@@ -545,21 +495,25 @@ public class NettyRequestContext extends RequestContext {
       // ---------------------------------------------
       // apply Status code and headers
       // ---------------------------------------------
-      HttpHeaders responseHeaders = nettyResponseHeaders;
+      HttpHeaders headers = nettyResponseHeaders;
       // set Content-Length header
-      String contentType = getResponseContentType();
-      if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(contentType)) {
-        responseHeaders.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
-        responseHeaders.remove(DefaultHttpHeaders.CONTENT_LENGTH);
+      if (MediaType.TEXT_EVENT_STREAM_VALUE.equals(getResponseContentType())) {
+        headers.set(DefaultHttpHeaders.TRANSFER_ENCODING, DefaultHttpHeaders.CHUNKED);
+        headers.remove(DefaultHttpHeaders.CONTENT_LENGTH);
       }
-      else if (!isTransferEncodingChunked(responseHeaders)) {
-        if (responseHeaders.get(DefaultHttpHeaders.CONTENT_LENGTH) == null) {
+      else if (!isTransferEncodingChunked(headers)) {
+        if (headers.get(DefaultHttpHeaders.CONTENT_LENGTH) == null) {
           ByteBuf responseBody = this.responseBody;
           if (responseBody == null) {
-            responseHeaders.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
+            if (getMethod() == HttpMethod.HEAD && outputStream instanceof NoBodyOutputStream nbStream) {
+              headers.set(DefaultHttpHeaders.CONTENT_LENGTH, nbStream.contentLength);
+            }
+            else {
+              headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, 0);
+            }
           }
           else {
-            responseHeaders.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
+            headers.setInt(DefaultHttpHeaders.CONTENT_LENGTH, responseBody.readableBytes());
           }
         }
       }
@@ -567,7 +521,6 @@ public class NettyRequestContext extends RequestContext {
       // apply cookies
       ArrayList<HttpCookie> responseCookies = this.responseCookies;
       if (responseCookies != null) {
-        String setCookie = DefaultHttpHeaders.SET_COOKIE;
         ServerCookieEncoder cookieEncoder = config.getCookieEncoder();
         for (HttpCookie cookie : responseCookies) {
           DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
@@ -580,17 +533,17 @@ public class NettyRequestContext extends RequestContext {
             nettyCookie.setSameSite(forSameSite(responseCookie.getSameSite()));
           }
 
-          responseHeaders.add(setCookie, cookieEncoder.encode(nettyCookie));
+          headers.add(DefaultHttpHeaders.SET_COOKIE, cookieEncoder.encode(nettyCookie));
         }
       }
 
       // write response
       HttpVersion httpVersion = config.getHttpVersion();
       if (isKeepAlive()) {
-        HttpUtil.setKeepAlive(responseHeaders, httpVersion, true);
+        HttpUtil.setKeepAlive(headers, httpVersion, true);
       }
 
-      var noBody = new DefaultHttpResponse(httpVersion, status, responseHeaders);
+      var noBody = new DefaultHttpResponse(httpVersion, status, headers);
       channelContext.write(noBody);
     }
 
@@ -656,8 +609,6 @@ public class NettyRequestContext extends RequestContext {
     reset();
     this.status = HttpResponseStatus.valueOf(sc);
     config.getSendErrorHandler().handleError(this, msg);
-
-//    commit();
   }
 
   @Override
@@ -766,8 +717,8 @@ public class NettyRequestContext extends RequestContext {
       super(true, new TrailerNameValidator(filterHeaderNames(declaredHeaderNames)));
     }
 
-    static Set<String> filterHeaderNames(String declaredHeaderNames) {
-      Set<String> result = new HashSet<>();
+    static HashSet<String> filterHeaderNames(String declaredHeaderNames) {
+      HashSet<String> result = new HashSet<>();
       String[] names = declaredHeaderNames.split(",", -1);
       for (String name : names) {
         String trimmedStr = name.trim();
@@ -780,25 +731,107 @@ public class NettyRequestContext extends RequestContext {
       return result;
     }
 
-    static final class TrailerNameValidator implements DefaultHeaders.NameValidator<CharSequence> {
+  }
 
-      /**
-       * Contains the headers names specified with {@link DefaultHttpHeaders#TRAILER}
-       */
-      final Set<String> declaredHeaderNames;
+  static final class TrailerNameValidator implements DefaultHeaders.NameValidator<CharSequence> {
 
-      TrailerNameValidator(Set<String> declaredHeaderNames) {
-        this.declaredHeaderNames = declaredHeaderNames;
-      }
+    /**
+     * Contains the headers names specified with {@link DefaultHttpHeaders#TRAILER}
+     */
+    final HashSet<String> declaredHeaderNames;
 
-      @Override
-      public void validateName(CharSequence name) {
-        if (!declaredHeaderNames.contains(name.toString())) {
-          throw new IllegalArgumentException("Trailer header name [" + name +
-                  "] not declared with [Trailer] header, or it is not a valid trailer header name");
-        }
+    TrailerNameValidator(HashSet<String> declaredHeaderNames) {
+      this.declaredHeaderNames = declaredHeaderNames;
+    }
+
+    @Override
+    public void validateName(CharSequence name) {
+      if (!declaredHeaderNames.contains(name.toString())) {
+        throw new IllegalArgumentException("Trailer header name [" + name +
+                "] not declared with [Trailer] header, or it is not a valid trailer header name");
       }
     }
+  }
+
+  static final class NoBodyOutputStream extends OutputStream {
+
+    public int contentLength = 0;
+
+    @Override
+    public void write(int b) {
+      contentLength++;
+    }
+
+    @Override
+    public void write(byte[] buf, int offset, int len) {
+      if (offset < 0 || len < 0 || offset + len > buf.length) {
+        throw new IndexOutOfBoundsException("Invalid offset [%s] and / or length [%s] specified for array of size [%s]"
+                .formatted(offset, len, buf.length));
+      }
+
+      contentLength += len;
+    }
+
+  }
+
+  final class ResponseBodyOutputStream extends OutputStream {
+
+    @Override
+    public void write(int b) {
+      responseBody().writeByte(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      if (len != 0) {
+        responseBody().writeBytes(b, off, len);
+      }
+    }
+
+  }
+
+  final class NettyHttpOutputMessage implements ServerHttpResponse {
+
+    @Override
+    public void setStatusCode(HttpStatusCode status) {
+      setStatus(status);
+    }
+
+    @Override
+    public void flush() {
+      NettyRequestContext.this.flush();
+    }
+
+    @Override
+    public void close() {
+      writeHeaders();
+    }
+
+    @Override
+    public OutputStream getBody() throws IOException {
+      return getOutputStream();
+    }
+
+    @Override
+    public cn.taketoday.http.HttpHeaders getHeaders() {
+      return responseHeaders();
+    }
+
+    @Override
+    public boolean supportsZeroCopy() {
+      return true;
+    }
+
+    @Override
+    public void sendFile(Path file, long position, long count) {
+      sendFile(file.toFile(), position, count);
+    }
+
+    @Override
+    public void sendFile(File file, long position, long count) {
+      fileToSend = new DefaultFileRegion(file, position, count);
+    }
+
   }
 
 }

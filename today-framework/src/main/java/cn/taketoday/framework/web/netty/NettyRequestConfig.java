@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,7 +63,7 @@ public class NettyRequestConfig {
    *
    * @see io.netty.buffer.Unpooled#buffer(int)
    */
-  private int bodyInitialSize = 64;
+  private int bodyInitialSize = 512;
 
   @Nullable
   private Function<RequestContext, ByteBuf> responseBodyFactory;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ import reactor.util.context.Context;
  * @since 4.0
  */
 final class MultipartParser extends BaseSubscriber<DataBuffer> {
+
   private static final Logger log = LoggerFactory.getLogger(MultipartParser.class);
 
   private static final byte CR = '\r';
@@ -63,12 +64,15 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
   private static final String HEADER_ENTRY_SEPARATOR = "\\r\\n";
 
   private final FluxSink<Token> sink;
+
   private final AtomicReference<State> state;
 
   private final byte[] boundary;
+
   private final int maxHeadersSize;
 
   private final Charset headersCharset;
+
   private final AtomicBoolean requestOutstanding = new AtomicBoolean();
 
   private MultipartParser(FluxSink<Token> sink, byte[] boundary, int maxHeadersSize, Charset headersCharset) {
@@ -88,8 +92,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
    * @param headersCharset the charset to use for decoding headers
    * @return a stream of parsed tokens
    */
-  public static Flux<Token> parse(
-          Flux<DataBuffer> buffers, byte[] boundary, int maxHeadersSize, Charset headersCharset) {
+  public static Flux<Token> parse(Flux<DataBuffer> buffers, byte[] boundary, int maxHeadersSize, Charset headersCharset) {
     return Flux.create(sink -> {
       MultipartParser parser = new MultipartParser(sink, boundary, maxHeadersSize, headersCharset);
       sink.onCancel(parser::onSinkCancel);
@@ -232,8 +235,9 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
    */
   public final static class BodyToken extends Token {
 
-    private final DataBuffer buffer;
     private final boolean last;
+
+    private final DataBuffer buffer;
 
     public BodyToken(DataBuffer buffer, boolean last) {
       this.buffer = buffer;
@@ -342,6 +346,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
     private final DataBufferUtils.Matcher endHeaders = DataBufferUtils.matcher(DOUBLE_CR_LF);
 
     private final AtomicInteger byteCount = new AtomicInteger();
+
     private final ArrayList<DataBuffer> buffers = new ArrayList<>();
 
     /**
@@ -571,7 +576,9 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
         len += previous.readableByteCount();
       }
 
-      emit.forEach(buffer -> MultipartParser.this.emitBody(buffer, false));
+      for (DataBuffer buffer : emit) {
+        MultipartParser.this.emitBody(buffer, false);
+      }
     }
 
     private void flush() {

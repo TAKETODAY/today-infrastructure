@@ -505,12 +505,8 @@ public abstract class HttpHeaders
   public static final String MUST_REVALIDATE = "must-revalidate";
   public static final String PROXY_REVALIDATE = "proxy-revalidate";
   public static final String QUOTED_PRINTABLE = "quoted-printable";
-  public static final String MULTIPART_FORM_DATA = "multipart/form-data";
   public static final String INLINE_FILE_NAME = "inline;filename=\"";
   public static final String ATTACHMENT_FILE_NAME = "attachment;filename=\"";
-  public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-  public static final String APPLICATION_FORCE_DOWNLOAD = "application/force-download;";
-  public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
