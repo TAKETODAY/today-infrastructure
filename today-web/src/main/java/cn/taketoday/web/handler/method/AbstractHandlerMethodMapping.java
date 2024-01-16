@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -516,15 +516,17 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
   @Override
   protected boolean hasCorsConfigurationSource(Object handler) {
+    HandlerMethod handlerMethod;
     return super.hasCorsConfigurationSource(handler)
-            || (handler instanceof HandlerMethod handlerMethod
+            || (((handlerMethod = HandlerMethod.unwrap(handler)) != null)
             && mappingRegistry.getCorsConfiguration(handlerMethod) != null);
   }
 
   @Override
   protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
     CorsConfiguration corsConfig = super.getCorsConfiguration(handler, request);
-    if (handler instanceof HandlerMethod handlerMethod) {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
       if (handlerMethod.equals(PREFLIGHT_AMBIGUOUS_MATCH)) {
         return AbstractHandlerMethodMapping.ALLOW_CORS_CONFIG;
       }
@@ -544,7 +546,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   @Nullable
   @Override
   protected HandlerInterceptor[] getHandlerInterceptors(Object handler) {
-    if (handler instanceof HandlerMethod handlerMethod) {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
       return mappingRegistry.getHandlerInterceptors(handlerMethod);
     }
     return null;

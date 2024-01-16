@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -24,6 +21,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.InterceptorChain;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -35,12 +34,14 @@ import cn.taketoday.web.RequestContext;
  * @see HandlerInterceptor
  * @since 4.0 2022/5/22 22:42
  */
-public class HandlerExecutionChain
-        extends InterceptableRequestHandler implements HandlerWrapper, HandlerAdapterAware {
+public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAware, HttpRequestHandler {
 
   private final Object handler;
 
   private HandlerAdapter handlerAdapter;
+
+  @Nullable
+  private final HandlerInterceptor[] interceptors;
 
   /**
    * Create a new HandlerExecutionChain.
@@ -48,7 +49,7 @@ public class HandlerExecutionChain
    * @param handler the handler object to execute
    */
   public HandlerExecutionChain(Object handler) {
-    this(handler, (HandlerInterceptor[]) null);
+    this(handler, null);
   }
 
   /**
@@ -58,15 +59,9 @@ public class HandlerExecutionChain
    * @param interceptors the array of interceptors to apply
    * (in the given order) before the handler itself executes
    */
-  public HandlerExecutionChain(Object handler, @Nullable HandlerInterceptor... interceptors) {
-    if (handler instanceof HandlerExecutionChain originalChain) {
-      this.handler = originalChain.getRawHandler();
-      addInterceptors(originalChain.getInterceptors());
-    }
-    else {
-      this.handler = handler;
-    }
-    addInterceptors(interceptors);
+  public HandlerExecutionChain(Object handler, @Nullable HandlerInterceptor[] interceptors) {
+    this.handler = handler;
+    this.interceptors = interceptors;
   }
 
   /**
@@ -77,18 +72,19 @@ public class HandlerExecutionChain
     return this.handler;
   }
 
-  /**
-   * Add the given interceptor to the end of this chain.
-   */
-  public void addInterceptor(HandlerInterceptor interceptor) {
-    interceptors.add(interceptor);
+  @Override
+  public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
+    this.handlerAdapter = handlerAdapter;
   }
 
   /**
-   * Add the given interceptor at the specified index of this chain.
+   * Create a new HandlerExecutionChain.
+   *
+   * @param interceptors the array of interceptors to apply
+   * (in the given order) before the handler itself executes
    */
-  public void addInterceptor(int index, HandlerInterceptor interceptor) {
-    interceptors.add(index, interceptor);
+  public HandlerExecutionChain withInterceptors(@Nullable HandlerInterceptor[] interceptors) {
+    return new HandlerExecutionChain(handler, interceptors);
   }
 
   /**
@@ -96,18 +92,35 @@ public class HandlerExecutionChain
    */
   @Override
   public String toString() {
-    return "HandlerExecutionChain with [" + getRawHandler() + "] and " + interceptorSize() + " interceptors";
+    return "HandlerExecutionChain with [" + handler + "] and "
+            + (interceptors != null ? interceptors.length : 0) + " interceptors";
   }
 
   @Nullable
   @Override
-  protected Object handleInternal(RequestContext context) throws Throwable {
-    return handlerAdapter.handle(context, handler);
+  public Object handleRequest(RequestContext request) throws Throwable {
+    HandlerInterceptor[] interceptors = this.interceptors;
+    if (interceptors == null) {
+      return handlerAdapter.handle(request, handler);
+    }
+    return new Chain(interceptors, handler).proceed(request);
   }
 
-  @Override
-  public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
-    this.handlerAdapter = handlerAdapter;
+  @Nullable
+  public HandlerInterceptor[] getInterceptors() {
+    return interceptors;
+  }
+
+  private final class Chain extends InterceptorChain {
+
+    private Chain(HandlerInterceptor[] interceptors, Object handler) {
+      super(interceptors, handler);
+    }
+
+    @Override
+    protected Object invokeHandler(RequestContext context, Object handler) throws Throwable {
+      return handlerAdapter.handle(context, handler);
+    }
   }
 
 }
