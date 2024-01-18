@@ -105,7 +105,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
@@ -868,16 +867,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @see ResourceHandlerRegistry
    */
   protected void addResourceHandlers(ResourceHandlerRegistry registry) { }
-
-  /**
-   * A {@link ResourceUrlProvider} bean for use with the MVC dispatcher.
-   */
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public ResourceUrlProvider mvcResourceUrlProvider() {
-    return new ResourceUrlProvider();
-  }
 
   /**
    * Return the registered {@link CorsConfiguration} objects,
