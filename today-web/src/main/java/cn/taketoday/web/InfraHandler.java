@@ -588,7 +588,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #configureAndRefreshApplicationContext(ConfigurableApplicationContext)
    * @see #applyInitializers(ConfigurableApplicationContext, List)
    */
-  public void setContextInitializerClasses(String contextInitializerClasses) {
+  public void setContextInitializerClasses(@Nullable String contextInitializerClasses) {
     this.contextInitializerClasses = contextInitializerClasses;
   }
 

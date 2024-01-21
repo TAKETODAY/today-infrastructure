@@ -134,8 +134,7 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
   // Server-side only...
 
   @Override
-  public Flux<T> read(
-          ResolvableType actualType, ResolvableType elementType,
+  public Flux<T> read(ResolvableType actualType, ResolvableType elementType,
           ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
 
     Map<String, Object> allHints = Hints.merge(
@@ -145,8 +144,7 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
   }
 
   @Override
-  public Mono<T> readMono(
-          ResolvableType actualType, ResolvableType elementType,
+  public Mono<T> readMono(ResolvableType actualType, ResolvableType elementType,
           ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
 
     Map<String, Object> allHints = Hints.merge(
@@ -160,9 +158,8 @@ public class DecoderHttpMessageReader<T> implements HttpMessageReader<T> {
    * or annotations from controller method parameters. By default, delegate to
    * the decoder if it is an instance of {@link HttpMessageDecoder}.
    */
-  protected Map<String, Object> getReadHints(
-          ResolvableType actualType, ResolvableType elementType,
-          ServerHttpRequest request, ServerHttpResponse response) {
+  protected Map<String, Object> getReadHints(ResolvableType actualType,
+          ResolvableType elementType, ServerHttpRequest request, ServerHttpResponse response) {
 
     if (this.decoder instanceof HttpMessageDecoder<?> decoder) {
       return decoder.getDecodeHints(actualType, elementType, request, response);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -27,10 +24,10 @@ import java.util.Map;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.Encoder;
 import cn.taketoday.core.codec.Hints;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 
 /**
  * Extension of {@code Encoder} exposing extra methods relevant in the context
@@ -38,6 +35,7 @@ import cn.taketoday.http.MediaType;
  *
  * @param <T> the type of elements in the input stream
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface HttpMessageEncoder<T> extends Encoder<T> {
@@ -61,8 +59,7 @@ public interface HttpMessageEncoder<T> extends Encoder<T> {
    * @param response the current response
    * @return a Map with hints, possibly empty
    */
-  default Map<String, Object> getEncodeHints(
-          ResolvableType actualType, ResolvableType elementType,
+  default Map<String, Object> getEncodeHints(ResolvableType actualType, ResolvableType elementType,
           @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
     return Hints.none();
