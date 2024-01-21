@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet;
@@ -25,6 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Constant;
@@ -41,6 +42,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  * and allows this content to be retrieved via a {@link #getContentAsByteArray() byte array}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ContentCachingRequestWrapper
  * @since 4.0
  */
@@ -56,6 +58,9 @@ public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
 
   @Nullable
   private Integer contentLength;
+
+  @Nullable
+  private String contentType;
 
   /**
    * Create a new ContentCachingResponseWrapper for the given servlet response.
@@ -127,18 +132,133 @@ public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
     this.contentLength = len;
   }
 
-  // Overrides Servlet 3.1 setContentLengthLong(long) at runtime
   @Override
   public void setContentLengthLong(long len) {
     if (len > Integer.MAX_VALUE) {
-      throw new IllegalArgumentException(
-              "Content-Length exceeds ContentCachingResponseWrapper's maximum (" + Integer.MAX_VALUE + "): " + len);
+      throw new IllegalArgumentException("Content-Length exceeds ContentCachingResponseWrapper's maximum (" +
+              Integer.MAX_VALUE + "): " + len);
     }
     int lenInt = (int) len;
     if (lenInt > this.content.size()) {
       this.content.resize(lenInt);
     }
     this.contentLength = lenInt;
+  }
+
+  @Override
+  public void setContentType(@Nullable String type) {
+    this.contentType = type;
+  }
+
+  @Override
+  @Nullable
+  public String getContentType() {
+    return this.contentType;
+  }
+
+  @Override
+  public boolean containsHeader(String name) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      return this.contentLength != null;
+    }
+    else if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
+      return this.contentType != null;
+    }
+    else {
+      return super.containsHeader(name);
+    }
+  }
+
+  @Override
+  public void setHeader(String name, String value) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      this.contentLength = Integer.valueOf(value);
+    }
+    else if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
+      this.contentType = value;
+    }
+    else {
+      super.setHeader(name, value);
+    }
+  }
+
+  @Override
+  public void addHeader(String name, String value) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      this.contentLength = Integer.valueOf(value);
+    }
+    else if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
+      this.contentType = value;
+    }
+    else {
+      super.addHeader(name, value);
+    }
+  }
+
+  @Override
+  public void setIntHeader(String name, int value) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      this.contentLength = value;
+    }
+    else {
+      super.setIntHeader(name, value);
+    }
+  }
+
+  @Override
+  public void addIntHeader(String name, int value) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      this.contentLength = value;
+    }
+    else {
+      super.addIntHeader(name, value);
+    }
+  }
+
+  @Override
+  @Nullable
+  public String getHeader(String name) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      return (this.contentLength != null) ? this.contentLength.toString() : null;
+    }
+    else if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
+      return this.contentType;
+    }
+    else {
+      return super.getHeader(name);
+    }
+  }
+
+  @Override
+  public Collection<String> getHeaders(String name) {
+    if (HttpHeaders.CONTENT_LENGTH.equalsIgnoreCase(name)) {
+      return this.contentLength != null ? Collections.singleton(this.contentLength.toString()) :
+             Collections.emptySet();
+    }
+    else if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(name)) {
+      return this.contentType != null ? Collections.singleton(this.contentType) : Collections.emptySet();
+    }
+    else {
+      return super.getHeaders(name);
+    }
+  }
+
+  @Override
+  public Collection<String> getHeaderNames() {
+    Collection<String> headerNames = super.getHeaderNames();
+    if (this.contentLength != null || this.contentType != null) {
+      List<String> result = new ArrayList<>(headerNames);
+      if (this.contentLength != null) {
+        result.add(HttpHeaders.CONTENT_LENGTH);
+      }
+      if (this.contentType != null) {
+        result.add(HttpHeaders.CONTENT_TYPE);
+      }
+      return result;
+    }
+    else {
+      return headerNames;
+    }
   }
 
   @Override
@@ -196,11 +316,17 @@ public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
   protected void copyBodyToResponse(boolean complete) throws IOException {
     if (this.content.size() > 0) {
       HttpServletResponse rawResponse = (HttpServletResponse) getResponse();
-      if ((complete || this.contentLength != null) && !rawResponse.isCommitted()) {
-        if (rawResponse.getHeader(HttpHeaders.TRANSFER_ENCODING) == null) {
-          rawResponse.setContentLength(complete ? this.content.size() : this.contentLength);
+      if (!rawResponse.isCommitted()) {
+        if (complete || this.contentLength != null) {
+          if (rawResponse.getHeader(HttpHeaders.TRANSFER_ENCODING) == null) {
+            rawResponse.setContentLength(complete ? this.content.size() : this.contentLength);
+          }
+          this.contentLength = null;
         }
-        this.contentLength = null;
+        if (complete || this.contentType != null) {
+          rawResponse.setContentType(this.contentType);
+          this.contentType = null;
+        }
       }
       this.content.writeTo(rawResponse.getOutputStream());
       this.content.reset();
