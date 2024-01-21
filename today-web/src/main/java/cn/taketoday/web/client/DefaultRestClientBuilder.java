@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -31,6 +31,7 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
@@ -163,7 +164,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.statusHandlers = new ArrayList<>();
     this.statusHandlers.add(StatusHandler.fromErrorHandler(restTemplate.getErrorHandler()));
 
-    this.requestFactory = restTemplate.getRequestFactory();
+    this.requestFactory = getRequestFactory(restTemplate);
     this.messageConverters = new ArrayList<>(restTemplate.getMessageConverters());
 
     if (CollectionUtils.isNotEmpty(restTemplate.getInterceptors())) {
@@ -171,6 +172,16 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     }
     if (CollectionUtils.isNotEmpty(restTemplate.getHttpRequestInitializers())) {
       this.initializers = new ArrayList<>(restTemplate.getHttpRequestInitializers());
+    }
+  }
+
+  private static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
+    ClientHttpRequestFactory requestFactory = restTemplate.getRequestFactory();
+    if (requestFactory instanceof InterceptingClientHttpRequestFactory factory) {
+      return factory.getRequestFactory();
+    }
+    else {
+      return requestFactory;
     }
   }
 

@@ -36,7 +36,7 @@ public class ClientHttpRequestFactoryWrapper implements ClientHttpRequestFactory
   private final ClientHttpRequestFactory requestFactory;
 
   /**
-   * Create a {@code AbstractClientHttpRequestFactoryWrapper} wrapping the given request factory.
+   * Create a {@code c ClientHttpRequestFactoryWrapper} wrapping the given request factory.
    *
    * @param requestFactory the request factory to be wrapped
    */
