@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.samples;
@@ -20,8 +20,9 @@ package cn.taketoday.samples;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.handler.NotFoundHandler;
+import cn.taketoday.web.handler.SimpleNotFoundHandler;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -29,14 +30,14 @@ import cn.taketoday.web.handler.NotFoundHandler;
  * @since 2020-01-01 22:29
  */
 @Component
-public class ResourceNotFoundHandler extends NotFoundHandler {
+public class ResourceNotFoundHandler implements NotFoundHandler {
 
   @Nullable
   @Override
-  public Object handleRequest(RequestContext request) {
+  public Object handleNotFound(RequestContext request) throws Throwable {
     request.setStatus(HttpStatus.NOT_FOUND);
 
-    logNotFound(request);
+    SimpleNotFoundHandler.logNotFound(request);
     return ErrorMessage.failed("资源找不到");
   }
 
