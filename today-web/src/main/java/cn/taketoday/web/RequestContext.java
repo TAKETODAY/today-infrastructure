@@ -156,9 +156,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected PathContainer lookupPath;
 
   /** @since 4.0 */
-  protected PathContainer pathWithinApplication;
-
-  /** @since 4.0 */
   protected Locale locale;
 
   /** @since 4.0 */

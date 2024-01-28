@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
@@ -46,15 +46,23 @@ import cn.taketoday.web.annotation.RequestMapping;
  * @since 4.0
  */
 public final class ProducesRequestCondition extends AbstractRequestCondition<ProducesRequestCondition> {
+
   private static final String MEDIA_TYPES_ATTRIBUTE = ProducesRequestCondition.class.getName() + ".MEDIA_TYPES";
+
   private static final ContentNegotiationManager DEFAULT_CONTENT_NEGOTIATION_MANAGER = new ContentNegotiationManager();
 
   private static final ProducesRequestCondition EMPTY_CONDITION = new ProducesRequestCondition();
-  private static final List<MediaTypeExpression> MEDIA_TYPE_ALL_LIST =
-      Collections.singletonList(new MediaTypeExpression(MediaType.ALL_VALUE));
 
-  private final List<MediaTypeExpression> expressions;
+  private static final List<MediaTypeExpression> MEDIA_TYPE_ALL_LIST =
+          Collections.singletonList(new MediaTypeExpression(MediaType.ALL_VALUE));
+
+  @Nullable
+  private final ArrayList<MediaTypeExpression> expressions;
+
   private final ContentNegotiationManager contentNegotiationManager;
+
+  @Nullable
+  private MediaType[] producibleMediaTypes;
 
   /**
    * Creates a new instance from "produces" expressions. If 0 expressions
@@ -87,10 +95,9 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * @param headers expressions with syntax defined by {@link RequestMapping#headers()}
    * @param manager used to determine requested media types
    */
-  public ProducesRequestCondition(String[] produces, @Nullable String[] headers,
-      @Nullable ContentNegotiationManager manager) {
+  public ProducesRequestCondition(String[] produces, @Nullable String[] headers, @Nullable ContentNegotiationManager manager) {
     var expressions = MediaTypeExpression.parse(HttpHeaders.ACCEPT, produces, headers);
-    if (expressions.size() > 1) {
+    if (expressions != null) {
       Collections.sort(expressions);
     }
     this.expressions = expressions;
@@ -101,7 +108,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * Private constructor for internal use to create matching conditions.
    * Note the expressions List is neither sorted nor deep copied.
    */
-  private ProducesRequestCondition(List<MediaTypeExpression> expressions, ProducesRequestCondition other) {
+  private ProducesRequestCondition(ArrayList<MediaTypeExpression> expressions, ProducesRequestCondition other) {
     this.expressions = expressions;
     this.contentNegotiationManager = other.contentNegotiationManager;
   }
@@ -110,14 +117,19 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * Return the contained "produces" expressions.
    */
   public Set<MediaTypeExpression> getExpressions() {
-    return new LinkedHashSet<>(expressions);
+    return expressions == null ? Collections.emptySet() : new LinkedHashSet<>(expressions);
   }
 
   /**
    * Return the contained producible media types excluding negated expressions.
    */
-  public Set<MediaType> getProducibleMediaTypes() {
-    return MediaTypeExpression.filterNotNegated(expressions);
+  public MediaType[] getProducibleMediaTypes() {
+    MediaType[] producibleMediaTypes = this.producibleMediaTypes;
+    if (producibleMediaTypes == null) {
+      producibleMediaTypes = MediaTypeExpression.filterNotNegated(expressions).toArray(new MediaType[0]);
+      this.producibleMediaTypes = producibleMediaTypes;
+    }
+    return producibleMediaTypes.clone();
   }
 
   /**
@@ -125,12 +137,12 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   @Override
   public boolean isEmpty() {
-    return expressions.isEmpty();
+    return expressions == null;
   }
 
   @Override
   protected List<MediaTypeExpression> getContent() {
-    return expressions;
+    return expressions == null ? Collections.emptyList() : expressions;
   }
 
   @Override
@@ -145,7 +157,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    */
   @Override
   public ProducesRequestCondition combine(ProducesRequestCondition other) {
-    return !other.expressions.isEmpty() ? other : this;
+    return other.expressions != null ? other : this;
   }
 
   /**
@@ -175,7 +187,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     catch (HttpMediaTypeException ex) {
       return null;
     }
-    List<MediaTypeExpression> result = getMatchingExpressions(acceptedMediaTypes);
+    ArrayList<MediaTypeExpression> result = getMatchingExpressions(acceptedMediaTypes);
     if (result != null) {
       return new ProducesRequestCondition(result, this);
     }
@@ -188,7 +200,10 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   }
 
   @Nullable
-  private List<MediaTypeExpression> getMatchingExpressions(List<MediaType> acceptedMediaTypes) {
+  private ArrayList<MediaTypeExpression> getMatchingExpressions(List<MediaType> acceptedMediaTypes) {
+    if (expressions == null) {
+      return null;
+    }
     ArrayList<MediaTypeExpression> result = null;
     for (MediaTypeExpression expression : expressions) {
       if (expression.matchAccept(acceptedMediaTypes)) {
@@ -260,7 +275,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     for (int i = 0; i < expressionsToCompare.size(); i++) {
       MediaType currentMediaType = expressionsToCompare.get(i).mediaType;
       if (mediaType.getType().equalsIgnoreCase(currentMediaType.getType())
-          && mediaType.getSubtype().equalsIgnoreCase(currentMediaType.getSubtype())) {
+              && mediaType.getSubtype().equalsIgnoreCase(currentMediaType.getSubtype())) {
         return i;
       }
     }
@@ -268,8 +283,9 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   }
 
   private int indexOfIncludedMediaType(MediaType mediaType) {
-    for (int i = 0; i < getExpressionsToCompare().size(); i++) {
-      if (mediaType.includes(getExpressionsToCompare().get(i).mediaType)) {
+    List<MediaTypeExpression> expressionsToCompare = getExpressionsToCompare();
+    for (int i = 0; i < expressionsToCompare.size(); i++) {
+      if (mediaType.includes(expressionsToCompare.get(i).mediaType)) {
         return i;
       }
     }
@@ -277,7 +293,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   }
 
   private int compareMatchingMediaTypes(ProducesRequestCondition condition1,
-      int index1, ProducesRequestCondition condition2, int index2) {
+          int index1, ProducesRequestCondition condition2, int index2) {
 
     int result = 0;
     if (index1 != index2) {
@@ -299,7 +315,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
    * with a {@value MediaType#ALL_VALUE} expression.
    */
   private List<MediaTypeExpression> getExpressionsToCompare() {
-    return expressions.isEmpty() ? MEDIA_TYPE_ALL_LIST : this.expressions;
+    return expressions == null ? MEDIA_TYPE_ALL_LIST : expressions;
   }
 
 }

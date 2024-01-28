@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -143,7 +143,7 @@ class RequestMappingHandlerMappingTests {
 
     assertThat(info.getConsumesCondition().getConsumableMediaTypes().iterator().next().toString())
             .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
-    assertThat(info.getProducesCondition().getProducibleMediaTypes().iterator().next().toString())
+    assertThat(info.getProducesCondition().getProducibleMediaTypes()[0].toString())
             .isEqualTo(MediaType.APPLICATION_JSON_VALUE);
   }
 
@@ -157,7 +157,6 @@ class RequestMappingHandlerMappingTests {
   }
 
   @PathPatternsParameterizedTest
-    // gh-22010
   void consumesWithOptionalRequestBody(RequestMappingHandlerMapping mapping, StaticWebApplicationContext wac) {
     wac.registerSingleton("testController", ComposedAnnotationController.class);
     wac.refresh();

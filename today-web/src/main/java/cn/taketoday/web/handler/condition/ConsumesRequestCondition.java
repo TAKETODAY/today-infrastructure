@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
@@ -24,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import cn.taketoday.http.HttpHeaders;
@@ -52,9 +48,13 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 
   private static final ConsumesRequestCondition EMPTY_CONDITION = new ConsumesRequestCondition();
 
-  private final List<MediaTypeExpression> expressions;
+  @Nullable
+  private final ArrayList<MediaTypeExpression> expressions;
 
   private boolean bodyRequired = true;
+
+  @Nullable
+  private Set<MediaType> consumableMediaTypes;
 
   /**
    * Creates a new instance from 0 or more "consumes" expressions.
@@ -78,7 +78,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   public ConsumesRequestCondition(String[] consumes, @Nullable String[] headers) {
     var expressions = MediaTypeExpression.parse(HttpHeaders.CONTENT_TYPE, consumes, headers);
-    if (expressions.size() > 1) {
+    if (expressions != null) {
       Collections.sort(expressions);
     }
     this.expressions = expressions;
@@ -88,7 +88,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * Private constructor for internal when creating matching conditions.
    * Note the expressions List is neither sorted nor deep copied.
    */
-  private ConsumesRequestCondition(List<MediaTypeExpression> expressions) {
+  private ConsumesRequestCondition(@Nullable ArrayList<MediaTypeExpression> expressions) {
     this.expressions = expressions;
   }
 
@@ -96,14 +96,19 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    * Return the contained MediaType expressions.
    */
   public Set<MediaTypeExpression> getExpressions() {
-    return new LinkedHashSet<>(expressions);
+    return expressions == null ? Collections.emptySet() : new LinkedHashSet<>(expressions);
   }
 
   /**
    * Returns the media types for this condition excluding negated expressions.
    */
   public Set<MediaType> getConsumableMediaTypes() {
-    return MediaTypeExpression.filterNotNegated(expressions);
+    Set<MediaType> consumableMediaTypes = this.consumableMediaTypes;
+    if (consumableMediaTypes == null) {
+      consumableMediaTypes = MediaTypeExpression.filterNotNegated(expressions);
+      this.consumableMediaTypes = consumableMediaTypes;
+    }
+    return consumableMediaTypes;
   }
 
   /**
@@ -111,12 +116,12 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   public boolean isEmpty() {
-    return expressions.isEmpty();
+    return expressions == null;
   }
 
   @Override
   protected Collection<MediaTypeExpression> getContent() {
-    return expressions;
+    return expressions == null ? Collections.emptySet() : expressions;
   }
 
   @Override
@@ -152,7 +157,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   public ConsumesRequestCondition combine(ConsumesRequestCondition other) {
-    return !other.expressions.isEmpty() ? other : this;
+    return !other.isEmpty() ? other : this;
   }
 
   /**
@@ -191,7 +196,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
       return null;
     }
 
-    List<MediaTypeExpression> result = getMatchingExpressions(contentType);
+    ArrayList<MediaTypeExpression> result = getMatchingExpressions(contentType);
     if (result != null) {
       return new ConsumesRequestCondition(result);
     }
@@ -207,7 +212,10 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
   }
 
   @Nullable
-  private List<MediaTypeExpression> getMatchingExpressions(MediaType contentType) {
+  private ArrayList<MediaTypeExpression> getMatchingExpressions(MediaType contentType) {
+    if (expressions == null) {
+      return null;
+    }
     ArrayList<MediaTypeExpression> result = null;
     for (MediaTypeExpression expression : expressions) {
       if (expression.matchContentType(contentType)) {
@@ -233,17 +241,19 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   public int compareTo(ConsumesRequestCondition other, RequestContext request) {
-    if (expressions.isEmpty() && other.expressions.isEmpty()) {
+    ArrayList<MediaTypeExpression> expressions = this.expressions;
+    ArrayList<MediaTypeExpression> otherExpressions = other.expressions;
+    if (expressions == null && otherExpressions == null) {
       return 0;
     }
-    else if (expressions.isEmpty()) {
+    else if (expressions == null) {
       return 1;
     }
-    else if (other.expressions.isEmpty()) {
+    else if (otherExpressions == null) {
       return -1;
     }
     else {
-      return expressions.get(0).compareTo(other.expressions.get(0));
+      return expressions.get(0).compareTo(otherExpressions.get(0));
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.StringValueResolver;
@@ -138,13 +137,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   public void afterPropertiesSet() {
     ApplicationContext context = obtainApplicationContext();
     if (resolvingRegistry == null) {
-      var resolvingRegistry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
-      if (resolvingRegistry == null) {
-        resolvingRegistry = new ParameterResolvingRegistry();
-        resolvingRegistry.setApplicationContext(context);
-        resolvingRegistry.registerDefaultStrategies();
-      }
-      this.resolvingRegistry = resolvingRegistry;
+      resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
 
     this.parameterFactory = new RegistryResolvableParameterFactory(resolvingRegistry, parameterNameDiscoverer);
@@ -389,7 +382,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
   }
 
   @Override
-  protected CorsConfiguration initCorsConfiguration(Object handler, HandlerMethod handlerMethod, Method method, RequestMappingInfo mappingInfo) {
+  protected CorsConfiguration initCorsConfiguration(Object handler,
+          HandlerMethod handlerMethod, Method method, RequestMappingInfo mappingInfo) {
     Class<?> beanType = handlerMethod.getBeanType();
     CrossOrigin typeAnnotation = AnnotatedElementUtils.findMergedAnnotation(beanType, CrossOrigin.class);
     CrossOrigin methodAnnotation = AnnotatedElementUtils.findMergedAnnotation(method, CrossOrigin.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AsyncHandler;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerWrapper;
@@ -114,12 +115,17 @@ public class HandlerMethod implements AsyncHandler {
   @Nullable
   private String responseStatusReason;
 
-  @Nullable
-  private HandlerMethod resolvedFromHandlerMethod;
-
   /** @since 4.0 */
   @Nullable
   private volatile ArrayList<Annotation[][]> interfaceParameterAnnotations;
+
+  /**
+   * cors config cache
+   *
+   * @since 4.0
+   */
+  @Nullable
+  CorsConfiguration corsConfig;
 
   /**
    * Create an instance from a bean instance and a method.
@@ -209,8 +215,8 @@ public class HandlerMethod implements AsyncHandler {
     this.responseStatus = handlerMethod.responseStatus;
     this.responseStatusReason = handlerMethod.responseStatusReason;
     this.description = handlerMethod.description;
-    this.resolvedFromHandlerMethod = handlerMethod.resolvedFromHandlerMethod;
     this.responseBody = handlerMethod.responseBody;
+    this.corsConfig = handlerMethod.corsConfig;
   }
 
   /**
@@ -226,9 +232,9 @@ public class HandlerMethod implements AsyncHandler {
     this.parameters = handlerMethod.parameters;
     this.responseStatus = handlerMethod.responseStatus;
     this.responseStatusReason = handlerMethod.responseStatusReason;
-    this.resolvedFromHandlerMethod = handlerMethod;
     this.description = handlerMethod.description;
     this.responseBody = handlerMethod.responseBody;
+    this.corsConfig = handlerMethod.corsConfig;
   }
 
   private MethodParameter[] initMethodParameters() {
@@ -427,17 +433,6 @@ public class HandlerMethod implements AsyncHandler {
    */
   public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
     return AnnotatedElementUtils.hasAnnotation(this.method, annotationType);
-  }
-
-  /**
-   * Return the HandlerMethod from which this HandlerMethod instance was
-   * resolved via {@link #withBean(Object)}.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public HandlerMethod getResolvedFromHandlerMethod() {
-    return this.resolvedFromHandlerMethod;
   }
 
   @Override
