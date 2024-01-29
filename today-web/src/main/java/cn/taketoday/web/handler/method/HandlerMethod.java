@@ -47,6 +47,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -79,6 +80,13 @@ public class HandlerMethod implements AsyncHandler {
 
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
+
+  static MapCache<Class<? extends Annotation>, Boolean, HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
+    @Override
+    protected Boolean createValue(Class<? extends Annotation> annotationType, HandlerMethod handlerMethod) {
+      return AnnotatedElementUtils.hasAnnotation(handlerMethod.method, annotationType);
+    }
+  };
 
   private final Object bean;
 
@@ -432,7 +440,7 @@ public class HandlerMethod implements AsyncHandler {
    * @since 4.0
    */
   public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return AnnotatedElementUtils.hasAnnotation(this.method, annotationType);
+    return methodAnnotationCache.get(annotationType, this);
   }
 
   @Override

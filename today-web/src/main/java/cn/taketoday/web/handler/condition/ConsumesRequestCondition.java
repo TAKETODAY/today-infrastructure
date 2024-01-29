@@ -157,7 +157,7 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
    */
   @Override
   public ConsumesRequestCondition combine(ConsumesRequestCondition other) {
-    return !other.isEmpty() ? other : this;
+    return other.expressions != null ? other : this;
   }
 
   /**
@@ -213,14 +213,16 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 
   @Nullable
   private ArrayList<MediaTypeExpression> getMatchingExpressions(MediaType contentType) {
+    ArrayList<MediaTypeExpression> expressions = this.expressions;
     if (expressions == null) {
       return null;
     }
+
     ArrayList<MediaTypeExpression> result = null;
     for (MediaTypeExpression expression : expressions) {
       if (expression.matchContentType(contentType)) {
         if (result == null) {
-          result = new ArrayList<>();
+          result = new ArrayList<>(expressions.size());
         }
         result.add(expression);
       }

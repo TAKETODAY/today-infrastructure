@@ -111,6 +111,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
   private ProducesRequestCondition(ArrayList<MediaTypeExpression> expressions, ProducesRequestCondition other) {
     this.expressions = expressions;
     this.contentNegotiationManager = other.contentNegotiationManager;
+    this.producibleMediaTypes = other.getProducibleMediaTypes();
   }
 
   /**
@@ -129,7 +130,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
       producibleMediaTypes = MediaTypeExpression.filterNotNegated(expressions).toArray(new MediaType[0]);
       this.producibleMediaTypes = producibleMediaTypes;
     }
-    return producibleMediaTypes.clone();
+    return producibleMediaTypes;
   }
 
   /**
@@ -177,7 +178,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     if (request.isPreFlightRequest()) {
       return EMPTY_CONDITION;
     }
-    if (isEmpty()) {
+    if (expressions == null) {
       return this;
     }
     List<MediaType> acceptedMediaTypes;
@@ -201,6 +202,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
 
   @Nullable
   private ArrayList<MediaTypeExpression> getMatchingExpressions(List<MediaType> acceptedMediaTypes) {
+    ArrayList<MediaTypeExpression> expressions = this.expressions;
     if (expressions == null) {
       return null;
     }
@@ -208,7 +210,7 @@ public final class ProducesRequestCondition extends AbstractRequestCondition<Pro
     for (MediaTypeExpression expression : expressions) {
       if (expression.matchAccept(acceptedMediaTypes)) {
         if (result == null) {
-          result = new ArrayList<>();
+          result = new ArrayList<>(expressions.size());
         }
         result.add(expression);
       }

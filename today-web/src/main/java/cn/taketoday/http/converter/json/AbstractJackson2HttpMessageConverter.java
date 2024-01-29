@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter.json;
@@ -182,9 +182,11 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
    */
   @Nullable
   public Map<MediaType, ObjectMapper> getObjectMappersForType(Class<?> clazz) {
-    for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> entry : getObjectMapperRegistrations().entrySet()) {
-      if (entry.getKey().isAssignableFrom(clazz)) {
-        return entry.getValue();
+    if (objectMapperRegistrations != null) {
+      for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> entry : objectMapperRegistrations.entrySet()) {
+        if (entry.getKey().isAssignableFrom(clazz)) {
+          return entry.getValue();
+        }
       }
     }
     return Collections.emptyMap();
@@ -192,25 +194,24 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
 
   @Override
   public List<MediaType> getSupportedMediaTypes(Class<?> clazz) {
-    List<MediaType> result = null;
-    for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> entry : getObjectMapperRegistrations().entrySet()) {
-      if (entry.getKey().isAssignableFrom(clazz)) {
-        if (result == null) {
-          result = new ArrayList<>(entry.getValue().size());
+    var objectMapperRegistrations = this.objectMapperRegistrations;
+    if (objectMapperRegistrations != null) {
+      ArrayList<MediaType> result = null;
+      for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> entry : objectMapperRegistrations.entrySet()) {
+        if (entry.getKey().isAssignableFrom(clazz)) {
+          if (result == null) {
+            result = new ArrayList<>(entry.getValue().size());
+          }
+          result.addAll(entry.getValue().keySet());
         }
-        result.addAll(entry.getValue().keySet());
       }
-    }
-    if (CollectionUtils.isNotEmpty(result)) {
-      return result;
+      if (CollectionUtils.isNotEmpty(result)) {
+        return result;
+      }
     }
     return ProblemDetail.class.isAssignableFrom(clazz)
            ? getMediaTypesForProblemDetail()
            : getSupportedMediaTypes();
-  }
-
-  private Map<Class<?>, Map<MediaType, ObjectMapper>> getObjectMapperRegistrations() {
-    return this.objectMapperRegistrations != null ? this.objectMapperRegistrations : Collections.emptyMap();
   }
 
   /**
@@ -294,10 +295,11 @@ public abstract class AbstractJackson2HttpMessageConverter extends AbstractGener
    */
   @Nullable
   private ObjectMapper selectObjectMapper(Class<?> targetType, @Nullable MediaType targetMediaType) {
-    if (targetMediaType == null || CollectionUtils.isEmpty(this.objectMapperRegistrations)) {
+    Map<Class<?>, Map<MediaType, ObjectMapper>> objectMapperRegistrations;
+    if (targetMediaType == null || (objectMapperRegistrations = this.objectMapperRegistrations) == null) {
       return this.defaultObjectMapper;
     }
-    for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> typeEntry : getObjectMapperRegistrations().entrySet()) {
+    for (Map.Entry<Class<?>, Map<MediaType, ObjectMapper>> typeEntry : objectMapperRegistrations.entrySet()) {
       if (typeEntry.getKey().isAssignableFrom(targetType)) {
         for (Map.Entry<MediaType, ObjectMapper> objectMapperEntry : typeEntry.getValue().entrySet()) {
           if (objectMapperEntry.getKey().includes(targetMediaType)) {

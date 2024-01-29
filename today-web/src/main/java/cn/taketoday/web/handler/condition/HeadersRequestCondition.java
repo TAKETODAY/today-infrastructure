@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
@@ -41,13 +38,15 @@ import cn.taketoday.web.annotation.RequestMapping;
  *
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public final class HeadersRequestCondition extends AbstractRequestCondition<HeadersRequestCondition> {
 
   private static final HeadersRequestCondition PRE_FLIGHT_MATCH = new HeadersRequestCondition();
 
-  private final Set<HeaderExpression> expressions;
+  @Nullable
+  private final LinkedHashSet<HeaderExpression> expressions;
 
   /**
    * Create a new instance from the given header expressions. Expressions with
@@ -61,8 +60,9 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
     this.expressions = parseExpressions(headers);
   }
 
-  private static Set<HeaderExpression> parseExpressions(String... headers) {
-    Set<HeaderExpression> result = null;
+  @Nullable
+  private static LinkedHashSet<HeaderExpression> parseExpressions(String... headers) {
+    LinkedHashSet<HeaderExpression> result = null;
     if (ObjectUtils.isNotEmpty(headers)) {
       for (String header : headers) {
         HeaderExpression expr = new HeaderExpression(header);
@@ -76,23 +76,28 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
         result.add(expr);
       }
     }
-    return result != null ? result : Collections.emptySet();
+    return result;
   }
 
-  private HeadersRequestCondition(Set<HeaderExpression> conditions) {
+  private HeadersRequestCondition(LinkedHashSet<HeaderExpression> conditions) {
     this.expressions = conditions;
   }
 
   /**
    * Return the contained request header expressions.
    */
-  public Set<NameValueExpression<String>> getExpressions() {
-    return new LinkedHashSet<>(this.expressions);
+  public Set<NameValueExpression> getExpressions() {
+    return expressions == null ? Collections.emptySet() : new LinkedHashSet<>(this.expressions);
   }
 
   @Override
   protected Collection<HeaderExpression> getContent() {
-    return this.expressions;
+    return expressions == null ? Collections.emptySet() : expressions;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return expressions == null;
   }
 
   @Override
@@ -106,17 +111,19 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
    */
   @Override
   public HeadersRequestCondition combine(HeadersRequestCondition other) {
-    if (isEmpty() && other.isEmpty()) {
+    LinkedHashSet<HeaderExpression> expressions = this.expressions;
+    LinkedHashSet<HeaderExpression> otherExpressions = other.expressions;
+    if (expressions == null && otherExpressions == null) {
       return this;
     }
-    else if (other.isEmpty()) {
+    else if (otherExpressions == null) {
       return this;
     }
-    else if (isEmpty()) {
+    else if (expressions == null) {
       return other;
     }
-    LinkedHashSet<HeaderExpression> set = new LinkedHashSet<>(this.expressions);
-    set.addAll(other.expressions);
+    LinkedHashSet<HeaderExpression> set = new LinkedHashSet<>(expressions);
+    set.addAll(otherExpressions);
     return new HeadersRequestCondition(set);
   }
 
@@ -130,9 +137,12 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
     if (request.isPreFlightRequest()) {
       return PRE_FLIGHT_MATCH;
     }
-    for (HeaderExpression expression : this.expressions) {
-      if (!expression.match(request)) {
-        return null;
+    LinkedHashSet<HeaderExpression> expressions = this.expressions;
+    if (expressions != null) {
+      for (HeaderExpression expression : expressions) {
+        if (!expression.match(request)) {
+          return null;
+        }
       }
     }
     return this;
@@ -151,17 +161,22 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
    */
   @Override
   public int compareTo(HeadersRequestCondition other, RequestContext request) {
-    int result = other.expressions.size() - this.expressions.size();
+    LinkedHashSet<HeaderExpression> expressions = this.expressions;
+    LinkedHashSet<HeaderExpression> otherExpressions = other.expressions;
+    int result = (otherExpressions == null ? 0 : otherExpressions.size()) - (expressions == null ? 0 : expressions.size());
     if (result != 0) {
       return result;
     }
-    return (int) (getValueMatchCount(other.expressions) - getValueMatchCount(this.expressions));
+    return getValueMatchCount(otherExpressions) - getValueMatchCount(expressions);
   }
 
-  private long getValueMatchCount(Set<HeaderExpression> expressions) {
-    long count = 0;
+  private int getValueMatchCount(@Nullable LinkedHashSet<HeaderExpression> expressions) {
+    if (expressions == null) {
+      return 0;
+    }
+    int count = 0;
     for (HeaderExpression e : expressions) {
-      if (e.getValue() != null && !e.isNegated()) {
+      if (e.value != null && !e.negated) {
         count++;
       }
     }
@@ -171,7 +186,7 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
   /**
    * Parses and matches a single header expression to a request.
    */
-  static class HeaderExpression extends AbstractNameValueExpression<String> {
+  static class HeaderExpression extends NameValueExpression {
 
     HeaderExpression(String expression) {
       super(expression);
@@ -180,11 +195,6 @@ public final class HeadersRequestCondition extends AbstractRequestCondition<Head
     @Override
     protected boolean isCaseSensitiveName() {
       return false;
-    }
-
-    @Override
-    protected String parseValue(String valueExpression) {
-      return valueExpression;
     }
 
     @Override

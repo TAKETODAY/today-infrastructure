@@ -824,7 +824,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
 
     @Override
-    protected HandlerInterceptor[] createValue(Method method, @Nullable HandlerMethod handlerMethod) {
+    protected HandlerInterceptor[] createValue(Method method, HandlerMethod handlerMethod) {
       Class<?> controllerClass = getControllerClass(method, handlerMethod);
       List<HandlerInterceptor> interceptors = getInterceptors(controllerClass, method);
       return interceptors.toArray(HandlerInterceptor.EMPTY_ARRAY);

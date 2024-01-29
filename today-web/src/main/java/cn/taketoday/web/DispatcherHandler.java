@@ -395,7 +395,6 @@ public class DispatcherHandler extends InfraHandler {
    */
   @Nullable
   protected Object processHandlerException(RequestContext request, @Nullable Object handler, Throwable ex) throws Throwable {
-
     // Success and error responses may use different content types
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata != null) {
@@ -444,9 +443,9 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   protected void requestCompleted(RequestContext request, @Nullable Throwable notHandled) throws Throwable {
-    RequestCompletedListener[] completedListeners = requestCompletedActions.get();
-    if (completedListeners != null) {
-      for (RequestCompletedListener action : completedListeners) {
+    RequestCompletedListener[] actions = requestCompletedActions.array;
+    if (actions != null) {
+      for (RequestCompletedListener action : actions) {
         action.requestCompleted(request, notHandled);
       }
     }

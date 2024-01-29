@@ -49,7 +49,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
   public final boolean isNegated;
 
   MediaTypeExpression(String expression) {
-    if (expression.startsWith("!")) {
+    if (expression.charAt(0) == '!') {
       this.isNegated = true;
       expression = expression.substring(1);
     }
@@ -154,7 +154,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
             result = new LinkedHashSet<>();
           }
           for (MediaType mediaType : MediaType.parseMediaTypes(expr.value)) {
-            result.add(new MediaTypeExpression(mediaType, expr.isNegated));
+            result.add(new MediaTypeExpression(mediaType, expr.negated));
           }
         }
       }

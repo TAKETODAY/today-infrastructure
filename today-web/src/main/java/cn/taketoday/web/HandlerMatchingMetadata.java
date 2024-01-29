@@ -179,6 +179,7 @@ public class HandlerMatchingMetadata {
     this.producibleMediaTypes = producibleMediaTypes;
   }
 
+  // todo use List
   @Nullable
   public MediaType[] getProducibleMediaTypes() {
     return producibleMediaTypes;

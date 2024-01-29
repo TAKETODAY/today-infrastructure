@@ -287,11 +287,11 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
       ArrayList<String[]> result = new ArrayList<>();
       for (PartialMatch match : partialMatches) {
         if (match.hasProducesMatch()) {
-          Set<NameValueExpression<String>> set = match.info.getParamsCondition().getExpressions();
+          Set<NameValueExpression> set = match.info.getParamsCondition().getExpressions();
           if (CollectionUtils.isNotEmpty(set)) {
             int i = 0;
             String[] array = new String[set.size()];
-            for (NameValueExpression<String> expression : set) {
+            for (NameValueExpression expression : set) {
               array[i++] = expression.toString();
             }
             result.add(array);
