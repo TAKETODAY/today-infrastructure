@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -54,7 +54,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    ChannelHandlerContext channelContext = context.getChannelContext();
+    ChannelHandlerContext channelContext = context.channelContext;
     String scheme = context.getScheme();
 
     WebSocketSession session = new NettyWebSocketSession(context.getHeaders(),
@@ -87,7 +87,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     WebSocketSession session = createSession(nettyContext, sessionDecorator);
     FullHttpRequest request = nettyContext.nativeRequest();
     WebSocketServerHandshaker handShaker = createHandshakeFactory(request).newHandshaker(request);
-    Channel channel = nettyContext.getChannelContext().channel();
+    Channel channel = nettyContext.channelContext.channel();
     if (handShaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
       return null;

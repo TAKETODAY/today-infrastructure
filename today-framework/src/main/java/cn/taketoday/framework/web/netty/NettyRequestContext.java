@@ -82,6 +82,7 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.internal.ObjectPool;
 
 /**
  * Netty Request context
@@ -91,23 +92,26 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  */
 public class NettyRequestContext extends RequestContext {
 
-  @Nullable
-  private String remoteAddress;
+  FullHttpRequest request;
 
-  // headers and status-code is written? default = false
-  private final AtomicBoolean committed = new AtomicBoolean();
+  ChannelHandlerContext channelContext;
 
-  private final FullHttpRequest request;
-  private final ChannelHandlerContext channelContext;
+  long requestTimeMillis;
 
   @Nullable
   private InterfaceHttpPostRequestDecoder requestDecoder;
 
   private final NettyRequestConfig config;
 
+  // headers and status-code is written? default = false
+  private final AtomicBoolean committed = new AtomicBoolean();
+
   // response
   @Nullable
   private Boolean keepAlive;
+
+  @Nullable
+  private String remoteAddress;
 
   private HttpResponseStatus status = HttpResponseStatus.OK;
 
@@ -128,23 +132,31 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private InetSocketAddress inetSocketAddress;
 
-  private final long requestTimeMillis = System.currentTimeMillis();
+  /**
+   * @since 4.0
+   */
+  private final ObjectPool.Handle<NettyRequestContext> handle;
 
-  public NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
-          FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+  public NettyRequestContext(ApplicationContext context, NettyRequestConfig config,
+          DispatcherHandler dispatcherHandler, ObjectPool.Handle<NettyRequestContext> handle) {
     super(context, dispatcherHandler);
     this.config = config;
-    this.request = request;
-    this.channelContext = ctx;
     this.nettyResponseHeaders =
             config.isSingleFieldHeaders()
             ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
             : new CombinedHttpHeaders(config.isValidateHeaders());
+    this.handle = handle;
   }
 
   @Override
   public long getRequestTimeMillis() {
     return requestTimeMillis;
+  }
+
+  @Nullable
+  @Override
+  protected String initId() {
+    return channelContext.channel().id().asShortText();
   }
 
   @Override
@@ -243,12 +255,31 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
+  public cn.taketoday.http.HttpHeaders requestHeaders() {
+    var requestHeaders = this.requestHeaders;
+    if (requestHeaders == null) {
+      requestHeaders = new DefaultHttpHeaders();
+      for (Map.Entry<String, String> header : request.headers()) {
+        requestHeaders.add(header.getKey(), header.getValue());
+      }
+      this.requestHeaders = requestHeaders;
+    }
+    else if (requestHeaders.isEmpty()) {
+      for (Map.Entry<String, String> header : request.headers()) {
+        requestHeaders.add(header.getKey(), header.getValue());
+      }
+    }
+    return requestHeaders;
+  }
+
+  @Override
   protected cn.taketoday.http.HttpHeaders createRequestHeaders() {
     HttpHeaders headers = request.headers();
     DefaultHttpHeaders ret = new DefaultHttpHeaders();
     for (Map.Entry<String, String> header : headers) {
       ret.add(header.getKey(), header.getValue());
     }
+    new NettyHttpHeaders(nettyResponseHeaders);
     return ret;
   }
 
@@ -370,6 +401,58 @@ public class NettyRequestContext extends RequestContext {
     return keepAlive;
   }
 
+  @Override
+  public void setStatus(int sc) {
+    this.status = HttpResponseStatus.valueOf(sc);
+  }
+
+  @Override
+  public void setStatus(HttpStatusCode status) {
+    this.status = HttpResponseStatus.valueOf(status.value());
+  }
+
+  @Override
+  public int getStatus() {
+    return status.code();
+  }
+
+  @Override
+  public void sendError(int sc) throws IOException {
+    sendError(sc, null);
+  }
+
+  @Override
+  public void sendError(int sc, @Nullable String msg) throws IOException {
+    reset();
+    this.status = HttpResponseStatus.valueOf(sc);
+    config.getSendErrorHandler().handleError(this, msg);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public final FullHttpRequest nativeRequest() {
+    return request;
+  }
+
+  @Override
+  @Nullable
+  public <T> T unwrapRequest(Class<T> requestClass) {
+    if (requestClass.isInstance(request)) {
+      return requestClass.cast(request);
+    }
+    return null;
+  }
+
+  @Override
+  protected MultipartRequest createMultipartRequest() {
+    return new NettyMultipartRequest(this);
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new NettyAsyncWebRequest(this);
+  }
+
   /**
    * HTTP response body
    *
@@ -428,6 +511,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected void postRequestCompleted(@Nullable Throwable notHandled) {
     if (notHandled != null) {
+      recycle();
       return;
     }
 
@@ -477,6 +561,8 @@ public class NettyRequestContext extends RequestContext {
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
+
+    recycle();
   }
 
   /**
@@ -585,62 +671,6 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void setStatus(int sc) {
-    this.status = HttpResponseStatus.valueOf(sc);
-  }
-
-  @Override
-  public void setStatus(HttpStatusCode status) {
-    this.status = HttpResponseStatus.valueOf(status.value());
-  }
-
-  @Override
-  public int getStatus() {
-    return status.code();
-  }
-
-  @Override
-  public void sendError(int sc) throws IOException {
-    sendError(sc, null);
-  }
-
-  @Override
-  public void sendError(int sc, @Nullable String msg) throws IOException {
-    reset();
-    this.status = HttpResponseStatus.valueOf(sc);
-    config.getSendErrorHandler().handleError(this, msg);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public final FullHttpRequest nativeRequest() {
-    return request;
-  }
-
-  @Override
-  @Nullable
-  public <T> T unwrapRequest(Class<T> requestClass) {
-    if (requestClass.isInstance(request)) {
-      return requestClass.cast(request);
-    }
-    return null;
-  }
-
-  @Override
-  protected MultipartRequest createMultipartRequest() {
-    return new NettyMultipartRequest(this);
-  }
-
-  @Override
-  protected AsyncWebRequest createAsyncWebRequest() {
-    return new NettyAsyncWebRequest(this);
-  }
-
-  public ChannelHandlerContext getChannelContext() {
-    return channelContext;
-  }
-
-  @Override
   protected String doGetContextPath() {
     return config.getContextPath();
   }
@@ -654,6 +684,68 @@ public class NettyRequestContext extends RequestContext {
   void dispatchConcurrentResult(Object concurrentResult) throws Throwable {
     Object handler = WebAsyncManager.findHttpRequestHandler(this);
     dispatcherHandler.handleConcurrentResult(this, handler, concurrentResult);
+  }
+
+  /**
+   * reset state
+   */
+  private void recycle() {
+    inetSocketAddress = null;
+    queryStringIndex = null;
+    nettyResponseHeaders.clear();
+    fileToSend = null;
+    responseBody = null;
+    status = HttpResponseStatus.OK;
+    remoteAddress = null;
+    keepAlive = null;
+    requestDecoder = null;
+    contextPath = null;
+    cookies = null;
+    writer = null;
+    reader = null;
+    inputStream = null;
+
+    method = null;
+    requestURI = null;
+    requestPath = null;
+    parameters = null;
+    queryString = null;
+    uri = null;
+    httpMethod = null;
+    lookupPath = null;
+    locale = null;
+    responseContentType = null;
+    multipartRequest = null;
+    asyncWebRequest = null;
+    webAsyncManager = null;
+    notModified = false;
+    matchingMetadata = null;
+    bindingContext = null;
+    redirectModel = null;
+    multipartFlag = null;
+    preFlightRequestFlag = null;
+    corsRequestFlag = null;
+    requestDestructionCallbacks = null;
+    requestCompletedTimeMillis = 0;
+    id = null;
+
+    clearAttributes();
+
+    reset();
+
+    if (outputStream instanceof NoBodyOutputStream nbStream) {
+      nbStream.contentLength = 0;
+    }
+
+    if (requestHeaders != null) {
+      requestHeaders.clear();
+    }
+
+    if (hasResponseCookie()) {
+      responseCookies.clear();
+    }
+
+    handle.recycle(this);
   }
 
   /**

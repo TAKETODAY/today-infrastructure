@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.internal.ObjectPool;
 
 import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
@@ -64,6 +65,15 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
           "cn.taketoday.web.socket.Message", NettyChannelHandler.class);
 
   protected final NettyRequestConfig requestConfig;
+
+  protected final ObjectPool<NettyRequestContext> contextObjectPool = ObjectPool.newPool(new ObjectPool.ObjectCreator<>() {
+
+    @Override
+    public NettyRequestContext newObject(ObjectPool.Handle<NettyRequestContext> handle) {
+      return new NettyRequestContext(getApplicationContext(), requestConfig, NettyChannelHandler.this, handle);
+    }
+
+  });
 
   public NettyChannelHandler(NettyRequestConfig requestConfig, ApplicationContext context) {
     super(context);
@@ -108,7 +118,11 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   }
 
   protected NettyRequestContext createContext(ChannelHandlerContext ctx, FullHttpRequest httpRequest) {
-    return new NettyRequestContext(getApplicationContext(), ctx, httpRequest, requestConfig, this);
+    NettyRequestContext nettyRequestContext = contextObjectPool.get();
+    nettyRequestContext.channelContext = ctx;
+    nettyRequestContext.request = httpRequest;
+    nettyRequestContext.requestTimeMillis = System.currentTimeMillis();
+    return nettyRequestContext;
   }
 
   @Override
