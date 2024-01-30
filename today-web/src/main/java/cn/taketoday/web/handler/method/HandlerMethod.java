@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -81,10 +82,10 @@ public class HandlerMethod implements AsyncHandler {
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
 
-  static MapCache<Class<? extends Annotation>, Boolean, HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
+  static MapCache<AnnotationKey, Boolean, HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
     @Override
-    protected Boolean createValue(Class<? extends Annotation> annotationType, HandlerMethod handlerMethod) {
-      return AnnotatedElementUtils.hasAnnotation(handlerMethod.method, annotationType);
+    protected Boolean createValue(AnnotationKey key, HandlerMethod handlerMethod) {
+      return AnnotatedElementUtils.hasAnnotation(key.method, key.annotationType);
     }
   };
 
@@ -440,7 +441,7 @@ public class HandlerMethod implements AsyncHandler {
    * @since 4.0
    */
   public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return methodAnnotationCache.get(annotationType, this);
+    return methodAnnotationCache.get(new AnnotationKey(method, annotationType), this);
   }
 
   @Override
@@ -843,4 +844,35 @@ public class HandlerMethod implements AsyncHandler {
 
   }
 
+  static final class AnnotationKey {
+
+    private final int hash;
+
+    public final Method method;
+
+    public final Class<? extends Annotation> annotationType;
+
+    AnnotationKey(Method method, Class<? extends Annotation> annotationType) {
+      this.method = method;
+      this.annotationType = annotationType;
+      this.hash = Objects.hash(method, annotationType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof AnnotationKey annotationKey))
+        return false;
+      return hash == annotationKey.hash
+              && Objects.equals(method, annotationKey.method)
+              && Objects.equals(annotationType, annotationKey.annotationType);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.hash;
+    }
+
+  }
 }
