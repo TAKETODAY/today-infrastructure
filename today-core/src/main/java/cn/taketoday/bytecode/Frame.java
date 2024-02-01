@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.bytecode;
 
 import cn.taketoday.lang.Constant;
@@ -140,7 +141,7 @@ class Frame {
   // Constants to manipulate the DIM field of an abstract type.
 
   /** The constant to be added to an abstract type to get one with one more array dimension. */
-  private static final int ARRAY_OF = +1 << DIM_SHIFT;
+  private static final int ARRAY_OF = 1 << DIM_SHIFT;
 
   /** The constant to be added to an abstract type to get one with one less array dimension. */
   private static final int ELEMENT_OF = -1 << DIM_SHIFT;
@@ -576,12 +577,12 @@ class Frame {
    */
   private void pop(final int elements) {
     if (outputStackTop >= elements) {
-      outputStackTop -= elements;
+      outputStackTop -= (short) elements;
     }
     else {
       // If the number of elements to be popped is greater than the number of elements in the output
       // stack, clear it, and pop the remaining elements from the input stack.
-      outputStackStart -= elements - outputStackTop;
+      outputStackStart -= (short) (elements - outputStackTop);
       outputStackTop = 0;
     }
   }

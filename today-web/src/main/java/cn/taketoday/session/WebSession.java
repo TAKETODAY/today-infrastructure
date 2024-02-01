@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.session;
@@ -25,6 +22,7 @@ import java.time.Instant;
 import java.util.Iterator;
 import java.util.Map;
 
+import cn.taketoday.core.AttributeAccessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayIterator;
 
@@ -41,7 +39,7 @@ import cn.taketoday.util.ArrayIterator;
  * @see AttributeBindingListener
  * @since 2019-09-27 20:16
  */
-public interface WebSession {
+public interface WebSession extends AttributeAccessor {
 
   /**
    * returns this session's id
@@ -160,6 +158,7 @@ public interface WebSession {
    * @param name the name to which the object is bound; cannot be null
    * @param value the object to be bound
    */
+  @Override
   void setAttribute(String name, @Nullable Object value);
 
   /**
@@ -169,6 +168,7 @@ public interface WebSession {
    * @param name a string specifying the name of the object
    * @return the object with the specified name
    */
+  @Override
   @Nullable
   Object getAttribute(String name);
 
@@ -187,6 +187,7 @@ public interface WebSession {
    * @param name the name of the object to remove from this session
    */
   @Nullable
+  @Override
   Object removeAttribute(String name);
 
   /**
@@ -200,6 +201,7 @@ public interface WebSession {
   /**
    * Return the names of all attributes.
    */
+  @Override
   String[] getAttributeNames();
 
   /**
@@ -207,6 +209,7 @@ public interface WebSession {
    *
    * @since 4.0
    */
+  @Override
   default Iterator<String> attributeNames() {
     return new ArrayIterator<>(getAttributeNames());
   }
@@ -217,6 +220,7 @@ public interface WebSession {
    * @return {@code true} if this map contains no key-value mappings
    * @since 4.0
    */
+  @Override
   boolean hasAttributes();
 
   /**
@@ -224,6 +228,7 @@ public interface WebSession {
    *
    * @return attributes map
    */
+  @Override
   Map<String, Object> getAttributes();
 
 }

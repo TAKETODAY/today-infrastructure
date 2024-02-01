@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.session;
@@ -57,7 +57,9 @@ import cn.taketoday.web.RequestContext;
  * @since 2019-10-03 10:56
  */
 public class HeaderSessionIdResolver implements SessionIdResolver {
+
   public static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
+
   public static final String HEADER_AUTHENTICATION_INFO = "Authentication-Info";
 
   private final String headerName;
@@ -74,26 +76,26 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
 
   @Nullable
   @Override
-  public String getSessionId(RequestContext context) {
+  public String getSessionId(RequestContext exchange) {
     // find in request attribute
-    Object attribute = context.getAttribute(WRITTEN_SESSION_ID_ATTR);
+    Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
       return sessionId;
     }
-    return context.requestHeaders().getFirst(headerName);
+    return exchange.requestHeaders().getFirst(headerName);
   }
 
   @Override
-  public void setSessionId(RequestContext context, String sessionId) {
-    Assert.notNull(sessionId, "'sessionId' is required.");
-    context.setHeader(headerName, sessionId);
-    context.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
+  public void setSessionId(RequestContext exchange, String sessionId) {
+    Assert.notNull(sessionId, "sessionId is required");
+    exchange.setHeader(headerName, sessionId);
+    exchange.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
   }
 
   @Override
-  public void expireSession(RequestContext context) {
-    context.removeHeader(headerName);
-    context.removeAttribute(WRITTEN_SESSION_ID_ATTR);
+  public void expireSession(RequestContext exchange) {
+    exchange.removeHeader(headerName);
+    exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
   }
 
   /**

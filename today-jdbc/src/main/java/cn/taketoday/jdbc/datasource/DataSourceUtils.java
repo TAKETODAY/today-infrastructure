@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource;
@@ -61,7 +58,9 @@ import cn.taketoday.util.ExceptionUtils;
  * @since 2018-11-06 20:37
  */
 public abstract class DataSourceUtils {
+
   private static final Logger log = LoggerFactory.getLogger(DataSourceUtils.class);
+
   /**
    * Order value for TransactionSynchronization objects that clean up JDBC Connections.
    */
@@ -85,8 +84,7 @@ public abstract class DataSourceUtils {
    * @return a JDBC Connection from the given DataSource
    * @see #releaseConnection
    */
-  public static Connection getConnection(
-          SynchronizationInfo metaData, DataSource dataSource) {
+  public static Connection getConnection(SynchronizationInfo metaData, DataSource dataSource) {
     try {
       return doGetConnection(metaData, dataSource);
     }
@@ -125,8 +123,7 @@ public abstract class DataSourceUtils {
    * @throws SQLException if thrown by JDBC methods
    * @see #doReleaseConnection
    */
-  public static Connection doGetConnection(
-          SynchronizationInfo info, DataSource dataSource) throws SQLException {
+  public static Connection doGetConnection(SynchronizationInfo info, DataSource dataSource) throws SQLException {
     Assert.notNull(dataSource, "No DataSource specified");
 
     ConnectionHolder conHolder = info.getResource(dataSource);
@@ -207,8 +204,8 @@ public abstract class DataSourceUtils {
    * @see Connection#setReadOnly
    */
   @Nullable
-  public static Integer prepareConnectionForTransaction(
-          Connection con, @Nullable TransactionDefinition definition) throws SQLException {
+  @SuppressWarnings("MagicConstant")
+  public static Integer prepareConnectionForTransaction(Connection con, @Nullable TransactionDefinition definition) throws SQLException {
     if (definition != null) {
       Assert.notNull(con, "No Connection specified");
       // Set read-only flag.
@@ -263,8 +260,7 @@ public abstract class DataSourceUtils {
    * @see Connection#setReadOnly
    * @since 4.0
    */
-  public static void resetConnectionAfterTransaction(
-          Connection con, @Nullable Integer previousIsolationLevel, boolean resetReadOnly) {
+  public static void resetConnectionAfterTransaction(Connection con, @Nullable Integer previousIsolationLevel, boolean resetReadOnly) {
     Assert.notNull(con, "No Connection specified");
     try {
       // Reset transaction isolation to previous value, if changed for the transaction.
@@ -329,8 +325,7 @@ public abstract class DataSourceUtils {
    * @throws SQLException if thrown by JDBC methods
    * @see java.sql.Statement#setQueryTimeout
    */
-  public static void applyTimeout(
-          Statement stmt, @Nullable DataSource dataSource, int timeout) throws SQLException {
+  public static void applyTimeout(Statement stmt, @Nullable DataSource dataSource, int timeout) throws SQLException {
     Assert.notNull(stmt, "No Statement specified");
     ConnectionHolder holder = null;
     if (dataSource != null) {

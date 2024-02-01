@@ -20,6 +20,7 @@ package cn.taketoday.http.converter.protobuf;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
+import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.util.JsonFormat;
 
@@ -31,7 +32,6 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Map;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpInputMessage;
@@ -73,7 +73,7 @@ import static cn.taketoday.http.MediaType.TEXT_PLAIN;
  * @see ProtobufJsonFormatHttpMessageConverter
  * @since 4.0
  */
-public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<Message> {
+public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<MessageOrBuilder> {
 
   /**
    * The media-type for protobuf {@code application/x-protobuf}.
@@ -90,7 +90,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    */
   public static final String X_PROTOBUF_MESSAGE_HEADER = "X-Protobuf-Message";
 
-  private static final Map<Class<?>, Method> methodCache = new ConcurrentReferenceHashMap<>();
+  private static final ConcurrentReferenceHashMap<Class<?>, Method> methodCache = new ConcurrentReferenceHashMap<>();
 
   final ExtensionRegistry extensionRegistry;
 
@@ -143,7 +143,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * @param populateProtoHeader populate protobuf headers to response
    * @see #X_PROTOBUF_SCHEMA_HEADER
    * @see #X_PROTOBUF_MESSAGE_HEADER
-   * @see #setProtoHeader(HttpOutputMessage, Message)
+   * @see #setProtoHeader(HttpOutputMessage, MessageOrBuilder)
    */
   public void setPopulateProtoHeader(boolean populateProtoHeader) {
     this.populateProtoHeader = populateProtoHeader;
@@ -151,16 +151,21 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
   @Override
   protected boolean supports(Class<?> clazz) {
-    return Message.class.isAssignableFrom(clazz);
+    return MessageOrBuilder.class.isAssignableFrom(clazz);
   }
 
   @Override
-  protected MediaType getDefaultContentType(Message message) {
+  public boolean canRead(Class<?> clazz, @Nullable MediaType mediaType) {
+    return Message.class.isAssignableFrom(clazz) && canRead(mediaType);
+  }
+
+  @Override
+  protected MediaType getDefaultContentType(MessageOrBuilder message) {
     return PROTOBUF;
   }
 
   @Override
-  protected Message readInternal(Class<? extends Message> clazz, HttpInputMessage inputMessage)
+  protected Message readInternal(Class<? extends MessageOrBuilder> clazz, HttpInputMessage inputMessage)
           throws IOException, HttpMessageNotReadableException {
 
     MediaType contentType = inputMessage.getHeaders().getContentType();
@@ -191,7 +196,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * Create a new {@code Message.Builder} instance for the given class.
    * <p>This method uses a ConcurrentReferenceHashMap for caching method lookups.
    */
-  private Message.Builder getMessageBuilder(Class<? extends Message> clazz) {
+  private Message.Builder getMessageBuilder(Class<?> clazz) {
     try {
       Method method = methodCache.get(clazz);
       if (method == null) {
@@ -212,9 +217,8 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
             (this.protobufFormatSupport != null && this.protobufFormatSupport.supportsWriteOnly(mediaType)));
   }
 
-  @SuppressWarnings("deprecation")
   @Override
-  protected void writeInternal(Message message, HttpOutputMessage outputMessage)
+  protected void writeInternal(MessageOrBuilder message, HttpOutputMessage outputMessage)
           throws IOException, HttpMessageNotWritableException {
 
     MediaType contentType = outputMessage.getHeaders().getContentType();
@@ -231,11 +235,16 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
       if (populateProtoHeader) {
         setProtoHeader(outputMessage, message);
       }
-      message.writeTo(outputMessage.getBody());
+      if (message instanceof Message.Builder builder) {
+        builder.build().writeTo(outputMessage.getBody());
+      }
+      else {
+        ((Message) message).writeTo(outputMessage.getBody());
+      }
     }
     else if (TEXT_PLAIN.isCompatibleWith(contentType)) {
       OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputMessage.getBody(), charset);
-      TextFormat.print(message, outputStreamWriter);  // deprecated on Protobuf 3.9
+      TextFormat.printer().print(message, outputStreamWriter);
       outputStreamWriter.flush();
       outputMessage.getBody().flush();
     }
@@ -251,7 +260,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
    * <p><b>Note:</b> <code>outputMessage.getBody()</code> should not have been called
    * before because it writes HTTP headers (making them read only).</p>
    */
-  protected void setProtoHeader(HttpOutputMessage response, Message message) {
+  protected void setProtoHeader(HttpOutputMessage response, MessageOrBuilder message) {
     HttpHeaders headers = response.getHeaders();
     Descriptors.Descriptor descriptorForType = message.getDescriptorForType();
     headers.set(X_PROTOBUF_SCHEMA_HEADER, descriptorForType.getFile().getName());
@@ -259,7 +268,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
   }
 
   @Override
-  protected boolean supportsRepeatableWrites(Message message) {
+  protected boolean supportsRepeatableWrites(MessageOrBuilder message) {
     return true;
   }
 
@@ -276,7 +285,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
             ExtensionRegistry extensionRegistry, Message.Builder builder)
             throws IOException, HttpMessageConversionException;
 
-    void print(Message message, OutputStream output, MediaType contentType, Charset charset)
+    void print(MessageOrBuilder message, OutputStream output, MediaType contentType, Charset charset)
             throws IOException, HttpMessageConversionException;
   }
 
@@ -321,7 +330,7 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
 
     @Override
-    public void print(Message message, OutputStream output, MediaType contentType, Charset charset)
+    public void print(MessageOrBuilder message, OutputStream output, MediaType contentType, Charset charset)
             throws IOException, HttpMessageConversionException //
     {
 

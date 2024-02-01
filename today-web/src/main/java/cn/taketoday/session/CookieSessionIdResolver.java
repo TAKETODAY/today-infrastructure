@@ -77,19 +77,19 @@ public class CookieSessionIdResolver implements SessionIdResolver {
 
   @Nullable
   @Override
-  public String getSessionId(RequestContext context) {
+  public String getSessionId(RequestContext exchange) {
     // find in request attribute
-    Object attribute = context.getAttribute(WRITTEN_SESSION_ID_ATTR);
+    Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
       return sessionId;
     }
 
     // find in request cookie
-    HttpCookie cookie = context.getCookie(cookieName);
+    HttpCookie cookie = exchange.getCookie(cookieName);
     if (cookie == null) {
       // fallback to response cookies
-      if (context.hasResponseCookie()) {
-        for (HttpCookie httpCookie : context.responseCookies()) {
+      if (exchange.hasResponseCookie()) {
+        for (HttpCookie httpCookie : exchange.responseCookies()) {
           if (cookieName.equals(httpCookie.getName())) {
             return httpCookie.getValue();
           }
@@ -101,11 +101,11 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setSessionId(RequestContext context, String sessionId) {
-    if (!sessionId.equals(context.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
+  public void setSessionId(RequestContext exchange, String sessionId) {
+    if (!sessionId.equals(exchange.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
       HttpCookie cookie = createCookie(sessionId);
-      context.addCookie(cookie);
-      context.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
+      exchange.addCookie(cookie);
+      exchange.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
     }
   }
 
