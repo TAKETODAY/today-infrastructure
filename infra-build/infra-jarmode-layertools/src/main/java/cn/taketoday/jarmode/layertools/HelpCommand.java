@@ -69,7 +69,8 @@ class HelpCommand extends Command {
   }
 
   private void printOptionSummary(PrintStream out, Option option, int padding) {
-    out.printf("  --%s-%s  %s%n", option.getNameAndValueDescription(), padding, option.getDescription());
+    out.printf("  --%-" + padding + "s  %s%n", option.getNameAndValueDescription(),
+            option.getDescription());
   }
 
   private String getUsage(Command command) {
@@ -97,7 +98,7 @@ class HelpCommand extends Command {
   }
 
   private void printCommandSummary(PrintStream out, Command command, int padding) {
-    out.println(String.format("  %-" + padding + "s  %s", command.getName(), command.getDescription()));
+    out.printf("  %-" + padding + "s  %s%n", command.getName(), command.getDescription());
   }
 
   private String getJavaCommand() {
