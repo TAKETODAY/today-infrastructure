@@ -132,11 +132,12 @@ public abstract class AbstractWebSession implements WebSession {
 
   @Override
   public void invalidate() {
+    eventDispatcher.onSessionDestroyed(this);
+
     for (String attributeName : getAttributeNames()) {
       removeAttribute(attributeName);
     }
     doInvalidate();
-    eventDispatcher.onSessionDestroyed(this);
   }
 
   protected void doInvalidate() { }

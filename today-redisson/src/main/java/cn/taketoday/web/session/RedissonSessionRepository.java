@@ -164,8 +164,8 @@ public class RedissonSessionRepository implements SessionRepository, PatternMess
         MapSession mapSession = loadSession(id);
         if (mapSession != null) {
           RedissonSession session = new RedissonSession(mapSession);
-          session.clearPrincipal();
           eventDispatcher.onSessionDestroyed(session);
+          session.clearPrincipal();
         }
       }
     }
