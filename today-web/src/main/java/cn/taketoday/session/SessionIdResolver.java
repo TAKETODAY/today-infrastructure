@@ -21,6 +21,7 @@ import java.util.List;
 
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.session.config.CookieProperties;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -35,6 +36,10 @@ public interface SessionIdResolver {
 
   String WRITTEN_SESSION_ID_ATTR = Conventions.getQualifiedAttributeName(
           CookieSessionIdResolver.class, "WRITTEN_SESSION_ID_ATTR");
+
+  String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
+
+  String HEADER_AUTHENTICATION_INFO = "Authentication-Info";
 
   /**
    * Resolving session id from RequestContext
@@ -61,6 +66,71 @@ public interface SessionIdResolver {
    * @param exchange the current exchange
    */
   void expireSession(RequestContext exchange);
+
+  // Static Factory Methods
+
+  /**
+   * Convenience factory to create {@link HeaderSessionIdResolver} that uses
+   * "X-Auth-Token" header.
+   *
+   * @return the instance configured to use "X-Auth-Token" header
+   */
+  static HeaderSessionIdResolver xAuthToken() {
+    return forHeader(HEADER_X_AUTH_TOKEN);
+  }
+
+  /**
+   * Convenience factory to create {@link HeaderSessionIdResolver} that uses
+   * "Authentication-Info" header.
+   *
+   * @return the instance configured to use "Authentication-Info" header
+   */
+  static HeaderSessionIdResolver authenticationInfo() {
+    return forHeader(HEADER_AUTHENTICATION_INFO);
+  }
+
+  /**
+   * Convenience factory to create {@link HeaderSessionIdResolver} that uses
+   * given  header.
+   *
+   * @return the instance configured to use given header
+   */
+  static HeaderSessionIdResolver forHeader(String headerName) {
+    return new HeaderSessionIdResolver(headerName);
+  }
+
+  /**
+   * Convenience factory to create {@link RequestParameterSessionIdResolver} that uses
+   * given parameter name.
+   *
+   * @param parameterName request parameter name
+   * @return the instance configured to use given parameter name
+   */
+  static RequestParameterSessionIdResolver forParameter(String parameterName) {
+    return new RequestParameterSessionIdResolver(parameterName);
+  }
+
+  /**
+   * Convenience factory to create {@link CookieSessionIdResolver} that uses
+   * given cookie name.
+   *
+   * @param cookieName cookie name
+   * @return the instance configured to use given cookie name
+   */
+  static CookieSessionIdResolver forCookie(String cookieName) {
+    return new CookieSessionIdResolver(cookieName);
+  }
+
+  /**
+   * Convenience factory to create {@link CookieSessionIdResolver} that uses
+   * given cookie name.
+   *
+   * @param properties cookie config
+   * @return the instance configured to use given cookie name
+   */
+  static CookieSessionIdResolver forCookie(CookieProperties properties) {
+    return new CookieSessionIdResolver(properties);
+  }
 
   /**
    * for Composite SessionIdResolver

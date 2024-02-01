@@ -58,10 +58,6 @@ import cn.taketoday.web.RequestContext;
  */
 public class HeaderSessionIdResolver implements SessionIdResolver {
 
-  public static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
-
-  public static final String HEADER_AUTHENTICATION_INFO = "Authentication-Info";
-
   private final String headerName;
 
   /**
@@ -70,7 +66,7 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
    * @param headerName the name of the header to obtain the session id from.
    */
   public HeaderSessionIdResolver(String headerName) {
-    Assert.notNull(headerName, "headerName is required");
+    Assert.hasText(headerName, "headerName is required");
     this.headerName = headerName;
   }
 
@@ -96,26 +92,6 @@ public class HeaderSessionIdResolver implements SessionIdResolver {
   public void expireSession(RequestContext exchange) {
     exchange.removeHeader(headerName);
     exchange.removeAttribute(WRITTEN_SESSION_ID_ATTR);
-  }
-
-  /**
-   * Convenience factory to create {@link HeaderSessionIdResolver} that uses
-   * "X-Auth-Token" header.
-   *
-   * @return the instance configured to use "X-Auth-Token" header
-   */
-  public static HeaderSessionIdResolver xAuthToken() {
-    return new HeaderSessionIdResolver(HEADER_X_AUTH_TOKEN);
-  }
-
-  /**
-   * Convenience factory to create {@link HeaderSessionIdResolver} that uses
-   * "Authentication-Info" header.
-   *
-   * @return the instance configured to use "Authentication-Info" header
-   */
-  public static HeaderSessionIdResolver authenticationInfo() {
-    return new HeaderSessionIdResolver(HEADER_AUTHENTICATION_INFO);
   }
 
 }

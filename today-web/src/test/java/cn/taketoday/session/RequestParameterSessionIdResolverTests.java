@@ -21,71 +21,70 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.web.MockRequestContext;
 
+import static cn.taketoday.session.SessionIdResolver.WRITTEN_SESSION_ID_ATTR;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/2/2 17:05
+ * @since 1.0 2024/2/1 19:57
  */
-class HeaderSessionIdResolverTests {
+class RequestParameterSessionIdResolverTests {
 
   @Test
   void illegalArgument() {
     assertThatThrownBy(() ->
-            new HeaderSessionIdResolver(null))
+            new RequestParameterSessionIdResolver(null))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("headerName is required");
+            .hasMessage("parameterName is required");
 
     assertThatThrownBy(() ->
-            new HeaderSessionIdResolver(""))
+            new RequestParameterSessionIdResolver(""))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("headerName is required");
+            .hasMessage("parameterName is required");
+
     assertThatThrownBy(() ->
-            new HeaderSessionIdResolver("  "))
+            new RequestParameterSessionIdResolver("    "))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("headerName is required");
+            .hasMessage("parameterName is required");
   }
 
   @Test
   void getSessionId() {
-    HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
+    SessionIdResolver resolver = SessionIdResolver.forParameter("auth");
     MockRequestContext context = new MockRequestContext();
-    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
+    context.setParameter("auth", "sessionId");
     assertThat(resolver.getSessionId(context))
-            .isEqualTo("value");
+            .isEqualTo("sessionId");
   }
 
   @Test
   void setSessionId() {
-    HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
+    RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("auth");
     MockRequestContext context = new MockRequestContext();
+    context.setParameter("auth", "sessionId");
 
-    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
-    assertThat(resolver.getSessionId(context)).isEqualTo("value");
+    assertThat(resolver.getSessionId(context)).isEqualTo("sessionId");
 
     resolver.setSessionId(context, "new-value");
+    assertThat(context.getAttribute(WRITTEN_SESSION_ID_ATTR)).isEqualTo("new-value");
     assertThat(resolver.getSessionId(context)).isEqualTo("new-value");
   }
 
   @Test
   void expireSession() {
-    HeaderSessionIdResolver resolver = SessionIdResolver.xAuthToken();
+    RequestParameterSessionIdResolver resolver = SessionIdResolver.forParameter("auth");
     MockRequestContext context = new MockRequestContext();
+    context.setParameter("auth", "sessionId");
 
-    context.requestHeaders().set(SessionIdResolver.HEADER_X_AUTH_TOKEN, "value");
-    assertThat(resolver.getSessionId(context)).isEqualTo("value");
+    assertThat(resolver.getSessionId(context)).isEqualTo("sessionId");
 
     resolver.setSessionId(context, "new-value");
-    assertThat(resolver.getSessionId(context)).isEqualTo("new-value");
+    assertThat(context.getAttribute(WRITTEN_SESSION_ID_ATTR)).isEqualTo("new-value");
 
     resolver.expireSession(context);
-    assertThat(resolver.getSessionId(context)).isEqualTo("value");
+    assertThat(resolver.getSessionId(context)).isEqualTo("sessionId");
+    assertThat(context.getAttribute(WRITTEN_SESSION_ID_ATTR)).isNull();
   }
 
-  @Test
-  void authenticationInfo() {
-    HeaderSessionIdResolver resolver = SessionIdResolver.authenticationInfo();
-    assertThat(resolver).extracting("headerName").isEqualTo(SessionIdResolver.HEADER_AUTHENTICATION_INFO);
-  }
 }
