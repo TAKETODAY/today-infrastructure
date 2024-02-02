@@ -84,7 +84,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
   }
 
   private HttpHeaders getResponseHeaders(MockHttpServletResponse response) {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     for (String name : response.getHeaderNames()) {
       List<String> values = response.getHeaders(name);
       for (String value : values) {

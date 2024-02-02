@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.demo;
 
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
-import cn.taketoday.framework.web.WebApplication;
+import cn.taketoday.framework.Application;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.config.EnableWebMvc;
@@ -34,7 +34,7 @@ public class DemoApp {
 
   public static void main(String[] args) {
 //    WebApplication.run(DemoApp.class, args);
-    WebApplication.forBuilder()
+    Application.forBuilder()
             .sources(DemoApp.class)
             .run(args);
   }

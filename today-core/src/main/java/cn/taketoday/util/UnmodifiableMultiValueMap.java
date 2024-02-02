@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -138,6 +135,16 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   @Override
   public String toString() {
     return this.delegate.toString();
+  }
+
+  @Override
+  public MultiValueMap<K, V> asReadOnly() {
+    return this;
+  }
+
+  @Override
+  public MultiValueMap<K, V> asWritable() {
+    return delegate;
   }
 
   // lazy init
@@ -267,8 +274,7 @@ final class UnmodifiableMultiValueMap<K, V> implements MultiValueMap<K, V>, Seri
   }
 
   @Override
-  public List<V> merge(
-          K key, List<V> value,
+  public List<V> merge(K key, List<V> value,
           BiFunction<? super List<V>, ? super List<V>, ? extends List<V>> remappingFunction) {
     throw new UnsupportedOperationException();
   }

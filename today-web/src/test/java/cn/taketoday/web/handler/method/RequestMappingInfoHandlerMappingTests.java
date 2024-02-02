@@ -610,7 +610,7 @@ class RequestMappingInfoHandlerMappingTests {
 
     @RequestMapping(value = "/something", method = HttpMethod.OPTIONS)
     public HttpHeaders fooOptions() {
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.add("Allow", "PUT,POST");
       return headers;
     }

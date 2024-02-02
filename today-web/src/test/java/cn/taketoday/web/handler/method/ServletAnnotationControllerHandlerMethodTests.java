@@ -3935,7 +3935,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     @RequestMapping(value = "/", method = HttpMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public HttpHeaders create() {
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.setLocation(URI.create("/test/items/123"));
       return headers;
     }
@@ -3943,7 +3943,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     @RequestMapping(value = "empty", method = HttpMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public HttpHeaders createNoHeader() {
-      return HttpHeaders.create();
+      return HttpHeaders.forWritable();
     }
   }
 

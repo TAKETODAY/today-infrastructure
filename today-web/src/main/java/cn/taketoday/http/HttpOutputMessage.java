@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StreamUtils;
 
@@ -47,6 +48,14 @@ public interface HttpOutputMessage extends HttpMessage {
    * @throws IOException in case of I/O errors
    */
   OutputStream getBody() throws IOException;
+
+  /**
+   * Set the {@linkplain MediaType media type} of the body, as specified by the
+   * {@code Content-Type} header.
+   */
+  default void setContentType(@Nullable MediaType mediaType) {
+    getHeaders().setContentType(mediaType);
+  }
 
   default boolean supportsZeroCopy() {
     return false;

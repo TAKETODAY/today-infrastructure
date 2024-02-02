@@ -573,7 +573,7 @@ public class RequestEntity<T> extends HttpEntity<T> {
   private static class DefaultBodyBuilder implements BodyBuilder {
 
     private final HttpMethod method;
-    private final HttpHeaders headers = HttpHeaders.create();
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     @Nullable
     private final URI uri;

@@ -25,9 +25,7 @@ import com.google.protobuf.TextFormat;
 import com.google.protobuf.util.JsonFormat;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -172,22 +170,19 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     if (contentType == null) {
       contentType = PROTOBUF;
     }
-    Charset charset = contentType.getCharset();
-    if (charset == null) {
-      charset = Constant.DEFAULT_CHARSET;
-    }
 
     Message.Builder builder = getMessageBuilder(clazz);
     if (PROTOBUF.isCompatibleWith(contentType)) {
       builder.mergeFrom(inputMessage.getBody(), this.extensionRegistry);
     }
     else if (TEXT_PLAIN.isCompatibleWith(contentType)) {
+      Charset charset = getCharset(contentType);
       InputStreamReader reader = new InputStreamReader(inputMessage.getBody(), charset);
       TextFormat.merge(reader, this.extensionRegistry, builder);
     }
-    else if (this.protobufFormatSupport != null) {
-      this.protobufFormatSupport.merge(
-              inputMessage.getBody(), charset, contentType, this.extensionRegistry, builder);
+    else if (protobufFormatSupport != null) {
+      Charset charset = getCharset(contentType);
+      protobufFormatSupport.merge(inputMessage, charset, contentType, this.extensionRegistry, builder);
     }
     return builder.build();
   }
@@ -213,22 +208,19 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
   @Override
   protected boolean canWrite(@Nullable MediaType mediaType) {
-    return (super.canWrite(mediaType) ||
-            (this.protobufFormatSupport != null && this.protobufFormatSupport.supportsWriteOnly(mediaType)));
+    return super.canWrite(mediaType)
+            || (protobufFormatSupport != null && protobufFormatSupport.supportsWriteOnly(mediaType));
   }
 
   @Override
   protected void writeInternal(MessageOrBuilder message, HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException {
+          throws IOException, HttpMessageNotWritableException //
+  {
 
     MediaType contentType = outputMessage.getHeaders().getContentType();
     if (contentType == null) {
       contentType = getDefaultContentType(message);
       Assert.state(contentType != null, "No content type");
-    }
-    Charset charset = contentType.getCharset();
-    if (charset == null) {
-      charset = Constant.DEFAULT_CHARSET;
     }
 
     if (PROTOBUF.isCompatibleWith(contentType)) {
@@ -243,15 +235,21 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
       }
     }
     else if (TEXT_PLAIN.isCompatibleWith(contentType)) {
-      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputMessage.getBody(), charset);
+      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputMessage.getBody(), getCharset(contentType));
       TextFormat.printer().print(message, outputStreamWriter);
       outputStreamWriter.flush();
-      outputMessage.getBody().flush();
     }
-    else if (this.protobufFormatSupport != null) {
-      this.protobufFormatSupport.print(message, outputMessage.getBody(), contentType, charset);
-      outputMessage.getBody().flush();
+    else if (protobufFormatSupport != null) {
+      protobufFormatSupport.print(message, outputMessage, contentType);
     }
+  }
+
+  private static Charset getCharset(MediaType contentType) {
+    Charset charset = contentType.getCharset();
+    if (charset == null) {
+      charset = Constant.DEFAULT_CHARSET;
+    }
+    return charset;
   }
 
   /**
@@ -281,11 +279,11 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
 
     boolean supportsWriteOnly(@Nullable MediaType mediaType);
 
-    void merge(InputStream input, Charset charset, MediaType contentType,
+    void merge(HttpInputMessage input, Charset charset, MediaType contentType,
             ExtensionRegistry extensionRegistry, Message.Builder builder)
             throws IOException, HttpMessageConversionException;
 
-    void print(MessageOrBuilder message, OutputStream output, MediaType contentType, Charset charset)
+    void print(MessageOrBuilder message, HttpOutputMessage output, MediaType contentType)
             throws IOException, HttpMessageConversionException;
   }
 
@@ -315,12 +313,13 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
 
     @Override
-    public void merge(InputStream input, Charset charset, MediaType contentType,
+    public void merge(HttpInputMessage input, Charset charset, MediaType contentType,
             ExtensionRegistry extensionRegistry, Message.Builder builder)
             throws IOException, HttpMessageConversionException //
     {
+
       if (contentType.isCompatibleWith(APPLICATION_JSON)) {
-        InputStreamReader reader = new InputStreamReader(input, charset);
+        InputStreamReader reader = new InputStreamReader(input.getBody(), charset);
         this.parser.merge(reader, builder);
       }
       else {
@@ -330,12 +329,12 @@ public class ProtobufHttpMessageConverter extends AbstractHttpMessageConverter<M
     }
 
     @Override
-    public void print(MessageOrBuilder message, OutputStream output, MediaType contentType, Charset charset)
+    public void print(MessageOrBuilder message, HttpOutputMessage output, MediaType contentType)
             throws IOException, HttpMessageConversionException //
     {
 
       if (contentType.isCompatibleWith(APPLICATION_JSON)) {
-        OutputStreamWriter writer = new OutputStreamWriter(output, charset);
+        OutputStreamWriter writer = new OutputStreamWriter(output.getBody(), getCharset(contentType));
         this.printer.appendTo(message, writer);
         writer.flush();
       }

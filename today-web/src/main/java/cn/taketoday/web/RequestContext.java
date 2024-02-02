@@ -1813,8 +1813,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param contentType a <code>String</code> specifying the MIME type of the content
    */
-  public void setContentType(MediaType contentType) {
-    setContentType(contentType.toString());
+  public void setContentType(@Nullable MediaType contentType) {
+    setContentType(contentType == null ? null : contentType.toString());
   }
 
   /**
@@ -1965,7 +1965,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @since 4.0
    */
-  public void writeHeaders() { }
+  protected void writeHeaders() { }
 
   @Override
   public String toString() {
@@ -2000,6 +2000,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
       return responseHeaders();
     }
 
+    @Override
+    public void setContentType(@Nullable MediaType mediaType) {
+      RequestContext.this.setContentType(mediaType);
+    }
   }
 
 }

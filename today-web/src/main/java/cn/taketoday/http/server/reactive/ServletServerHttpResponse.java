@@ -73,7 +73,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
   public ServletServerHttpResponse(HttpServletResponse response, AsyncContext asyncContext,
           DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
 
-    this(HttpHeaders.create(), response, asyncContext, bufferFactory, bufferSize, request);
+    this(HttpHeaders.forWritable(), response, asyncContext, bufferFactory, bufferSize, request);
   }
 
   public ServletServerHttpResponse(HttpHeaders headers, HttpServletResponse response, AsyncContext asyncContext,

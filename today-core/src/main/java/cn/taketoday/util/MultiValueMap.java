@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,6 +46,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
 
   Function smartListMappingFunction = k -> new SmartList<>();
 
+  MultiValueMap EMPTY = new MultiValueMapAdapter<>(Collections.emptyMap());
+
   /**
    * Return the first value for the given key.
    *
@@ -61,6 +64,10 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @param value the value to be added
    */
   void add(K key, @Nullable V value);
+
+  default void add(Entry<K, V> pair) {
+    add(pair.getKey(), pair.getValue());
+  }
 
   /**
    * Add all the values of the given list to the current list of values for the
@@ -193,15 +200,32 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
     }
   }
 
-  // static
-
   /**
-   * default MultiValueMap
+   * Apply a read-only {@code MultiValueMap} wrapper around this {@code MultiValueMap}, if necessary.
    *
+   * @return a read-only variant of the MultiValueMap, or the original headers as-is
    * @since 4.0
    */
-  static <K, V> DefaultMultiValueMap<K, V> defaults() {
-    return new DefaultMultiValueMap<>();
+  default MultiValueMap<K, V> asReadOnly() {
+    return new UnmodifiableMultiValueMap<>(this);
+  }
+
+  /**
+   * Remove any read-only wrapper that may have been previously applied around
+   * this map via {@link #asReadOnly()}.
+   *
+   * @return a writable variant of the MultiValueMap, or the original headers as-is
+   * @since 4.0
+   */
+  default MultiValueMap<K, V> asWritable() {
+    return this;
+  }
+
+  // static
+
+  @SuppressWarnings({ "unchecked" })
+  static <K, V> MultiValueMap<K, V> empty() {
+    return EMPTY;
   }
 
   /**
@@ -211,8 +235,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  static <K, V> DefaultMultiValueMap<K, V> from(Map<K, List<V>> targetMap) {
-    return new DefaultMultiValueMap<>(targetMap);
+  static <K, V> MultiValueMapAdapter<K, V> forAdaption(Map<K, List<V>> targetMap) {
+    return new MultiValueMapAdapter<>(targetMap);
   }
 
   /**
@@ -223,9 +247,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  static <K, V> DefaultMultiValueMap<K, V> from(
-          Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
-    return new DefaultMultiValueMap<>(targetMap, mappingFunction);
+  static <K, V> MappingMultiValueMap<K, V> forAdaption(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
+    return new MappingMultiValueMap<>(targetMap, mappingFunction);
   }
 
   /**
@@ -237,10 +260,6 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    */
   static <K, V> LinkedMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap) {
     return new LinkedMultiValueMap<>(targetMap);
-  }
-
-  static <K, V> LinkedMultiValueMap<K, V> copyOf(Map<K, List<V>> targetMap, Function<K, List<V>> mappingFunction) {
-    return new LinkedMultiValueMap<>(targetMap, mappingFunction);
   }
 
   /**
@@ -255,15 +274,6 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   /**
    * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
    *
-   * @since 4.0
-   */
-  static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap(Function<K, List<V>> mappingFunction) {
-    return new LinkedMultiValueMap<>(mappingFunction);
-  }
-
-  /**
-   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
-   *
    * @param expectedSize the expected number of elements (with a corresponding
    * capacity to be derived so that no resize/rehash operations are needed)
    * @since 4.0
@@ -273,31 +283,15 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   }
 
   /**
-   * Adapt a {@code LinkedHashMap<K, List<V>>} to an {@code MultiValueMap<K, V>}.
-   *
-   * @param expectedSize the expected number of elements (with a corresponding
-   * capacity to be derived so that no resize/rehash operations are needed)
-   * @since 4.0
-   */
-  static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap(
-          int expectedSize, Function<K, List<V>> mappingFunction) {
-    return new LinkedMultiValueMap<>(expectedSize, mappingFunction);
-  }
-
-  /**
    * Return an unmodifiable view of the specified multi-value map.
    *
    * @param targetMap the map for which an unmodifiable view is to be returned.
    * @return an unmodifiable view of the specified multi-value map
    * @since 4.0
    */
-  @SuppressWarnings("unchecked")
-  static <K, V> MultiValueMap<K, V> forUnmodifiable(MultiValueMap<? extends K, ? extends V> targetMap) {
+  static <K, V> MultiValueMap<K, V> forUnmodifiable(MultiValueMap<K, V> targetMap) {
     Assert.notNull(targetMap, "'targetMap' is required");
-    if (targetMap instanceof UnmodifiableMultiValueMap) {
-      return (MultiValueMap<K, V>) targetMap;
-    }
-    return new UnmodifiableMultiValueMap<>(targetMap);
+    return targetMap.asReadOnly();
   }
 
 }

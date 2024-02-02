@@ -281,7 +281,7 @@ public class MockRequestContext extends RequestContext {
   @Override
   protected HttpHeaders createRequestHeaders() {
     if (requestHeaders == null) {
-      requestHeaders = HttpHeaders.create();
+      requestHeaders = HttpHeaders.forWritable();
     }
     return requestHeaders;
   }

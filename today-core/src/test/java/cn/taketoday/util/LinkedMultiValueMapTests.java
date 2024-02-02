@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -131,6 +128,17 @@ class LinkedMultiValueMapTests {
     o2.put("key1", Collections.singletonList("value1"));
     assertThat(o2).isEqualTo(map);
     assertThat(map).isEqualTo(o2);
+  }
+
+  @Test
+  void deepCopy() {
+    map.set("key1", "value1");
+    assertThat(map).isEqualTo(map);
+    LinkedMultiValueMap<String, String> o1 = new LinkedMultiValueMap<>();
+    o1.set("key1", "value1");
+
+    LinkedMultiValueMap<String, String> deepedCopy = o1.deepCopy();
+    assertThat(deepedCopy).isEqualTo(o1);
   }
 
 }

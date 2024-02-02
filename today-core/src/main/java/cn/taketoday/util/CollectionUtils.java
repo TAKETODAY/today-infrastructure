@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.util;
 
@@ -37,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.SortedMap;
@@ -57,6 +55,7 @@ import cn.taketoday.lang.Nullable;
  * @author TODAY 2019-12-29 23:39
  */
 public abstract class CollectionUtils {
+
   /**
    * Default load factor for {@link HashMap}/{@link LinkedHashMap} variants.
    *
@@ -506,7 +505,7 @@ public abstract class CollectionUtils {
    * is not a subtype of {@link Enum}
    * @see java.util.LinkedHashMap
    * @see java.util.TreeMap
-   * @see DefaultMultiValueMap
+   * @see LinkedMultiValueMap
    * @see java.util.EnumMap
    * @since 3.0
    */
@@ -566,6 +565,7 @@ public abstract class CollectionUtils {
         super(false);
       }
 
+      @Nullable
       @Override
       public String getProperty(String key) {
         Object value = get(key);
@@ -902,6 +902,16 @@ public abstract class CollectionUtils {
   }
 
   /**
+   * remove the elements of this collection that is {@code null}.
+   *
+   * @see Collection#removeIf(Predicate)
+   * @since 4.0
+   */
+  public static <T> void removeNullElements(Collection<T> collection) {
+    filter(collection, Objects::nonNull);
+  }
+
+  /**
    * transform T to R
    *
    * @param c collection
@@ -910,8 +920,7 @@ public abstract class CollectionUtils {
    * @param <R> transformed value type
    * @since 4.0
    */
-  public static <T, R> List<R> transform(
-          final Collection<? extends T> c, final Function<T, R> transformer) {
+  public static <T, R> List<R> transform(Collection<? extends T> c, final Function<T, R> transformer) {
     final ArrayList<R> result = new ArrayList<>(c.size());
     for (final T obj : c) {
       result.add(transformer.apply(obj));
@@ -920,7 +929,7 @@ public abstract class CollectionUtils {
   }
 
   public static <K, V> MultiValueMap<K, V> buckets(V[] c, Function<V, K> transformer) {
-    DefaultMultiValueMap<K, V> buckets = MultiValueMap.forLinkedHashMap();
+    LinkedMultiValueMap<K, V> buckets = MultiValueMap.forLinkedHashMap();
     for (final V value : c) {
       final K key = transformer.apply(value);
       buckets.add(key, value);
@@ -929,7 +938,7 @@ public abstract class CollectionUtils {
   }
 
   public static <K, V> MultiValueMap<K, V> buckets(Iterable<V> c, Function<V, K> transformer) {
-    DefaultMultiValueMap<K, V> buckets = MultiValueMap.forLinkedHashMap();
+    LinkedMultiValueMap<K, V> buckets = MultiValueMap.forLinkedHashMap();
     for (final V value : c) {
       final K key = transformer.apply(value);
       buckets.add(key, value);
@@ -1308,15 +1317,14 @@ public abstract class CollectionUtils {
    * @return the first present object, or {@code null} if not found
    * @since 4.0
    */
-  @SuppressWarnings("unchecked")
   @Nullable
   public static <E> E findFirstMatch(Collection<?> source, Collection<E> candidates) {
     if (isEmpty(source) || isEmpty(candidates)) {
       return null;
     }
-    for (Object candidate : candidates) {
+    for (E candidate : candidates) {
       if (source.contains(candidate)) {
-        return (E) candidate;
+        return candidate;
       }
     }
     return null;

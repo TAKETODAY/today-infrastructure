@@ -73,7 +73,7 @@ class DefaultResponseErrorHandlerHttpStatusTests {
   @DisplayName("handleError() throws an exception")
   @MethodSource("errorCodes")
   void handleErrorException(HttpStatus httpStatus, Class<? extends Throwable> expectedExceptionClass) throws Exception {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
 
     given(this.response.getRawStatusCode()).willReturn(httpStatus.value());

@@ -97,7 +97,7 @@ public class ExtractingResponseErrorHandlerTests {
   public void handleErrorStatusMatch() throws Exception {
     given(response.getStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT);
     given(response.getRawStatusCode()).willReturn(HttpStatus.I_AM_A_TEAPOT.value());
-    HttpHeaders responseHeaders = HttpHeaders.create();
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
     given(response.getHeaders()).willReturn(responseHeaders);
 
@@ -114,7 +114,7 @@ public class ExtractingResponseErrorHandlerTests {
   public void handleErrorSeriesMatch() throws Exception {
     given(response.getStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR);
     given(this.response.getRawStatusCode()).willReturn(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    HttpHeaders responseHeaders = HttpHeaders.create();
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
     given(response.getHeaders()).willReturn(responseHeaders);
 
@@ -131,7 +131,7 @@ public class ExtractingResponseErrorHandlerTests {
   public void handleNoMatch() throws Exception {
     given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
     given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
-    HttpHeaders responseHeaders = HttpHeaders.create();
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
     given(this.response.getHeaders()).willReturn(responseHeaders);
 
@@ -153,7 +153,7 @@ public class ExtractingResponseErrorHandlerTests {
             .singletonMap(HttpStatus.Series.CLIENT_ERROR, null));
     given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
     given(this.response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
-    HttpHeaders responseHeaders = HttpHeaders.create();
+    HttpHeaders responseHeaders = HttpHeaders.forWritable();
     responseHeaders.setContentType(MediaType.APPLICATION_JSON);
     given(this.response.getHeaders()).willReturn(responseHeaders);
 

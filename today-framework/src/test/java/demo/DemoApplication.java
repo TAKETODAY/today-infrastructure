@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package demo;
 
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.framework.Application;
 import cn.taketoday.web.config.EnableWebMvc;
 import demo.config.AppConfig;
-import cn.taketoday.framework.web.WebApplication;
 
 /**
  * @author TODAY 2021/8/29 22:22
@@ -34,7 +31,7 @@ import cn.taketoday.framework.web.WebApplication;
 public class DemoApplication {
 
   public static void main(String[] args) {
-    WebApplication.run(DemoApplication.class, args);
+    Application.run(DemoApplication.class, args);
   }
 
 }

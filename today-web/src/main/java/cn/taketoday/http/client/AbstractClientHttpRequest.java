@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private boolean executed = false;
 
@@ -47,7 +47,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
       return this.readOnlyHeaders;
     }
     else if (this.executed) {
-      this.readOnlyHeaders = HttpHeaders.readOnlyHttpHeaders(this.headers);
+      this.readOnlyHeaders = headers.asReadOnly();
       return this.readOnlyHeaders;
     }
     else {

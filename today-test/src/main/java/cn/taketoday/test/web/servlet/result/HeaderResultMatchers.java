@@ -139,7 +139,7 @@ public class HeaderResultMatchers {
       String headerValue = response.getHeader(name);
       assertNotNull("Response does not contain header '" + name + "'", headerValue);
 
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.setDate("expected", value);
       headers.set("actual", headerValue);
 

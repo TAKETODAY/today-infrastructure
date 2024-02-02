@@ -76,7 +76,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   private final CopyOnWriteArrayList<Supplier<? extends Mono<Void>>> commitActions = new CopyOnWriteArrayList<>();
 
   public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory) {
-    this(dataBufferFactory, HttpHeaders.create());
+    this(dataBufferFactory, HttpHeaders.forWritable());
   }
 
   public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory, HttpHeaders headers) {
@@ -132,7 +132,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
       return this.readOnlyHeaders;
     }
     else if (this.state.get() == State.COMMITTED) {
-      this.readOnlyHeaders = HttpHeaders.readOnlyHttpHeaders(this.headers);
+      this.readOnlyHeaders = headers.asReadOnly();
       return this.readOnlyHeaders;
     }
     else {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MappingMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +40,7 @@ public class HttpEntityTests {
 
   @Test
   public void httpHeaders() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body, headers);
@@ -54,7 +51,7 @@ public class HttpEntityTests {
 
   @Test
   public void multiValueMap() {
-    MultiValueMap<String, String> map = new DefaultMultiValueMap<>();
+    MultiValueMap<String, String> map = new MappingMultiValueMap<>();
     map.set("Content-Type", "text/plain");
     String body = "foo";
     HttpEntity<String> entity = new HttpEntity<>(body, map);
@@ -65,10 +62,10 @@ public class HttpEntityTests {
 
   @Test
   public void testEquals() {
-    MultiValueMap<String, String> map1 = new DefaultMultiValueMap<>();
+    MultiValueMap<String, String> map1 = new MappingMultiValueMap<>();
     map1.set("Content-Type", "text/plain");
 
-    MultiValueMap<String, String> map2 = new DefaultMultiValueMap<>();
+    MultiValueMap<String, String> map2 = new MappingMultiValueMap<>();
     map2.set("Content-Type", "application/json");
 
     assertThat(new HttpEntity<>().equals(new HttpEntity<>())).isTrue();
@@ -88,7 +85,7 @@ public class HttpEntityTests {
 
   @Test
   public void responseEntity() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
     String body = "foo";
     HttpEntity<String> httpEntity = new HttpEntity<>(body, headers);

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 
@@ -149,7 +149,7 @@ final class DefaultPathContainer extends PathContainer {
   }
 
   private static MultiValueMap<String, String> parsePathParams(String input) {
-    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap();
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap();
     int begin = 1;
     while (begin < input.length()) {
       int end = input.indexOf(';', begin);
@@ -239,9 +239,6 @@ final class DefaultPathContainer extends PathContainer {
 
   private static final class DefaultPathSegment implements PathSegment {
 
-    private static final MultiValueMap<String, String> EMPTY_PARAMS =
-            MultiValueMap.forUnmodifiable(new DefaultMultiValueMap<>());
-
     private final String value;
     private final String valueToMatch;
 
@@ -261,7 +258,7 @@ final class DefaultPathContainer extends PathContainer {
      * Factory for decoded and parsed segments.
      */
     static DefaultPathSegment from(String value, String valueToMatch) {
-      return new DefaultPathSegment(value, valueToMatch, EMPTY_PARAMS);
+      return new DefaultPathSegment(value, valueToMatch, MultiValueMap.empty());
     }
 
     /**

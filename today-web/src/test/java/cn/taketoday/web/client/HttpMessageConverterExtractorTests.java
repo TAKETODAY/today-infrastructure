@@ -62,7 +62,7 @@ class HttpMessageConverterExtractorTests {
   private final HttpMessageConverter<String> converter = mock(HttpMessageConverter.class);
   private final HttpMessageConverterExtractor<?> extractor = new HttpMessageConverterExtractor<>(String.class, asList(converter));
   private final MediaType contentType = MediaType.TEXT_PLAIN;
-  private final HttpHeaders responseHeaders = HttpHeaders.create();
+  private final HttpHeaders responseHeaders = HttpHeaders.forWritable();
   private final ClientHttpResponse response = mock(ClientHttpResponse.class);
 
   @Test

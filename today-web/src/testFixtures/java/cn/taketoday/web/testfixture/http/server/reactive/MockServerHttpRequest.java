@@ -455,7 +455,7 @@ public final class MockServerHttpRequest extends AbstractServerHttpRequest {
 
     private final UriComponentsBuilder queryParamsBuilder = UriComponentsBuilder.newInstance();
 
-    private final HttpHeaders headers = HttpHeaders.create();
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     private final MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 

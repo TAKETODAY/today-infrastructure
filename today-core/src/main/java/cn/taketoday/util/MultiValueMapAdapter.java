@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,10 +40,12 @@ import cn.taketoday.lang.Nullable;
  * @see LinkedMultiValueMap
  * @since 4.0 2022/4/25 14:39
  */
-@SuppressWarnings("serial")
 public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializable {
 
-  private final Map<K, List<V>> targetMap;
+  @Serial
+  private static final long serialVersionUID = 1L;
+
+  protected final Map<K, List<V>> targetMap;
 
   /**
    * Wrap the given target {@link Map} as a {@link MultiValueMap} adapter.
@@ -53,7 +53,7 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
    * @param targetMap the plain target {@code Map}
    */
   public MultiValueMapAdapter(Map<K, List<V>> targetMap) {
-    Assert.notNull(targetMap, "'targetMap' is required");
+    Assert.notNull(targetMap, "targetMap is required");
     this.targetMap = targetMap;
   }
 
@@ -63,26 +63,27 @@ public class MultiValueMapAdapter<K, V> implements MultiValueMap<K, V>, Serializ
   @Nullable
   public V getFirst(K key) {
     List<V> values = this.targetMap.get(key);
-    return (values != null && !values.isEmpty() ? values.get(0) : null);
+    return values != null && !values.isEmpty() ? values.get(0) : null;
   }
 
   @Override
+  @SuppressWarnings({ "unchecked" })
   public void add(K key, @Nullable V value) {
-    List<V> values = this.targetMap.computeIfAbsent(key, k -> new ArrayList<>(1));
+    List<V> values = this.targetMap.computeIfAbsent(key, defaultMappingFunction);
     values.add(value);
   }
 
   @Override
   public void addAll(K key, @Nullable Collection<? extends V> values) {
     if (values != null) {
-      List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> new ArrayList<>(1));
+      List<V> currentValues = this.targetMap.computeIfAbsent(key, k -> new ArrayList<>(values.size()));
       currentValues.addAll(values);
     }
   }
 
   @Override
   public void set(K key, @Nullable V value) {
-    List<V> values = new ArrayList<>(1);
+    ArrayList<V> values = new ArrayList<>(1);
     values.add(value);
     this.targetMap.put(key, values);
   }

@@ -83,7 +83,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
       logger.debug("Connecting to {}", uri);
     }
 
-    HttpHeaders headersToUse = HttpHeaders.create();
+    HttpHeaders headersToUse = HttpHeaders.forWritable();
     if (headers != null) {
       headers.forEach((header, values) -> {
         if (values != null && !specialHeaders.contains(header.toLowerCase())) {
@@ -121,7 +121,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
       logger.debug("Connecting to {}", uri);
     }
 
-    HttpHeaders headersToUse = HttpHeaders.create();
+    HttpHeaders headersToUse = HttpHeaders.forWritable();
     if (headers != null) {
       headers.forEach((header, values) -> {
         if (values != null && !specialHeaders.contains(header.toLowerCase())) {

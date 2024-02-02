@@ -369,7 +369,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   private static class HttpOptionsHandler {
 
-    private final HttpHeaders headers = HttpHeaders.create();
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     public HttpOptionsHandler(Set<String> declaredMethods, Set<MediaType> acceptPatch) {
       this.headers.setAllow(initAllowedHttpMethods(declaredMethods));

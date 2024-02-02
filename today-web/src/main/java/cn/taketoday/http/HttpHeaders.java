@@ -1119,7 +1119,7 @@ public abstract class HttpHeaders
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
   @Nullable
-  public MediaType getContentType() {
+  public MediaType getContentType() throws InvalidMediaTypeException {
     String value = getFirst(CONTENT_TYPE);
     return (StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null);
   }
@@ -1839,6 +1839,30 @@ public abstract class HttpHeaders
     }
   }
 
+  /**
+   * Apply a read-only {@code HttpHeaders} wrapper around this {@code httpHeaders}, if necessary.
+   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
+   *
+   * @return a read-only variant of the headers, or the original headers as-is
+   * @since 4.0
+   */
+  @Override
+  public HttpHeaders asReadOnly() {
+    return new ReadOnlyHttpHeaders(this);
+  }
+
+  /**
+   * Remove any read-only wrapper that may have been previously applied around
+   * this {@code httpHeaders} via {@link #asReadOnly()}.
+   *
+   * @return a writable variant of the headers, or the original headers as-is
+   * @since 4.0
+   */
+  @Override
+  public HttpHeaders asWritable() {
+    return this;
+  }
+
   // ---------------------------------------------------------------------
   // abstract for subclasses
   // ---------------------------------------------------------------------
@@ -1951,7 +1975,7 @@ public abstract class HttpHeaders
    * @return returns a new DefaultHttpHeaders
    * @since 4.0
    */
-  public static DefaultHttpHeaders create() {
+  public static DefaultHttpHeaders forWritable() {
     return new DefaultHttpHeaders();
   }
 
@@ -1964,7 +1988,7 @@ public abstract class HttpHeaders
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  public static DefaultHttpHeaders from(MultiValueMap<String, String> headers) {
+  public static DefaultHttpHeaders forWritable(MultiValueMap<String, String> headers) {
     return new DefaultHttpHeaders(headers);
   }
 
@@ -1978,43 +2002,9 @@ public abstract class HttpHeaders
    * @since 4.0
    */
   public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
-    return (headers instanceof HttpHeaders ?
-            readOnlyHttpHeaders((HttpHeaders) headers) : new ReadOnlyHttpHeaders(headers));
-  }
-
-  /**
-   * Apply a read-only {@code HttpHeaders} wrapper around the given headers, if necessary.
-   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
-   *
-   * @param headers the headers to expose
-   * @return a read-only variant of the headers, or the original headers as-is
-   * @since 4.0
-   */
-  public static HttpHeaders readOnlyHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders is required");
-    if (headers instanceof ReadOnlyHttpHeaders) {
-      return headers;
-    }
-    if (headers instanceof DefaultHttpHeaders defaults) {
-      return new ReadOnlyHttpHeaders(defaults.headers);
-    }
-    return new ReadOnlyHttpHeaders(headers);
-  }
-
-  /**
-   * Remove any read-only wrapper that may have been previously applied around
-   * the given headers via {@link #readOnlyHttpHeaders(HttpHeaders)}.
-   *
-   * @param headers the headers to expose
-   * @return a writable variant of the headers, or the original headers as-is
-   * @since 4.0
-   */
-  public static HttpHeaders writableHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders is required");
-    if (headers instanceof ReadOnlyHttpHeaders readOnly) {
-      return new DefaultHttpHeaders(readOnly.headers);
-    }
-    return headers;
+    return headers instanceof HttpHeaders
+           ? ((HttpHeaders) headers).asReadOnly()
+           : new ReadOnlyHttpHeaders(headers);
   }
 
   /**
@@ -2029,7 +2019,7 @@ public abstract class HttpHeaders
       return HttpHeaders.empty();
     }
     else {
-      HttpHeaders result = HttpHeaders.create();
+      HttpHeaders result = HttpHeaders.forWritable();
       for (Map.Entry<String, List<String>> entry : targetMap.entrySet()) {
         result.addAll(entry);
       }

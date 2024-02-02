@@ -51,7 +51,7 @@ class DefaultServerResponseBuilder implements ServerResponse.BodyBuilder {
 
   private final HttpStatusCode statusCode;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 

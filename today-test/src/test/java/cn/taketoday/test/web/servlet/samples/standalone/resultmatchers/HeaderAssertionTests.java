@@ -188,7 +188,7 @@ public class HeaderAssertionTests {
     assertIncorrectResponseHeader(header().string(LAST_MODIFIED, expected), expected);
     assertIncorrectResponseHeader(header().string(LAST_MODIFIED, equalTo(expected)), expected);
     // Comparison by date uses HttpHeaders to format the date in the error message.
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setDate("expected", secondLater);
     assertIncorrectResponseHeader(header().dateValue(LAST_MODIFIED, secondLater), headers.getFirst("expected"));
   }

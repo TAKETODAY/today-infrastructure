@@ -116,7 +116,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     this.uriBuilderFactory = other.uriBuilderFactory;
 
     if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
       this.defaultHeaders.putAll(other.defaultHeaders);
     }
     else {
@@ -167,7 +167,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
   private HttpHeaders initHeaders() {
     if (this.defaultHeaders == null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
     }
     return this.defaultHeaders;
   }
@@ -362,9 +362,9 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
   @Nullable
   private HttpHeaders copyDefaultHeaders() {
     if (defaultHeaders != null) {
-      HttpHeaders copy = HttpHeaders.create();
+      HttpHeaders copy = HttpHeaders.forWritable();
       doCopyMultiValueMap(defaultHeaders, copy);
-      return HttpHeaders.readOnlyHttpHeaders(copy);
+      return copy.asReadOnly();
     }
     else {
       return null;

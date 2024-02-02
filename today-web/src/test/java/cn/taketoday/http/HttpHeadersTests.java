@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -702,17 +699,17 @@ public class HttpHeadersTests {
 
     String[] expectedKeys = new String[] { "aardvark", "beaver", "cat", "dog", "elephant" };
 
-    HttpHeaders readOnlyHttpHeaders = HttpHeaders.readOnlyHttpHeaders(headers);
+    HttpHeaders readOnlyHttpHeaders = headers.asReadOnly();
 
-    HttpHeaders forEachHeaders = HttpHeaders.create();
+    HttpHeaders forEachHeaders = HttpHeaders.forWritable();
     readOnlyHttpHeaders.forEach(forEachHeaders::putIfAbsent);
     assertThat(forEachHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
-    HttpHeaders putAllHeaders = HttpHeaders.create();
+    HttpHeaders putAllHeaders = HttpHeaders.forWritable();
     putAllHeaders.putAll(readOnlyHttpHeaders);
     assertThat(putAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
 
-    HttpHeaders addAllHeaders = HttpHeaders.create();
+    HttpHeaders addAllHeaders = HttpHeaders.forWritable();
     addAllHeaders.addAll(readOnlyHttpHeaders);
     assertThat(addAllHeaders.entrySet()).extracting(Map.Entry::getKey).containsExactly(expectedKeys);
   }
@@ -728,7 +725,7 @@ public class HttpHeadersTests {
 
   @Test
   void getValuesAsList() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Foo", "Bar");
     headers.add("Foo", "Baz, Qux");
     headers.add("Quux", "\t\"Corge\", \"Grault\"");

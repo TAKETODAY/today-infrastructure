@@ -69,7 +69,7 @@ public class HttpMediaTypeNotAcceptableException extends HttpMediaTypeException 
     if (CollectionUtils.isEmpty(getSupportedMediaTypes())) {
       return HttpHeaders.empty();
     }
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setAccept(this.getSupportedMediaTypes());
     return headers;
   }

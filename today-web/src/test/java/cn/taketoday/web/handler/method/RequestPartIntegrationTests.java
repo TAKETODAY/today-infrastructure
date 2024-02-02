@@ -187,7 +187,7 @@ class RequestPartIntegrationTests {
     parts.add("file-data", new ClassPathResource("logo.svg", getClass()));
     parts.add("empty-data", new HttpEntity<>(new byte[0])); // SPR-12860
 
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(new MediaType("application", "octet-stream", StandardCharsets.ISO_8859_1));
     parts.add("iso-8859-1-data", new HttpEntity<>(new byte[] { (byte) 0xC4 }, headers)); // SPR-13096
 
@@ -225,7 +225,7 @@ class RequestPartIntegrationTests {
       assertThat(iso88591Data).isEqualTo(new byte[] { (byte) 0xC4 });
 
       String url = "http://localhost:8080/test/" + testData.getName() + "/" + file.get().getOriginalFilename();
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.setLocation(URI.create(url));
       return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }

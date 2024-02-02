@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -87,7 +87,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   DefaultClientResponseBuilder(ExchangeStrategies strategies) {
     Assert.notNull(strategies, "ExchangeStrategies is required");
     this.strategies = strategies;
-    this.headers = HttpHeaders.create();
+    this.headers = HttpHeaders.forWritable();
     this.cookies = new LinkedMultiValueMap<>();
     this.request = EMPTY_REQUEST;
   }
@@ -100,7 +100,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
       this.body = other.bodyToFlux(DataBuffer.class);
     }
     else {
-      this.headers = HttpHeaders.create();
+      this.headers = HttpHeaders.forWritable();
       this.headers.addAll(other.headers().asHttpHeaders());
     }
     this.originalResponse = other;
@@ -137,7 +137,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
   @SuppressWarnings("ConstantConditions")
   private HttpHeaders getHeaders() {
     if (this.headers == null) {
-      this.headers = HttpHeaders.writableHttpHeaders(this.originalResponse.headers().asHttpHeaders());
+      this.headers = originalResponse.headers().asHttpHeaders().asWritable();
     }
     return this.headers;
   }
@@ -229,7 +229,7 @@ final class DefaultClientResponseBuilder implements ClientResponse.Builder {
               "Expected either cookies or an original response with cookies.");
 
       this.statusCode = statusCode;
-      this.headers = (headers != null ? HttpHeaders.readOnlyHttpHeaders(headers) : null);
+      this.headers = (headers != null ? headers.asReadOnly() : null);
       this.cookies = (cookies != null ? MultiValueMap.forUnmodifiable(cookies) : null);
       this.body = body;
       this.originalResponse = originalResponse;

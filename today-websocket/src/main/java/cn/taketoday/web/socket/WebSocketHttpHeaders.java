@@ -51,7 +51,7 @@ public class WebSocketHttpHeaders extends HttpHeaders {
    * Create a new instance.
    */
   public WebSocketHttpHeaders() {
-    this(HttpHeaders.create());
+    this(HttpHeaders.forWritable());
   }
 
   /**

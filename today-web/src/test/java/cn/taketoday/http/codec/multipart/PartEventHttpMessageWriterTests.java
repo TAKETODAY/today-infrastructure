@@ -58,7 +58,7 @@ public class PartEventHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   void write() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
     Mono<FormPartEvent> formPartEvent = FormPartEvent.create("text part", "text");
 

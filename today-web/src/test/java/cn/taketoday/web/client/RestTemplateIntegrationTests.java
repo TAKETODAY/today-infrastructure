@@ -208,7 +208,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   void postForLocationEntity(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
-    HttpHeaders entityHeaders = HttpHeaders.create();
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
     entityHeaders.setContentType(new MediaType("text", "plain", StandardCharsets.ISO_8859_1));
     HttpEntity<String> entity = new HttpEntity<>(helloWorld, entityHeaders);
     URI location = template.postForLocation(baseUrl + "/{method}", entity, "post");
@@ -306,7 +306,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   void multipartMixed(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
-    HttpHeaders requestHeaders = HttpHeaders.create();
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.setContentType(MULTIPART_MIXED);
     template.postForLocation(baseUrl + "/multipartMixed", new HttpEntity<>(createMultipartParts(), requestHeaders));
   }
@@ -317,7 +317,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
 
     addSupportedMediaTypeToFormHttpMessageConverter(MULTIPART_RELATED);
 
-    HttpHeaders requestHeaders = HttpHeaders.create();
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.setContentType(MULTIPART_RELATED);
     template.postForLocation(baseUrl + "/multipartRelated", new HttpEntity<>(createMultipartParts(), requestHeaders));
   }
@@ -357,7 +357,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   void exchangeGet(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
-    HttpHeaders requestHeaders = HttpHeaders.create();
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.set("MyHeader", "MyValue");
     HttpEntity<String> requestEntity = new HttpEntity<>(requestHeaders);
     ResponseEntity<String> response =
@@ -369,7 +369,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   void exchangePost(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
-    HttpHeaders requestHeaders = HttpHeaders.create();
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.set("MyHeader", "MyValue");
     requestHeaders.setContentType(textContentType);
     HttpEntity<String> entity = new HttpEntity<>(helloWorld, requestHeaders);
@@ -382,7 +382,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   void jsonPostForObject(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
-    HttpHeaders entityHeaders = HttpHeaders.create();
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
     entityHeaders.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     MySampleBean bean = new MySampleBean();
     bean.setWith1("with");
@@ -399,7 +399,7 @@ class RestTemplateIntegrationTests extends AbstractMockWebServerTests {
   void jsonPostForObjectWithJacksonView(ClientHttpRequestFactory clientHttpRequestFactory) throws Exception {
     setUpClient(clientHttpRequestFactory);
 
-    HttpHeaders entityHeaders = HttpHeaders.create();
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
     entityHeaders.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     MySampleBean bean = new MySampleBean("with", "with", "without");
     MappingJacksonValue jacksonValue = new MappingJacksonValue(bean);

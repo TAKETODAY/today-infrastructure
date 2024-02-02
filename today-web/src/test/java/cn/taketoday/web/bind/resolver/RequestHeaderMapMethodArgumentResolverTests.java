@@ -121,7 +121,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     request.addHeader(name, value1);
     request.addHeader(name, value2);
 
-    HttpHeaders expected = HttpHeaders.create();
+    HttpHeaders expected = HttpHeaders.forWritable();
     expected.add(name, value1);
     expected.add(name, value2);
 

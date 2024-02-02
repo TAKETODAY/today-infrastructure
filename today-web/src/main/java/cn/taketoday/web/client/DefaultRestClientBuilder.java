@@ -138,7 +138,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.uriBuilderFactory = other.uriBuilderFactory;
 
     if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
       this.defaultHeaders.putAll(other.defaultHeaders);
     }
     else {
@@ -217,7 +217,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private HttpHeaders initHeaders() {
     if (this.defaultHeaders == null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
     }
     return this.defaultHeaders;
   }
@@ -385,9 +385,11 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Nullable
   private HttpHeaders copyDefaultHeaders() {
     if (this.defaultHeaders != null) {
-      HttpHeaders copy = HttpHeaders.create();
-      this.defaultHeaders.forEach((key, values) -> copy.put(key, new ArrayList<>(values)));
-      return HttpHeaders.readOnlyHttpHeaders(copy);
+      HttpHeaders copy = HttpHeaders.forWritable();
+      for (Map.Entry<String, List<String>> entry : defaultHeaders.entrySet()) {
+        copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+      }
+      return copy.asReadOnly();
     }
     else {
       return null;

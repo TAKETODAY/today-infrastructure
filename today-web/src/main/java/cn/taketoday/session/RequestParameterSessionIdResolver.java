@@ -17,9 +17,8 @@
 
 package cn.taketoday.session;
 
-import javax.annotation.Nullable;
-
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**

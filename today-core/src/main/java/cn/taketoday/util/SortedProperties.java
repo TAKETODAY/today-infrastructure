@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -23,6 +20,7 @@ package cn.taketoday.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serial;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -46,12 +44,14 @@ import java.util.TreeSet;
  * <p>Comments in generated properties files can also be optionally omitted.
  *
  * @author Sam Brannen
- * @author TODAY 2021/1/29 15:19
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see java.util.Properties
- * @since 3.0
+ * @since 3.0 2021/1/29 15:19
  */
-@SuppressWarnings("serial")
 class SortedProperties extends Properties {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   static final String EOL = System.lineSeparator();
 
@@ -93,7 +93,7 @@ class SortedProperties extends Properties {
   public void store(OutputStream out, String comments) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     super.store(baos, (this.omitComments ? null : comments));
-    String contents = baos.toString(StandardCharsets.ISO_8859_1.name());
+    String contents = baos.toString(StandardCharsets.ISO_8859_1);
     for (String line : contents.split(EOL)) {
       if (!(this.omitComments && line.startsWith("#"))) {
         out.write((line + EOL).getBytes(StandardCharsets.ISO_8859_1));

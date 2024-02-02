@@ -81,7 +81,7 @@ final class DefaultEntityResponseBuilder<T> implements EntityResponse.Builder<T>
 
   private HttpStatusCode status = HttpStatus.OK;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final LinkedMultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 

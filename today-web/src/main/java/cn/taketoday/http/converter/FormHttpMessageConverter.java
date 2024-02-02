@@ -42,7 +42,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
@@ -340,7 +340,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
 
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {
@@ -605,8 +605,10 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   private static class MultipartHttpOutputMessage implements HttpOutputMessage {
 
     private final Charset charset;
+
     private final OutputStream outputStream;
-    private final HttpHeaders headers = HttpHeaders.create();
+
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     private boolean headersWritten = false;
 
@@ -617,7 +619,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     @Override
     public HttpHeaders getHeaders() {
-      return this.headersWritten ? HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers;
+      return this.headersWritten ? headers.asReadOnly() : this.headers;
     }
 
     @Override

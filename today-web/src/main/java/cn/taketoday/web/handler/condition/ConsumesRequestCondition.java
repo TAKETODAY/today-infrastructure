@@ -188,8 +188,9 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
 
     MediaType contentType;
     try {
-      contentType = StringUtils.isNotEmpty(request.getContentType())
-                    ? MediaType.parseMediaType(request.getContentType())
+      String contentType1 = request.getContentType();
+      contentType = StringUtils.isNotEmpty(contentType1)
+                    ? MediaType.parseMediaType(contentType1)
                     : MediaType.APPLICATION_OCTET_STREAM;
     }
     catch (InvalidMediaTypeException ex) {
@@ -203,12 +204,9 @@ public final class ConsumesRequestCondition extends AbstractRequestCondition<Con
     return null;
   }
 
-  private boolean hasBody(RequestContext request) {
-    HttpHeaders httpHeaders = request.requestHeaders();
-    String contentLength = httpHeaders.getFirst(HttpHeaders.CONTENT_LENGTH);
-    String transferEncoding = httpHeaders.getFirst(HttpHeaders.TRANSFER_ENCODING);
-    return StringUtils.hasText(transferEncoding)
-            || (StringUtils.hasText(contentLength) && !contentLength.trim().equals("0"));
+  private static boolean hasBody(RequestContext request) {
+    String transferEncoding = request.requestHeaders().getFirst(HttpHeaders.TRANSFER_ENCODING);
+    return StringUtils.hasText(transferEncoding) || (request.getContentLength() > 0L);
   }
 
   @Nullable

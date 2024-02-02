@@ -149,11 +149,11 @@ class DefaultResponseCreatorTests {
   @Test
   void setHeaders() throws IOException {
 
-    HttpHeaders firstHeaders = HttpHeaders.create();
+    HttpHeaders firstHeaders = HttpHeaders.forWritable();
     firstHeaders.setContentType(MediaType.APPLICATION_JSON);
     firstHeaders.setOrigin("https://github.com");
 
-    HttpHeaders secondHeaders = HttpHeaders.create();
+    HttpHeaders secondHeaders = HttpHeaders.forWritable();
     secondHeaders.setAllow(Collections.singleton(HttpMethod.PUT));
 
     DefaultResponseCreator creator = new DefaultResponseCreator(HttpStatus.OK)

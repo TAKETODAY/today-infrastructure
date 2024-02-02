@@ -50,7 +50,7 @@ public class DefaultResponseCreator implements ResponseCreator {
   @Nullable
   private Resource contentResource;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   /**
    * Protected constructor.

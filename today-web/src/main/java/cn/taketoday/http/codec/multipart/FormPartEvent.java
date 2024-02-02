@@ -72,7 +72,7 @@ public interface FormPartEvent extends PartEvent {
     Assert.notNull(value, "Value is required");
 
     return Mono.fromCallable(() -> {
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.setContentType(MediaType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8));
       headers.setContentDisposition(ContentDisposition.formData().
               name(name)

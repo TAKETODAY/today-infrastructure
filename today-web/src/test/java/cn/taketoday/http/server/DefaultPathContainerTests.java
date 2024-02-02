@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server;
@@ -27,7 +24,7 @@ import java.util.stream.Stream;
 import cn.taketoday.http.server.PathContainer.Element;
 import cn.taketoday.http.server.PathContainer.Options;
 import cn.taketoday.http.server.PathContainer.PathSegment;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.MappingMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +54,7 @@ class DefaultPathContainerTests {
   @Test
   void pathSegmentParams() {
     // basic
-    DefaultMultiValueMap<String, String> params = emptyMap();
+    MappingMultiValueMap<String, String> params = emptyMap();
     params.add("colors", "red");
     params.add("colors", "blue");
     params.add("colors", "green");
@@ -84,7 +81,7 @@ class DefaultPathContainerTests {
   void pathSegmentParamsAreImmutable() {
     assertPathSegmentParamsAreImmutable("cars", emptyMap(), Options.HTTP_PATH);
 
-    DefaultMultiValueMap<String, String> params = emptyMap();
+    MappingMultiValueMap<String, String> params = emptyMap();
     params.add("colors", "red");
     params.add("colors", "blue");
     params.add("colors", "green");
@@ -93,7 +90,7 @@ class DefaultPathContainerTests {
     assertPathSegmentParamsAreImmutable(";colors=red,blue,green", emptyMap(), Options.MESSAGE_ROUTE);
   }
 
-  private void assertPathSegmentParamsAreImmutable(String path, DefaultMultiValueMap<String, String> params, Options options) {
+  private void assertPathSegmentParamsAreImmutable(String path, MappingMultiValueMap<String, String> params, Options options) {
     PathContainer container = PathContainer.parsePath(path, options);
     assertThat(container.elements()).hasSize(1);
 
@@ -179,8 +176,8 @@ class DefaultPathContainerTests {
     assertThat(decodedSegments).containsExactly("a", "b.b", "c");
   }
 
-  private static DefaultMultiValueMap<String, String> emptyMap() {
-    return new DefaultMultiValueMap<>();
+  private static MappingMultiValueMap<String, String> emptyMap() {
+    return new MappingMultiValueMap<>();
   }
 
 }

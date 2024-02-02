@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.util;
 
@@ -541,7 +541,7 @@ public class CollectionUtilsTests {
 
   @Test
   void conversionOfEmptyMap() {
-    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.from(new HashMap<>());
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaption(new HashMap<>());
     assertThat(asMultiValueMap.isEmpty()).isTrue();
     assertThat(asMultiValueMap).isEmpty();
   }
@@ -550,14 +550,14 @@ public class CollectionUtilsTests {
   void conversionOfNonEmptyMap() {
     Map<String, List<String>> wrapped = new HashMap<>();
     wrapped.put("key", Arrays.asList("first", "second"));
-    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.from(wrapped);
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaption(wrapped);
     assertThat(asMultiValueMap).containsAllEntriesOf(wrapped);
   }
 
   @Test
   void changesValueByReference() {
     Map<String, List<String>> wrapped = new HashMap<>();
-    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.from(wrapped);
+    MultiValueMap<String, String> asMultiValueMap = MultiValueMap.forAdaption(wrapped);
     assertThat(asMultiValueMap).doesNotContainKeys("key");
     wrapped.put("key", new ArrayList<>());
     assertThat(asMultiValueMap).containsKey("key");

@@ -313,7 +313,7 @@ public class EncodedResourceResolver extends AbstractResourceResolver {
         headers = original.getResponseHeaders();
       }
       else {
-        headers = HttpHeaders.create();
+        headers = HttpHeaders.forWritable();
       }
       headers.add(HttpHeaders.CONTENT_ENCODING, this.coding);
       headers.add(HttpHeaders.VARY, HttpHeaders.ACCEPT_ENCODING);

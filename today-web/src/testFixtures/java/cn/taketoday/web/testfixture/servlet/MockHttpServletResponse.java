@@ -453,7 +453,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
         buf.append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
       }
       else {
-        HttpHeaders headers = HttpHeaders.create();
+        HttpHeaders headers = HttpHeaders.forWritable();
         headers.setExpires(maxAge > 0 ? System.currentTimeMillis() + 1000L * maxAge : 0);
         buf.append(headers.getFirst(HttpHeaders.EXPIRES));
       }
@@ -716,7 +716,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
     else if (HttpHeaders.CONTENT_LANGUAGE.equalsIgnoreCase(name)) {
       String contentLanguages = value.toString();
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.add(HttpHeaders.CONTENT_LANGUAGE, contentLanguages);
       Locale language = headers.getContentLanguage();
       setLocale(language != null ? language : Locale.getDefault());

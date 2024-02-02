@@ -128,7 +128,7 @@ public class PrintingResultHandler implements ResultHandler {
   }
 
   protected final HttpHeaders getRequestHeaders(MockHttpServletRequest request) {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     Enumeration<String> names = request.getHeaderNames();
     while (names.hasMoreElements()) {
       String name = names.nextElement();
@@ -289,7 +289,7 @@ public class PrintingResultHandler implements ResultHandler {
   }
 
   protected final HttpHeaders getResponseHeaders(MockHttpServletResponse response) {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     for (String name : response.getHeaderNames()) {
       headers.put(name, response.getHeaders(name));
     }

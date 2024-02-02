@@ -552,7 +552,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
     File temp = (File) servletContextReference.get().getAttribute(ServletContext.TEMPDIR);
     FileSystemUtils.deleteRecursively(temp);
     RestTemplate restTemplate = new RestTemplate();
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
     body.add("file", new ByteArrayResource(new byte[1024 * 1024]));
     headers.setContentType(MediaType.MULTIPART_FORM_DATA);

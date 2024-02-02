@@ -60,9 +60,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
 
   private final HttpHeaders headers;
 
-  public JdkClientHttpResponse(
-          HttpResponse<Flow.Publisher<List<ByteBuffer>>> response, DataBufferFactory bufferFactory) {
-
+  public JdkClientHttpResponse(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response, DataBufferFactory bufferFactory) {
     this.response = response;
     this.bufferFactory = bufferFactory;
     this.headers = adaptHeaders(response);
@@ -71,7 +69,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
   private static HttpHeaders adaptHeaders(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response) {
     Map<String, List<String>> rawHeaders = response.headers().map();
     Map<String, List<String>> map = new LinkedCaseInsensitiveMap<>(rawHeaders.size(), Locale.ENGLISH);
-    MultiValueMap<String, String> multiValueMap = MultiValueMap.from(map);
+    MultiValueMap<String, String> multiValueMap = MultiValueMap.forAdaption(map);
     multiValueMap.putAll(rawHeaders);
     return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
   }

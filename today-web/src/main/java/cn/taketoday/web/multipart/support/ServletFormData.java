@@ -84,7 +84,7 @@ public final class ServletFormData extends AbstractMultipart {
   }
 
   static DefaultHttpHeaders createHeaders(Part part) {
-    DefaultHttpHeaders headers = HttpHeaders.create();
+    DefaultHttpHeaders headers = HttpHeaders.forWritable();
     for (String headerName : part.getHeaderNames()) {
       headers.addAll(headerName, part.getHeaders(headerName));
     }
