@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,59 +47,14 @@ public class ParameterErrors extends ParameterValidationResult implements Errors
 
   private final Errors errors;
 
-  @Nullable
-  private final Object container;
-
-  @Nullable
-  private final Integer containerIndex;
-
-  @Nullable
-  private final Object containerKey;
-
   /**
    * Create a {@code ParameterErrors}.
    */
-  public ParameterErrors(MethodParameter parameter, @Nullable Object argument,
-          Errors errors, @Nullable Object container, @Nullable Integer index, @Nullable Object key) {
+  public ParameterErrors(MethodParameter parameter, @Nullable Object argument, Errors errors,
+          @Nullable Object container, @Nullable Integer index, @Nullable Object key) {
 
-    super(parameter, argument, errors.getAllErrors());
+    super(parameter, argument, errors.getAllErrors(), container, index, key);
     this.errors = errors;
-    this.container = container;
-    this.containerIndex = index;
-    this.containerKey = key;
-  }
-
-  /**
-   * When {@code @Valid} is declared on a container of elements such as
-   * {@link java.util.Collection}, {@link java.util.Map},
-   * {@link java.util.Optional}, and others, this method returns the container
-   * of the validated {@link #getArgument() argument}, while
-   * {@link #getContainerIndex()} and {@link #getContainerKey()} provide
-   * information about the index or key if applicable.
-   */
-  @Nullable
-  public Object getContainer() {
-    return this.container;
-  }
-
-  /**
-   * When {@code @Valid} is declared on an indexed container of elements such as
-   * {@link List} or array, this method returns the index of the validated
-   * {@link #getArgument() argument}.
-   */
-  @Nullable
-  public Integer getContainerIndex() {
-    return this.containerIndex;
-  }
-
-  /**
-   * When {@code @Valid} is declared on a container of elements referenced by
-   * key such as {@link java.util.Map}, this method returns the key of the
-   * validated {@link #getArgument() argument}.
-   */
-  @Nullable
-  public Object getContainerKey() {
-    return this.containerKey;
   }
 
   // Errors implementation
