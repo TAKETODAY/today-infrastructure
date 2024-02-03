@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -28,6 +25,7 @@ import java.util.Arrays;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
+import cn.taketoday.util.MethodClassKey;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
 
@@ -48,33 +46,68 @@ import cn.taketoday.util.ReflectionUtils.MethodFilter;
  * @author Rob Harrop
  * @author Juergen Hoeller
  * @author Phillip Webb
- * @author TODAY 2021/9/6 21:51
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/9/6 21:51
  */
 public abstract class BridgeMethodResolver {
 
-  private static final ConcurrentReferenceHashMap<Method, Method> cache = new ConcurrentReferenceHashMap<>();
+  private static final ConcurrentReferenceHashMap<Object, Method> cache = new ConcurrentReferenceHashMap<>();
+
+  private BridgeMethodResolver() { }
 
   /**
-   * Find the original method for the supplied {@link Method bridge Method}.
+   * Find the local original method for the supplied {@link Method bridge Method}.
    * <p>It is safe to call this method passing in a non-bridge {@link Method} instance.
    * In such a case, the supplied {@link Method} instance is returned directly to the caller.
    * Callers are <strong>not</strong> required to check for bridging before calling this method.
    *
-   * @param bridgeMethod the method to introspect
+   * @param bridgeMethod the method to introspect against its declaring class
    * @return the original method (either the bridged method or the passed-in method
    * if no more specific one could be found)
+   * @see #getMostSpecificMethod(Method, Class)
    */
   public static Method findBridgedMethod(Method bridgeMethod) {
-    if (!bridgeMethod.isBridge()) {
+    return resolveBridgeMethod(bridgeMethod, bridgeMethod.getDeclaringClass());
+  }
+
+  /**
+   * Determine the most specific method for the supplied {@link Method bridge Method}
+   * in the given class hierarchy, even if not available on the local declaring class.
+   * <p>This is effectively a combination of {@link ReflectionUtils#getMostSpecificMethod}
+   * and {@link #findBridgedMethod}, resolving the original method even if no bridge
+   * method has been generated at the same class hierarchy level (a known difference
+   * between the Eclipse compiler and regular javac).
+   *
+   * @param bridgeMethod the method to introspect against the given target class
+   * @param targetClass the target class to find methods on
+   * @return the original method (either the bridged method or the passed-in method
+   * if no more specific one could be found)
+   * @see #findBridgedMethod
+   * @see cn.taketoday.util.ReflectionUtils#getMostSpecificMethod
+   */
+  public static Method getMostSpecificMethod(Method bridgeMethod, @Nullable Class<?> targetClass) {
+    if (targetClass != null && !bridgeMethod.getDeclaringClass().isAssignableFrom(targetClass)) {
       return bridgeMethod;
     }
-    Method bridgedMethod = cache.get(bridgeMethod);
+
+    Method specificMethod = ReflectionUtils.getMostSpecificMethod(bridgeMethod, targetClass);
+    return resolveBridgeMethod(specificMethod,
+            (targetClass != null ? targetClass : specificMethod.getDeclaringClass()));
+  }
+
+  private static Method resolveBridgeMethod(Method bridgeMethod, Class<?> targetClass) {
+    boolean localBridge = (targetClass == bridgeMethod.getDeclaringClass());
+    if (!bridgeMethod.isBridge() && localBridge) {
+      return bridgeMethod;
+    }
+
+    Object cacheKey = localBridge ? bridgeMethod : new MethodClassKey(bridgeMethod, targetClass);
+    Method bridgedMethod = cache.get(cacheKey);
     if (bridgedMethod == null) {
       // Gather all methods with matching name and parameter size.
       ArrayList<Method> candidateMethods = new ArrayList<>();
       MethodFilter filter = candidateMethod -> isBridgedCandidateFor(candidateMethod, bridgeMethod);
-      ReflectionUtils.doWithMethods(bridgeMethod.getDeclaringClass(), candidateMethods::add, filter);
+      ReflectionUtils.doWithMethods(targetClass, candidateMethods::add, filter);
       if (!candidateMethods.isEmpty()) {
         bridgedMethod = candidateMethods.size() == 1 ?
                         candidateMethods.get(0) :
@@ -85,16 +118,16 @@ public abstract class BridgeMethodResolver {
         // Let's proceed with the passed-in method and hope for the best...
         bridgedMethod = bridgeMethod;
       }
-      cache.put(bridgeMethod, bridgedMethod);
+      cache.put(cacheKey, bridgedMethod);
     }
     return bridgedMethod;
   }
 
   /**
    * Returns {@code true} if the supplied '{@code candidateMethod}' can be
-   * consider a validate candidate for the {@link Method} that is {@link Method#isBridge() bridged}
+   * considered a valid candidate for the {@link Method} that is {@link Method#isBridge() bridged}
    * by the supplied {@link Method bridge Method}. This method performs inexpensive
-   * checks and can be used quickly filter for a set of possible matches.
+   * checks and can be used to quickly filter for a set of possible matches.
    */
   private static boolean isBridgedCandidateFor(Method candidateMethod, Method bridgeMethod) {
     return !candidateMethod.isBridge()
@@ -130,7 +163,7 @@ public abstract class BridgeMethodResolver {
   }
 
   /**
-   * Determines whether or not the bridge {@link Method} is the bridge for the
+   * Determines whether the bridge {@link Method} is the bridge for the
    * supplied candidate {@link Method}.
    */
   static boolean isBridgeMethodFor(Method bridgeMethod, Method candidateMethod, Class<?> declaringClass) {
@@ -154,11 +187,11 @@ public abstract class BridgeMethodResolver {
     }
     Class<?>[] candidateParameters = candidateMethod.getParameterTypes();
     for (int i = 0; i < candidateParameters.length; i++) {
-      ResolvableType genericParameter = ResolvableType.forParameter(genericMethod, i, declaringClass);
+      ResolvableType genericParameter = ResolvableType.forMethodParameter(genericMethod, i, declaringClass);
       Class<?> candidateParameter = candidateParameters[i];
       if (candidateParameter.isArray()) {
         // An array type: compare the component type.
-        if (!candidateParameter.getComponentType().equals(genericParameter.getComponentType().toClass())) {
+        if (!candidateParameter.componentType().equals(genericParameter.getComponentType().toClass())) {
           return false;
         }
       }
@@ -179,6 +212,10 @@ public abstract class BridgeMethodResolver {
    */
   @Nullable
   private static Method findGenericDeclaration(Method bridgeMethod) {
+    if (!bridgeMethod.isBridge()) {
+      return bridgeMethod;
+    }
+
     // Search parent types for method that has same signature as bridge.
     Class<?> superclass = bridgeMethod.getDeclaringClass().getSuperclass();
     while (superclass != null && Object.class != superclass) {
@@ -228,7 +265,7 @@ public abstract class BridgeMethodResolver {
   /**
    * Compare the signatures of the bridge method and the method which it bridges. If
    * the parameter and return types are the same, it is a 'visibility' bridge method
-   * introduced in Java 6 to fix https://bugs.java.com/view_bug.do?bug_id=6342411.
+   * introduced in Java 6 to fix https://bugs.openjdk.org/browse/JDK-6342411.
    * See also https://stas-blogspot.blogspot.com/2010/03/java-bridge-methods-explained.html
    *
    * @return whether signatures match as described

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,6 @@ import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.BeanPropertyBindingResult;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.DefaultMessageCodesResolver;
@@ -238,8 +237,7 @@ public class MethodValidationAdapter implements MethodValidator {
     catch (IllegalArgumentException ex) {
       // Probably a generic type mismatch between interface and impl as reported in SPR-12237 / HV-1011
       // Let's try to find the bridged method on the implementation class...
-      Method mostSpecificMethod = ReflectionUtils.getMostSpecificMethod(method, target.getClass());
-      Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(mostSpecificMethod);
+      Method bridgedMethod = BridgeMethodResolver.getMostSpecificMethod(method, target.getClass());
       violations = execVal.validateParameters(target, bridgedMethod, arguments, groups);
     }
     return violations;
