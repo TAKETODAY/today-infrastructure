@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.context.async;
@@ -33,6 +33,7 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
+import cn.taketoday.web.util.DisconnectedClientHelper;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -68,6 +69,17 @@ public final class WebAsyncManager {
   public static final String WEB_ASYNC_RESULT_ATTRIBUTE = WebAsyncManager.class.getName() + ".WEB_ASYNC_RESULT";
 
   private static final Object RESULT_NONE = new Object();
+
+  /**
+   * Log category to use for network failure after a client has gone away.
+   *
+   * @see DisconnectedClientHelper
+   */
+  private static final String DISCONNECTED_CLIENT_LOG_CATEGORY =
+          "cn.taketoday.web.server.DisconnectedClient";
+
+  private static final DisconnectedClientHelper disconnectedClientHelper =
+          new DisconnectedClientHelper(DISCONNECTED_CLIENT_LOG_CATEGORY);
 
   private static final AsyncTaskExecutor DEFAULT_TASK_EXECUTOR =
           new SimpleAsyncTaskExecutor(WebAsyncManager.class.getSimpleName());
@@ -407,9 +419,13 @@ public final class WebAsyncManager {
       return;
     }
 
+    if (result instanceof Exception ex && disconnectedClientHelper.checkAndLogClientDisconnectedException(ex)) {
+      return;
+    }
+
     if (logger.isDebugEnabled()) {
-      boolean isError = result instanceof Throwable;
-      logger.debug("Async {}, dispatch to {}", (isError ? "error" : "result set"), formatRequestUri());
+      logger.debug("Async " + (this.errorHandlingInProgress ? "error" : "result set") +
+              ", dispatch to " + formatRequestUri());
     }
     asyncRequest.dispatch(result);
   }
