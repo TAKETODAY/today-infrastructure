@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,8 +84,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   /** Whether the Advisors are already filtered for the specific target class. */
   private boolean preFiltered = false;
 
-  /** Cache with Method as key and advisor chain List as value. */
-  private transient ConcurrentHashMap<MethodCacheKey, MethodInterceptor[]> methodCache;
+  /** The InterceptorChainFactory to use. */
+  private InterceptorChainFactory interceptorChainFactory = DefaultInterceptorChainFactory.INSTANCE;
 
   /**
    * Interfaces to be implemented by the proxy. Held in List to keep the order
@@ -108,6 +108,18 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    */
   ArrayList<Advisor> advisorKey = this.advisors;
 
+  /** Cache with Method as key and advisor chain List as value. */
+  @Nullable
+  private transient ConcurrentHashMap<MethodCacheKey, MethodInterceptor[]> methodCache;
+
+  /**
+   * Cache with shared interceptors which are not method-specific.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  private transient volatile MethodInterceptor[] cachedInterceptors;
+
   /**
    * Optional field for {@link AopProxy} implementations to store metadata in.
    * Used for {@link JdkDynamicAopProxy.ProxiedInterfacesCache}.
@@ -118,15 +130,10 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   @Nullable
   transient volatile Object proxyMetadataCache;
 
-  /** The InterceptorChainFactory to use. */
-  private InterceptorChainFactory interceptorChainFactory = DefaultInterceptorChainFactory.INSTANCE;
-
   /**
    * No-arg constructor for use as a JavaBean.
    */
-  public AdvisedSupport() {
-    this.methodCache = new ConcurrentHashMap<>(32);
-  }
+  public AdvisedSupport() { }
 
   /**
    * Create a AdvisedSupport instance with the given parameters.
@@ -134,19 +141,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * @param interfaces the proxied interfaces
    */
   public AdvisedSupport(Class<?>... interfaces) {
-    this();
     setInterfaces(interfaces);
-  }
-
-  /**
-   * Internal constructor for {@link #getConfigurationOnlyCopy()}.
-   *
-   * @since 4.0
-   */
-  private AdvisedSupport(InterceptorChainFactory chainFactory,
-          ConcurrentHashMap<MethodCacheKey, MethodInterceptor[]> methodCache) {
-    this.methodCache = methodCache;
-    this.interceptorChainFactory = chainFactory;
   }
 
   /**
@@ -503,7 +498,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
   }
 
   /**
-   * Determine a list of {@link org.aopalliance.intercept.MethodInterceptor} objects
+   * Determine an array of {@link org.aopalliance.intercept.MethodInterceptor} objects
    * for the given method, based on this configuration.
    * <p>
    * ordered {@link MethodInterceptor} array
@@ -516,11 +511,26 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * @see cn.taketoday.aop.support.RuntimeMethodInterceptor
    */
   public MethodInterceptor[] getInterceptors(Method method, @Nullable Class<?> targetClass) {
+    if (methodCache == null) {
+      // Shared cache since there are no method-specific advisors (see below).
+      MethodInterceptor[] cachedInterceptors = this.cachedInterceptors;
+      if (cachedInterceptors == null) {
+        cachedInterceptors = interceptorChainFactory.getInterceptors(this, method, targetClass);
+        this.cachedInterceptors = cachedInterceptors;
+      }
+      return cachedInterceptors;
+    }
+
     MethodCacheKey cacheKey = new MethodCacheKey(method);
-    MethodInterceptor[] cached = this.methodCache.get(cacheKey);
+    MethodInterceptor[] cached = methodCache.get(cacheKey);
     if (cached == null) {
-      cached = interceptorChainFactory.getInterceptors(this, method, targetClass);
-      this.methodCache.put(cacheKey, cached);
+      synchronized(this) {
+        cached = methodCache.get(cacheKey);
+        if (cached == null) {
+          cached = interceptorChainFactory.getInterceptors(this, method, targetClass);
+          methodCache.putIfAbsent(cacheKey, cached);
+        }
+      }
     }
     return cached;
   }
@@ -529,8 +539,18 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * Invoked when advice has changed.
    */
   protected void adviceChanged() {
-    this.methodCache.clear();
+    this.methodCache = null;
+    this.cachedInterceptors = null;
     this.proxyMetadataCache = null;
+
+    // Initialize method cache if necessary; otherwise,
+    // cachedInterceptors is going to be shared (see above).
+    for (Advisor advisor : this.advisors) {
+      if (advisor instanceof PointcutAdvisor) {
+        this.methodCache = new ConcurrentHashMap<>();
+        break;
+      }
+    }
   }
 
   /**
@@ -571,21 +591,28 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * replacing the TargetSource.
    */
   AdvisedSupport getConfigurationOnlyCopy() {
-    AdvisedSupport copy = new AdvisedSupport(this.interceptorChainFactory, this.methodCache);
+    AdvisedSupport copy = new AdvisedSupport();
     copy.copyFrom(this);
     copy.targetSource = EmptyTargetSource.forClass(getTargetClass(), getTargetSource().isStatic());
+    copy.preFiltered = this.preFiltered;
+    copy.interceptorChainFactory = this.interceptorChainFactory;
     copy.interfaces = new ArrayList<>(this.interfaces);
     copy.advisors = new ArrayList<>(this.advisors);
     copy.advisorKey = new ArrayList<>(this.advisors.size());
     for (Advisor advisor : this.advisors) {
       copy.advisorKey.add(new AdvisorKeyEntry(advisor));
     }
+    copy.methodCache = this.methodCache;
+    copy.cachedInterceptors = this.cachedInterceptors;
+    copy.proxyMetadataCache = this.proxyMetadataCache;
     return copy;
   }
 
   void reduceToAdvisorKey() {
     this.advisors = this.advisorKey;
-    this.methodCache.clear();
+    this.methodCache = null;
+    this.cachedInterceptors = null;
+    this.proxyMetadataCache = null;
   }
 
   //---------------------------------------------------------------------
@@ -597,8 +624,8 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
     // Rely on default serialization; just initialize state after deserialization.
     ois.defaultReadObject();
 
-    // Initialize transient fields.
-    this.methodCache = new ConcurrentHashMap<>(32);
+    // Initialize method cache if necessary.
+    adviceChanged();
   }
 
   @Override
@@ -626,7 +653,9 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
    * caching methods, for efficient equals and hashCode comparisons.
    */
   static final class MethodCacheKey implements Comparable<MethodCacheKey> {
+
     private final int hashCode;
+
     private final Method method;
 
     public MethodCacheKey(Method method) {
