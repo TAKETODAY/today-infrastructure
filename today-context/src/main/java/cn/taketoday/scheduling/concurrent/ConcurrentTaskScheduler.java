@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -168,7 +168,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * Provide an {@link ErrorHandler} strategy.
    */
   public void setErrorHandler(ErrorHandler errorHandler) {
-    Assert.notNull(errorHandler, "ErrorHandler must not be null");
+    Assert.notNull(errorHandler, "ErrorHandler is required");
     this.errorHandler = errorHandler;
   }
 

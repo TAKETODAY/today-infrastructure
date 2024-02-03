@@ -17,8 +17,8 @@
 
 package cn.taketoday.http.client.reactive;
 
+import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.reactive.client.ReactiveResponse;
-import org.reactivestreams.Publisher;
 
 import java.net.HttpCookie;
 import java.util.List;
@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.support.JettyHeadersAdapter;
 import cn.taketoday.lang.Nullable;
@@ -42,36 +43,29 @@ import reactor.core.publisher.Flux;
  * Jetty ReactiveStreams HttpClient</a>
  * @since 4.0
  */
-class JettyClientHttpResponse implements ClientHttpResponse {
+class JettyClientHttpResponse extends AbstractClientHttpResponse {
 
-  private static final Pattern SAMESITE_PATTERN = Pattern.compile("(?i).*SameSite=(Strict|Lax|None).*");
+  private static final Pattern SAME_SITE_PATTERN = Pattern.compile("(?i).*SameSite=(Strict|Lax|None).*");
 
-  private final HttpHeaders headers;
+  public JettyClientHttpResponse(ReactiveResponse reactiveResponse, Flux<DataBuffer> content) {
 
-  private final Flux<DataBuffer> content;
-
-  private final ReactiveResponse reactiveResponse;
-
-  public JettyClientHttpResponse(ReactiveResponse reactiveResponse, Publisher<DataBuffer> content) {
-    this.reactiveResponse = reactiveResponse;
-    this.content = Flux.from(content);
-
-    var headers = new JettyHeadersAdapter(reactiveResponse.getHeaders());
-    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+    super(HttpStatusCode.valueOf(reactiveResponse.getStatus()),
+            adaptHeaders(reactiveResponse),
+            adaptCookies(reactiveResponse),
+            content);
   }
 
-  @Override
-  public int getRawStatusCode() {
-    return this.reactiveResponse.getStatus();
+  private static HttpHeaders adaptHeaders(ReactiveResponse response) {
+    MultiValueMap<String, String> headers = new JettyHeadersAdapter(response.getHeaders());
+    return HttpHeaders.readOnlyHttpHeaders(headers);
   }
 
-  @Override
-  public MultiValueMap<String, ResponseCookie> getCookies() {
+  private static MultiValueMap<String, ResponseCookie> adaptCookies(ReactiveResponse response) {
     var result = MultiValueMap.<String, ResponseCookie>forLinkedHashMap();
-    List<String> cookieHeader = getHeaders().get(HttpHeaders.SET_COOKIE);
-    if (cookieHeader != null) {
-      for (String header : cookieHeader) {
-        List<HttpCookie> httpCookies = HttpCookie.parse(header);
+    List<HttpField> cookieHeaders = response.getHeaders().getFields(HttpHeaders.SET_COOKIE);
+    if (cookieHeaders != null) {
+      for (HttpField header : cookieHeaders) {
+        List<HttpCookie> httpCookies = HttpCookie.parse(header.getValue());
         for (HttpCookie cookie : httpCookies) {
           result.add(cookie.getName(),
                   ResponseCookie.fromClientResponse(cookie.getName(), cookie.getValue())
@@ -80,7 +74,7 @@ class JettyClientHttpResponse implements ClientHttpResponse {
                           .maxAge(cookie.getMaxAge())
                           .secure(cookie.getSecure())
                           .httpOnly(cookie.isHttpOnly())
-                          .sameSite(parseSameSite(header))
+                          .sameSite(parseSameSite(header.getValue()))
                           .build());
         }
       }
@@ -90,18 +84,8 @@ class JettyClientHttpResponse implements ClientHttpResponse {
 
   @Nullable
   private static String parseSameSite(String headerValue) {
-    Matcher matcher = SAMESITE_PATTERN.matcher(headerValue);
-    return matcher.matches() ? matcher.group(1) : null;
-  }
-
-  @Override
-  public Flux<DataBuffer> getBody() {
-    return this.content;
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return this.headers;
+    Matcher matcher = SAME_SITE_PATTERN.matcher(headerValue);
+    return (matcher.matches() ? matcher.group(1) : null);
   }
 
 }

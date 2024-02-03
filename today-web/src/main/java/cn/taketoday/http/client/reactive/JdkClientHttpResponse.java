@@ -50,20 +50,18 @@ import reactor.core.publisher.Flux;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class JdkClientHttpResponse implements ClientHttpResponse {
+class JdkClientHttpResponse extends AbstractClientHttpResponse {
 
   private static final Pattern SAME_SITE_PATTERN = Pattern.compile("(?i).*SameSite=(Strict|Lax|None).*");
 
-  private final HttpResponse<Flow.Publisher<List<ByteBuffer>>> response;
+  public JdkClientHttpResponse(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response,
+          DataBufferFactory bufferFactory) {
 
-  private final DataBufferFactory bufferFactory;
-
-  private final HttpHeaders headers;
-
-  public JdkClientHttpResponse(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response, DataBufferFactory bufferFactory) {
-    this.response = response;
-    this.bufferFactory = bufferFactory;
-    this.headers = adaptHeaders(response);
+    super(HttpStatusCode.valueOf(response.statusCode()),
+            adaptHeaders(response),
+            adaptCookies(response),
+            adaptBody(response, bufferFactory)
+    );
   }
 
   private static HttpHeaders adaptHeaders(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response) {
@@ -74,23 +72,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
     return HttpHeaders.readOnlyHttpHeaders(multiValueMap);
   }
 
-  @Override
-  public HttpStatusCode getStatusCode() {
-    return HttpStatusCode.valueOf(response.statusCode());
-  }
-
-  @Override
-  public int getRawStatusCode() {
-    return response.statusCode();
-  }
-
-  @Override
-  public HttpHeaders getHeaders() {
-    return headers;
-  }
-
-  @Override
-  public MultiValueMap<String, ResponseCookie> getCookies() {
+  private static MultiValueMap<String, ResponseCookie> adaptCookies(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response) {
     return response.headers().allValues(HttpHeaders.SET_COOKIE).stream()
             .flatMap(header -> {
               Matcher matcher = SAME_SITE_PATTERN.matcher(header);
@@ -102,7 +84,7 @@ class JdkClientHttpResponse implements ClientHttpResponse {
                     LinkedMultiValueMap::addAll);
   }
 
-  private ResponseCookie toResponseCookie(HttpCookie cookie, @Nullable String sameSite) {
+  private static ResponseCookie toResponseCookie(HttpCookie cookie, @Nullable String sameSite) {
     return ResponseCookie.from(cookie.getName(), cookie.getValue())
             .domain(cookie.getDomain())
             .httpOnly(cookie.isHttpOnly())
@@ -113,12 +95,12 @@ class JdkClientHttpResponse implements ClientHttpResponse {
             .build();
   }
 
-  @Override
-  public Flux<DataBuffer> getBody() {
+  private static Flux<DataBuffer> adaptBody(HttpResponse<Flow.Publisher<List<ByteBuffer>>> response, DataBufferFactory bufferFactory) {
     return JdkFlowAdapter.flowPublisherToFlux(response.body())
             .flatMapIterable(Function.identity())
             .map(bufferFactory::wrap)
-            .doOnDiscard(DataBuffer.class, DataBufferUtils::release);
+            .doOnDiscard(DataBuffer.class, DataBufferUtils::release)
+            .cache(0);
   }
 
 }
