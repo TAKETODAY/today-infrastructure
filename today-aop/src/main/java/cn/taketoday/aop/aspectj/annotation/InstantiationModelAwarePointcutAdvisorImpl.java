@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
@@ -282,15 +282,14 @@ final class InstantiationModelAwarePointcutAdvisorImpl
     public boolean matches(Method method, Class<?> targetClass) {
       // We're either instantiated and matching on declared pointcut,
       // or uninstantiated matching on either pointcut...
-      return (isAspectMaterialized() && this.declaredPointcut.matches(method, targetClass)) ||
-              this.preInstantiationPointcut.getMethodMatcher().matches(method, targetClass);
+      return (isAspectMaterialized() && declaredPointcut.matches(method, targetClass))
+              || preInstantiationPointcut.getMethodMatcher().matches(method, targetClass);
     }
 
     @Override
     public boolean matches(MethodInvocation invocation) {
       // This can match only on declared pointcut.
-      return isAspectMaterialized()
-              && declaredPointcut.matches(invocation.getMethod(), invocation.getThis().getClass());
+      return isAspectMaterialized() && declaredPointcut.matches(invocation);
     }
 
     private boolean isAspectMaterialized() {
