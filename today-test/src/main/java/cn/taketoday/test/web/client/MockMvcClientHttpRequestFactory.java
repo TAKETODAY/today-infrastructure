@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.client;
@@ -33,6 +33,7 @@ import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.util.StringUtils;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.request;
 
@@ -73,6 +74,14 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
 
       HttpStatusCode status = HttpStatusCode.valueOf(servletResponse.getStatus());
       byte[] body = servletResponse.getContentAsByteArray();
+      if (body.length == 0) {
+        String error = servletResponse.getErrorMessage();
+        if (StringUtils.isNotEmpty(error)) {
+          // sendError message as default body
+          body = error.getBytes(StandardCharsets.UTF_8);
+        }
+      }
+
       MockClientHttpResponse clientResponse = new MockClientHttpResponse(body, status);
       clientResponse.getHeaders().putAll(getResponseHeaders(servletResponse));
       return clientResponse;
