@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,11 +62,11 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Dave Syer
- * @author TODAY 2021/2/1 22:42
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see java.lang.reflect.Proxy
  * @see AdvisedSupport
  * @see ProxyFactory
- * @since 3.0
+ * @since 3.0 2021/2/1 22:42
  */
 final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable {
 
@@ -242,7 +242,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 
       if (retVal == null) {
         returnType = method.getReturnType();
-        if (returnType != Void.TYPE && returnType.isPrimitive()) {
+        if (returnType != void.class && returnType.isPrimitive()) {
           throw new AopInvocationException(
                   "Null return value from advice does not match primitive return type for: " + method);
         }
