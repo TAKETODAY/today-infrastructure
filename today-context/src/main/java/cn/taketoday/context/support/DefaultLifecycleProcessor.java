@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -481,8 +481,9 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       try {
         latch.await(timeout, TimeUnit.MILLISECONDS);
         if (latch.getCount() > 0 && !countDownBeanNames.isEmpty() && log.isInfoEnabled()) {
-          log.info("Failed to shut down {} bean {} with phase value {} within timeout of {}ms: {}",
-                  countDownBeanNames.size(), (countDownBeanNames.size() > 1 ? "s" : ""), phase, timeout, countDownBeanNames);
+          log.info("Shutdown phase " + this.phase + " ends with " + countDownBeanNames.size() +
+                  " bean" + (countDownBeanNames.size() > 1 ? "s" : "") +
+                  " still running after timeout of " + this.timeout + "ms: " + countDownBeanNames);
         }
       }
       catch (InterruptedException ex) {
