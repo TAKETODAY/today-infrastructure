@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
@@ -26,17 +26,17 @@ import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Cache specific evaluation context that adds a method parameters as SpEL
- * variables, in a lazy manner. The lazy nature eliminates unneeded
- * parsing of classes byte code for parameter discovery.
+ * Cache-specific evaluation context that adds method parameters as SpEL
+ * variables, in a lazy manner. The lazy nature avoids unnecessary
+ * parsing of a class's byte code for parameter discovery.
  *
- * <p>Also define a set of "unavailable variables" (i.e. variables that should
- * lead to an exception right the way when they are accessed). This can be useful
+ * <p>Also defines a set of "unavailable variables" (i.e. variables that should
+ * lead to an exception as soon as they are accessed). This can be useful
  * to verify a condition does not match even when not all potential variables
  * are present.
  *
  * <p>To limit the creation of objects, an ugly constructor is used
- * (rather then a dedicated 'closure'-like class for deferred execution).
+ * (rather than a dedicated 'closure'-like class for deferred execution).
  *
  * @author Costin Leau
  * @author Stephane Nicoll
@@ -55,10 +55,10 @@ final class CacheEvaluationContext extends MethodBasedEvaluationContext {
   }
 
   /**
-   * Add the specified variable name as unavailable for that context.
-   * Any expression trying to access this variable should lead to an exception.
-   * <p>This permits the validation of expressions that could potentially a
-   * variable even when such variable isn't available yet. Any expression
+   * Add the specified variable name as unavailable for this context.
+   * <p>Any expression trying to access this variable should lead to an exception.
+   * <p>This permits the validation of expressions that could potentially access
+   * a variable even when such a variable isn't available yet. Any expression
    * trying to use that variable should therefore fail to evaluate.
    */
   public void addUnavailableVariable(String name) {
