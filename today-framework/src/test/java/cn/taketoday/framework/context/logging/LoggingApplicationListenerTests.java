@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.logging;
@@ -167,6 +167,16 @@ class LoggingApplicationListenerTests {
     this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader());
     this.logger.info("Hello world");
     assertThat(this.output).contains("Hello world").doesNotContain("???").startsWith("null ").endsWith("BOOTBOOT");
+  }
+
+  @Test
+  @ClassPathExclusions("janino-*.jar")
+  void tryingToUseJaninoWhenItIsNotOnTheClasspathFailsGracefully(CapturedOutput output) {
+    addPropertiesToEnvironment(this.context, "logging.config=classpath:logback-janino.xml");
+    assertThatIllegalStateException()
+            .isThrownBy(() -> this.listener.initialize(this.context.getEnvironment(), this.context.getClassLoader()));
+    assertThat(output)
+            .contains("Logging system failed to initialize using configuration from 'classpath:logback-janino.xml'");
   }
 
   @Test
