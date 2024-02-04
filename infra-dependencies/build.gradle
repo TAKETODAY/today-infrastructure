@@ -317,13 +317,6 @@ bom {
       ]
     }
   }
-  library("JUnit Jupiter", "5.10.0") {
-    group("org.junit") {
-      imports = [
-          "junit-bom"
-      ]
-    }
-  }
   library("Logback", "1.4.8") {
     group("ch.qos.logback") {
       modules = [
@@ -626,7 +619,7 @@ dependencies {
   api(platform("org.apache.logging.log4j:log4j-bom:2.21.1"))
   api(platform("org.eclipse.jetty:jetty-bom:12.0.4"))
   api(platform("org.eclipse.jetty.ee10:jetty-ee10-bom:12.0.3"))
-  api(platform("org.junit:junit-bom:5.10.1"))
+  api(platform("org.junit:junit-bom:5.10.2"))
   api(platform("org.mockito:mockito-bom:5.8.0"))
   api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
   api(platform(project(":infra-bom")))
