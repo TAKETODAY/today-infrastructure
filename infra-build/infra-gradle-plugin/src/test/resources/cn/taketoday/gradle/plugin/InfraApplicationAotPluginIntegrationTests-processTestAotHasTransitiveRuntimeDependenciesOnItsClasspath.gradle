@@ -9,7 +9,7 @@ repositories {
 	maven { url 'file:repository' }
 }
 
-configurations.all {
+configurations.configureEach {
 	resolutionStrategy {
 		eachDependency {
 			if (it.requested.group == 'cn.taketoday') {
@@ -23,8 +23,8 @@ dependencies {
 	implementation "org.hibernate.orm:hibernate-core:6.1.1.Final"
 }
 
-task('processTestAotClasspath') {
-	dependsOn configurations.processTestAotClasspath 
+tasks.register('processTestAotClasspath') {
+	dependsOn configurations.processTestAotClasspath
 	doFirst {
 		configurations.processTestAotClasspath.files.each { println it }
 	}
