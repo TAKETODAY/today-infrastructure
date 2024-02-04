@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.annotation;
@@ -53,6 +50,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author Mark Fisher
  * @author Juergen Hoeller
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AutowireCandidateQualifier
  * @see Qualifier
  * @since 4.0
@@ -232,9 +230,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
   /**
    * Match the given qualifier annotation against the candidate bean holder.
    */
-  protected boolean checkQualifier(
-          BeanDefinitionHolder bdHolder, Annotation annotation, SimpleTypeConverter typeConverter) {
-
+  protected boolean checkQualifier(BeanDefinitionHolder bdHolder, Annotation annotation, SimpleTypeConverter typeConverter) {
     Class<? extends Annotation> type = annotation.annotationType();
     RootBeanDefinition bd = (RootBeanDefinition) bdHolder.getBeanDefinition();
 
@@ -306,7 +302,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       if (actualValue != null) {
         actualValue = typeConverter.convertIfNecessary(actualValue, expectedValue.getClass());
       }
-      if (!expectedValue.equals(actualValue)) {
+      if (!ObjectUtils.nullSafeEquals(expectedValue, actualValue)) {
         return false;
       }
     }
