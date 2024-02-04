@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.persistenceunit;
@@ -67,33 +67,25 @@ import jakarta.persistence.PreUpdate;
  */
 class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistrationAotProcessor {
 
-  private static final List<Class<? extends Annotation>> CALLBACK_TYPES = List.of(PreUpdate.class,
-          PostUpdate.class, PrePersist.class, PostPersist.class, PreRemove.class, PostRemove.class, PostLoad.class);
-
-  @Nullable
-  private static Class<? extends Annotation> embeddableInstantiatorClass;
-
-  static {
-    try {
-      embeddableInstantiatorClass = ClassUtils.forName("org.hibernate.annotations.EmbeddableInstantiator",
-              PersistenceManagedTypesBeanRegistrationAotProcessor.class.getClassLoader());
-    }
-    catch (ClassNotFoundException ex) {
-      embeddableInstantiatorClass = null;
-    }
-  }
+  private static final boolean jpaPresent = ClassUtils.isPresent("jakarta.persistence.Entity",
+          PersistenceManagedTypesBeanRegistrationAotProcessor.class.getClassLoader());
 
   @Nullable
   @Override
   public BeanRegistrationAotContribution processAheadOfTime(RegisteredBean registeredBean) {
-    if (PersistenceManagedTypes.class.isAssignableFrom(registeredBean.getBeanClass())) {
-      return BeanRegistrationAotContribution.withCustomCodeFragments(codeFragments ->
-              new JpaManagedTypesBeanRegistrationCodeFragments(codeFragments, registeredBean));
+    if (jpaPresent) {
+      if (PersistenceManagedTypes.class.isAssignableFrom(registeredBean.getBeanClass())) {
+        return BeanRegistrationAotContribution.withCustomCodeFragments(codeFragments ->
+                new JpaManagedTypesBeanRegistrationCodeFragments(codeFragments, registeredBean));
+      }
     }
     return null;
   }
 
-  private static class JpaManagedTypesBeanRegistrationCodeFragments extends BeanRegistrationCodeFragmentsDecorator {
+  private static final class JpaManagedTypesBeanRegistrationCodeFragments extends BeanRegistrationCodeFragmentsDecorator {
+
+    private static final List<Class<? extends Annotation>> CALLBACK_TYPES = List.of(PreUpdate.class,
+            PostUpdate.class, PrePersist.class, PostPersist.class, PreRemove.class, PostRemove.class, PostLoad.class);
 
     private static final ParameterizedTypeName LIST_OF_STRINGS_TYPE = ParameterizedTypeName.get(List.class, String.class);
 
@@ -101,7 +93,7 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
 
     private final BindingReflectionHintsRegistrar bindingRegistrar = new BindingReflectionHintsRegistrar();
 
-    public JpaManagedTypesBeanRegistrationCodeFragments(BeanRegistrationCodeFragments codeFragments,
+    private JpaManagedTypesBeanRegistrationCodeFragments(BeanRegistrationCodeFragments codeFragments,
             RegisteredBean registeredBean) {
       super(codeFragments);
       this.registeredBean = registeredBean;
@@ -109,10 +101,12 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
 
     @Override
     public CodeBlock generateInstanceSupplierCode(GenerationContext generationContext,
-            BeanRegistrationCode beanRegistrationCode, boolean allowDirectSupplierShortcut) {
+            BeanRegistrationCode beanRegistrationCode,
+            boolean allowDirectSupplierShortcut) {
       PersistenceManagedTypes persistenceManagedTypes = this.registeredBean.getBeanFactory()
               .getBean(this.registeredBean.getBeanName(), PersistenceManagedTypes.class);
-      contributeHints(generationContext.getRuntimeHints(), persistenceManagedTypes.getManagedClassNames());
+      contributeHints(generationContext.getRuntimeHints(),
+              this.registeredBean.getBeanFactory().getBeanClassLoader(), persistenceManagedTypes.getManagedClassNames());
       GeneratedMethod generatedMethod = beanRegistrationCode.getMethods()
               .add("getInstance", method -> {
                 Class<?> beanType = PersistenceManagedTypes.class;
@@ -133,7 +127,7 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
       return CodeBlock.join(values.stream().map(value -> CodeBlock.of("$S", value)).toList(), ", ");
     }
 
-    private void contributeHints(RuntimeHints hints, List<String> managedClassNames) {
+    private void contributeHints(RuntimeHints hints, @Nullable ClassLoader classLoader, List<String> managedClassNames) {
       for (String managedClassName : managedClassNames) {
         try {
           Class<?> managedClass = ClassUtils.forName(managedClassName, null);
@@ -142,7 +136,7 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
           contributeIdClassHints(hints, managedClass);
           contributeConverterHints(hints, managedClass);
           contributeCallbackHints(hints, managedClass);
-          contributeHibernateHints(hints, managedClass);
+          contributeHibernateHints(hints, classLoader, managedClass);
         }
         catch (ClassNotFoundException ex) {
           throw new IllegalArgumentException("Failed to instantiate the managed class: " + managedClassName, ex);
@@ -191,15 +185,19 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
               method -> CALLBACK_TYPES.stream().anyMatch(method::isAnnotationPresent));
     }
 
-    private void contributeHibernateHints(RuntimeHints hints, Class<?> managedClass) {
+    private void contributeHibernateHints(RuntimeHints hints, @Nullable ClassLoader classLoader, Class<?> managedClass) {
+      Class<? extends Annotation> embeddableInstantiatorClass = loadEmbeddableInstantiatorClass(classLoader);
       if (embeddableInstantiatorClass == null) {
         return;
       }
       ReflectionHints reflection = hints.reflection();
-      registerInstantiatorForReflection(reflection, AnnotationUtils.findAnnotation(managedClass, embeddableInstantiatorClass));
+      registerInstantiatorForReflection(reflection,
+              AnnotationUtils.findAnnotation(managedClass, embeddableInstantiatorClass));
       ReflectionUtils.doWithFields(managedClass, field -> {
-        registerInstantiatorForReflection(reflection, AnnotationUtils.findAnnotation(field, embeddableInstantiatorClass));
-        registerInstantiatorForReflection(reflection, AnnotationUtils.findAnnotation(field.getType(), embeddableInstantiatorClass));
+        registerInstantiatorForReflection(reflection,
+                AnnotationUtils.findAnnotation(field, embeddableInstantiatorClass));
+        registerInstantiatorForReflection(reflection,
+                AnnotationUtils.findAnnotation(field.getType(), embeddableInstantiatorClass));
       });
     }
 
@@ -209,6 +207,16 @@ class PersistenceManagedTypesBeanRegistrationAotProcessor implements BeanRegistr
       }
       Class<?> embeddableInstantiatorClass = (Class<?>) AnnotationUtils.getAnnotationAttributes(annotation).get("value");
       reflection.registerType(embeddableInstantiatorClass, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+    }
+
+    @Nullable
+    private static Class<? extends Annotation> loadEmbeddableInstantiatorClass(@Nullable ClassLoader classLoader) {
+      try {
+        return ClassUtils.forName("org.hibernate.annotations.EmbeddableInstantiator", classLoader);
+      }
+      catch (ClassNotFoundException ex) {
+        return null;
+      }
     }
   }
 }
