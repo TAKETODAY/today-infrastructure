@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.embedded;
@@ -24,15 +24,20 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.Loader;
 import org.xnio.SslClientAuthMode;
 
+import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnThreading;
 import cn.taketoday.context.condition.ConditionalOnVirtualThreads;
+import cn.taketoday.context.condition.Threading;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.task.VirtualThreadTaskExecutor;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
+import cn.taketoday.framework.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.stereotype.Component;
 import io.undertow.Undertow;
@@ -106,6 +111,12 @@ public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
     static UndertowWebServerFactoryCustomizer undertowWebServerFactoryCustomizer(
             Environment environment, ServerProperties serverProperties) {
       return new UndertowWebServerFactoryCustomizer(environment, serverProperties);
+    }
+
+    @Bean
+    @ConditionalOnThreading(Threading.VIRTUAL)
+    UndertowDeploymentInfoCustomizer virtualThreadsUndertowDeploymentInfoCustomizer() {
+      return (deploymentInfo) -> deploymentInfo.setExecutor(new VirtualThreadTaskExecutor("undertow-"));
     }
 
   }
