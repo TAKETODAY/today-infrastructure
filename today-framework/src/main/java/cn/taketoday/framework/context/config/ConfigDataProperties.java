@@ -124,9 +124,9 @@ class ConfigDataProperties {
       if (activationContext == null) {
         return false;
       }
-      boolean activate = isActive(activationContext.cloudPlatform);
-      activate = activate && isActive(activationContext.profiles);
-      return activate;
+      CloudPlatform cloudPlatform = activationContext.cloudPlatform;
+      return isActive(cloudPlatform != null ? cloudPlatform : CloudPlatform.NONE)
+              && isActive(activationContext.profiles);
     }
 
     private boolean isActive(@Nullable CloudPlatform cloudPlatform) {
