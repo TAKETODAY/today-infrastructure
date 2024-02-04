@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package cn.taketoday.beans.factory.support;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -29,6 +30,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1297,6 +1299,30 @@ class StandardBeanFactoryTests {
     lbf.registerBeanDefinition("myProperties", rbd);
     Properties properties = (Properties) lbf.getBean("myProperties");
     assertThat(properties.getProperty("foo")).isEqualTo("bar");
+  }
+
+  @Test
+  @Disabled
+  void withOverloadedSetters() {
+    RootBeanDefinition rbd = new RootBeanDefinition(SetterOverload.class);
+    rbd.getPropertyValues().add("object", "a String");
+    lbf.registerBeanDefinition("overloaded", rbd);
+    assertThat(lbf.getBean(SetterOverload.class).getObject()).isEqualTo("a String");
+
+    rbd = new RootBeanDefinition(SetterOverload.class);
+    rbd.getPropertyValues().add("object", 1000);
+    lbf.registerBeanDefinition("overloaded", rbd);
+    assertThat(lbf.getBean(SetterOverload.class).getObject()).isEqualTo("1000");
+
+    rbd = new RootBeanDefinition(SetterOverload.class);
+    rbd.getPropertyValues().add("value", 1000);
+    lbf.registerBeanDefinition("overloaded", rbd);
+    assertThat(lbf.getBean(SetterOverload.class).getObject()).isEqualTo("1000i");
+
+    rbd = new RootBeanDefinition(SetterOverload.class);
+    rbd.getPropertyValues().add("value", Duration.ofSeconds(1000));
+    lbf.registerBeanDefinition("overloaded", rbd);
+    assertThat(lbf.getBean(SetterOverload.class).getObject()).isEqualTo("1000s");
   }
 
   @Test
@@ -3378,4 +3404,30 @@ class StandardBeanFactoryTests {
     }
 
   }
+
+  public static class SetterOverload {
+
+    public String value;
+
+    public void setObject(Integer length) {
+      this.value = length + "i";
+    }
+
+    public void setObject(String object) {
+      this.value = object;
+    }
+
+    public String getObject() {
+      return this.value;
+    }
+
+    public void setValue(int length) {
+      this.value = length + "i";
+    }
+
+    public void setValue(Duration duration) {
+      this.value = duration.getSeconds() + "s";
+    }
+  }
+
 }
