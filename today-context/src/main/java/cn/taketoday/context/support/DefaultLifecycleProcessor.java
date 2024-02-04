@@ -59,10 +59,17 @@ import cn.taketoday.util.ClassUtils;
  * <p>Provides interaction with {@link Lifecycle} and {@link SmartLifecycle} beans in
  * groups for specific phases, on startup/shutdown as well as for explicit start/stop
  * interactions on a {@link cn.taketoday.context.ConfigurableApplicationContext}.
- * this also includes support for JVM checkpoint/restore (Project CRaC).
+ *
+ * <p>Provides interaction with {@link Lifecycle} and {@link SmartLifecycle} beans in
+ * groups for specific phases, on startup/shutdown as well as for explicit start/stop
+ * interactions on a {@link cn.taketoday.context.ConfigurableApplicationContext}.
+ *
+ * <p>this also includes support for JVM checkpoint/restore (Project CRaC)
+ * when the {@code org.crac:crac} dependency on the classpath.
  *
  * @author Mark Fisher
  * @author Juergen Hoeller
+ * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
@@ -563,7 +570,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
     @Override
     public void afterRestore(org.crac.Context<? extends org.crac.Resource> context) {
-      log.info("Restarting Spring-managed lifecycle beans after JVM restore");
+      log.info("Restarting Infra-managed lifecycle beans after JVM restore");
       restartAfterStop();
 
       // Barrier for prevent-shutdown thread not needed anymore

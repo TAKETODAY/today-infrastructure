@@ -106,7 +106,7 @@ configure([rootProject] + javaProjects) {
     testRuntimeOnly("org.junit.platform:junit-platform-suite-engine")
     // JSR-305 only used for non-required meta-annotations
     compileOnly("com.google.code.findbugs:jsr305")
-    testCompileOnly("com.google.code.findbugs:jsr305")
+    compileOnly("com.google.code.findbugs:findbugs")
   }
 
   ext.javadocLinks = [
