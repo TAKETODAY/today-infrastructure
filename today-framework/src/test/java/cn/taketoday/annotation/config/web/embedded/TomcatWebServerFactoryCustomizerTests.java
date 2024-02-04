@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.embedded;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Valve;
+import org.apache.catalina.core.StandardThreadExecutor;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.valves.AccessLogValve;
 import org.apache.catalina.valves.ErrorReportValve;
@@ -33,6 +34,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.Locale;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 import cn.taketoday.context.properties.bind.Bindable;
@@ -600,6 +602,20 @@ class TomcatWebServerFactoryCustomizerTests {
     WebServer server = factory.getWebServer();
     server.start();
     server.stop();
+  }
+
+  @Test
+  void configureExecutor() {
+    bind("server.tomcat.threads.max=10", "server.tomcat.threads.min-spare=2",
+            "server.tomcat.threads.max-queue-capacity=20");
+    customizeAndRunServer((server) -> {
+      Executor executor = server.getTomcat().getConnector().getProtocolHandler().getExecutor();
+      assertThat(executor).isInstanceOf(StandardThreadExecutor.class);
+      StandardThreadExecutor standardThreadExecutor = (StandardThreadExecutor) executor;
+      assertThat(standardThreadExecutor.getMaxThreads()).isEqualTo(10);
+      assertThat(standardThreadExecutor.getMinSpareThreads()).isEqualTo(2);
+      assertThat(standardThreadExecutor.getMaxQueueSize()).isEqualTo(20);
+    });
   }
 
   private void bind(String... inlinedProperties) {

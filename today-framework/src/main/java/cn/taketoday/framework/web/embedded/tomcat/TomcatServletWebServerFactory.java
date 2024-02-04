@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package cn.taketoday.framework.web.embedded.tomcat;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Engine;
+import org.apache.catalina.Executor;
 import org.apache.catalina.Host;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
@@ -196,16 +197,25 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     tomcat.getService().addConnector(connector);
     customizeConnector(connector);
     tomcat.setConnector(connector);
+    registerConnectorExecutor(tomcat, connector);
+
     tomcat.getHost().setAutoDeploy(false);
 
     configureEngine(tomcat.getEngine());
 
     for (Connector additionalConnector : additionalTomcatConnectors) {
       tomcat.getService().addConnector(additionalConnector);
+      registerConnectorExecutor(tomcat, connector);
     }
 
     prepareContext(tomcat.getHost(), initializers);
     return createTomcatWebServer(tomcat);
+  }
+
+  private void registerConnectorExecutor(Tomcat tomcat, Connector connector) {
+    if (connector.getProtocolHandler().getExecutor() instanceof Executor executor) {
+      tomcat.getService().addExecutor(executor);
+    }
   }
 
   private void configureEngine(Engine engine) {
