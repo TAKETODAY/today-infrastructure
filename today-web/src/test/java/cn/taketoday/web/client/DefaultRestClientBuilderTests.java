@@ -28,9 +28,11 @@ import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.support.BasicAuthenticationInterceptor;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -40,9 +42,9 @@ class DefaultRestClientBuilderTests {
 
   @SuppressWarnings("unchecked")
   @Test
-  void createFromRestTemplate() throws NoSuchFieldException, IllegalAccessException {
+  void createFromRestTemplate() {
     JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory();
-    DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+    DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("baseUri");
     ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
     List<HttpMessageConverter<?>> restTemplateMessageConverters = List.of(new StringHttpMessageConverter());
     ClientHttpRequestInterceptor interceptor = new BasicAuthenticationInterceptor("foo", "bar");
@@ -78,12 +80,28 @@ class DefaultRestClientBuilderTests {
     assertThat(initializers).containsExactly(initializer);
   }
 
-  private static Object fieldValue(String name, DefaultRestClientBuilder instance)
-          throws NoSuchFieldException, IllegalAccessException {
+  @Test
+  void defaultUriBuilderFactory() {
+    RestTemplate restTemplate = new RestTemplate();
 
-    Field field = DefaultRestClientBuilder.class.getDeclaredField(name);
-    field.setAccessible(true);
+    RestClient.Builder builder = RestClient.builder(restTemplate);
+    assertThat(builder).isInstanceOf(DefaultRestClientBuilder.class);
+    DefaultRestClientBuilder defaultBuilder = (DefaultRestClientBuilder) builder;
 
-    return field.get(instance);
+    assertThat(fieldValue("uriBuilderFactory", defaultBuilder)).isNull();
+  }
+
+  @Nullable
+  private static Object fieldValue(String name, DefaultRestClientBuilder instance) {
+    try {
+      Field field = DefaultRestClientBuilder.class.getDeclaredField(name);
+      field.setAccessible(true);
+
+      return field.get(instance);
+    }
+    catch (NoSuchFieldException | IllegalAccessException ex) {
+      fail(ex.getMessage(), ex);
+      return null;
+    }
   }
 }

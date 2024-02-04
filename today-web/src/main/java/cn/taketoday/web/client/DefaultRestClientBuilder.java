@@ -51,6 +51,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
+import cn.taketoday.web.util.UriTemplateHandler;
 
 /**
  * Default implementation of {@link RestClient.Builder}.
@@ -158,9 +159,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   public DefaultRestClientBuilder(RestTemplate restTemplate) {
     Assert.notNull(restTemplate, "RestTemplate is required");
 
-    if (restTemplate.getUriTemplateHandler() instanceof UriBuilderFactory builderFactory) {
-      this.uriBuilderFactory = builderFactory;
-    }
+    this.uriBuilderFactory = getUriBuilderFactory(restTemplate);
     this.statusHandlers = new ArrayList<>();
     this.statusHandlers.add(StatusHandler.fromErrorHandler(restTemplate.getErrorHandler()));
 
@@ -172,6 +171,26 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     }
     if (CollectionUtils.isNotEmpty(restTemplate.getHttpRequestInitializers())) {
       this.initializers = new ArrayList<>(restTemplate.getHttpRequestInitializers());
+    }
+  }
+
+  @Nullable
+  private static UriBuilderFactory getUriBuilderFactory(RestTemplate restTemplate) {
+    UriTemplateHandler uriTemplateHandler = restTemplate.getUriTemplateHandler();
+    if (uriTemplateHandler instanceof DefaultUriBuilderFactory builderFactory) {
+      // only reuse the DefaultUriBuilderFactory if it has been customized
+      if (builderFactory.hasRestTemplateDefaults()) {
+        return null;
+      }
+      else {
+        return builderFactory;
+      }
+    }
+    else if (uriTemplateHandler instanceof UriBuilderFactory builderFactory) {
+      return builderFactory;
+    }
+    else {
+      return null;
     }
   }
 
