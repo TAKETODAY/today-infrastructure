@@ -41,6 +41,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.service.annotation.HttpExchange;
@@ -288,7 +289,7 @@ final class HttpServiceMethod {
       Class<?> paramType = param.getNestedParameterType();
 
       Function<HttpRequestValues, Object> responseFunction;
-      if (paramType.equals(void.class) || paramType.equals(Void.class)) {
+      if (ClassUtils.isVoidType(paramType)) {
         responseFunction = requestValues -> {
           client.exchange(requestValues);
           return null;
