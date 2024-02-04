@@ -36,6 +36,7 @@ import reactor.core.publisher.Mono;
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
@@ -51,8 +52,11 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   }
 
   private final HttpHeaders headers;
+
   private final MultiValueMap<String, HttpCookie> cookies;
+
   private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
+
   private final ArrayList<Supplier<? extends Publisher<Void>>> commitActions = new ArrayList<>(4);
 
   @Nullable
@@ -94,7 +98,7 @@ public abstract class AbstractClientHttpRequest implements ClientHttpRequest {
   @Override
   public MultiValueMap<String, HttpCookie> getCookies() {
     if (State.COMMITTED.equals(this.state.get())) {
-      return MultiValueMap.forUnmodifiable(this.cookies);
+      return cookies.asReadOnly();
     }
     return this.cookies;
   }

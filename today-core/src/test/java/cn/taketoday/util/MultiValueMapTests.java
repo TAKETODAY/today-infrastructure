@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -139,7 +140,7 @@ class MultiValueMapTests {
   @Test
   void canNotChangeAnUnmodifiableMultiValueMap() {
     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    MultiValueMap<String, String> unmodifiableMap = MultiValueMap.forUnmodifiable(map);
+    MultiValueMap<String, String> unmodifiableMap = map.asReadOnly();
     assertSoftly(softly -> {
       softly.assertThatExceptionOfType(UnsupportedOperationException.class)
               .isThrownBy(() -> unmodifiableMap.add("key", "value"));
@@ -186,11 +187,18 @@ class MultiValueMapTests {
 
   static Stream<Arguments> mapsUnderTest() {
     return Stream.of(
-            arguments(named("new LinkedMultiValueMap<>()", new LinkedMultiValueMap<>())),
+            arguments(named("new LinkedMultiValueMap<>()", MultiValueMap.forLinkedHashMap())),
             arguments(named("new LinkedMultiValueMap<>(new HashMap<>())", new LinkedMultiValueMap<>(new HashMap<>()))),
             arguments(named("new LinkedMultiValueMap<>(new LinkedHashMap<>())", new LinkedMultiValueMap<>(new LinkedHashMap<>()))),
             arguments(named("new LinkedMultiValueMap<>(Map.of(...))", new LinkedMultiValueMap<>(Map.of("existingkey", List.of("existingvalue1", "existingvalue2"))))),
-            arguments(named("CollectionUtils.toMultiValueMap", MultiValueMap.forAdaption(new HashMap<>())))
+            arguments(named("MultiValueMap.forAdaption(HashMap)", MultiValueMap.forAdaption(new HashMap<>()))),
+            arguments(named("CollectionUtils.forAdaption(LinkedHashMap)", MultiValueMap.forAdaption(new LinkedHashMap<>()))),
+            arguments(named("MultiValueMap.forSmartListAdaption()", MultiValueMap.forSmartListAdaption())),
+            arguments(named("MultiValueMap.forAdaption(ArrayList)", MultiValueMap.forAdaption(k -> new ArrayList<>()))),
+            arguments(named("MultiValueMap.forAdaption(SmartList)", MultiValueMap.forAdaption(k -> new SmartList<>()))),
+            arguments(named("MultiValueMap.forAdaption(HashMap, SmartList)", MultiValueMap.forAdaption(new HashMap<>(), k -> new SmartList<>()))),
+            arguments(named("MultiValueMap.forAdaption(LinkedHashMap, SmartList)", MultiValueMap.forAdaption(new LinkedHashMap<>(), k -> new SmartList<>()))),
+            arguments(named("MultiValueMap.forSmartListAdaption(HashMap)", MultiValueMap.forSmartListAdaption(new HashMap<>())))
     );
   }
 

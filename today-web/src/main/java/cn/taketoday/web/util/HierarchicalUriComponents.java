@@ -36,7 +36,6 @@ import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
-import cn.taketoday.util.MappingMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StreamUtils;
@@ -144,7 +143,7 @@ final class HierarchicalUriComponents extends UriComponents {
     this.host = host;
     this.port = port;
     this.path = path != null ? path : NULL_PATH_COMPONENT;
-    this.queryParams = query != null ? MultiValueMap.forUnmodifiable(query) : EMPTY_QUERY_PARAMS;
+    this.queryParams = query != null ? query.asReadOnly() : EMPTY_QUERY_PARAMS;
     this.encodeState = encoded ? EncodeState.FULLY_ENCODED : EncodeState.RAW;
 
     // Check for illegal characters..
@@ -318,7 +317,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, encodedValues);
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   /**
@@ -452,8 +451,7 @@ final class HierarchicalUriComponents extends UriComponents {
     MultiValueMap<String, String> queryParamsTo = expandQueryParams(uriVariables);
     String fragmentTo = expandUriComponent(getFragment(), uriVariables, this.variableEncoder);
 
-    return new HierarchicalUriComponents(
-            schemeTo, fragmentTo, userInfoTo,
+    return new HierarchicalUriComponents(schemeTo, fragmentTo, userInfoTo,
             hostTo, portTo, pathTo, queryParamsTo, this.encodeState, this.variableEncoder);
   }
 
@@ -470,7 +468,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, expandedValues);
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Override

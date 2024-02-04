@@ -376,7 +376,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     if (this.defaultCookies != null) {
       MultiValueMap<String, String> copy = new LinkedMultiValueMap<>(this.defaultCookies.size());
       doCopyMultiValueMap(defaultCookies, copy);
-      return MultiValueMap.forUnmodifiable(copy);
+      return copy.asReadOnly();
     }
     else {
       return null;

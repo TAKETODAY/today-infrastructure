@@ -265,7 +265,7 @@ final class DefaultPathContainer extends PathContainer {
      * Factory for decoded and parsed segments.
      */
     static DefaultPathSegment from(String value, String valueToMatch, MultiValueMap<String, String> params) {
-      return new DefaultPathSegment(value, valueToMatch, MultiValueMap.forUnmodifiable(params));
+      return new DefaultPathSegment(value, valueToMatch, params.asReadOnly());
     }
 
     private DefaultPathSegment(String value, String valueToMatch, MultiValueMap<String, String> params) {

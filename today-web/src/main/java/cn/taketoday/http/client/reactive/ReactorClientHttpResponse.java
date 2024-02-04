@@ -33,7 +33,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
@@ -76,17 +75,6 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
     this.inbound = connection.inbound();
     this.bufferFactory = new NettyDataBufferFactory(connection.outbound().alloc());
-  }
-
-  /**
-   * Constructor with inputs extracted from a {@link Connection}.
-   */
-  public ReactorClientHttpResponse(HttpClientResponse response, NettyInbound inbound, ByteBufAllocator alloc) {
-    this.response = response;
-    MultiValueMap<String, String> adapter = new Netty4HeadersAdapter(response.responseHeaders());
-    this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
-    this.inbound = inbound;
-    this.bufferFactory = new NettyDataBufferFactory(alloc);
   }
 
   @Override
@@ -146,7 +134,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
                         .build());
       }
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Nullable

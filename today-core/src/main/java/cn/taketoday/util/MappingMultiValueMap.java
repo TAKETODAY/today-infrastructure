@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import cn.taketoday.core.ArraySizeTrimmer;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -56,30 +57,41 @@ public class MappingMultiValueMap<K, V> extends MultiValueMapAdapter<K, V>
 
   protected transient final Function<K, List<V>> mappingFunction;
 
+  /**
+   * Wrap the {@link HashMap} as a {@link MultiValueMap} adapter.
+   */
   public MappingMultiValueMap() {
     this(new HashMap<>());
   }
 
+  /**
+   * Wrap the {@link HashMap} as a {@link MultiValueMap} adapter.
+   *
+   * @param mappingFunction list value mapping function
+   */
   public MappingMultiValueMap(Function<K, List<V>> mappingFunction) {
-    super(new HashMap<>());
-    this.mappingFunction = mappingFunction;
+    this(new HashMap<>(), mappingFunction);
   }
 
   /**
-   * adaptation
+   * Wrap the given target {@link Map} as a {@link MultiValueMap} adapter.
+   *
+   * @param map the plain target {@code Map}
    */
   public MappingMultiValueMap(Map<K, List<V>> map) {
     super(map);
     this.mappingFunction = defaultMappingFunction;
   }
 
+  /**
+   * Wrap the given target {@link Map} as a {@link MultiValueMap} adapter.
+   *
+   * @param map the plain target {@code Map}
+   * @param mappingFunction list value mapping function
+   */
   public MappingMultiValueMap(Map<K, List<V>> map, Function<K, List<V>> mappingFunction) {
     super(map);
-    this.mappingFunction = mappingFunction;
-  }
-
-  public MappingMultiValueMap(Map<K, List<V>> map, Function<K, List<V>> mappingFunction, boolean copy) {
-    super(copy ? new HashMap<>(map) : map);
+    Assert.notNull(mappingFunction, "mappingFunction is required");
     this.mappingFunction = mappingFunction;
   }
 

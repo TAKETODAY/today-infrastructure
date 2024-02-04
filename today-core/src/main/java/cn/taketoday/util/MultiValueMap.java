@@ -46,7 +46,8 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
 
   Function smartListMappingFunction = k -> new SmartList<>();
 
-  MultiValueMap EMPTY = new MultiValueMapAdapter<>(Collections.emptyMap());
+  // read only
+  MultiValueMap EMPTY = forAdaption(Collections.emptyMap());
 
   /**
    * Return the first value for the given key.
@@ -203,7 +204,7 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
   /**
    * Apply a read-only {@code MultiValueMap} wrapper around this {@code MultiValueMap}, if necessary.
    *
-   * @return a read-only variant of the MultiValueMap, or the original headers as-is
+   * @return a read-only variant of the MultiValueMap, or the original map as-is
    * @since 4.0
    */
   default MultiValueMap<K, V> asReadOnly() {
@@ -237,6 +238,44 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    */
   static <K, V> MultiValueMapAdapter<K, V> forAdaption(Map<K, List<V>> targetMap) {
     return new MultiValueMapAdapter<>(targetMap);
+  }
+
+  /**
+   * Adapt a {@code HashMap<K, List<V>>} to an {@code MultiValueMap<K, V>} with a
+   * list value mapping function.
+   *
+   * @param <K> key
+   * @param <V> value type
+   * @return MappingMultiValueMap
+   */
+  static <K, V> MappingMultiValueMap<K, V> forAdaption(Function<K, List<V>> mappingFunction) {
+    return new MappingMultiValueMap<>(mappingFunction);
+  }
+
+  /**
+   * Adapt a {@code HashMap<K, List<V>>} to an {@code MultiValueMap<K, V>} with a
+   * smart list value mapping function.
+   *
+   * @param <K> key
+   * @param <V> value type
+   * @return MappingMultiValueMap
+   */
+  @SuppressWarnings("unchecked")
+  static <K, V> MappingMultiValueMap<K, V> forSmartListAdaption(Map<K, List<V>> targetMap) {
+    return new MappingMultiValueMap<>(targetMap, smartListMappingFunction);
+  }
+
+  /**
+   * Adapt a {@code HashMap<K, List<V>>} to an {@code MultiValueMap<K, V>} with a
+   * smart list value mapping function.
+   *
+   * @param <K> key
+   * @param <V> value type
+   * @return MappingMultiValueMap
+   */
+  @SuppressWarnings("unchecked")
+  static <K, V> MappingMultiValueMap<K, V> forSmartListAdaption() {
+    return new MappingMultiValueMap<>(smartListMappingFunction);
   }
 
   /**
@@ -280,18 +319,6 @@ public interface MultiValueMap<K, V> extends Map<K, List<V>> {
    */
   static <K, V> LinkedMultiValueMap<K, V> forLinkedHashMap(int expectedSize) {
     return new LinkedMultiValueMap<>(expectedSize);
-  }
-
-  /**
-   * Return an unmodifiable view of the specified multi-value map.
-   *
-   * @param targetMap the map for which an unmodifiable view is to be returned.
-   * @return an unmodifiable view of the specified multi-value map
-   * @since 4.0
-   */
-  static <K, V> MultiValueMap<K, V> forUnmodifiable(MultiValueMap<K, V> targetMap) {
-    Assert.notNull(targetMap, "'targetMap' is required");
-    return targetMap.asReadOnly();
   }
 
 }

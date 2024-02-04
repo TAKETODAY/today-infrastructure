@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
@@ -43,23 +42,21 @@ public class DefaultHttpHeaders extends HttpHeaders {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @SuppressWarnings("unchecked")
-  static final Function<String, List<String>> defaultHeaderMapping = smartListMappingFunction;
-
   final MultiValueMap<String, String> headers;
 
   /**
    * Construct a case-insensitive header map
    */
   public DefaultHttpHeaders() {
-    this.headers = MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH), defaultHeaderMapping);
+    this.headers = MultiValueMap.forSmartListAdaption(
+            new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
   }
 
   /**
    * Construct with a user input header map
    */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
-    this.headers = MultiValueMap.forAdaption(headers, defaultHeaderMapping);
+    this.headers = MultiValueMap.forSmartListAdaption(headers);
   }
 
   /**

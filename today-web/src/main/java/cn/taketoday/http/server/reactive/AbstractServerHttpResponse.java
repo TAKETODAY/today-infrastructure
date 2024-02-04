@@ -143,7 +143,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     return this.state.get() == State.COMMITTED
-           ? MultiValueMap.forUnmodifiable(this.cookies) : this.cookies;
+           ? cookies.asReadOnly() : this.cookies;
   }
 
   @Override

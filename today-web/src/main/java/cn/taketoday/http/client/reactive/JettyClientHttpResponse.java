@@ -48,7 +48,6 @@ class JettyClientHttpResponse extends AbstractClientHttpResponse {
   private static final Pattern SAME_SITE_PATTERN = Pattern.compile("(?i).*SameSite=(Strict|Lax|None).*");
 
   public JettyClientHttpResponse(ReactiveResponse reactiveResponse, Flux<DataBuffer> content) {
-
     super(HttpStatusCode.valueOf(reactiveResponse.getStatus()),
             adaptHeaders(reactiveResponse),
             adaptCookies(reactiveResponse),
@@ -79,7 +78,7 @@ class JettyClientHttpResponse extends AbstractClientHttpResponse {
         }
       }
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Nullable

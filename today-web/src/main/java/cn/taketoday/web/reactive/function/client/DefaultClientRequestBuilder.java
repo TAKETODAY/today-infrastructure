@@ -199,7 +199,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
       this.url = url;
       this.method = method;
       this.headers = headers.asReadOnly();
-      this.cookies = MultiValueMap.forUnmodifiable(cookies);
+      this.cookies = cookies.asReadOnly();
       this.body = body;
       this.attributes = Collections.unmodifiableMap(attributes);
       this.httpRequestConsumer = httpRequestConsumer;

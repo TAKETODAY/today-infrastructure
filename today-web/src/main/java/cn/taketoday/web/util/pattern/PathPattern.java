@@ -681,7 +681,7 @@ public class PathPattern implements Comparable<PathPattern> {
         if (extractedMatrixVariables == null) {
           this.extractedMatrixVariables = new HashMap<>();
         }
-        extractedMatrixVariables.put(key, MultiValueMap.forUnmodifiable(parameters));
+        extractedMatrixVariables.put(key, parameters.asReadOnly());
       }
     }
 
