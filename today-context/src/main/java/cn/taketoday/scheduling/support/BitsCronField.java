@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.support;
@@ -33,14 +30,14 @@ import cn.taketoday.util.StringUtils;
  * Created using the {@code parse*} methods.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class BitsCronField extends CronField {
 
-  private static final long MASK = 0xFFFFFFFFFFFFFFFFL;
+  public static final BitsCronField ZERO_NANOS = forZeroNanos();
 
-  @Nullable
-  private static BitsCronField zeroNanos = null;
+  private static final long MASK = 0xFFFFFFFFFFFFFFFFL;
 
   // we store at most 60 bits, for seconds and minutes, so a 64-bit long suffices
   private long bits;
@@ -50,15 +47,12 @@ final class BitsCronField extends CronField {
   }
 
   /**
-   * Return a {@code BitsCronField} enabled for 0 nano seconds.
+   * Return a {@code BitsCronField} enabled for 0 nanoseconds.
    */
-  public static BitsCronField zeroNanos() {
-    if (zeroNanos == null) {
-      BitsCronField field = new BitsCronField(Type.NANO);
-      field.setBit(0);
-      zeroNanos = field;
-    }
-    return zeroNanos;
+  private static BitsCronField forZeroNanos() {
+    BitsCronField field = new BitsCronField(Type.NANO);
+    field.setBit(0);
+    return field;
   }
 
   /**
@@ -76,7 +70,7 @@ final class BitsCronField extends CronField {
   }
 
   /**
-   * Parse the given value into a hours {@code BitsCronField}, the third entry of a cron expression.
+   * Parse the given value into an hours {@code BitsCronField}, the third entry of a cron expression.
    */
   public static BitsCronField parseHours(String value) {
     return BitsCronField.parseField(value, Type.HOUR);
@@ -118,7 +112,7 @@ final class BitsCronField extends CronField {
 
   private static BitsCronField parseField(String value, Type type) {
     Assert.hasLength(value, "Value must not be empty");
-    Assert.notNull(type, "Type is required");
+    Assert.notNull(type, "Type must not be null");
     try {
       BitsCronField result = new BitsCronField(type);
       String[] fields = StringUtils.delimitedListToStringArray(value, ",");
@@ -217,7 +211,6 @@ final class BitsCronField extends CronField {
     else {
       return -1;
     }
-
   }
 
   private void setBits(ValueRange range) {
@@ -251,19 +244,14 @@ final class BitsCronField extends CronField {
   }
 
   @Override
-  public int hashCode() {
-    return Long.hashCode(this.bits);
+  public boolean equals(Object other) {
+    return (this == other || (other instanceof BitsCronField that &&
+            type() == that.type() && this.bits == that.bits));
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof BitsCronField other)) {
-      return false;
-    }
-    return type() == other.type() && this.bits == other.bits;
+  public int hashCode() {
+    return Long.hashCode(this.bits);
   }
 
   @Override

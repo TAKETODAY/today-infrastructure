@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
  * <p>Supports a Quartz day-of-month/week field with an L/# expression. Follows
  * common cron conventions in every other respect, including 0-6 for SUN-SAT
  * (plus 7 for SUN as well). Note that Quartz deviates from the day-of-week
- * convention in cron through 1-7 for SUN-SAT whereas Spring strictly follows
+ * convention in cron through 1-7 for SUN-SAT whereas Infra strictly follows
  * cron even in combination with the optional Quartz-specific L/# expressions.
  *
  * @author Arjen Poutsma
@@ -68,15 +68,16 @@ final class QuartzCronField extends CronField {
   }
 
   /**
-   * Returns whether the given value is a Quartz day-of-month field.
+   * Determine whether the given value is a Quartz day-of-month field.
    */
   public static boolean isQuartzDaysOfMonthField(String value) {
     return value.contains("L") || value.contains("W");
   }
 
   /**
-   * Parse the given value into a days of months {@code QuartzCronField}, the fourth entry of a cron expression.
-   * Expects a "L" or "W" in the given value.
+   * Parse the given value into a days of months {@code QuartzCronField},
+   * the fourth entry of a cron expression.
+   * <p>Expects a "L" or "W" in the given value.
    */
   public static QuartzCronField parseDaysOfMonth(String value) {
     int idx = value.lastIndexOf('L');
@@ -121,15 +122,16 @@ final class QuartzCronField extends CronField {
   }
 
   /**
-   * Returns whether the given value is a Quartz day-of-week field.
+   * Determine whether the given value is a Quartz day-of-week field.
    */
   public static boolean isQuartzDaysOfWeekField(String value) {
     return value.contains("L") || value.contains("#");
   }
 
   /**
-   * Parse the given value into a days of week {@code QuartzCronField}, the sixth entry of a cron expression.
-   * Expects a "L" or "#" in the given value.
+   * Parse the given value into a days of week {@code QuartzCronField},
+   * the sixth entry of a cron expression.
+   * <p>Expects a "L" or "#" in the given value.
    */
   public static QuartzCronField parseDaysOfWeek(String value) {
     int idx = value.lastIndexOf('L');
@@ -180,8 +182,7 @@ final class QuartzCronField extends CronField {
       return DayOfWeek.of(dayOfWeek);
     }
     catch (DateTimeException ex) {
-      String msg = ex.getMessage() + " '" + value + "'";
-      throw new IllegalArgumentException(msg, ex);
+      throw new IllegalArgumentException(ex.getMessage() + " '" + value + "'", ex);
     }
   }
 
@@ -234,7 +235,7 @@ final class QuartzCronField extends CronField {
   }
 
   /**
-   * Return a temporal adjuster that finds the nth-to-last day of the month.
+   * Returns a temporal adjuster that finds the nth-to-last day of the month.
    *
    * @param offset the negative offset, i.e. -3 means third-to-last
    * @return a nth-to-last day-of-month adjuster
@@ -249,7 +250,7 @@ final class QuartzCronField extends CronField {
   }
 
   /**
-   * Return a temporal adjuster that finds the weekday nearest to the given
+   * Returns a temporal adjuster that finds the weekday nearest to the given
    * day-of-month. If {@code dayOfMonth} falls on a Saturday, the date is
    * moved back to Friday; if it falls on a Sunday (or if {@code dayOfMonth}
    * is 1 and it falls on a Saturday), it is moved forward to Monday.
@@ -262,10 +263,10 @@ final class QuartzCronField extends CronField {
       int current = Type.DAY_OF_MONTH.get(temporal);
       DayOfWeek dayOfWeek = DayOfWeek.from(temporal);
 
-      if ((current == dayOfMonth && isWeekday(dayOfWeek)) || // dayOfMonth is a weekday
-              (dayOfWeek == DayOfWeek.FRIDAY && current == dayOfMonth - 1) || // dayOfMonth is a Saturday, so Friday before
-              (dayOfWeek == DayOfWeek.MONDAY && current == dayOfMonth + 1) || // dayOfMonth is a Sunday, so Monday after
-              (dayOfWeek == DayOfWeek.MONDAY && dayOfMonth == 1 && current == 3)) { // dayOfMonth is Saturday 1st, so Monday 3rd
+      if ((current == dayOfMonth && isWeekday(dayOfWeek)) // dayOfMonth is a weekday
+              || (dayOfWeek == DayOfWeek.FRIDAY && current == dayOfMonth - 1) // dayOfMonth is a Saturday, so Friday before
+              || (dayOfWeek == DayOfWeek.MONDAY && current == dayOfMonth + 1) // dayOfMonth is a Sunday, so Monday after
+              || (dayOfWeek == DayOfWeek.MONDAY && dayOfMonth == 1 && current == 3)) { // dayOfMonth is Saturday 1st, so Monday 3rd
         return temporal;
       }
       int count = 0;
@@ -301,7 +302,7 @@ final class QuartzCronField extends CronField {
   }
 
   /**
-   * Return a temporal adjuster that finds the last of the given doy-of-week
+   * Returns a temporal adjuster that finds the last of the given day-of-week
    * in a month.
    */
   private static TemporalAdjuster lastInMonth(DayOfWeek dayOfWeek) {
@@ -361,26 +362,20 @@ final class QuartzCronField extends CronField {
   }
 
   @Override
+  public boolean equals(@Nullable Object other) {
+    return this == other ||
+            (other instanceof QuartzCronField that
+                    && type() == that.type() && this.value.equals(that.value));
+  }
+
+  @Override
   public int hashCode() {
     return this.value.hashCode();
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof QuartzCronField other)) {
-      return false;
-    }
-    return type() == other.type() &&
-            this.value.equals(other.value);
-  }
-
-  @Override
   public String toString() {
     return type() + " '" + this.value + "'";
-
   }
 
 }

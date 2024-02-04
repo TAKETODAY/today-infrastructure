@@ -45,9 +45,8 @@ import cn.taketoday.util.StringUtils;
 abstract class CronField {
 
   private static final String[] MONTHS = new String[] {
-          "JAN", "FEB", "MAR", "APR",
-          "MAY", "JUN", "JUL", "AUG",
-          "SEP", "OCT", "NOV", "DEC"
+          "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+          "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
   };
 
   private static final String[] DAYS = new String[] {
@@ -61,10 +60,10 @@ abstract class CronField {
   }
 
   /**
-   * Return a {@code CronField} enabled for 0 nano seconds.
+   * Return a {@code CronField} enabled for 0 nanoseconds.
    */
   public static CronField zeroNanos() {
-    return BitsCronField.zeroNanos();
+    return BitsCronField.ZERO_NANOS;
   }
 
   /**
@@ -82,7 +81,7 @@ abstract class CronField {
   }
 
   /**
-   * Parse the given value into a hours {@code CronField}, the third entry of a cron expression.
+   * Parse the given value into an hours {@code CronField}, the third entry of a cron expression.
    */
   public static CronField parseHours(String value) {
     return BitsCronField.parseHours(value);
@@ -178,6 +177,7 @@ abstract class CronField {
    * day-of-month, month, day-of-week.
    */
   protected enum Type {
+
     NANO(ChronoField.NANO_OF_SECOND, ChronoUnit.SECONDS),
     SECOND(ChronoField.SECOND_OF_MINUTE, ChronoUnit.MINUTES, ChronoField.NANO_OF_SECOND),
     MINUTE(ChronoField.MINUTE_OF_HOUR, ChronoUnit.HOURS, ChronoField.SECOND_OF_MINUTE, ChronoField.NANO_OF_SECOND),
@@ -208,7 +208,7 @@ abstract class CronField {
     }
 
     /**
-     * Return the general range of this type. For instance, this methods
+     * Return the general range of this type. For instance, this method
      * will return 0-31 for {@link #MONTH}.
      *
      * @return the range of this field
