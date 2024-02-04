@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
@@ -26,25 +23,35 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.lang.Nullable;
 
 /**
- * A constructor resolver attempts locate a constructor and returns a ConstructorExecutor
- * that can be used to invoke that constructor. The ConstructorExecutor will be cached but
- * if it 'goes stale' the resolvers will be called again.
+ * A constructor resolver attempts to locate a constructor and returns a
+ * {@link ConstructorExecutor} that can be used to invoke that constructor.
+ *
+ * <p>The {@code ConstructorExecutor} will be cached, but if it becomes stale the
+ * resolvers will be called again.
  *
  * @author Andy Clement
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see ConstructorExecutor
+ * @see MethodResolver
  * @since 4.0
  */
 @FunctionalInterface
 public interface ConstructorResolver {
 
   /**
-   * Within the supplied context determine a suitable constructor on the supplied type
-   * that can handle the specified arguments. Return a ConstructorExecutor that can be
-   * used to invoke that constructor (or {@code null} if no constructor could be found).
+   * Within the supplied context, resolve a suitable constructor on the
+   * supplied type that can handle the specified arguments.
+   * <p>Returns a {@link ConstructorExecutor} that can be used to invoke that
+   * constructor (or {@code null} if no constructor could be found).
    *
    * @param context the current evaluation context
-   * @param typeName the type upon which to look for the constructor
-   * @param argumentTypes the arguments that the constructor must be able to handle
-   * @return a ConstructorExecutor that can invoke the constructor, or null if non found
+   * @param typeName the fully-qualified name of the type upon which to look
+   * for the constructor
+   * @param argumentTypes the types of arguments that the constructor must be
+   * able to handle
+   * @return a {@code ConstructorExecutor} that can invoke the constructor,
+   * or {@code null} if the constructor cannot be found
    */
   @Nullable
   ConstructorExecutor resolve(EvaluationContext context, String typeName, List<TypeDescriptor> argumentTypes)

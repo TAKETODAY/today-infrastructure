@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
 
-// TODO Is the resolver/executor model too pervasive in this package?
-
 /**
- * Executors are built by resolvers and can be cached by the infrastructure to repeat an
- * operation quickly without going back to the resolvers. For example, the particular
- * constructor to run on a class may be discovered by the reflection constructor resolver
- * - it will then build a ConstructorExecutor that executes that constructor and the
- * ConstructorExecutor can be reused without needing to go back to the resolver to
- * discover the constructor again.
+ * A {@code ConstructorExecutor} is built by a {@link ConstructorResolver} and
+ * can be cached by the infrastructure to repeat an operation quickly without
+ * going back to the resolvers.
  *
- * <p>They can become stale, and in that case should throw an AccessException - this will
- * cause the infrastructure to go back to the resolvers to ask for a new one.
+ * <p>For example, the particular constructor to execute on a class may be discovered
+ * by a {@code ConstructorResolver} which then builds a {@code ConstructorExecutor}
+ * that executes that constructor, and the resolved {@code ConstructorExecutor}
+ * can be reused without needing to go back to the resolvers to discover the
+ * constructor again.
+ *
+ * <p>If a {@code ConstructorExecutor} becomes stale, it should throw an
+ * {@link AccessException} which signals to the infrastructure to go back to the
+ * resolvers to ask for a new one.
  *
  * @author Andy Clement
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ConstructorExecutor {
@@ -41,12 +42,12 @@ public interface ConstructorExecutor {
   /**
    * Execute a constructor in the specified context using the specified arguments.
    *
-   * @param context the evaluation context in which the command is being executed
-   * @param arguments the arguments to the constructor call, should match (in terms
-   * of number and type) whatever the command will need to run
+   * @param context the evaluation context in which the constructor is being executed
+   * @param arguments the arguments to the constructor; should match (in terms
+   * of number and type) whatever the constructor will need to run
    * @return the new object
-   * @throws AccessException if there is a problem executing the command or the
-   * CommandExecutor is no longer valid
+   * @throws AccessException if there is a problem executing the constructor or
+   * if this {@code ConstructorExecutor} has become stale
    */
   TypedValue execute(EvaluationContext context, Object... arguments) throws AccessException;
 

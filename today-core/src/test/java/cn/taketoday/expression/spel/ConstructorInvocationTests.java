@@ -22,18 +22,16 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.TypeDescriptor;
-import cn.taketoday.expression.AccessException;
-import cn.taketoday.expression.ConstructorExecutor;
 import cn.taketoday.expression.ConstructorResolver;
-import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
+import cn.taketoday.expression.spel.support.StandardTypeLocator;
+import cn.taketoday.expression.spel.testresources.Fruit;
 import cn.taketoday.expression.spel.testresources.PlaceOfBirth;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatException;
 
 /**
  * Tests invocation of constructors.
@@ -43,18 +41,144 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class ConstructorInvocationTests extends AbstractExpressionTests {
 
   @Test
-  public void testTypeConstructors() {
+  void constructorWithArgument() {
     evaluate("new String('hello world')", "hello world", String.class);
   }
 
   @Test
-  public void testNonExistentType() {
+  void nonExistentType() {
     evaluateAndCheckError("new FooBar()", SpelMessage.CONSTRUCTOR_INVOCATION_PROBLEM);
+  }
+
+  @Test
+  void constructorThrowingException() {
+    // Test ctor on inventor:
+    // On 1 it will throw an IllegalArgumentException
+    // On 2 it will throw a RuntimeException
+    // On 3 it will exit normally
+    // In each case it increments the Tester field 'counter' when invoked
+
+    SpelExpressionParser parser = new SpelExpressionParser();
+    Expression expr = parser.parseExpression("new cn.taketoday.expression.spel.ConstructorInvocationTests$Tester(#bar).i");
+
+    // Normal exit
+    StandardEvaluationContext context = TestScenarioCreator.getTestEvaluationContext();
+    context.setRootObject(new Tester());
+    context.setVariable("bar", 3);
+    Object o = expr.getValue(context);
+    assertThat(o).isEqualTo(3);
+    assertThat(parser.parseExpression("counter").getValue(context)).isEqualTo(1);
+
+    // Now the expression has cached that throwException(int) is the right thing to
+    // call. Let's change 'bar' to be a PlaceOfBirth which indicates the cached
+    // reference is out of date.
+    context.setVariable("bar", new PlaceOfBirth("London"));
+    o = expr.getValue(context);
+    assertThat(o).isEqualTo(0);
+    // That confirms the logic to mark the cached reference stale and retry is working
+
+    // Now let's cause the method to exit via exception and ensure it doesn't cause
+    // a retry.
+
+    // First, switch back to throwException(int)
+    context.setVariable("bar", 3);
+    o = expr.getValue(context);
+    assertThat(o).isEqualTo(3);
+    assertThat(parser.parseExpression("counter").getValue(context)).isEqualTo(2);
+
+    // 4 will make it throw a checked exception - this will be wrapped by spel on the
+    // way out
+    context.setVariable("bar", 4);
+    assertThatException()
+            .isThrownBy(() -> expr.getValue(context))
+            .withMessageContaining("Tester");
+    // A problem occurred whilst attempting to construct an object of type
+    // 'cn.taketoday.expression.spel.ConstructorInvocationTests$Tester'
+    // using arguments '(java.lang.Integer)'
+
+    // If counter is 4 then the method got called twice!
+    assertThat(parser.parseExpression("counter").getValue(context)).isEqualTo(3);
+
+    // 1 will make it throw a RuntimeException - SpEL will let this through
+    context.setVariable("bar", 1);
+    assertThatException()
+            .isThrownBy(() -> expr.getValue(context))
+            .isNotInstanceOf(SpelEvaluationException.class);
+    // A problem occurred whilst attempting to construct an object of type
+    // 'cn.taketoday.expression.spel.ConstructorInvocationTests$Tester'
+    // using arguments '(java.lang.Integer)'
+
+    // If counter is 5 then the method got called twice!
+    assertThat(parser.parseExpression("counter").getValue(context)).isEqualTo(4);
+  }
+
+  @Test
+  void constructorResolvers() {
+    StandardEvaluationContext ctx = new StandardEvaluationContext();
+
+    // reflective constructor accessor is the only one by default
+    List<ConstructorResolver> constructorResolvers = ctx.getConstructorResolvers();
+    assertThat(constructorResolvers).hasSize(1);
+
+    ConstructorResolver dummy = (context, typeName, argumentTypes) -> {
+      throw new UnsupportedOperationException();
+    };
+    ctx.addConstructorResolver(dummy);
+    assertThat(ctx.getConstructorResolvers()).hasSize(2);
+
+    List<ConstructorResolver> copy = new ArrayList<>(ctx.getConstructorResolvers());
+    assertThat(ctx.removeConstructorResolver(dummy)).isTrue();
+    assertThat(ctx.removeConstructorResolver(dummy)).isFalse();
+    assertThat(ctx.getConstructorResolvers()).hasSize(1);
+
+    ctx.setConstructorResolvers(copy);
+    assertThat(ctx.getConstructorResolvers()).hasSize(2);
+  }
+
+  @Test
+  void varargsConstructors() {
+    ((StandardTypeLocator) super.context.getTypeLocator()).registerImport(Fruit.class.getPackageName());
+
+    // Calling 'Fruit(String... strings)' - returns length_of_strings
+    evaluate("new Fruit('a','b','c').stringscount()", 3, Integer.class);
+    evaluate("new Fruit('a').stringscount()", 1, Integer.class);
+    evaluate("new Fruit().stringscount()", 0, Integer.class);
+    // all need converting to strings
+    evaluate("new Fruit(1,2,3).stringscount()", 3, Integer.class);
+    // needs string conversion
+    evaluate("new Fruit(1).stringscount()", 1, Integer.class);
+    // first and last need conversion
+    evaluate("new Fruit(1,'a',3.0d).stringscount()", 3, Integer.class);
+
+    // Calling 'Fruit(int i, String... strings)' - returns int + length_of_strings
+    evaluate("new Fruit(5,'a','b','c').stringscount()", 8, Integer.class);
+    evaluate("new Fruit(2,'a').stringscount()", 3, Integer.class);
+    evaluate("new Fruit(4).stringscount()", 4, Integer.class);
+    evaluate("new Fruit(8,2,3).stringscount()", 10, Integer.class);
+    evaluate("new Fruit(9).stringscount()", 9, Integer.class);
+    evaluate("new Fruit(2,'a',3.0d).stringscount()", 4, Integer.class);
+    evaluate("new Fruit(8,stringArrayOfThreeItems).stringscount()", 11, Integer.class);
+  }
+
+  /*
+   * These tests are attempting to call constructors where we need to widen or convert
+   * the argument in order to satisfy a suitable constructor.
+   */
+  @Test
+  void widening() {
+    // widening of int 3 to double 3 is OK
+    evaluate("new Double(3)", 3.0d, Double.class);
+    // widening of int 3 to long 3 is OK
+    evaluate("new Long(3)", 3L, Long.class);
+  }
+
+  @Test
+  void argumentConversion() {
+    evaluate("new String(3.0d)", "3.0", String.class);
   }
 
   @SuppressWarnings("serial")
   static class TestException extends Exception {
-
   }
 
   static class Tester {
@@ -80,154 +204,7 @@ public class ConstructorInvocationTests extends AbstractExpressionTests {
     }
 
     public Tester(PlaceOfBirth pob) {
-
     }
-
-  }
-
-  @Test
-  public void testConstructorThrowingException_SPR6760() {
-    // Test ctor on inventor:
-    // On 1 it will throw an IllegalArgumentException
-    // On 2 it will throw a RuntimeException
-    // On 3 it will exit normally
-    // In each case it increments the Tester field 'counter' when invoked
-
-    SpelExpressionParser parser = new SpelExpressionParser();
-    Expression expr = parser.parseExpression("new cn.taketoday.expression.spel.ConstructorInvocationTests$Tester(#bar).i");
-
-    // Normal exit
-    StandardEvaluationContext eContext = TestScenarioCreator.getTestEvaluationContext();
-    eContext.setRootObject(new Tester());
-    eContext.setVariable("bar", 3);
-    Object o = expr.getValue(eContext);
-    assertThat(o).isEqualTo(3);
-    assertThat(parser.parseExpression("counter").getValue(eContext)).isEqualTo(1);
-
-    // Now the expression has cached that throwException(int) is the right thing to
-    // call. Let's change 'bar' to be a PlaceOfBirth which indicates the cached
-    // reference is out of date.
-    eContext.setVariable("bar", new PlaceOfBirth("London"));
-    o = expr.getValue(eContext);
-    assertThat(o).isEqualTo(0);
-    // That confirms the logic to mark the cached reference stale and retry is working
-
-    // Now let's cause the method to exit via exception and ensure it doesn't cause
-    // a retry.
-
-    // First, switch back to throwException(int)
-    eContext.setVariable("bar", 3);
-    o = expr.getValue(eContext);
-    assertThat(o).isEqualTo(3);
-    assertThat(parser.parseExpression("counter").getValue(eContext)).isEqualTo(2);
-
-    // 4 will make it throw a checked exception - this will be wrapped by spel on the
-    // way out
-    eContext.setVariable("bar", 4);
-    assertThatExceptionOfType(Exception.class).isThrownBy(() ->
-                    expr.getValue(eContext))
-            .withMessageContaining("Tester");
-    // A problem occurred whilst attempting to construct an object of type
-    // 'cn.taketoday.expression.spel.ConstructorInvocationTests$Tester'
-    // using arguments '(java.lang.Integer)'
-
-    // If counter is 4 then the method got called twice!
-    assertThat(parser.parseExpression("counter").getValue(eContext)).isEqualTo(3);
-
-    // 1 will make it throw a RuntimeException - SpEL will let this through
-    eContext.setVariable("bar", 1);
-    assertThatExceptionOfType(Exception.class)
-            .isThrownBy(() -> expr.getValue(eContext))
-            .isNotInstanceOf(SpelEvaluationException.class);
-    // A problem occurred whilst attempting to construct an object of type
-    // 'cn.taketoday.expression.spel.ConstructorInvocationTests$Tester'
-    // using arguments '(java.lang.Integer)'
-
-    // If counter is 5 then the method got called twice!
-    assertThat(parser.parseExpression("counter").getValue(eContext)).isEqualTo(4);
-  }
-
-  @Test
-  public void testAddingConstructorResolvers() {
-    StandardEvaluationContext ctx = new StandardEvaluationContext();
-
-    // reflective constructor accessor is the only one by default
-    List<ConstructorResolver> constructorResolvers = ctx.getConstructorResolvers();
-    assertThat(constructorResolvers.size()).isEqualTo(1);
-
-    ConstructorResolver dummy = new DummyConstructorResolver();
-    ctx.addConstructorResolver(dummy);
-    assertThat(ctx.getConstructorResolvers().size()).isEqualTo(2);
-
-    List<ConstructorResolver> copy = new ArrayList<>(ctx.getConstructorResolvers());
-    assertThat(ctx.removeConstructorResolver(dummy)).isTrue();
-    assertThat(ctx.removeConstructorResolver(dummy)).isFalse();
-    assertThat(ctx.getConstructorResolvers().size()).isEqualTo(1);
-
-    ctx.setConstructorResolvers(copy);
-    assertThat(ctx.getConstructorResolvers().size()).isEqualTo(2);
-  }
-
-  static class DummyConstructorResolver implements ConstructorResolver {
-
-    @Override
-    public ConstructorExecutor resolve(EvaluationContext context, String typeName,
-            List<TypeDescriptor> argumentTypes) throws AccessException {
-      throw new UnsupportedOperationException("Auto-generated method stub");
-    }
-
-  }
-
-  @Test
-  public void testVarargsInvocation01() {
-    // Calling 'Fruit(String... strings)'
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit('a','b','c').stringscount()", 3,
-            Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit('a').stringscount()", 1, Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit().stringscount()", 0, Integer.class);
-    // all need converting to strings
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(1,2,3).stringscount()", 3, Integer.class);
-    // needs string conversion
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(1).stringscount()", 1, Integer.class);
-    // first and last need conversion
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(1,'a',3.0d).stringscount()", 3,
-            Integer.class);
-  }
-
-  @Test
-  public void testVarargsInvocation02() {
-    // Calling 'Fruit(int i, String... strings)' - returns int+length_of_strings
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(5,'a','b','c').stringscount()", 8,
-            Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(2,'a').stringscount()", 3, Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(4).stringscount()", 4, Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(8,2,3).stringscount()", 10, Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(9).stringscount()", 9, Integer.class);
-    evaluate("new cn.taketoday.expression.spel.testresources.Fruit(2,'a',3.0d).stringscount()", 4,
-            Integer.class);
-    evaluate(
-            "new cn.taketoday.expression.spel.testresources.Fruit(8,stringArrayOfThreeItems).stringscount()",
-            11, Integer.class);
-  }
-
-  /*
-   * These tests are attempting to call constructors where we need to widen or convert
-   * the argument in order to satisfy a suitable constructor.
-   */
-  @Test
-  public void testWidening01() {
-    // widening of int 3 to double 3 is OK
-    evaluate("new Double(3)", 3.0d, Double.class);
-    // widening of int 3 to long 3 is OK
-    evaluate("new Long(3)", 3L, Long.class);
-  }
-
-  @Test
-  public void testArgumentConversion01() {
-    // Closest ctor will be new String(String) and converter supports Double>String
-    // TODO currently failing as with new ObjectToArray converter closest constructor
-    // matched becomes String(byte[]) which fails...
-    evaluate("new String(3.0d)", "3.0", String.class);
   }
 
 }
