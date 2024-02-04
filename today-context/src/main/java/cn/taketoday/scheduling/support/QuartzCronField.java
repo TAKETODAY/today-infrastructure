@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.support;
@@ -30,9 +30,15 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Extension of {@link CronField} for
- * <a href="https://www.quartz-scheduler.org">Quartz</a> -specific fields.
+ * <a href="https://www.quartz-scheduler.org">Quartz</a>-specific fields.
  * Created using the {@code parse*} methods, uses a {@link TemporalAdjuster}
  * internally.
+ *
+ * <p>Supports a Quartz day-of-month/week field with an L/# expression. Follows
+ * common cron conventions in every other respect, including 0-6 for SUN-SAT
+ * (plus 7 for SUN as well). Note that Quartz deviates from the day-of-week
+ * convention in cron through 1-7 for SUN-SAT whereas Spring strictly follows
+ * cron even in combination with the optional Quartz-specific L/# expressions.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
