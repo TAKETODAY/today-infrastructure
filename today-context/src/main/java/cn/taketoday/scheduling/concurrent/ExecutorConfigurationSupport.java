@@ -154,9 +154,13 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
   /**
    * Set whether to wait for scheduled tasks to complete on shutdown,
    * not interrupting running tasks and executing all tasks in the queue.
-   * <p>Default is {@code false}, shutting down immediately through interrupting
-   * ongoing tasks and clearing the queue. Switch this flag to {@code true} if
-   * you prefer fully completed tasks at the expense of a longer shutdown phase.
+   * <p>The default is {@code false}, with a coordinated lifecycle stop first
+   * (unless {@link #setAcceptTasksAfterContextClose "acceptTasksAfterContextClose"}
+   * has been set) and then an immediate shutdown through interrupting ongoing
+   * tasks and clearing the queue. Switch this flag to {@code true} if you
+   * prefer fully completed tasks at the expense of a longer shutdown phase.
+   * The executor will not go through a coordinated lifecycle stop phase then
+   * but rather only stop and wait for task completion on its own shutdown.
    * <p>Note that Infra container shutdown continues while ongoing tasks
    * are being completed. If you want this executor to block and wait for the
    * termination of tasks before the rest of the container continues to shut
@@ -166,6 +170,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    *
    * @see java.util.concurrent.ExecutorService#shutdown()
    * @see java.util.concurrent.ExecutorService#shutdownNow()
+   * @see #shutdown()
+   * @see #setAwaitTerminationSeconds
    */
   public void setWaitForTasksToCompleteOnShutdown(boolean waitForJobsToCompleteOnShutdown) {
     this.waitForTasksToCompleteOnShutdown = waitForJobsToCompleteOnShutdown;
