@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,22 +12,24 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 import cn.taketoday.expression.spel.ast.InlineList;
 import cn.taketoday.expression.spel.standard.SpelExpression;
-import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.InstanceOfAssertFactories.type;
 
 /**
  * Test usage of inline lists.
@@ -46,124 +45,127 @@ public class ListTests extends AbstractExpressionTests {
   Class<?> unmodifiableClass = Collections.unmodifiableList(new ArrayList<>()).getClass();
 
   @Test
-  public void testInlineListCreation01() {
+  void inlineListCreation() {
     evaluate("{1, 2, 3, 4, 5}", "[1, 2, 3, 4, 5]", unmodifiableClass);
-  }
-
-  @Test
-  public void testInlineListCreation02() {
     evaluate("{'abc', 'xyz'}", "[abc, xyz]", unmodifiableClass);
-  }
-
-  @Test
-  public void testInlineListCreation03() {
     evaluate("{}", "[]", unmodifiableClass);
-  }
-
-  @Test
-  public void testInlineListCreation04() {
     evaluate("{'abc'=='xyz'}", "[false]", ArrayList.class);
   }
 
   @Test
-  public void testInlineListAndNesting() {
+  void inlineListAndNesting() {
     evaluate("{{1,2,3},{4,5,6}}", "[[1, 2, 3], [4, 5, 6]]", unmodifiableClass);
     evaluate("{{1,'2',3},{4,{'a','b'},5,6}}", "[[1, 2, 3], [4, [a, b], 5, 6]]", unmodifiableClass);
   }
 
   @Test
-  public void testInlineListError() {
+  void inlineListError() {
     parseAndCheckError("{'abc'", SpelMessage.OOD);
   }
 
   @Test
-  public void testRelOperatorsIs02() {
+  void inlineListAndInstanceofOperator() {
     evaluate("{1, 2, 3, 4, 5} instanceof T(java.util.List)", "true", Boolean.class);
   }
 
   @Test
-  public void testInlineListCreation05() {
+  void inlineListAndBetweenOperatorForIntegers() {
+    evaluate("1 between {1,5}", "true", Boolean.class);
     evaluate("3 between {1,5}", "true", Boolean.class);
-  }
-
-  @Test
-  public void testInlineListCreation06() {
+    evaluate("5 between {1,5}", "true", Boolean.class);
+    evaluate("0 between {1,5}", "false", Boolean.class);
     evaluate("8 between {1,5}", "false", Boolean.class);
   }
 
   @Test
-  public void testInlineListAndProjectionSelection() {
+  void inlineListAndBetweenOperatorForStrings() {
+    evaluate("'a' between {'a', 'c'}", "true", Boolean.class);
+    evaluate("'b' between {'a', 'c'}", "true", Boolean.class);
+    evaluate("'c' between {'a', 'c'}", "true", Boolean.class);
+    evaluate("'z' between {'a', 'c'}", "false", Boolean.class);
+
+    evaluate("'efg' between {'abc', 'xyz'}", "true", Boolean.class);
+  }
+
+  @Test
+  void inlineListAndBetweenOperatorForBigDecimals() {
+    String oneToFive = "{new java.math.BigDecimal('1'),new java.math.BigDecimal('5')}";
+
+    evaluate("new java.math.BigDecimal('1') between " + oneToFive, "true", Boolean.class);
+    evaluate("new java.math.BigDecimal('3') between " + oneToFive, "true", Boolean.class);
+    evaluate("new java.math.BigDecimal('5') between " + oneToFive, "true", Boolean.class);
+    evaluate("new java.math.BigDecimal('8') between " + oneToFive, "false", Boolean.class);
+  }
+
+  @Test
+  void inlineListAndBetweenOperatorWithNonMatchingTypes() {
+    evaluateAndCheckError("'abc' between {5,7}", SpelMessage.NOT_COMPARABLE, 6);
+  }
+
+  @Test
+  void projectionOnList() {
+    evaluate("listOfNumbersUpToTen.![#this<5?'y':'n']", "[y, y, y, y, n, n, n, n, n, n]", ArrayList.class);
+  }
+
+  @Test
+  void projectionOnInlineList() {
     evaluate("{1,2,3,4,5,6}.![#this>3]", "[false, false, false, true, true, true]", ArrayList.class);
+    evaluate("{1,2,3,4,5,6,7,8,9,10}.![#this<5?'y':'n']", "[y, y, y, y, n, n, n, n, n, n]", ArrayList.class);
+  }
+
+  @Test
+  void selectionOnInlineList() {
     evaluate("{1,2,3,4,5,6}.?[#this>3]", "[4, 5, 6]", ArrayList.class);
     evaluate("{1,2,3,4,5,6,7,8,9,10}.?[#isEven(#this) == 'y']", "[2, 4, 6, 8, 10]", ArrayList.class);
   }
 
   @Test
-  public void testSetConstruction01() {
+  void selectionOnListWithNonBooleanSelectionCriteria() {
+    evaluateAndCheckError("listOfNumbersUpToTen.?['nonboolean']", SpelMessage.RESULT_OF_SELECTION_CRITERIA_IS_NOT_BOOLEAN);
+  }
+
+  @Test
+  void selectFirstOnList() {
+    evaluate("listOfNumbersUpToTen.^[#isEven(#this) == 'y']", "2", Integer.class);
+  }
+
+  @Test
+  void selectLastOnList() {
+    evaluate("listOfNumbersUpToTen.$[#isEven(#this) == 'y']", "10", Integer.class);
+  }
+
+  @Test
+  void setConstructionWithInlineList() {
     evaluate("new java.util.HashSet().addAll({'a','b','c'})", "true", Boolean.class);
   }
 
-  @Test
-  public void testRelOperatorsBetween01() {
-    evaluate("32 between {32, 42}", "true", Boolean.class);
+  @ParameterizedTest
+  @CsvSource(quoteCharacter = '"', delimiterString = "->", textBlock = """
+          "{1,2,3,4,5}"              -> true
+          "{'abc'}"                  -> true
+          "{}"                       -> true
+
+          "{#a,2,3}"                 -> false
+          "{1,2,Integer.valueOf(4)}" -> false
+          "{1,2,{#a}}"               -> false
+          """)
+  void constantRepresentation(String expression, boolean isConstant) {
+    SpelExpression expression1 = (SpelExpression) parser.parseExpression(expression);
+    assertThat(expression1.getAST()).asInstanceOf(type(InlineList.class)).satisfies(inlineList -> {
+      if (isConstant) {
+        assertThat(inlineList.isConstant()).isTrue();
+      }
+      else {
+        assertThat(inlineList.isConstant()).isFalse();
+      }
+    });
   }
 
   @Test
-  public void testRelOperatorsBetween02() {
-    evaluate("'efg' between {'abc', 'xyz'}", "true", Boolean.class);
-  }
-
-  @Test
-  public void testRelOperatorsBetween03() {
-    evaluate("42 between {32, 42}", "true", Boolean.class);
-  }
-
-  @Test
-  public void testRelOperatorsBetween04() {
-    evaluate("new java.math.BigDecimal('1') between {new java.math.BigDecimal('1'),new java.math.BigDecimal('5')}",
-            "true", Boolean.class);
-    evaluate("new java.math.BigDecimal('3') between {new java.math.BigDecimal('1'),new java.math.BigDecimal('5')}",
-            "true", Boolean.class);
-    evaluate("new java.math.BigDecimal('5') between {new java.math.BigDecimal('1'),new java.math.BigDecimal('5')}",
-            "true", Boolean.class);
-    evaluate("new java.math.BigDecimal('8') between {new java.math.BigDecimal('1'),new java.math.BigDecimal('5')}",
-            "false", Boolean.class);
-  }
-
-  @Test
-  public void testRelOperatorsBetweenErrors02() {
-    evaluateAndCheckError("'abc' between {5,7}", SpelMessage.NOT_COMPARABLE, 6);
-  }
-
-  @Test
-  public void testConstantRepresentation1() {
-    checkConstantList("{1,2,3,4,5}", true);
-    checkConstantList("{'abc'}", true);
-    checkConstantList("{}", true);
-    checkConstantList("{#a,2,3}", false);
-    checkConstantList("{1,2,Integer.valueOf(4)}", false);
-    checkConstantList("{1,2,{#a}}", false);
-  }
-
-  private void checkConstantList(String expressionText, boolean expectedToBeConstant) {
-    SpelExpressionParser parser = new SpelExpressionParser();
-    SpelExpression expression = (SpelExpression) parser.parseExpression(expressionText);
-    SpelNode node = expression.getAST();
-    boolean condition = node instanceof InlineList;
-    assertThat(condition).isTrue();
-    InlineList inlineList = (InlineList) node;
-    if (expectedToBeConstant) {
-      assertThat(inlineList.isConstant()).isTrue();
-    }
-    else {
-      assertThat(inlineList.isConstant()).isFalse();
-    }
-  }
-
-  @Test
-  public void testInlineListWriting() {
+  void inlineListWriting() {
     // list should be unmodifiable
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
             evaluate("{1, 2, 3, 4, 5}[0]=6", "[1, 2, 3, 4, 5]", unmodifiableClass));
   }
+
 }
