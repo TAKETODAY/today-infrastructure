@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,15 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Optional;
 
-import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -44,16 +44,13 @@ public class Triple<A, B, C> implements Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Nullable
   public final A first;
 
-  @Nullable
   public final B second;
 
-  @Nullable
   public final C third;
 
-  public Triple(@Nullable A first, @Nullable B second, @Nullable C third) {
+  private Triple(A first, B second, C third) {
     this.first = first;
     this.second = second;
     this.third = third;
@@ -80,6 +77,18 @@ public class Triple<A, B, C> implements Serializable {
     return new Triple<>(first, second, third);
   }
 
+  public Optional<A> first() {
+    return Optional.ofNullable(first);
+  }
+
+  public Optional<B> second() {
+    return Optional.ofNullable(second);
+  }
+
+  public Optional<C> third() {
+    return Optional.ofNullable(third);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o)
@@ -100,11 +109,7 @@ public class Triple<A, B, C> implements Serializable {
 
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
-            .append("first", first)
-            .append("second", second)
-            .append("third", third)
-            .toString();
+    return "<" + first + "," + second + "," + third + ">";
   }
 
   public static <A, B, C> Triple<A, B, C> of(@Nullable A first, @Nullable B second, @Nullable C third) {

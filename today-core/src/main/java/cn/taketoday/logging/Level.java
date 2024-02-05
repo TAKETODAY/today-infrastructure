@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,33 +12,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.logging;
 
 /**
- * @author TODAY <br>
- * 2019-11-03 20:29
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-11-03 20:29
  */
 public enum Level {
+
   /** for tracing messages that are very verbose */
-  TRACE(1),
+  TRACE,
+
   /** messages suitable for debugging purposes */
-  DEBUG(2),
+  DEBUG,
+
   /** information messages */
-  INFO(3),
+  INFO,
+
   /** warning messages */
-  WARN(4),
+  WARN,
+
   /** error messages */
-  ERROR(5);
+  ERROR
 
-  private final int level;
-
-  Level(int level) {
-    this.level = level;
-  }
-
-  public boolean isEnabled(Level otherLevel) {
-    return level <= otherLevel.level;
-  }
 }

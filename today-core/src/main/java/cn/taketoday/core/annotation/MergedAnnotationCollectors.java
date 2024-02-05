@@ -130,15 +130,10 @@ public abstract class MergedAnnotationCollectors {
    */
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
           UnaryOperator<MultiValueMap<String, Object>> finisher, Adapt... adaptations) {
-
-    Characteristics[] characteristics = isSameInstance(finisher, Function.identity()) ? IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
+    Characteristics[] characteristics = ((Object) finisher == Function.identity()) ? IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
     return Collector.of(LinkedMultiValueMap::new,
             (map, annotation) -> annotation.asMap(adaptations).forEach(map::add),
             MergedAnnotationCollectors::combiner, finisher, characteristics);
-  }
-
-  private static boolean isSameInstance(Object instance, Object candidate) {
-    return instance == candidate;
   }
 
   /**
