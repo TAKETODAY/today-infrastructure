@@ -332,8 +332,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
    * @param lifecycleBeans a Map with bean name as key and Lifecycle instance as value
    * @param beanName the name of the bean to stop
    */
-  private void doStop(
-          Map<String, ? extends Lifecycle> lifecycleBeans,
+  private void doStop(Map<String, ? extends Lifecycle> lifecycleBeans,
           String beanName, CountDownLatch latch, Set<String> countDownBeanNames) {
     Lifecycle bean = lifecycleBeans.remove(beanName);
     if (bean != null) {
