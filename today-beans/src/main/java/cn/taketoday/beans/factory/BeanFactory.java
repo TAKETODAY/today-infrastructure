@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory;
 
 import java.lang.annotation.Annotation;
@@ -323,8 +324,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #getType(String, boolean)
    * @since 4.0
    */
-  <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
-          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
+  <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
           throws NoSuchBeanDefinitionException;
 
   /**
@@ -344,8 +344,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #getType(String, boolean)
    * @since 4.0
    */
-  <A extends Annotation> Set<A> findAllAnnotationsOnBean(
-          String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
+  <A extends Annotation> Set<A> findAllAnnotationsOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
           throws NoSuchBeanDefinitionException;
 
   /**
@@ -531,8 +530,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #findSynthesizedAnnotation
    * @since 3.0
    */
-  Map<String, Object> getBeansWithAnnotation(
-          Class<? extends Annotation> annotationType, boolean includeNonSingletons)
+  Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons)
           throws BeansException;
 
   /**
@@ -614,8 +612,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
-  default <T> Map<String, T> getBeansOfType(
-          @Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
+  default <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
     return getBeansOfType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
   }
 
@@ -644,8 +641,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see FactoryBean#getObjectType
    * @since 3.0
    */
-  <T> Map<String, T> getBeansOfType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
+  <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
 
   //
 
@@ -715,8 +711,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
-  default Set<String> getBeanNamesForType(
-          @Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  default Set<String> getBeanNamesForType(@Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeanNamesForType(ResolvableType.forClass(requiredType), includeNonSingletons, allowEagerInit);
   }
 
@@ -768,8 +763,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see FactoryBean#getObjectType()
    * @since 4.0
    */
-  Set<String> getBeanNamesForType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
+  Set<String> getBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
 
   /**
    * Find all names of beans which are annotated with the supplied {@link Annotation}
@@ -905,7 +899,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
   /**
    * unwrap this BeanFactory to {@code requiredType}
    *
-   * @throws IllegalArgumentException not a requiredType
+   * @throws IllegalArgumentException this bean factory not a requiredType
    * @since 4.0
    */
   @SuppressWarnings("unchecked")

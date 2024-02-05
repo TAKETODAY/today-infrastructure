@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -123,20 +123,22 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
           Method destroyMethod = determineDestroyMethod(destroyMethodName);
           if (destroyMethod == null) {
             if (beanDefinition.isEnforceDestroyMethod()) {
-              throw new BeanDefinitionValidationException("Could not find a destroy method named '" +
-                      destroyMethodName + "' on bean with name '" + beanName + "'");
+              throw new BeanDefinitionValidationException(
+                      "Could not find a destroy method named '%s' on bean with name '%s'".formatted(destroyMethodName, beanName));
             }
           }
           else {
             if (destroyMethod.getParameterCount() > 0) {
               Class<?>[] paramTypes = destroyMethod.getParameterTypes();
               if (paramTypes.length > 1) {
-                throw new BeanDefinitionValidationException("Method '" + destroyMethodName + "' of bean '" +
-                        beanName + "' has more than one parameter - not supported as destroy method");
+                throw new BeanDefinitionValidationException(
+                        "Method '%s' of bean '%s' has more than one parameter - not supported as destroy method"
+                                .formatted(destroyMethodName, beanName));
               }
               else if (paramTypes.length == 1 && boolean.class != paramTypes[0]) {
-                throw new BeanDefinitionValidationException("Method '" + destroyMethodName + "' of bean '" +
-                        beanName + "' has a non-boolean parameter - not supported as destroy method");
+                throw new BeanDefinitionValidationException(
+                        "Method '%s' of bean '%s' has a non-boolean parameter - not supported as destroy method"
+                                .formatted(destroyMethodName, beanName));
               }
             }
             destroyMethod = ReflectionUtils.getInterfaceMethodIfPossible(destroyMethod, bean.getClass());
@@ -204,7 +206,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
       }
       catch (Throwable ex) {
         if (log.isWarnEnabled()) {
-          String msg = "Invocation of destroy method failed on bean with name '" + this.beanName + "'";
+          String msg = "Invocation of destroy method failed on bean with name '%s'".formatted(beanName);
           if (log.isDebugEnabled()) {
             // Log at warn level like below but add the exception stacktrace only with debug level
             log.warn(msg, ex);
@@ -225,7 +227,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
       }
       catch (Throwable ex) {
         if (log.isWarnEnabled()) {
-          String msg = "Invocation of close method failed on bean with name '" + this.beanName + "'";
+          String msg = "Invocation of close method failed on bean with name '%s'".formatted(beanName);
           if (log.isDebugEnabled()) {
             // Log at warn level like below but add the exception stacktrace only with debug level
             log.warn(msg, ex);
@@ -273,7 +275,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
     }
     catch (IllegalArgumentException ex) {
       throw new BeanDefinitionValidationException(
-              "Could not find unique destroy method on bean with name '" + beanName + ": " + ex.getMessage());
+              "Could not find unique destroy method on bean with name '%s': %s".formatted(beanName, ex.getMessage()));
     }
   }
 
@@ -336,8 +338,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
 
   void logDestroyMethodException(Method destroyMethod, Throwable ex) {
     if (log.isWarnEnabled()) {
-      String msg = "Custom destroy method '" + destroyMethod.getName() + "' on bean with name '" +
-              this.beanName + "' propagated an exception";
+      String msg = "Custom destroy method '%s' on bean with name '%s' propagated an exception"
+              .formatted(destroyMethod.getName(), beanName);
       if (log.isDebugEnabled()) {
         // Log at warn level like below but add the exception stacktrace only with debug level
         log.warn(msg, ex);
@@ -370,9 +372,8 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
         }
       }
     }
-    return new DisposableBeanAdapter(
-            this.bean, this.beanName, this.nonPublicAccessAllowed, this.invokeDisposableBean,
-            this.invokeAutoCloseable, this.destroyMethodNames, serializablePostProcessors);
+    return new DisposableBeanAdapter(this.bean, this.beanName, this.nonPublicAccessAllowed,
+            this.invokeDisposableBean, this.invokeAutoCloseable, this.destroyMethodNames, serializablePostProcessors);
   }
 
   /**
@@ -446,8 +447,7 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @param bean the bean instance
    * @param postProcessors the post-processor candidates
    */
-  public static boolean hasApplicableProcessors(Object bean,
-          List<DestructionAwareBeanPostProcessor> postProcessors) {
+  public static boolean hasApplicableProcessors(Object bean, List<DestructionAwareBeanPostProcessor> postProcessors) {
     if (CollectionUtils.isNotEmpty(postProcessors)) {
       for (DestructionAwareBeanPostProcessor processor : postProcessors) {
         if (processor.requiresDestruction(bean)) {
@@ -465,19 +465,17 @@ final class DisposableBeanAdapter implements DisposableBean, Runnable, Serializa
    * @return the filtered List of DestructionAwareBeanPostProcessors
    */
   @Nullable
-  private static List<DestructionAwareBeanPostProcessor> filterPostProcessors(
-          List<DestructionAwareBeanPostProcessor> processors, Object bean) {
-
-    List<DestructionAwareBeanPostProcessor> filteredPostProcessors = null;
+  private static List<DestructionAwareBeanPostProcessor> filterPostProcessors(List<DestructionAwareBeanPostProcessor> processors, Object bean) {
+    ArrayList<DestructionAwareBeanPostProcessor> filtered = null;
     if (CollectionUtils.isNotEmpty(processors)) {
-      filteredPostProcessors = new ArrayList<>(processors.size());
+      filtered = new ArrayList<>(processors.size());
       for (DestructionAwareBeanPostProcessor processor : processors) {
         if (processor.requiresDestruction(bean)) {
-          filteredPostProcessors.add(processor);
+          filtered.add(processor);
         }
       }
     }
-    return filteredPostProcessors;
+    return filtered;
   }
 
   /**

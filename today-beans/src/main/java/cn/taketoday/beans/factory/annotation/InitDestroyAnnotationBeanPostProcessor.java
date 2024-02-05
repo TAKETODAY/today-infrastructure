@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.annotation;
@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanCreationException;
@@ -56,6 +55,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.StringUtils;
 
 /**
  * {@link cn.taketoday.beans.factory.config.BeanPostProcessor} implementation
@@ -89,9 +89,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see #setDestroyAnnotationType
  * @since 4.0 2021/12/3 16:46
  */
-@SuppressWarnings("serial")
 public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
-        implements DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor, BeanFactoryAware,
+        implements BeanFactoryAware, DestructionAwareBeanPostProcessor, MergedBeanDefinitionPostProcessor,
         InitializationBeanPostProcessor, BeanRegistrationAotProcessor, PriorityOrdered, Serializable {
 
   private static final Logger log = LoggerFactory.getLogger(InitDestroyAnnotationBeanPostProcessor.class);
@@ -114,16 +113,16 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
             }
           };
 
-  private final Set<Class<? extends Annotation>> initAnnotationTypes = new LinkedHashSet<>(2);
+  private final LinkedHashSet<Class<? extends Annotation>> initAnnotationTypes = new LinkedHashSet<>(2);
 
-  private final Set<Class<? extends Annotation>> destroyAnnotationTypes = new LinkedHashSet<>(2);
+  private final LinkedHashSet<Class<? extends Annotation>> destroyAnnotationTypes = new LinkedHashSet<>(2);
 
   @Nullable
   private final transient ConcurrentHashMap<Class<?>, LifecycleMetadata>
           lifecycleMetadataCache = new ConcurrentHashMap<>(256);
 
   @Nullable
-  private DependencyInjector dependencyInjector;
+  private transient DependencyInjector dependencyInjector;
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -195,11 +194,11 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     beanDefinition.resolveDestroyMethodIfNecessary();
     LifecycleMetadata metadata = findLifecycleMetadata(beanDefinition, registeredBean.getBeanClass());
     if (CollectionUtils.isNotEmpty(metadata.initMethods)) {
-      String[] initMethodNames = safeMerge(beanDefinition.getInitMethodNames(), metadata.initMethods);
+      var initMethodNames = safeMerge(beanDefinition.getInitMethodNames(), metadata.initMethods);
       beanDefinition.setInitMethodNames(initMethodNames);
     }
     if (CollectionUtils.isNotEmpty(metadata.destroyMethods)) {
-      String[] destroyMethodNames = safeMerge(beanDefinition.getDestroyMethodNames(), metadata.destroyMethods);
+      var destroyMethodNames = safeMerge(beanDefinition.getDestroyMethodNames(), metadata.destroyMethods);
       beanDefinition.setDestroyMethodNames(destroyMethodNames);
     }
     return null;
@@ -212,10 +211,12 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
   }
 
   private static String[] safeMerge(@Nullable String[] existingNames, Collection<LifecycleMethod> detectedMethods) {
-    Stream<String> detectedNames = detectedMethods.stream().map(LifecycleMethod::getIdentifier);
-    Stream<String> mergedNames =
-            existingNames != null ? Stream.concat(detectedNames, Stream.of(existingNames)) : detectedNames;
-    return mergedNames.distinct().toArray(String[]::new);
+    LinkedHashSet<String> ret = new LinkedHashSet<>();
+    for (LifecycleMethod detectedMethod : detectedMethods) {
+      ret.add(detectedMethod.identifier);
+    }
+    CollectionUtils.addAll(ret, existingNames);
+    return StringUtils.toStringArray(ret);
   }
 
   @Override
@@ -360,25 +361,22 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
     public void checkInitDestroyMethods(RootBeanDefinition beanDefinition) {
       var checkedInitMethods = new LinkedHashSet<LifecycleMethod>(initMethods.size());
       for (LifecycleMethod element : initMethods) {
-        String methodIdentifier = element.getIdentifier();
-        if (!beanDefinition.isExternallyManagedInitMethod(methodIdentifier)) {
-          beanDefinition.registerExternallyManagedInitMethod(methodIdentifier);
+        if (!beanDefinition.isExternallyManagedInitMethod(element.identifier)) {
+          beanDefinition.registerExternallyManagedInitMethod(element.identifier);
           checkedInitMethods.add(element);
           if (log.isTraceEnabled()) {
-            log.trace("Registered init method on class [{}]: {}",
-                    targetClass.getName(), methodIdentifier);
+            log.trace("Registered init method on class [{}]: {}", targetClass.getName(), element.identifier);
           }
         }
       }
+
       var checkedDestroyMethods = new LinkedHashSet<LifecycleMethod>(destroyMethods.size());
       for (LifecycleMethod element : destroyMethods) {
-        String methodIdentifier = element.getIdentifier();
-        if (!beanDefinition.isExternallyManagedDestroyMethod(methodIdentifier)) {
-          beanDefinition.registerExternallyManagedDestroyMethod(methodIdentifier);
+        if (!beanDefinition.isExternallyManagedDestroyMethod(element.identifier)) {
+          beanDefinition.registerExternallyManagedDestroyMethod(element.identifier);
           checkedDestroyMethods.add(element);
           if (log.isTraceEnabled()) {
-            log.trace("Registered destroy method on class [{}]: {}",
-                    targetClass.getName(), methodIdentifier);
+            log.trace("Registered destroy method on class [{}]: {}", targetClass.getName(), element.identifier);
           }
         }
       }
@@ -393,7 +391,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       if (!initMethodsToIterate.isEmpty()) {
         for (LifecycleMethod element : initMethodsToIterate) {
           if (log.isTraceEnabled()) {
-            log.trace("Invoking init method on bean '{}': {}", beanName, element.getMethod());
+            log.trace("Invoking init method on bean '{}': {}", beanName, element.method);
           }
           element.invoke(target, dependencyInjector);
         }
@@ -407,7 +405,7 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       if (!destroyMethodsToUse.isEmpty()) {
         for (LifecycleMethod element : destroyMethodsToUse) {
           if (log.isTraceEnabled()) {
-            log.trace("Invoking destroy method on bean '{}': {}", beanName, element.getMethod());
+            log.trace("Invoking destroy method on bean '{}': {}", beanName, element.method);
           }
           element.invoke(target, dependencyInjector);
         }
@@ -427,8 +425,9 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
    */
   private static class LifecycleMethod implements OrderSourceProvider {
 
-    private final Method method;
-    private final String identifier;
+    public final Method method;
+
+    public final String identifier;
 
     public LifecycleMethod(Method method, Class<?> beanClass) {
       if (method.getParameterCount() != 0) {
@@ -438,14 +437,6 @@ public class InitDestroyAnnotationBeanPostProcessor extends OrderedSupport
       this.method = method;
       this.identifier = isPrivateOrNotVisible(method, beanClass) ?
                         ClassUtils.getQualifiedMethodName(method) : method.getName();
-    }
-
-    public Method getMethod() {
-      return this.method;
-    }
-
-    public String getIdentifier() {
-      return this.identifier;
     }
 
     public void invoke(Object target, @Nullable DependencyInjector resolver) throws Throwable {
