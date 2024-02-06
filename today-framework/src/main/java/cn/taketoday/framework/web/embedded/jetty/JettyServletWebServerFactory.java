@@ -253,7 +253,7 @@ public class JettyServletWebServerFactory extends AbstractServletWebServerFactor
   protected final void configureWebAppContext(WebAppContext context, ServletContextInitializer... initializers) {
     Assert.notNull(context, "Context is required");
     context.clearAliasChecks();
-    context.setTempDirectory(getApplicationTemp().getDir("jetty").toFile());
+    context.setTempDirectory(createTempDir("jetty"));
     if (this.resourceLoader != null) {
       context.setClassLoader(this.resourceLoader.getClassLoader());
     }
