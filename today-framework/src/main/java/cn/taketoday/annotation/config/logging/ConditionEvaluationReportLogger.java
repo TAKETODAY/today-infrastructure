@@ -37,8 +37,6 @@ import cn.taketoday.logging.LoggerFactory;
  */
 class ConditionEvaluationReportLogger {
 
-  private final Logger logger = LoggerFactory.getLogger(getClass());
-
   private final LogLevel logLevel;
 
   @Nullable
@@ -55,32 +53,35 @@ class ConditionEvaluationReportLogger {
   }
 
   void logReport(boolean isCrashReport) {
+    Logger logger = LoggerFactory.getLogger(getClass());
     if (report == null) {
-      this.logger.info("Unable to provide the condition evaluation report");
+      logger.info("Unable to provide the condition evaluation report");
       return;
     }
     if (!report.getConditionAndOutcomesBySource().isEmpty()) {
       if (this.logLevel.equals(LogLevel.INFO)) {
-        if (this.logger.isInfoEnabled()) {
-          this.logger.info(new ConditionEvaluationReportMessage(report));
+        if (logger.isInfoEnabled()) {
+          logger.info(new ConditionEvaluationReportMessage(report));
+          report.clear();
         }
         else if (isCrashReport) {
-          logMessage("info");
+          logMessage(logger, "info");
         }
       }
       else {
-        if (this.logger.isDebugEnabled()) {
-          this.logger.debug(new ConditionEvaluationReportMessage(report));
+        if (logger.isDebugEnabled()) {
+          logger.debug(new ConditionEvaluationReportMessage(report));
+          report.clear();
         }
         else if (isCrashReport) {
-          logMessage("debug");
+          logMessage(logger, "debug");
         }
       }
     }
   }
 
-  private void logMessage(String logLevel) {
-    this.logger.info(String.format("%n%nError starting ApplicationContext. To display the "
+  private void logMessage(Logger logger, String logLevel) {
+    logger.info(String.format("%n%nError starting ApplicationContext. To display the "
             + "condition evaluation report re-run your application with '%s' enabled.", logLevel));
   }
 

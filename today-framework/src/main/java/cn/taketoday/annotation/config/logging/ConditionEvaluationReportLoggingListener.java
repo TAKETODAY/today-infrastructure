@@ -110,7 +110,6 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
         logger.logReport(true);
       }
 
-//      report.clear();
       context.removeApplicationListener(this);
       context.getBeanFactory().removeSingleton(ConditionEvaluationReport.BEAN_NAME);
     }

@@ -78,8 +78,6 @@ class ConditionEvaluationReportLoggerTests {
       context.refresh();
       logger.logReport(false);
       assertThat(output).doesNotContain("CONDITIONS EVALUATION REPORT");
-      Object logger1 = ReflectionTestUtils.getField(logger, "logger");
-      ReflectionTestUtils.setField(logger1, "debugEnabled", true);
       withDebugLogging(() -> logger.logReport(false));
       assertThat(output).contains("CONDITIONS EVALUATION REPORT");
     }
