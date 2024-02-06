@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
@@ -1583,6 +1584,8 @@ public class ServerProperties {
      */
     private boolean validateHeaders = true;
 
+    private final Shutdown shutdown = new Shutdown();
+
     public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
       this.loggingLevel = loggingLevel;
     }
@@ -1719,6 +1722,57 @@ public class ServerProperties {
     public boolean isValidateHeaders() {
       return validateHeaders;
     }
+
+    public Shutdown getShutdown() {
+      return shutdown;
+    }
+
+    public static class Shutdown {
+
+      /**
+       * Graceful shutdown ensures that no tasks are submitted for
+       * 'the quiet period' (usually a couple seconds) before it shuts
+       * itself down. If a task is submitted during the quiet period,
+       * it is guaranteed to be accepted and the quiet period will start over.
+       */
+      private long quietPeriod = 1;
+
+      /**
+       * The maximum amount of time to wait until the executor is
+       * shutdown() regardless if a task was submitted during the quiet period
+       */
+      private long timeout = 10;
+
+      /**
+       * The unit of quietPeriod and timeout
+       */
+      private TimeUnit unit = TimeUnit.SECONDS;
+
+      public void setQuietPeriod(long quietPeriod) {
+        this.quietPeriod = quietPeriod;
+      }
+
+      public void setTimeout(long timeout) {
+        this.timeout = timeout;
+      }
+
+      public void setUnit(TimeUnit unit) {
+        this.unit = unit;
+      }
+
+      public long getQuietPeriod() {
+        return quietPeriod;
+      }
+
+      public long getTimeout() {
+        return timeout;
+      }
+
+      public TimeUnit getUnit() {
+        return unit;
+      }
+    }
+
   }
 
   /**
