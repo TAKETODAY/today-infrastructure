@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,8 +81,9 @@ public class ApplicationTemp {
    * Return the directory to be used for application specific temp files.
    *
    * @return the application temp directory
+   * @throws UncheckedIOException failed to create base temp dir
    */
-  public Path getDir() {
+  public Path getDir() throws UncheckedIOException {
     return getPath();
   }
 
@@ -90,8 +92,9 @@ public class ApplicationTemp {
    *
    * @param subDir the sub-directory name
    * @return a sub-directory
+   * @throws UncheckedIOException failed to create subdir
    */
-  public Path getDir(@Nullable String subDir) {
+  public Path getDir(@Nullable String subDir) throws UncheckedIOException {
     if (subDir != null) {
       return createDirectory(getPath().resolve(subDir));
     }
@@ -213,7 +216,10 @@ public class ApplicationTemp {
     return TEMP_SUB_DIR;
   }
 
-  private Path createDirectory(Path path) {
+  /**
+   * @throws UncheckedIOException failed to create temp dir
+   */
+  private Path createDirectory(Path path) throws UncheckedIOException {
     try {
       if (!Files.exists(path)) {
         Files.createDirectory(path, getFileAttributes(path.getFileSystem()));
@@ -221,7 +227,7 @@ public class ApplicationTemp {
       return path;
     }
     catch (IOException ex) {
-      throw new IllegalStateException("Unable to create application temp directory " + path, ex);
+      throw new UncheckedIOException("Unable to create application temp directory " + path, ex);
     }
   }
 
