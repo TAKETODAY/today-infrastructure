@@ -221,10 +221,12 @@ public class ApplicationTemp {
    */
   private Path createDirectory(Path path) throws UncheckedIOException {
     try {
-      if (!Files.exists(path)) {
-        Files.createDirectory(path, getFileAttributes(path.getFileSystem()));
+      synchronized(ApplicationTemp.class) {
+        if (!Files.exists(path)) {
+          Files.createDirectory(path, getFileAttributes(path.getFileSystem()));
+        }
+        return path;
       }
-      return path;
     }
     catch (IOException ex) {
       throw new UncheckedIOException("Unable to create application temp directory " + path, ex);
