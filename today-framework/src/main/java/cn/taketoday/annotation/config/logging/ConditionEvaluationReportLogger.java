@@ -17,12 +17,11 @@
 
 package cn.taketoday.annotation.config.logging;
 
-import java.util.function.Supplier;
-
 import cn.taketoday.context.condition.ConditionEvaluationReport;
 import cn.taketoday.context.condition.ConditionEvaluationReportMessage;
 import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 
@@ -40,14 +39,15 @@ class ConditionEvaluationReportLogger {
 
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final Supplier<ConditionEvaluationReport> reportSupplier;
-
   private final LogLevel logLevel;
 
-  ConditionEvaluationReportLogger(LogLevel logLevel, Supplier<ConditionEvaluationReport> reportSupplier) {
+  @Nullable
+  private final ConditionEvaluationReport report;
+
+  ConditionEvaluationReportLogger(LogLevel logLevel, @Nullable ConditionEvaluationReport report) {
     Assert.isTrue(isInfoOrDebug(logLevel), "LogLevel must be INFO or DEBUG");
     this.logLevel = logLevel;
-    this.reportSupplier = reportSupplier;
+    this.report = report;
   }
 
   private boolean isInfoOrDebug(LogLevel logLevelForReport) {
@@ -55,7 +55,6 @@ class ConditionEvaluationReportLogger {
   }
 
   void logReport(boolean isCrashReport) {
-    ConditionEvaluationReport report = this.reportSupplier.get();
     if (report == null) {
       this.logger.info("Unable to provide the condition evaluation report");
       return;
@@ -64,7 +63,6 @@ class ConditionEvaluationReportLogger {
       if (this.logLevel.equals(LogLevel.INFO)) {
         if (this.logger.isInfoEnabled()) {
           this.logger.info(new ConditionEvaluationReportMessage(report));
-          report.clear();
         }
         else if (isCrashReport) {
           logMessage("info");
@@ -73,7 +71,6 @@ class ConditionEvaluationReportLogger {
       else {
         if (this.logger.isDebugEnabled()) {
           this.logger.debug(new ConditionEvaluationReportMessage(report));
-          report.clear();
         }
         else if (isCrashReport) {
           logMessage("debug");

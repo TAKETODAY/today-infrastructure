@@ -40,7 +40,7 @@ class ConditionEvaluationReportLoggingProcessor implements BeanFactoryInitializa
   }
 
   private void logConditionEvaluationReport(ConfigurableBeanFactory beanFactory) {
-    new ConditionEvaluationReportLogger(LogLevel.DEBUG, () -> ConditionEvaluationReport.get(beanFactory))
+    new ConditionEvaluationReportLogger(LogLevel.DEBUG, ConditionEvaluationReport.get(beanFactory))
             .logReport(false);
   }
 

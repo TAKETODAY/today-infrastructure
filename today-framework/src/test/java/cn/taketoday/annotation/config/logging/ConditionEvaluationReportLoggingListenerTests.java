@@ -27,6 +27,7 @@ import ch.qos.logback.classic.LoggerContext;
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -43,6 +44,7 @@ import cn.taketoday.mock.web.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -76,7 +78,7 @@ class ConditionEvaluationReportLoggingListenerTests {
   @Test
   void logsInfoGuidanceToEnableDebugLoggingOnApplicationFailedEvent(CapturedOutput output) {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    ConditionEvaluationReportLoggingListener initializer = new ConditionEvaluationReportLoggingListener();
+    var initializer = ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO);
 
     initializer.initialize(context);
     context.register(ErrorConfig.class);
@@ -93,7 +95,8 @@ class ConditionEvaluationReportLoggingListenerTests {
     context.register(Config.class);
     new ConditionEvaluationReportLoggingListener().initialize(context);
     context.refresh();
-    assertThat(context.getBean(ConditionEvaluationReport.class)).isNotNull();
+    assertThatThrownBy(() -> context.getBean(ConditionEvaluationReport.class))
+            .isInstanceOf(NoSuchBeanDefinitionException.class);
   }
 
   @Test
@@ -103,7 +106,8 @@ class ConditionEvaluationReportLoggingListenerTests {
     context.register(Config.class);
     new ConditionEvaluationReportLoggingListener().initialize(context);
     context.refresh();
-    assertThat(context.getBean(ConditionEvaluationReport.class)).isNotNull();
+    assertThatThrownBy(() -> context.getBean(ConditionEvaluationReport.class))
+            .isInstanceOf(NoSuchBeanDefinitionException.class);
   }
 
   private void withDebugLogging(Runnable runnable) {

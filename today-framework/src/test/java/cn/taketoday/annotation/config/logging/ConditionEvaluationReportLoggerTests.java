@@ -46,14 +46,14 @@ class ConditionEvaluationReportLoggerTests {
 
   @Test
   void noErrorIfNotInitialized(CapturedOutput output) {
-    new ConditionEvaluationReportLogger(LogLevel.INFO, () -> null).logReport(true);
+    new ConditionEvaluationReportLogger(LogLevel.INFO, null).logReport(true);
     assertThat(output).contains("Unable to provide the condition evaluation report");
   }
 
   @Test
   void supportsOnlyInfoAndDebugLogLevels() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> new ConditionEvaluationReportLogger(LogLevel.TRACE, () -> null))
+            .isThrownBy(() -> new ConditionEvaluationReportLogger(LogLevel.TRACE, null))
             .withMessageContaining("LogLevel must be INFO or DEBUG");
   }
 
@@ -61,7 +61,7 @@ class ConditionEvaluationReportLoggerTests {
   void loggerWithInfoLevelShouldLogAtInfo(CapturedOutput output) {
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       ConditionEvaluationReportLogger logger = new ConditionEvaluationReportLogger(LogLevel.INFO,
-              () -> ConditionEvaluationReport.get(context.getBeanFactory()));
+              ConditionEvaluationReport.get(context.getBeanFactory()));
       context.register(Config.class);
       context.refresh();
       logger.logReport(false);
@@ -73,7 +73,7 @@ class ConditionEvaluationReportLoggerTests {
   void loggerWithDebugLevelShouldLogAtDebug(CapturedOutput output) {
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       ConditionEvaluationReportLogger logger = new ConditionEvaluationReportLogger(LogLevel.DEBUG,
-              () -> ConditionEvaluationReport.get(context.getBeanFactory()));
+              ConditionEvaluationReport.get(context.getBeanFactory()));
       context.register(Config.class);
       context.refresh();
       logger.logReport(false);
@@ -89,7 +89,7 @@ class ConditionEvaluationReportLoggerTests {
   void logsInfoOnErrorIfDebugDisabled(CapturedOutput output) {
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       ConditionEvaluationReportLogger logger = new ConditionEvaluationReportLogger(LogLevel.DEBUG,
-              () -> ConditionEvaluationReport.get(context.getBeanFactory()));
+              ConditionEvaluationReport.get(context.getBeanFactory()));
       context.register(Config.class);
       context.refresh();
       logger.logReport(true);
@@ -103,7 +103,7 @@ class ConditionEvaluationReportLoggerTests {
     withDebugLogging(() -> {
       try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
         ConditionEvaluationReportLogger logger = new ConditionEvaluationReportLogger(LogLevel.DEBUG,
-                () -> ConditionEvaluationReport.get(context.getBeanFactory()));
+                ConditionEvaluationReport.get(context.getBeanFactory()));
         context.register(Config.class);
         ConditionEvaluationReport.get(context.getBeanFactory()).recordExclusions(List.of("com.foo.Bar"));
         context.refresh();

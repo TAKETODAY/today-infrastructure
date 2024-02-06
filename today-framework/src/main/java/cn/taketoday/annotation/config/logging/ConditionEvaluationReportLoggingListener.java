@@ -17,21 +17,15 @@
 
 package cn.taketoday.annotation.config.logging;
 
-import java.util.function.Supplier;
-
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.condition.ConditionEvaluationReport;
 import cn.taketoday.context.event.ContextRefreshedEvent;
-import cn.taketoday.context.event.GenericApplicationListener;
-import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ResolvableType;
+import cn.taketoday.context.event.SmartApplicationListener;
 import cn.taketoday.framework.context.event.ApplicationFailedEvent;
 import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.util.function.SingletonSupplier;
 
 /**
  * {@link ApplicationContextInitializer} that writes the {@link ConditionEvaluationReport}
@@ -80,69 +74,45 @@ public class ConditionEvaluationReportLoggingListener implements ApplicationCont
   }
 
   @Override
-  public void initialize(ConfigurableApplicationContext applicationContext) {
-    applicationContext.addApplicationListener(new Listener(applicationContext));
+  public void initialize(ConfigurableApplicationContext context) {
+    context.addApplicationListener(new Listener(context));
   }
 
-  private final class Listener implements GenericApplicationListener {
+  private final class Listener implements SmartApplicationListener {
 
     private final ConfigurableApplicationContext context;
 
-    private final ConditionEvaluationReportLogger logger;
-
     private Listener(ConfigurableApplicationContext context) {
       this.context = context;
-      Supplier<ConditionEvaluationReport> reportSupplier;
-      if (context instanceof GenericApplicationContext) {
-        // Get the report early when the context allows early access to the bean
-        // factory in case the context subsequently fails to load
-        ConditionEvaluationReport report = getReport();
-        reportSupplier = SingletonSupplier.valueOf(report);
-      }
-      else {
-        reportSupplier = this::getReport;
-      }
-      this.logger = new ConditionEvaluationReportLogger(logLevelForReport, reportSupplier);
     }
 
     private ConditionEvaluationReport getReport() {
-      return ConditionEvaluationReport.get(this.context.getBeanFactory());
+      return ConditionEvaluationReport.get(context.getBeanFactory());
     }
 
     @Override
-    public int getOrder() {
-      return Ordered.LOWEST_PRECEDENCE;
-    }
-
-    @Override
-    public boolean supportsEventType(ResolvableType resolvableType) {
-      Class<?> type = resolvableType.getRawClass();
-      if (type == null) {
-        return false;
-      }
-      return ContextRefreshedEvent.class.isAssignableFrom(type)
-              || ApplicationFailedEvent.class.isAssignableFrom(type);
-    }
-
-    @Override
-    public boolean supportsSourceType(Class<?> sourceType) {
-      return true;
+    public boolean supportsEventType(Class<? extends ApplicationEvent> eventType) {
+      return ContextRefreshedEvent.class.isAssignableFrom(eventType)
+              || ApplicationFailedEvent.class.isAssignableFrom(eventType);
     }
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
+      ConditionEvaluationReport report = getReport();
+      var logger = new ConditionEvaluationReportLogger(logLevelForReport, report);
       if (event instanceof ContextRefreshedEvent contextRefreshedEvent) {
         if (contextRefreshedEvent.getApplicationContext() == this.context) {
-          this.logger.logReport(false);
+          logger.logReport(false);
         }
       }
       else if (event instanceof ApplicationFailedEvent applicationFailedEvent
               && applicationFailedEvent.getApplicationContext() == this.context) {
-        this.logger.logReport(true);
+        logger.logReport(true);
       }
 
+//      report.clear();
       context.removeApplicationListener(this);
-      // context.getBeanFactory().removeSingleton(ConditionEvaluationReport.BEAN_NAME);
+      context.getBeanFactory().removeSingleton(ConditionEvaluationReport.BEAN_NAME);
     }
 
   }
