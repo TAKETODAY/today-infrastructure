@@ -21,6 +21,7 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.BeanDefinitionRegistry;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ConfigurableApplicationContext;
+import cn.taketoday.context.condition.ConditionEvaluationReport;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.EnvironmentCapable;
 import cn.taketoday.core.env.StandardEnvironment;
@@ -50,6 +51,9 @@ public class ConditionContext {
 
   @Nullable
   private final ClassLoader classLoader;
+
+  @Nullable
+  private ConditionEvaluationReport conditionEvaluationReport;
 
   public ConditionContext(ApplicationContext context, @Nullable BeanDefinitionRegistry registry) {
     this.registry = registry;
@@ -135,6 +139,16 @@ public class ConditionContext {
   @Nullable
   public ClassLoader getClassLoader() {
     return this.classLoader;
+  }
+
+  @Nullable
+  public ConditionEvaluationReport getEvaluationReport() {
+    if (conditionEvaluationReport == null) {
+      if (beanFactory != null) {
+        conditionEvaluationReport = ConditionEvaluationReport.get(beanFactory);
+      }
+    }
+    return conditionEvaluationReport;
   }
 
 }

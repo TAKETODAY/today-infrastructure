@@ -33,11 +33,10 @@ import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
-import cn.taketoday.context.annotation.Condition;
 import cn.taketoday.context.condition.ConditionEvaluationReport;
+import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcome;
 import cn.taketoday.context.condition.ConditionEvaluationReport.ConditionAndOutcomes;
 import cn.taketoday.context.condition.ConditionOutcome;
-import cn.taketoday.core.Pair;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.CachingMetadataReaderFactory;
@@ -159,10 +158,10 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
       return;
     }
     BeanMethods methods = new BeanMethods(source, cause);
-    for (Pair<Condition, ConditionOutcome> outcomePair : sourceOutcomes) {
-      if (!outcomePair.second.isMatch()) {
+    for (ConditionAndOutcome outcomePair : sourceOutcomes) {
+      if (!outcomePair.outcome.isMatch()) {
         for (MethodMetadata method : methods) {
-          results.add(new AutoConfigurationResult(method, outcomePair.second));
+          results.add(new AutoConfigurationResult(method, outcomePair.outcome));
         }
       }
     }
@@ -173,8 +172,7 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
       Source source = new Source(excludedClass);
       BeanMethods methods = new BeanMethods(source, cause);
       for (MethodMetadata method : methods) {
-        String message = String.format("auto-configuration '%s' was excluded",
-                ClassUtils.getShortName(excludedClass));
+        String message = String.format("auto-configuration '%s' was excluded", ClassUtils.getShortName(excludedClass));
         results.add(new AutoConfigurationResult(method, new ConditionOutcome(false, message)));
       }
     }

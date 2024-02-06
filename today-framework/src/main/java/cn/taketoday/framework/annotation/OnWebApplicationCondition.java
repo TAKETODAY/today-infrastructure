@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.annotation;
@@ -112,8 +109,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     return ConditionOutcome.match(outcome.getConditionMessage());
   }
 
-  private ConditionOutcome isWebApplication(
-          ConditionContext context, AnnotatedTypeMetadata metadata, boolean required) {
+  private ConditionOutcome isWebApplication(ConditionContext context, AnnotatedTypeMetadata metadata, boolean required) {
     return switch (deduceType(metadata)) {
       case NETTY -> isNettyWebApplication(context);
       case SERVLET -> isServletWebApplication(context);
@@ -123,8 +119,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   }
 
   private ConditionOutcome isAnyApplication(ConditionContext context, boolean required) {
-    var message = ConditionMessage.forCondition(
-            ConditionalOnWebApplication.class, required ? "(required)" : "");
+    var message = ConditionMessage.forCondition(ConditionalOnWebApplication.class, required ? "(required)" : "");
 
     ConditionOutcome nettyOutcome = isNettyWebApplication(context);
     if (nettyOutcome.isMatch() && required) {
@@ -147,10 +142,14 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
   private ConditionOutcome isServletWebApplication(ConditionContext context) {
     var message = ConditionMessage.forCondition("");
-    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())
-            || !ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
+    if (!ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
+      return ConditionOutcome.noMatch(message.didNotFind("infra web classes").atAll());
+    }
+
+    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
     }
+
     if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
     }

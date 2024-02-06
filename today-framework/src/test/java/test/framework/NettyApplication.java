@@ -21,14 +21,17 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import cn.taketoday.annotation.config.logging.ConditionEvaluationReportLoggingListener;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.ApplicationEventPublisher;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.event.EventListener;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.Application;
+import cn.taketoday.framework.ApplicationType;
+import cn.taketoday.framework.InfraApplication;
+import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.ResourceUtils;
@@ -36,8 +39,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.web.annotation.RestControllerAdvice;
-import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
 import cn.taketoday.web.socket.TextMessage;
@@ -54,14 +55,15 @@ import lombok.extern.slf4j.Slf4j;
  * @author TODAY 2021/3/30 22:41
  */
 @Slf4j
-@EnableWebMvc
 @RestController
-@RestControllerAdvice
-@Import(NettyApplication.AppConfig.class)
+@InfraApplication
 public class NettyApplication {
 
   public static void main(String[] args) {
-    Application.run(NettyApplication.class, args);
+    Application.forBuilder(NettyApplication.class)
+            .type(ApplicationType.NETTY_WEB)
+            .initializers(ConditionEvaluationReportLoggingListener.forLoggingLevel(LogLevel.INFO))
+            .run(args);
   }
 
   @GET("/index")

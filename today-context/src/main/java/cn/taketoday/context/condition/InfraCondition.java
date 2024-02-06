@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -100,9 +100,9 @@ public abstract class InfraCondition implements Condition {
   }
 
   private void recordEvaluation(ConditionContext context, String classOrMethodName, ConditionOutcome outcome) {
-    if (context.getBeanFactory() != null) {
-      ConditionEvaluationReport.get(context.getBeanFactory())
-              .recordConditionEvaluation(classOrMethodName, this, outcome);
+    ConditionEvaluationReport report = context.getEvaluationReport();
+    if (report != null) {
+      report.recordConditionEvaluation(classOrMethodName, this, outcome);
     }
   }
 
@@ -113,8 +113,7 @@ public abstract class InfraCondition implements Condition {
    * @param metadata the annotation metadata
    * @return the condition outcome
    */
-  public abstract ConditionOutcome getMatchOutcome(
-          ConditionContext context, AnnotatedTypeMetadata metadata);
+  public abstract ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata);
 
   /**
    * Return true if any of the specified conditions match.
@@ -124,8 +123,7 @@ public abstract class InfraCondition implements Condition {
    * @param conditions conditions to test
    * @return {@code true} if any condition matches.
    */
-  protected final boolean anyMatches(ConditionContext context,
-          AnnotatedTypeMetadata metadata, Condition... conditions) {
+  protected final boolean anyMatches(ConditionContext context, AnnotatedTypeMetadata metadata, Condition... conditions) {
     for (Condition condition : conditions) {
       if (matches(context, metadata, condition)) {
         return true;
@@ -142,8 +140,7 @@ public abstract class InfraCondition implements Condition {
    * @param condition condition to test
    * @return {@code true} if the condition matches.
    */
-  protected final boolean matches(ConditionContext context,
-          AnnotatedTypeMetadata metadata, Condition condition) {
+  protected final boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata, Condition condition) {
     if (condition instanceof InfraCondition) {
       return ((InfraCondition) condition).getMatchOutcome(context, metadata).isMatch();
     }

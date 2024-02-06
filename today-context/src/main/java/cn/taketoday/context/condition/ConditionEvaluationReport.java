@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -49,12 +49,13 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0 2022/1/16 15:49
  */
 public final class ConditionEvaluationReport {
-  private static final String BEAN_NAME = "autoConfigurationReport";
+  public static final String BEAN_NAME = "autoConfigurationReport";
 
   private static final AncestorsMatchedCondition ANCESTOR_CONDITION = new AncestorsMatchedCondition();
 
   private boolean addedAncestorOutcomes;
 
+  @Nullable
   private ConditionEvaluationReport parent;
 
   private final ArrayList<String> exclusions = new ArrayList<>();
@@ -179,6 +180,15 @@ public final class ConditionEvaluationReport {
   }
 
   /**
+   * Clear records
+   */
+  public void clear() {
+    outcomes.clear();
+    exclusions.clear();
+    unconditionalClasses.clear();
+  }
+
+  /**
    * Attempt to find the {@link ConditionEvaluationReport} for the specified bean
    * factory.
    *
@@ -214,39 +224,14 @@ public final class ConditionEvaluationReport {
     }
   }
 
-  private static void locateParent(BeanFactory beanFactory, ConditionEvaluationReport report) {
+  private static void locateParent(@Nullable BeanFactory beanFactory, ConditionEvaluationReport report) {
     if (beanFactory != null && report.parent == null && beanFactory.containsBean(BEAN_NAME)) {
       report.parent = beanFactory.getBean(BEAN_NAME, ConditionEvaluationReport.class);
     }
   }
 
-  public ConditionEvaluationReport getDelta(ConditionEvaluationReport previousReport) {
-    ConditionEvaluationReport delta = new ConditionEvaluationReport();
-    for (Map.Entry<String, ConditionAndOutcomes> entry : outcomes.entrySet()) {
-      String source = entry.getKey();
-      ConditionAndOutcomes sourceOutcomes = entry.getValue();
-      ConditionAndOutcomes previous = previousReport.outcomes.get(source);
-      if (previous == null || previous.isFullMatch() != sourceOutcomes.isFullMatch()) {
-
-        for (ConditionAndOutcome conditionAndOutcome : sourceOutcomes) {
-          delta.recordConditionEvaluation(
-                  source, conditionAndOutcome.getCondition(), conditionAndOutcome.getOutcome());
-        }
-
-      }
-    }
-    var newExclusions = new ArrayList<>(this.exclusions);
-    newExclusions.removeAll(previousReport.getExclusions());
-    delta.recordExclusions(newExclusions);
-
-    var newUnconditionalClasses = new ArrayList<>(unconditionalClasses);
-    newUnconditionalClasses.removeAll(previousReport.unconditionalClasses);
-    delta.unconditionalClasses.addAll(newUnconditionalClasses);
-    return delta;
-  }
-
   /**
-   * Provides access to a number of {@link ConditionAndOutcome} items.
+   * Provides access to a number of {@code ConditionAndOutcome} items.
    */
   public static class ConditionAndOutcomes implements Iterable<ConditionAndOutcome> {
 
@@ -262,8 +247,8 @@ public final class ConditionEvaluationReport {
      * @return {@code true} if a full match
      */
     public boolean isFullMatch() {
-      for (ConditionAndOutcome conditionAndOutcomes : this) {
-        if (!conditionAndOutcomes.getOutcome().isMatch()) {
+      for (ConditionAndOutcome conditionAndOutcomes : outcomes) {
+        if (!conditionAndOutcomes.outcome.isMatch()) {
           return false;
         }
       }
@@ -282,20 +267,13 @@ public final class ConditionEvaluationReport {
    */
   public static class ConditionAndOutcome {
 
-    private final Condition condition;
-    private final ConditionOutcome outcome;
+    public final Condition condition;
+
+    public final ConditionOutcome outcome;
 
     public ConditionAndOutcome(Condition condition, ConditionOutcome outcome) {
       this.condition = condition;
       this.outcome = outcome;
-    }
-
-    public Condition getCondition() {
-      return this.condition;
-    }
-
-    public ConditionOutcome getOutcome() {
-      return this.outcome;
     }
 
     @Override

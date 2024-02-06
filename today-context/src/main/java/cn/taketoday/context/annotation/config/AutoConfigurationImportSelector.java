@@ -173,8 +173,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    * @param attributes the {@link #getAttributes(AnnotationMetadata) annotation attributes}
    * @return a list of candidate configurations
    */
-  protected List<String> getCandidateConfigurations(
-          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
+  protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     var configurations = ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).getCandidates();
     configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
 
@@ -326,7 +325,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   private static class ConfigurationClassFilter {
+
     private final List<AutoConfigurationImportFilter> filters;
+
     private final AutoConfigurationMetadata autoConfigurationMetadata;
 
     ConfigurationClassFilter(ClassLoader classLoader, List<AutoConfigurationImportFilter> filters) {
@@ -369,11 +370,13 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   private static class AutoConfigurationGroup implements DeferredImportSelector.Group {
 
     private final BootstrapContext context;
+
     private final ClassLoader beanClassLoader;
 
     private AutoConfigurationMetadata autoConfigurationMetadata;
 
     private final LinkedHashMap<String, AnnotationMetadata> entries = new LinkedHashMap<>();
+
     private final ArrayList<AutoConfigurationEntry> autoConfigurationEntries = new ArrayList<>();
 
     public AutoConfigurationGroup(BootstrapContext context, ClassLoader beanClassLoader) {
@@ -428,8 +431,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       return this.autoConfigurationMetadata;
     }
 
-    private List<String> sortAutoConfigurations(
-            Set<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
+    private List<String> sortAutoConfigurations(Set<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
       return new AutoConfigurationSorter(context.getMetadataReaderFactory(), autoConfigurationMetadata)
               .getInPriorityOrder(configurations);
     }
@@ -439,6 +441,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   protected static class AutoConfigurationEntry {
 
     public final Set<String> exclusions;
+
     public final List<String> configurations;
 
     /**
