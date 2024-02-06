@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.ssl;
@@ -72,7 +72,7 @@ public class PemSslBundleProperties extends SslBundleProperties {
     private String type;
 
     /**
-     * Location or content of the certificate in PEM format.
+     * Location or content of the certificate or certificate chain in PEM format.
      */
     private String certificate;
 
@@ -85,6 +85,11 @@ public class PemSslBundleProperties extends SslBundleProperties {
      * Password used to decrypt an encrypted private key.
      */
     private String privateKeyPassword;
+
+    /**
+     * Whether to verify that the private key matches the public key.
+     */
+    private boolean verifyKeys;
 
     public String getType() {
       return this.type;
@@ -116,6 +121,14 @@ public class PemSslBundleProperties extends SslBundleProperties {
 
     public void setPrivateKeyPassword(String privateKeyPassword) {
       this.privateKeyPassword = privateKeyPassword;
+    }
+
+    public boolean isVerifyKeys() {
+      return this.verifyKeys;
+    }
+
+    public void setVerifyKeys(boolean verifyKeys) {
+      this.verifyKeys = verifyKeys;
     }
 
   }

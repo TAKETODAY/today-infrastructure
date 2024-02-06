@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.ssl;
 
 import cn.taketoday.annotation.config.ssl.SslBundleProperties.Key;
-import cn.taketoday.annotation.config.ssl.SslBundleProperties.Options;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundleKey;
 import cn.taketoday.core.ssl.SslManagerBundle;
@@ -26,8 +25,11 @@ import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.core.ssl.SslStoreBundle;
 import cn.taketoday.core.ssl.jks.JksSslStoreBundle;
 import cn.taketoday.core.ssl.jks.JksSslStoreDetails;
+import cn.taketoday.core.ssl.pem.PemSslStore;
 import cn.taketoday.core.ssl.pem.PemSslStoreBundle;
 import cn.taketoday.core.ssl.pem.PemSslStoreDetails;
+import cn.taketoday.core.style.ToStringBuilder;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -63,7 +65,7 @@ public final class PropertiesSslBundle implements SslBundle {
     return (key != null) ? SslBundleKey.of(key.getPassword(), key.getAlias()) : SslBundleKey.NONE;
   }
 
-  private static SslOptions asSslOptions(@Nullable Options options) {
+  private static SslOptions asSslOptions(@Nullable SslBundleProperties.Options options) {
     return (options != null) ? SslOptions.of(options.getCiphers(), options.getEnabledProtocols()) : SslOptions.NONE;
   }
 
@@ -99,7 +101,30 @@ public final class PropertiesSslBundle implements SslBundle {
    * @return an {@link SslBundle} instance
    */
   public static SslBundle get(PemSslBundleProperties properties) {
-    return new PropertiesSslBundle(asSslStoreBundle(properties), properties);
+    PemSslStore keyStore = getPemSslStore("keystore", properties.getKeystore());
+    if (keyStore != null) {
+      keyStore = keyStore.withAlias(properties.getKey().getAlias())
+              .withPassword(properties.getKey().getPassword());
+    }
+    PemSslStore trustStore = getPemSslStore("truststore", properties.getTruststore());
+    SslStoreBundle storeBundle = new PemSslStoreBundle(keyStore, trustStore);
+    return new PropertiesSslBundle(storeBundle, properties);
+  }
+
+  @Nullable
+  private static PemSslStore getPemSslStore(String propertyName, PemSslBundleProperties.Store properties) {
+    PemSslStore pemSslStore = PemSslStore.load(asPemSslStoreDetails(properties));
+    if (properties.isVerifyKeys()) {
+      CertificateMatcher certificateMatcher = new CertificateMatcher(pemSslStore.privateKey());
+      Assert.state(certificateMatcher.matchesAny(pemSslStore.certificates()),
+              "Private key in %s matches none of the certificates in the chain".formatted(propertyName));
+    }
+    return pemSslStore;
+  }
+
+  private static PemSslStoreDetails asPemSslStoreDetails(PemSslBundleProperties.Store properties) {
+    return new PemSslStoreDetails(properties.getType(), properties.getCertificate(), properties.getPrivateKey(),
+            properties.getPrivateKeyPassword());
   }
 
   /**
@@ -109,19 +134,8 @@ public final class PropertiesSslBundle implements SslBundle {
    * @return an {@link SslBundle} instance
    */
   public static SslBundle get(JksSslBundleProperties properties) {
-    return new PropertiesSslBundle(asSslStoreBundle(properties), properties);
-  }
-
-  private static SslStoreBundle asSslStoreBundle(PemSslBundleProperties properties) {
-    PemSslStoreDetails keyStoreDetails = asStoreDetails(properties.getKeystore());
-    PemSslStoreDetails trustStoreDetails = asStoreDetails(properties.getTruststore());
-    return new PemSslStoreBundle(keyStoreDetails, trustStoreDetails, properties.getKey().getAlias(), null,
-            properties.isVerifyKeys());
-  }
-
-  private static PemSslStoreDetails asStoreDetails(PemSslBundleProperties.Store properties) {
-    return new PemSslStoreDetails(properties.getType(), properties.getCertificate(),
-            properties.getPrivateKey(), properties.getPrivateKeyPassword());
+    SslStoreBundle storeBundle = asSslStoreBundle(properties);
+    return new PropertiesSslBundle(storeBundle, properties);
   }
 
   private static SslStoreBundle asSslStoreBundle(JksSslBundleProperties properties) {
@@ -131,8 +145,18 @@ public final class PropertiesSslBundle implements SslBundle {
   }
 
   private static JksSslStoreDetails asStoreDetails(JksSslBundleProperties.Store properties) {
-    return new JksSslStoreDetails(properties.getType(), properties.getProvider(),
-            properties.getLocation(), properties.getPassword());
+    return new JksSslStoreDetails(properties.getType(), properties.getProvider(), properties.getLocation(),
+            properties.getPassword());
+  }
+
+  @Override
+  public String toString() {
+    ToStringBuilder creator = new ToStringBuilder(this);
+    creator.append("key", this.key);
+    creator.append("options", this.options);
+    creator.append("protocol", this.protocol);
+    creator.append("stores", this.stores);
+    return creator.toString();
   }
 
 }

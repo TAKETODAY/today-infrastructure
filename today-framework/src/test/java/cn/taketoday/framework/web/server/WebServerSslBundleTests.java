@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,18 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.server;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.InputStream;
-import java.security.KeyStore;
-
-import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundleKey;
 import cn.taketoday.core.ssl.SslOptions;
@@ -94,6 +89,25 @@ class WebServerSslBundleTests {
   }
 
   @Test
+  void whenFromPkcs11Properties() {
+    Ssl ssl = new Ssl();
+    ssl.setKeyStoreType("PKCS11");
+    ssl.setKeyStoreProvider(MockPkcs11SecurityProvider.NAME);
+    ssl.setTrustStoreType("PKCS11");
+    ssl.setTrustStoreProvider(MockPkcs11SecurityProvider.NAME);
+    ssl.setKeyPassword("password");
+    ssl.setClientAuth(Ssl.ClientAuth.NONE);
+    SslBundle bundle = WebServerSslBundle.get(ssl);
+    assertThat(bundle).isNotNull();
+    assertThat(bundle.getProtocol()).isEqualTo("TLS");
+    SslBundleKey key = bundle.getKey();
+    assertThat(key.getPassword()).isEqualTo("password");
+    SslStoreBundle stores = bundle.getStores();
+    assertThat(stores.getKeyStore()).isNotNull();
+    assertThat(stores.getTrustStore()).isNotNull();
+  }
+
+  @Test
   void whenFromPemProperties() {
     Ssl ssl = new Ssl();
     ssl.setCertificate("classpath:test-cert.pem");
@@ -127,13 +141,59 @@ class WebServerSslBundleTests {
             .withMessageContaining("SSL is enabled but no trust material is configured");
   }
 
-  private KeyStore loadStore() throws Exception {
-    Resource resource = new ClassPathResource("test.p12");
-    try (InputStream stream = resource.getInputStream()) {
-      KeyStore keyStore = KeyStore.getInstance("PKCS12");
-      keyStore.load(stream, "secret".toCharArray());
-      return keyStore;
-    }
+  @Test
+  void whenPemKeyStoreAndJksTrustStoreProperties() {
+    Ssl ssl = new Ssl();
+    ssl.setCertificate("classpath:test-cert.pem");
+    ssl.setCertificatePrivateKey("classpath:test-key.pem");
+    ssl.setKeyStoreType("PKCS12");
+    ssl.setKeyPassword("password");
+    ssl.setTrustStore("classpath:test.p12");
+    ssl.setTrustStorePassword("secret");
+    ssl.setTrustStoreType("PKCS12");
+    ssl.setClientAuth(Ssl.ClientAuth.NONE);
+    ssl.setCiphers(new String[] { "ONE", "TWO", "THREE" });
+    ssl.setEnabledProtocols(new String[] { "TLSv1.1", "TLSv1.2" });
+    ssl.setProtocol("TLSv1.1");
+    SslBundle bundle = WebServerSslBundle.get(ssl);
+    assertThat(bundle).isNotNull();
+    SslBundleKey key = bundle.getKey();
+    assertThat(key.getAlias()).isNull();
+    assertThat(key.getPassword()).isEqualTo("password");
+    SslStoreBundle stores = bundle.getStores();
+    assertThat(stores.getKeyStorePassword()).isNull();
+    assertThat(stores.getKeyStore()).isNotNull();
+    assertThat(stores.getTrustStore()).isNotNull();
+    SslOptions options = bundle.getOptions();
+    assertThat(options.getCiphers()).containsExactly("ONE", "TWO", "THREE");
+    assertThat(options.getEnabledProtocols()).containsExactly("TLSv1.1", "TLSv1.2");
+  }
+
+  @Test
+  void whenJksKeyStoreAndPemTrustStoreProperties() {
+    Ssl ssl = new Ssl();
+    ssl.setKeyStore("classpath:test.p12");
+    ssl.setKeyStoreType("PKCS12");
+    ssl.setKeyPassword("password");
+    ssl.setTrustCertificate("classpath:test-cert-chain.pem");
+    ssl.setTrustStorePassword("secret");
+    ssl.setTrustStoreType("PKCS12");
+    ssl.setClientAuth(Ssl.ClientAuth.NONE);
+    ssl.setCiphers(new String[] { "ONE", "TWO", "THREE" });
+    ssl.setEnabledProtocols(new String[] { "TLSv1.1", "TLSv1.2" });
+    ssl.setProtocol("TLSv1.1");
+    SslBundle bundle = WebServerSslBundle.get(ssl);
+    assertThat(bundle).isNotNull();
+    SslBundleKey key = bundle.getKey();
+    assertThat(key.getAlias()).isNull();
+    assertThat(key.getPassword()).isEqualTo("password");
+    SslStoreBundle stores = bundle.getStores();
+    assertThat(stores.getKeyStorePassword()).isNull();
+    assertThat(stores.getKeyStore()).isNotNull();
+    assertThat(stores.getTrustStore()).isNotNull();
+    SslOptions options = bundle.getOptions();
+    assertThat(options.getCiphers()).containsExactly("ONE", "TWO", "THREE");
+    assertThat(options.getEnabledProtocols()).containsExactly("TLSv1.1", "TLSv1.2");
   }
 
 }

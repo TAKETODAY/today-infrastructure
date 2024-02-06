@@ -245,6 +245,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
         return tempDir;
       }
       catch (IOException e) {
+        ex.addSuppressed(e);
         throw new WebServerException(
                 "Unable to create tempDir. base tmpdir is set to " + applicationTemp.getDir(), ex);
       }

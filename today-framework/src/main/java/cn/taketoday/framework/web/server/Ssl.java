@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.server;
@@ -192,7 +192,7 @@ public class Ssl {
   }
 
   /**
-   * Return the path to the key store that holds the SSL certificate (typically a jks
+   * Return the path to the key store that holds the SSL certificates (typically a jks
    * file).
    *
    * @return the path to the key store
@@ -305,9 +305,9 @@ public class Ssl {
   }
 
   /**
-   * Return the location of the certificate in PEM format.
+   * Return the location of the certificates in PEM format.
    *
-   * @return the certificate location
+   * @return the certificates location
    */
   @Nullable
   public String getCertificate() {
@@ -319,9 +319,9 @@ public class Ssl {
   }
 
   /**
-   * Return the location of the private key for the certificate in PEM format.
+   * Return the location of the private key for the certificates in PEM format.
    *
-   * @return the location of the certificate private key
+   * @return the location of the certificates private key
    */
   @Nullable
   public String getCertificatePrivateKey() {
@@ -333,9 +333,9 @@ public class Ssl {
   }
 
   /**
-   * Return the location of the trust certificate authority chain in PEM format.
+   * Return the location of the trust certificates authority chain in PEM format.
    *
-   * @return the location of the trust certificate
+   * @return the location of the trust certificates
    */
   @Nullable
   public String getTrustCertificate() {
@@ -347,9 +347,9 @@ public class Ssl {
   }
 
   /**
-   * Return the location of the private key for the trust certificate in PEM format.
+   * Return the location of the private key for the trust certificates in PEM format.
    *
-   * @return the location of the trust certificate private key
+   * @return the location of the trust certificates private key
    */
   @Nullable
   public String getTrustCertificatePrivateKey() {
