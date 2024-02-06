@@ -138,7 +138,7 @@ public class ApplicationTemp {
    * this method was invoked
    * @throws IllegalArgumentException if the prefix or suffix parameters cannot be used to generate
    * a candidate file name
-   * @throws IllegalStateException if an I/O error occurs or {@code dir} does not exist
+   * @throws UncheckedIOException if an I/O error occurs or {@code dir} does not exist
    */
   public Path createFile(@Nullable String subDir, String prefix) {
     return createFile(subDir, prefix, null);
@@ -183,14 +183,14 @@ public class ApplicationTemp {
    * this method was invoked
    * @throws IllegalArgumentException if the prefix or suffix parameters cannot be used to generate
    * a candidate file name
-   * @throws IllegalStateException if an I/O error occurs or {@code dir} does not exist
+   * @throws UncheckedIOException if an I/O error occurs or {@code dir} does not exist
    */
   public Path createFile(@Nullable String subDir, @Nullable String prefix, @Nullable String suffix) {
     try {
       return Files.createTempFile(getDir(subDir), prefix, suffix);
     }
     catch (IOException e) {
-      throw new IllegalStateException("Files.createTempFile IO error", e);
+      throw new UncheckedIOException("Files.createTempFile IO error", e);
     }
   }
 
