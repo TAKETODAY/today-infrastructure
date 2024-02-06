@@ -63,7 +63,7 @@ jobs:
         uses: gradle/gradle-build-action@v2.7.1
 
       - name: Test Coverage
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 build --scan
+        run: ./gradlew -DCI=true --no-daemon --max-workers=4 build --scan --stacktrace
 
       - name: Report Coverage to Coveralls
         uses: coverallsapp/github-action@v2
