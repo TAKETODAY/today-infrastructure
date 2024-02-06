@@ -151,4 +151,8 @@ public class ConditionContext {
     return conditionEvaluationReport;
   }
 
+  void close() {
+    conditionEvaluationReport = null;
+  }
+
 }

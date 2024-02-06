@@ -130,6 +130,13 @@ public class ConditionEvaluator {
     return false;
   }
 
+  /**
+   * Clear the local metadata cache, if any, removing all cached metadata.
+   */
+  public void clearCache() {
+    evaluationContext.close();
+  }
+
   @SuppressWarnings("unchecked")
   private List<String[]> getConditionClasses(AnnotatedTypeMetadata metadata) {
     MultiValueMap<String, Object> attributes = metadata.getAllAnnotationAttributes(Conditional.class.getName(), true);

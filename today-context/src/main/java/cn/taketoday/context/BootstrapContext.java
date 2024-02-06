@@ -516,6 +516,9 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
       // for a shared cache since it'll be cleared by the ApplicationContext.
       cmef.clearCache();
     }
+    if (conditionEvaluator != null) {
+      conditionEvaluator.clearCache();
+    }
   }
 
   //---------------------------------------------------------------------
