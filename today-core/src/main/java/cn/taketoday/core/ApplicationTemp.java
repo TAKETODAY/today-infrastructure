@@ -222,7 +222,7 @@ public class ApplicationTemp {
   private Path createDirectory(Path path) throws UncheckedIOException {
     try {
       if (!Files.exists(path)) {
-        Files.createDirectory(path, getFileAttributes(path.getFileSystem()));
+        Files.createDirectories(path, getFileAttributes(path.getFileSystem()));
       }
       return path;
     }
