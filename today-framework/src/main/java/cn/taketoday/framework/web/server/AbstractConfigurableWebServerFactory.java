@@ -18,8 +18,10 @@
 package cn.taketoday.framework.web.server;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -237,8 +239,15 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
       return tempDir;
     }
     catch (UncheckedIOException ex) {
-      throw new WebServerException(
-              "Unable to create tempDir. base tmpdir is set to " + applicationTemp.getDir(), ex);
+      try {
+        File tempDir = Files.createTempDirectory(applicationTemp.getDir(), prefix + "." + getPort() + ".").toFile();
+        tempDir.deleteOnExit();
+        return tempDir;
+      }
+      catch (IOException e) {
+        throw new WebServerException(
+                "Unable to create tempDir. base tmpdir is set to " + applicationTemp.getDir(), ex);
+      }
     }
   }
 
