@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,16 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.buildpack.platform.build;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -29,9 +23,14 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import cn.taketoday.buildpack.platform.docker.type.Layer;
 import cn.taketoday.buildpack.platform.io.IOConsumer;
-
 import cn.taketoday.util.StreamUtils;
 
 /**
@@ -94,13 +93,13 @@ final class TarGzipBuildpack implements Buildpack {
             new GzipCompressorInputStream(Files.newInputStream(this.path)));
             TarArchiveOutputStream output = new TarArchiveOutputStream(outputStream)) {
       writeBasePathEntries(output, basePath);
-      TarArchiveEntry entry = tar.getNextTarEntry();
+      TarArchiveEntry entry = tar.getNextEntry();
       while (entry != null) {
         entry.setName(basePath + "/" + entry.getName());
         output.putArchiveEntry(entry);
         StreamUtils.copy(tar, output);
         output.closeArchiveEntry();
-        entry = tar.getNextTarEntry();
+        entry = tar.getNextEntry();
       }
       output.finish();
     }

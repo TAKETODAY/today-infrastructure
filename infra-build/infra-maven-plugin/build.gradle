@@ -15,7 +15,7 @@ dependencies {
   implementation project(":infra-build:infra-app-loader")
   implementation project(":infra-build:infra-app-loader-tools")
   implementation project(":infra-build:infra-buildpack-platform")
-  implementation 'org.apache.commons:commons-compress:1.21'
+  implementation 'org.apache.commons:commons-compress'
   implementation 'org.sonatype.plexus:plexus-build-api:0.0.7'
   implementation 'org.apache.maven.plugin-tools:maven-plugin-annotations:3.4'
   implementation 'org.apache.maven.shared:file-management:1.2.1'
