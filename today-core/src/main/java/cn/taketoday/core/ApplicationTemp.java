@@ -194,7 +194,7 @@ public class ApplicationTemp {
     }
   }
 
-  private Path getPath() {
+  private Path getPath() throws UncheckedIOException {
     Path path = this.path;
     if (path == null) {
       synchronized(this) {
