@@ -3,6 +3,9 @@ apply plugin: "maven-publish"
 
 boolean isSnapshot = version.endsWith('SNAPSHOT')
 
+def repoUsername = properties["repoUsername"]
+def repoPassword = properties["repoPassword"]
+
 publishing.publications.withType(MavenPublication.class) {
   pom {
     afterEvaluate {
@@ -68,8 +71,8 @@ publishing {
           : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 
       credentials {
-        username = properties.get("repoUsername")
-        password = properties.get("repoPassword")
+        username = repoUsername
+        password = repoPassword
       }
     }
   }
