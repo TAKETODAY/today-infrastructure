@@ -2,8 +2,6 @@ apply plugin: "signing"
 apply plugin: "maven-publish"
 
 boolean isSnapshot = version.endsWith('SNAPSHOT')
-String repoUsername = System.getProperty("repoUsername")
-String repoPassword = System.getProperty("repoPassword")
 
 publishing.publications.withType(MavenPublication.class) {
   pom {
@@ -32,7 +30,7 @@ publishing.publications.withType(MavenPublication.class) {
       developer {
         id = "taketoday"
         name = "Harry Yang"
-        email = "taketoday@foxmail.com"
+        email = "i.take.today@gmail.com"
       }
     }
     issueManagement {
@@ -70,8 +68,8 @@ publishing {
           : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 
       credentials {
-        username = repoUsername
-        password = repoPassword
+        username = "$repoUsername"
+        password = "$repoPassword"
       }
     }
   }
