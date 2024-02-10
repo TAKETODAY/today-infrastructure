@@ -68,8 +68,8 @@ publishing {
           : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
 
       credentials {
-        username = property("repoUsername")
-        password = property("repoPassword")
+        username = properties.get("repoUsername")
+        password = properties.get("repoPassword")
       }
     }
   }
