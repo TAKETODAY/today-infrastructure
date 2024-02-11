@@ -4,6 +4,8 @@ plugins {
 }
 
 ext {
+  isSnapshot = version.endsWith('SNAPSHOT')
+  isReleaseVersion = !isSnapshot
   starterProjects = subprojects.findAll { it.name.startsWith("today-starter") }
   moduleProjects = subprojects.findAll { it.name.startsWith("today-") && !it.name.startsWith("today-starter") } + [
       project(":infra-build:infra-annotation-config-processor"),
@@ -45,7 +47,7 @@ configure(allprojects) {
   repositories {
     mavenLocal()
 
-//    maven { url "https://maven.aliyun.com/repository/public" }
+    maven { url "https://maven.aliyun.com/repository/public" }
 //    maven { url "https://repo.huaweicloud.com/repository/maven" }
 
     mavenCentral()
@@ -79,10 +81,6 @@ configure([rootProject] + javaProjects) {
 
   if (testFixturesProjects.contains(it)) {
     apply plugin: "java-test-fixtures"
-  }
-
-  configurations.forEach {
-    it.exclude group: 'org.jetbrains', module: 'annotations'
   }
 
   jacocoTestReport {
