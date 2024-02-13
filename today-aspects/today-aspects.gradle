@@ -1,7 +1,3 @@
-plugins {
-  id 'io.freefair.aspectj' version '8.4'
-}
-
 description = "Infra Aspects"
 
 apply plugin: "io.freefair.aspectj"
