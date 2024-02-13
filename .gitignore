@@ -30,3 +30,4 @@
 **/target/**
 /buildSrc/build/*
 **/build/**
+publish.sh

@@ -76,18 +76,6 @@ publishing {
   }
 }
 
-if (isReleaseVersion) {
-  signing {
-    PublicationContainer publications = publishing.publications
-    if (publications.findByName("pluginMaven") != null) {
-      sign(publishing.publications.pluginMaven)
-    }
-    if (publications.findByName("maven") != null) {
-      sign(publishing.publications.maven)
-    }
-  }
-}
-
 // Disable publication of test fixture artifacts.
 if (configurations.findByName("testFixturesApiElements") != null) {
   components.java.withVariantsFromConfiguration(configurations.testFixturesApiElements) { skip() }

@@ -41,6 +41,7 @@ dependencies {
 }
 
 gradlePlugin {
+  automatedPublishing = false
   website = "https://github.com/TAKETODAY/today-infrastructure"
   vcsUrl = "https://github.com/TAKETODAY/today-infrastructure"
   plugins {
