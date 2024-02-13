@@ -1,7 +1,7 @@
 apply plugin: "maven-publish"
 
-def repoUsername = properties["repoUsername"]
-def repoPassword = properties["repoPassword"]
+String repoUsername = properties["repoUsername"]
+String repoPassword = properties["repoPassword"]
 
 publishing.publications.withType(MavenPublication.class) {
   pom {
