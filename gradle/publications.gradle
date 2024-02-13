@@ -1,4 +1,3 @@
-apply plugin: "signing"
 apply plugin: "maven-publish"
 
 def repoUsername = properties["repoUsername"]
@@ -45,14 +44,6 @@ publishing.publications.withType(MavenPublication.class) {
     }
     usage('java-runtime') {
       fromResolutionResult()
-    }
-  }
-}
-
-if (isReleaseVersion) {
-  signing {
-    for (Publication publication in publishing.publications) {
-      sign(publication)
     }
   }
 }
