@@ -2,7 +2,8 @@
 * text eol=lf
 
 # Ensure that line endings for multipart files in web are not modified.
-*.multipart -text
+; *.multipart -text
+*.multipart eol=crlf
 
 # Ensure that line endings for DOS batch files are not modified.
 *.bat -text
