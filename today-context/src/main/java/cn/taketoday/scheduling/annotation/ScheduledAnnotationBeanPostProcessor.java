@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -277,7 +277,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
 
     Class<?> targetClass = AopProxyUtils.ultimateTargetClass(bean);
     if (!this.nonAnnotatedClasses.contains(targetClass)
-            && AnnotationUtils.isCandidateClass(targetClass, List.of(Scheduled.class, Schedules.class))) {
+            && AnnotationUtils.isCandidateClass(targetClass, Scheduled.class, Schedules.class)) {
       Map<Method, Set<Scheduled>> annotatedMethods = MethodIntrospector.selectMethods(
               targetClass, method -> {
                 Set<Scheduled> scheduledAnnotations = AnnotatedElementUtils.getMergedRepeatableAnnotations(

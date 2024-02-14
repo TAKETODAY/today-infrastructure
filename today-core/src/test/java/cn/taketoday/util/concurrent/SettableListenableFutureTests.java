@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -135,7 +132,7 @@ class SettableListenableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableListenableFuture.addCallback(new ListenableFutureCallback<String>() {
+    settableListenableFuture.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         callbackHolder[0] = result;
@@ -158,7 +155,7 @@ class SettableListenableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableListenableFuture.addCallback(new ListenableFutureCallback<String>() {
+    settableListenableFuture.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         callbackHolder[0] = result;
@@ -182,7 +179,7 @@ class SettableListenableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableListenableFuture.addCallback(new ListenableFutureCallback<String>() {
+    settableListenableFuture.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         fail("Expected onFailure() to be called");
@@ -205,7 +202,7 @@ class SettableListenableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableListenableFuture.addCallback(new ListenableFutureCallback<String>() {
+    settableListenableFuture.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         fail("Expected onFailure() to be called");
@@ -368,8 +365,8 @@ class SettableListenableFutureTests {
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void cancelDoesNotNotifyCallbacksOnSet() {
-    ListenableFutureCallback callback = mock(ListenableFutureCallback.class);
-    settableListenableFuture.addCallback(callback);
+    FutureListener callback = mock(FutureListener.class);
+    settableListenableFuture.addListener(callback);
     settableListenableFuture.cancel(true);
 
     verify(callback).onFailure(any(CancellationException.class));
@@ -385,8 +382,8 @@ class SettableListenableFutureTests {
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void cancelDoesNotNotifyCallbacksOnSetException() {
-    ListenableFutureCallback callback = mock(ListenableFutureCallback.class);
-    settableListenableFuture.addCallback(callback);
+    FutureListener callback = mock(FutureListener.class);
+    settableListenableFuture.addListener(callback);
     settableListenableFuture.cancel(true);
 
     verify(callback).onFailure(any(CancellationException.class));

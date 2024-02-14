@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
@@ -330,8 +330,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   }
 
   @Override
-  public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz,
-          HttpInputMessage inputMessage) throws IOException, HttpMessageNotReadableException {
+  public MultiValueMap<String, String> read(@Nullable Class<? extends MultiValueMap<String, ?>> clazz, HttpInputMessage inputMessage)
+          throws IOException, HttpMessageNotReadableException //
+  {
 
     MediaType contentType = inputMessage.getHeaders().getContentType();
     Charset charset = (contentType != null && contentType.getCharset() != null ?
@@ -339,7 +340,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
 
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {
@@ -385,30 +386,16 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
           @Nullable MediaType contentType, HttpOutputMessage outputMessage) throws IOException {
 
     contentType = getFormContentType(contentType);
-    outputMessage.getHeaders().setContentType(contentType);
+    HttpHeaders headers = outputMessage.getHeaders();
+    headers.setContentType(contentType);
 
     Charset charset = contentType.getCharset();
     Assert.notNull(charset, "No charset"); // should never occur
 
     byte[] bytes = serializeForm(formData, charset).getBytes(charset);
-    outputMessage.getHeaders().setContentLength(bytes.length);
+    headers.setContentLength(bytes.length);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
-      streaming.setBody(new StreamingHttpOutputMessage.Body() {
-        @Override
-        public void writeTo(OutputStream outputStream) throws IOException {
-          StreamUtils.copy(bytes, outputStream);
-        }
-
-        @Override
-        public boolean repeatable() {
-          return true;
-        }
-      });
-    }
-    else {
-      StreamUtils.copy(bytes, outputMessage.getBody());
-    }
+    StreamingHttpOutputMessage.writeBody(outputMessage, bytes);
   }
 
   /**
@@ -487,8 +474,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     contentType = new MediaType(contentType, parameters);
     outputMessage.getHeaders().setContentType(contentType);
 
-    if (outputMessage instanceof StreamingHttpOutputMessage streamingOutputMessage) {
-      streamingOutputMessage.setBody(outputStream -> {
+    if (outputMessage instanceof StreamingHttpOutputMessage streaming) {
+      streaming.setBody(outputStream -> {
         writeParts(outputStream, parts, boundary);
         writeEnd(outputStream, boundary);
       });
@@ -618,8 +605,10 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   private static class MultipartHttpOutputMessage implements HttpOutputMessage {
 
     private final Charset charset;
+
     private final OutputStream outputStream;
-    private final HttpHeaders headers = HttpHeaders.create();
+
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     private boolean headersWritten = false;
 
@@ -630,7 +619,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
 
     @Override
     public HttpHeaders getHeaders() {
-      return this.headersWritten ? HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers;
+      return this.headersWritten ? headers.asReadOnly() : this.headers;
     }
 
     @Override

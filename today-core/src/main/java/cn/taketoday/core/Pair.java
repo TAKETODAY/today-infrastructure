@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core;
@@ -21,8 +21,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
 
-import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.lang.Experimental;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -49,23 +49,19 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
   @Serial
   private static final long serialVersionUID = 1L;
 
-  @Nullable
   public final A first;
 
-  @Nullable
   public final B second;
 
-  public Pair(@Nullable A first, @Nullable B second) {
+  private Pair(A first, B second) {
     this.first = first;
     this.second = second;
   }
 
-  @Nullable
   public final A getFirst() {
     return first;
   }
 
-  @Nullable
   public final B getSecond() {
     return second;
   }
@@ -85,18 +81,26 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
     throw new UnsupportedOperationException();
   }
 
-  public Pair<A, B> withFirst(@Nullable A first) {
+  public Pair<A, B> withFirst(A first) {
     if (first == this.first) {
       return this;
     }
     return new Pair<>(first, second);
   }
 
-  public Pair<A, B> withSecond(@Nullable B second) {
+  public Pair<A, B> withSecond(B second) {
     if (second == this.second) {
       return this;
     }
     return new Pair<>(first, second);
+  }
+
+  public Optional<A> first() {
+    return Optional.ofNullable(first);
+  }
+
+  public Optional<B> second() {
+    return Optional.ofNullable(second);
   }
 
   @Override
@@ -120,10 +124,7 @@ public class Pair<A, B> implements Map.Entry<A, B>, Serializable {
    */
   @Override
   public String toString() {
-    return ToStringBuilder.from(this)
-            .append("first", first)
-            .append("second", second)
-            .toString();
+    return "<" + first + "," + second + ">";
   }
 
   // Static

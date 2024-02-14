@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.support;
@@ -55,9 +52,9 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
- * @author TODAY 2021/2/1 18:46
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AopProxyUtils
- * @since 3.0
+ * @since 3.0 2021/2/1 18:46
  */
 public abstract class AopUtils {
 
@@ -148,8 +145,8 @@ public abstract class AopUtils {
    * may be {@code DefaultFoo}. In this case, the method may be
    * {@code DefaultFoo.bar()}. This enables attributes on that method to be found.
    * <p><b>NOTE:</b> In contrast to {@link cn.taketoday.util.ReflectionUtils#getMostSpecificMethod},
-   * this method resolves Java 5 bridge methods in order to retrieve attributes
-   * from the <i>original</i> method definition.
+   * this method resolves bridge methods in order to retrieve attributes from
+   * the <i>original</i> method definition.
    *
    * @param method the method to be invoked, which may come from an interface
    * @param targetClass the target class for the current invocation.
@@ -157,13 +154,12 @@ public abstract class AopUtils {
    * @return the specific target method, or the original method if the
    * {@code targetClass} doesn't implement it or is {@code null}
    * @see cn.taketoday.util.ReflectionUtils#getMostSpecificMethod
+   * @see cn.taketoday.core.BridgeMethodResolver#getMostSpecificMethod
    * @since 4.0
    */
   public static Method getMostSpecificMethod(Method method, @Nullable Class<?> targetClass) {
     Class<?> specificTargetClass = (targetClass != null ? ClassUtils.getUserClass(targetClass) : null);
-    Method resolvedMethod = ReflectionUtils.getMostSpecificMethod(method, specificTargetClass);
-    // If we are dealing with method with generic parameters, find the original method.
-    return BridgeMethodResolver.findBridgedMethod(resolvedMethod);
+    return BridgeMethodResolver.getMostSpecificMethod(method, specificTargetClass);
   }
 
   /**

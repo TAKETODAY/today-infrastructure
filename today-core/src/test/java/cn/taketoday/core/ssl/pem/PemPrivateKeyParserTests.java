@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.ssl.pem;
@@ -26,11 +26,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
-import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
-import cn.taketoday.util.ObjectUtils;
 
+import static cn.taketoday.core.ssl.pem.PemPrivateKeyParser.parse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
@@ -79,10 +78,7 @@ class PemPrivateKeyParserTests {
   void shouldNotParseUnsupportedTraditionalPkcs1(String file) {
     assertThatIllegalStateException()
             .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/pkcs1/" + file)))
-            .withMessageContaining("Error loading private key file")
-            .withCauseInstanceOf(IllegalStateException.class)
-            .havingCause()
-            .withMessageContaining("Unsupported private key format");
+            .withMessageContaining("Missing private key or unrecognized format");
   }
 
   @ParameterizedTest
@@ -121,11 +117,8 @@ class PemPrivateKeyParserTests {
     // @formatter:on
   void shouldNotParseUnsupportedEcPkcs8(String file) {
     assertThatIllegalStateException()
-            .isThrownBy(() -> PemPrivateKeyParser.parse(read("cn/taketoday/core/ssl/pkcs8/" + file)))
-            .withMessageContaining("Error loading private key file")
-            .withCauseInstanceOf(IllegalStateException.class)
-            .havingCause()
-            .withMessageContaining("Unrecognized private key format");
+            .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/pkcs8/" + file)))
+            .withMessageContaining("Missing private key or unrecognized format");
   }
 
   @ParameterizedTest
@@ -192,16 +185,13 @@ class PemPrivateKeyParserTests {
     // @formatter:on
   void shouldNotParseUnsupportedEcSec1(String file) {
     assertThatIllegalStateException()
-            .isThrownBy(() -> PemPrivateKeyParser.parse(read("cn/taketoday/core/ssl/sec1/" + file)))
-            .withMessageContaining("Error loading private key file")
-            .withCauseInstanceOf(IllegalStateException.class)
-            .havingCause()
-            .withMessageContaining("Unrecognized private key format");
+            .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/sec1/" + file)))
+            .withMessageContaining("Missing private key or unrecognized format");
   }
 
   @Test
-  void parseWithNonKeyTextWillReturnEmptyArray() throws Exception {
-    assertThat(PemPrivateKeyParser.parse(read("test-banner.txt"))).isEmpty();
+  void parseWithNonKeyTextWillThrowException() {
+    assertThatIllegalStateException().isThrownBy(() -> parse(read("test-banner.txt")));
   }
 
   @ParameterizedTest
@@ -219,10 +209,9 @@ class PemPrivateKeyParserTests {
     // openssl pkcs8 -topk8 -in <input file> -out <output file> -v2 <algorithm>
     // -passout pass:test
     // where <algorithm> is aes128 or aes256
-    String content = read("cn/taketoday/core/ssl/pkcs8/" + file);
-    List<PrivateKey> privateKeys = PemPrivateKeyParser.parse(content, "test");
-    assertThat(privateKeys).isNotEmpty();
-    PrivateKey privateKey = privateKeys.get(0);
+    PrivateKey privateKey = parse(read("cn/taketoday/core/ssl/pkcs8/" + file),
+            "test");
+    assertThat(privateKey).isNotNull();
     assertThat(privateKey.getFormat()).isEqualTo("PKCS#8");
     assertThat(privateKey.getAlgorithm()).isEqualTo(algorithm);
   }
@@ -233,8 +222,7 @@ class PemPrivateKeyParserTests {
     // openssl pkcs8 -topk8 -in rsa.key -out rsa-des-ede3-cbc.key -v2 des3 -passout
     // pass:test
     assertThatIllegalStateException()
-            .isThrownBy(() -> PemPrivateKeyParser
-                    .parse(read("cn/taketoday/core/ssl/pkcs8/rsa-des-ede3-cbc.key"), "test"))
+            .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/pkcs8/rsa-des-ede3-cbc.key"), "test"))
             .isInstanceOf(IllegalStateException.class)
             .withMessageContaining("Error decrypting private key");
   }
@@ -245,32 +233,27 @@ class PemPrivateKeyParserTests {
     // openssl pkcs8 -topk8 -in rsa.key -out rsa-des-ede3-cbc.key -scrypt -passout
     // pass:test
     assertThatIllegalStateException()
-            .isThrownBy(() -> PemPrivateKeyParser
-                    .parse(read("cn/taketoday/core/ssl/pkcs8/rsa-scrypt.key"), "test"))
+            .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/pkcs8/rsa-scrypt.key"), "test"))
             .withMessageContaining("Error decrypting private key");
   }
 
   @Test
-  void shouldNotParseEncryptedSec1() throws Exception {
+  void shouldNotParseEncryptedSec1() {
     // created with:
     // openssl ecparam -genkey -name prime256v1 | openssl ec -aes-128-cbc -out
     // prime256v1-aes-128-cbc.key
-    assertThat(PemPrivateKeyParser
-            .parse(read("cn/taketoday/core/ssl/sec1/prime256v1-aes-128-cbc.key"), "test")).isEmpty();
+    assertThatIllegalStateException()
+            .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/sec1/prime256v1-aes-128-cbc.key"), "test"))
+            .withMessageContaining("Missing private key or unrecognized format");
   }
 
   @Test
-  void shouldNotParseEncryptedPkcs1() throws Exception {
+  void shouldNotParseEncryptedPkcs1() {
     // created with:
     // openssl genrsa -aes-256-cbc -out rsa-aes-256-cbc.key
-    assertThat(PemPrivateKeyParser.parse(read("cn/taketoday/core/ssl/pkcs1/rsa-aes-256-cbc.key"),
-            "test"))
-            .isEmpty();
-  }
-
-  private PrivateKey parse(String key) {
-    List<PrivateKey> keys = PemPrivateKeyParser.parse(key);
-    return (!ObjectUtils.isEmpty(keys)) ? keys.get(0) : null;
+    assertThatIllegalStateException()
+            .isThrownBy(() -> parse(read("cn/taketoday/core/ssl/pkcs1/rsa-aes-256-cbc.key"), "test"))
+            .withMessageContaining("Missing private key or unrecognized format");
   }
 
   private String read(String path) throws IOException {

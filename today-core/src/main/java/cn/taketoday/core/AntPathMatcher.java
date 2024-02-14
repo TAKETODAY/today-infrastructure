@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core;
 
 import java.util.ArrayList;
@@ -78,9 +79,8 @@ import cn.taketoday.util.StringUtils;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-03-26 10:20
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.7 2019-03-26 10:20
  */
 public class AntPathMatcher implements PathMatcher {
 
@@ -103,8 +103,9 @@ public class AntPathMatcher implements PathMatcher {
   @Nullable
   private volatile Boolean cachePatterns;
 
-  private final Map<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
-  final Map<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<String, String[]> tokenizedPatternCache = new ConcurrentHashMap<>(256);
+
+  final ConcurrentHashMap<String, AntPathStringMatcher> stringMatcherCache = new ConcurrentHashMap<>(256);
 
   /**
    * Create a new instance with the {@link #DEFAULT_PATH_SEPARATOR}.
@@ -131,7 +132,7 @@ public class AntPathMatcher implements PathMatcher {
    * <p>
    * Default is "/", as in Ant.
    */
-  public void setPathSeparator(String pathSeparator) {
+  public void setPathSeparator(@Nullable String pathSeparator) {
     this.pathSeparator = (pathSeparator != null ? pathSeparator : DEFAULT_PATH_SEPARATOR);
     this.pathSeparatorPatternCache = new PathSeparatorPatternCache(this.pathSeparator);
   }
@@ -179,7 +180,7 @@ public class AntPathMatcher implements PathMatcher {
   }
 
   @Override
-  public boolean isPattern(final String path) {
+  public boolean isPattern(@Nullable final String path) {
     if (path != null) {
       boolean uriVar = false;
       final int length = path.length();
@@ -220,12 +221,7 @@ public class AntPathMatcher implements PathMatcher {
    * @return {@code true} if the supplied {@code path} matched, {@code false} if
    * it didn't
    */
-  protected boolean doMatch(
-          String pattern,
-          String path,
-          boolean fullMatch,
-          @Nullable Map<String, String> uriTemplateVariables
-  ) {
+  protected boolean doMatch(String pattern, @Nullable String path, boolean fullMatch, @Nullable Map<String, String> uriTemplateVariables) {
 
     final String pathSeparator;
     if (path == null || path.startsWith(pathSeparator = this.pathSeparator) != pattern.startsWith(pathSeparator)) {
@@ -367,7 +363,7 @@ public class AntPathMatcher implements PathMatcher {
         pos += skipped;
         skipped = skipSegment(path, pos, pattDir);
         if (skipped < pattDir.length()) {
-          return (skipped > 0 || (pattDir.length() > 0 && isWildcardChar(pattDir.charAt(0))));
+          return (skipped > 0 || (!pattDir.isEmpty() && isWildcardChar(pattDir.charAt(0))));
         }
         pos += skipped;
       }
@@ -784,6 +780,7 @@ public class AntPathMatcher implements PathMatcher {
 
     private static final String DEFAULT_VARIABLE_PATTERN = "(.*)";
 
+    @Nullable
     private final Pattern pattern;
 
     private final ArrayList<String> variableNames;
@@ -793,10 +790,6 @@ public class AntPathMatcher implements PathMatcher {
     private final boolean caseSensitive;
 
     private final boolean exactMatch;
-
-    public AntPathStringMatcher(String pattern) {
-      this(pattern, true);
-    }
 
     public AntPathStringMatcher(final String pattern, final boolean caseSensitive) {
       this.rawPattern = pattern;
@@ -851,17 +844,19 @@ public class AntPathMatcher implements PathMatcher {
 
     @Nullable
     public String[] extractVariables(String str) {
-      final Matcher matcher = this.pattern.matcher(str);
-      if (matcher.matches()) {
-        final int groupCount = matcher.groupCount();
-        if (variableNames.size() != groupCount) {
-          throwIllegalArgumentException();
+      if (pattern != null) {
+        Matcher matcher = this.pattern.matcher(str);
+        if (matcher.matches()) {
+          final int groupCount = matcher.groupCount();
+          if (variableNames.size() != groupCount) {
+            throwIllegalArgumentException();
+          }
+          final String[] ret = new String[groupCount];
+          for (int i = 0; i < groupCount; i++) {
+            ret[i] = matcher.group(i + 1);
+          }
+          return ret;
         }
-        final String[] ret = new String[groupCount];
-        for (int i = 0; i < groupCount; i++) {
-          ret[i] = matcher.group(i + 1);
-        }
-        return ret;
       }
       return null;
     }
@@ -965,10 +960,10 @@ public class AntPathMatcher implements PathMatcher {
         return 1;
       }
 
-      if (info1.isPrefixPattern() && info2.getDoubleWildcards() == 0) {
+      if (info1.prefixPattern && info2.doubleWildcards == 0) {
         return 1;
       }
-      else if (info2.isPrefixPattern() && info1.getDoubleWildcards() == 0) {
+      else if (info2.prefixPattern && info1.doubleWildcards == 0) {
         return -1;
       }
 
@@ -980,17 +975,17 @@ public class AntPathMatcher implements PathMatcher {
         return info2.getLength() - info1.getLength();
       }
 
-      if (info1.getSingleWildcards() < info2.getSingleWildcards()) {
+      if (info1.singleWildcards < info2.singleWildcards) {
         return -1;
       }
-      else if (info2.getSingleWildcards() < info1.getSingleWildcards()) {
+      else if (info2.singleWildcards < info1.singleWildcards) {
         return 1;
       }
 
-      if (info1.getUriVars() < info2.getUriVars()) {
+      if (info1.uriVars < info2.uriVars) {
         return -1;
       }
-      else if (info2.getUriVars() < info1.getUriVars()) {
+      else if (info2.uriVars < info1.uriVars) {
         return 1;
       }
       return 0;
@@ -1002,15 +997,23 @@ public class AntPathMatcher implements PathMatcher {
      */
     private static class PatternInfo {
 
-      private int uriVars;
+      public int uriVars;
+
+      @Nullable
       private Integer length;
-      private int singleWildcards;
-      private int doubleWildcards;
-      private boolean prefixPattern;
-      private boolean catchAllPattern;
+
+      public int singleWildcards;
+
+      public int doubleWildcards;
+
+      public boolean prefixPattern;
+
+      public boolean catchAllPattern;
+
+      @Nullable
       private final String pattern;
 
-      public PatternInfo(String pattern) {
+      public PatternInfo(@Nullable String pattern) {
         this.pattern = pattern;
         if (pattern != null) {
           initCounters(pattern);
@@ -1022,7 +1025,7 @@ public class AntPathMatcher implements PathMatcher {
         }
       }
 
-      protected void initCounters(final String pattern) {
+      protected void initCounters(@Nullable String pattern) {
         if (pattern != null) {
           int pos = 0;
           final int length = pattern.length();
@@ -1051,24 +1054,8 @@ public class AntPathMatcher implements PathMatcher {
         }
       }
 
-      public int getUriVars() {
-        return this.uriVars;
-      }
-
-      public int getSingleWildcards() {
-        return this.singleWildcards;
-      }
-
-      public int getDoubleWildcards() {
-        return this.doubleWildcards;
-      }
-
       public boolean isLeastSpecific() {
         return (this.pattern == null || this.catchAllPattern);
-      }
-
-      public boolean isPrefixPattern() {
-        return this.prefixPattern;
       }
 
       public int getTotalCount() {

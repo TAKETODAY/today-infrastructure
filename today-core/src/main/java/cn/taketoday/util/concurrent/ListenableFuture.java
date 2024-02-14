@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -42,11 +39,11 @@ import java.util.concurrent.Future;
 public interface ListenableFuture<T> extends Future<T> {
 
   /**
-   * Register the given {@code ListenableFutureCallback}.
+   * Register the given {@code FutureListener}.
    *
-   * @param callback the callback to register
+   * @param listener the callback to register
    */
-  void addCallback(ListenableFutureCallback<? super T> callback);
+  void addListener(FutureListener<? super T> listener);
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
@@ -54,14 +51,16 @@ public interface ListenableFuture<T> extends Future<T> {
    * @param successCallback the success callback
    * @param failureCallback the failure callback
    */
-  void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback);
+  default void addListener(SuccessCallback<T> successCallback, FailureCallback failureCallback) {
+    addListener(FutureListener.forListenable(successCallback, failureCallback));
+  }
 
   /**
    * Expose this {@link ListenableFuture} as a JDK {@link CompletableFuture}.
    */
   default CompletableFuture<T> completable() {
-    CompletableFuture<T> completable = new DelegatingCompletableFuture<>(this);
-    addCallback(completable::complete, completable::completeExceptionally);
+    DelegatingCompletableFuture<T> completable = new DelegatingCompletableFuture<>(this);
+    addListener(completable);
     return completable;
   }
 

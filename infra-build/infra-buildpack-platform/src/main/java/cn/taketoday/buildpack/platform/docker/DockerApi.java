@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.buildpack.platform.docker;
@@ -23,6 +23,7 @@ import org.apache.hc.core5.net.URIBuilder;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,9 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -56,7 +55,6 @@ import cn.taketoday.buildpack.platform.io.IOBiConsumer;
 import cn.taketoday.buildpack.platform.io.TarArchive;
 import cn.taketoday.buildpack.platform.json.JsonStream;
 import cn.taketoday.buildpack.platform.json.SharedObjectMapper;
-import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
@@ -306,29 +304,20 @@ public class DockerApi {
       Assert.notNull(exports, "Exports is required");
       URI saveUri = buildUrl("/images/" + reference + "/get");
       Response response = http().get(saveUri);
-      ImageArchiveManifest manifest = null;
-      Map<String, Path> layerFiles = new HashMap<>();
-      try (TarArchiveInputStream tar = new TarArchiveInputStream(response.getContent())) {
-        TarArchiveEntry entry = tar.getNextTarEntry();
+      Path exportFile = copyToTemp(response.getContent());
+      ImageArchiveManifest manifest = getManifest(reference, exportFile);
+      try (TarArchiveInputStream tar = new TarArchiveInputStream(new FileInputStream(exportFile.toFile()))) {
+        TarArchiveEntry entry = tar.getNextEntry();
         while (entry != null) {
-          if (entry.getName().equals("manifest.json")) {
-            manifest = readManifest(tar);
+          if (manifestContainsLayerEntry(manifest, entry.getName())) {
+            Path layerFile = copyToTemp(tar);
+            exports.accept(entry.getName(), layerFile);
+            Files.delete(layerFile);
           }
-          if (entry.getName().endsWith(".tar")) {
-            layerFiles.put(entry.getName(), copyToTemp(tar));
-          }
-          entry = tar.getNextTarEntry();
+          entry = tar.getNextEntry();
         }
       }
-      Assert.notNull(manifest, "Manifest not found in image " + reference);
-      for (Map.Entry<String, Path> entry : layerFiles.entrySet()) {
-        String name = entry.getKey();
-        Path path = entry.getValue();
-        if (manifestContainsLayerEntry(manifest, name)) {
-          exports.accept(name, path);
-        }
-        Files.delete(path);
-      }
+      Files.delete(exportFile);
     }
 
     /**
@@ -370,14 +359,27 @@ public class DockerApi {
       http().post(uri).close();
     }
 
+    private ImageArchiveManifest getManifest(ImageReference reference, Path exportFile) throws IOException {
+      try (TarArchiveInputStream tar = new TarArchiveInputStream(new FileInputStream(exportFile.toFile()))) {
+        TarArchiveEntry entry = tar.getNextEntry();
+        while (entry != null) {
+          if (entry.getName().equals("manifest.json")) {
+            return readManifest(tar);
+          }
+          entry = tar.getNextEntry();
+        }
+      }
+      throw new IllegalArgumentException("Manifest not found in image " + reference);
+    }
+
     private ImageArchiveManifest readManifest(TarArchiveInputStream tar) throws IOException {
       String manifestContent = new BufferedReader(new InputStreamReader(tar, StandardCharsets.UTF_8)).lines()
               .collect(Collectors.joining());
       return ImageArchiveManifest.of(new ByteArrayInputStream(manifestContent.getBytes(StandardCharsets.UTF_8)));
     }
 
-    private Path copyToTemp(TarArchiveInputStream in) throws IOException {
-      Path path = ApplicationTemp.createFile("create-builder-scratch");
+    private Path copyToTemp(InputStream in) throws IOException {
+      Path path = Files.createTempFile("create-builder-scratch-", null);
       try (OutputStream out = Files.newOutputStream(path)) {
         StreamUtils.copy(in, out);
       }
@@ -520,7 +522,7 @@ public class DockerApi {
   /**
    * {@link UpdateListener} used to capture the image digest.
    */
-  private static class DigestCaptureUpdateListener implements UpdateListener<ProgressUpdateEvent> {
+  private static final class DigestCaptureUpdateListener implements UpdateListener<ProgressUpdateEvent> {
 
     private static final String PREFIX = "Digest:";
 
@@ -541,7 +543,7 @@ public class DockerApi {
   /**
    * {@link UpdateListener} used to ensure an image load response stream.
    */
-  private static class StreamCaptureUpdateListener implements UpdateListener<LoadImageUpdateEvent> {
+  private static final class StreamCaptureUpdateListener implements UpdateListener<LoadImageUpdateEvent> {
 
     private String stream;
 
@@ -560,7 +562,7 @@ public class DockerApi {
    * {@link UpdateListener} used to capture the details of an error in a response
    * stream.
    */
-  private static class ErrorCaptureUpdateListener implements UpdateListener<PushImageUpdateEvent> {
+  private static final class ErrorCaptureUpdateListener implements UpdateListener<PushImageUpdateEvent> {
 
     @Override
     public void onUpdate(PushImageUpdateEvent event) {

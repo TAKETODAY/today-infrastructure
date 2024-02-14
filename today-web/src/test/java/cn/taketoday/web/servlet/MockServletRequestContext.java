@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.http.server.ServletServerHttpResponse;
@@ -469,10 +468,6 @@ public class MockServletRequestContext extends RequestContext implements Servlet
 
   public void setLookupPath(RequestPath lookupPath) {
     this.lookupPath = lookupPath;
-  }
-
-  public void setPathWithinApplication(PathContainer pathWithinApplication) {
-    this.pathWithinApplication = pathWithinApplication;
   }
 
   public void setLocale(Locale locale) {

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
@@ -32,6 +29,7 @@ import reactor.core.publisher.Mono;
  * {@link ClientHttpRequest} and receive a {@link ClientHttpResponse}.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ClientHttpConnector {
@@ -49,7 +47,7 @@ public interface ClientHttpConnector {
    * {@link ClientHttpRequest#writeWith} or {@link ClientHttpRequest#setComplete}.
    * @return publisher for the {@link ClientHttpResponse}
    */
-  Mono<ClientHttpResponse> connect(
-          HttpMethod method, URI uri, Function<? super ClientHttpRequest, Mono<Void>> requestCallback);
+  Mono<ClientHttpResponse> connect(HttpMethod method, URI uri,
+          Function<? super ClientHttpRequest, Mono<Void>> requestCallback);
 
 }

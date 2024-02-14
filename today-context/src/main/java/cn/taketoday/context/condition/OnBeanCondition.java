@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     if (annotations.isPresent(ConditionalOnBean.class)) {
       var spec = new Spec<>(context, metadata, annotations, ConditionalOnBean.class);
       MatchResult matchResult = getMatchingBeans(context, spec);
-      if (!matchResult.isAllMatched()) {
+      if (matchResult.isNoneMatch()) {
         String reason = createOnBeanNoMatchReason(matchResult);
         return ConditionOutcome.noMatch(spec.message().because(reason));
       }
@@ -131,7 +131,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     if (metadata.isAnnotated(ConditionalOnSingleCandidate.class.getName())) {
       Spec<ConditionalOnSingleCandidate> spec = new SingleCandidateSpec(context, metadata, annotations);
       MatchResult matchResult = getMatchingBeans(context, spec);
-      if (!matchResult.isAllMatched()) {
+      if (matchResult.isNoneMatch()) {
         return ConditionOutcome.noMatch(spec.message().didNotFind("any beans").atAll());
       }
       Set<String> allBeans = matchResult.namesOfAllMatches;
@@ -167,7 +167,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     return ConditionOutcome.match(matchMessage);
   }
 
-  protected final MatchResult getMatchingBeans(ConditionContext context, Spec<?> spec) {
+  final MatchResult getMatchingBeans(ConditionContext context, Spec<?> spec) {
     ClassLoader classLoader = context.getClassLoader();
     ConfigurableBeanFactory beanFactory = context.getRequiredBeanFactory();
     boolean considerHierarchy = spec.getStrategy() != SearchStrategy.CURRENT;
@@ -304,7 +304,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
           continue;
         }
       }
-      if (beanFactory.findAnnotationOnBean(beanName, annotationType, false) != null) {
+      if (beanFactory.findAnnotationOnBean(beanName, annotationType, false).isPresent()) {
         foundBeanNames.add(beanName);
       }
     }
@@ -415,7 +415,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   /**
    * A search specification extracted from the underlying annotation.
    */
-  private static class Spec<A extends Annotation> {
+  static class Spec<A extends Annotation> {
 
     private final ClassLoader classLoader;
 
@@ -662,7 +662,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
   /**
    * Results collected during the condition evaluation.
    */
-  private static final class MatchResult {
+  static final class MatchResult {
 
     private final HashSet<String> namesOfAllMatches = new HashSet<>();
     private final HashMap<String, Collection<String>> matchedTypes = new HashMap<>();
@@ -700,10 +700,10 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
       this.unmatchedTypes.add(type);
     }
 
-    boolean isAllMatched() {
-      return this.unmatchedAnnotations.isEmpty()
-              && this.unmatchedNames.isEmpty()
-              && this.unmatchedTypes.isEmpty();
+    boolean isNoneMatch() {
+      return !this.unmatchedAnnotations.isEmpty()
+              || !this.unmatchedNames.isEmpty()
+              || !this.unmatchedTypes.isEmpty();
     }
 
     boolean isAnyMatched() {

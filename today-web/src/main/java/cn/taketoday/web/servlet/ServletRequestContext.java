@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -385,7 +385,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
   }
 
   @Override
-  public void writeHeaders() {
+  protected void writeHeaders() {
     if (!headersWritten) {
       HttpHeaders headers = responseHeaders();
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
@@ -527,11 +527,12 @@ public final class ServletRequestContext extends RequestContext implements Servl
   private static final class ServletRequestPath extends RequestPath {
 
     private final RequestPath requestPath;
+
     private final PathContainer contextPath;
 
     private ServletRequestPath(String rawPath, @Nullable String contextPath, String servletPath) {
       this.requestPath = RequestPath.parse(rawPath, contextPath + servletPath);
-      this.contextPath = PathContainer.parsePath(StringUtils.hasText(contextPath) ? contextPath : "");
+      this.contextPath = StringUtils.hasText(contextPath) ? PathContainer.parsePath(contextPath) : PathContainer.empty();
     }
 
     @Override

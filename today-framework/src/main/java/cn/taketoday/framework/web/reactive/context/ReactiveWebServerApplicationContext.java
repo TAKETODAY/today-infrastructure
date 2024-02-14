@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.reactive.context;
@@ -23,6 +20,7 @@ package cn.taketoday.framework.web.reactive.context;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.framework.ApplicationType;
@@ -43,11 +41,13 @@ import cn.taketoday.util.StringUtils;
  * from a contained {@link ReactiveWebServerFactory} bean.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReactiveWebServerApplicationContext extends GenericReactiveWebApplicationContext
         implements ConfigurableWebServerApplicationContext {
 
+  @Nullable
   private volatile WebServerManager serverManager;
 
   private String serverNamespace;
@@ -76,7 +76,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     catch (RuntimeException ex) {
       WebServerManager serverManager = this.serverManager;
       if (serverManager != null) {
-        serverManager.getWebServer().stop();
+        serverManager.webServer.stop();
       }
       throw ex;
     }
@@ -97,16 +97,14 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     WebServerManager serverManager = this.serverManager;
     if (serverManager == null) {
       String webServerFactoryBeanName = getWebServerFactoryBeanName();
-      ReactiveWebServerFactory webServerFactory = getWebServerFactory(webServerFactoryBeanName);
       StandardBeanFactory beanFactory = getBeanFactory();
+      ReactiveWebServerFactory webServerFactory = getWebServerFactory(beanFactory, webServerFactoryBeanName);
       boolean lazyInit = beanFactory.getBeanDefinition(webServerFactoryBeanName).isLazyInit();
 
-      this.serverManager = new WebServerManager(
-              this, webServerFactory, this::getHttpHandler, lazyInit);
-      beanFactory.registerSingleton("webServerGracefulShutdown",
-              new WebServerGracefulShutdownLifecycle(this.serverManager.getWebServer()));
-      beanFactory.registerSingleton("webServerStartStop",
-              new WebServerStartStopLifecycle(this.serverManager));
+      serverManager = new WebServerManager(this, webServerFactory, this::getHttpHandler, lazyInit);
+      beanFactory.registerSingleton("webServerGracefulShutdown", new WebServerGracefulShutdownLifecycle(serverManager.webServer));
+      beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(serverManager));
+      this.serverManager = serverManager;
     }
     initPropertySources();
   }
@@ -125,8 +123,8 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     return CollectionUtils.firstElement(beanNames);
   }
 
-  protected ReactiveWebServerFactory getWebServerFactory(String factoryBeanName) {
-    return getBeanFactory().getBean(factoryBeanName, ReactiveWebServerFactory.class);
+  protected ReactiveWebServerFactory getWebServerFactory(ConfigurableBeanFactory beanFactory, String factoryBeanName) {
+    return beanFactory.getBean(factoryBeanName, ReactiveWebServerFactory.class);
   }
 
   /**
@@ -168,7 +166,7 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
   @Override
   public WebServer getWebServer() {
     WebServerManager serverManager = this.serverManager;
-    return (serverManager != null) ? serverManager.getWebServer() : null;
+    return (serverManager != null) ? serverManager.webServer : null;
   }
 
   @Nullable

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter;
@@ -84,9 +84,9 @@ public abstract class AbstractGenericHttpMessageConverter<T>
    * and then calls {@link #writeInternal}.
    */
   @Override
-  public final void write(final T t, @Nullable final Type type, @Nullable MediaType contentType,
-          HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
-
+  public final void write(final T t, @Nullable final Type type, @Nullable MediaType contentType, HttpOutputMessage outputMessage)
+          throws IOException, HttpMessageNotWritableException //
+  {
     final HttpHeaders headers = outputMessage.getHeaders();
     addDefaultHeaders(headers, t, contentType);
 
@@ -115,13 +115,11 @@ public abstract class AbstractGenericHttpMessageConverter<T>
     }
     else {
       writeInternal(t, type, outputMessage);
-      outputMessage.getBody().flush();
     }
   }
 
   @Override
-  protected void writeInternal(T t, HttpOutputMessage outputMessage)
-          throws IOException, HttpMessageNotWritableException {
+  protected void writeInternal(T t, HttpOutputMessage outputMessage) throws IOException, HttpMessageNotWritableException {
     writeInternal(t, null, outputMessage);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -379,8 +379,8 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
         if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
           return;
         }
-        if (method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
-          if (ejbAnnotationType != null && bridgedMethod.isAnnotationPresent(ejbAnnotationType)) {
+        if (ejbAnnotationType != null && bridgedMethod.isAnnotationPresent(ejbAnnotationType)) {
+          if (method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
             if (Modifier.isStatic(method.getModifiers())) {
               throw new IllegalStateException("@EJB annotation is not supported on static methods");
             }
@@ -390,7 +390,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
             PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
             currElements.add(new EjbRefElement(method, bridgedMethod, pd));
           }
-          else if (jakartaResourceType != null && bridgedMethod.isAnnotationPresent(jakartaResourceType)) {
+        }
+        else if (jakartaResourceType != null && bridgedMethod.isAnnotationPresent(jakartaResourceType)) {
+          if (method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
             if (Modifier.isStatic(method.getModifiers())) {
               throw new IllegalStateException("@Resource annotation is not supported on static methods");
             }
@@ -403,7 +405,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
               currElements.add(new ResourceElement(method, bridgedMethod, pd));
             }
           }
-          else if (javaxResourceType != null && bridgedMethod.isAnnotationPresent(javaxResourceType)) {
+        }
+        else if (javaxResourceType != null && bridgedMethod.isAnnotationPresent(javaxResourceType)) {
+          if (method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
             if (Modifier.isStatic(method.getModifiers())) {
               throw new IllegalStateException("@Resource annotation is not supported on static methods");
             }

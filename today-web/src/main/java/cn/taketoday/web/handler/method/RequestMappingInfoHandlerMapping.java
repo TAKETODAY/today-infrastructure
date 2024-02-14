@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -99,20 +96,17 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   @Override
   protected void handleMatch(Match<RequestMappingInfo> bestMatch, String directLookupPath, RequestContext request) {
-    super.handleMatch(bestMatch, directLookupPath, request);
-
     RequestMappingInfo info = bestMatch.mapping;
     PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
-            bestMatch.getHandlerMethod(),
-            directLookupPath, request.getLookupPath(),
-            CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser()
-    );
+            bestMatch.getHandlerMethod(), directLookupPath, request.getLookupPath(),
+            CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser());
+
     request.setMatchingMetadata(matchingMetadata);
 
-    Set<MediaType> mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
-    if (!mediaTypes.isEmpty()) {
-      matchingMetadata.setProducibleMediaTypes(mediaTypes.toArray(new MediaType[0]));
+    MediaType[] mediaTypes = info.getProducesCondition().getProducibleMediaTypes();
+    if (mediaTypes.length > 0) {
+      matchingMetadata.setProducibleMediaTypes(mediaTypes);
     }
   }
 
@@ -126,9 +120,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    * but not by consumable/producible media types
    */
   @Override
-  protected HandlerMethod handleNoMatch(
-          Set<RequestMappingInfo> infos, String lookupPath, RequestContext request) {
-
+  protected HandlerMethod handleNoMatch(Set<RequestMappingInfo> infos, String lookupPath, RequestContext request) {
     if (CollectionUtils.isEmpty(infos)) {
       return null;
     }
@@ -181,12 +173,12 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   private static class PartialMatchHelper {
 
-    private final List<PartialMatch> partialMatches = new ArrayList<>();
+    private final ArrayList<PartialMatch> partialMatches = new ArrayList<>();
 
     public PartialMatchHelper(Set<RequestMappingInfo> infos, RequestContext request) {
       for (RequestMappingInfo info : infos) {
         if (info.getPathPatternsCondition().getMatchingCondition(request) != null) {
-          this.partialMatches.add(new PartialMatch(info, request));
+          partialMatches.add(new PartialMatch(info, request));
         }
       }
     }
@@ -203,7 +195,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      */
     public boolean hasMethodsMismatch() {
       for (PartialMatch match : this.partialMatches) {
-        if (match.hasMethodsMatch()) {
+        if (match.methodsMatch) {
           return false;
         }
       }
@@ -252,7 +244,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     public Set<String> getAllowedMethods() {
       LinkedHashSet<String> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
-        for (HttpMethod method : match.getInfo().getMethodsCondition().getMethods()) {
+        for (HttpMethod method : match.info.getMethodsCondition().getMethods()) {
           result.add(method.name());
         }
       }
@@ -266,8 +258,8 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     public Set<MediaType> getConsumableMediaTypes() {
       LinkedHashSet<MediaType> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
-        if (match.hasMethodsMatch()) {
-          result.addAll(match.getInfo().getConsumesCondition().getConsumableMediaTypes());
+        if (match.methodsMatch) {
+          result.addAll(match.info.getConsumesCondition().getConsumableMediaTypes());
         }
       }
       return result;
@@ -278,10 +270,10 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      * match the "methods" and "consumes" conditions.
      */
     public Set<MediaType> getProducibleMediaTypes() {
-      Set<MediaType> result = new LinkedHashSet<>();
+      LinkedHashSet<MediaType> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
         if (match.hasConsumesMatch()) {
-          result.addAll(match.getInfo().getProducesCondition().getProducibleMediaTypes());
+          CollectionUtils.addAll(result, match.info.getProducesCondition().getProducibleMediaTypes());
         }
       }
       return result;
@@ -293,13 +285,13 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      */
     public List<String[]> getParamConditions() {
       ArrayList<String[]> result = new ArrayList<>();
-      for (PartialMatch match : this.partialMatches) {
+      for (PartialMatch match : partialMatches) {
         if (match.hasProducesMatch()) {
-          Set<NameValueExpression<String>> set = match.getInfo().getParamsCondition().getExpressions();
+          Set<NameValueExpression> set = match.info.getParamsCondition().getExpressions();
           if (CollectionUtils.isNotEmpty(set)) {
             int i = 0;
             String[] array = new String[set.size()];
-            for (NameValueExpression<String> expression : set) {
+            for (NameValueExpression expression : set) {
               array[i++] = expression.toString();
             }
             result.add(array);
@@ -316,9 +308,9 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     public Set<MediaType> getConsumablePatchMediaTypes() {
       LinkedHashSet<MediaType> result = new LinkedHashSet<>();
       for (PartialMatch match : this.partialMatches) {
-        Set<HttpMethod> methods = match.getInfo().getMethodsCondition().getMethods();
+        Set<HttpMethod> methods = match.info.getMethodsCondition().getMethods();
         if (methods.isEmpty() || methods.contains(HttpMethod.PATCH)) {
-          result.addAll(match.getInfo().getConsumesCondition().getConsumableMediaTypes());
+          result.addAll(match.info.getConsumesCondition().getConsumableMediaTypes());
         }
       }
       return result;
@@ -329,9 +321,9 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
      */
     private static class PartialMatch {
 
-      private final RequestMappingInfo info;
+      public final RequestMappingInfo info;
 
-      private final boolean methodsMatch;
+      public final boolean methodsMatch;
 
       private final boolean consumesMatch;
 
@@ -347,30 +339,22 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
        */
       public PartialMatch(RequestMappingInfo info, RequestContext request) {
         this.info = info;
-        this.methodsMatch = (info.getMethodsCondition().getMatchingCondition(request) != null);
-        this.consumesMatch = (info.getConsumesCondition().getMatchingCondition(request) != null);
-        this.producesMatch = (info.getProducesCondition().getMatchingCondition(request) != null);
-        this.paramsMatch = (info.getParamsCondition().getMatchingCondition(request) != null);
-      }
-
-      public RequestMappingInfo getInfo() {
-        return this.info;
-      }
-
-      public boolean hasMethodsMatch() {
-        return this.methodsMatch;
+        this.methodsMatch = info.getMethodsCondition().getMatchingCondition(request) != null;
+        this.consumesMatch = info.getConsumesCondition().getMatchingCondition(request) != null;
+        this.producesMatch = info.getProducesCondition().getMatchingCondition(request) != null;
+        this.paramsMatch = info.getParamsCondition().getMatchingCondition(request) != null;
       }
 
       public boolean hasConsumesMatch() {
-        return (hasMethodsMatch() && this.consumesMatch);
+        return methodsMatch && this.consumesMatch;
       }
 
       public boolean hasProducesMatch() {
-        return (hasConsumesMatch() && this.producesMatch);
+        return hasConsumesMatch() && this.producesMatch;
       }
 
       public boolean hasParamsMatch() {
-        return (hasProducesMatch() && this.paramsMatch);
+        return hasProducesMatch() && this.paramsMatch;
       }
 
       @Override
@@ -385,7 +369,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
    */
   private static class HttpOptionsHandler {
 
-    private final HttpHeaders headers = HttpHeaders.create();
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     public HttpOptionsHandler(Set<String> declaredMethods, Set<MediaType> acceptPatch) {
       this.headers.setAllow(initAllowedHttpMethods(declaredMethods));

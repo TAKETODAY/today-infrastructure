@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -144,8 +144,7 @@ public class ConditionEvaluationReportMessage {
 
   private MultiValueMap<String, String> mapToFullyQualifiedNames(Set<String> keySet) {
     LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    keySet.forEach(
-            (fullyQualifiedName) -> map.add(ClassUtils.getShortName(fullyQualifiedName), fullyQualifiedName));
+    keySet.forEach(fullyQualifiedName -> map.add(ClassUtils.getShortName(fullyQualifiedName), fullyQualifiedName));
     return map;
   }
 
@@ -156,13 +155,12 @@ public class ConditionEvaluationReportMessage {
     }
   }
 
-  private void addNonMatchLogMessage(StringBuilder message, String source,
-          ConditionAndOutcomes conditionAndOutcomes) {
+  private void addNonMatchLogMessage(StringBuilder message, String source, ConditionAndOutcomes conditionAndOutcomes) {
     message.append(String.format("%n   %s:%n", source));
     List<ConditionAndOutcome> matches = new ArrayList<>();
     List<ConditionAndOutcome> nonMatches = new ArrayList<>();
     for (ConditionAndOutcome conditionAndOutcome : conditionAndOutcomes) {
-      if (conditionAndOutcome.getOutcome().isMatch()) {
+      if (conditionAndOutcome.outcome.isMatch()) {
         matches.add(conditionAndOutcome);
       }
       else {
@@ -183,15 +181,15 @@ public class ConditionEvaluationReportMessage {
 
   private void logConditionAndOutcome(StringBuilder message, String indent, ConditionAndOutcome conditionAndOutcome) {
     message.append(String.format("%s- ", indent));
-    String outcomeMessage = conditionAndOutcome.getOutcome().getMessage();
+    String outcomeMessage = conditionAndOutcome.outcome.getMessage();
     if (StringUtils.isNotEmpty(outcomeMessage)) {
       message.append(outcomeMessage);
     }
     else {
-      message.append(conditionAndOutcome.getOutcome().isMatch() ? "matched" : "did not match");
+      message.append(conditionAndOutcome.outcome.isMatch() ? "matched" : "did not match");
     }
     message.append(" (");
-    message.append(ClassUtils.getShortName(conditionAndOutcome.getCondition().getClass()));
+    message.append(ClassUtils.getShortName(conditionAndOutcome.condition.getClass()));
     message.append(String.format(")%n"));
   }
 

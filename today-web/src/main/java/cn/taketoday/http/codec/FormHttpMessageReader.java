@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@ import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
@@ -47,8 +48,7 @@ import reactor.core.publisher.Mono;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class FormHttpMessageReader extends LoggingCodecSupport
-        implements HttpMessageReader<MultiValueMap<String, String>> {
+public class FormHttpMessageReader extends LoggingCodecSupport implements HttpMessageReader<MultiValueMap<String, String>> {
 
   private static final ResolvableType MULTIVALUE_STRINGS_TYPE =
           ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
@@ -104,15 +104,15 @@ public class FormHttpMessageReader extends LoggingCodecSupport
   }
 
   @Override
-  public Flux<MultiValueMap<String, String>> read(
-          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Flux<MultiValueMap<String, String>> read(ResolvableType elementType,
+          ReactiveHttpInputMessage message, Map<String, Object> hints) {
 
     return Flux.from(readMono(elementType, message, hints));
   }
 
   @Override
-  public Mono<MultiValueMap<String, String>> readMono(
-          ResolvableType elementType, ReactiveHttpInputMessage message, Map<String, Object> hints) {
+  public Mono<MultiValueMap<String, String>> readMono(ResolvableType elementType,
+          ReactiveHttpInputMessage message, Map<String, Object> hints) {
 
     MediaType contentType = message.getHeaders().getContentType();
     Charset charset = getMediaTypeCharset(contentType);
@@ -147,7 +147,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport
 
   private MultiValueMap<String, String> parseFormData(Charset charset, String body) {
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    MultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {

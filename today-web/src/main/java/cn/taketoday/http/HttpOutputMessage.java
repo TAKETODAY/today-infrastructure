@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Represents an HTTP output message, consisting of {@linkplain #getHeaders() headers}
@@ -30,6 +36,7 @@ import java.io.OutputStream;
  * or an HTTP response handle on the server side.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface HttpOutputMessage extends HttpMessage {
@@ -41,5 +48,56 @@ public interface HttpOutputMessage extends HttpMessage {
    * @throws IOException in case of I/O errors
    */
   OutputStream getBody() throws IOException;
+
+  /**
+   * Set the {@linkplain MediaType media type} of the body, as specified by the
+   * {@code Content-Type} header.
+   */
+  default void setContentType(@Nullable MediaType mediaType) {
+    getHeaders().setContentType(mediaType);
+  }
+
+  default boolean supportsZeroCopy() {
+    return false;
+  }
+
+  /**
+   * Use the given {@link File} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   */
+  default void sendFile(File file) {
+    sendFile(file, 0, file.length());
+  }
+
+  /**
+   * Use the given {@link File} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   * @param position the position within the file from which the transfer is to begin
+   * @param count the number of bytes to be transferred
+   */
+  default void sendFile(File file, long position, long count) {
+    sendFile(file.toPath(), position, count);
+  }
+
+  /**
+   * Use the given {@link Path} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   * @param position the position within the file from which the transfer is to begin
+   * @param count the number of bytes to be transferred
+   */
+  default void sendFile(Path file, long position, long count) {
+    try (InputStream inputStream = Files.newInputStream(file)) {
+      StreamUtils.copyRange(inputStream, getBody(), position, count);
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
 
 }

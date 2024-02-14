@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -61,15 +58,15 @@ class TestScenarioCreator {
   private static void populateFunctions(StandardEvaluationContext testContext) {
     try {
       testContext.registerFunction("isEven",
-              TestScenarioCreator.class.getDeclaredMethod("isEven", Integer.TYPE));
+              TestScenarioCreator.class.getDeclaredMethod("isEven", int.class));
       testContext.registerFunction("reverseInt",
-              TestScenarioCreator.class.getDeclaredMethod("reverseInt", Integer.TYPE, Integer.TYPE, Integer.TYPE));
+              TestScenarioCreator.class.getDeclaredMethod("reverseInt", int.class, int.class, int.class));
       testContext.registerFunction("reverseString",
               TestScenarioCreator.class.getDeclaredMethod("reverseString", String.class));
       testContext.registerFunction("varargsFunction",
               TestScenarioCreator.class.getDeclaredMethod("varargsFunction", String[].class));
       testContext.registerFunction("varargsFunction2",
-              TestScenarioCreator.class.getDeclaredMethod("varargsFunction2", Integer.TYPE, String[].class));
+              TestScenarioCreator.class.getDeclaredMethod("varargsFunction2", int.class, String[].class));
     }
     catch (Exception ex) {
       throw new IllegalStateException(ex);
@@ -120,27 +117,24 @@ class TestScenarioCreator {
    * Create the root context object, an Inventor instance. Non-qualified property
    * and method references will be resolved against this context object.
    *
-   * @param testContext the evaluation context in which to set the root object
+   * @param context the evaluation context in which to set the root object
    */
-  private static void setupRootContextObject(StandardEvaluationContext testContext) {
+  private static void setupRootContextObject(StandardEvaluationContext context) {
     GregorianCalendar c = new GregorianCalendar();
     c.set(1856, 7, 9);
     Inventor tesla = new Inventor("Nikola Tesla", c.getTime(), "Serbian");
     tesla.setPlaceOfBirth(new PlaceOfBirth("SmilJan"));
-    tesla.setInventions(new String[] { "Telephone repeater", "Rotating magnetic field principle",
+    tesla.setInventions("Telephone repeater", "Rotating magnetic field principle",
             "Polyphase alternating-current system", "Induction motor", "Alternating-current power transmission",
-            "Tesla coil transformer", "Wireless communication", "Radio", "Fluorescent lights" });
-    testContext.setRootObject(tesla);
+            "Tesla coil transformer", "Wireless communication", "Radio", "Fluorescent lights");
+    context.setRootObject(tesla);
   }
 
   // These methods are registered in the test context and therefore accessible through function calls
   // in test expressions
 
   public static String isEven(int i) {
-    if ((i % 2) == 0) {
-      return "y";
-    }
-    return "n";
+    return ((i % 2) == 0 ? "y" : "n");
   }
 
   public static int[] reverseInt(int i, int j, int k) {
@@ -148,11 +142,7 @@ class TestScenarioCreator {
   }
 
   public static String reverseString(String input) {
-    StringBuilder backwards = new StringBuilder();
-    for (int i = 0; i < input.length(); i++) {
-      backwards.append(input.charAt(input.length() - 1 - i));
-    }
-    return backwards.toString();
+    return new StringBuilder(input).reverse().toString();
   }
 
   public static String varargsFunction(String... strings) {

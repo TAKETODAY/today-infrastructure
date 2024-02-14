@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -21,6 +21,7 @@ import java.net.InetSocketAddress;
 
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
+import cn.taketoday.framework.web.server.ServerProperties.Netty;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -43,11 +44,16 @@ public class NettyWebServer implements WebServer {
 
   private final EventLoopGroup parentGroup;
 
+  private final Netty.Shutdown shutdownConfig;
+
   private final ServerBootstrap serverBootstrap;
 
-  public NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup,
-          ServerBootstrap serverBootstrap, InetSocketAddress listenAddress) {
+  private volatile boolean shutdownComplete = false;
+
+  NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup,
+          ServerBootstrap serverBootstrap, InetSocketAddress listenAddress, Netty.Shutdown shutdownConfig) {
     this.serverBootstrap = serverBootstrap;
+    this.shutdownConfig = shutdownConfig;
     this.listenAddress = listenAddress;
     this.parentGroup = parentGroup;
     this.childGroup = childGroup;
@@ -63,13 +69,14 @@ public class NettyWebServer implements WebServer {
   @Override
   public void stop() {
     log.info("Shutdown netty web server: [{}] on port: '{}'", this, getPort());
-
-    shutdown();
+    if (!shutdownComplete) {
+      shutdown();
+    }
   }
 
   private void shutdown() {
-    parentGroup.shutdownGracefully();
-    childGroup.shutdownGracefully();
+    parentGroup.shutdownGracefully(shutdownConfig.getQuietPeriod(), shutdownConfig.getTimeout(), shutdownConfig.getUnit());
+    childGroup.shutdownGracefully(shutdownConfig.getQuietPeriod(), shutdownConfig.getTimeout(), shutdownConfig.getUnit());
   }
 
   @Override
@@ -77,6 +84,9 @@ public class NettyWebServer implements WebServer {
     log.info("Commencing graceful shutdown. Waiting for active requests to complete");
     try {
       shutdown();
+      childGroup.terminationFuture().sync();
+      parentGroup.terminationFuture().sync();
+      shutdownComplete = true;
       callback.shutdownComplete(GracefulShutdownResult.IDLE);
       log.info("Graceful shutdown complete");
     }

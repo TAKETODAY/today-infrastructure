@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.error;
@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
+import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
@@ -73,16 +74,44 @@ public abstract class AbstractErrorController implements ErrorController {
     return this.errorAttributes.getErrorAttributes(request, getErrorAttributeOptions(request, mediaType));
   }
 
+  /**
+   * Returns whether the trace parameter is set.
+   *
+   * @param request the request
+   * @return whether the trace parameter is set
+   */
   protected boolean getTraceParameter(RequestContext request) {
     return getBooleanParameter(request, "trace");
   }
 
+  /**
+   * Returns whether the message parameter is set.
+   *
+   * @param request the request
+   * @return whether the message parameter is set
+   */
   protected boolean getMessageParameter(RequestContext request) {
     return getBooleanParameter(request, "message");
   }
 
+  /**
+   * Returns whether the errors parameter is set.
+   *
+   * @param request the request
+   * @return whether the errors parameter is set
+   */
   protected boolean getErrorsParameter(RequestContext request) {
     return getBooleanParameter(request, "errors");
+  }
+
+  /**
+   * Returns whether the path parameter is set.
+   *
+   * @param request the request
+   * @return whether the path parameter is set
+   */
+  protected boolean getPathParameter(RequestContext request) {
+    return getBooleanParameter(request, "path");
   }
 
   protected boolean getBooleanParameter(RequestContext request, String parameterName) {
@@ -139,17 +168,20 @@ public abstract class AbstractErrorController implements ErrorController {
   protected ErrorAttributeOptions getErrorAttributeOptions(RequestContext request, MediaType mediaType) {
     ErrorAttributeOptions options = ErrorAttributeOptions.defaults();
     if (errorProperties.isIncludeException()) {
-      options = options.including(ErrorAttributeOptions.Include.EXCEPTION);
+      options = options.including(Include.EXCEPTION);
     }
     if (isIncludeStackTrace(request, mediaType)) {
-      options = options.including(ErrorAttributeOptions.Include.STACK_TRACE);
+      options = options.including(Include.STACK_TRACE);
     }
     if (isIncludeMessage(request, mediaType)) {
-      options = options.including(ErrorAttributeOptions.Include.MESSAGE);
+      options = options.including(Include.MESSAGE);
     }
     if (isIncludeBindingErrors(request, mediaType)) {
-      options = options.including(ErrorAttributeOptions.Include.BINDING_ERRORS);
+      options = options.including(Include.BINDING_ERRORS);
     }
+
+    options = isIncludePath(request, mediaType) ? options.including(Include.PATH) : options.excluding(Include.PATH);
+
     return options;
   }
 
@@ -195,6 +227,21 @@ public abstract class AbstractErrorController implements ErrorController {
       case ALWAYS -> true;
       case ON_PARAM -> getErrorsParameter(request);
       default -> false;
+    };
+  }
+
+  /**
+   * Determine if the path attribute should be included.
+   *
+   * @param request the source request
+   * @param produces the media type produced (or {@code MediaType.ALL})
+   * @return if the path attribute should be included
+   */
+  protected boolean isIncludePath(RequestContext request, MediaType produces) {
+    return switch (errorProperties.getIncludePath()) {
+      case ALWAYS -> true;
+      case ON_PARAM -> getPathParameter(request);
+      case NEVER -> false;
     };
   }
 

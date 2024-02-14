@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -161,7 +161,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
 
-  private final Set<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
+  private final LinkedHashSet<Class<? extends Annotation>> autowiredAnnotationTypes = new LinkedHashSet<>(4);
 
   private String requiredParameterName = "required";
 
@@ -174,9 +174,9 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
   private final Set<String> lookupMethodsChecked = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
 
-  private final Map<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<Class<?>, Constructor<?>[]> candidateConstructorsCache = new ConcurrentHashMap<>(256);
 
-  private final Map<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
+  private final ConcurrentHashMap<String, InjectionMetadata> injectionMetadataCache = new ConcurrentHashMap<>(256);
 
   /**
    * Create a new {@code AutowiredAnnotationBeanPostProcessor} for Framework's

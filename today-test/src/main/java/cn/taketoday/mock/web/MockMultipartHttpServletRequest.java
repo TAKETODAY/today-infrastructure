@@ -167,7 +167,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
   }
 
   public HttpHeaders getRequestHeaders() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     Enumeration<String> headerNames = getHeaderNames();
     while (headerNames.hasMoreElements()) {
       String headerName = headerNames.nextElement();
@@ -180,7 +180,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
   public HttpHeaders getMultipartHeaders(String paramOrFileName) {
     MultipartFile file = getFile(paramOrFileName);
     if (file != null) {
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       if (file.getContentType() != null) {
         headers.add(HttpHeaders.CONTENT_TYPE, file.getContentType());
       }
@@ -189,7 +189,7 @@ public class MockMultipartHttpServletRequest extends MockHttpServletRequest impl
     try {
       Part part = getPart(paramOrFileName);
       if (part != null) {
-        HttpHeaders headers = HttpHeaders.create();
+        HttpHeaders headers = HttpHeaders.forWritable();
         for (String headerName : part.getHeaderNames()) {
           headers.put(headerName, new ArrayList<>(part.getHeaders(headerName)));
         }

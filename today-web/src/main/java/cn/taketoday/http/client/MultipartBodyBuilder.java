@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -28,9 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.ResolvableTypeProvider;
-import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
@@ -39,7 +36,7 @@ import cn.taketoday.http.codec.multipart.Part;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 
 /**
@@ -86,7 +83,8 @@ import cn.taketoday.util.MultiValueMap;
  * @since 4.0 2021/11/5 23:00
  */
 public final class MultipartBodyBuilder {
-  private final DefaultMultiValueMap<String, DefaultPartBuilder> parts = MultiValueMap.forLinkedHashMap();
+
+  private final LinkedMultiValueMap<String, DefaultPartBuilder> parts = MultiValueMap.forLinkedHashMap();
 
   /**
    * Add a part where the Object may be:
@@ -148,7 +146,7 @@ public final class MultipartBodyBuilder {
     HttpHeaders partHeaders = null;
     if (part instanceof HttpEntity<?> httpEntity) {
       partBody = httpEntity.getBody();
-      partHeaders = HttpHeaders.create();
+      partHeaders = HttpHeaders.forWritable();
       partHeaders.putAll(httpEntity.getHeaders());
     }
     else {
@@ -197,9 +195,7 @@ public final class MultipartBodyBuilder {
    * @param typeReference the type of elements contained in the publisher
    * @return builder that allows for further customization of part headers
    */
-  public <T, P extends Publisher<T>> PartBuilder asyncPart(
-          String name, P publisher, ParameterizedTypeReference<T> typeReference) {
-
+  public <T, P extends Publisher<T>> PartBuilder asyncPart(String name, P publisher, ParameterizedTypeReference<T> typeReference) {
     Assert.hasLength(name, "'name' must not be empty");
     Assert.notNull(publisher, "'publisher' is required");
     Assert.notNull(typeReference, "'typeReference' is required");
@@ -213,7 +209,7 @@ public final class MultipartBodyBuilder {
    * Return a {@code MultiValueMap} with the configured parts.
    */
   public MultiValueMap<String, HttpEntity<?>> build() {
-    DefaultMultiValueMap<String, HttpEntity<?>> result = MultiValueMap.forLinkedHashMap(this.parts.size());
+    var result = MultiValueMap.<String, HttpEntity<?>>forLinkedHashMap(this.parts.size());
     for (Map.Entry<String, List<DefaultPartBuilder>> entry : this.parts.entrySet()) {
       for (DefaultPartBuilder builder : entry.getValue()) {
         HttpEntity<?> entity = builder.build();
@@ -307,7 +303,7 @@ public final class MultipartBodyBuilder {
 
     private HttpHeaders initHeadersIfNecessary() {
       if (this.headers == null) {
-        this.headers = HttpHeaders.create();
+        this.headers = HttpHeaders.forWritable();
       }
       return this.headers;
     }
@@ -326,9 +322,7 @@ public final class MultipartBodyBuilder {
       this.resolvableType = ResolvableType.forClass(elementClass);
     }
 
-    public PublisherPartBuilder(
-            String name, @Nullable HttpHeaders headers, P body, ParameterizedTypeReference<S> typeRef) {
-
+    public PublisherPartBuilder(String name, @Nullable HttpHeaders headers, P body, ParameterizedTypeReference<S> typeRef) {
       super(name, headers, body);
       this.resolvableType = ResolvableType.forType(typeRef);
     }
@@ -360,9 +354,7 @@ public final class MultipartBodyBuilder {
 
     private final ResolvableType resolvableType;
 
-    PublisherEntity(
-            @Nullable MultiValueMap<String, String> headers, P publisher, ResolvableType resolvableType) {
-
+    PublisherEntity(@Nullable MultiValueMap<String, String> headers, P publisher, ResolvableType resolvableType) {
       super(publisher, headers);
       Assert.notNull(publisher, "'publisher' is required");
       Assert.notNull(resolvableType, "'resolvableType' is required");

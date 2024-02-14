@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -29,6 +29,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
@@ -67,7 +68,7 @@ public class ResourceHandlerRegistry {
   private int order = Ordered.LOWEST_PRECEDENCE - 1;
 
   @Nullable
-  private HttpRequestHandler notFoundHandler;
+  private NotFoundHandler notFoundHandler;
 
   /**
    * Create a new resource handler registry for the given application context.
@@ -131,7 +132,7 @@ public class ResourceHandlerRegistry {
    *
    * @param notFoundHandler HttpRequestHandler
    */
-  public void setNotFoundHandler(@Nullable HttpRequestHandler notFoundHandler) {
+  public void setNotFoundHandler(@Nullable NotFoundHandler notFoundHandler) {
     this.notFoundHandler = notFoundHandler;
   }
 

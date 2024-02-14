@@ -49,7 +49,7 @@ public class HeaderResultMatchersTests {
   public void matchDateFormattedWithHttpHeaders() throws Exception {
 
     long epochMilli = ZonedDateTime.of(2018, 10, 5, 0, 0, 0, 0, ZoneId.of("GMT")).toInstant().toEpochMilli();
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setDate("myDate", epochMilli);
     this.response.setHeader("d", headers.getFirst("myDate"));
 

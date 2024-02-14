@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -28,8 +28,6 @@ import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.DispatcherHandler;
@@ -38,6 +36,7 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
+import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestPart;
@@ -138,13 +137,6 @@ import cn.taketoday.web.util.WebUtils;
  * @since 2020-03-29 21:01
  */
 public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandler implements HandlerExceptionHandler {
-
-  /**
-   * Additional logger to use when no mapped handler is found for a request.
-   *
-   * @see NotFoundHandler#PAGE_NOT_FOUND_LOG_CATEGORY
-   */
-  protected static final Logger pageNotFoundLogger = LoggerFactory.getLogger(NotFoundHandler.PAGE_NOT_FOUND_LOG_CATEGORY);
 
   /**
    * Sets the {@linkplain #setOrder(int) order} to {@link #LOWEST_PRECEDENCE}.
@@ -412,7 +404,7 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   protected Object handleHandlerNotFoundException(HandlerNotFoundException ex,
           RequestContext request, @Nullable Object handler) throws IOException {
 
-    pageNotFoundLogger.warn(ex.getMessage());
+    NotFoundHandler.pageNotFoundLogger.warn(ex.getMessage());
     return null;
   }
 

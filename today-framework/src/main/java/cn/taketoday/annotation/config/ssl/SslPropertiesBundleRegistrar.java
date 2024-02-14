@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.ssl;
@@ -108,9 +108,9 @@ class SslPropertiesBundleRegistrar implements SslBundleRegistrar {
     var truststore = properties.getTruststore();
     var locations = new LinkedHashSet<Location>();
     locations.add(new Location("keystore.private-key", keystore.getPrivateKey()));
-    locations.add(new Location("keystore.certificate", keystore.getCertificate()));
+    locations.add(new Location("keystore.certificates", keystore.getCertificate()));
     locations.add(new Location("truststore.private-key", truststore.getPrivateKey()));
-    locations.add(new Location("truststore.certificate", truststore.getCertificate()));
+    locations.add(new Location("truststore.certificates", truststore.getCertificate()));
     return locations;
   }
 

@@ -42,8 +42,10 @@ jobs:
         uses: gradle/gradle-build-action@v2.7.1
 
       - name: Deploy snapshots
-        run: ./gradlew --no-daemon publish -DrepoUsername=$SNAPSHOTS_USERNAME -DrepoPassword=$SNAPSHOTS_TOKEN
+        run: ./gradlew --no-daemon publish --max-workers=4 -PrepoUsername=$SNAPSHOTS_USERNAME -PrepoPassword=$SNAPSHOTS_TOKEN -Psigning.keyId=$SIGNID -Psigning.password=$SIGNPWD
         env:
           SNAPSHOTS_TOKEN: ${{ secrets.SNAPSHOTS_TOKEN }}
           SNAPSHOTS_USERNAME: ${{ secrets.SNAPSHOTS_USERNAME }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          SIGNID: ${{secrets.SIGNID}}
+          SIGNPWD: ${{secrets.SIGNPWD}}

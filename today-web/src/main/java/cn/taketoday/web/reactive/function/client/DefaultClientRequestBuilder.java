@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -56,7 +56,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
 
   private URI url;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final MultiValueMap<String, String> cookies = new LinkedMultiValueMap<>();
 
@@ -196,10 +196,10 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
             MultiValueMap<String, String> cookies, BodyInserter<?, ? super ClientHttpRequest> body,
             Map<String, Object> attributes, @Nullable Consumer<ClientHttpRequest> httpRequestConsumer) {
 
-      this.method = method;
       this.url = url;
-      this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
-      this.cookies = MultiValueMap.forUnmodifiable(cookies);
+      this.method = method;
+      this.headers = headers.asReadOnly();
+      this.cookies = cookies.asReadOnly();
       this.body = body;
       this.attributes = Collections.unmodifiableMap(attributes);
       this.httpRequestConsumer = httpRequestConsumer;
@@ -254,8 +254,7 @@ final class DefaultClientRequestBuilder implements ClientRequest.Builder {
       if (!this.headers.isEmpty()) {
         this.headers.entrySet().stream()
                 .filter(entry -> !requestHeaders.containsKey(entry.getKey()))
-                .forEach(entry -> requestHeaders
-                        .put(entry.getKey(), entry.getValue()));
+                .forEach(entry -> requestHeaders.put(entry.getKey(), entry.getValue()));
       }
 
       MultiValueMap<String, HttpCookie> requestCookies = request.getCookies();

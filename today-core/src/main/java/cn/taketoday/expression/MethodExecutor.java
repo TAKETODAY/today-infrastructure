@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,37 +12,45 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
 
 /**
- * MethodExecutors are built by the resolvers and can be cached by the infrastructure to
- * repeat an operation quickly without going back to the resolvers. For example, the
- * particular method to run on an object may be discovered by the reflection method
- * resolver - it will then build a MethodExecutor that executes that method and the
- * MethodExecutor can be reused without needing to go back to the resolver to discover
- * the method again.
+ * A {@code MethodExecutor} is built by a {@link MethodResolver} and can be cached
+ * by the infrastructure to repeat an operation quickly without going back to the
+ * resolvers.
  *
- * <p>They can become stale, and in that case should throw an AccessException:
- * This will cause the infrastructure to go back to the resolvers to ask for a new one.
+ * <p>For example, the particular method to execute on an object may be discovered
+ * by a {@code MethodResolver} which then builds a {@code MethodExecutor} that
+ * executes that method, and the resolved {@code MethodExecutor} can be reused
+ * without needing to go back to the resolvers to discover the method again.
+ *
+ * <p>If a {@code MethodExecutor} becomes stale, it should throw an
+ * {@link AccessException} which signals to the infrastructure to go back to the
+ * resolvers to ask for a new one.
  *
  * @author Andy Clement
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see MethodResolver
+ * @see ConstructorExecutor
  * @since 4.0
  */
 public interface MethodExecutor {
 
   /**
-   * Execute a command using the specified arguments, and using the specified expression state.
+   * Execute a method in the specified context using the specified arguments.
    *
-   * @param context the evaluation context in which the command is being executed
-   * @param target the target object of the call - null for static methods
-   * @param arguments the arguments to the executor, should match (in terms of number
-   * and type) whatever the command will need to run
-   * @return the value returned from execution
-   * @throws AccessException if there is a problem executing the command or the
-   * MethodExecutor is no longer valid
+   * @param context the evaluation context in which the method is being executed
+   * @param target the target of the method invocation; may be {@code null} for
+   * {@code static} methods
+   * @param arguments the arguments to the method; should match (in terms of
+   * number and type) whatever the method will need to run
+   * @return the value returned from the method
+   * @throws AccessException if there is a problem executing the method or
+   * if this {@code MethodExecutor} has become stale
    */
   TypedValue execute(EvaluationContext context, Object target, Object... arguments) throws AccessException;
 

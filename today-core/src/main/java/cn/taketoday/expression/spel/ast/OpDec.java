@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -41,10 +41,12 @@ import cn.taketoday.lang.Assert;
  */
 public class OpDec extends Operator {
 
+  private static final String DEC = "--";
+
   private final boolean postfix;  // false means prefix
 
   public OpDec(int startPos, int endPos, boolean postfix, SpelNodeImpl... operands) {
-    super("--", startPos, endPos, operands);
+    super(DEC, startPos, endPos, operands);
     this.postfix = postfix;
     Assert.notEmpty(operands, "Operands must not be empty");
   }
@@ -133,7 +135,8 @@ public class OpDec extends Operator {
 
   @Override
   public String toStringAST() {
-    return getLeftOperand().toStringAST() + "--";
+    String ast = getLeftOperand().toStringAST();
+    return (this.postfix ? ast + DEC : DEC + ast);
   }
 
   @Override

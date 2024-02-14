@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,19 +12,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.event;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.beans.BeansException;
@@ -67,6 +69,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Unit and integration tests for the ApplicationContext event support.
@@ -529,6 +532,20 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
 
     context.publishEvent(new MyEvent(context));
     context.close();
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void addListenerWithConsumer() {
+    Consumer<ContextRefreshedEvent> consumer = mock(Consumer.class);
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.addApplicationListener(GenericApplicationListener.forEventType(
+            ContextRefreshedEvent.class, consumer));
+    context.refresh();
+    ArgumentCaptor<ContextRefreshedEvent> captor = ArgumentCaptor.forClass(ContextRefreshedEvent.class);
+    verify(consumer).accept(captor.capture());
+    assertThat(captor.getValue().getApplicationContext()).isSameAs(context);
+    verifyNoMoreInteractions(consumer);
   }
 
   @Test

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -32,7 +29,7 @@ import java.util.stream.Collector;
 import java.util.stream.Collector.Characteristics;
 
 import cn.taketoday.core.annotation.MergedAnnotation.Adapt;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 
 /**
@@ -41,10 +38,13 @@ import cn.taketoday.util.MultiValueMap;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class MergedAnnotationCollectors {
+
   private static final Characteristics[] NO_CHARACTERISTICS = {};
+
   private static final Characteristics[] IDENTITY_FINISH_CHARACTERISTICS = { Characteristics.IDENTITY_FINISH };
 
   /**
@@ -107,11 +107,11 @@ public abstract class MergedAnnotationCollectors {
    * @param <A> the annotation type
    * @param adaptations the adaptations that should be applied to the annotation values
    * @return a {@link Collector} which collects and synthesizes the
-   * annotations into a {@link DefaultMultiValueMap}
+   * annotations into a {@link LinkedMultiValueMap}
    * @see #toMultiValueMap(UnaryOperator, Adapt...)
    */
-  public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
-          Adapt... adaptations) {
+  public static <A extends Annotation>
+  Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(Adapt... adaptations) {
     return toMultiValueMap(UnaryOperator.identity(), adaptations);
   }
 
@@ -125,20 +125,15 @@ public abstract class MergedAnnotationCollectors {
    * @param finisher the finisher function for the new {@link MultiValueMap}
    * @param adaptations the adaptations that should be applied to the annotation values
    * @return a {@link Collector} which collects and synthesizes the
-   * annotations into a {@link DefaultMultiValueMap}
+   * annotations into a {@link LinkedMultiValueMap}
    * @see #toMultiValueMap(Adapt...)
    */
   public static <A extends Annotation> Collector<MergedAnnotation<A>, ?, MultiValueMap<String, Object>> toMultiValueMap(
           UnaryOperator<MultiValueMap<String, Object>> finisher, Adapt... adaptations) {
-
-    Characteristics[] characteristics = isSameInstance(finisher, Function.identity()) ? IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
-    return Collector.of(DefaultMultiValueMap::new,
+    Characteristics[] characteristics = ((Object) finisher == Function.identity()) ? IDENTITY_FINISH_CHARACTERISTICS : NO_CHARACTERISTICS;
+    return Collector.of(LinkedMultiValueMap::new,
             (map, annotation) -> annotation.asMap(adaptations).forEach(map::add),
             MergedAnnotationCollectors::combiner, finisher, characteristics);
-  }
-
-  private static boolean isSameInstance(Object instance, Object candidate) {
-    return instance == candidate;
   }
 
   /**

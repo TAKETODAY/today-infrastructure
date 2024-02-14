@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -36,6 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferLimitException;
@@ -58,28 +56,36 @@ import reactor.util.context.Context;
  * {@link MultipartParser#parse(Flux, byte[], int, Charset)}, and produces a flux of {@link Part} objects.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
+
   private static final Logger log = LoggerFactory.getLogger(PartGenerator.class);
 
   private final MonoSink<Part> sink;
+
   private final AtomicBoolean requestOutstanding = new AtomicBoolean();
+
   private final AtomicReference<State> state = new AtomicReference<>(new InitialState());
 
   private final boolean streaming;
+
   private final int maxInMemorySize;
+
   private final long maxDiskUsagePerPart;
+
   private final Mono<Path> fileStorageDirectory;
+
   private final Scheduler blockingOperationScheduler;
 
   private PartGenerator(MonoSink<Part> sink, int maxInMemorySize, long maxDiskUsagePerPart,
           boolean streaming, Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
 
     this.sink = sink;
+    this.streaming = streaming;
     this.maxInMemorySize = maxInMemorySize;
     this.maxDiskUsagePerPart = maxDiskUsagePerPart;
-    this.streaming = streaming;
     this.fileStorageDirectory = fileStorageDirectory;
     this.blockingOperationScheduler = blockingOperationScheduler;
   }
@@ -88,8 +94,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
    * Creates parts from a given stream of tokens.
    */
   public static Mono<Part> createPart(Flux<MultipartParser.Token> tokens, int maxInMemorySize,
-          long maxDiskUsagePerPart, boolean streaming, Mono<Path> fileStorageDirectory,
-          Scheduler blockingOperationScheduler) {
+          long maxDiskUsagePerPart, boolean streaming, Mono<Path> fileStorageDirectory, Scheduler blockingOperationScheduler) {
 
     return Mono.create(sink -> {
       PartGenerator generator = new PartGenerator(sink, maxInMemorySize, maxDiskUsagePerPart, streaming,
@@ -171,8 +176,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       return true;
     }
     else {
-      log.warn("Could not switch from {} to {}; current state: {}",
-              oldState, newState, this.state.get());
+      log.warn("Could not switch from {} to {}; current state: {}", oldState, newState, this.state.get());
       return false;
     }
   }
@@ -278,6 +282,7 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   private final class FormFieldState extends State {
 
     private final HttpHeaders headers;
+
     private final FastByteArrayOutputStream value = new FastByteArrayOutputStream();
 
     public FormFieldState(HttpHeaders headers) {
@@ -387,8 +392,11 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   private final class InMemoryState extends State {
 
     private final HttpHeaders headers;
+
     private volatile boolean releaseOnDispose = true;
+
     private final AtomicLong byteCount = new AtomicLong();
+
     private final ConcurrentLinkedQueue<DataBuffer> content = new ConcurrentLinkedQueue<>();
 
     public InMemoryState(HttpHeaders headers) {
@@ -473,10 +481,13 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   private final class CreateFileState extends State {
 
     private final HttpHeaders headers;
+
     private final Collection<DataBuffer> content;
 
     private final long byteCount;
+
     private volatile boolean completed;
+
     private volatile boolean releaseOnDispose = true;
 
     public CreateFileState(HttpHeaders headers, Collection<DataBuffer> content, long byteCount) {
@@ -549,10 +560,15 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
   private final class IdleFileState extends State {
 
     private final Path file;
+
     private final HttpHeaders headers;
+
     private final AtomicLong byteCount;
+
     private final WritableByteChannel channel;
+
     private volatile boolean closeOnDispose = true;
+
     private volatile boolean deleteOnDispose = true;
 
     public IdleFileState(WritingFileState state) {
@@ -584,9 +600,8 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
         MultipartUtils.closeChannel(this.channel);
         MultipartUtils.deleteFile(this.file);
         DataBufferUtils.release(dataBuffer);
-        emitError(new DataBufferLimitException(
-                "Part exceeded the disk usage limit of " + PartGenerator.this.maxDiskUsagePerPart +
-                        " bytes"));
+        emitError(new DataBufferLimitException("Part exceeded the disk usage limit of " +
+                PartGenerator.this.maxDiskUsagePerPart + " bytes"));
       }
     }
 
@@ -614,20 +629,24 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
   }
 
-  private final class WritingFileState extends State {
+  private final class WritingFileState extends State implements Function<DataBuffer, Mono<Void>> {
 
     private final Path file;
+
     private final HttpHeaders headers;
+
     private final AtomicLong byteCount;
+
     private final WritableByteChannel channel;
 
     private volatile boolean completed;
+
     private volatile boolean disposed;
 
     public WritingFileState(CreateFileState state, Path file, WritableByteChannel channel) {
-      this.headers = state.headers;
       this.file = file;
       this.channel = channel;
+      this.headers = state.headers;
       this.byteCount = new AtomicLong(state.byteCount);
     }
 
@@ -659,21 +678,17 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
 
     public void writeBuffer(DataBuffer dataBuffer) {
       Mono.just(dataBuffer)
-              .flatMap(this::writeInternal)
+              .flatMap(this)
               .subscribeOn(PartGenerator.this.blockingOperationScheduler)
-              .subscribe(null,
-                      PartGenerator.this::emitError,
-                      this::writeComplete);
+              .subscribe(new WritingSubscriber());
     }
 
     public void writeBuffers(Iterable<DataBuffer> dataBuffers) {
       Flux.fromIterable(dataBuffers)
-              .concatMap(this::writeInternal)
+              .concatMap(this)
               .then()
               .subscribeOn(PartGenerator.this.blockingOperationScheduler)
-              .subscribe(null,
-                      PartGenerator.this::emitError,
-                      this::writeComplete);
+              .subscribe(new WritingSubscriber());
     }
 
     private void writeComplete() {
@@ -695,10 +710,11 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
       }
     }
 
+    @Override
     @SuppressWarnings("BlockingMethodInNonBlockingContext")
-    private Mono<Void> writeInternal(DataBuffer dataBuffer) {
+    public Mono<Void> apply(DataBuffer dataBuffer) {
       try {
-        try (DataBuffer.ByteBufferIterator iterator = dataBuffer.readableByteBuffers()) {
+        try (var iterator = dataBuffer.readableByteBuffers()) {
           while (iterator.hasNext()) {
             ByteBuffer byteBuffer = iterator.next();
             while (byteBuffer.hasRemaining()) {
@@ -726,6 +742,20 @@ final class PartGenerator extends BaseSubscriber<MultipartParser.Token> {
     @Override
     public String toString() {
       return "WRITE-FILE";
+    }
+
+    class WritingSubscriber extends BaseSubscriber<Void> {
+
+      @Override
+      protected void hookOnComplete() {
+        writeComplete();
+      }
+
+      @Override
+      protected void hookOnError(Throwable throwable) {
+        PartGenerator.this.emitError(throwable);
+      }
+
     }
   }
 

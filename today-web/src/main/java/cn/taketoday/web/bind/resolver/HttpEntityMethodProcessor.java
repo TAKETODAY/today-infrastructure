@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -31,6 +31,7 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpEntity;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
@@ -177,8 +178,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   @Override
-  public void handleReturnValue(RequestContext context,
-          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -223,19 +223,17 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     }
 
     if (httpEntity instanceof ResponseEntity<?> responseEntity) {
-      int returnStatus = responseEntity.getStatusCodeValue();
+      HttpStatusCode returnStatus = responseEntity.getStatusCode();
       context.setStatus(returnStatus);
-      if (returnStatus == 200) {
+      if (returnStatus.is2xxSuccessful()) {
         HttpMethod method = context.getMethod();
         if ((HttpMethod.GET == method || HttpMethod.HEAD == method)
                 && isResourceNotModified(context, method)) {
-          context.flush();
           return;
         }
       }
-      else if (returnStatus / 100 == 3) {
-        HttpHeaders outputHeaders = context.responseHeaders();
-        String location = outputHeaders.getFirst(HttpHeaders.LOCATION);
+      else if (returnStatus.is3xxRedirection()) {
+        String location = context.responseHeaders().getFirst(HttpHeaders.LOCATION);
         if (location != null) {
           saveRedirectAttributes(context, location);
         }
@@ -252,9 +250,6 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
       // for other handler's result
       writeWithMessageConverters(body, null, context);
     }
-
-    // Ensure headers are flushed even if no-body was written.
-    context.flush();
   }
 
   private List<String> getVaryRequestHeadersToAdd(HttpHeaders responseHeaders, HttpHeaders entityHeaders) {

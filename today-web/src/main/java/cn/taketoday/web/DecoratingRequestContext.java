@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -213,6 +213,11 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   public List<HttpCookie> removeCookie(String name) {
     return getDelegate().removeCookie(name);
+  }
+
+  @Override
+  public boolean hasResponseCookie() {
+    return getDelegate().hasResponseCookie();
   }
 
   @Override
@@ -530,7 +535,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void writeHeaders() {
+  protected void writeHeaders() {
     getDelegate().writeHeaders();
   }
 

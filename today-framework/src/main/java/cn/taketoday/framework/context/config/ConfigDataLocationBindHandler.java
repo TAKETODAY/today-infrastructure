@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import cn.taketoday.context.properties.bind.AbstractBindHandler;
 import cn.taketoday.context.properties.bind.BindContext;
@@ -31,6 +26,7 @@ import cn.taketoday.context.properties.bind.BindHandler;
 import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.origin.Origin;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link BindHandler} to set the {@link Origin} of bound {@link ConfigDataLocation}
@@ -38,17 +34,18 @@ import cn.taketoday.origin.Origin;
  *
  * @author Phillip Webb
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class ConfigDataLocationBindHandler extends AbstractBindHandler {
 
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public Object onSuccess(ConfigurationPropertyName name, Bindable<?> target, BindContext context, Object result) {
     if (result instanceof ConfigDataLocation) {
       return withOrigin(context, (ConfigDataLocation) result);
     }
-    if (result instanceof List) {
-      List<Object> list = ((List<Object>) result).stream().filter(Objects::nonNull).collect(Collectors.toList());
+    if (result instanceof List list) {
+      CollectionUtils.removeNullElements(list);
       for (int i = 0; i < list.size(); i++) {
         Object element = list.get(i);
         if (element instanceof ConfigDataLocation) {
@@ -57,9 +54,14 @@ class ConfigDataLocationBindHandler extends AbstractBindHandler {
       }
       return list;
     }
-    if (result instanceof ConfigDataLocation[]) {
-      ConfigDataLocation[] locations = Arrays.stream((ConfigDataLocation[]) result).filter(Objects::nonNull)
-              .toArray(ConfigDataLocation[]::new);
+    if (result instanceof ConfigDataLocation[] dataLocations) {
+      ArrayList<ConfigDataLocation> configDataLocations = new ArrayList<>(dataLocations.length);
+      for (ConfigDataLocation dataLocation : dataLocations) {
+        if (dataLocation != null) {
+          configDataLocations.add(dataLocation);
+        }
+      }
+      ConfigDataLocation[] locations = configDataLocations.toArray(new ConfigDataLocation[configDataLocations.size()]);
       for (int i = 0; i < locations.length; i++) {
         locations[i] = withOrigin(context, locations[i]);
       }

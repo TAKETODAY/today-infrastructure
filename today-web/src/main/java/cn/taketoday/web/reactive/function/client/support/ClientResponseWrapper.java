@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client.support;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.OptionalLong;
 
 import cn.taketoday.core.ParameterizedTypeReference;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.reactive.ClientHttpResponse;
@@ -48,6 +41,7 @@ import reactor.core.publisher.Mono;
  * All methods default to calling through to the wrapped request.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ClientResponseWrapper implements ClientResponse {
@@ -164,46 +158,6 @@ public class ClientResponseWrapper implements ClientResponse {
   @Override
   public String logPrefix() {
     return this.delegate.logPrefix();
-  }
-
-  /**
-   * Implementation of the {@code Headers} interface that can be subclassed
-   * to adapt the headers in a
-   * {@link ExchangeFilterFunction exchange filter function}.
-   * All methods default to calling through to the wrapped request.
-   */
-  public static class HeadersWrapper implements ClientResponse.Headers {
-
-    private final Headers headers;
-
-    /**
-     * Create a new {@code HeadersWrapper} that wraps the given request.
-     *
-     * @param headers the headers to wrap
-     */
-    public HeadersWrapper(Headers headers) {
-      this.headers = headers;
-    }
-
-    @Override
-    public OptionalLong contentLength() {
-      return this.headers.contentLength();
-    }
-
-    @Override
-    public Optional<MediaType> contentType() {
-      return this.headers.contentType();
-    }
-
-    @Override
-    public List<String> header(String headerName) {
-      return this.headers.header(headerName);
-    }
-
-    @Override
-    public HttpHeaders asHttpHeaders() {
-      return this.headers.asHttpHeaders();
-    }
   }
 
 }

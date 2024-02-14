@@ -78,7 +78,7 @@ public class FrameworkExtensionTests {
    */
   private static class TestRequestPostProcessor implements RequestPostProcessor {
 
-    private final HttpHeaders headers = HttpHeaders.create();
+    private final HttpHeaders headers = HttpHeaders.forWritable();
 
     public TestRequestPostProcessor foo(String value) {
       this.headers.add("Foo", value);

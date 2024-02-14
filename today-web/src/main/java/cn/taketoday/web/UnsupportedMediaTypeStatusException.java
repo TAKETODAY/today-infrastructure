@@ -150,7 +150,7 @@ public class UnsupportedMediaTypeStatusException extends ResponseStatusException
     if (CollectionUtils.isEmpty(this.supportedMediaTypes)) {
       return HttpHeaders.empty();
     }
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setAccept(this.supportedMediaTypes);
     if (this.method == HttpMethod.PATCH) {
       headers.setAcceptPatch(this.supportedMediaTypes);

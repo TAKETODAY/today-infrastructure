@@ -49,7 +49,7 @@ public class ErrorResponseException extends NestedRuntimeException implements Er
 
   private final HttpStatusCode status;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final ProblemDetail body;
 

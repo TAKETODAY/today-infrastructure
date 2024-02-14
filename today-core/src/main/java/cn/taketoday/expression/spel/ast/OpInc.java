@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -39,14 +36,17 @@ import cn.taketoday.lang.Assert;
  * @author Juergen Hoeller
  * @author Giovanni Dall'Oglio Risso
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class OpInc extends Operator {
 
+  private static final String INC = "++";
+
   private final boolean postfix;  // false means prefix
 
   public OpInc(int startPos, int endPos, boolean postfix, SpelNodeImpl... operands) {
-    super("++", startPos, endPos, operands);
+    super(INC, startPos, endPos, operands);
     this.postfix = postfix;
     Assert.notEmpty(operands, "Operands must not be empty");
   }
@@ -130,7 +130,8 @@ public class OpInc extends Operator {
 
   @Override
   public String toStringAST() {
-    return getLeftOperand().toStringAST() + "++";
+    String ast = getLeftOperand().toStringAST();
+    return (this.postfix ? ast + INC : INC + ast);
   }
 
   @Override

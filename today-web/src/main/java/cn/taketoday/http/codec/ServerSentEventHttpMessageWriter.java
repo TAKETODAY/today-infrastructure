@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -53,11 +50,14 @@ import reactor.core.publisher.Mono;
  * @author Sebastien Deleuze
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Object> {
   private static final Logger logger = HttpLogging.forLogName(ServerSentEventHttpMessageWriter.class);
+
   private static final MediaType DEFAULT_MEDIA_TYPE = new MediaType("text", "event-stream", StandardCharsets.UTF_8);
+
   private static final List<MediaType> WRITABLE_MEDIA_TYPES = Collections.singletonList(MediaType.TEXT_EVENT_STREAM);
 
   @Nullable
@@ -101,9 +101,8 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   }
 
   @Override
-  public Mono<Void> write(
-          Publisher<?> input, ResolvableType elementType, @Nullable MediaType mediaType,
-          ReactiveHttpOutputMessage message, Map<String, Object> hints) {
+  public Mono<Void> write(Publisher<?> input, ResolvableType elementType,
+          @Nullable MediaType mediaType, ReactiveHttpOutputMessage message, Map<String, Object> hints) {
 
     mediaType = (mediaType != null && mediaType.getCharset() != null ? mediaType : DEFAULT_MEDIA_TYPE);
     DataBufferFactory bufferFactory = message.bufferFactory();
@@ -112,8 +111,7 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
     return message.writeAndFlushWith(encode(input, elementType, mediaType, bufferFactory, hints));
   }
 
-  private Flux<Publisher<DataBuffer>> encode(
-          Publisher<?> input, ResolvableType elementType,
+  private Flux<Publisher<DataBuffer>> encode(Publisher<?> input, ResolvableType elementType,
           MediaType mediaType, DataBufferFactory factory, Map<String, Object> hints) {
 
     ResolvableType dataType = ServerSentEvent.class.isAssignableFrom(elementType.toClass())
@@ -163,8 +161,7 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   }
 
   @SuppressWarnings("unchecked")
-  private <T> Flux<DataBuffer> encodeEvent(
-          StringBuilder eventContent, T data, ResolvableType dataType,
+  private <T> Flux<DataBuffer> encodeEvent(StringBuilder eventContent, T data, ResolvableType dataType,
           MediaType mediaType, DataBufferFactory factory, Map<String, Object> hints) {
 
     if (this.encoder == null) {
@@ -191,17 +188,14 @@ public class ServerSentEventHttpMessageWriter implements HttpMessageWriter<Objec
   }
 
   @Override
-  public Mono<Void> write(
-          Publisher<?> input, ResolvableType actualType, ResolvableType elementType,
-          @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response,
-          Map<String, Object> hints) {
+  public Mono<Void> write(Publisher<?> input, ResolvableType actualType, ResolvableType elementType,
+          @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
     Map<String, Object> allHints = Hints.merge(
             hints, getEncodeHints(actualType, elementType, mediaType, request, response));
     return write(input, elementType, mediaType, response, allHints);
   }
 
-  private Map<String, Object> getEncodeHints(
-          ResolvableType actualType, ResolvableType elementType,
+  private Map<String, Object> getEncodeHints(ResolvableType actualType, ResolvableType elementType,
           @Nullable MediaType mediaType, ServerHttpRequest request, ServerHttpResponse response) {
 
     if (this.encoder instanceof HttpMessageEncoder<?> encoder) {

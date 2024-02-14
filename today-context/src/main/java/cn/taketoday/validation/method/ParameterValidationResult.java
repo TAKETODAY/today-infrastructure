@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation.method;
@@ -49,17 +49,29 @@ public class ParameterValidationResult {
 
   private final List<MessageSourceResolvable> resolvableErrors;
 
+  @Nullable
+  private final Object container;
+
+  @Nullable
+  private final Integer containerIndex;
+
+  @Nullable
+  private final Object containerKey;
+
   /**
    * Create a {@code ParameterValidationResult}.
    */
-  public ParameterValidationResult(
-          MethodParameter param, @Nullable Object arg, Collection<? extends MessageSourceResolvable> errors) {
+  public ParameterValidationResult(MethodParameter param, @Nullable Object arg, Collection<? extends MessageSourceResolvable> errors,
+          @Nullable Object container, @Nullable Integer index, @Nullable Object key) {
 
     Assert.notNull(param, "MethodParameter is required");
     Assert.notEmpty(errors, "`resolvableErrors` must not be empty");
     this.methodParameter = param;
     this.argument = arg;
     this.resolvableErrors = List.copyOf(errors);
+    this.container = container;
+    this.containerIndex = index;
+    this.containerKey = key;
   }
 
   /**
@@ -100,6 +112,39 @@ public class ParameterValidationResult {
     return this.resolvableErrors;
   }
 
+  /**
+   * When {@code @Valid} is declared on a container of elements such as
+   * {@link java.util.Collection}, {@link java.util.Map},
+   * {@link java.util.Optional}, and others, this method returns the container
+   * of the validated {@link #getArgument() argument}, while
+   * {@link #getContainerIndex()} and {@link #getContainerKey()} provide
+   * information about the index or key if applicable.
+   */
+  @Nullable
+  public Object getContainer() {
+    return this.container;
+  }
+
+  /**
+   * When {@code @Valid} is declared on an indexed container of elements such as
+   * {@link List} or array, this method returns the index of the validated
+   * {@link #getArgument() argument}.
+   */
+  @Nullable
+  public Integer getContainerIndex() {
+    return this.containerIndex;
+  }
+
+  /**
+   * When {@code @Valid} is declared on a container of elements referenced by
+   * key such as {@link java.util.Map}, this method returns the key of the
+   * validated {@link #getArgument() argument}.
+   */
+  @Nullable
+  public Object getContainerKey() {
+    return this.containerKey;
+  }
+
   @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
@@ -109,8 +154,10 @@ public class ParameterValidationResult {
       return false;
     }
     ParameterValidationResult otherResult = (ParameterValidationResult) other;
-    return getMethodParameter().equals(otherResult.getMethodParameter())
-            && ObjectUtils.nullSafeEquals(getArgument(), otherResult.getArgument());
+    return (getMethodParameter().equals(otherResult.getMethodParameter()) &&
+            ObjectUtils.nullSafeEquals(getArgument(), otherResult.getArgument()) &&
+            ObjectUtils.nullSafeEquals(getContainerIndex(), otherResult.getContainerIndex()) &&
+            ObjectUtils.nullSafeEquals(getContainerKey(), otherResult.getContainerKey()));
   }
 
   @Override
@@ -118,14 +165,18 @@ public class ParameterValidationResult {
     int hashCode = super.hashCode();
     hashCode = 29 * hashCode + getMethodParameter().hashCode();
     hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(getArgument());
+    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(getContainerIndex());
+    hashCode = 29 * hashCode + ObjectUtils.nullSafeHashCode(getContainerKey());
     return hashCode;
   }
 
   @Override
   public String toString() {
-    return "Validation results for method parameter '" + this.methodParameter +
-            "': argument [" + ObjectUtils.nullSafeConciseToString(this.argument) + "]; " +
-            getResolvableErrors();
+    return getClass().getSimpleName() + " for " + this.methodParameter +
+            ", argument value '" + ObjectUtils.nullSafeConciseToString(this.argument) + "'," +
+            (this.containerIndex != null ? "containerIndex[" + this.containerIndex + "]," : "") +
+            (this.containerKey != null ? "containerKey['" + this.containerKey + "']," : "") +
+            " errors: " + getResolvableErrors();
   }
 
 }

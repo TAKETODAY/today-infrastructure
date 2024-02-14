@@ -55,7 +55,7 @@ class TestReactorExchangeAdapter extends TestExchangeAdapter implements ReactorH
   @Override
   public Mono<HttpHeaders> exchangeForHeadersMono(HttpRequestValues requestValues) {
     saveInput("exchangeForHeadersMono", requestValues, null);
-    return Mono.just(HttpHeaders.create());
+    return Mono.just(HttpHeaders.forWritable());
   }
 
   @Override

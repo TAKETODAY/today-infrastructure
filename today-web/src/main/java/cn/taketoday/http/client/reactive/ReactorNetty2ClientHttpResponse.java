@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
@@ -135,7 +135,7 @@ class ReactorNetty2ClientHttpResponse implements ClientHttpResponse {
                             .httpOnly(cookie.isHttpOnly())
                             .sameSite(getSameSite(cookie))
                             .build()));
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Nullable
@@ -158,7 +158,7 @@ class ReactorNetty2ClientHttpResponse implements ClientHttpResponse {
   void releaseAfterCancel(HttpMethod method) {
     if (mayHaveBody(method) && this.state.compareAndSet(0, 2)) {
       if (logger.isDebugEnabled()) {
-        logger.debug("[" + getId() + "]" + "Releasing body, not yet subscribed.");
+        logger.debug("[{}]Releasing body, not yet subscribed.", getId());
       }
       this.inbound.receive().doOnNext(buffer -> { }).subscribe(buffer -> { }, ex -> { });
     }

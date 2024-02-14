@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.codec;
@@ -46,6 +43,7 @@ import reactor.core.publisher.Mono;
  * Encoder for {@link ResourceRegion ResourceRegions}.
  *
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
@@ -79,8 +77,7 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
   }
 
   @Override
-  public Flux<DataBuffer> encode(
-          Publisher<? extends ResourceRegion> input, DataBufferFactory bufferFactory,
+  public Flux<DataBuffer> encode(Publisher<? extends ResourceRegion> input, DataBufferFactory bufferFactory,
           ResolvableType elementType, @Nullable MimeType mimeType, @Nullable Map<String, Object> hints) {
 
     Assert.notNull(input, "'inputStream' is required");
@@ -88,14 +85,12 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
     Assert.notNull(elementType, "'elementType' is required");
 
     if (input instanceof Mono) {
-      return Mono.from(input)
-              .flatMapMany(region -> {
-                if (!region.getResource().isReadable()) {
-                  return Flux.error(new EncodingException(
-                          "Resource " + region.getResource() + " is not readable"));
-                }
-                return writeResourceRegion(region, bufferFactory, hints);
-              });
+      return Mono.from(input).flatMapMany(region -> {
+        if (!region.getResource().isReadable()) {
+          return Flux.error(new EncodingException("Resource " + region.getResource() + " is not readable"));
+        }
+        return writeResourceRegion(region, bufferFactory, hints);
+      });
     }
     else {
       final String boundaryString = Hints.getRequiredHint(hints, BOUNDARY_STRING_HINT);
@@ -105,13 +100,13 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
       return Flux.from(input)
               .concatMap(region -> {
                 if (!region.getResource().isReadable()) {
-                  return Flux.error(new EncodingException(
-                          "Resource " + region.getResource() + " is not readable"));
+                  return Flux.error(new EncodingException("Resource " + region.getResource() + " is not readable"));
                 }
                 Flux<DataBuffer> prefix = Flux.just(
                         bufferFactory.wrap(startBoundary),
                         bufferFactory.wrap(contentType),
-                        bufferFactory.wrap(getContentRangeHeader(region))); // only wrapping, no allocation
+                        bufferFactory.wrap(getContentRangeHeader(region))
+                ); // only wrapping, no allocation
 
                 return prefix.concatWith(writeResourceRegion(region, bufferFactory, hints));
               })
@@ -120,16 +115,15 @@ public class ResourceRegionEncoder extends AbstractEncoder<ResourceRegion> {
     // No doOnDiscard (no caching after DataBufferUtils#read)
   }
 
-  private Flux<DataBuffer> writeResourceRegion(
-          ResourceRegion region, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints) {
-
+  private Flux<DataBuffer> writeResourceRegion(ResourceRegion region,
+          DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints) {
     Resource resource = region.getResource();
     long position = region.getPosition();
     long count = region.getCount();
 
     if (logger.isDebugEnabled() && !Hints.isLoggingSuppressed(hints)) {
       logger.debug("{}Writing region {}-{} of [{}]",
-                   Hints.getLogPrefix(hints), position, (position + count), resource);
+              Hints.getLogPrefix(hints), position, (position + count), resource);
     }
 
     Flux<DataBuffer> in = DataBufferUtils.read(resource, position, bufferFactory, this.bufferSize);

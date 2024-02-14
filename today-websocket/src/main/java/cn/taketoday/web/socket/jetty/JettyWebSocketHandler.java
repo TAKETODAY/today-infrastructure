@@ -46,8 +46,8 @@ import cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator;
  * Adapts {@link WebSocketHandler} to the Jetty 9 WebSocket API.
  *
  * @author Rossen Stoyanchev
- * @author TODAY 2021/11/7 16:39
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/7 16:39
  */
 @WebSocket
 public class JettyWebSocketHandler {

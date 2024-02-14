@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.embedded;
 
 import org.apache.catalina.Lifecycle;
+import org.apache.catalina.core.StandardThreadExecutor;
 import org.apache.catalina.valves.AccessLogValve;
 import org.apache.catalina.valves.ErrorReportValve;
 import org.apache.catalina.valves.RemoteIpValve;
@@ -34,6 +32,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
 import java.util.stream.Collectors;
+
+import javax.management.ObjectName;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
@@ -94,11 +94,8 @@ public class TomcatWebServerFactoryCustomizer
             .whenNonNull().as(Duration::getSeconds).as(Long::intValue)
             .to(factory::setBackgroundProcessorDelay);
     customizeRemoteIpValve(factory);
-    ServerProperties.Tomcat.Threads threadProperties = tomcatProperties.getThreads();
-    propertyMapper.from(threadProperties::getMax).when(this::isPositive)
-            .to((maxThreads) -> customizeMaxThreads(factory, threadProperties.getMax()));
-    propertyMapper.from(threadProperties::getMinSpare).when(this::isPositive)
-            .to((minSpareThreads) -> customizeMinThreads(factory, minSpareThreads));
+    configureExecutor(factory, tomcatProperties.getThreads());
+
     propertyMapper.from(this.serverProperties.getMaxHttpRequestHeaderSize()).whenNonNull().asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to((maxHttpHeaderSize) -> customizeMaxHttpRequestHeaderSize(factory, maxHttpHeaderSize));
@@ -130,6 +127,19 @@ public class TomcatWebServerFactoryCustomizer
     propertyMapper.from(tomcatProperties::isRejectIllegalHeader).to((rejectIllegalHeader) -> customizeRejectIllegalHeader(factory, rejectIllegalHeader));
     customizeStaticResources(factory);
     customizeErrorReportValve(properties.getError(), factory);
+  }
+
+  private void configureExecutor(ConfigurableTomcatWebServerFactory factory, ServerProperties.Tomcat.Threads threadProperties) {
+    factory.addProtocolHandlerCustomizers(handler -> {
+      StandardThreadExecutor executor = new StandardThreadExecutor();
+      executor.setMinSpareThreads(threadProperties.getMinSpare());
+      executor.setMaxThreads(threadProperties.getMax());
+      executor.setMaxQueueSize(threadProperties.getMaxQueueCapacity());
+      if (handler instanceof AbstractProtocol<?> protocol) {
+        executor.setNamePrefix(ObjectName.unquote(protocol.getName()) + "-exec-");
+      }
+      handler.setExecutor(executor);
+    });
   }
 
   private boolean isPositive(int value) {

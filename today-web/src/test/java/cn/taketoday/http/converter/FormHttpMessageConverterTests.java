@@ -175,7 +175,7 @@ public class FormHttpMessageConverterTests {
 
     MyBean myBean = new MyBean();
     myBean.setString("foo");
-    HttpHeaders entityHeaders = HttpHeaders.create();
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
     entityHeaders.setContentType(APPLICATION_JSON);
     HttpEntity<MyBean> entity = new HttpEntity<>(myBean, entityHeaders);
     parts.add("json", entity);
@@ -257,7 +257,7 @@ public class FormHttpMessageConverterTests {
     parts.add("utf8", utf8);
 
     Source xml = new StreamSource(new StringReader("<root><child/></root>"));
-    HttpHeaders entityHeaders = HttpHeaders.create();
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
     entityHeaders.setContentType(TEXT_XML);
     HttpEntity<Source> entity = new HttpEntity<>(xml, entityHeaders);
     parts.add("xml", entity);
@@ -321,7 +321,7 @@ public class FormHttpMessageConverterTests {
     MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
     parts.add("part1", myBean);
 
-    HttpHeaders entityHeaders = HttpHeaders.create();
+    HttpHeaders entityHeaders = HttpHeaders.forWritable();
     entityHeaders.setContentType(TEXT_XML);
     HttpEntity<MyBean> entity = new HttpEntity<>(myBean, entityHeaders);
     parts.add("part2", entity);

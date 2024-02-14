@@ -275,7 +275,7 @@ final class DefaultRestClient implements RestClient {
 
     private HttpHeaders getHeaders() {
       if (this.headers == null) {
-        this.headers = HttpHeaders.create();
+        this.headers = HttpHeaders.forWritable();
       }
       return this.headers;
     }
@@ -456,13 +456,13 @@ final class DefaultRestClient implements RestClient {
     private HttpHeaders initHeaders() {
       HttpHeaders defaultHeaders = DefaultRestClient.this.defaultHeaders;
       if (CollectionUtils.isEmpty(this.headers)) {
-        return (defaultHeaders != null ? defaultHeaders : HttpHeaders.create());
+        return (defaultHeaders != null ? defaultHeaders : HttpHeaders.forWritable());
       }
       else if (CollectionUtils.isEmpty(defaultHeaders)) {
         return this.headers;
       }
       else {
-        HttpHeaders result = HttpHeaders.create();
+        HttpHeaders result = HttpHeaders.forWritable();
         result.putAll(defaultHeaders);
         result.putAll(this.headers);
         return result;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -32,7 +29,8 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MappingMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -41,6 +39,7 @@ import cn.taketoday.util.StringUtils;
  * Common base class for {@link ServerHttpRequest} implementations.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
@@ -48,7 +47,9 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   private static final Pattern QUERY_PATTERN = Pattern.compile("([^&=]+)(=?)([^&]+)?");
 
   private final URI uri;
+
   private final RequestPath path;
+
   private final HttpHeaders headers;
 
   @Nullable
@@ -92,7 +93,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, HttpHeaders headers) {
     this.uri = uri;
     this.path = RequestPath.parse(uri, contextPath);
-    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+    this.headers = headers.asReadOnly();
   }
 
   /**
@@ -103,8 +104,8 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
    * @param contextPath the context path for the request
    * @param headers the headers for the request (as {@link MultiValueMap})
    */
-  public AbstractServerHttpRequest(HttpMethod method, URI uri, @Nullable String contextPath,
-          MultiValueMap<String, String> headers) {
+  public AbstractServerHttpRequest(HttpMethod method, URI uri,
+          @Nullable String contextPath, MultiValueMap<String, String> headers) {
 
     Assert.notNull(method, "Method is required");
     Assert.notNull(uri, "Uri is required");
@@ -177,7 +178,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
    * parsing is thread-safe nevertheless.
    */
   protected MultiValueMap<String, String> initQueryParams() {
-    DefaultMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
+    LinkedMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
     String query = getURI().getRawQuery();
     if (query != null) {
       Matcher matcher = QUERY_PATTERN.matcher(query);

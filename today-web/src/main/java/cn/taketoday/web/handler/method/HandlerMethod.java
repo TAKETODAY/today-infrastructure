@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -47,11 +48,13 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MapCache;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
+import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AsyncHandler;
 import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerWrapper;
@@ -78,6 +81,13 @@ public class HandlerMethod implements AsyncHandler {
 
   /** Logger that is available to subclasses. */
   protected static final Logger log = LoggerFactory.getLogger(HandlerMethod.class);
+
+  static MapCache<AnnotationKey, Boolean, HandlerMethod> methodAnnotationCache = new MapCache<>(128) {
+    @Override
+    protected Boolean createValue(AnnotationKey key, HandlerMethod handlerMethod) {
+      return AnnotatedElementUtils.hasAnnotation(key.method, key.annotationType);
+    }
+  };
 
   private final Object bean;
 
@@ -114,12 +124,17 @@ public class HandlerMethod implements AsyncHandler {
   @Nullable
   private String responseStatusReason;
 
-  @Nullable
-  private HandlerMethod resolvedFromHandlerMethod;
-
   /** @since 4.0 */
   @Nullable
   private volatile ArrayList<Annotation[][]> interfaceParameterAnnotations;
+
+  /**
+   * cors config cache
+   *
+   * @since 4.0
+   */
+  @Nullable
+  CorsConfiguration corsConfig;
 
   /**
    * Create an instance from a bean instance and a method.
@@ -209,8 +224,8 @@ public class HandlerMethod implements AsyncHandler {
     this.responseStatus = handlerMethod.responseStatus;
     this.responseStatusReason = handlerMethod.responseStatusReason;
     this.description = handlerMethod.description;
-    this.resolvedFromHandlerMethod = handlerMethod.resolvedFromHandlerMethod;
     this.responseBody = handlerMethod.responseBody;
+    this.corsConfig = handlerMethod.corsConfig;
   }
 
   /**
@@ -226,9 +241,9 @@ public class HandlerMethod implements AsyncHandler {
     this.parameters = handlerMethod.parameters;
     this.responseStatus = handlerMethod.responseStatus;
     this.responseStatusReason = handlerMethod.responseStatusReason;
-    this.resolvedFromHandlerMethod = handlerMethod;
     this.description = handlerMethod.description;
     this.responseBody = handlerMethod.responseBody;
+    this.corsConfig = handlerMethod.corsConfig;
   }
 
   private MethodParameter[] initMethodParameters() {
@@ -426,18 +441,7 @@ public class HandlerMethod implements AsyncHandler {
    * @since 4.0
    */
   public <A extends Annotation> boolean hasMethodAnnotation(Class<A> annotationType) {
-    return AnnotatedElementUtils.hasAnnotation(this.method, annotationType);
-  }
-
-  /**
-   * Return the HandlerMethod from which this HandlerMethod instance was
-   * resolved via {@link #withBean(Object)}.
-   *
-   * @since 4.0
-   */
-  @Nullable
-  public HandlerMethod getResolvedFromHandlerMethod() {
-    return this.resolvedFromHandlerMethod;
+    return methodAnnotationCache.get(new AnnotationKey(method, annotationType), this);
   }
 
   @Override
@@ -840,4 +844,35 @@ public class HandlerMethod implements AsyncHandler {
 
   }
 
+  static final class AnnotationKey {
+
+    private final int hash;
+
+    public final Method method;
+
+    public final Class<? extends Annotation> annotationType;
+
+    AnnotationKey(Method method, Class<? extends Annotation> annotationType) {
+      this.method = method;
+      this.annotationType = annotationType;
+      this.hash = Objects.hash(method, annotationType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o)
+        return true;
+      if (!(o instanceof AnnotationKey annotationKey))
+        return false;
+      return hash == annotationKey.hash
+              && Objects.equals(method, annotationKey.method)
+              && Objects.equals(annotationType, annotationKey.annotationType);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.hash;
+    }
+
+  }
 }

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.handler;
@@ -151,9 +151,10 @@ public class ConcurrentWebSocketSessionDecorator extends WebSocketSessionDecorat
       this.preSendCallback.accept(message);
     }
 
+    boolean traceEnabled = logger.isTraceEnabled();
     do {
       if (!tryFlushMessageBuffer()) {
-        if (logger.isTraceEnabled()) {
+        if (traceEnabled) {
           logger.trace("Another send already in progress: " +
                           "session id '{}':, \"in-progress\" send time {} (ms), buffer size {} bytes",
                   getId(), getTimeSinceSendStarted(), getBufferSize());
@@ -197,17 +198,13 @@ public class ConcurrentWebSocketSessionDecorator extends WebSocketSessionDecorat
     if (!shouldNotSend() && this.closeLock.tryLock()) {
       try {
         if (getTimeSinceSendStarted() > getSendTimeLimit()) {
-          String format = "Send time %d (ms) for session '%s' exceeded the allowed limit %d";
-          String reason = String.format(format, getTimeSinceSendStarted(), getId(), getSendTimeLimit());
-          limitExceeded(reason);
+          limitExceeded("Send time %d (ms) for session '%s' exceeded the allowed limit %d"
+                  .formatted(getTimeSinceSendStarted(), getId(), getSendTimeLimit()));
         }
         else if (getBufferSize() > getBufferSizeLimit()) {
           switch (this.overflowStrategy) {
-            case TERMINATE -> {
-              String format = "Buffer size %d bytes for session '%s' exceeds the allowed limit %d";
-              String reason = String.format(format, getBufferSize(), getId(), getBufferSizeLimit());
-              limitExceeded(reason);
-            }
+            case TERMINATE -> limitExceeded("Buffer size %d bytes for session '%s' exceeds the allowed limit %d"
+                    .formatted(getBufferSize(), getId(), getBufferSizeLimit()));
             case DROP -> {
               int i = 0;
               while (getBufferSize() > getBufferSizeLimit()) {

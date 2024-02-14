@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -32,11 +29,12 @@ import cn.taketoday.lang.Nullable;
  *
  * @param <T> the result type returned by this Future's {@code get} method
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ListenableFutureTask<T> extends FutureTask<T> implements ListenableFuture<T> {
 
-  private final ListenableFutureCallbackRegistry<T> callbacks = new ListenableFutureCallbackRegistry<>();
+  private final ListenableFutureListenerRegistry<T> callbacks = new ListenableFutureListenerRegistry<>();
 
   /**
    * Create a new {@code ListenableFutureTask} that will, upon running,
@@ -61,21 +59,14 @@ public class ListenableFutureTask<T> extends FutureTask<T> implements Listenable
   }
 
   @Override
-  public void addCallback(ListenableFutureCallback<? super T> callback) {
-    this.callbacks.addCallback(callback);
-  }
-
-  @Override
-  public void addCallback(SuccessCallback<? super T> successCallback, FailureCallback failureCallback) {
-    this.callbacks.addSuccessCallback(successCallback);
-    this.callbacks.addFailureCallback(failureCallback);
+  public void addListener(FutureListener<? super T> listener) {
+    this.callbacks.addListener(listener);
   }
 
   @Override
   public CompletableFuture<T> completable() {
-    CompletableFuture<T> completable = new DelegatingCompletableFuture<>(this);
-    this.callbacks.addSuccessCallback(completable::complete);
-    this.callbacks.addFailureCallback(completable::completeExceptionally);
+    var completable = new DelegatingCompletableFuture<>(this);
+    this.callbacks.addListener(completable);
     return completable;
   }
 

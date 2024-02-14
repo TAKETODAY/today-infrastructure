@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode.core;
@@ -483,35 +480,35 @@ public class CodeFlow implements Opcodes {
     if (clazz.isArray()) {
       while (clazz.isArray()) {
         sb.append('[');
-        clazz = clazz.getComponentType();
+        clazz = clazz.componentType();
       }
     }
     if (clazz.isPrimitive()) {
-      if (clazz == Boolean.TYPE) {
+      if (clazz == boolean.class) {
         sb.append('Z');
       }
-      else if (clazz == Byte.TYPE) {
+      else if (clazz == byte.class) {
         sb.append('B');
       }
-      else if (clazz == Character.TYPE) {
+      else if (clazz == char.class) {
         sb.append('C');
       }
-      else if (clazz == Double.TYPE) {
+      else if (clazz == double.class) {
         sb.append('D');
       }
-      else if (clazz == Float.TYPE) {
+      else if (clazz == float.class) {
         sb.append('F');
       }
-      else if (clazz == Integer.TYPE) {
+      else if (clazz == int.class) {
         sb.append('I');
       }
-      else if (clazz == Long.TYPE) {
+      else if (clazz == long.class) {
         sb.append('J');
       }
-      else if (clazz == Short.TYPE) {
+      else if (clazz == short.class) {
         sb.append('S');
       }
-      else if (clazz == Void.TYPE) {
+      else if (clazz == void.class) {
         sb.append('V');
       }
     }

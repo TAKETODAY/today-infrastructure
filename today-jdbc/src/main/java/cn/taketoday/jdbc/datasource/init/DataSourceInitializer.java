@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource.init;
@@ -34,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Dave Syer
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DatabasePopulator
  * @since 4.0
  */
@@ -62,23 +60,24 @@ public class DataSourceInitializer implements InitializingBean, DisposableBean {
   }
 
   /**
-   * Set the {@link DatabasePopulator} to execute during the bean initialization phase.
+   * Set the {@link DatabasePopulator} to execute during the bean initialization phase,
+   * if any.
    *
    * @param databasePopulator the {@code DatabasePopulator} to use during initialization
    * @see #setDatabaseCleaner
    */
-  public void setDatabasePopulator(DatabasePopulator databasePopulator) {
+  public void setDatabasePopulator(@Nullable DatabasePopulator databasePopulator) {
     this.databasePopulator = databasePopulator;
   }
 
   /**
-   * Set the {@link DatabasePopulator} to execute during the bean destruction
-   * phase, cleaning up the database and leaving it in a known state for others.
+   * Set the {@link DatabasePopulator} to execute during the bean destruction phase,
+   * if any, cleaning up the database and leaving it in a known state for others.
    *
    * @param databaseCleaner the {@code DatabasePopulator} to use during destruction
    * @see #setDatabasePopulator
    */
-  public void setDatabaseCleaner(DatabasePopulator databaseCleaner) {
+  public void setDatabaseCleaner(@Nullable DatabasePopulator databaseCleaner) {
     this.databaseCleaner = databaseCleaner;
   }
 

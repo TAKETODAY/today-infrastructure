@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -680,7 +680,7 @@ class CglibAopProxy implements AopProxy, Serializable {
       retVal = proxy;
     }
     Class<?> returnType;
-    if (retVal == null && (returnType = method.getReturnType()) != Void.TYPE && returnType.isPrimitive()) {
+    if (retVal == null && (returnType = method.getReturnType()) != void.class && returnType.isPrimitive()) {
       throw new AopInvocationException(
               "Null return value from advice does not match primitive return type for: " + method);
     }

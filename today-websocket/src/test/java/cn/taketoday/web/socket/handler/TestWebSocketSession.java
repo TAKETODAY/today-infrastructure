@@ -65,16 +65,16 @@ public class TestWebSocketSession extends WebSocketSession {
   private HttpHeaders headers;
 
   public TestWebSocketSession() {
-    super(HttpHeaders.create());
+    super(HttpHeaders.forWritable());
   }
 
   public TestWebSocketSession(String id) {
-    super(HttpHeaders.create());
+    super(HttpHeaders.forWritable());
     this.id = id;
   }
 
   public TestWebSocketSession(boolean open) {
-    super(HttpHeaders.create());
+    super(HttpHeaders.forWritable());
     this.open = open;
   }
 

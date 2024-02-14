@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -34,8 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/11 17:45
  */
-class NotFoundHandlerTests {
-  NotFoundHandler notFoundHandler = new NotFoundHandler();
+class SimpleNotFoundHandlerTests {
+  SimpleNotFoundHandler notFoundHandler = new SimpleNotFoundHandler();
 
   MockHttpServletRequest request = new MockHttpServletRequest();
   MockHttpServletResponse response = new MockHttpServletResponse();
@@ -44,7 +41,7 @@ class NotFoundHandlerTests {
   void handleNotFound() throws Throwable {
     request.setRequestURI("/not-found");
     ServletRequestContext requestContext = new ServletRequestContext(null, request, response);
-    assertThat(notFoundHandler.handleRequest(requestContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
+    assertThat(notFoundHandler.handleNotFound(requestContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
     assertThat(requestContext.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
     assertThat(response.isCommitted()).isTrue();
 

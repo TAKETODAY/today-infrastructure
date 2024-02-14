@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -28,7 +25,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.ListenableFutureCallback;
+import cn.taketoday.util.concurrent.FutureListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -43,7 +40,7 @@ public class AsyncResultTests {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
     ListenableFuture<String> future = AsyncResult.forValue(value);
-    future.addCallback(new ListenableFutureCallback<String>() {
+    future.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         values.add(result);
@@ -65,7 +62,7 @@ public class AsyncResultTests {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
     ListenableFuture<String> future = AsyncResult.forExecutionException(ex);
-    future.addCallback(new ListenableFutureCallback<String>() {
+    future.addListener(new FutureListener<String>() {
       @Override
       public void onSuccess(String result) {
         throw new AssertionError("Success callback not expected: " + result);
@@ -90,7 +87,7 @@ public class AsyncResultTests {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
     ListenableFuture<String> future = AsyncResult.forValue(value);
-    future.addCallback(values::add, ex -> new AssertionError("Failure callback not expected: " + ex));
+    future.addListener(values::add, ex -> new AssertionError("Failure callback not expected: " + ex));
     assertThat(values.iterator().next()).isSameAs(value);
     assertThat(future.get()).isSameAs(value);
     assertThat(future.completable().get()).isSameAs(value);
@@ -102,7 +99,7 @@ public class AsyncResultTests {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
     ListenableFuture<String> future = AsyncResult.forExecutionException(ex);
-    future.addCallback(result -> new AssertionError("Success callback not expected: " + result), values::add);
+    future.addListener(result -> new AssertionError("Success callback not expected: " + result), values::add);
     assertThat(values.iterator().next()).isSameAs(ex);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     future::get)

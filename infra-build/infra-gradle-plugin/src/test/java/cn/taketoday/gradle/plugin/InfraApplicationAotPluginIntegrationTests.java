@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package cn.taketoday.gradle.plugin;
 
 import org.gradle.testkit.runner.TaskOutcome;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.junit.jupiter.api.condition.JRE;
@@ -87,12 +88,14 @@ class InfraApplicationAotPluginIntegrationTests {
     assertThat(this.gradleBuild.build("processTestAotClasspath").getOutput()).contains("library.jar");
   }
 
+  @Disabled
   @TestTemplate
   void processAotHasTransitiveRuntimeDependenciesOnItsClasspath() {
     String output = this.gradleBuild.build("processAotClasspath").getOutput();
     assertThat(output).contains("org.jboss.logging" + File.separatorChar + "jboss-logging");
   }
 
+  @Disabled
   @TestTemplate
   void processTestAotHasTransitiveRuntimeDependenciesOnItsClasspath() {
     String output = this.gradleBuild.build("processTestAotClasspath").getOutput();

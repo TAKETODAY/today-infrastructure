@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -41,10 +38,6 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 class ConfigDataProperties {
-
-  private static final ConfigurationPropertyName NAME = ConfigurationPropertyName.of("app.config");
-
-  private static final Bindable<ConfigDataProperties> BINDABLE_PROPERTIES = Bindable.of(ConfigDataProperties.class);
 
   /**
    * any additional imports requested.
@@ -94,7 +87,8 @@ class ConfigDataProperties {
    */
   @Nullable
   static ConfigDataProperties get(Binder binder) {
-    return binder.bind(NAME, BINDABLE_PROPERTIES, new ConfigDataLocationBindHandler()).orElse(null);
+    return binder.bind(ConfigurationPropertyName.of("app.config"),
+            Bindable.of(ConfigDataProperties.class), new ConfigDataLocationBindHandler()).orElse(null);
   }
 
   /**
@@ -130,9 +124,9 @@ class ConfigDataProperties {
       if (activationContext == null) {
         return false;
       }
-      boolean activate = isActive(activationContext.cloudPlatform);
-      activate = activate && isActive(activationContext.profiles);
-      return activate;
+      CloudPlatform cloudPlatform = activationContext.cloudPlatform;
+      return isActive(cloudPlatform != null ? cloudPlatform : CloudPlatform.NONE)
+              && isActive(activationContext.profiles);
     }
 
     private boolean isActive(@Nullable CloudPlatform cloudPlatform) {

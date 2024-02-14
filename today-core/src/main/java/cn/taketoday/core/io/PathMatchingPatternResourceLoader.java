@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.core.io;
 
@@ -222,6 +222,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
           Predicate.not(resolvedModule -> systemModuleNames.contains(resolvedModule.name()));
 
   private PathMatcher pathMatcher = new AntPathMatcher();
+
   private final ResourceLoader resourceLoader;
 
   /**
@@ -447,8 +448,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   protected void addClassPathManifestEntries(ResourceConsumer consumer) {
     try {
       String javaClassPathProperty = System.getProperty("java.class.path");
-      for (String path : StringUtils.delimitedListToStringArray(
-              javaClassPathProperty, System.getProperty("path.separator"))) {
+      for (String path : StringUtils.delimitedListToStringArray(javaClassPathProperty, File.pathSeparator)) {
         try {
           String filePath = new File(path).getAbsolutePath();
           int prefixIndex = filePath.indexOf(':');
@@ -495,8 +495,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
     scan(rootDirPath, rootDirResource -> rootDirResource(subPattern, rootDirResource, consumer));
   }
 
-  protected void rootDirResource(String subPattern,
-          Resource rootDirResource, ResourceConsumer consumer) throws IOException {
+  protected void rootDirResource(String subPattern, Resource rootDirResource, ResourceConsumer consumer) throws IOException {
     if (rootDirResource instanceof ClassPathResource cpResource) {
       rootDirResource = cpResource.getOriginalResource();
     }

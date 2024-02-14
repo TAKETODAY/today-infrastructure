@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.result;
@@ -25,6 +22,7 @@ import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -81,7 +79,18 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
 
   private DeferredResult<Object> adaptListenableFuture(ListenableFuture<?> future) {
     DeferredResult<Object> result = new DeferredResult<>();
-    future.addCallback(result::setResult, result::setErrorResult);
+    future.addListener(new FutureListener<Object>() {
+
+      @Override
+      public void onSuccess(@Nullable Object res) {
+        result.setResult(res);
+      }
+
+      @Override
+      public void onFailure(Throwable ex) {
+        result.setErrorResult(ex);
+      }
+    });
     return result;
   }
 

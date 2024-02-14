@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
@@ -29,6 +26,7 @@ import java.util.Set;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -51,7 +49,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
   public final boolean isNegated;
 
   MediaTypeExpression(String expression) {
-    if (expression.startsWith("!")) {
+    if (expression.charAt(0) == '!') {
       this.isNegated = true;
       expression = expression.substring(1);
     }
@@ -145,9 +143,9 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
 
   // static
 
-  static List<MediaTypeExpression> parse(
-          String exprHeader, String[] expressions, @Nullable String[] headers) {
-    Set<MediaTypeExpression> result = null;
+  @Nullable
+  static ArrayList<MediaTypeExpression> parse(String exprHeader, String[] expressions, @Nullable String[] headers) {
+    LinkedHashSet<MediaTypeExpression> result = null;
     if (ObjectUtils.isNotEmpty(headers)) {
       for (String header : headers) {
         HeadersRequestCondition.HeaderExpression expr = new HeadersRequestCondition.HeaderExpression(header);
@@ -156,7 +154,7 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
             result = new LinkedHashSet<>();
           }
           for (MediaType mediaType : MediaType.parseMediaTypes(expr.value)) {
-            result.add(new MediaTypeExpression(mediaType, expr.isNegated));
+            result.add(new MediaTypeExpression(mediaType, expr.negated));
           }
         }
       }
@@ -169,11 +167,11 @@ final class MediaTypeExpression implements Comparable<MediaTypeExpression> {
         result.add(new MediaTypeExpression(produce));
       }
     }
-    return result != null ? new ArrayList<>(result) : Collections.emptyList();
+    return CollectionUtils.isNotEmpty(result) ? new ArrayList<>(result) : null;
   }
 
-  static Set<MediaType> filterNotNegated(List<MediaTypeExpression> expressions) {
-    if (expressions.isEmpty()) {
+  static Set<MediaType> filterNotNegated(@Nullable ArrayList<MediaTypeExpression> expressions) {
+    if (expressions == null || expressions.isEmpty()) {
       return Collections.emptySet();
     }
     LinkedHashSet<MediaType> result = new LinkedHashSet<>();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
@@ -33,7 +33,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
@@ -56,8 +55,11 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
   private static final Logger logger = LoggerFactory.getLogger(ReactorClientHttpResponse.class);
 
   private final HttpHeaders headers;
+
   private final NettyInbound inbound;
+
   private final HttpClientResponse response;
+
   private final NettyDataBufferFactory bufferFactory;
 
   // 0 - not subscribed, 1 - subscribed, 2 - cancelled via connector (before subscribe)
@@ -73,17 +75,6 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
     this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
     this.inbound = connection.inbound();
     this.bufferFactory = new NettyDataBufferFactory(connection.outbound().alloc());
-  }
-
-  /**
-   * Constructor with inputs extracted from a {@link Connection}.
-   */
-  public ReactorClientHttpResponse(HttpClientResponse response, NettyInbound inbound, ByteBufAllocator alloc) {
-    this.response = response;
-    MultiValueMap<String, String> adapter = new Netty4HeadersAdapter(response.responseHeaders());
-    this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
-    this.inbound = inbound;
-    this.bufferFactory = new NettyDataBufferFactory(alloc);
   }
 
   @Override
@@ -143,7 +134,7 @@ class ReactorClientHttpResponse implements ClientHttpResponse {
                         .build());
       }
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Nullable

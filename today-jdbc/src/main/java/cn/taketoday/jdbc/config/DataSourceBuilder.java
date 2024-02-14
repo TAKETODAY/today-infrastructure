@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.config;
@@ -159,7 +156,7 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @param username the user name
    * @return this builder
    */
-  public DataSourceBuilder<T> username(String username) {
+  public DataSourceBuilder<T> username(@Nullable String username) {
     set(DataSourceProperty.USERNAME, username);
     return this;
   }
@@ -170,12 +167,12 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @param password the password
    * @return this builder
    */
-  public DataSourceBuilder<T> password(String password) {
+  public DataSourceBuilder<T> password(@Nullable String password) {
     set(DataSourceProperty.PASSWORD, password);
     return this;
   }
 
-  private void set(DataSourceProperty property, String value) {
+  private void set(DataSourceProperty property, @Nullable String value) {
     this.values.put(property, value);
   }
 
@@ -283,7 +280,7 @@ public final class DataSourceBuilder<T extends DataSource> {
    * @return the preferred {@link DataSource} type
    */
   @Nullable
-  public static Class<? extends DataSource> findType(ClassLoader classLoader) {
+  public static Class<? extends DataSource> findType(@Nullable ClassLoader classLoader) {
     MappedDataSourceProperties<?> mappings = MappedDataSourceProperties.forType(classLoader, null);
     return (mappings != null) ? mappings.getDataSourceInstanceType() : null;
   }

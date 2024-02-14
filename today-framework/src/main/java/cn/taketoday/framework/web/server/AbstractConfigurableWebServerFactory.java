@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.server;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.InetAddress;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -230,9 +233,23 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    * @return the temp dir for given server.
    */
   protected final File createTempDir(String prefix) {
-    File tempDir = applicationTemp.getDir(prefix + "-" + getPort()).toFile();
-    tempDir.deleteOnExit();
-    return tempDir;
+    try {
+      File tempDir = applicationTemp.getDir(prefix + "-" + getPort()).toFile();
+      tempDir.deleteOnExit();
+      return tempDir;
+    }
+    catch (UncheckedIOException ex) {
+      try {
+        File tempDir = Files.createTempDirectory(applicationTemp.getDir(), prefix + "." + getPort() + ".").toFile();
+        tempDir.deleteOnExit();
+        return tempDir;
+      }
+      catch (IOException e) {
+        ex.addSuppressed(e);
+        throw new WebServerException(
+                "Unable to create tempDir. base tmpdir is set to " + applicationTemp.getDir(), ex);
+      }
+    }
   }
 
 }

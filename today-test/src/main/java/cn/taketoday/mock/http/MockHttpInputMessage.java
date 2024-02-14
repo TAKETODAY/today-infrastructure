@@ -36,7 +36,7 @@ import cn.taketoday.lang.Assert;
  */
 public class MockHttpInputMessage implements HttpInputMessage {
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final InputStream body;
 

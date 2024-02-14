@@ -91,7 +91,7 @@ public class DefaultWebClientTests {
 
     ClientRequest request = verifyAndGetRequest();
     assertThat(request.url().toString()).isEqualTo("/base/path");
-    assertThat(request.headers()).isEqualTo(HttpHeaders.create());
+    assertThat(request.headers()).isEqualTo(HttpHeaders.forWritable());
     assertThat(request.cookies()).isEqualTo(Collections.emptyMap());
   }
 

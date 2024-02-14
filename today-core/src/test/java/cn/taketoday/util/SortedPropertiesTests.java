@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -29,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Properties;
 
+import static cn.taketoday.util.CollectionUtils.createSortedProperties;
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -159,10 +157,10 @@ public class SortedPropertiesTests {
     return sortedProperties;
   }
 
-  private SortedProperties createSortedPropsFromPrototype() {
+  private Properties createSortedPropsFromPrototype() {
     Properties properties = new Properties();
     populateProperties(properties);
-    return new SortedProperties(properties, false);
+    return createSortedProperties(properties, false);
   }
 
   private void populateProperties(Properties properties) {
@@ -174,7 +172,7 @@ public class SortedPropertiesTests {
   }
 
   private String[] lines(ByteArrayOutputStream baos) {
-    return lines(new String(baos.toByteArray(), StandardCharsets.ISO_8859_1));
+    return lines(baos.toString(StandardCharsets.ISO_8859_1));
   }
 
   private String[] lines(StringWriter writer) {

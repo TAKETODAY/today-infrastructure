@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.annotation;
@@ -40,9 +40,12 @@ public class RestrictedTransactionalEventListenerFactory extends TransactionalEv
   @Override
   public ApplicationListener<?> createApplicationListener(String beanName, Class<?> type, Method method) {
     Transactional txAnn = AnnotatedElementUtils.findMergedAnnotation(method, Transactional.class);
-    if (txAnn != null && txAnn.propagation() != Propagation.REQUIRES_NEW) {
-      throw new IllegalStateException("@TransactionalEventListener method must not be annotated with " +
-              "@Transactional unless when declared as REQUIRES_NEW: " + method);
+    if (txAnn != null) {
+      Propagation propagation = txAnn.propagation();
+      if (propagation != Propagation.REQUIRES_NEW && propagation != Propagation.NOT_SUPPORTED) {
+        throw new IllegalStateException("@TransactionalEventListener method must not be annotated with " +
+                "@Transactional unless when declared as REQUIRES_NEW or NOT_SUPPORTED: " + method);
+      }
     }
     return super.createApplicationListener(beanName, type, method);
   }

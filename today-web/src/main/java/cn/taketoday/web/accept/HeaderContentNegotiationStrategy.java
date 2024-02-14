@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.accept;
@@ -23,9 +20,9 @@ package cn.taketoday.web.accept;
 import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
@@ -35,6 +32,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class HeaderContentNegotiationStrategy implements ContentNegotiationStrategy {
@@ -46,8 +44,7 @@ public class HeaderContentNegotiationStrategy implements ContentNegotiationStrat
    * @throws HttpMediaTypeNotAcceptableException if the 'Accept' header cannot be parsed
    */
   @Override
-  public List<MediaType> resolveMediaTypes(RequestContext request)
-          throws HttpMediaTypeNotAcceptableException {
+  public List<MediaType> resolveMediaTypes(RequestContext request) throws HttpMediaTypeNotAcceptableException {
     List<String> headerValues = request.requestHeaders().get(HttpHeaders.ACCEPT);
     if (headerValues == null) {
       return MEDIA_TYPE_ALL_LIST;

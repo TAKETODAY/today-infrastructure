@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -73,6 +73,7 @@ import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -86,7 +87,6 @@ import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.BeanNameUrlHandlerMapping;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
-import cn.taketoday.web.handler.NotFoundHandler;
 import cn.taketoday.web.handler.ResponseStatusExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.SimpleHandlerExceptionHandler;
@@ -105,7 +105,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.resource.ResourceUrlProvider;
 import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
@@ -868,16 +867,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @see ResourceHandlerRegistry
    */
   protected void addResourceHandlers(ResourceHandlerRegistry registry) { }
-
-  /**
-   * A {@link ResourceUrlProvider} bean for use with the MVC dispatcher.
-   */
-  @Component
-  @ConditionalOnMissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  public ResourceUrlProvider mvcResourceUrlProvider() {
-    return new ResourceUrlProvider();
-  }
 
   /**
    * Return the registered {@link CorsConfiguration} objects,

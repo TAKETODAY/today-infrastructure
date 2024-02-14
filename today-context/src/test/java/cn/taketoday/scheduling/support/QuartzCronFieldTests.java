@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.support;
@@ -72,6 +69,46 @@ class QuartzCronFieldTests {
 
     LocalDate last = LocalDate.of(2020, 6, 16);
     LocalDate expected = LocalDate.of(2020, 6, 25);
+    assertThat(field.nextOrSame(last)).isEqualTo(expected);
+  }
+
+  @Test
+  void dayOfWeek_0() {
+    // third Sunday (0) of the month
+    QuartzCronField field = QuartzCronField.parseDaysOfWeek("0#3");
+
+    LocalDate last = LocalDate.of(2024, 1, 1);
+    LocalDate expected = LocalDate.of(2024, 1, 21);
+    assertThat(field.nextOrSame(last)).isEqualTo(expected);
+  }
+
+  @Test
+  void dayOfWeek_1() {
+    // third Monday (1) of the month
+    QuartzCronField field = QuartzCronField.parseDaysOfWeek("1#3");
+
+    LocalDate last = LocalDate.of(2024, 1, 1);
+    LocalDate expected = LocalDate.of(2024, 1, 15);
+    assertThat(field.nextOrSame(last)).isEqualTo(expected);
+  }
+
+  @Test
+  void dayOfWeek_2() {
+    // third Tuesday (2) of the month
+    QuartzCronField field = QuartzCronField.parseDaysOfWeek("2#3");
+
+    LocalDate last = LocalDate.of(2024, 1, 1);
+    LocalDate expected = LocalDate.of(2024, 1, 16);
+    assertThat(field.nextOrSame(last)).isEqualTo(expected);
+  }
+
+  @Test
+  void dayOfWeek_7() {
+    // third Sunday (7 as alternative to 0) of the month
+    QuartzCronField field = QuartzCronField.parseDaysOfWeek("7#3");
+
+    LocalDate last = LocalDate.of(2024, 1, 1);
+    LocalDate expected = LocalDate.of(2024, 1, 21);
     assertThat(field.nextOrSame(last)).isEqualTo(expected);
   }
 

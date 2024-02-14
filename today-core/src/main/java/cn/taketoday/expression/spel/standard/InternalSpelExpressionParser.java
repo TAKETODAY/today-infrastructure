@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.standard;
@@ -967,7 +967,7 @@ final class InternalSpelExpressionParser extends TemplateAwareExpressionParser {
     if (desiredTokenKind == TokenKind.IDENTIFIER) {
       // Might be one of the textual forms of the operators (e.g. NE for != ) -
       // in which case we can treat it as an identifier. The list is represented here:
-      // Tokenizer.alternativeOperatorNames and those ones are in order in the TokenKind enum.
+      // Tokenizer.ALTERNATIVE_OPERATOR_NAMES and those ones are in order in the TokenKind enum.
       // if t.data were null, we'd know it wasn't the textual form, it was the symbol form
       return t.kind.ordinal() >= TokenKind.DIV.ordinal()
               && t.kind.ordinal() <= TokenKind.NOT.ordinal()

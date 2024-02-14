@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -807,7 +807,7 @@ public class MediaType extends MimeType implements Serializable {
    * @return the corresponding media type, or {@code null} if none found
    */
   @Nullable
-  public static MediaType fromFileName(String filename) {
+  public static MediaType fromFileName(@Nullable String filename) {
     Optional<MediaType> mediaType = MediaTypeFactory.getMediaType(filename);
     return mediaType.orElse(null);
   }

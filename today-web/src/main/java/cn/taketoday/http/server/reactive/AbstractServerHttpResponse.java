@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -66,7 +66,9 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   private HttpHeaders readOnlyHeaders;
 
   private final HttpHeaders headers;
+
   private final DataBufferFactory dataBufferFactory;
+
   private final MultiValueMap<String, ResponseCookie> cookies;
 
   private final AtomicReference<State> state = new AtomicReference<>(State.NEW);
@@ -74,7 +76,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   private final CopyOnWriteArrayList<Supplier<? extends Mono<Void>>> commitActions = new CopyOnWriteArrayList<>();
 
   public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory) {
-    this(dataBufferFactory, HttpHeaders.create());
+    this(dataBufferFactory, HttpHeaders.forWritable());
   }
 
   public AbstractServerHttpResponse(DataBufferFactory dataBufferFactory, HttpHeaders headers) {
@@ -130,7 +132,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
       return this.readOnlyHeaders;
     }
     else if (this.state.get() == State.COMMITTED) {
-      this.readOnlyHeaders = HttpHeaders.readOnlyHttpHeaders(this.headers);
+      this.readOnlyHeaders = headers.asReadOnly();
       return this.readOnlyHeaders;
     }
     else {
@@ -141,7 +143,7 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   @Override
   public MultiValueMap<String, ResponseCookie> getCookies() {
     return this.state.get() == State.COMMITTED
-           ? MultiValueMap.forUnmodifiable(this.cookies) : this.cookies;
+           ? cookies.asReadOnly() : this.cookies;
   }
 
   @Override
@@ -174,7 +176,6 @@ public abstract class AbstractServerHttpResponse implements ServerHttpResponse {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public final Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
     // For Mono we can avoid ChannelSendOperator and Reactor Netty is more optimized for Mono.
     // We must resolve value first however, for a chance to handle potential error.

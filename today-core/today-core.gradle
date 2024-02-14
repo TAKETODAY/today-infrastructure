@@ -2,7 +2,7 @@ import cn.taketoday.build.shadow.ShadowSource
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-  id 'me.champeau.mrjar' version '0.1.1'
+  id 'me.champeau.mrjar'
 }
 
 description = "Infra Core Technologies"
@@ -108,7 +108,7 @@ test {
   // Ensure that BlockHound tests run on JDK 13+. For details, see:
   // https://github.com/reactor/BlockHound/issues/33
   jvmArgs += [
-          "-XX:+AllowRedefinitionToAddDeleteMethods"
+      "-XX:+AllowRedefinitionToAddDeleteMethods"
   ]
 }
 

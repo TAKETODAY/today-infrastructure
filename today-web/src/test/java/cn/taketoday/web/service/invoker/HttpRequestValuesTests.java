@@ -117,7 +117,7 @@ class HttpRequestValuesTests {
 
   @Test
   void requestPart() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("foo", "bar");
     HttpEntity<String> entity = new HttpEntity<>("body", headers);
 

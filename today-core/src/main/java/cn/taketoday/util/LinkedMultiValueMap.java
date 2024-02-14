@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -25,7 +22,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Simple implementation of {@link MultiValueMap} that wraps a {@link java.util.LinkedHashMap},
@@ -41,7 +37,7 @@ import java.util.function.Function;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/17 16:33
  */
-public class LinkedMultiValueMap<K, V> extends DefaultMultiValueMap<K, V> {
+public class LinkedMultiValueMap<K, V> extends MultiValueMapAdapter<K, V> {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -51,13 +47,6 @@ public class LinkedMultiValueMap<K, V> extends DefaultMultiValueMap<K, V> {
    */
   public LinkedMultiValueMap() {
     super(new LinkedHashMap<>());
-  }
-
-  /**
-   * Create a new LinkedMultiValueMap that wraps a {@link LinkedHashMap}.
-   */
-  public LinkedMultiValueMap(Function<K, List<V>> mappingFunction) {
-    super(new LinkedHashMap<>(), mappingFunction);
   }
 
   /**
@@ -74,19 +63,6 @@ public class LinkedMultiValueMap<K, V> extends DefaultMultiValueMap<K, V> {
   }
 
   /**
-   * Create a new LinkedMultiValueMap that wraps a {@link LinkedHashMap}
-   * with an initial capacity that can accommodate the specified number of
-   * elements without any immediate resize/rehash operations to be expected.
-   *
-   * @param expectedSize the expected number of elements (with a corresponding
-   * capacity to be derived so that no resize/rehash operations are needed)
-   * @see CollectionUtils#newLinkedHashMap(int)
-   */
-  public LinkedMultiValueMap(int expectedSize, Function<K, List<V>> mappingFunction) {
-    super(CollectionUtils.newLinkedHashMap(expectedSize), mappingFunction);
-  }
-
-  /**
    * Copy constructor: Create a new LinkedMultiValueMap with the same mappings as
    * the specified Map. Note that this will be a shallow copy; its value-holding
    * List entries will get reused and therefore cannot get modified independently.
@@ -100,44 +76,20 @@ public class LinkedMultiValueMap<K, V> extends DefaultMultiValueMap<K, V> {
   }
 
   /**
-   * Copy constructor: Create a new LinkedMultiValueMap with the same mappings as
-   * the specified Map. Note that this will be a shallow copy; its value-holding
-   * List entries will get reused and therefore cannot get modified independently.
-   *
-   * @param otherMap the Map whose mappings are to be placed in this Map
-   * @see #clone()
-   * @see #deepCopy()
-   */
-  public LinkedMultiValueMap(Map<K, List<V>> otherMap, Function<K, List<V>> mappingFunction) {
-    super(new LinkedHashMap<>(otherMap), mappingFunction);
-  }
-
-  /**
    * Create a deep copy of this Map.
    *
    * @return a copy of this Map, including a copy of each value-holding List entry
    * (consistently using an independent modifiable {@link ArrayList} for each entry)
    * along the lines of {@code MultiValueMap.addAll} semantics
    * @see #addAll(Map)
-   * @see #clone()
+   * @since 2.1.7
    */
-  @Override
   public LinkedMultiValueMap<K, V> deepCopy() {
-    LinkedMultiValueMap<K, V> ret = new LinkedMultiValueMap<>(map.size(), mappingFunction);
-    for (Entry<K, List<V>> entry : map.entrySet()) {
-      K key = entry.getKey();
-      List<V> value = entry.getValue();
-
-      List<V> apply = mappingFunction.apply(key);
-      apply.addAll(value);
-      ret.put(key, apply);
+    LinkedMultiValueMap<K, V> ret = new LinkedMultiValueMap<>(targetMap.size());
+    for (Entry<K, List<V>> entry : targetMap.entrySet()) {
+      ret.put(entry.getKey(), new ArrayList<>(entry.getValue()));
     }
     return ret;
-  }
-
-  @Override
-  public DefaultMultiValueMap<K, V> cloneMap() {
-    return new LinkedMultiValueMap<>(this, mappingFunction);
   }
 
 }

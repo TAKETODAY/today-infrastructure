@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.session;
-
-import java.util.ArrayList;
 
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Assert;
@@ -59,6 +54,7 @@ import cn.taketoday.web.RequestContext;
 public class CookieSessionIdResolver implements SessionIdResolver {
 
   private final String cookieName;
+
   private final CookieProperties config;
 
   public CookieSessionIdResolver() {
@@ -81,21 +77,22 @@ public class CookieSessionIdResolver implements SessionIdResolver {
 
   @Nullable
   @Override
-  public String getSessionId(RequestContext context) {
+  public String getSessionId(RequestContext exchange) {
     // find in request attribute
-    Object attribute = context.getAttribute(WRITTEN_SESSION_ID_ATTR);
+    Object attribute = exchange.getAttribute(WRITTEN_SESSION_ID_ATTR);
     if (attribute instanceof String sessionId) {
       return sessionId;
     }
 
     // find in request cookie
-    HttpCookie cookie = context.getCookie(cookieName);
+    HttpCookie cookie = exchange.getCookie(cookieName);
     if (cookie == null) {
       // fallback to response cookies
-      ArrayList<HttpCookie> httpCookies = context.responseCookies();
-      for (HttpCookie httpCookie : httpCookies) {
-        if (cookieName.equals(httpCookie.getName())) {
-          return httpCookie.getValue();
+      if (exchange.hasResponseCookie()) {
+        for (HttpCookie httpCookie : exchange.responseCookies()) {
+          if (cookieName.equals(httpCookie.getName())) {
+            return httpCookie.getValue();
+          }
         }
       }
       return null;
@@ -104,11 +101,11 @@ public class CookieSessionIdResolver implements SessionIdResolver {
   }
 
   @Override
-  public void setSessionId(RequestContext context, String sessionId) {
-    if (!sessionId.equals(context.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
+  public void setSessionId(RequestContext exchange, String sessionId) {
+    if (!sessionId.equals(exchange.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
       HttpCookie cookie = createCookie(sessionId);
-      context.addCookie(cookie);
-      context.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
+      exchange.addCookie(cookie);
+      exchange.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
     }
   }
 

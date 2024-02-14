@@ -63,7 +63,7 @@ public class DefaultClientResponseTests {
 
   private final ClientHttpResponse mockResponse = mock();
 
-  private final HttpHeaders httpHeaders = HttpHeaders.create();
+  private final HttpHeaders httpHeaders = HttpHeaders.forWritable();
 
   private final ExchangeStrategies mockExchangeStrategies = mock();
 

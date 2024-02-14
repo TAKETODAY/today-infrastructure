@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
@@ -25,11 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
+import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
 import cn.taketoday.http.server.reactive.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,6 +39,7 @@ import reactor.core.publisher.Mono;
  * @author Rossen Stoyanchev
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface HttpMessageReader<T> {
@@ -116,8 +114,7 @@ public interface HttpMessageReader<T> {
    * @param hints additional information about how to read the body
    * @return the decoded stream of elements
    */
-  default Flux<T> read(
-          ResolvableType actualType, ResolvableType elementType,
+  default Flux<T> read(ResolvableType actualType, ResolvableType elementType,
           ServerHttpRequest request, ServerHttpResponse response, Map<String, Object> hints) {
 
     return read(elementType, request, hints);
@@ -138,7 +135,7 @@ public interface HttpMessageReader<T> {
    * @return the decoded stream of elements
    */
   default Mono<T> readMono(ResolvableType actualType, ResolvableType elementType, ServerHttpRequest request,
-                           ServerHttpResponse response, Map<String, Object> hints) {
+          ServerHttpResponse response, Map<String, Object> hints) {
 
     return readMono(elementType, request, hints);
   }

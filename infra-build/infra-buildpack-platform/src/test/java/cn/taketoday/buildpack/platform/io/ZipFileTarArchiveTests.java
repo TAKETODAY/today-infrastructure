@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.buildpack.platform.io;
@@ -68,11 +68,11 @@ class ZipFileTarArchiveTests {
     tarArchive.writeTo(outputStream);
     try (TarArchiveInputStream tarStream = new TarArchiveInputStream(
             new ByteArrayInputStream(outputStream.toByteArray()))) {
-      TarArchiveEntry dirEntry = tarStream.getNextTarEntry();
+      TarArchiveEntry dirEntry = tarStream.getNextEntry();
       assertThat(dirEntry.getName()).isEqualTo("spring/");
       assertThat(dirEntry.getLongUserId()).isEqualTo(123);
       assertThat(dirEntry.getLongGroupId()).isEqualTo(456);
-      TarArchiveEntry fileEntry = tarStream.getNextTarEntry();
+      TarArchiveEntry fileEntry = tarStream.getNextEntry();
       assertThat(fileEntry.getName()).isEqualTo("spring/boot");
       assertThat(fileEntry.getLongUserId()).isEqualTo(123);
       assertThat(fileEntry.getLongGroupId()).isEqualTo(456);

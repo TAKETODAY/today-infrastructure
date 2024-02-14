@@ -42,7 +42,7 @@ class ForwardedHeaderTransformerTests {
   void removeOnly() {
     this.requestMutator.setRemoveOnly(true);
 
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "for=192.0.2.60;proto=http;by=203.0.113.43");
     headers.add("X-Forwarded-Host", "example.com");
     headers.add("X-Forwarded-Port", "8080");
@@ -57,7 +57,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void xForwardedHeaders() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Host", "84.198.58.199");
     headers.add("X-Forwarded-Port", "443");
     headers.add("X-Forwarded-Proto", "https");
@@ -70,7 +70,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void forwardedHeader() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
     ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
 
@@ -80,7 +80,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void xForwardedPrefix() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix");
     ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
 
@@ -92,7 +92,7 @@ class ForwardedHeaderTransformerTests {
   @Test
     // gh-23305
   void xForwardedPrefixShouldNotLeadToDecodedPath() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix");
     ServerHttpRequest request = MockServerHttpRequest
             .method(HttpMethod.GET, URI.create("https://example.com/a%20b?q=a%2Bb"))
@@ -108,7 +108,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void xForwardedPrefixTrailingSlash() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/prefix////");
     ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
 
@@ -120,7 +120,7 @@ class ForwardedHeaderTransformerTests {
   @Test
     // SPR-17525
   void shouldNotDoubleEncode() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
 
     ServerHttpRequest request = MockServerHttpRequest
@@ -137,7 +137,7 @@ class ForwardedHeaderTransformerTests {
   @Test
     // gh-30137
   void shouldHandleUnencodedUri() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
     ServerHttpRequest request = MockServerHttpRequest
             .method(HttpMethod.GET, URI.create("https://example.com/a?q=1+1=2"))
@@ -152,7 +152,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void shouldConcatenatePrefixes() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/first,/second");
     ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
 
@@ -163,7 +163,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void shouldConcatenatePrefixesWithTrailingSlashes() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("X-Forwarded-Prefix", "/first/,/second//");
     ServerHttpRequest request = this.requestMutator.apply(getRequest(headers));
 
@@ -174,7 +174,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void forwardedForNotPresent() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "host=84.198.58.199;proto=https");
 
     InetSocketAddress remoteAddress = new InetSocketAddress("example.client", 47011);
@@ -191,7 +191,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void forwardedFor() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("Forwarded", "for=\"203.0.113.195:4711\";host=84.198.58.199;proto=https");
 
     InetSocketAddress remoteAddress = new InetSocketAddress("example.client", 47011);
@@ -210,7 +210,7 @@ class ForwardedHeaderTransformerTests {
 
   @Test
   void xForwardedFor() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("x-forwarded-for", "203.0.113.195, 70.41.3.18, 150.172.238.178");
 
     ServerHttpRequest request = MockServerHttpRequest

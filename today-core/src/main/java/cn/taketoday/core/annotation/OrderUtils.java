@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core.annotation;
 
 import java.lang.reflect.AnnotatedElement;
@@ -21,6 +22,7 @@ import java.lang.reflect.AnnotatedElement;
 import cn.taketoday.core.DecoratingProxy;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
@@ -31,12 +33,10 @@ import cn.taketoday.util.ConcurrentReferenceHashMap;
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller
- * @author TODAY 2018-11-08 19:02
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-11-08 19:02
  */
 public abstract class OrderUtils {
-
-  /** Cache marker for a non-annotated Class. */
-  private static final Object NOT_ANNOTATED = new Object();
 
   private static final String PRIORITY_ANNOTATION = "jakarta.annotation.Priority";
 
@@ -150,7 +150,7 @@ public abstract class OrderUtils {
       return cached instanceof Integer ? (Integer) cached : null;
     }
     Integer result = findOrder(annotations);
-    orderCache.put(element, result != null ? result : NOT_ANNOTATED);
+    orderCache.put(element, result != null ? result : NullValue.INSTANCE);
     return result;
   }
 
@@ -158,7 +158,7 @@ public abstract class OrderUtils {
   private static Integer findOrder(MergedAnnotations annotations) {
     MergedAnnotation<Order> orderAnnotation = annotations.get(Order.class);
     if (orderAnnotation.isPresent()) {
-      return orderAnnotation.getInt(MergedAnnotation.VALUE);
+      return orderAnnotation.getIntValue();
     }
     MergedAnnotation<?> priorityAnnotation = annotations.get(PRIORITY_ANNOTATION);
     if (priorityAnnotation.isPresent()) {

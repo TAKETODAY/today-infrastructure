@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket;
@@ -49,14 +49,14 @@ import cn.taketoday.web.RequestContext;
  */
 public abstract class WebSocketHandler {
 
-  // @Nullable
+  @Nullable
   protected final WebSocketHandler delegate;
 
   protected WebSocketHandler() {
     this(null);
   }
 
-  protected WebSocketHandler(WebSocketHandler delegate) {
+  protected WebSocketHandler(@Nullable WebSocketHandler delegate) {
     this.delegate = delegate;
   }
 
@@ -73,6 +73,10 @@ public abstract class WebSocketHandler {
 
   /**
    * called after Handshake
+   * <p>
+   * if session is {@code null} means handshake failed
+   *
+   * @param session un-initialize session, cannot send message
    */
   public void afterHandshake(RequestContext request, @Nullable WebSocketSession session) throws Throwable {
     if (delegate != null) {
@@ -115,15 +119,6 @@ public abstract class WebSocketHandler {
     }
     else {
       throwNotSupportMessage(message);
-    }
-  }
-
-  public void onClose(WebSocketSession session) throws Exception {
-    if (delegate != null) {
-      delegate.onClose(session);
-    }
-    else {
-      onClose(session, CloseStatus.NORMAL);
     }
   }
 

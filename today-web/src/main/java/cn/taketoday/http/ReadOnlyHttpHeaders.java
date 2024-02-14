@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.http;
 
 import java.io.Serial;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 
 /**
@@ -40,20 +32,19 @@ import cn.taketoday.util.MultiValueMap;
  *
  * @author Brian Clozel
  * @author Sam Brannen
- * @author TODAY 2021/11/5 16:46
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/5 16:46
  */
 class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
 
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   /**
    * An empty {@code HttpHeaders} instance (immutable).
-   *
-   * @since 4.0
    */
-  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(new DefaultMultiValueMap<>(Collections.emptyMap()));
-
-  @Serial
-  private static final long serialVersionUID = -8578554704772377436L;
+  @SuppressWarnings("unchecked")
+  public static final ReadOnlyHttpHeaders EMPTY = new ReadOnlyHttpHeaders(MultiValueMap.EMPTY);
 
   @Nullable
   private MediaType cachedContentType;
@@ -126,16 +117,6 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public Map<String, String> toSingleValueMap() {
-    return Collections.unmodifiableMap(this.headers.toSingleValueMap());
-  }
-
-  @Override
-  public Set<String> keySet() {
-    return Collections.unmodifiableSet(this.headers.keySet());
-  }
-
-  @Override
   public List<String> put(String key, List<String> value) {
     throw new UnsupportedOperationException();
   }
@@ -156,21 +137,13 @@ class ReadOnlyHttpHeaders extends DefaultHttpHeaders {
   }
 
   @Override
-  public Collection<List<String>> values() {
-    return Collections.unmodifiableCollection(this.headers.values());
+  public HttpHeaders asWritable() {
+    return new DefaultHttpHeaders(headers);
   }
 
   @Override
-  public Set<Entry<String, List<String>>> entrySet() {
-    return this.headers.entrySet().stream().map(AbstractMap.SimpleImmutableEntry::new)
-            .collect(Collectors.collectingAndThen(
-                    Collectors.toCollection(LinkedHashSet::new), // Retain original ordering of entries
-                    Collections::unmodifiableSet));
-  }
-
-  @Override
-  public void forEach(BiConsumer<? super String, ? super List<String>> action) {
-    this.headers.forEach((k, vs) -> action.accept(k, Collections.unmodifiableList(vs)));
+  public HttpHeaders asReadOnly() {
+    return this;
   }
 
 }

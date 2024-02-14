@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.function;
@@ -44,6 +41,18 @@ public abstract class SupplierUtils {
   @Nullable
   public static <T> T resolve(@Nullable Supplier<T> supplier) {
     return (supplier != null ? supplier.get() : null);
+  }
+
+  /**
+   * Resolve a given {@code Supplier}, getting its result or immediately
+   * returning the given Object as-is if not a {@code Supplier}.
+   *
+   * @param candidate the candidate to resolve (potentially a {@code Supplier})
+   * @return a supplier's result or the given Object as-is
+   */
+  @Nullable
+  public static Object resolve(@Nullable Object candidate) {
+    return (candidate instanceof Supplier<?> supplier ? supplier.get() : candidate);
   }
 
 }

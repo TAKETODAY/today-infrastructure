@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -91,8 +90,7 @@ import cn.taketoday.util.StringUtils;
  * @see java.util.ResourceBundle
  * @since 4.0
  */
-public class ReloadableResourceBundleMessageSource
-    extends AbstractResourceBasedMessageSource implements ResourceLoaderAware {
+public class ReloadableResourceBundleMessageSource extends AbstractResourceBasedMessageSource implements ResourceLoaderAware {
 
   private static final String XML_EXTENSION = ".xml";
 
@@ -168,7 +166,7 @@ public class ReloadableResourceBundleMessageSource
    */
   public void setPropertiesPersister(@Nullable PropertiesPersister propertiesPersister) {
     this.propertiesPersister =
-        (propertiesPersister != null ? propertiesPersister : DefaultPropertiesPersister.INSTANCE);
+            (propertiesPersister != null ? propertiesPersister : DefaultPropertiesPersister.INSTANCE);
   }
 
   /**
@@ -427,7 +425,7 @@ public class ReloadableResourceBundleMessageSource
     long refreshTimestamp = (getCacheMillis() < 0 ? -1 : System.currentTimeMillis());
 
     Resource resource = resolveResource(filename);
-    if (resource.exists()) {
+    if (resource != null) {
       long fileTimestamp = -1;
       if (getCacheMillis() >= 0) {
         // Last-modified timestamp of file will just be read if caching with timeout.
@@ -505,15 +503,15 @@ public class ReloadableResourceBundleMessageSource
    * @param filename the bundle filename (basename + Locale)
    * @return the {@code Resource} to use
    */
+  @Nullable
   protected Resource resolveResource(String filename) {
-    Resource resource = null;
     for (String fileExtension : this.fileExtensions) {
-      resource = this.resourceLoader.getResource(filename + fileExtension);
+      Resource resource = this.resourceLoader.getResource(filename + fileExtension);
       if (resource.exists()) {
         return resource;
       }
     }
-    return Objects.requireNonNull(resource);
+    return null;
   }
 
   /**
@@ -618,7 +616,7 @@ public class ReloadableResourceBundleMessageSource
 
     /** Cache to hold already generated MessageFormats per message code. */
     private final ConcurrentMap<String, Map<Locale, MessageFormat>> cachedMessageFormats =
-        new ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     public PropertiesHolder() {
       this.properties = null;

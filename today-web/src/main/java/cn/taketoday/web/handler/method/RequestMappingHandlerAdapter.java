@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.context.ApplicationContext;
@@ -199,13 +198,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
   public void afterPropertiesSet() {
     ApplicationContext context = obtainApplicationContext();
     if (resolvingRegistry == null) {
-      var resolvingRegistry = BeanFactoryUtils.find(context, ParameterResolvingRegistry.class);
-      if (resolvingRegistry == null) {
-        resolvingRegistry = new ParameterResolvingRegistry();
-        resolvingRegistry.setApplicationContext(context);
-        resolvingRegistry.registerDefaultStrategies();
-      }
-      this.resolvingRegistry = resolvingRegistry;
+      resolvingRegistry = ParameterResolvingRegistry.get(context);
     }
 
     this.methodResolver = new ControllerMethodResolver(context, sessionAttributeStore,

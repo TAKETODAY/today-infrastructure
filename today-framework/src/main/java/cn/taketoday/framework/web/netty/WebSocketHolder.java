@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -20,8 +20,8 @@ package cn.taketoday.framework.web.netty;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
-import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
+import io.netty.util.AttributeMap;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -39,13 +39,17 @@ final class WebSocketHolder {
     this.session = session;
   }
 
-  public static void bind(Channel channel, WebSocketHandler wsHandler, WebSocketSession session) {
-    channel.attr(KEY).set(new WebSocketHolder(wsHandler, session));
+  public void unbind(AttributeMap attributes) {
+    attributes.attr(KEY).set(null);
+  }
+
+  public static void bind(AttributeMap attributes, WebSocketHandler wsHandler, WebSocketSession session) {
+    attributes.attr(KEY).set(new WebSocketHolder(wsHandler, session));
   }
 
   @Nullable
-  public static WebSocketHolder find(Channel channel) {
-    return channel.attr(KEY).get();
+  public static WebSocketHolder find(AttributeMap attributes) {
+    return attributes.attr(KEY).get();
   }
 
 }

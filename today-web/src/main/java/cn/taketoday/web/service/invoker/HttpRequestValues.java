@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -50,7 +50,7 @@ import cn.taketoday.web.util.UriUtils;
 public class HttpRequestValues {
 
   private static final MultiValueMap<String, String> EMPTY_COOKIES_MAP =
-          MultiValueMap.from(Collections.emptyMap());
+          MultiValueMap.forAdaption(Collections.emptyMap());
 
   @Nullable
   private final HttpMethod httpMethod;
@@ -299,7 +299,7 @@ public class HttpRequestValues {
     }
 
     private HttpHeaders initHeaders() {
-      this.headers = (this.headers != null ? this.headers : HttpHeaders.create());
+      this.headers = (this.headers != null ? this.headers : HttpHeaders.forWritable());
       return this.headers;
     }
 
@@ -406,7 +406,7 @@ public class HttpRequestValues {
 
       HttpHeaders headers = HttpHeaders.empty();
       if (this.headers != null) {
-        headers = HttpHeaders.create();
+        headers = HttpHeaders.forWritable();
         headers.putAll(this.headers);
       }
 

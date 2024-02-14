@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,36 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.testresources;
 
-///CLOVER:OFF
+import cn.taketoday.lang.Nullable;
+
 public class PlaceOfBirth {
+
   private String city;
 
   public String Country;
 
-  /**
-   * Keith now has a converter that supports String to X, if X has a ctor that takes a String.
-   * In order for round tripping to work we need toString() for X to return what it was
-   * constructed with.  This is a bit of a hack because a PlaceOfBirth also encapsulates a
-   * country - but as it is just a test object, it is ok.
-   */
-  @Override
-  public String toString() { return city; }
+  public PlaceOfBirth(String city) {
+    this.city = city;
+  }
 
   public String getCity() {
-    return city;
+    return this.city;
   }
 
-  public void setCity(String s) {
-    this.city = s;
-  }
-
-  public PlaceOfBirth(String string) {
-    this.city = string;
+  public void setCity(String city) {
+    this.city = city;
   }
 
   public int doubleIt(int i) {
@@ -52,17 +42,26 @@ public class PlaceOfBirth {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (!(o instanceof PlaceOfBirth)) {
-      return false;
-    }
-    PlaceOfBirth oPOB = (PlaceOfBirth) o;
-    return (city.equals(oPOB.city));
+  public boolean equals(@Nullable Object o) {
+    return (o instanceof PlaceOfBirth that && this.city.equals(that.city));
   }
 
   @Override
   public int hashCode() {
-    return city.hashCode();
+    return this.city.hashCode();
+  }
+
+  /**
+   * ObjectToObjectConverter supports String to X conversions, if X has a
+   * constructor that takes a String.
+   * <p>In order for round-tripping to work, we need toString() for PlaceOfBirth
+   * to return what it was constructed with. This is a bit of a hack, because a
+   * PlaceOfBirth also encapsulates a country, but as it is just a test object,
+   * it is OK.
+   */
+  @Override
+  public String toString() {
+    return this.city;
   }
 
 }

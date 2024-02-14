@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.annotation;
 
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
@@ -29,8 +27,9 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
  * registered and are free to veto registration based on any criteria that can
  * be determined at that point.
  *
- * @author TODAY 2018-11-10 13:44
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Conditional
+ * @since 2018-11-10 13:44
  */
 @FunctionalInterface
 public interface Condition {
@@ -38,7 +37,7 @@ public interface Condition {
   /**
    * Determine if the condition matches.
    *
-   * @param context ConditionEvaluationContext
+   * @param context ConditionContext
    * @param metadata the metadata of the {@link cn.taketoday.core.type.AnnotationMetadata class}
    * * or {@link cn.taketoday.core.type.MethodMetadata method} being checked
    * @return Return {@code false} to indicate that the bean should not be

@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -839,23 +839,33 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
 
+    boolean first = true;
     List<Condition> conditions = new ArrayList<>();
     for (EntityProperty entityProperty : queryMetadata.entityProperties) {
       Object propertyValue = entityProperty.getValue(params);
       if (propertyValue != null) {
-        // TODO 当前只实现了判断null条件，可以扩展出去让用户做选择
-        columnNamesBuf.append(", `")
+        if (first) {
+          first = false;
+        }
+        else {
+          columnNamesBuf.append(" AND ");
+        }
+
+        columnNamesBuf.append('`')
                 .append(entityProperty.columnName)
                 .append('`')
                 .append(" = ?");
-        // and
 
+        // and
         conditions.add(new Condition(entityProperty.typeHandler, propertyValue));
       }
     }
 
-    if (!columnNamesBuf.isEmpty()) {
-      sql.append(columnNamesBuf.substring(2));
+    if (columnNamesBuf.isEmpty()) {
+      sql.append("1=1");
+    }
+    else {
+      sql.append(columnNamesBuf);
     }
 
     if (stmtLogger.isDebugEnabled()) {

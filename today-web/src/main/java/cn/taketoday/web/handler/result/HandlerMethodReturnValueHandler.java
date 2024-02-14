@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.result;
@@ -24,23 +21,20 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * just for HandlerMethod return-value handling
  *
- * @author TODAY 2019-12-13 13:52
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-12-13 13:52
  */
 public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
 
   @Override
   default boolean supportsHandler(Object handler) {
-    if (handler instanceof HandlerMethod handlerMethod) {
-      return supportsHandlerMethod(handlerMethod);
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      HandlerMethod handlerMethod = annotationHandler.getMethod();
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
       return supportsHandlerMethod(handlerMethod);
     }
     return false;
@@ -67,13 +61,9 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    * @throws Exception return-value handled failed
    */
   @Override
-  default void handleReturnValue(RequestContext context,
-          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
-    if (handler instanceof HandlerMethod handlerMethod) {
-      handleHandlerMethodReturnValue(context, handlerMethod, returnValue);
-    }
-    else if (handler instanceof ActionMappingAnnotationHandler annotationHandler) {
-      HandlerMethod handlerMethod = annotationHandler.getMethod();
+  default void handleReturnValue(RequestContext context, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+    HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
+    if (handlerMethod != null) {
       handleHandlerMethodReturnValue(context, handlerMethod, returnValue);
     }
   }
@@ -87,8 +77,8 @@ public interface HandlerMethodReturnValueHandler extends ReturnValueHandler {
    * Or {@link HandlerExceptionHandler} return value
    * @throws Exception return-value handled failed
    */
-  default void handleHandlerMethodReturnValue(RequestContext context,
-          HandlerMethod handler, @Nullable Object returnValue) throws Exception {
+  default void handleHandlerMethodReturnValue(
+          RequestContext context, HandlerMethod handler, @Nullable Object returnValue) throws Exception {
 
   }
 

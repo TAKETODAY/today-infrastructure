@@ -117,7 +117,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
     try {
       Part part = request.getPart(paramOrFileName);
       if (part != null) {
-        HttpHeaders headers = HttpHeaders.create();
+        HttpHeaders headers = HttpHeaders.forWritable();
         for (String headerName : part.getHeaderNames()) {
           headers.addAll(headerName, part.getHeaders(headerName));
         }

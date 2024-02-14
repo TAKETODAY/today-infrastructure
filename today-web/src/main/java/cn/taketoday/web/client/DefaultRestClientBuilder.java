@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -31,6 +31,7 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
+import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
@@ -50,6 +51,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
+import cn.taketoday.web.util.UriTemplateHandler;
 
 /**
  * Default implementation of {@link RestClient.Builder}.
@@ -137,7 +139,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     this.uriBuilderFactory = other.uriBuilderFactory;
 
     if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
       this.defaultHeaders.putAll(other.defaultHeaders);
     }
     else {
@@ -157,13 +159,11 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   public DefaultRestClientBuilder(RestTemplate restTemplate) {
     Assert.notNull(restTemplate, "RestTemplate is required");
 
-    if (restTemplate.getUriTemplateHandler() instanceof UriBuilderFactory builderFactory) {
-      this.uriBuilderFactory = builderFactory;
-    }
+    this.uriBuilderFactory = getUriBuilderFactory(restTemplate);
     this.statusHandlers = new ArrayList<>();
     this.statusHandlers.add(StatusHandler.fromErrorHandler(restTemplate.getErrorHandler()));
 
-    this.requestFactory = restTemplate.getRequestFactory();
+    this.requestFactory = getRequestFactory(restTemplate);
     this.messageConverters = new ArrayList<>(restTemplate.getMessageConverters());
 
     if (CollectionUtils.isNotEmpty(restTemplate.getInterceptors())) {
@@ -171,6 +171,36 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     }
     if (CollectionUtils.isNotEmpty(restTemplate.getHttpRequestInitializers())) {
       this.initializers = new ArrayList<>(restTemplate.getHttpRequestInitializers());
+    }
+  }
+
+  @Nullable
+  private static UriBuilderFactory getUriBuilderFactory(RestTemplate restTemplate) {
+    UriTemplateHandler uriTemplateHandler = restTemplate.getUriTemplateHandler();
+    if (uriTemplateHandler instanceof DefaultUriBuilderFactory builderFactory) {
+      // only reuse the DefaultUriBuilderFactory if it has been customized
+      if (builderFactory.hasRestTemplateDefaults()) {
+        return null;
+      }
+      else {
+        return builderFactory;
+      }
+    }
+    else if (uriTemplateHandler instanceof UriBuilderFactory builderFactory) {
+      return builderFactory;
+    }
+    else {
+      return null;
+    }
+  }
+
+  private static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
+    ClientHttpRequestFactory requestFactory = restTemplate.getRequestFactory();
+    if (requestFactory instanceof InterceptingClientHttpRequestFactory factory) {
+      return factory.getRequestFactory();
+    }
+    else {
+      return requestFactory;
     }
   }
 
@@ -206,7 +236,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private HttpHeaders initHeaders() {
     if (this.defaultHeaders == null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
     }
     return this.defaultHeaders;
   }
@@ -374,9 +404,11 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Nullable
   private HttpHeaders copyDefaultHeaders() {
     if (this.defaultHeaders != null) {
-      HttpHeaders copy = HttpHeaders.create();
-      this.defaultHeaders.forEach((key, values) -> copy.put(key, new ArrayList<>(values)));
-      return HttpHeaders.readOnlyHttpHeaders(copy);
+      HttpHeaders copy = HttpHeaders.forWritable();
+      for (Map.Entry<String, List<String>> entry : defaultHeaders.entrySet()) {
+        copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+      }
+      return copy.asReadOnly();
     }
     else {
       return null;

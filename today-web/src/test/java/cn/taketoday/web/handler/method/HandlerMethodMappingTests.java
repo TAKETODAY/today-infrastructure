@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -218,7 +215,7 @@ public class HandlerMethodMappingTests {
 
     // Direct URL lookup
 
-    List<String> directUrlMatches = this.mapping.mappingRegistry.getMappingsByDirectPath(key1);
+    List<String> directUrlMatches = this.mapping.mappingRegistry.getDirectPathMappings(key1);
     assertThat(directUrlMatches).isNotNull();
     assertThat(directUrlMatches.size()).isEqualTo(1);
     assertThat(directUrlMatches.get(0)).isEqualTo(key1);
@@ -257,7 +254,7 @@ public class HandlerMethodMappingTests {
 
     // Direct URL lookup
 
-    List<String> directUrlMatches = this.mapping.mappingRegistry.getMappingsByDirectPath(key1);
+    List<String> directUrlMatches = this.mapping.mappingRegistry.getDirectPathMappings(key1);
     assertThat(directUrlMatches).isNotNull();
     assertThat(directUrlMatches.size()).isEqualTo(1);
     assertThat(directUrlMatches.get(0)).isEqualTo(key1);
@@ -282,7 +279,7 @@ public class HandlerMethodMappingTests {
 
     this.mapping.unregisterMapping(key);
     assertThat(mapping.getHandlerInternal(new ServletRequestContext(null, new MockHttpServletRequest("GET", key), null))).isNull();
-    assertThat(this.mapping.mappingRegistry.getMappingsByDirectPath(key)).isNull();
+    assertThat(this.mapping.mappingRegistry.getDirectPathMappings(key)).isNull();
     assertThat(this.mapping.mappingRegistry.getHandlerMethodsByMappingName(this.method1.getName())).isNull();
     assertThat(this.mapping.mappingRegistry.getCorsConfiguration(handlerMethod)).isNull();
   }
@@ -342,6 +339,11 @@ public class HandlerMethodMappingTests {
         return corsConfig;
       }
       return null;
+    }
+
+    @Override
+    protected void handleMatch(Match<String> bestMatch, String directLookupPath, RequestContext request) {
+
     }
 
     @Override

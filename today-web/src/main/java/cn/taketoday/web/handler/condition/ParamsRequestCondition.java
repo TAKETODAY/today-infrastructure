@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
   /**
    * Return the contained request parameter expressions.
    */
-  public Set<NameValueExpression<String>> getExpressions() {
+  public Set<NameValueExpression> getExpressions() {
     return new LinkedHashSet<>(this.expressions);
   }
 
@@ -148,7 +148,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
   private static int getValueMatchCount(Set<ParamExpression> expressions) {
     int count = 0;
     for (ParamExpression e : expressions) {
-      if (e.getValue() != null && !e.isNegated()) {
+      if (e.value != null && !e.negated) {
         count++;
       }
     }
@@ -158,28 +158,23 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
   /**
    * Parses and matches a single param expression to a request.
    */
-  static class ParamExpression extends AbstractNameValueExpression<String> {
+  static class ParamExpression extends NameValueExpression {
 
-    final Set<String> namesToMatch;
+    final HashSet<String> namesToMatch;
 
     ParamExpression(String expression) {
       this(expression, new HashSet<>());
     }
 
-    ParamExpression(String expression, Set<String> namesToMatch) {
+    ParamExpression(String expression, HashSet<String> namesToMatch) {
       super(expression);
       this.namesToMatch = namesToMatch;
-      this.namesToMatch.add(getName());
+      this.namesToMatch.add(name);
     }
 
     @Override
     protected boolean isCaseSensitiveName() {
       return true;
-    }
-
-    @Override
-    protected String parseValue(String valueExpression) {
-      return valueExpression;
     }
 
     @Override
@@ -204,7 +199,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     ServletParamExpression(String expression) {
       super(expression, new HashSet<>(ServletUtils.SUBMIT_IMAGE_SUFFIXES.length + 1));
       for (String suffix : ServletUtils.SUBMIT_IMAGE_SUFFIXES) {
-        namesToMatch.add(getName() + suffix);
+        namesToMatch.add(name + suffix);
       }
     }
 

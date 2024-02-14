@@ -154,7 +154,14 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
-    ctx.fireChannelInactive();
+    try {
+      if (websocketPresent) {
+        WebSocketDelegate.close(ctx, CloseStatus.NORMAL, logger);
+      }
+    }
+    finally {
+      ctx.fireChannelInactive();
+    }
   }
 
   @Override
@@ -188,6 +195,18 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
       return false;
     }
 
+    static void close(ChannelHandlerContext ctx, CloseStatus closeStatus, Logger logger) {
+      WebSocketHolder socketHolder = WebSocketHolder.find(ctx.channel());
+      if (socketHolder != null) {
+        try {
+          socketHolder.wsHandler.onClose(socketHolder.session, closeStatus);
+        }
+        catch (Exception ex) {
+          logger.warn("Unhandled on-close exception for {}", socketHolder.session, ex);
+        }
+      }
+    }
+
     /**
      * Handle websocket request
      *
@@ -203,12 +222,8 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
         int statusCode = closeFrame.statusCode();
         String reasonText = closeFrame.reasonText();
         CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
-        try {
-          socketHolder.wsHandler.onClose(socketHolder.session, closeStatus);
-        }
-        catch (Exception ex) {
-          logger.warn("Unhandled on-close exception for {}", socketHolder.session, ex);
-        }
+        close(ctx, closeStatus, logger);
+        socketHolder.unbind(ctx.channel());
         ctx.close();
       }
       else {

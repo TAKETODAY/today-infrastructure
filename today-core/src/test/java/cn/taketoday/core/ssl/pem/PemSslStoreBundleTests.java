@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.ssl.pem;
@@ -20,12 +20,14 @@ package cn.taketoday.core.ssl.pem;
 import org.junit.jupiter.api.Test;
 
 import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.function.Consumer;
 
 import cn.taketoday.util.function.ThrowingConsumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link PemSslStoreBundle}.
@@ -94,7 +96,7 @@ class PemSslStoreBundleTests {
   private static final char[] EMPTY_KEY_PASSWORD = new char[] {};
 
   @Test
-  void whenNullStores() {
+  void createWithDetailsWhenNullStores() {
     PemSslStoreDetails keyStoreDetails = null;
     PemSslStoreDetails trustStoreDetails = null;
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
@@ -104,7 +106,7 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  void whenStoresHaveNoValues() {
+  void createWithDetailsWhenStoresHaveNoValues() {
     PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate(null);
     PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate(null);
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
@@ -114,9 +116,9 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  void whenHasKeyStoreDetailsCertAndKey() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
+  void createWithDetailsWhenHasKeyStoreDetailsCertAndKey() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
     PemSslStoreDetails trustStoreDetails = null;
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
@@ -124,8 +126,8 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  void whenHasKeyStoreDetailsCertAndEncryptedKey() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
+  void createWithDetailsWhenHasKeyStoreDetailsCertAndEncryptedKey() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
             .withPrivateKey("classpath:ssl/pkcs8/key-rsa-encrypted.pem")
             .withPrivateKeyPassword("test");
     PemSslStoreDetails trustStoreDetails = null;
@@ -135,28 +137,28 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  void whenHasKeyStoreDetailsAndTrustStoreDetailsWithoutKey() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
-    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem");
+  void createWithDetailsWhenHasKeyStoreDetailsAndTrustStoreDetailsWithoutKey() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
+    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem");
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
-    assertThat(bundle.getTrustStore()).satisfies(storeContainingCert("ssl-0"));
+    assertThat(bundle.getTrustStore()).satisfies(storeContainingCert("ssl"));
   }
 
   @Test
-  void whenHasKeyStoreDetailsAndTrustStoreDetails() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
-    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
+  void createWithDetailsWhenHasKeyStoreDetailsAndTrustStoreDetails() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
+    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("ssl"));
   }
 
   @Test
-  void whenHasEmbeddedKeyStoreDetailsAndTrustStoreDetails() {
+  void createWithDetailsWhenHasEmbeddedKeyStoreDetailsAndTrustStoreDetails() {
     PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate(CERTIFICATE).withPrivateKey(PRIVATE_KEY);
     PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate(CERTIFICATE)
             .withPrivateKey(PRIVATE_KEY);
@@ -166,65 +168,51 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  void whenHasKeyStoreDetailsAndTrustStoreDetailsAndAlias() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
-    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
+  @SuppressWarnings("removal")
+  void createWithDetailsWhenHasKeyStoreDetailsAndTrustStoreDetailsAndAlias() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
+    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem");
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails, "test-alias");
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias"));
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("test-alias"));
   }
 
   @Test
-  void whenHasStoreType() {
-    PemSslStoreDetails keyStoreDetails = new PemSslStoreDetails("PKCS12", "classpath:ssl/test-cert.pem",
-            "classpath:ssl/test-key.pem");
-    PemSslStoreDetails trustStoreDetails = new PemSslStoreDetails("PKCS12", "classpath:ssl/test-cert.pem",
-            "classpath:ssl/test-key.pem");
+  void createWithDetailsWhenHasStoreType() {
+    PemSslStoreDetails keyStoreDetails = new PemSslStoreDetails("PKCS12", "classpath:test-cert.pem",
+            "classpath:test-key.pem");
+    PemSslStoreDetails trustStoreDetails = new PemSslStoreDetails("PKCS12", "classpath:test-cert.pem",
+            "classpath:test-key.pem");
     PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
     assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("PKCS12", "ssl"));
     assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("PKCS12", "ssl"));
   }
 
   @Test
-  void whenHasKeyStoreDetailsAndTrustStoreDetailsAndKeyPassword() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
-    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:ssl/test-cert.pem")
-            .withPrivateKey("classpath:ssl/test-key.pem");
-    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails, "test-alias", "keysecret");
-    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
-    assertThat(bundle.getTrustStore())
-            .satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
+  void createWithDetailsWhenHasKeyStoreDetailsAndTrustStoreDetailsAndKeyPassword() {
+    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem")
+            .withAlias("ksa")
+            .withPassword("kss");
+    PemSslStoreDetails trustStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
+            .withPrivateKey("classpath:test-key.pem")
+            .withAlias("tsa")
+            .withPassword("tss");
+    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, trustStoreDetails);
+    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ksa", "kss".toCharArray()));
+    assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("tsa", "tss".toCharArray()));
   }
 
   @Test
-  void shouldVerifyKeysIfEnabled() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails
-            .forCertificate("classpath:cn/taketoday/core/ssl/pem/key1.crt")
-            .withPrivateKey("classpath:cn/taketoday/core/ssl/pem/key1.pem");
-    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, null, "test-alias", "keysecret", true);
-    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
-  }
-
-  @Test
-  void shouldVerifyKeysIfEnabledAndCertificateChainIsUsed() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails
-            .forCertificate("classpath:cn/taketoday/core/ssl/pem/key2-chain.crt")
-            .withPrivateKey("classpath:cn/taketoday/core/ssl/pem/key2.pem");
-    PemSslStoreBundle bundle = new PemSslStoreBundle(keyStoreDetails, null, "test-alias", "keysecret", true);
-    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("test-alias", "keysecret".toCharArray()));
-  }
-
-  @Test
-  void shouldFailIfVerifyKeysIsEnabledAndKeysDontMatch() {
-    PemSslStoreDetails keyStoreDetails = PemSslStoreDetails
-            .forCertificate("classpath:cn/taketoday/core/ssl/pem/key2.crt")
-            .withPrivateKey("classpath:cn/taketoday/core/ssl/pem/key1.pem");
-    assertThatIllegalStateException()
-            .isThrownBy(() -> new PemSslStoreBundle(keyStoreDetails, null, null, null, true))
-            .withMessageContaining("Private key matches none of the certificates");
+  void createWithPemSslStoreCreatesInstance() {
+    List<X509Certificate> certificates = PemContent.of(CERTIFICATE).getCertificates();
+    PrivateKey privateKey = PemContent.of(PRIVATE_KEY).getPrivateKey();
+    PemSslStore pemSslStore = PemSslStore.of(certificates, privateKey);
+    PemSslStoreBundle bundle = new PemSslStoreBundle(pemSslStore, pemSslStore);
+    assertThat(bundle.getKeyStore()).satisfies(storeContainingCertAndKey("ssl"));
+    assertThat(bundle.getTrustStore()).satisfies(storeContainingCertAndKey("ssl"));
   }
 
   private Consumer<KeyStore> storeContainingCert(String keyAlias) {

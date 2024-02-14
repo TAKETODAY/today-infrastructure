@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view.freemarker;
@@ -40,11 +37,11 @@ import freemarker.template.TemplateException;
  * The simplest way to use this class is to specify just a "templateLoaderPath";
  * you do not need any further configuration then.
  *
- * <pre class="code">
- * &lt;bean id="freemarkerConfig" class="cn.taketoday.web.view.freemarker.FreeMarkerConfigurer"&gt;
- *   &lt;property name="templateLoaderPath"&gt;&lt;value&gt;/WEB-INF/freemarker/&lt;/value&gt;&lt;/property&gt;
- * &lt;/bean&gt;</pre>
- *
+ * <pre>{@code
+ *   <bean id="freemarkerConfig" class="cn.taketoday.web.view.freemarker.FreeMarkerConfigurer">
+ *     <property name="templateLoaderPath"><value>/WEB-INF/freemarker/</value></property>
+ *   </bean>
+ * }</pre>
  * This bean must be included in the application context of any application
  * using Framework's FreeMarkerView for web MVC. It exists purely to configure FreeMarker.
  * It is not meant to be referenced by application components but just internally
@@ -56,8 +53,7 @@ import freemarker.template.TemplateException;
  * instance, for example one set up by FreeMarkerConfigurationFactoryBean, via
  * the "configuration" property. This allows to share a FreeMarker Configuration
  * for web and email usage, for example.
- *
- *
+ * <p>
  * Note: Framework's FreeMarker support requires FreeMarker 2.3 or higher.
  *
  * @author Darren Davison

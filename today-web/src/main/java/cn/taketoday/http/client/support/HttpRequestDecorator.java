@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.support;
@@ -26,7 +23,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Provides a convenient implementation of the {@link HttpRequest} interface
@@ -35,6 +31,7 @@ import cn.taketoday.lang.Nullable;
  * <p>These methods default to calling through to the wrapped request object.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class HttpRequestDecorator implements HttpRequest {
@@ -62,7 +59,6 @@ public class HttpRequestDecorator implements HttpRequest {
    * Return the method of the wrapped request.
    */
   @Override
-  @Nullable
   public HttpMethod getMethod() {
     return this.request.getMethod();
   }

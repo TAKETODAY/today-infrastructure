@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -119,7 +119,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
   private CompositePathComponentBuilder pathBuilder;
 
-  private final DefaultMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
+  private final LinkedMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
 
   @Nullable
   private String fragment;
@@ -897,7 +897,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
 
     @Override
     public PathComponent build() {
-      if (this.path.length() == 0) {
+      if (this.path.isEmpty()) {
         return null;
       }
       String sanitized = getSanitizedPath(this.path);

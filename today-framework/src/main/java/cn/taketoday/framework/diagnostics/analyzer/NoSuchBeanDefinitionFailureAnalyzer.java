@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.diagnostics.analyzer;
@@ -62,7 +59,9 @@ import cn.taketoday.util.ClassUtils;
 class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyzer<NoSuchBeanDefinitionException> {
 
   private final ConditionEvaluationReport report;
+
   private final ConfigurableBeanFactory beanFactory;
+
   private final MetadataReaderFactory metadataReaderFactory;
 
   NoSuchBeanDefinitionFailureAnalyzer(ConfigurableBeanFactory beanFactory) {
@@ -148,11 +147,9 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
     return null;
   }
 
-  private void collectReportedConditionOutcomes(
-          NoSuchBeanDefinitionException cause, List<AutoConfigurationResult> results) {
+  private void collectReportedConditionOutcomes(NoSuchBeanDefinitionException cause, List<AutoConfigurationResult> results) {
     report.getConditionAndOutcomesBySource()
-            .forEach((source, sourceOutcomes) -> collectReportedConditionOutcomes(cause, new Source(source),
-                    sourceOutcomes, results));
+            .forEach((source, sourceOutcomes) -> collectReportedConditionOutcomes(cause, new Source(source), sourceOutcomes, results));
   }
 
   private void collectReportedConditionOutcomes(NoSuchBeanDefinitionException cause,
@@ -161,23 +158,21 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
       return;
     }
     BeanMethods methods = new BeanMethods(source, cause);
-    for (ConditionAndOutcome conditionAndOutcome : sourceOutcomes) {
-      if (!conditionAndOutcome.getOutcome().isMatch()) {
+    for (ConditionAndOutcome outcomePair : sourceOutcomes) {
+      if (!outcomePair.outcome.isMatch()) {
         for (MethodMetadata method : methods) {
-          results.add(new AutoConfigurationResult(method, conditionAndOutcome.getOutcome()));
+          results.add(new AutoConfigurationResult(method, outcomePair.outcome));
         }
       }
     }
   }
 
-  private void collectExcludedAutoConfiguration(
-          NoSuchBeanDefinitionException cause, List<AutoConfigurationResult> results) {
+  private void collectExcludedAutoConfiguration(NoSuchBeanDefinitionException cause, List<AutoConfigurationResult> results) {
     for (String excludedClass : report.getExclusions()) {
       Source source = new Source(excludedClass);
       BeanMethods methods = new BeanMethods(source, cause);
       for (MethodMetadata method : methods) {
-        String message = String.format("auto-configuration '%s' was excluded",
-                ClassUtils.getShortName(excludedClass));
+        String message = String.format("auto-configuration '%s' was excluded", ClassUtils.getShortName(excludedClass));
         results.add(new AutoConfigurationResult(method, new ConditionOutcome(false, message)));
       }
     }
@@ -291,11 +286,6 @@ class NoSuchBeanDefinitionFailureAnalyzer extends AbstractInjectionFailureAnalyz
   }
 
   private record UserConfigurationResult(@Nullable MethodMetadata methodMetadata, boolean nullBean) {
-
-    private UserConfigurationResult(@Nullable MethodMetadata methodMetadata, boolean nullBean) {
-      this.methodMetadata = methodMetadata;
-      this.nullBean = nullBean;
-    }
 
     @Override
     public String toString() {

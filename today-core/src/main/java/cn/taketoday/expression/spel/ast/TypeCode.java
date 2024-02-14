@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -25,6 +22,7 @@ package cn.taketoday.expression.spel.ast;
  * that represents all reference (non-primitive) types.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public enum TypeCode {
 
@@ -36,42 +34,42 @@ public enum TypeCode {
   /**
    * A {@code boolean}.
    */
-  BOOLEAN(Boolean.TYPE),
-
-  /**
-   * A {@code byte}.
-   */
-  BYTE(Byte.TYPE),
+  BOOLEAN(boolean.class),
 
   /**
    * A {@code char}.
    */
-  CHAR(Character.TYPE),
+  CHAR(char.class),
 
   /**
-   * A {@code double}.
+   * A {@code byte}.
    */
-  DOUBLE(Double.TYPE),
+  BYTE(byte.class),
 
   /**
-   * A {@code float}.
+   * A {@code short}.
    */
-  FLOAT(Float.TYPE),
+  SHORT(short.class),
 
   /**
    * An {@code int}.
    */
-  INT(Integer.TYPE),
+  INT(int.class),
 
   /**
    * A {@code long}.
    */
-  LONG(Long.TYPE),
+  LONG(long.class),
 
   /**
-   * An {@link Object}.
+   * A {@code float}.
    */
-  SHORT(Short.TYPE);
+  FLOAT(float.class),
+
+  /**
+   * A {@code double}.
+   */
+  DOUBLE(double.class);
 
   private final Class<?> type;
 
@@ -84,19 +82,17 @@ public enum TypeCode {
   }
 
   public static TypeCode forName(String name) {
-    TypeCode[] tcs = values();
-    for (int i = 1; i < tcs.length; i++) {
-      if (tcs[i].name().equalsIgnoreCase(name)) {
-        return tcs[i];
+    for (TypeCode typeCode : values()) {
+      if (typeCode.name().equalsIgnoreCase(name)) {
+        return typeCode;
       }
     }
     return OBJECT;
   }
 
   public static TypeCode forClass(Class<?> clazz) {
-    TypeCode[] allValues = TypeCode.values();
-    for (TypeCode typeCode : allValues) {
-      if (clazz == typeCode.getType()) {
+    for (TypeCode typeCode : values()) {
+      if (typeCode.getType() == clazz) {
         return typeCode;
       }
     }

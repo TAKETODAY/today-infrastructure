@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.json;
@@ -86,7 +86,7 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     ENCODINGS.put("US-ASCII", JsonEncoding.UTF8);
   }
 
-  private final List<MediaType> streamingMediaTypes = new ArrayList<>(1);
+  private final ArrayList<MediaType> streamingMediaTypes = new ArrayList<>(1);
 
   /**
    * Constructor with a Jackson {@link ObjectMapper} to use.
@@ -274,10 +274,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     }
   }
 
-  private DataBuffer encodeStreamingValue(
-          Object value, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints,
-          SequenceWriter sequenceWriter, ByteArrayBuilder byteArrayBuilder,
-          byte[] prefix, byte[] suffix) {
+  private DataBuffer encodeStreamingValue(Object value, DataBufferFactory bufferFactory, @Nullable Map<String, Object> hints,
+          SequenceWriter sequenceWriter, ByteArrayBuilder byteArrayBuilder, byte[] prefix, byte[] suffix) {
 
     logValue(hints, value);
 
@@ -331,9 +329,8 @@ public abstract class AbstractJackson2Encoder extends Jackson2CodecSupport imple
     }
   }
 
-  private ObjectWriter createObjectWriter(
-          ObjectMapper mapper, ResolvableType valueType, @Nullable MimeType mimeType,
-          @Nullable Class<?> jsonView, @Nullable Map<String, Object> hints) {
+  private ObjectWriter createObjectWriter(ObjectMapper mapper, ResolvableType valueType,
+          @Nullable MimeType mimeType, @Nullable Class<?> jsonView, @Nullable Map<String, Object> hints) {
 
     JavaType javaType = getJavaType(valueType.getType(), null);
     if (jsonView == null && hints != null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -47,7 +48,10 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
   private final UriComponentsBuilder baseUri;
 
   private EncodingMode encodingMode = EncodingMode.TEMPLATE_AND_VALUES;
-  private final Map<String, Object> defaultUriVariables = new HashMap<>();
+
+  @Nullable
+  private Map<String, Object> defaultUriVariables;
+
   private boolean parsePath = true;
 
   /**
@@ -109,9 +113,18 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    * @param defaultUriVariables default URI variable values
    */
   public void setDefaultUriVariables(@Nullable Map<String, ?> defaultUriVariables) {
-    this.defaultUriVariables.clear();
     if (defaultUriVariables != null) {
-      this.defaultUriVariables.putAll(defaultUriVariables);
+      if (this.defaultUriVariables == null) {
+        this.defaultUriVariables = new HashMap<>(defaultUriVariables);
+      }
+      else {
+        this.defaultUriVariables.putAll(defaultUriVariables);
+      }
+    }
+    else {
+      if (this.defaultUriVariables != null) {
+        this.defaultUriVariables.clear();
+      }
     }
   }
 
@@ -119,7 +132,12 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    * Return the configured default URI variable values.
    */
   public Map<String, ?> getDefaultUriVariables() {
-    return Collections.unmodifiableMap(this.defaultUriVariables);
+    if (this.defaultUriVariables != null) {
+      return Collections.unmodifiableMap(this.defaultUriVariables);
+    }
+    else {
+      return Collections.emptyMap();
+    }
   }
 
   /**
@@ -141,6 +159,19 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
    */
   public boolean shouldParsePath() {
     return this.parsePath;
+  }
+
+  /**
+   * Indicates whether this {@code DefaultUriBuilderFactory} uses the default
+   * {@link cn.taketoday.web.client.RestTemplate RestTemplate}
+   * settings.
+   */
+  public boolean hasRestTemplateDefaults() {
+    // see RestTemplate::initUriTemplateHandler
+    return this.baseUri == null
+            && this.encodingMode == EncodingMode.URI_COMPONENT
+            && CollectionUtils.isEmpty(this.defaultUriVariables)
+            && this.parsePath;
   }
 
   // UriTemplateHandler
@@ -196,6 +227,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
      * if intentionally expanding URI variables with reserved characters.
      *
      * @see UriComponentsBuilder#encode()
+     * @since 5.0.8
      */
     TEMPLATE_AND_VALUES,
 
@@ -380,8 +412,8 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
 
     @Override
     public URI build(Map<String, ?> uriVars) {
-      if (!defaultUriVariables.isEmpty()) {
-        Map<String, Object> map = new HashMap<>();
+      if (CollectionUtils.isNotEmpty(defaultUriVariables)) {
+        Map<String, Object> map = new HashMap<>(defaultUriVariables.size() + uriVars.size());
         map.putAll(defaultUriVariables);
         map.putAll(uriVars);
         uriVars = map;
@@ -395,7 +427,7 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
 
     @Override
     public URI build(Object... uriVars) {
-      if (ObjectUtils.isEmpty(uriVars) && !defaultUriVariables.isEmpty()) {
+      if (ObjectUtils.isEmpty(uriVars) && CollectionUtils.isNotEmpty(defaultUriVariables)) {
         return build(Collections.emptyMap());
       }
       if (encodingMode.equals(EncodingMode.VALUES_ONLY)) {
@@ -416,7 +448,6 @@ public class DefaultUriBuilderFactory implements UriBuilderFactory {
     public String toUriString() {
       return this.uriComponentsBuilder.build().toUriString();
     }
-
   }
 
 }

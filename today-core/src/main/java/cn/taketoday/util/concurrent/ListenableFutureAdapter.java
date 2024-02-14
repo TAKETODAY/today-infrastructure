@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -28,12 +25,13 @@ import cn.taketoday.lang.Nullable;
  * Abstract class that adapts a {@link ListenableFuture} parameterized over S into a
  * {@code ListenableFuture} parameterized over T. All methods are delegated to the
  * adaptee, where {@link #get()}, {@link #get(long, java.util.concurrent.TimeUnit)},
- * and {@link ListenableFutureCallback#onSuccess(Object)} call {@link #adapt(Object)}
+ * and {@link FutureListener#onSuccess(Object)} call {@link #adapt(Object)}
  * on the adaptee's result.
  *
  * @param <T> the type of this {@code Future}
  * @param <S> the type of the adaptee's {@code Future}
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class ListenableFutureAdapter<T, S> extends FutureAdapter<T, S> implements ListenableFuture<T> {
@@ -48,14 +46,9 @@ public abstract class ListenableFutureAdapter<T, S> extends FutureAdapter<T, S> 
   }
 
   @Override
-  public void addCallback(final ListenableFutureCallback<? super T> callback) {
-    addCallback(callback, callback);
-  }
-
-  @Override
-  public void addCallback(final SuccessCallback<? super T> successCallback, final FailureCallback failureCallback) {
+  public void addListener(final FutureListener<? super T> listener) {
     ListenableFuture<S> listenableAdaptee = (ListenableFuture<S>) getAdaptee();
-    listenableAdaptee.addCallback(new ListenableFutureCallback<S>() {
+    listenableAdaptee.addListener(new FutureListener<>() {
       @Override
       public void onSuccess(@Nullable S result) {
         T adapted = null;
@@ -73,12 +66,12 @@ public abstract class ListenableFutureAdapter<T, S> extends FutureAdapter<T, S> 
             return;
           }
         }
-        successCallback.onSuccess(adapted);
+        listener.onSuccess(adapted);
       }
 
       @Override
       public void onFailure(Throwable ex) {
-        failureCallback.onFailure(ex);
+        listener.onFailure(ex);
       }
     });
   }

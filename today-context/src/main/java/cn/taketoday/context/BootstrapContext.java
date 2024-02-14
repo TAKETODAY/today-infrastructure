@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context;
@@ -42,6 +42,7 @@ import cn.taketoday.beans.factory.support.BeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationBeanNameGenerator;
 import cn.taketoday.context.annotation.AnnotationScopeMetadataResolver;
 import cn.taketoday.context.annotation.ConditionEvaluator;
+import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.ScopeMetadata;
 import cn.taketoday.context.annotation.ScopeMetadataResolver;
@@ -63,6 +64,7 @@ import cn.taketoday.core.type.classreading.MetadataReaderFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.ClassInstantiator;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -90,13 +92,15 @@ import cn.taketoday.util.CollectionUtils;
  * <li>{@link BeanDefinitionRegistry}</li>
  * <li>{@link ExpressionEvaluator}</li>
  * </ul>
+ * <p>
+ *  This bootstrap context is containing many components that for context(IoC) startup
  *
  * @author TODAY 2021/10/19 22:22
  * @since 4.0
  */
 public class BootstrapContext extends BeanDefinitionCustomizers implements ClassInstantiator, EnvironmentCapable {
 
-  public static final String BEAN_NAME = "cn.taketoday.context.loader.internalBootstrapContext";
+  public static final String BEAN_NAME = "cn.taketoday.context.internalBootstrapContext";
 
   private final BeanDefinitionRegistry registry;
 
@@ -512,6 +516,9 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
       // for a shared cache since it'll be cleared by the ApplicationContext.
       cmef.clearCache();
     }
+    if (conditionEvaluator != null) {
+      conditionEvaluator.clearCache();
+    }
   }
 
   //---------------------------------------------------------------------
@@ -619,6 +626,12 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
     return beanNameGenerator;
   }
 
+  /**
+   * Set the {@link ProblemReporter} to use.
+   * <p>Used to register any problems detected with {@link Configuration} or {@link Component}
+   * declarations. For instance, a @Component method marked as {@code final} is illegal
+   * and would be reported as a problem. Defaults to {@link FailFastProblemReporter}.
+   */
   public void setProblemReporter(@Nullable ProblemReporter problemReporter) {
     this.problemReporter = problemReporter != null ? problemReporter : new FailFastProblemReporter();
   }
@@ -629,14 +642,6 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
 
   public void reportError(Problem problem) {
     problemReporter.error(problem);
-  }
-
-  public void reportWarning(Problem problem) {
-    problemReporter.warning(problem);
-  }
-
-  public void reportFatal(Problem problem) {
-    problemReporter.fatal(problem);
   }
 
   @Nullable

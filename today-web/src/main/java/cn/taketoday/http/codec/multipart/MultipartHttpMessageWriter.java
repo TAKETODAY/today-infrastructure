@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -72,11 +69,11 @@ import reactor.core.publisher.Mono;
  *
  * @author Sebastien Deleuze
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FormHttpMessageWriter
  * @since 4.0
  */
-public class MultipartHttpMessageWriter
-        extends MultipartWriterSupport implements HttpMessageWriter<MultiValueMap<String, ?>> {
+public class MultipartHttpMessageWriter extends MultipartWriterSupport implements HttpMessageWriter<MultiValueMap<String, ?>> {
 
   /** Suppress logging from individual part writers (full map logged at this level). */
   private static final Map<String, Object> DEFAULT_HINTS = Hints.from(Hints.SUPPRESS_LOGGING_HINT, true);
@@ -111,8 +108,7 @@ public class MultipartHttpMessageWriter
    * @param partWriters the writers for serializing parts
    * @param formWriter the fallback writer for form data, {@code null} by default
    */
-  public MultipartHttpMessageWriter(
-          List<HttpMessageWriter<?>> partWriters,
+  public MultipartHttpMessageWriter(List<HttpMessageWriter<?>> partWriters,
           @Nullable HttpMessageWriter<MultiValueMap<String, String>> formWriter) {
     this(() -> partWriters, formWriter);
   }
@@ -175,10 +171,8 @@ public class MultipartHttpMessageWriter
   }
 
   @Override
-  public Mono<Void> write(
-          Publisher<? extends MultiValueMap<String, ?>> inputStream,
-          ResolvableType elementType, @Nullable MediaType mediaType, ReactiveHttpOutputMessage outputMessage,
-          Map<String, Object> hints) {
+  public Mono<Void> write(Publisher<? extends MultiValueMap<String, ?>> inputStream, ResolvableType elementType,
+          @Nullable MediaType mediaType, ReactiveHttpOutputMessage outputMessage, Map<String, Object> hints) {
 
     return Mono.from(inputStream)
             .flatMap(map -> {
@@ -207,10 +201,8 @@ public class MultipartHttpMessageWriter
     return false;
   }
 
-  private Mono<Void> writeMultipart(
-          MultiValueMap<String, ?> map,
-          ReactiveHttpOutputMessage outputMessage,
-          @Nullable MediaType mediaType, Map<String, Object> hints) {
+  private Mono<Void> writeMultipart(MultiValueMap<String, ?> map,
+          ReactiveHttpOutputMessage outputMessage, @Nullable MediaType mediaType, Map<String, Object> hints) {
 
     byte[] boundary = generateMultipartBoundary();
 
@@ -307,7 +299,9 @@ public class MultipartHttpMessageWriter
   private class MultipartHttpOutputMessage implements ReactiveHttpOutputMessage {
 
     private final DataBufferFactory bufferFactory;
-    private final HttpHeaders headers = HttpHeaders.create();
+
+    private final HttpHeaders headers = HttpHeaders.forWritable();
+
     private final AtomicBoolean committed = new AtomicBoolean();
 
     @Nullable
@@ -319,7 +313,7 @@ public class MultipartHttpMessageWriter
 
     @Override
     public HttpHeaders getHeaders() {
-      return (this.body != null ? HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers);
+      return (this.body != null ? headers.asReadOnly() : this.headers);
     }
 
     @Override

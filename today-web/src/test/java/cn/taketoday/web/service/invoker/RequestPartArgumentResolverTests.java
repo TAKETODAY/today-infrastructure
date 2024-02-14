@@ -58,7 +58,7 @@ class RequestPartArgumentResolverTests {
 
   @Test
   void requestPart() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.add("foo", "bar");
     HttpEntity<String> part2 = new HttpEntity<>("part 2", headers);
     this.service.postMultipart("part 1", part2, Mono.just("part 3"), Optional.of("part 4"));

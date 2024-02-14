@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util.pattern;
@@ -81,7 +81,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class PathPattern implements Comparable<PathPattern> {
 
-  private static final PathContainer EMPTY_PATH = PathContainer.parsePath("");
+  private static final PathContainer EMPTY_PATH = PathContainer.empty();
 
   /**
    * Comparator that sorts patterns by specificity as follows:
@@ -315,7 +315,7 @@ public class PathPattern implements Comparable<PathPattern> {
     }
     if (elem == null) {
       // There is no pattern piece
-      return PathContainer.parsePath("");
+      return EMPTY_PATH;
     }
 
     // Skip leading separators that would be in the result
@@ -354,7 +354,7 @@ public class PathPattern implements Comparable<PathPattern> {
       resultPath = PathContainer.parsePath(sb.toString(), this.pathOptions);
     }
     else if (startIndex >= endIndex) {
-      resultPath = PathContainer.parsePath("");
+      resultPath = EMPTY_PATH;
     }
     else {
       resultPath = path.subPath(startIndex, endIndex);
@@ -649,7 +649,7 @@ public class PathPattern implements Comparable<PathPattern> {
     public int remainingPathIndex;
 
     @Nullable
-    private List<String> uriVariables;
+    public List<String> uriVariables;
 
     public MatchingContext(PathContainer pathContainer, boolean extractVariables) {
       this.candidate = pathContainer;
@@ -681,7 +681,7 @@ public class PathPattern implements Comparable<PathPattern> {
         if (extractedMatrixVariables == null) {
           this.extractedMatrixVariables = new HashMap<>();
         }
-        extractedMatrixVariables.put(key, MultiValueMap.forUnmodifiable(parameters));
+        extractedMatrixVariables.put(key, parameters.asReadOnly());
       }
     }
 
@@ -700,7 +700,7 @@ public class PathPattern implements Comparable<PathPattern> {
      * @param pathIndex possible index of a separator
      * @return {@code true} if element is a separator
      */
-    boolean isSeparator(int pathIndex) {
+    public boolean isSeparator(int pathIndex) {
       return this.pathElements.get(pathIndex) instanceof Separator;
     }
 
@@ -710,7 +710,7 @@ public class PathPattern implements Comparable<PathPattern> {
      * @param pathIndex path element index
      * @return the decoded value
      */
-    String pathElementValue(int pathIndex) {
+    public String pathElementValue(int pathIndex) {
       Element element = pathIndex < this.pathLength ? this.pathElements.get(pathIndex) : null;
       return element instanceof PathContainer.PathSegment pathSegment ? pathSegment.valueToMatch() : "";
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -330,8 +330,7 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       handler = obtainApplicationContext().getBean((String) handler);
     }
 
-    HandlerExecutionChain executionChain = getHandlerExecutionChain(handler, request);
-
+    HandlerExecutionChain chain;
     if (hasCorsConfigurationSource(handler) || request.isPreFlightRequest()) {
       // handler config
       CorsConfiguration config = getCorsConfiguration(handler, request);
@@ -346,14 +345,17 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
       if (config != null) {
         config.validateAllowCredentials();
       }
-      executionChain = getCorsHandlerExecutionChain(request, executionChain, config);
+      chain = getCorsHandlerExecutionChain(request, handler, config);
+    }
+    else {
+      chain = getHandlerExecutionChain(handler, null);
     }
 
     if (!request.hasMatchingMetadata()) {
       request.setMatchingMetadata(new HandlerMatchingMetadata(handler, request, patternParser));
     }
 
-    return executionChain;
+    return chain;
   }
 
   /**
@@ -388,26 +390,38 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * pre-built {@link HandlerExecutionChain}. This method should handle those
    * two cases explicitly, either building a new {@link HandlerExecutionChain}
    * or extending the existing chain.
-   * <p>For simply adding an interceptor in a custom subclass, consider calling
-   * {@code super.getHandlerExecutionChain(handler, request)} and invoking
-   * {@link HandlerExecutionChain#addInterceptor} on the returned chain object.
    *
    * @param handler the resolved handler instance (never {@code null})
-   * @param request current HTTP request
    * @return the HandlerExecutionChain (never {@code null})
    * @since 4.0
    */
-  protected HandlerExecutionChain getHandlerExecutionChain(Object handler, RequestContext request) {
-    var chain = handler instanceof HandlerExecutionChain executionChain
-                ? executionChain : new HandlerExecutionChain(handler);
-
-    HandlerInterceptor[] interceptors = getHandlerInterceptors(handler);
-    if (interceptors != null) {
-      chain.addInterceptors(interceptors);
+  protected HandlerExecutionChain getHandlerExecutionChain(Object handler, @Nullable HandlerInterceptor firstInterceptor) {
+    ArrayList<HandlerInterceptor> interceptors = null;
+    if (firstInterceptor != null) {
+      interceptors = new ArrayList<>(4);
+      interceptors.add(firstInterceptor);
     }
 
-    chain.addInterceptors(this.interceptors);
-    return chain;
+    HandlerInterceptor[] interceptorsArr = getHandlerInterceptors(handler);
+    if (interceptorsArr != null) {
+      if (interceptors == null) {
+        interceptors = new ArrayList<>(interceptorsArr.length + 2);
+      }
+      for (HandlerInterceptor interceptor : interceptorsArr) {
+        interceptors.add(interceptor);
+      }
+    }
+    var global = this.interceptors;
+    if (!global.isEmpty()) {
+      if (interceptors == null) {
+        interceptors = new ArrayList<>(global);
+      }
+      else {
+        interceptors.addAll(global);
+      }
+    }
+    return new HandlerExecutionChain(handler,
+            interceptors == null ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
   }
 
   @Nullable
@@ -421,8 +435,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * @since 4.0
    */
   protected boolean hasCorsConfigurationSource(Object handler) {
-    if (handler instanceof HandlerExecutionChain handlerExecutionChain) {
-      handler = handlerExecutionChain.getRawHandler();
+    if (handler instanceof HandlerWrapper wrapper) {
+      handler = wrapper.getRawHandler();
     }
     return handler instanceof CorsConfigurationSource || this.corsConfigurationSource != null;
   }
@@ -438,8 +452,8 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
   @Nullable
   protected CorsConfiguration getCorsConfiguration(Object handler, RequestContext request) {
     Object resolvedHandler = handler;
-    if (handler instanceof HandlerExecutionChain chain) {
-      resolvedHandler = chain.getRawHandler();
+    if (handler instanceof HandlerWrapper wrapper) {
+      resolvedHandler = wrapper.getRawHandler();
     }
     if (resolvedHandler instanceof CorsConfigurationSource configSource) {
       return configSource.getCorsConfiguration(request);
@@ -456,20 +470,27 @@ public abstract class AbstractHandlerMapping extends ApplicationObjectSupport
    * HandlerInterceptor that makes CORS-related checks and adds CORS headers.
    *
    * @param request the current request
-   * @param chain the handler chain
+   * @param handler the handler
    * @param config the applicable CORS configuration (possibly {@code null})
    * @since 4.0
    */
-  protected HandlerExecutionChain getCorsHandlerExecutionChain(
-          RequestContext request, HandlerExecutionChain chain, @Nullable CorsConfiguration config) {
-
+  protected HandlerExecutionChain getCorsHandlerExecutionChain(RequestContext request, Object handler, @Nullable CorsConfiguration config) {
     if (request.isPreFlightRequest()) {
-      HandlerInterceptor[] interceptors = chain.getInterceptors();
-      return new HandlerExecutionChain(new PreFlightHandler(config), interceptors);
+      ArrayList<HandlerInterceptor> interceptors = new ArrayList<>();
+      HandlerInterceptor[] interceptorsArr = getHandlerInterceptors(handler);
+      if (interceptorsArr != null) {
+        for (HandlerInterceptor interceptor : interceptorsArr) {
+          interceptors.add(interceptor);
+        }
+      }
+      if (!this.interceptors.isEmpty()) {
+        interceptors.addAll(this.interceptors);
+      }
+      return new HandlerExecutionChain(new PreFlightHandler(config),
+              interceptors.isEmpty() ? null : interceptors.toArray(new HandlerInterceptor[interceptors.size()]));
     }
     else {
-      chain.addInterceptor(0, new CorsInterceptor(config));
-      return chain;
+      return getHandlerExecutionChain(handler, new CorsInterceptor(config));
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -20,7 +20,6 @@ package cn.taketoday.scheduling.concurrent;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -44,10 +43,11 @@ import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ErrorHandler;
 import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
- * A standard implementation of Spring's {@link TaskScheduler} interface, wrapping
+ * A standard implementation of Infra {@link TaskScheduler} interface, wrapping
  * a native {@link java.util.concurrent.ScheduledThreadPoolExecutor} and providing
  * all applicable configuration options for it.
  *
@@ -85,7 +85,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   private ScheduledExecutorService scheduledExecutor;
 
   // Underlying ScheduledFutureTask to user-level ListenableFuture handle, if any
-  private final Map<Object, ListenableFuture<?>> listenableFutureMap =
+  private final ConcurrentReferenceHashMap<Object, ListenableFuture<?>> listenableFutureMap =
           new ConcurrentReferenceHashMap<>(16, ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
   /**
@@ -353,8 +353,18 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> listenableFuture) {
     Future<?> scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
     this.listenableFutureMap.put(scheduledFuture, listenableFuture);
-    listenableFuture.addCallback(result -> this.listenableFutureMap.remove(scheduledFuture),
-            ex -> this.listenableFutureMap.remove(scheduledFuture));
+    listenableFuture.addListener(new FutureListener<Object>() {
+
+      @Override
+      public void onFailure(Throwable ex) {
+        listenableFutureMap.remove(scheduledFuture);
+      }
+
+      @Override
+      public void onSuccess(@Nullable Object result) {
+        listenableFutureMap.remove(scheduledFuture);
+      }
+    });
   }
 
   @Override

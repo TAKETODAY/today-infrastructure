@@ -127,7 +127,7 @@ public class RequestPartArgumentResolver extends AbstractNamedValueArgumentResol
   }
 
   private static Object toHttpEntity(String name, MultipartFile multipartFile) {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     if (multipartFile.getOriginalFilename() != null) {
       headers.setContentDispositionFormData(name, multipartFile.getOriginalFilename());
     }

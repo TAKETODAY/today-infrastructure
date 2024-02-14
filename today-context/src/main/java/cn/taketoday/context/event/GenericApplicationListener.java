@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.event;
+
+import java.util.function.Consumer;
 
 import cn.taketoday.context.ApplicationEvent;
 import cn.taketoday.context.ApplicationListener;
@@ -36,6 +35,7 @@ import cn.taketoday.core.ResolvableType;
  *
  * @author Stephane Nicoll
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SmartApplicationListener
  * @see GenericApplicationListenerAdapter
  * @since 4.0
@@ -57,5 +57,17 @@ public interface GenericApplicationListener extends SmartApplicationListener {
    * @param eventType the event type (never {@code null})
    */
   boolean supportsEventType(ResolvableType eventType);
+
+  /**
+   * Create a new {@code ApplicationListener} for the given event type.
+   *
+   * @param eventType the event to listen to
+   * @param consumer the consumer to invoke when a matching event is fired
+   * @param <E> the specific {@code ApplicationEvent} subclass to listen to
+   * @return a corresponding {@code ApplicationListener} instance
+   */
+  static <E extends ApplicationEvent> GenericApplicationListener forEventType(Class<E> eventType, Consumer<E> consumer) {
+    return new GenericApplicationListenerDelegate<>(eventType, consumer);
+  }
 
 }

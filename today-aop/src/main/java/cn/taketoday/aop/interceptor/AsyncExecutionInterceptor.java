@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.interceptor;
@@ -36,7 +33,6 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ReflectionUtils;
 
 /**
  * AOP Alliance {@code MethodInterceptor} that processes method invocations
@@ -64,6 +60,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @author Juergen Hoeller
  * @author Chris Beams
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.scheduling.annotation.Async
  * @see cn.taketoday.scheduling.annotation.AsyncAnnotationAdvisor
  * @see cn.taketoday.scheduling.annotation.AnnotationAsyncExecutionInterceptor
@@ -106,10 +103,9 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
   @Nullable
   public Object invoke(final MethodInvocation invocation) throws Throwable {
     Class<?> targetClass = invocation.getThis() != null ? AopUtils.getTargetClass(invocation.getThis()) : null;
-    Method specificMethod = ReflectionUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);
-    final Method userDeclaredMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
+    final Method userMethod = BridgeMethodResolver.getMostSpecificMethod(invocation.getMethod(), targetClass);
 
-    AsyncTaskExecutor executor = determineAsyncExecutor(userDeclaredMethod);
+    AsyncTaskExecutor executor = determineAsyncExecutor(userMethod);
     if (executor == null) {
       throw new IllegalStateException(
               "No executor specified and no default executor set on AsyncExecutionInterceptor either");
@@ -123,10 +119,10 @@ public class AsyncExecutionInterceptor extends AsyncExecutionAspectSupport imple
         }
       }
       catch (ExecutionException ex) {
-        handleError(ex.getCause(), userDeclaredMethod, invocation.getArguments());
+        handleError(ex.getCause(), userMethod, invocation.getArguments());
       }
       catch (Throwable ex) {
-        handleError(ex, userDeclaredMethod, invocation.getArguments());
+        handleError(ex, userMethod, invocation.getArguments());
       }
       return null;
     };

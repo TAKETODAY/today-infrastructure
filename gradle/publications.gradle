@@ -1,9 +1,8 @@
 apply plugin: "signing"
 apply plugin: "maven-publish"
 
-boolean isSnapshot = version.endsWith('SNAPSHOT')
-String repoUsername = System.getProperty("repoUsername")
-String repoPassword = System.getProperty("repoPassword")
+String repoUsername = properties["repoUsername"]
+String repoPassword = properties["repoPassword"]
 
 publishing.publications.withType(MavenPublication.class) {
   pom {
@@ -32,7 +31,7 @@ publishing.publications.withType(MavenPublication.class) {
       developer {
         id = "taketoday"
         name = "Harry Yang"
-        email = "taketoday@foxmail.com"
+        email = "i.take.today@gmail.com"
       }
     }
     issueManagement {
@@ -47,12 +46,6 @@ publishing.publications.withType(MavenPublication.class) {
     usage('java-runtime') {
       fromResolutionResult()
     }
-  }
-}
-
-if (!isSnapshot) {
-  signing {
-    sign publishing.publications
   }
 }
 

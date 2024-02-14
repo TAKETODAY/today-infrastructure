@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,6 @@ import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -154,9 +153,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   /** @since 4.0 */
   protected PathContainer lookupPath;
-
-  /** @since 4.0 */
-  protected PathContainer pathWithinApplication;
 
   /** @since 4.0 */
   protected Locale locale;
@@ -563,6 +559,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return null;
   }
 
+  public boolean hasResponseCookie() {
+    return responseCookies != null;
+  }
+
   public ArrayList<HttpCookie> responseCookies() {
     var responseCookies = this.responseCookies;
     if (responseCookies == null) {
@@ -684,7 +684,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> specifying the name of the method with which
    * this request was made
    */
-  @NonNull
   @Override
   public String getMethodValue() {
     String method = this.method;
@@ -695,7 +694,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return method;
   }
 
-  @NonNull
   @Override
   public HttpMethod getMethod() {
     HttpMethod httpMethod = this.httpMethod;
@@ -792,14 +790,16 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @since 4.0
    */
   public boolean isMultipart() {
+    Boolean multipartFlag = this.multipartFlag;
     if (multipartFlag == null) {
-      if (HttpMethod.GET == getMethod()) {
+      HttpMethod method = getMethod();
+      if (method == HttpMethod.GET || method == HttpMethod.HEAD) {
         multipartFlag = false;
       }
       else {
-        String contentType = getContentType();
-        multipartFlag = contentType != null && contentType.toLowerCase().startsWith("multipart/");
+        multipartFlag = StringUtils.startsWithIgnoreCase(getContentType(), "multipart/");
       }
+      this.multipartFlag = multipartFlag;
     }
     return multipartFlag;
   }
@@ -1809,8 +1809,8 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @param contentType a <code>String</code> specifying the MIME type of the content
    */
-  public void setContentType(MediaType contentType) {
-    setContentType(contentType.toString());
+  public void setContentType(@Nullable MediaType contentType) {
+    setContentType(contentType == null ? null : contentType.toString());
   }
 
   /**
@@ -1961,7 +1961,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    *
    * @since 4.0
    */
-  public void writeHeaders() { }
+  protected void writeHeaders() { }
 
   @Override
   public String toString() {
@@ -1996,6 +1996,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
       return responseHeaders();
     }
 
+    @Override
+    public void setContentType(@Nullable MediaType mediaType) {
+      RequestContext.this.setContentType(mediaType);
+    }
   }
 
 }

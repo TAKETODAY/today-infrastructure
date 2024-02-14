@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -39,6 +39,7 @@ import cn.taketoday.logging.Logger;
  * @author Arjen Poutsma
  * @author Violeta Georgieva
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractListenerWriteFlushProcessor<T> implements Processor<Publisher<? extends T>, Void> {
@@ -77,22 +78,20 @@ public abstract class AbstractListenerWriteFlushProcessor<T> implements Processo
    */
   public AbstractListenerWriteFlushProcessor(String logPrefix) {
     this.logPrefix = logPrefix;
-    this.resultPublisher = new WriteResultPublisher(
-            logPrefix + "[WFP] ",
-            () -> {
-              cancel();
-              // Complete immediately
-              State oldState = this.state.getAndSet(State.COMPLETED);
-              if (rsWriteFlushLogger.isTraceEnabled()) {
-                rsWriteFlushLogger.trace("{}{} -> {}", getLogPrefix(), oldState, this.state);
-              }
-              // Propagate to current "write" Processor
-              AbstractListenerWriteProcessor<?> writeProcessor = this.currentWriteProcessor;
-              if (writeProcessor != null) {
-                writeProcessor.cancelAndSetCompleted();
-              }
-              this.currentWriteProcessor = null;
-            });
+    this.resultPublisher = new WriteResultPublisher(logPrefix + "[WFP] ", () -> {
+      cancel();
+      // Complete immediately
+      State oldState = this.state.getAndSet(State.COMPLETED);
+      if (rsWriteFlushLogger.isTraceEnabled()) {
+        rsWriteFlushLogger.trace("{}{} -> {}", getLogPrefix(), oldState, this.state);
+      }
+      // Propagate to current "write" Processor
+      AbstractListenerWriteProcessor<?> writeProcessor = this.currentWriteProcessor;
+      if (writeProcessor != null) {
+        writeProcessor.cancelAndSetCompleted();
+      }
+      this.currentWriteProcessor = null;
+    });
   }
 
   /**
@@ -277,10 +276,7 @@ public abstract class AbstractListenerWriteFlushProcessor<T> implements Processo
 
     REQUESTED {
       @Override
-      public <T> void onNext(
-              AbstractListenerWriteFlushProcessor<T> processor,
-              Publisher<? extends T> currentPublisher) {
-
+      public <T> void onNext(AbstractListenerWriteFlushProcessor<T> processor, Publisher<? extends T> currentPublisher) {
         if (processor.changeState(this, RECEIVED)) {
           Processor<? super T, Void> writeProcessor = processor.createWriteProcessor();
           processor.currentWriteProcessor = (AbstractListenerWriteProcessor<?>) writeProcessor;
@@ -438,8 +434,7 @@ public abstract class AbstractListenerWriteFlushProcessor<T> implements Processo
       @Override
       public void onError(Throwable ex) {
         if (rsWriteFlushLogger.isTraceEnabled()) {
-          rsWriteFlushLogger.trace(
-                  "{}current \"write\" Publisher failed: {}", this.processor.getLogPrefix(), ex);
+          rsWriteFlushLogger.trace("{}current \"write\" Publisher failed: {}", processor.getLogPrefix(), ex);
         }
         this.processor.currentWriteProcessor = null;
         this.processor.cancel();
@@ -449,8 +444,7 @@ public abstract class AbstractListenerWriteFlushProcessor<T> implements Processo
       @Override
       public void onComplete() {
         if (rsWriteFlushLogger.isTraceEnabled()) {
-          rsWriteFlushLogger.trace(
-                  "{}current \"write\" Publisher completed", this.processor.getLogPrefix());
+          rsWriteFlushLogger.trace("{}current \"write\" Publisher completed", this.processor.getLogPrefix());
         }
         this.processor.currentWriteProcessor = null;
         this.processor.state.get().writeComplete(this.processor);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,7 +156,7 @@ class ConditionalOnBeanTests {
       Collection<ConditionAndOutcomes> conditionAndOutcomes = ConditionEvaluationReport
               .get(context.getSourceApplicationContext().getBeanFactory()).getConditionAndOutcomesBySource()
               .values();
-      String message = conditionAndOutcomes.iterator().next().iterator().next().getOutcome().getMessage();
+      String message = conditionAndOutcomes.iterator().next().iterator().next().outcome.getMessage();
       assertThat(message).doesNotContain("@ConditionalOnMissingBean");
     });
   }

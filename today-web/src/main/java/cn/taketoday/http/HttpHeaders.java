@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -505,12 +505,8 @@ public abstract class HttpHeaders
   public static final String MUST_REVALIDATE = "must-revalidate";
   public static final String PROXY_REVALIDATE = "proxy-revalidate";
   public static final String QUOTED_PRINTABLE = "quoted-printable";
-  public static final String MULTIPART_FORM_DATA = "multipart/form-data";
   public static final String INLINE_FILE_NAME = "inline;filename=\"";
   public static final String ATTACHMENT_FILE_NAME = "attachment;filename=\"";
-  public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-  public static final String APPLICATION_FORCE_DOWNLOAD = "application/force-download;";
-  public static final String APPLICATION_X_WWW_FORM_URLENCODED = "application/x-www-form-urlencoded";
 
   /**
    * Pattern matching ETag multiple field values in headers such as "If-Match",
@@ -520,7 +516,9 @@ public abstract class HttpHeaders
    * RFC 7232</a>
    */
   public static final Pattern ETAG_HEADER_VALUE_PATTERN = Pattern.compile("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
+
   public static final DecimalFormatSymbols DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.ENGLISH);
+
   public static final ZoneId GMT = ZoneId.of("GMT");
 
   /**
@@ -1101,7 +1099,7 @@ public abstract class HttpHeaders
    * Set the {@linkplain MediaType media type} of the body, as specified by the
    * {@code Content-Type} header.
    */
-  public void setContentType(MediaType mediaType) {
+  public void setContentType(@Nullable MediaType mediaType) {
     if (mediaType != null) {
       Assert.isTrue(!mediaType.isWildcardType(), "Content-Type cannot contain wildcard type '*'");
       Assert.isTrue(!mediaType.isWildcardSubtype(), "Content-Type cannot contain wildcard subtype '*'");
@@ -1121,7 +1119,7 @@ public abstract class HttpHeaders
    * @throws InvalidMediaTypeException if the media type value cannot be parsed
    */
   @Nullable
-  public MediaType getContentType() {
+  public MediaType getContentType() throws InvalidMediaTypeException {
     String value = getFirst(CONTENT_TYPE);
     return (StringUtils.isNotEmpty(value) ? MediaType.parseMediaType(value) : null);
   }
@@ -1841,6 +1839,30 @@ public abstract class HttpHeaders
     }
   }
 
+  /**
+   * Apply a read-only {@code HttpHeaders} wrapper around this {@code httpHeaders}, if necessary.
+   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
+   *
+   * @return a read-only variant of the headers, or the original headers as-is
+   * @since 4.0
+   */
+  @Override
+  public HttpHeaders asReadOnly() {
+    return new ReadOnlyHttpHeaders(this);
+  }
+
+  /**
+   * Remove any read-only wrapper that may have been previously applied around
+   * this {@code httpHeaders} via {@link #asReadOnly()}.
+   *
+   * @return a writable variant of the headers, or the original headers as-is
+   * @since 4.0
+   */
+  @Override
+  public HttpHeaders asWritable() {
+    return this;
+  }
+
   // ---------------------------------------------------------------------
   // abstract for subclasses
   // ---------------------------------------------------------------------
@@ -1953,7 +1975,7 @@ public abstract class HttpHeaders
    * @return returns a new DefaultHttpHeaders
    * @since 4.0
    */
-  public static DefaultHttpHeaders create() {
+  public static DefaultHttpHeaders forWritable() {
     return new DefaultHttpHeaders();
   }
 
@@ -1966,7 +1988,7 @@ public abstract class HttpHeaders
    * @return the adapted multi-value map (wrapping the original map)
    * @since 4.0
    */
-  public static DefaultHttpHeaders from(MultiValueMap<String, String> headers) {
+  public static DefaultHttpHeaders forWritable(MultiValueMap<String, String> headers) {
     return new DefaultHttpHeaders(headers);
   }
 
@@ -1980,43 +2002,9 @@ public abstract class HttpHeaders
    * @since 4.0
    */
   public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
-    return (headers instanceof HttpHeaders ?
-            readOnlyHttpHeaders((HttpHeaders) headers) : new ReadOnlyHttpHeaders(headers));
-  }
-
-  /**
-   * Apply a read-only {@code HttpHeaders} wrapper around the given headers, if necessary.
-   * <p>Also caches the parsed representations of the "Accept" and "Content-Type" headers.
-   *
-   * @param headers the headers to expose
-   * @return a read-only variant of the headers, or the original headers as-is
-   * @since 4.0
-   */
-  public static HttpHeaders readOnlyHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders is required");
-    if (headers instanceof ReadOnlyHttpHeaders) {
-      return headers;
-    }
-    if (headers instanceof DefaultHttpHeaders defaults) {
-      return new ReadOnlyHttpHeaders(defaults.headers);
-    }
-    return new ReadOnlyHttpHeaders(headers);
-  }
-
-  /**
-   * Remove any read-only wrapper that may have been previously applied around
-   * the given headers via {@link #readOnlyHttpHeaders(HttpHeaders)}.
-   *
-   * @param headers the headers to expose
-   * @return a writable variant of the headers, or the original headers as-is
-   * @since 4.0
-   */
-  public static HttpHeaders writableHttpHeaders(HttpHeaders headers) {
-    Assert.notNull(headers, "HttpHeaders is required");
-    if (headers instanceof ReadOnlyHttpHeaders readOnly) {
-      return new DefaultHttpHeaders(readOnly.headers);
-    }
-    return headers;
+    return headers instanceof HttpHeaders
+           ? ((HttpHeaders) headers).asReadOnly()
+           : new ReadOnlyHttpHeaders(headers);
   }
 
   /**
@@ -2031,7 +2019,7 @@ public abstract class HttpHeaders
       return HttpHeaders.empty();
     }
     else {
-      HttpHeaders result = HttpHeaders.create();
+      HttpHeaders result = HttpHeaders.forWritable();
       for (Map.Entry<String, List<String>> entry : targetMap.entrySet()) {
         result.addAll(entry);
       }

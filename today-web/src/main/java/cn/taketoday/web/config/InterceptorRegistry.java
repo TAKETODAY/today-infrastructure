@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +12,15 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.OrderComparator;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.web.HandlerInterceptor;
 
 /**
@@ -34,8 +28,8 @@ import cn.taketoday.web.HandlerInterceptor;
  *
  * @author Rossen Stoyanchev
  * @author Keith Donald
- * @author TODAY 2021/8/30 21:43
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/8/30 21:43
  */
 public class InterceptorRegistry {
 
@@ -50,7 +44,7 @@ public class InterceptorRegistry {
    */
   public InterceptorRegistration addInterceptor(HandlerInterceptor interceptor) {
     InterceptorRegistration registration = new InterceptorRegistration(interceptor);
-    this.registrations.add(registration);
+    registrations.add(registration);
     return registration;
   }
 
@@ -58,18 +52,12 @@ public class InterceptorRegistry {
    * Return all registered interceptors.
    */
   protected List<Object> getInterceptors() {
-    return registrations.stream()
-            .sorted(INTERCEPTOR_ORDER_COMPARATOR)
-            .map(InterceptorRegistration::getInterceptor)
-            .collect(Collectors.toList());
+    OrderComparator.sort(registrations);
+    ArrayList<Object> interceptors = new ArrayList<>(registrations.size());
+    for (InterceptorRegistration registration : registrations) {
+      interceptors.add(registration.getInterceptor());
+    }
+    return interceptors;
   }
-
-  private static final Comparator<Object> INTERCEPTOR_ORDER_COMPARATOR =
-          OrderComparator.INSTANCE.withSourceProvider(object -> {
-            if (object instanceof InterceptorRegistration registration) {
-              return (Ordered) registration::getOrder;
-            }
-            return null;
-          });
 
 }

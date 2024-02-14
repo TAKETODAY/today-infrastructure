@@ -75,7 +75,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   private URI uri;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 

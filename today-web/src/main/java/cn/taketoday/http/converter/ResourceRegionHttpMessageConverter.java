@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter;
@@ -138,24 +138,28 @@ public class ResourceRegionHttpMessageConverter extends AbstractGenericHttpMessa
   }
 
   protected void writeResourceRegion(ResourceRegion region, HttpOutputMessage outputMessage) throws IOException {
-    Assert.notNull(region, "ResourceRegion is required");
-    HttpHeaders responseHeaders = outputMessage.getHeaders();
+    HttpHeaders headers = outputMessage.getHeaders();
 
     long start = region.getPosition();
     long end = start + region.getCount() - 1;
-    long resourceLength = region.getResource().contentLength();
+    Resource resource = region.getResource();
+    long resourceLength = resource.contentLength();
     end = Math.min(end, resourceLength - 1);
     long rangeLength = end - start + 1;
-    responseHeaders.add("Content-Range", "bytes " + start + '-' + end + '/' + resourceLength);
-    responseHeaders.setContentLength(rangeLength);
+    headers.add("Content-Range", "bytes " + start + '-' + end + '/' + resourceLength);
+    headers.setContentLength(rangeLength);
 
-    try (InputStream in = region.getResource().getInputStream()) {
-      StreamUtils.copyRange(in, outputMessage.getBody(), start, end);
+    if (outputMessage.supportsZeroCopy() && resource.isFile()) {
+      outputMessage.sendFile(resource.getFile(), region.getPosition(), region.getCount());
+    }
+    else {
+      try (InputStream in = resource.getInputStream()) {
+        StreamUtils.copyRange(in, outputMessage.getBody(), start, end);
+      }
     }
   }
 
-  private void writeResourceRegionCollection(
-          Collection<ResourceRegion> resourceRegions, HttpOutputMessage outputMessage) throws IOException {
+  private void writeResourceRegionCollection(Collection<ResourceRegion> resourceRegions, HttpOutputMessage outputMessage) throws IOException {
     Assert.notNull(resourceRegions, "Collection of ResourceRegion should not be null");
     HttpHeaders responseHeaders = outputMessage.getHeaders();
 

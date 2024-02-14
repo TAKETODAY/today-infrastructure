@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.reactive.server;
@@ -105,7 +105,7 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
     this((ClientHttpConnector) null);
   }
 
-  DefaultWebTestClientBuilder(ClientHttpConnector connector) {
+  DefaultWebTestClientBuilder(@Nullable ClientHttpConnector connector) {
     this.connector = connector;
   }
 
@@ -117,7 +117,7 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
     this.baseUrl = other.baseUrl;
     this.uriBuilderFactory = other.uriBuilderFactory;
     if (other.defaultHeaders != null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
       this.defaultHeaders.putAll(other.defaultHeaders);
     }
     else {
@@ -158,7 +158,7 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
   private HttpHeaders initHeaders() {
     if (this.defaultHeaders == null) {
-      this.defaultHeaders = HttpHeaders.create();
+      this.defaultHeaders = HttpHeaders.forWritable();
     }
     return this.defaultHeaders;
   }
@@ -254,9 +254,6 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
   @Override
   public WebTestClient build() {
     ClientHttpConnector connectorToUse = this.connector;
-//    if (connectorToUse == null) {
-//      connectorToUse = new HttpHandlerConnector();
-//    }
     if (connectorToUse == null) {
       connectorToUse = initConnector();
     }
@@ -272,8 +269,8 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
     };
     return new DefaultWebTestClient(connectorToUse, exchangeFactory, initUriBuilderFactory(),
-            this.defaultHeaders != null ? HttpHeaders.readOnlyHttpHeaders(this.defaultHeaders) : null,
-            this.defaultCookies != null ? MultiValueMap.forUnmodifiable(this.defaultCookies) : null,
+            this.defaultHeaders != null ? defaultHeaders.asReadOnly() : null,
+            this.defaultCookies != null ? defaultCookies.asReadOnly() : null,
             this.entityResultConsumer, this.responseTimeout, new DefaultWebTestClientBuilder(this));
   }
 

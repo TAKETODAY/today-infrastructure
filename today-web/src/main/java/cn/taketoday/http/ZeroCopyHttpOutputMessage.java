@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -35,6 +32,17 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public interface ZeroCopyHttpOutputMessage extends ReactiveHttpOutputMessage {
+
+  /**
+   * Use the given {@link File} to write the body of the message to the underlying
+   * HTTP layer.
+   *
+   * @param file the file to transfer
+   * @return a publisher that indicates completion or error.
+   */
+  default Mono<Void> writeWith(File file) {
+    return writeWith(file, 0, file.length());
+  }
 
   /**
    * Use the given {@link File} to write the body of the message to the underlying
