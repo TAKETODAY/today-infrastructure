@@ -22,10 +22,12 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamIterable;
 
 /**
  * Entity manager
@@ -121,6 +123,51 @@ public interface EntityManager {
    */
   void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
           throws DataAccessException;
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param entities entities instances
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities) throws DataAccessException {
+    persist(new StreamIterable<>(entities));
+  }
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param entities entities instances
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
+    persist(new StreamIterable<>(entities), returnGeneratedKeys);
+  }
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param entities entities instances
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    persist(new StreamIterable<>(entities), strategy);
+  }
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param returnGeneratedKeys a flag indicating whether
+   * auto-generated keys should be returned;
+   * @param entities entities instances
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
+    persist(new StreamIterable<>(entities), strategy, returnGeneratedKeys);
+  }
 
   /**
    * Merge the state of the given entity into underlying repository
