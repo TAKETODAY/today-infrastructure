@@ -26,6 +26,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -185,9 +186,8 @@ public class MockServletRequestContext extends RequestContext implements Servlet
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public MultiValueMap<String, String> doGetParameters() {
-    var ret = MultiValueMap.forLinkedHashMap(MultiValueMap.smartListMappingFunction);
+    var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
     Map<String, String[]> parameterMap = request.getParameterMap();
     for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
       String key = entry.getKey();

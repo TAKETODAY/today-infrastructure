@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ public class MockRequestContext extends RequestContext {
   @Override
   public MultiValueMap<String, String> doGetParameters() {
     if (parameters == null) {
-      return MultiValueMap.defaults();
+      return MultiValueMap.forLinkedHashMap();
     }
     return parameters;
   }
@@ -265,7 +265,7 @@ public class MockRequestContext extends RequestContext {
   @Override
   protected HttpHeaders createRequestHeaders() {
     if (requestHeaders == null) {
-      requestHeaders = HttpHeaders.create();
+      requestHeaders = HttpHeaders.forWritable();
     }
     return requestHeaders;
   }
