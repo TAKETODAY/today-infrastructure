@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.multipart;
@@ -168,9 +168,7 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
                       Assert.state(headersToken != null, "Signal should be headers token");
 
                       HttpHeaders headers = headersToken.getHeaders();
-                      Flux<MultipartParser.BodyToken> bodyTokens =
-                              flux.filter(t -> t instanceof MultipartParser.BodyToken)
-                                      .cast(MultipartParser.BodyToken.class);
+                      var bodyTokens = flux.ofType(MultipartParser.BodyToken.class);
                       return createEvents(headers, bodyTokens);
                     }
                     else {

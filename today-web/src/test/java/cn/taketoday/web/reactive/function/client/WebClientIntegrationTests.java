@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function.client;
@@ -197,7 +197,7 @@ class WebClientIntegrationTests {
     Mono<ValueContainer<Pojo>> result = this.webClient.get()
             .uri("/json").accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .bodyToMono(new ParameterizedTypeReference<ValueContainer<Pojo>>() { });
+            .bodyToMono(new ParameterizedTypeReference<>() { });
 
     StepVerifier.create(result)
             .assertNext(c -> assertThat(c.getContainerValue()).isEqualTo(new Pojo("foofoo", "barbar")))
@@ -482,7 +482,7 @@ class WebClientIntegrationTests {
             .retrieve()
             .bodyToMono(Map.class);
 
-    StepVerifier.create(result).verifyComplete();
+    StepVerifier.create(result).expectComplete().verify(Duration.ofSeconds(3));
   }
 
   @ParameterizedWebClientTest
@@ -640,11 +640,13 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
+  @SuppressWarnings("deprecation")
   void retrieve555UnknownStatus(ClientHttpConnector connector) {
     startServer(connector);
 
     int errorStatus = 555;
     assertThat(HttpStatus.resolve(errorStatus)).isNull();
+
     String errorMessage = "Something went wrong";
     prepareResponse(response ->
             response.setResponseCode(errorStatus)
@@ -673,6 +675,7 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
+    // gh-31202
   void retrieve929UnknownStatusCode(ClientHttpConnector connector) {
     startServer(connector);
 
@@ -736,9 +739,9 @@ class WebClientIntegrationTests {
     });
   }
 
-  // SPR-16246
   @ParameterizedWebClientTest
-  void postLargeTextFile(ClientHttpConnector connector) throws Exception {
+    // SPR-16246
+  void postLargeTextFile(ClientHttpConnector connector) {
     startServer(connector);
 
     prepareResponse(response -> { });
@@ -805,7 +808,7 @@ class WebClientIntegrationTests {
             .uri("/greeting")
             .retrieve()
             .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.just(new MyException("500 error!")))
-            .bodyToMono(new ParameterizedTypeReference<String>() { });
+            .bodyToMono(new ParameterizedTypeReference<>() { });
 
     StepVerifier.create(result)
             .expectError(MyException.class)
@@ -843,7 +846,7 @@ class WebClientIntegrationTests {
               MyException error = (MyException) throwable;
               assertThat(error.getMessage()).isEqualTo("foofoo");
             })
-            .verify();
+            .verify(Duration.ofSeconds(3));
   }
 
   @ParameterizedWebClientTest
@@ -885,7 +888,7 @@ class WebClientIntegrationTests {
 
     StepVerifier.create(result)
             .expectNext("Internal Server error")
-            .verifyComplete();
+            .expectComplete().verify(Duration.ofSeconds(3));
 
     expectRequestCount(1);
     expectRequest(request -> {
@@ -915,7 +918,7 @@ class WebClientIntegrationTests {
 
     StepVerifier.create(result)
             .expectNext("Internal Server error")
-            .verifyComplete();
+            .expectComplete().verify(Duration.ofSeconds(3));
 
     expectRequestCount(1);
     expectRequest(request -> {
@@ -1073,7 +1076,7 @@ class WebClientIntegrationTests {
 
     StepVerifier.create(result)
             .assertNext(r -> assertThat(r.getStatusCode().is2xxSuccessful()).isTrue())
-            .verifyComplete();
+            .expectComplete().verify(Duration.ofSeconds(3));
   }
 
   @ParameterizedWebClientTest
@@ -1234,23 +1237,6 @@ class WebClientIntegrationTests {
   }
 
   @ParameterizedWebClientTest
-  void invalidDomain(ClientHttpConnector connector) {
-    startServer(connector);
-
-    String url = "http://example.invalid";
-    Mono<Void> result = this.webClient.get().uri(url).retrieve().bodyToMono(Void.class);
-
-    StepVerifier.create(result)
-            .expectErrorSatisfies(throwable -> {
-              assertThat(throwable).isInstanceOf(WebClientRequestException.class);
-              WebClientRequestException ex = (WebClientRequestException) throwable;
-              assertThat(ex.getMethod()).isEqualTo(HttpMethod.GET);
-              assertThat(ex.getUri()).isEqualTo(URI.create(url));
-            })
-            .verify();
-  }
-
-  @ParameterizedWebClientTest
   void malformedResponseChunksOnBodilessEntity(ClientHttpConnector connector) {
     Mono<?> result = doMalformedChunkedResponseTest(connector, ResponseSpec::toBodilessEntity);
     StepVerifier.create(result)
@@ -1259,7 +1245,7 @@ class WebClientIntegrationTests {
               WebClientException ex = (WebClientException) throwable;
               assertThat(ex.getCause()).isInstanceOf(IOException.class);
             })
-            .verify();
+            .verify(Duration.ofSeconds(3));
   }
 
   @ParameterizedWebClientTest
@@ -1271,7 +1257,7 @@ class WebClientIntegrationTests {
               WebClientException ex = (WebClientException) throwable;
               assertThat(ex.getCause()).isInstanceOf(IOException.class);
             })
-            .verify();
+            .verify(Duration.ofSeconds(3));
   }
 
   @ParameterizedWebClientTest

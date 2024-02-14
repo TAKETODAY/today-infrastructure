@@ -61,7 +61,7 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
   @Test
   void write() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
     Part textPart = mock(Part.class);
     given(textPart.name()).willReturn("text part");
@@ -72,7 +72,7 @@ public class PartHttpMessageWriterTests extends AbstractLeakCheckingTests {
 
     FilePart filePart = mock(FilePart.class);
     given(filePart.name()).willReturn("file part");
-    given(filePart.headers()).willReturn(HttpHeaders.create());
+    given(filePart.headers()).willReturn(HttpHeaders.forWritable());
     given(filePart.filename()).willReturn("file.txt");
     given(filePart.content()).willReturn(Flux.just(
             this.bufferFactory.wrap("Aa".getBytes(StandardCharsets.UTF_8)),

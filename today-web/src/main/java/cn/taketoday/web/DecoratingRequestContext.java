@@ -535,7 +535,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void writeHeaders() {
+  protected void writeHeaders() {
     getDelegate().writeHeaders();
   }
 

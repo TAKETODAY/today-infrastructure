@@ -50,7 +50,7 @@ public class MockPart implements Part {
 
   private final byte[] content;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   /**
    * Constructor for a part with byte[] content only.

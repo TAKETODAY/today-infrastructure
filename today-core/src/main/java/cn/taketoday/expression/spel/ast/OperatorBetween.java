@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -30,12 +27,19 @@ import cn.taketoday.expression.spel.SpelMessage;
 import cn.taketoday.expression.spel.support.BooleanTypedValue;
 
 /**
- * Represents the between operator. The left operand to between must be a single value and
- * the right operand must be a list - this operator returns true if the left operand is
- * between (using the registered comparator) the two elements in the list. The definition
- * of between being inclusive follows the SQL BETWEEN definition.
+ * Represents the {@code between} operator.
+ *
+ * <p>The left operand must be a single value, and the right operand must be a
+ * 2-element list which defines a range from a lower bound to an upper bound.
+ *
+ * <p>This operator returns {@code true} if the left operand is greater than or
+ * equal to the lower bound and less than or equal to the upper bound. Consequently,
+ * {@code 1 between {1, 5}} evaluates to {@code true}, while {@code 1 between {5, 1}}
+ * evaluates to {@code false}.
  *
  * @author Andy Clement
+ * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class OperatorBetween extends Operator {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.buildpack.platform.build;
@@ -76,9 +76,9 @@ final class Buildpacks {
 
   private void appendToOrderToml(StringBuilder builder, BuildpackCoordinates coordinates) {
     builder.append("  [[order.group]]\n");
-    builder.append("    id = \"" + coordinates.getId() + "\"\n");
+    builder.append("    id = \"").append(coordinates.getId()).append("\"\n");
     if (StringUtils.hasText(coordinates.getVersion())) {
-      builder.append("    version = \"" + coordinates.getVersion() + "\"\n");
+      builder.append("    version = \"").append(coordinates.getVersion()).append("\"\n");
     }
     builder.append("\n");
   }

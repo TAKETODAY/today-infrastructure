@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -160,7 +160,7 @@ class MethodValidationAdapterTests {
   }
 
   @Test
-  void validateListArgument() {
+  void validateBeanListArgument() {
     MyService target = new MyService();
     Method method = getMethod(target, "addPeople");
 
@@ -191,6 +191,24 @@ class MethodValidationAdapterTests {
               [cn.taketoday.context.support.DefaultMessageSourceResolvable: codes \
               [people.hobbies[0],hobbies[0]]; arguments []; default message [hobbies[0]]]; \
               default message [must not be blank]"""));
+    });
+  }
+
+  @Test
+  void validateValueListArgument() {
+    MyService target = new MyService();
+    Method method = getMethod(target, "addHobbies");
+
+    testArgs(target, method, new Object[] { List.of("   ") }, ex -> {
+
+      assertThat(ex.getAllValidationResults()).hasSize(1);
+
+      assertValueResult(ex.getValueResults().get(0), 0, "   ", List.of("""
+              cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [NotBlank.myService#addHobbies.hobbies,NotBlank.hobbies,NotBlank.java.util.List,NotBlank]; \
+              arguments [cn.taketoday.context.support.DefaultMessageSourceResolvable: \
+              codes [myService#addHobbies.hobbies,hobbies]; \
+              arguments []; default message [hobbies]]; default message [must not be blank]"""));
     });
   }
 
@@ -246,6 +264,9 @@ class MethodValidationAdapterTests {
     }
 
     public void addPeople(@Valid List<Person> people) {
+    }
+
+    public void addHobbies(List<@NotBlank String> hobbies) {
     }
 
   }

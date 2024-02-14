@@ -92,7 +92,7 @@ public class HeaderAssertions {
       String headerValue = getHeaders().getFirst(headerName);
       assertNotNull("Response does not contain header '" + headerName + "'", headerValue);
 
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.setDate("expected", value);
       headers.set("actual", headerValue);
 

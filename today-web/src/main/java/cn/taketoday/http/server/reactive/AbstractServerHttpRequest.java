@@ -29,7 +29,8 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MappingMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
@@ -92,7 +93,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
   public AbstractServerHttpRequest(URI uri, @Nullable String contextPath, HttpHeaders headers) {
     this.uri = uri;
     this.path = RequestPath.parse(uri, contextPath);
-    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+    this.headers = headers.asReadOnly();
   }
 
   /**
@@ -177,7 +178,7 @@ public abstract class AbstractServerHttpRequest implements ServerHttpRequest {
    * parsing is thread-safe nevertheless.
    */
   protected MultiValueMap<String, String> initQueryParams() {
-    DefaultMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
+    LinkedMultiValueMap<String, String> queryParams = MultiValueMap.forLinkedHashMap();
     String query = getURI().getRawQuery();
     if (query != null) {
       Matcher matcher = QUERY_PATTERN.matcher(query);

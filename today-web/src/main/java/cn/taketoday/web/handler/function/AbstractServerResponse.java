@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -50,9 +50,9 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
   private final MultiValueMap<String, HttpCookie> cookies;
 
   protected AbstractServerResponse(HttpStatusCode statusCode,
-      HttpHeaders headers, @Nullable MultiValueMap<String, HttpCookie> cookies) {
+          HttpHeaders headers, @Nullable MultiValueMap<String, HttpCookie> cookies) {
     this.statusCode = statusCode;
-    this.headers = HttpHeaders.readOnlyHttpHeaders(headers);
+    this.headers = headers.asReadOnly();
     this.cookies = cookies;
   }
 
@@ -76,7 +76,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
     if (cookies != null) {
       return this.cookies;
     }
-    return MultiValueMap.from(Collections.emptyMap());
+    return MultiValueMap.forAdaption(Collections.emptyMap());
   }
 
   @Nullable
@@ -86,7 +86,7 @@ abstract class AbstractServerResponse extends ErrorHandlingServerResponse {
       writeStatusAndHeaders(request);
 
       if (SAFE_METHODS.contains(request.getMethod())
-          && request.checkNotModified(headers().getETag(), headers().getLastModified())) {
+              && request.checkNotModified(headers().getETag(), headers().getLastModified())) {
         return NONE_RETURN_VALUE;
       }
       else {

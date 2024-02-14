@@ -30,7 +30,7 @@ import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.codec.LoggingCodecSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MultiValueMap;
 import reactor.core.publisher.Flux;
@@ -119,8 +119,8 @@ public class MultipartHttpMessageReader extends LoggingCodecSupport implements H
             .map(this::toMultiValueMap);
   }
 
-  private DefaultMultiValueMap<String, Part> toMultiValueMap(Map<String, Collection<Part>> map) {
-    DefaultMultiValueMap<String, Part> ret = MultiValueMap.forLinkedHashMap(map.size());
+  private LinkedMultiValueMap<String, Part> toMultiValueMap(Map<String, Collection<Part>> map) {
+    LinkedMultiValueMap<String, Part> ret = MultiValueMap.forLinkedHashMap(map.size());
     for (Map.Entry<String, Collection<Part>> entry : map.entrySet()) {
       ret.put(entry.getKey(), toList(entry.getValue()));
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -98,8 +98,8 @@ public class ConditionEvaluator {
     }
 
     if (phase == null) {
-      if (metadata instanceof AnnotationMetadata &&
-              ConfigurationClassUtils.isConfigurationCandidate((AnnotationMetadata) metadata)) {
+      if (metadata instanceof AnnotationMetadata am
+              && ConfigurationClassUtils.isConfigurationCandidate(am)) {
         return shouldSkip(metadata, ConfigurationPhase.PARSE_CONFIGURATION);
       }
       return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
@@ -118,8 +118,8 @@ public class ConditionEvaluator {
 
     for (Condition condition : conditions) {
       ConfigurationPhase requiredPhase = null;
-      if (condition instanceof ConfigurationCondition) {
-        requiredPhase = ((ConfigurationCondition) condition).getConfigurationPhase();
+      if (condition instanceof ConfigurationCondition cc) {
+        requiredPhase = cc.getConfigurationPhase();
       }
       if ((requiredPhase == null || requiredPhase == phase)
               && !condition.matches(this.evaluationContext, metadata)) {
@@ -128,6 +128,13 @@ public class ConditionEvaluator {
     }
 
     return false;
+  }
+
+  /**
+   * Clear the local metadata cache, if any, removing all cached metadata.
+   */
+  public void clearCache() {
+    evaluationContext.close();
   }
 
   @SuppressWarnings("unchecked")

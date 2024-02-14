@@ -184,7 +184,7 @@ public interface FilePartEvent extends PartEvent {
     Assert.notNull(contents, "Contents is required");
 
     return Flux.defer(() -> {
-      HttpHeaders headers = HttpHeaders.create();
+      HttpHeaders headers = HttpHeaders.forWritable();
       headers.setContentType(contentType);
 
       headers.setContentDisposition(ContentDisposition.formData()

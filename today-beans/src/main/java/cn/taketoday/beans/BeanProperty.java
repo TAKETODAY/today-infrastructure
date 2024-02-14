@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -44,10 +41,10 @@ import cn.taketoday.util.ReflectionUtils;
  * <p>
  * AnnotatedElement -> Field -> readMethod -> writeMethod
  *
- * @author TODAY 2021/1/27 22:28
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #isWriteable()
  * @see #isReadable()
- * @since 3.0
+ * @since 3.0 2021/1/27 22:28
  */
 public sealed class BeanProperty extends Property
         implements Member, AnnotatedElement, Serializable permits FieldBeanProperty {
@@ -67,10 +64,8 @@ public sealed class BeanProperty extends Property
     this(field.getName(), field);
   }
 
-  BeanProperty(@Nullable String name,
-          @Nullable Method readMethod,
-          @Nullable Method writeMethod,
-          @Nullable Class<?> declaringClass) {
+  BeanProperty(@Nullable String name, @Nullable Method readMethod,
+          @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     super(name, readMethod, writeMethod, declaringClass);
   }
 
@@ -235,8 +230,7 @@ public sealed class BeanProperty extends Property
    * @param writeMethod can be null (read only)
    * @param declaringClass the implementation class
    */
-  public static BeanProperty valueOf(
-          @Nullable Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
+  public static BeanProperty valueOf(@Nullable Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     return valueOf(null, readMethod, writeMethod, declaringClass);
   }
 
@@ -250,8 +244,7 @@ public sealed class BeanProperty extends Property
    * @param writeMethod can be null (read only)
    * @param declaringClass the implementation class
    */
-  public static BeanProperty valueOf(
-          @Nullable String propertyName, @Nullable Method readMethod,
+  public static BeanProperty valueOf(@Nullable String propertyName, @Nullable Method readMethod,
           @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     if (readMethod == null && writeMethod == null) {
       throw new IllegalStateException("Property is neither readable nor writeable");

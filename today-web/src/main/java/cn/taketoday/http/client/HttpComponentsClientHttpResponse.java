@@ -68,7 +68,7 @@ final class HttpComponentsClientHttpResponse implements ClientHttpResponse {
   @Override
   public HttpHeaders getHeaders() {
     if (this.headers == null) {
-      this.headers = HttpHeaders.create();
+      this.headers = HttpHeaders.forWritable();
       for (Header header : this.httpResponse.getHeaders()) {
         this.headers.add(header.getName(), header.getValue());
       }

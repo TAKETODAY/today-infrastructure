@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -22,12 +22,11 @@ import java.util.List;
 
 import cn.taketoday.annotation.config.web.netty.ServerBootstrapCustomizer;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
-import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.framework.web.server.ServerProperties.Netty;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -47,6 +46,8 @@ import io.netty.util.NetUtil;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
+import static cn.taketoday.util.ClassUtils.isPresent;
+
 /**
  * Factory for {@link NettyWebServer}
  *
@@ -55,11 +56,11 @@ import io.netty.util.concurrent.DefaultThreadFactory;
  */
 public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory implements WebServerFactory {
 
-  static boolean epollPresent = ClassUtils.isPresent(
-          "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServerFactory.class.getClassLoader());
+  static boolean epollPresent = isPresent(
+          "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServerFactory.class);
 
-  static boolean kQueuePresent = ClassUtils.isPresent(
-          "io.netty.channel.kqueue.KQueueServerSocketChannel", NettyWebServerFactory.class.getClassLoader());
+  static boolean kQueuePresent = isPresent(
+          "io.netty.channel.kqueue.KQueueServerSocketChannel", NettyWebServerFactory.class);
 
   /**
    * the number of threads that will be used by
@@ -109,6 +110,8 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
 
   @Nullable
   private List<ServerBootstrapCustomizer> bootstrapCustomizers;
+
+  private Netty.Shutdown shutdownConfig = new Netty.Shutdown();
 
   /**
    * EventLoopGroup for acceptor
@@ -309,7 +312,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     postBootstrap(bootstrap);
 
     InetSocketAddress listenAddress = getListenAddress();
-    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap, listenAddress);
+    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap, listenAddress, shutdownConfig);
   }
 
   private InetSocketAddress getListenAddress() {
@@ -342,7 +345,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     return nettyChannelInitializer;
   }
 
-  public void applyFrom(ServerProperties.Netty netty) {
+  public void applyFrom(Netty netty) {
     if (netty.getLoggingLevel() != null) {
       setLoggingLevel(netty.getLoggingLevel());
     }
@@ -362,6 +365,8 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     if (netty.getMaxConnection() != null) {
       setMaxConnection(netty.getMaxConnection());
     }
+
+    shutdownConfig = netty.getShutdown();
   }
 
   static class EpollDelegate {

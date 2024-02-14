@@ -190,7 +190,7 @@ public class CancelWithoutDemandCodecTests {
 
     @Override
     public HttpHeaders getHeaders() {
-      return HttpHeaders.create();
+      return HttpHeaders.forWritable();
     }
   }
 

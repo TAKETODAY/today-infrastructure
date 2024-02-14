@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -179,6 +180,20 @@ public class MockRequestContext extends RequestContext {
     this.parameters = parameters;
   }
 
+  public void setParameter(String name, String parameter) {
+    if (parameters == null) {
+      setParameters(new LinkedHashMap<>());
+    }
+    parameters.put(name, new String[] { parameter });
+  }
+
+  public void setParameter(String name, String[] parameter) {
+    if (parameters == null) {
+      setParameters(new LinkedHashMap<>());
+    }
+    parameters.put(name, parameter);
+  }
+
   @Override
   protected String doGetMethod() {
     return method;
@@ -266,7 +281,7 @@ public class MockRequestContext extends RequestContext {
   @Override
   protected HttpHeaders createRequestHeaders() {
     if (requestHeaders == null) {
-      requestHeaders = HttpHeaders.create();
+      requestHeaders = HttpHeaders.forWritable();
     }
     return requestHeaders;
   }

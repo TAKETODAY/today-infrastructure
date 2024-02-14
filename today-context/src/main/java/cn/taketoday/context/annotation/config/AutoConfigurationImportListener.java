@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -22,6 +22,7 @@ import java.util.EventListener;
 import cn.taketoday.beans.factory.Aware;
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.BeanFactoryAware;
+import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.BootstrapContextAware;
 import cn.taketoday.context.EnvironmentAware;
 import cn.taketoday.context.ResourceLoaderAware;
@@ -40,10 +41,12 @@ import cn.taketoday.context.ResourceLoaderAware;
  * <li>{@link BeanClassLoaderAware}</li>
  * <li>{@link ResourceLoaderAware}</li>
  * <li>{@link BootstrapContextAware}</li>
+ * <li>{@link ApplicationContextAware}</li>
  * </ul>
  *
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see cn.taketoday.context.BootstrapContext
  * @since 4.0 2022/3/5 23:23
  */
 @FunctionalInterface

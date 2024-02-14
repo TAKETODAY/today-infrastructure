@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
@@ -44,16 +44,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
+ * Tests for {@link CacheOperationExpressionEvaluator}.
+ *
  * @author Costin Leau
  * @author Phillip Webb
  * @author Sam Brannen
  * @author Stephane Nicoll
  */
-public class ExpressionEvaluatorTests {
+class CacheOperationExpressionEvaluatorTests {
 
   private final StandardEvaluationContext originalEvaluationContext = new StandardEvaluationContext();
 
-  private final CacheOperationExpressionEvaluator eval = new CacheOperationExpressionEvaluator(this.originalEvaluationContext);
+  private final CacheOperationExpressionEvaluator eval = new CacheOperationExpressionEvaluator(
+          originalEvaluationContext);
 
   private final AnnotationCacheOperationSource source = new AnnotationCacheOperationSource();
 
@@ -63,22 +66,22 @@ public class ExpressionEvaluatorTests {
   }
 
   @Test
-  public void testMultipleCachingSource() {
+  void testMultipleCachingSource() {
     Collection<CacheOperation> ops = getOps("multipleCaching");
     assertThat(ops).hasSize(2);
     Iterator<CacheOperation> it = ops.iterator();
     CacheOperation next = it.next();
     assertThat(next).isInstanceOf(CacheableOperation.class);
-    assertThat(next.getCacheNames().contains("test")).isTrue();
+    assertThat(next.getCacheNames()).contains("test");
     assertThat(next.getKey()).isEqualTo("#a");
     next = it.next();
     assertThat(next).isInstanceOf(CacheableOperation.class);
-    assertThat(next.getCacheNames().contains("test")).isTrue();
+    assertThat(next.getCacheNames()).contains("test");
     assertThat(next.getKey()).isEqualTo("#b");
   }
 
   @Test
-  public void testMultipleCachingEval() {
+  void testMultipleCachingEval() {
     AnnotatedClass target = new AnnotatedClass();
     Method method = ReflectionUtils.findMethod(
             AnnotatedClass.class, "multipleCaching", Object.class, Object.class);
@@ -100,36 +103,36 @@ public class ExpressionEvaluatorTests {
   }
 
   @Test
-  public void withReturnValue() {
+  void withReturnValue() {
     EvaluationContext context = createEvaluationContext("theResult");
     Object value = new SpelExpressionParser().parseExpression("#result").getValue(context);
     assertThat(value).isEqualTo("theResult");
   }
 
   @Test
-  public void withNullReturn() {
+  void withNullReturn() {
     EvaluationContext context = createEvaluationContext(null);
     Object value = new SpelExpressionParser().parseExpression("#result").getValue(context);
     assertThat(value).isNull();
   }
 
   @Test
-  public void withoutReturnValue() {
+  void withoutReturnValue() {
     EvaluationContext context = createEvaluationContext(CacheOperationExpressionEvaluator.NO_RESULT);
     Object value = new SpelExpressionParser().parseExpression("#result").getValue(context);
     assertThat(value).isNull();
   }
 
   @Test
-  public void unavailableReturnValue() {
+  void unavailableReturnValue() {
     EvaluationContext context = createEvaluationContext(CacheOperationExpressionEvaluator.RESULT_UNAVAILABLE);
-    assertThatExceptionOfType(VariableNotAvailableException.class).isThrownBy(() ->
-                    new SpelExpressionParser().parseExpression("#result").getValue(context))
-            .satisfies(ex -> assertThat(ex.getName()).isEqualTo("result"));
+    assertThatExceptionOfType(VariableNotAvailableException.class)
+            .isThrownBy(() -> new SpelExpressionParser().parseExpression("#result").getValue(context))
+            .withMessage("Variable 'result' not available");
   }
 
   @Test
-  public void resolveBeanReference() {
+  void resolveBeanReference() {
     StaticApplicationContext applicationContext = new StaticApplicationContext();
     BeanDefinition beanDefinition = new RootBeanDefinition(String.class);
     applicationContext.registerBeanDefinition("myBean", beanDefinition);

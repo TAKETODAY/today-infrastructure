@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.client;
@@ -36,13 +33,15 @@ import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
+import cn.taketoday.web.client.HttpClientErrorException;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.WebApplicationContext;
+import jakarta.servlet.http.HttpServletResponse;
 
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests that use a {@link RestTemplate} configured with a
@@ -62,18 +61,33 @@ public class MockMvcClientHttpRequestFactoryTests {
   @Autowired
   private WebApplicationContext wac;
 
-  private MockMvc mockMvc;
+  private RestTemplate template;
 
   @BeforeEach
   public void setup() {
-    this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).alwaysExpect(status().isOk()).build();
+    MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+    this.template = new RestTemplate(new MockMvcClientHttpRequestFactory(mockMvc));
   }
 
   @Test
-  public void test() {
-    RestTemplate template = new RestTemplate(new MockMvcClientHttpRequestFactory(this.mockMvc));
-    String result = template.getForObject("/foo", String.class);
-    assertThat(result).isEqualTo("bar");
+  public void withResult() {
+    assertThat(template.getForObject("/foo", String.class)).isEqualTo("bar");
+  }
+
+  @Test
+  public void withError() {
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> template.getForEntity("/error", String.class))
+            .withMessageContaining("400")
+            .withMessageContaining("some bad request");
+  }
+
+  @Test
+  public void withErrorAndBody() {
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> template.getForEntity("/errorbody", String.class))
+            .withMessageContaining("400")
+            .withMessageContaining("some really bad request");
   }
 
   @EnableWebMvc
@@ -89,6 +103,17 @@ public class MockMvcClientHttpRequestFactoryTests {
     @ResponseBody
     public String handle() {
       return "bar";
+    }
+
+    @RequestMapping(value = "/error", method = HttpMethod.GET)
+    public void handleError(HttpServletResponse response) throws Exception {
+      response.sendError(400, "some bad request");
+    }
+
+    @RequestMapping(value = "/errorbody", method = HttpMethod.GET)
+    public void handleErrorWithBody(HttpServletResponse response) throws Exception {
+      response.sendError(400, "some bad request");
+      response.getWriter().write("some really bad request");
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.event;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.ApplicationEvent;
@@ -142,7 +143,13 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     if (executor != null) {
       for (ApplicationListener<?> listener : getApplicationListeners(event, eventType)) {
         if (listener.supportsAsyncExecution()) {
-          executor.execute(() -> invokeListener(listener, event));
+          try {
+            executor.execute(() -> invokeListener(listener, event));
+          }
+          catch (RejectedExecutionException ex) {
+            // Probably on shutdown -> invoke listener locally instead
+            invokeListener(listener, event);
+          }
         }
         else {
           invokeListener(listener, event);
@@ -185,9 +192,9 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     catch (ClassCastException ex) {
       String msg = ex.getMessage();
       if (msg == null || matchesClassCastMessage(msg, event.getClass())
-          || (
-          event instanceof PayloadApplicationEvent pae
-              && matchesClassCastMessage(msg, pae.getPayload().getClass()))
+              || (
+              event instanceof PayloadApplicationEvent pae
+                      && matchesClassCastMessage(msg, pae.getPayload().getClass()))
       ) {
         // Possibly a lambda-defined listener which we could not resolve the generic event type for
         // -> let's suppress the exception.
@@ -219,6 +226,6 @@ public class SimpleApplicationEventMulticaster extends AbstractApplicationEventM
     int moduleSeparatorIndex = classCastMessage.indexOf('/');
     // false Assuming an unrelated class cast failure...
     return moduleSeparatorIndex != -1
-        && classCastMessage.startsWith(eventClass.getName(), moduleSeparatorIndex + 1);
+            && classCastMessage.startsWith(eventClass.getName(), moduleSeparatorIndex + 1);
   }
 }

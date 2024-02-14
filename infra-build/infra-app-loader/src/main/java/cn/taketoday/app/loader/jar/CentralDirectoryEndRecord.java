@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader.jar;
@@ -87,7 +87,7 @@ class CentralDirectoryEndRecord {
   }
 
   private boolean isValid() {
-    if (this.block.length < MINIMUM_SIZE || Bytes.littleEndianValue(this.block, this.offset + 0, 4) != SIGNATURE) {
+    if (this.block.length < MINIMUM_SIZE || Bytes.littleEndianValue(this.block, this.offset, 4) != SIGNATURE) {
       return false;
     }
     // Total size must be the structure size + comment

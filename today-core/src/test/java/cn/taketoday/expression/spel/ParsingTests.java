@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -96,18 +95,8 @@ public class ParsingTests {
     }
 
     @Test
-    void literalNull() {
+    void nullLiteral() {
       parseCheck("null");
-    }
-
-    @Test
-    void literalDate01() {
-      parseCheck("date('1974/08/24')");
-    }
-
-    @Test
-    void literalDate02() {
-      parseCheck("date('19740824T131030','yyyyMMddTHHmmss')");
     }
 
     @Test
@@ -121,84 +110,26 @@ public class ParsingTests {
     }
 
     @Test
-    void collectionProcessorsCountStringArray() {
-      parseCheck("new String[] {'abc','def','xyz'}.count()");
-    }
-
-    @Test
-    void collectionProcessorsCountIntArray() {
-      parseCheck("new int[] {1,2,3}.count()");
-    }
-
-    @Test
-    void collectionProcessorsMax() {
-      parseCheck("new int[] {1,2,3}.max()");
-    }
-
-    @Test
-    void collectionProcessorsMin() {
-      parseCheck("new int[] {1,2,3}.min()");
-    }
-
-    @Test
-    void collectionProcessorsAverage() {
-      parseCheck("new int[] {1,2,3}.average()");
-    }
-
-    @Test
-    void collectionProcessorsSort() {
-      parseCheck("new int[] {3,2,1}.sort()");
-    }
-
-    @Test
-    void collectionProcessorsNonNull() {
-      parseCheck("{'a','b',null,'d',null}.nonNull()");
-    }
-
-    @Test
-    void collectionProcessorsDistinct() {
-      parseCheck("{'a','b','a','d','e'}.distinct()");
-    }
-
-    @Disabled("Unsupported syntax/feature")
-    @Test
-    void lambdaMax() {
-      parseCheck("(#max = {|x,y| $x > $y ? $x : $y }; #max(5,25))",
-              "(#max={|x,y| ($x > $y) ? $x : $y };#max(5,25))");
-    }
-
-    @Disabled("Unsupported syntax/feature")
-    @Test
-    void lambdaFactorial() {
-      parseCheck("(#fact = {|n| $n <= 1 ? 1 : $n * #fact($n-1) }; #fact(5))",
-              "(#fact={|n| ($n <= 1) ? 1 : ($n * #fact(($n - 1))) };#fact(5))");
-    }
-
-    @Disabled("Unsupported syntax/feature")
-    @Test
     void projection() {
-      parseCheck("{1,2,3,4,5,6,7,8,9,10}.!{#isEven()}");
+      parseCheck("{1,2,3,4,5,6,7,8,9,10}.![#isEven()]");
     }
 
-    @Disabled("Unsupported syntax/feature")
     @Test
     void selection() {
-      parseCheck("{1,2,3,4,5,6,7,8,9,10}.?{#isEven(#this) == 'y'}",
-              "{1,2,3,4,5,6,7,8,9,10}.?{(#isEven(#this) == 'y')}");
+      parseCheck("{1,2,3,4,5,6,7,8,9,10}.?[#isEven(#this) == 'y']",
+              "{1,2,3,4,5,6,7,8,9,10}.?[(#isEven(#this) == 'y')]");
     }
 
-    @Disabled("Unsupported syntax/feature")
     @Test
     void selectionFirst() {
-      parseCheck("{1,2,3,4,5,6,7,8,9,10}.^{#isEven(#this) == 'y'}",
-              "{1,2,3,4,5,6,7,8,9,10}.^{(#isEven(#this) == 'y')}");
+      parseCheck("{1,2,3,4,5,6,7,8,9,10}.^[#isEven(#this) == 'y']",
+              "{1,2,3,4,5,6,7,8,9,10}.^[(#isEven(#this) == 'y')]");
     }
 
-    @Disabled("Unsupported syntax/feature")
     @Test
     void selectionLast() {
-      parseCheck("{1,2,3,4,5,6,7,8,9,10}.${#isEven(#this) == 'y'}",
-              "{1,2,3,4,5,6,7,8,9,10}.${(#isEven(#this) == 'y')}");
+      parseCheck("{1,2,3,4,5,6,7,8,9,10}.$[#isEven(#this) == 'y']",
+              "{1,2,3,4,5,6,7,8,9,10}.$[(#isEven(#this) == 'y')]");
     }
   }
 
@@ -357,12 +288,6 @@ public class ParsingTests {
       parseCheck("3>=3", "(3 >= 3)");
     }
 
-    @Disabled("Unsupported syntax/feature")
-    @Test
-    void relOperatorsIn() {
-      parseCheck("3 in {1,2,3,4,5}", "(3 in {1,2,3,4,5})");
-    }
-
     @Test
     void relOperatorsBetweenNumbers() {
       parseCheck("1 between {1, 5}", "(1 between {1,5})");
@@ -391,21 +316,34 @@ public class ParsingTests {
   }
 
   @Nested
+  class StringOperators {
+
+    @Test
+    void stringConcatenation() {
+      parseCheck("'a' + 'b'", "('a' + 'b')");
+      parseCheck("'hello' + ' ' + 'world'", "(('hello' + ' ') + 'world')");
+    }
+
+    @Test
+    void characterSubtraction() {
+      parseCheck("'X' - 3", "('X' - 3)");
+      parseCheck("'X' - 2 - 1", "(('X' - 2) - 1)");
+    }
+
+    @Test
+    void stringRepeat() {
+      parseCheck("'abc' * 2", "('abc' * 2)");
+      parseCheck("'abc' * 2 * 2", "(('abc' * 2) * 2)");
+    }
+
+  }
+
+  @Nested
   class MathematicalOperators {
 
     @Test
     void mathOperatorsAddIntegers() {
       parseCheck("2+4", "(2 + 4)");
-    }
-
-    @Test
-    void mathOperatorsAddStrings() {
-      parseCheck("'a'+'b'", "('a' + 'b')");
-    }
-
-    @Test
-    void mathOperatorsAddMultipleStrings() {
-      parseCheck("'hello'+' '+'world'", "(('hello' + ' ') + 'world')");
     }
 
     @Test
@@ -427,10 +365,39 @@ public class ParsingTests {
     void mathOperatorModulus() {
       parseCheck("7 % 4", "(7 % 4)");
     }
+
+    @Test
+    void mathOperatorIncrementPrefix() {
+      parseCheck("++foo", "++foo");
+    }
+
+    @Test
+    void mathOperatorIncrementPostfix() {
+      parseCheck("foo++", "foo++");
+    }
+
+    @Test
+    void mathOperatorDecrementPrefix() {
+      parseCheck("--foo", "--foo");
+    }
+
+    @Test
+    void mathOperatorDecrementPostfix() {
+      parseCheck("foo--", "foo--");
+    }
+
+    @Test
+    void mathOperatorPower() {
+      parseCheck("3^2", "(3 ^ 2)");
+      parseCheck("3.0d^2.0d", "(3.0 ^ 2.0)");
+      parseCheck("3L^2L", "(3 ^ 2)");
+      parseCheck("(2^32)^2", "((2 ^ 32) ^ 2)");
+      parseCheck("new java.math.BigDecimal('5') ^ 3", "(new java.math.BigDecimal('5') ^ 3)");
+    }
   }
 
   @Nested
-  class References {
+  class BeanReferences {
 
     @Test
     void references() {

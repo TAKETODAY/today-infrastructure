@@ -194,7 +194,7 @@ class DefaultWebTestClient implements WebTestClient {
     DefaultRequestBodyUriSpec(HttpMethod httpMethod) {
       this.httpMethod = httpMethod;
       this.requestId = String.valueOf(requestIndex.incrementAndGet());
-      this.headers = HttpHeaders.create();
+      this.headers = HttpHeaders.forWritable();
       this.headers.add(WebTestClient.WEBTESTCLIENT_REQUEST_ID, this.requestId);
     }
 

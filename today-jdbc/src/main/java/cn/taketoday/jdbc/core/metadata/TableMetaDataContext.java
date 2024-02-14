@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core.metadata;
@@ -48,7 +48,9 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 public class TableMetaDataContext {
-  private static final Logger logger = LoggerFactory.getLogger(TableMetaDataContext.class);
+
+  // Logger available to subclasses
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   // Name of table for this context
   @Nullable
@@ -62,9 +64,6 @@ public class TableMetaDataContext {
   @Nullable
   private String schemaName;
 
-  // List of columns objects to be used in this context
-  private List<String> tableColumns = new ArrayList<>();
-
   // Should we access insert parameter meta-data info or not
   private boolean accessTableColumnMetaData = true;
 
@@ -77,6 +76,9 @@ public class TableMetaDataContext {
   // The provider of table meta-data
   @Nullable
   private TableMetaDataProvider metaDataProvider;
+
+  // List of columns objects to be used in this context
+  private List<String> tableColumns = new ArrayList<>();
 
   // Are we using generated key columns
   private boolean generatedKeyColumnsUsed = false;
@@ -162,6 +164,7 @@ public class TableMetaDataContext {
    *
    * @param quoteIdentifiers whether identifiers should be quoted
    * @see java.sql.DatabaseMetaData#getIdentifierQuoteString()
+   * @since 6.1
    */
   public void setQuoteIdentifiers(boolean quoteIdentifiers) {
     this.quoteIdentifiers = quoteIdentifiers;
@@ -171,6 +174,7 @@ public class TableMetaDataContext {
    * Are we quoting identifiers?
    *
    * @see #setQuoteIdentifiers(boolean)
+   * @since 6.1
    */
   public boolean isQuoteIdentifiers() {
     return this.quoteIdentifiers;
@@ -304,33 +308,25 @@ public class TableMetaDataContext {
 
     String identifierQuoteString = (isQuoteIdentifiers() ?
                                     obtainMetaDataProvider().getIdentifierQuoteString() : null);
-    boolean quoting = StringUtils.hasText(identifierQuoteString);
+    QuoteHandler quoteHandler = new QuoteHandler(identifierQuoteString);
 
     StringBuilder insertStatement = new StringBuilder();
     insertStatement.append("INSERT INTO ");
 
+    String catalogName = getCatalogName();
+    if (catalogName != null) {
+      quoteHandler.appendTo(insertStatement, catalogName);
+      insertStatement.append('.');
+    }
+
     String schemaName = getSchemaName();
     if (schemaName != null) {
-      if (quoting) {
-        insertStatement.append(identifierQuoteString);
-        insertStatement.append(schemaName);
-        insertStatement.append(identifierQuoteString);
-      }
-      else {
-        insertStatement.append(schemaName);
-      }
+      quoteHandler.appendTo(insertStatement, schemaName);
       insertStatement.append('.');
     }
 
     String tableName = getTableName();
-    if (quoting) {
-      insertStatement.append(identifierQuoteString);
-      insertStatement.append(tableName);
-      insertStatement.append(identifierQuoteString);
-    }
-    else {
-      insertStatement.append(tableName);
-    }
+    quoteHandler.appendTo(insertStatement, tableName);
 
     insertStatement.append(" (");
     int columnCount = 0;
@@ -340,26 +336,20 @@ public class TableMetaDataContext {
         if (columnCount > 1) {
           insertStatement.append(", ");
         }
-        if (quoting) {
-          insertStatement.append(identifierQuoteString);
-          insertStatement.append(columnName);
-          insertStatement.append(identifierQuoteString);
-        }
-        else {
-          insertStatement.append(columnName);
-        }
+        quoteHandler.appendTo(insertStatement, columnName);
       }
     }
     insertStatement.append(") VALUES(");
     if (columnCount < 1) {
       if (this.generatedKeyColumnsUsed) {
         if (logger.isDebugEnabled()) {
-          logger.debug("Unable to locate non-key columns for table '{}' so an empty insert statement is generated", tableName);
+          logger.debug("Unable to locate non-key columns for table '" +
+                  tableName + "' so an empty insert statement is generated");
         }
       }
       else {
-        String message = "Unable to locate columns for table '" + tableName
-                + "' so an insert statement can't be generated.";
+        String message = "Unable to locate columns for table '" + tableName +
+                "' so an insert statement can't be generated.";
         if (isAccessTableColumnMetaData()) {
           message += " Consider specifying explicit column names -- for example, via SimpleJdbcInsert#usingColumns().";
         }
@@ -404,26 +394,30 @@ public class TableMetaDataContext {
   }
 
   /**
-   * Does this database support the JDBC 3.0 feature of retrieving generated keys:
-   * {@link java.sql.DatabaseMetaData#supportsGetGeneratedKeys()}?
+   * Does this database support the JDBC feature for retrieving generated keys?
+   *
+   * @see java.sql.DatabaseMetaData#supportsGetGeneratedKeys()
    */
   public boolean isGetGeneratedKeysSupported() {
     return obtainMetaDataProvider().isGetGeneratedKeysSupported();
   }
 
   /**
-   * Does this database support simple query to retrieve generated keys
-   * when the JDBC 3.0 feature is not supported:
-   * {@link java.sql.DatabaseMetaData#supportsGetGeneratedKeys()}?
+   * Does this database support a simple query to retrieve generated keys when
+   * the JDBC feature for retrieving generated keys is not supported?
+   *
+   * @see #isGetGeneratedKeysSupported()
+   * @see #getSimpleQueryForGetGeneratedKey(String, String)
    */
   public boolean isGetGeneratedKeysSimulated() {
     return obtainMetaDataProvider().isGetGeneratedKeysSimulated();
   }
 
   /**
-   * Does this database support a simple query to retrieve generated keys
-   * when the JDBC 3.0 feature is not supported:
-   * {@link java.sql.DatabaseMetaData#supportsGetGeneratedKeys()}?
+   * Get the simple query to retrieve generated keys when the JDBC feature for
+   * retrieving generated keys is not supported.
+   *
+   * @see #isGetGeneratedKeysSimulated()
    */
   @Nullable
   public String getSimpleQueryForGetGeneratedKey(String tableName, String keyColumnName) {
@@ -431,11 +425,36 @@ public class TableMetaDataContext {
   }
 
   /**
-   * Is a column name String array for retrieving generated keys supported:
-   * {@link java.sql.Connection#createStruct(String, Object[])}?
+   * Does this database support a column name String array for retrieving generated
+   * keys?
+   *
+   * @see java.sql.Connection#createStruct(String, Object[])
    */
   public boolean isGeneratedKeysColumnNameArraySupported() {
     return obtainMetaDataProvider().isGeneratedKeysColumnNameArraySupported();
+  }
+
+  private static final class QuoteHandler {
+
+    @Nullable
+    private final String identifierQuoteString;
+
+    private final boolean quoting;
+
+    public QuoteHandler(@Nullable String identifierQuoteString) {
+      this.identifierQuoteString = identifierQuoteString;
+      this.quoting = StringUtils.hasText(identifierQuoteString);
+    }
+
+    public void appendTo(StringBuilder stringBuilder, String item) {
+      if (this.quoting) {
+        stringBuilder.append(this.identifierQuoteString)
+                .append(item).append(this.identifierQuoteString);
+      }
+      else {
+        stringBuilder.append(item);
+      }
+    }
   }
 
 }

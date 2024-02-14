@@ -299,7 +299,9 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
   private class MultipartHttpOutputMessage implements ReactiveHttpOutputMessage {
 
     private final DataBufferFactory bufferFactory;
-    private final HttpHeaders headers = HttpHeaders.create();
+
+    private final HttpHeaders headers = HttpHeaders.forWritable();
+
     private final AtomicBoolean committed = new AtomicBoolean();
 
     @Nullable
@@ -311,7 +313,7 @@ public class MultipartHttpMessageWriter extends MultipartWriterSupport implement
 
     @Override
     public HttpHeaders getHeaders() {
-      return (this.body != null ? HttpHeaders.readOnlyHttpHeaders(this.headers) : this.headers);
+      return (this.body != null ? headers.asReadOnly() : this.headers);
     }
 
     @Override

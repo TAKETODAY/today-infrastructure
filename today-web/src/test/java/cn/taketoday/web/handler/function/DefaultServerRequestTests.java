@@ -222,7 +222,7 @@ class DefaultServerRequestTests {
 
   @Test
   void header() {
-    HttpHeaders httpHeaders = HttpHeaders.create();
+    HttpHeaders httpHeaders = HttpHeaders.forWritable();
     List<MediaType> accept =
             Collections.singletonList(MediaType.APPLICATION_JSON);
     httpHeaders.setAccept(accept);

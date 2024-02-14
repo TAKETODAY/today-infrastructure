@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.embedded.jetty;
@@ -22,11 +22,13 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.awaitility.Awaitility;
 import org.eclipse.jetty.ee10.servlet.ErrorPageErrorHandler;
 import org.eclipse.jetty.ee10.webapp.ClassMatcher;
 import org.eclipse.jetty.ee10.webapp.Configuration;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.server.AbstractConnector;
 import org.eclipse.jetty.server.ConnectionLimit;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Handler;
@@ -463,7 +465,7 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
   @Test
   void faultyListenerCausesStartFailure() {
     JettyServletWebServerFactory factory = getFactory();
-    factory.addServerCustomizers((JettyServerCustomizer) (server) -> {
+    factory.addServerCustomizers((server) -> {
       Collection<WebAppContext> contexts = server.getBeans(WebAppContext.class);
       EventListener eventListener = new ServletContextListener() {
 
@@ -524,6 +526,19 @@ class JettyServletWebServerFactoryTests extends AbstractServletWebServerFactoryT
     ConnectionLimit connectionLimit = server.getBean(ConnectionLimit.class);
     assertThat(connectionLimit).isNotNull();
     assertThat(connectionLimit.getMaxConnections()).isOne();
+  }
+
+  @Test
+  void shouldApplyingMaxConnectionUseConnector() throws Exception {
+    JettyServletWebServerFactory factory = getFactory();
+    factory.setMaxConnections(1);
+    this.webServer = factory.getWebServer();
+    Server server = ((JettyWebServer) this.webServer).getServer();
+    assertThat(server.getConnectors()).isEmpty();
+    ConnectionLimit connectionLimit = server.getBean(ConnectionLimit.class);
+    assertThat(connectionLimit).extracting("_connectors")
+            .asInstanceOf(InstanceOfAssertFactories.list(AbstractConnector.class))
+            .hasSize(1);
   }
 
   @Override

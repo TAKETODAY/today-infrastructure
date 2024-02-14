@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 
 import cn.taketoday.lang.Assert;
@@ -35,16 +34,13 @@ import cn.taketoday.util.MultiValueMap;
 /**
  * Default HttpHeaders
  *
- * @author TODAY 2020-01-30 18:31
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2020-01-30 18:31
  */
 public class DefaultHttpHeaders extends HttpHeaders {
 
   @Serial
   private static final long serialVersionUID = 1L;
-
-  @SuppressWarnings("unchecked")
-  static final Function<String, List<String>> defaultHeaderMapping = smartListMappingFunction;
 
   final MultiValueMap<String, String> headers;
 
@@ -52,14 +48,15 @@ public class DefaultHttpHeaders extends HttpHeaders {
    * Construct a case-insensitive header map
    */
   public DefaultHttpHeaders() {
-    this.headers = MultiValueMap.from(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH), defaultHeaderMapping);
+    this.headers = MultiValueMap.forSmartListAdaption(
+            new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
   }
 
   /**
    * Construct with a user input header map
    */
   public DefaultHttpHeaders(Map<String, List<String>> headers) {
-    this.headers = MultiValueMap.from(headers, defaultHeaderMapping);
+    this.headers = MultiValueMap.forSmartListAdaption(headers);
   }
 
   /**
@@ -172,6 +169,11 @@ public class DefaultHttpHeaders extends HttpHeaders {
   @Override
   public List<String> putIfAbsent(String key, List<String> value) {
     return this.headers.putIfAbsent(key, value);
+  }
+
+  @Override
+  public HttpHeaders asReadOnly() {
+    return new ReadOnlyHttpHeaders(headers);
   }
 
   @Override

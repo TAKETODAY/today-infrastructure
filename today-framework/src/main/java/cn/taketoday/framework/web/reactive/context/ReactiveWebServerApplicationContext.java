@@ -20,6 +20,7 @@ package cn.taketoday.framework.web.reactive.context;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.framework.ApplicationType;
@@ -96,16 +97,14 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     WebServerManager serverManager = this.serverManager;
     if (serverManager == null) {
       String webServerFactoryBeanName = getWebServerFactoryBeanName();
-      ReactiveWebServerFactory webServerFactory = getWebServerFactory(webServerFactoryBeanName);
       StandardBeanFactory beanFactory = getBeanFactory();
+      ReactiveWebServerFactory webServerFactory = getWebServerFactory(beanFactory, webServerFactoryBeanName);
       boolean lazyInit = beanFactory.getBeanDefinition(webServerFactoryBeanName).isLazyInit();
 
-      this.serverManager = new WebServerManager(
-              this, webServerFactory, this::getHttpHandler, lazyInit);
-      beanFactory.registerSingleton("webServerGracefulShutdown",
-              new WebServerGracefulShutdownLifecycle(this.serverManager.webServer));
-      beanFactory.registerSingleton("webServerStartStop",
-              new WebServerStartStopLifecycle(this.serverManager));
+      serverManager = new WebServerManager(this, webServerFactory, this::getHttpHandler, lazyInit);
+      beanFactory.registerSingleton("webServerGracefulShutdown", new WebServerGracefulShutdownLifecycle(serverManager.webServer));
+      beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(serverManager));
+      this.serverManager = serverManager;
     }
     initPropertySources();
   }
@@ -124,8 +123,8 @@ public class ReactiveWebServerApplicationContext extends GenericReactiveWebAppli
     return CollectionUtils.firstElement(beanNames);
   }
 
-  protected ReactiveWebServerFactory getWebServerFactory(String factoryBeanName) {
-    return getBeanFactory().getBean(factoryBeanName, ReactiveWebServerFactory.class);
+  protected ReactiveWebServerFactory getWebServerFactory(ConfigurableBeanFactory beanFactory, String factoryBeanName) {
+    return beanFactory.getBean(factoryBeanName, ReactiveWebServerFactory.class);
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -355,7 +355,7 @@ public abstract class StringUtils {
    * @since 4.0
    */
   public static String[] toStringArray(@Nullable Collection<String> collection) {
-    if (collection == null) {
+    if (collection == null || collection.isEmpty()) {
       return Constant.EMPTY_STRING_ARRAY;
     }
     return collection.toArray(new String[collection.size()]);

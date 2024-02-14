@@ -455,7 +455,7 @@ class MockHttpServletRequestBuilderTests {
 
   @Test
   void headers() {
-    HttpHeaders httpHeaders = HttpHeaders.create();
+    HttpHeaders httpHeaders = HttpHeaders.forWritable();
     httpHeaders.setContentType(MediaType.APPLICATION_JSON);
     httpHeaders.put("foo", Arrays.asList("bar", "baz"));
     this.builder.headers(httpHeaders);

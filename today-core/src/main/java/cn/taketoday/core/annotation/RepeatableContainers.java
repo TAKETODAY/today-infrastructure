@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ObjectUtils;
@@ -163,7 +164,7 @@ public class RepeatableContainers {
   private static class StandardRepeatableContainers extends RepeatableContainers
           implements Function<Class<? extends Annotation>, Object> {
 
-    private static final Object NONE = new Object();
+    private static final Object NONE = NullValue.INSTANCE;
 
     private static final StandardRepeatableContainers INSTANCE = new StandardRepeatableContainers();
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -125,16 +122,16 @@ class ConditionEvaluationReportTests {
     assertThat(map.size()).isEqualTo(2);
     Iterator<ConditionAndOutcome> iterator = map.get("a").iterator();
     ConditionAndOutcome conditionAndOutcome = iterator.next();
-    assertThat(conditionAndOutcome.getCondition()).isEqualTo(this.condition1);
-    assertThat(conditionAndOutcome.getOutcome()).isEqualTo(this.outcome1);
+    assertThat(conditionAndOutcome.condition).isEqualTo(this.condition1);
+    assertThat(conditionAndOutcome.outcome).isEqualTo(this.outcome1);
     conditionAndOutcome = iterator.next();
-    assertThat(conditionAndOutcome.getCondition()).isEqualTo(this.condition2);
-    assertThat(conditionAndOutcome.getOutcome()).isEqualTo(this.outcome2);
+    assertThat(conditionAndOutcome.condition).isEqualTo(this.condition2);
+    assertThat(conditionAndOutcome.outcome).isEqualTo(this.outcome2);
     assertThat(iterator.hasNext()).isFalse();
     iterator = map.get("b").iterator();
     conditionAndOutcome = iterator.next();
-    assertThat(conditionAndOutcome.getCondition()).isEqualTo(this.condition3);
-    assertThat(conditionAndOutcome.getOutcome()).isEqualTo(this.outcome3);
+    assertThat(conditionAndOutcome.condition).isEqualTo(this.condition3);
+    assertThat(conditionAndOutcome.outcome).isEqualTo(this.outcome3);
     assertThat(iterator.hasNext()).isFalse();
   }
 
@@ -169,12 +166,9 @@ class ConditionEvaluationReportTests {
 
   @Test
   void testDuplicateConditionAndOutcomes() {
-    ConditionAndOutcome outcome1 = new ConditionAndOutcome(this.condition1,
-            new ConditionOutcome(true, "Message 1"));
-    ConditionAndOutcome outcome2 = new ConditionAndOutcome(this.condition2,
-            new ConditionOutcome(true, "Message 2"));
-    ConditionAndOutcome outcome3 = new ConditionAndOutcome(this.condition3,
-            new ConditionOutcome(true, "Message 2"));
+    ConditionAndOutcome outcome1 = new ConditionAndOutcome(this.condition1, new ConditionOutcome(true, "Message 1"));
+    ConditionAndOutcome outcome2 = new ConditionAndOutcome(this.condition2, new ConditionOutcome(true, "Message 2"));
+    ConditionAndOutcome outcome3 = new ConditionAndOutcome(this.condition3, new ConditionOutcome(true, "Message 2"));
     assertThat(outcome1).isEqualTo(outcome1);
     assertThat(outcome1).isNotEqualTo(outcome2);
     assertThat(outcome2).isEqualTo(outcome3);

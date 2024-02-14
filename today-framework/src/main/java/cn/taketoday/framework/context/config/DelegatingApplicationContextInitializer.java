@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.beans.BeanUtils;
@@ -40,6 +38,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Dave Syer
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class DelegatingApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
@@ -61,13 +60,14 @@ public class DelegatingApplicationContextInitializer implements ApplicationConte
 
   private List<Class<ApplicationContextInitializer>> getInitializerClasses(ConfigurableEnvironment env) {
     String classNames = env.getProperty(PROPERTY_NAME);
-    var classes = new ArrayList<Class<ApplicationContextInitializer>>();
-    if (StringUtils.isNotEmpty(classNames)) {
+    if (StringUtils.hasText(classNames)) {
+      var classes = new ArrayList<Class<ApplicationContextInitializer>>();
       for (String className : StringUtils.tokenizeToStringArray(classNames, ",")) {
         classes.add(getInitializerClass(className));
       }
+      return classes;
     }
-    return classes;
+    return Collections.emptyList();
   }
 
   private Class<ApplicationContextInitializer> getInitializerClass(String className) throws LinkageError {
@@ -81,8 +81,7 @@ public class DelegatingApplicationContextInitializer implements ApplicationConte
     }
   }
 
-  private void applyInitializerClasses(
-          ConfigurableApplicationContext context, List<Class<ApplicationContextInitializer>> initializerClasses) {
+  private void applyInitializerClasses(ConfigurableApplicationContext context, List<Class<ApplicationContextInitializer>> initializerClasses) {
     var initializers = new ArrayList<ApplicationContextInitializer>();
     for (Class<ApplicationContextInitializer> initializerClass : initializerClasses) {
       initializers.add(BeanUtils.newInstance(initializerClass));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,11 +95,12 @@ class TaskExecutionAutoConfigurationTests {
 
   @Test
   void threadPoolTaskExecutorBuilderShouldApplyCustomSettings() {
-    this.contextRunner
-            .withPropertyValues("infra.task.execution.pool.queue-capacity=10",
+    this.contextRunner.withPropertyValues("infra.task.execution.pool.queue-capacity=10",
                     "infra.task.execution.pool.core-size=2", "infra.task.execution.pool.max-size=4",
                     "infra.task.execution.pool.allow-core-thread-timeout=true",
-                    "infra.task.execution.pool.keep-alive=5s", "infra.task.execution.shutdown.await-termination=true",
+                    "infra.task.execution.pool.keep-alive=5s",
+                    "infra.task.execution.pool.shutdown.accept-tasks-after-context-close=true",
+                    "infra.task.execution.shutdown.await-termination=true",
                     "infra.task.execution.shutdown.await-termination-period=30s",
                     "infra.task.execution.thread-name-prefix=mytest-")
             .run(assertThreadPoolTaskExecutor((taskExecutor) -> {
@@ -108,6 +109,7 @@ class TaskExecutionAutoConfigurationTests {
               assertThat(taskExecutor.getMaxPoolSize()).isEqualTo(4);
               assertThat(taskExecutor).hasFieldOrPropertyWithValue("allowCoreThreadTimeOut", true);
               assertThat(taskExecutor.getKeepAliveSeconds()).isEqualTo(5);
+              assertThat(taskExecutor).hasFieldOrPropertyWithValue("acceptTasksAfterContextClose", true);
               assertThat(taskExecutor).hasFieldOrPropertyWithValue("waitForTasksToCompleteOnShutdown", true);
               assertThat(taskExecutor).hasFieldOrPropertyWithValue("awaitTerminationMillis", 30000L);
               assertThat(taskExecutor.getThreadNamePrefix()).isEqualTo("mytest-");

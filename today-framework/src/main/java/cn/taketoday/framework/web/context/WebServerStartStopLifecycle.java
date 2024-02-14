@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.context;
@@ -33,11 +30,13 @@ import cn.taketoday.framework.web.server.WebServer;
 public class WebServerStartStopLifecycle implements SmartLifecycle {
 
   private volatile boolean running;
-  private final WebServer webServer;
-  private final WebServerApplicationContext applicationContext;
 
-  public WebServerStartStopLifecycle(WebServerApplicationContext applicationContext, WebServer webServer) {
-    this.applicationContext = applicationContext;
+  private final WebServer webServer;
+
+  private final WebServerApplicationContext context;
+
+  public WebServerStartStopLifecycle(WebServerApplicationContext context, WebServer webServer) {
+    this.context = context;
     this.webServer = webServer;
   }
 
@@ -45,8 +44,7 @@ public class WebServerStartStopLifecycle implements SmartLifecycle {
   public void start() {
     webServer.start();
     this.running = true;
-    applicationContext.publishEvent(
-            new WebServerInitializedEvent(webServer, applicationContext));
+    context.publishEvent(new WebServerInitializedEvent(webServer, context));
   }
 
   @Override
@@ -62,7 +60,7 @@ public class WebServerStartStopLifecycle implements SmartLifecycle {
 
   @Override
   public int getPhase() {
-    return WebServerGracefulShutdownLifecycle.SMART_LIFECYCLE_PHASE - 1;
+    return WebServerGracefulShutdownLifecycle.SMART_LIFECYCLE_PHASE - 1024;
   }
 
 }

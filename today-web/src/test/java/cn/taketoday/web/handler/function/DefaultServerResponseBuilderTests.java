@@ -203,7 +203,7 @@ class DefaultServerResponseBuilderTests {
 
   @Test
   void headers() {
-    HttpHeaders newHeaders = HttpHeaders.create();
+    HttpHeaders newHeaders = HttpHeaders.forWritable();
     newHeaders.set("foo", "bar");
     ServerResponse response = ServerResponse.ok()
             .headers(headers -> headers.addAll(newHeaders))

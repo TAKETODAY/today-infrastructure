@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -173,8 +173,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
    * @param attributes the {@link #getAttributes(AnnotationMetadata) annotation attributes}
    * @return a list of candidate configurations
    */
-  protected List<String> getCandidateConfigurations(
-          AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
+  protected List<String> getCandidateConfigurations(AnnotationMetadata metadata, @Nullable AnnotationAttributes attributes) {
     var configurations = ImportCandidates.load(AutoConfiguration.class, getBeanClassLoader()).getCandidates();
     configurations.addAll(TodayStrategies.findNames(getStrategyClass(), getBeanClassLoader()));
 
@@ -286,7 +285,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   private void fireAutoConfigurationImportEvents(List<String> configurations, Set<String> exclusions) {
-    List<AutoConfigurationImportListener> listeners = getAutoConfigurationImportListeners();
+    var listeners = getAutoConfigurationImportListeners();
     if (!listeners.isEmpty()) {
       var event = new AutoConfigurationImportEvent(this, configurations, exclusions);
       for (AutoConfigurationImportListener listener : listeners) {
@@ -326,7 +325,9 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   }
 
   private static class ConfigurationClassFilter {
+
     private final List<AutoConfigurationImportFilter> filters;
+
     private final AutoConfigurationMetadata autoConfigurationMetadata;
 
     ConfigurationClassFilter(ClassLoader classLoader, List<AutoConfigurationImportFilter> filters) {
@@ -369,11 +370,13 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   private static class AutoConfigurationGroup implements DeferredImportSelector.Group {
 
     private final BootstrapContext context;
+
     private final ClassLoader beanClassLoader;
 
     private AutoConfigurationMetadata autoConfigurationMetadata;
 
     private final LinkedHashMap<String, AnnotationMetadata> entries = new LinkedHashMap<>();
+
     private final ArrayList<AutoConfigurationEntry> autoConfigurationEntries = new ArrayList<>();
 
     public AutoConfigurationGroup(BootstrapContext context, ClassLoader beanClassLoader) {
@@ -428,8 +431,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
       return this.autoConfigurationMetadata;
     }
 
-    private List<String> sortAutoConfigurations(
-            Set<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
+    private List<String> sortAutoConfigurations(Set<String> configurations, AutoConfigurationMetadata autoConfigurationMetadata) {
       return new AutoConfigurationSorter(context.getMetadataReaderFactory(), autoConfigurationMetadata)
               .getInPriorityOrder(configurations);
     }
@@ -439,6 +441,7 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
   protected static class AutoConfigurationEntry {
 
     public final Set<String> exclusions;
+
     public final List<String> configurations;
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -128,13 +128,19 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
   /**
    * Set whether to accept further tasks after the application context close phase
    * has begun.
-   * <p>Default is {@code false}, triggering an early soft shutdown of
+   * <p>The default is {@code false}, triggering an early soft shutdown of
    * the executor and therefore rejecting any further task submissions. Switch this
    * to {@code true} in order to let other components submit tasks even during their
-   * own destruction callbacks, at the expense of a longer shutdown phase.
-   * This will usually go along with
-   * {@link #setWaitForTasksToCompleteOnShutdown "waitForTasksToCompleteOnShutdown"}.
-   * <p>This flag will only have effect when the executor is running in a Infra
+   * own stop and destruction callbacks, at the expense of a longer shutdown phase.
+   * The executor will not go through a coordinated lifecycle stop phase then
+   * but rather only stop tasks on its own shutdown.
+   * <p>{@code acceptTasksAfterContextClose=true} like behavior also follows from
+   * {@link #setWaitForTasksToCompleteOnShutdown "waitForTasksToCompleteOnShutdown"}
+   * which effectively is a specific variant of this flag, replacing the early soft
+   * shutdown in the concurrent managed stop phase with a serial soft shutdown in
+   * the executor's destruction step, with individual awaiting according to the
+   * {@link #setAwaitTerminationSeconds "awaitTerminationSeconds"} property.
+   * <p>This flag will only have effect when the executor is running in an Infra
    * application context and able to receive the {@link ContextClosedEvent}.
    *
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
@@ -148,9 +154,13 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
   /**
    * Set whether to wait for scheduled tasks to complete on shutdown,
    * not interrupting running tasks and executing all tasks in the queue.
-   * <p>Default is {@code false}, shutting down immediately through interrupting
-   * ongoing tasks and clearing the queue. Switch this flag to {@code true} if
-   * you prefer fully completed tasks at the expense of a longer shutdown phase.
+   * <p>The default is {@code false}, with a coordinated lifecycle stop first
+   * (unless {@link #setAcceptTasksAfterContextClose "acceptTasksAfterContextClose"}
+   * has been set) and then an immediate shutdown through interrupting ongoing
+   * tasks and clearing the queue. Switch this flag to {@code true} if you
+   * prefer fully completed tasks at the expense of a longer shutdown phase.
+   * The executor will not go through a coordinated lifecycle stop phase then
+   * but rather only stop and wait for task completion on its own shutdown.
    * <p>Note that Infra container shutdown continues while ongoing tasks
    * are being completed. If you want this executor to block and wait for the
    * termination of tasks before the rest of the container continues to shut
@@ -160,6 +170,8 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    *
    * @see java.util.concurrent.ExecutorService#shutdown()
    * @see java.util.concurrent.ExecutorService#shutdownNow()
+   * @see #shutdown()
+   * @see #setAwaitTerminationSeconds
    */
   public void setWaitForTasksToCompleteOnShutdown(boolean waitForJobsToCompleteOnShutdown) {
     this.waitForTasksToCompleteOnShutdown = waitForJobsToCompleteOnShutdown;

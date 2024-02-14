@@ -50,7 +50,7 @@ public class MockClientHttpResponse implements ClientHttpResponse {
 
   private final int status;
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final MultiValueMap<String, ResponseCookie> cookies = new LinkedMultiValueMap<>();
 

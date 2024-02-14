@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.buildpack.platform.build;
@@ -129,10 +129,10 @@ class DirectoryBuildpackTests {
     byte[] content = layers.get(0).toByteArray();
     try (TarArchiveInputStream tar = new TarArchiveInputStream(new ByteArrayInputStream(content))) {
       List<TarArchiveEntry> entries = new ArrayList<>();
-      TarArchiveEntry entry = tar.getNextTarEntry();
+      TarArchiveEntry entry = tar.getNextEntry();
       while (entry != null) {
         entries.add(entry);
-        entry = tar.getNextTarEntry();
+        entry = tar.getNextEntry();
       }
       assertThat(entries).extracting("name", "mode")
               .containsExactlyInAnyOrder(tuple("/cnb/", 0755), tuple("/cnb/buildpacks/", 0755),

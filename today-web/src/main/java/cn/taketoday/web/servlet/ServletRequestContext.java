@@ -374,7 +374,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
   }
 
   @Override
-  public void writeHeaders() {
+  protected void writeHeaders() {
     if (!headersWritten) {
       HttpHeaders headers = responseHeaders();
       for (Map.Entry<String, List<String>> entry : headers.entrySet()) {

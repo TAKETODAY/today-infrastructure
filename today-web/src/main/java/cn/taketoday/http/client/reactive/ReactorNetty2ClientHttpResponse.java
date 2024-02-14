@@ -135,7 +135,7 @@ class ReactorNetty2ClientHttpResponse implements ClientHttpResponse {
                             .httpOnly(cookie.isHttpOnly())
                             .sameSite(getSameSite(cookie))
                             .build()));
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Nullable

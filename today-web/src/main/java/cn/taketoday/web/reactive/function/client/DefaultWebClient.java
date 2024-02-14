@@ -232,7 +232,7 @@ class DefaultWebClient implements WebClient {
 
     private HttpHeaders getHeaders() {
       if (this.headers == null) {
-        this.headers = HttpHeaders.create();
+        this.headers = HttpHeaders.forWritable();
       }
       return this.headers;
     }

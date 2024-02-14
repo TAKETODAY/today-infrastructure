@@ -32,6 +32,7 @@ import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
@@ -146,7 +147,7 @@ public class FormHttpMessageReader extends LoggingCodecSupport implements HttpMe
 
   private MultiValueMap<String, String> parseFormData(Charset charset, String body) {
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
-    MultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(pairs.length);
     for (String pair : pairs) {
       int idx = pair.indexOf('=');
       if (idx == -1) {

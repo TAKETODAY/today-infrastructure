@@ -47,7 +47,7 @@ final class DefaultRenderingResponseBuilder implements RenderingResponse.Builder
 
   private final String name;
   private HttpStatusCode status = HttpStatus.OK;
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
   private final LinkedHashMap<String, Object> model = new LinkedHashMap<>();
   private final LinkedMultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 

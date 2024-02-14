@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.task;
@@ -112,6 +112,8 @@ public class TaskExecutionProperties {
      */
     private Duration keepAlive = Duration.ofSeconds(60);
 
+    private final Shutdown shutdown = new Shutdown();
+
     public int getQueueCapacity() {
       return this.queueCapacity;
     }
@@ -152,6 +154,27 @@ public class TaskExecutionProperties {
       this.keepAlive = keepAlive;
     }
 
+    public Shutdown getShutdown() {
+      return this.shutdown;
+    }
+
+    public static class Shutdown {
+
+      /**
+       * Whether to accept further tasks after the application context close phase
+       * has begun.
+       */
+      private boolean acceptTasksAfterContextClose;
+
+      public boolean isAcceptTasksAfterContextClose() {
+        return this.acceptTasksAfterContextClose;
+      }
+
+      public void setAcceptTasksAfterContextClose(boolean acceptTasksAfterContextClose) {
+        this.acceptTasksAfterContextClose = acceptTasksAfterContextClose;
+      }
+
+    }
   }
 
   public static class Shutdown {

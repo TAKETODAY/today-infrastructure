@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -28,6 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.spel.ast.InlineMap;
 import cn.taketoday.expression.spel.standard.SpelExpression;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
@@ -43,28 +41,20 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class MapTests extends AbstractExpressionTests {
 
-  // if the list is full of literals then it will be of the type unmodifiableClass
+  // if the list is full of literals then it will be of the type unmodifiableMapClass
   // rather than HashMap (or similar)
-  Class<?> unmodifiableClass = Collections.unmodifiableMap(new LinkedHashMap<>()).getClass();
+  private static final Class<?> unmodifiableMapClass = Collections.unmodifiableMap(Map.of()).getClass();
 
   @Test
-  public void testInlineMapCreation01() {
-    evaluate("{'a':1, 'b':2, 'c':3, 'd':4, 'e':5}", "{a=1, b=2, c=3, d=4, e=5}", unmodifiableClass);
-    evaluate("{'a':1}", "{a=1}", unmodifiableClass);
+  void inlineMapCreationForLiterals() {
+    evaluate("{'a':1, 'b':2, 'c':3, 'd':4, 'e':5}", "{a=1, b=2, c=3, d=4, e=5}", unmodifiableMapClass);
+    evaluate("{'a':1}", "{a=1}", unmodifiableMapClass);
+    evaluate("{'abc':'def', 'uvw':'xyz'}", "{abc=def, uvw=xyz}", unmodifiableMapClass);
+    evaluate("{:}", "{}", unmodifiableMapClass);
   }
 
   @Test
-  public void testInlineMapCreation02() {
-    evaluate("{'abc':'def', 'uvw':'xyz'}", "{abc=def, uvw=xyz}", unmodifiableClass);
-  }
-
-  @Test
-  public void testInlineMapCreation03() {
-    evaluate("{:}", "{}", unmodifiableClass);
-  }
-
-  @Test
-  public void testInlineMapCreation04() {
+  void inlineMapCreationForNonLiterals() {
     evaluate("{'key':'abc'=='xyz'}", "{key=false}", LinkedHashMap.class);
     evaluate("{key:'abc'=='xyz'}", "{key=false}", LinkedHashMap.class);
     evaluate("{key:'abc'=='xyz',key2:true}[key]", "false", Boolean.class);
@@ -73,43 +63,49 @@ public class MapTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testInlineMapAndNesting() {
-    evaluate("{a:{a:1,b:2,c:3},b:{d:4,e:5,f:6}}", "{a={a=1, b=2, c=3}, b={d=4, e=5, f=6}}", unmodifiableClass);
-    evaluate("{a:{x:1,y:'2',z:3},b:{u:4,v:{'a','b'},w:5,x:6}}", "{a={x=1, y=2, z=3}, b={u=4, v=[a, b], w=5, x=6}}", unmodifiableClass);
-    evaluate("{a:{1,2,3},b:{4,5,6}}", "{a=[1, 2, 3], b=[4, 5, 6]}", unmodifiableClass);
+  void inlineMapAndNesting() {
+    evaluate("{a:{a:1,b:2,c:3},b:{d:4,e:5,f:6}}", "{a={a=1, b=2, c=3}, b={d=4, e=5, f=6}}", unmodifiableMapClass);
+    evaluate("{a:{x:1,y:'2',z:3},b:{u:4,v:{'a','b'},w:5,x:6}}", "{a={x=1, y=2, z=3}, b={u=4, v=[a, b], w=5, x=6}}", unmodifiableMapClass);
+    evaluate("{a:{1,2,3},b:{4,5,6}}", "{a=[1, 2, 3], b=[4, 5, 6]}", unmodifiableMapClass);
   }
 
   @Test
-  public void testInlineMapWithFunkyKeys() {
+  void inlineMapWithFunkyKeys() {
     evaluate("{#root.name:true}", "{Nikola Tesla=true}", LinkedHashMap.class);
   }
 
   @Test
-  public void testInlineMapError() {
+  void inlineMapSyntaxError() {
     parseAndCheckError("{key:'abc'", SpelMessage.OOD);
   }
 
   @Test
-  public void testRelOperatorsIs02() {
-    evaluate("{a:1, b:2, c:3, d:4, e:5} instanceof T(java.util.Map)", "true", Boolean.class);
+  void inelineMapIsInstanceOfMap() {
+    evaluate("{a:1, b:2} instanceof T(java.util.Map)", "true", Boolean.class);
   }
 
   @Test
-  public void testInlineMapAndProjectionSelection() {
-    evaluate("{a:1,b:2,c:3,d:4,e:5,f:6}.![value>3]", "[false, false, false, true, true, true]", ArrayList.class);
-    evaluate("{a:1,b:2,c:3,d:4,e:5,f:6}.?[value>3]", "{d=4, e=5, f=6}", HashMap.class);
-    evaluate("{a:1,b:2,c:3,d:4,e:5,f:6,g:7,h:8,i:9,j:10}.?[value%2==0]", "{b=2, d=4, f=6, h=8, j=10}", HashMap.class);
-    // TODO this looks like a serious issue (but not a new one): the context object against which arguments are evaluated seems wrong:
-//		evaluate("{a:1,b:2,c:3,d:4,e:5,f:6,g:7,h:8,i:9,j:10}.?[isEven(value) == 'y']", "[2, 4, 6, 8, 10]", ArrayList.class);
+  void inlineMapProjection() {
+    evaluate("{a:1,b:2,c:3,d:4}.![value > 2]", "[false, false, true, true]", ArrayList.class);
+    evaluate("{a:1,b:2,c:3,d:4}.![value % 2 == 0]", "[false, true, false, true]", ArrayList.class);
+    evaluate("{a:1,b:2,c:3,d:4}.![#isEven(value) == 'y']", "[false, true, false, true]", ArrayList.class);
+    evaluate("{'a':'y','b':'n','c':'y'}.![value == 'y' ? key : null]", "[a, null, c]", ArrayList.class);
   }
 
   @Test
-  public void testSetConstruction01() {
-    evaluate("new java.util.HashMap().putAll({a:'a',b:'b',c:'c'})", null, Object.class);
+  void inlineMapSelection() {
+    evaluate("{a:1,b:2,c:3,d:4}.?[value > 2]", "{c=3, d=4}", HashMap.class);
+    evaluate("{a:1,b:2,c:3,d:4,e:5,f:6}.?[value % 2 == 0]", "{b=2, d=4, f=6}", HashMap.class);
+    evaluate("{a:1,b:2,c:3,d:4,e:5,f:6}.?[#isEven(value) == 'y']", "{b=2, d=4, f=6}", HashMap.class);
   }
 
   @Test
-  public void testConstantRepresentation1() {
+  void mapConstruction() {
+    evaluate("new java.util.HashMap().putAll({a:'a',b:'b'})", null, Object.class);
+  }
+
+  @Test
+  void constantMaps() {
     checkConstantMap("{f:{'a','b','c'}}", true);
     checkConstantMap("{'a':1,'b':2,'c':3,'d':4,'e':5}", true);
     checkConstantMap("{aaa:'abc'}", true);
@@ -120,42 +116,37 @@ public class MapTests extends AbstractExpressionTests {
     checkConstantMap("{#root.name:true}", false);
     checkConstantMap("{a:1,b:2,c:{d:true,e:false}}", true);
     checkConstantMap("{a:1,b:2,c:{d:{1,2,3},e:{4,5,6},f:{'a','b','c'}}}", true);
-    // for nested InlineMap
     checkConstantMap("{aaa:{a:#a,b:2,c:3}}", false);
-
+    checkConstantMap("{a:{k:#d}}", false); // nested InlineMap
+    checkConstantMap("{@bean:@bean}", false);
   }
 
   private void checkConstantMap(String expressionText, boolean expectedToBeConstant) {
     SpelExpressionParser parser = new SpelExpressionParser();
     SpelExpression expression = (SpelExpression) parser.parseExpression(expressionText);
     SpelNode node = expression.getAST();
-    boolean condition = node instanceof InlineMap;
-    assertThat(condition).isTrue();
-    InlineMap inlineMap = (InlineMap) node;
-    if (expectedToBeConstant) {
-      assertThat(inlineMap.isConstant()).isTrue();
-    }
-    else {
-      assertThat(inlineMap.isConstant()).isFalse();
-    }
+    assertThat(node).isInstanceOfSatisfying(InlineMap.class, inlineMap -> {
+      if (expectedToBeConstant) {
+        assertThat(inlineMap.isConstant()).isTrue();
+      }
+      else {
+        assertThat(inlineMap.isConstant()).isFalse();
+      }
+    });
   }
 
   @Test
-  public void testInlineMapWriting() {
-    // list should be unmodifiable
-    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() ->
-            evaluate("{a:1, b:2, c:3, d:4, e:5}[a]=6", "[a:1,b: 2,c: 3,d: 4,e: 5]", unmodifiableClass));
+  void inlineMapIsUnmodifiable() {
+    Expression expr = parser.parseExpression("{a:1}[a] = 6");
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+            .isThrownBy(() -> expr.getValue(context));
   }
 
   @Test
-  public void testMapKeysThatAreAlsoSpELKeywords() {
+  void mapKeysThatAreAlsoSpELKeywords() {
     SpelExpressionParser parser = new SpelExpressionParser();
     SpelExpression expression = null;
     Object o = null;
-
-    // expression = (SpelExpression) parser.parseExpression("foo['NEW']");
-    // o = expression.getValue(new MapHolder());
-    // assertEquals("VALUE",o);
 
     expression = (SpelExpression) parser.parseExpression("foo[T]");
     o = expression.getValue(new MapHolder());
@@ -164,6 +155,10 @@ public class MapTests extends AbstractExpressionTests {
     expression = (SpelExpression) parser.parseExpression("foo[t]");
     o = expression.getValue(new MapHolder());
     assertThat(o).isEqualTo("tv");
+
+    expression = (SpelExpression) parser.parseExpression("foo['NEW']");
+    o = expression.getValue(new MapHolder());
+    assertThat(o).isEqualTo("VALUE");
 
     expression = (SpelExpression) parser.parseExpression("foo[NEW]");
     o = expression.getValue(new MapHolder());
@@ -190,22 +185,19 @@ public class MapTests extends AbstractExpressionTests {
     assertThat(o).isEqualTo("value");
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static class MapHolder {
+  @SuppressWarnings({ "rawtypes" })
+  static class MapHolder {
 
-    public Map foo;
-
-    public MapHolder() {
-      foo = new HashMap();
-      foo.put("NEW", "VALUE");
-      foo.put("new", "value");
-      foo.put("T", "TV");
-      foo.put("t", "tv");
-      foo.put("abc.def", "value");
-      foo.put("VALUE", "37");
-      foo.put("value", "38");
-      foo.put("TV", "new");
-    }
+    public Map foo = Map.of(
+            "NEW", "VALUE",
+            "new", "value",
+            "T", "TV",
+            "t", "tv",
+            "abc.def", "value",
+            "VALUE", "37",
+            "value", "38",
+            "TV", "new"
+    );
   }
 
 }

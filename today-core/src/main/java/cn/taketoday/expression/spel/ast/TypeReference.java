@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -24,9 +21,9 @@ import java.lang.reflect.Array;
 
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -36,6 +33,7 @@ import cn.taketoday.lang.Nullable;
  * {@code "T(String)" or "T(com.somewhere.Foo)"}.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class TypeReference extends SpelNodeImpl {
 
@@ -102,31 +100,30 @@ public class TypeReference extends SpelNodeImpl {
   @Override
   public void generateCode(MethodVisitor mv, CodeFlow cf) {
     // TODO Future optimization - if followed by a static method call, skip generating code here
-    Class<?> type = this.type;
-    Assert.state(type != null, "No type available");
-    if (type.isPrimitive()) {
-      if (type == Boolean.TYPE) {
+    Assert.state(this.type != null, "No type available");
+    if (this.type.isPrimitive()) {
+      if (this.type == boolean.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Byte.TYPE) {
+      else if (this.type == byte.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Byte", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Character.TYPE) {
+      else if (this.type == char.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Character", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Double.TYPE) {
+      else if (this.type == double.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Double", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Float.TYPE) {
+      else if (this.type == float.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Float", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Integer.TYPE) {
+      else if (this.type == int.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Integer", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Long.TYPE) {
+      else if (this.type == long.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Long", "TYPE", "Ljava/lang/Class;");
       }
-      else if (type == Short.TYPE) {
+      else if (this.type == short.class) {
         mv.visitFieldInsn(GETSTATIC, "java/lang/Short", "TYPE", "Ljava/lang/Class;");
       }
     }

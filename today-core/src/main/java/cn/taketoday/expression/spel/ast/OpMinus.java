@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -89,17 +89,17 @@ public class OpMinus extends Operator {
         }
         else if (number instanceof Long) {
           this.exitTypeDescriptor = "J";
-          return new TypedValue(0 - number.longValue());
+          return new TypedValue(-number.longValue());
         }
         else if (number instanceof Integer) {
           this.exitTypeDescriptor = "I";
-          return new TypedValue(0 - number.intValue());
+          return new TypedValue(-number.intValue());
         }
         else if (number instanceof Short) {
-          return new TypedValue(0 - number.shortValue());
+          return new TypedValue(-number.shortValue());
         }
         else if (number instanceof Byte) {
-          return new TypedValue(0 - number.byteValue());
+          return new TypedValue(-number.byteValue());
         }
         else {
           // Unknown Number subtype -> best guess is double subtraction

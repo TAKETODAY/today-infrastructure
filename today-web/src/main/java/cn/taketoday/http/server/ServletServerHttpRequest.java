@@ -142,7 +142,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   @Override
   public HttpHeaders getHeaders() {
     if (this.headers == null) {
-      this.headers = HttpHeaders.create();
+      this.headers = HttpHeaders.forWritable();
 
       for (Enumeration<String> names = this.servletRequest.getHeaderNames(); names.hasMoreElements(); ) {
         String headerName = names.nextElement();

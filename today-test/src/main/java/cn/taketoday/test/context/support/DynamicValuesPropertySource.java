@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.support;
@@ -24,7 +21,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import cn.taketoday.core.env.EnumerablePropertySource;
-import cn.taketoday.util.StringUtils;
+import cn.taketoday.core.env.MapPropertySource;
+import cn.taketoday.util.function.SupplierUtils;
 
 /**
  * {@link EnumerablePropertySource} backed by a map with dynamically supplied
@@ -32,28 +30,19 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class DynamicValuesPropertySource extends EnumerablePropertySource<Map<String, Supplier<Object>>> {
+class DynamicValuesPropertySource extends MapPropertySource {
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   DynamicValuesPropertySource(String name, Map<String, Supplier<Object>> valueSuppliers) {
-    super(name, valueSuppliers);
+    super(name, (Map) valueSuppliers);
   }
 
   @Override
   public Object getProperty(String name) {
-    Supplier<Object> valueSupplier = this.source.get(name);
-    return (valueSupplier != null ? valueSupplier.get() : null);
-  }
-
-  @Override
-  public boolean containsProperty(String name) {
-    return this.source.containsKey(name);
-  }
-
-  @Override
-  public String[] getPropertyNames() {
-    return StringUtils.toStringArray(source.keySet());
+    return SupplierUtils.resolve(super.getProperty(name));
   }
 
 }

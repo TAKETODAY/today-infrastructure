@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -185,6 +183,25 @@ public class BeanWrapperAutoGrowingTests {
     assertThat(bean.getMap().get("A").getNested()).isInstanceOf(Bean.class);
   }
 
+  @Test
+  void setPropertyValueAutoGrowMapNestedValue() {
+    wrapper.setPropertyValue("map[A].nested", new Bean());
+    assertThat(bean.getMap().get("A").getNested()).isInstanceOf(Bean.class);
+  }
+
+  @Test
+  void setPropertyValueAutoGrowNestedMapWithinMap() {
+    wrapper.setPropertyValue("nestedMap[A][B]", new Bean());
+    assertThat(bean.getNestedMap().get("A").get("B")).isInstanceOf(Bean.class);
+  }
+
+  @Test
+  @Disabled
+  void setPropertyValueAutoGrowNestedNestedMapWithinMap() {
+    wrapper.setPropertyValue("nestedNestedMap[A][B][C]", new Bean());
+    assertThat(bean.getNestedNestedMap().get("A").get("B").get("C")).isInstanceOf(Bean.class);
+  }
+
   private static void assertNotNull(Object propertyValue) {
     assertThat(propertyValue).isNotNull();
   }
@@ -211,6 +228,10 @@ public class BeanWrapperAutoGrowingTests {
     private List listNotParameterized;
 
     private Map<String, Bean> map;
+
+    private Map<String, Map<String, Bean>> nestedMap;
+
+    private Map<String, Map<String, Map<String, Bean>>> nestedNestedMap;
 
     public String getProp() {
       return prop;
@@ -290,6 +311,22 @@ public class BeanWrapperAutoGrowingTests {
 
     public void setMap(Map<String, Bean> map) {
       this.map = map;
+    }
+
+    public Map<String, Map<String, Bean>> getNestedMap() {
+      return nestedMap;
+    }
+
+    public void setNestedMap(Map<String, Map<String, Bean>> nestedMap) {
+      this.nestedMap = nestedMap;
+    }
+
+    public Map<String, Map<String, Map<String, Bean>>> getNestedNestedMap() {
+      return nestedNestedMap;
+    }
+
+    public void setNestedNestedMap(Map<String, Map<String, Map<String, Bean>>> nestedNestedMap) {
+      this.nestedNestedMap = nestedNestedMap;
     }
   }
 

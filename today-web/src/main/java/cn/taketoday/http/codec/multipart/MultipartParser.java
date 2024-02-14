@@ -439,7 +439,7 @@ final class MultipartParser extends BaseSubscriber<DataBuffer> {
       buffers.clear();
       String string = joined.toString(MultipartParser.this.headersCharset);
       DataBufferUtils.release(joined);
-      HttpHeaders result = HttpHeaders.create();
+      HttpHeaders result = HttpHeaders.forWritable();
       for (String line : string.split(HEADER_ENTRY_SEPARATOR)) {
         int idx = line.indexOf(':');
         if (idx != -1) {

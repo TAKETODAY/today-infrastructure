@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,25 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.ssl.pem;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.ResourceUtils;
+import cn.taketoday.util.StreamUtils;
 
 /**
  * Utility to load PEM content.
@@ -40,7 +44,7 @@ import cn.taketoday.util.ResourceUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-final class PemContent {
+public final class PemContent {
 
   private static final Pattern PEM_HEADER = Pattern.compile("-+BEGIN\\s+[^-]*-+", Pattern.CASE_INSENSITIVE);
 
@@ -52,18 +56,38 @@ final class PemContent {
     this.text = text;
   }
 
+  /**
+   * Parse and return all {@link X509Certificate certificates} from the PEM content.
+   * Most PEM files either contain a single certificate or a certificate chain.
+   *
+   * @return the certificates
+   * @throws IllegalStateException if no certificates could be loaded
+   */
   @Nullable
-  List<X509Certificate> getCertificates() {
+  public List<X509Certificate> getCertificates() {
     return PemCertificateParser.parse(this.text);
   }
 
+  /**
+   * Parse and return the {@link PrivateKey private keys} from the PEM content.
+   *
+   * @return the private keys
+   * @throws IllegalStateException if no private key could be loaded
+   */
   @Nullable
-  List<PrivateKey> getPrivateKeys() {
-    return PemPrivateKeyParser.parse(this.text);
+  public PrivateKey getPrivateKey() {
+    return getPrivateKey(null);
   }
 
+  /**
+   * Parse and return the {@link PrivateKey private keys} from the PEM content or
+   * {@code null} if there is no private key.
+   *
+   * @param password the password to decrypt the private keys or {@code null}
+   * @return the private keys
+   */
   @Nullable
-  List<PrivateKey> getPrivateKeys(@Nullable String password) {
+  public PrivateKey getPrivateKey(@Nullable String password) {
     return PemPrivateKeyParser.parse(this.text, password);
   }
 
@@ -88,28 +112,74 @@ final class PemContent {
     return this.text;
   }
 
+  /**
+   * Load {@link PemContent} from the given content (either the PEM content itself or a
+   * reference to the resource to load).
+   *
+   * @param content the content to load
+   * @return a new {@link PemContent} instance
+   * @throws IOException on IO error
+   */
   @Nullable
-  static PemContent load(@Nullable String content) {
+  static PemContent load(@Nullable String content) throws IOException {
     if (content == null) {
       return null;
     }
-    if (isPemContent(content)) {
+    if (isPresentInText(content)) {
       return new PemContent(content);
     }
     try {
-      URL url = ResourceUtils.getURL(content);
-      try (Reader reader = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
-        return new PemContent(FileCopyUtils.copyToString(reader));
-      }
+      return load(ResourceUtils.getURL(content));
     }
-    catch (IOException ex) {
-      throw new IllegalStateException(
-              "Error reading certificate or key from file '" + content + "':" + ex.getMessage(), ex);
+    catch (IOException | UncheckedIOException ex) {
+      throw new IOException("Error reading certificate or key from file '%s'".formatted(content), ex);
     }
   }
 
-  private static boolean isPemContent(@Nullable String content) {
-    return content != null && PEM_HEADER.matcher(content).find() && PEM_FOOTER.matcher(content).find();
+  /**
+   * Load {@link PemContent} from the given {@link Path}.
+   *
+   * @param path a path to load the content from
+   * @return the loaded PEM content
+   * @throws IOException on IO error
+   */
+  public static PemContent load(Path path) throws IOException {
+    Assert.notNull(path, "Path must not be null");
+    try (InputStream in = Files.newInputStream(path, StandardOpenOption.READ)) {
+      return load(in);
+    }
+  }
+
+  private static PemContent load(URL url) throws IOException {
+    Assert.notNull(url, "Url must not be null");
+    try (InputStream in = url.openStream()) {
+      return load(in);
+    }
+  }
+
+  private static PemContent load(InputStream in) throws IOException {
+    return of(StreamUtils.copyToString(in, StandardCharsets.UTF_8));
+  }
+
+  /**
+   * Return a new {@link PemContent} instance containing the given text.
+   *
+   * @param text the text containing PEM encoded content
+   * @return a new {@link PemContent} instance
+   */
+  @Nullable
+  public static PemContent of(@Nullable String text) {
+    return (text != null) ? new PemContent(text) : null;
+  }
+
+  /**
+   * Return if PEM content is present in the given text.
+   *
+   * @param text the text to check
+   * @return if the text includes PEM encoded content.
+   */
+  public static boolean isPresentInText(@Nullable String text) {
+    return text != null && PEM_HEADER.matcher(text).find() && PEM_FOOTER.matcher(text).find();
   }
 
 }

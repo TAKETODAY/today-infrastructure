@@ -57,7 +57,7 @@ final class SseServerResponse extends AbstractServerResponse {
   }
 
   private static HttpHeaders createHeaders() {
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_EVENT_STREAM);
     headers.setCacheControl(CacheControl.noCache());
     return headers;

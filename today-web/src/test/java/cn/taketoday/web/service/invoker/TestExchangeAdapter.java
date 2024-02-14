@@ -66,7 +66,7 @@ public class TestExchangeAdapter implements HttpExchangeAdapter {
   @Override
   public HttpHeaders exchangeForHeaders(HttpRequestValues requestValues) {
     saveInput("exchangeForHeaders", requestValues, null);
-    return HttpHeaders.create();
+    return HttpHeaders.forWritable();
   }
 
   @SuppressWarnings("unchecked")

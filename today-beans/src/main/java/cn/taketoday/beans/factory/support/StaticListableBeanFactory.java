@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -488,7 +488,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
-  @Nullable
   public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(String beanName, Class<A> annotationType)
           throws NoSuchBeanDefinitionException {
 
@@ -496,7 +495,6 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
   }
 
   @Override
-  @Nullable
   public <A extends Annotation> MergedAnnotation<A> findAnnotationOnBean(
           String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
           throws NoSuchBeanDefinitionException {
@@ -504,7 +502,7 @@ public class StaticListableBeanFactory extends SimpleBeanDefinitionRegistry impl
     Class<?> beanType = getType(beanName, allowFactoryBeanInit);
     return (beanType != null
             ? MergedAnnotations.from(beanType, MergedAnnotations.SearchStrategy.TYPE_HIERARCHY, RepeatableContainers.NONE)
-                    .get(annotationType) : null);
+                    .get(annotationType) : MergedAnnotation.missing());
   }
 
   @Override

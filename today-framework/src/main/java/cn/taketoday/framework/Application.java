@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.Instantiator;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.function.ThrowingConsumer;
 import cn.taketoday.util.function.ThrowingSupplier;
@@ -369,12 +368,8 @@ public class Application {
       listeners.started(context, timeTakenToStarted);
       callRunners(context, arguments);
     }
-    catch (AbandonedRunException e) {
-      throw e;
-    }
     catch (Throwable e) {
-      handleRunFailure(context, e, listeners);
-      throw new IllegalStateException(e);
+      throw handleRunFailure(context, e, listeners);
     }
     try {
       if (context.isRunning()) {
@@ -382,12 +377,8 @@ public class Application {
       }
       return context;
     }
-    catch (AbandonedRunException e) {
-      throw e;
-    }
     catch (Throwable ex) {
-      handleRunFailure(context, ex, null);
-      throw new IllegalStateException(ex);
+      throw handleRunFailure(context, ex, null);
     }
   }
 
@@ -1256,8 +1247,11 @@ public class Application {
     this.keepAlive = keepAlive;
   }
 
-  private void handleRunFailure(@Nullable ConfigurableApplicationContext context,
+  private RuntimeException handleRunFailure(@Nullable ConfigurableApplicationContext context,
           Throwable exception, @Nullable ApplicationStartupListeners listeners) {
+    if (exception instanceof AbandonedRunException abandonedRunException) {
+      return abandonedRunException;
+    }
     try {
       try {
         handleExitCode(context, exception);
@@ -1276,7 +1270,8 @@ public class Application {
     catch (Exception ex) {
       logger.warn("Unable to close ApplicationContext", ex);
     }
-    ReflectionUtils.rethrowRuntimeException(exception);
+    return exception instanceof RuntimeException runtimeException
+           ? runtimeException : new IllegalStateException(exception);
   }
 
   private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {

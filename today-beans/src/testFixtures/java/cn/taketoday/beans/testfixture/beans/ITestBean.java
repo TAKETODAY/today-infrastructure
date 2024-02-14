@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.testfixture.beans;
@@ -33,55 +30,60 @@ import java.io.IOException;
  */
 public interface ITestBean extends AgeHolder {
 
-	String getName();
+  String getName();
 
-	void setName(String name);
+  void setName(String name);
 
-	ITestBean getSpouse();
+  default void applyName(Object name) {
+    setName(String.valueOf(name));
+  }
 
-	void setSpouse(ITestBean spouse);
+  ITestBean getSpouse();
 
-	ITestBean[] getSpouses();
+  void setSpouse(ITestBean spouse);
 
-	String[] getStringArray();
+  ITestBean[] getSpouses();
 
-	void setStringArray(String[] stringArray);
+  String[] getStringArray();
 
-	Integer[][] getNestedIntegerArray();
+  void setStringArray(String[] stringArray);
 
-	Integer[] getSomeIntegerArray();
+  Integer[][] getNestedIntegerArray();
 
-	void setSomeIntegerArray(Integer[] someIntegerArray);
+  Integer[] getSomeIntegerArray();
 
-	void setNestedIntegerArray(Integer[][] nestedIntegerArray);
+  void setSomeIntegerArray(Integer[] someIntegerArray);
 
-	int[] getSomeIntArray();
+  void setNestedIntegerArray(Integer[][] nestedIntegerArray);
 
-	void setSomeIntArray(int[] someIntArray);
+  int[] getSomeIntArray();
 
-	int[][] getNestedIntArray();
+  void setSomeIntArray(int[] someIntArray);
 
-	void setNestedIntArray(int[][] someNestedArray);
+  int[][] getNestedIntArray();
 
-	/**
-	 * Throws a given (non-null) exception.
-	 */
-	void exceptional(Throwable t) throws Throwable;
+  void setNestedIntArray(int[][] someNestedArray);
 
-	Object returnsThis();
+  /**
+   * Throws a given (non-null) exception.
+   */
+  void exceptional(Throwable t) throws Throwable;
 
-	INestedTestBean getDoctor();
+  Object returnsThis();
 
-	INestedTestBean getLawyer();
+  INestedTestBean getDoctor();
 
-	IndexedTestBean getNestedIndexedBean();
+  INestedTestBean getLawyer();
 
-	/**
-	 * Increment the age by one.
-	 * @return the previous age
-	 */
-	int haveBirthday();
+  IndexedTestBean getNestedIndexedBean();
 
-	void unreliableFileOperation() throws IOException;
+  /**
+   * Increment the age by one.
+   *
+   * @return the previous age
+   */
+  int haveBirthday();
+
+  void unreliableFileOperation() throws IOException;
 
 }

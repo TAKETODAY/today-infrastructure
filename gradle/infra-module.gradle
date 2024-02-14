@@ -1,6 +1,7 @@
 //file:noinspection ConfigurationAvoidance
 import java.time.LocalDateTime
 
+apply plugin: "signing"
 apply plugin: 'java-library'
 apply plugin: 'cn.taketoday.build.conventions'
 apply plugin: 'cn.taketoday.build.optional-dependencies'
@@ -72,6 +73,14 @@ publishing {
       from components.java
       artifact sourcesJar
       artifact javadocJar
+    }
+  }
+}
+
+if (isReleaseVersion) {
+  signing {
+    for (Publication publication in publishing.publications) {
+      sign(publication)
     }
   }
 }

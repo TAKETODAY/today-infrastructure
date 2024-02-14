@@ -244,7 +244,7 @@ public class InterceptingClientHttpRequestFactoryTests {
 
     private HttpMethod method;
 
-    private HttpHeaders headers = HttpHeaders.create();
+    private HttpHeaders headers = HttpHeaders.forWritable();
 
     private ByteArrayOutputStream body = new ByteArrayOutputStream();
 
@@ -299,7 +299,7 @@ public class InterceptingClientHttpRequestFactoryTests {
 
     private String statusText = "";
 
-    private HttpHeaders headers = HttpHeaders.create();
+    private HttpHeaders headers = HttpHeaders.forWritable();
 
     @Override
     public HttpStatus getStatusCode() throws IOException {

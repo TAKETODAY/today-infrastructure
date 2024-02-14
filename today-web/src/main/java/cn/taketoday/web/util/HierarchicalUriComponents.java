@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util;
@@ -35,7 +35,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StreamUtils;
@@ -59,8 +59,7 @@ final class HierarchicalUriComponents extends UriComponents {
 
   private static final String PATH_DELIMITER_STRING = String.valueOf(PATH_DELIMITER);
 
-  private static final MultiValueMap<String, String> EMPTY_QUERY_PARAMS =
-          MultiValueMap.forUnmodifiable(new DefaultMultiValueMap<>());
+  private static final MultiValueMap<String, String> EMPTY_QUERY_PARAMS = MultiValueMap.empty();
 
   /**
    * Represents an empty path.
@@ -135,8 +134,7 @@ final class HierarchicalUriComponents extends UriComponents {
    * @param fragment the fragment
    * @param encoded whether the components are already encoded
    */
-  HierarchicalUriComponents(
-          @Nullable String scheme, @Nullable String fragment, @Nullable String userInfo,
+  HierarchicalUriComponents(@Nullable String scheme, @Nullable String fragment, @Nullable String userInfo,
           @Nullable String host, @Nullable String port, @Nullable PathComponent path,
           @Nullable MultiValueMap<String, String> query, boolean encoded) {
     super(scheme, fragment);
@@ -145,7 +143,7 @@ final class HierarchicalUriComponents extends UriComponents {
     this.host = host;
     this.port = port;
     this.path = path != null ? path : NULL_PATH_COMPONENT;
-    this.queryParams = query != null ? MultiValueMap.forUnmodifiable(query) : EMPTY_QUERY_PARAMS;
+    this.queryParams = query != null ? query.asReadOnly() : EMPTY_QUERY_PARAMS;
     this.encodeState = encoded ? EncodeState.FULLY_ENCODED : EncodeState.RAW;
 
     // Check for illegal characters..
@@ -154,8 +152,7 @@ final class HierarchicalUriComponents extends UriComponents {
     }
   }
 
-  private HierarchicalUriComponents(
-          @Nullable String scheme, @Nullable String fragment,
+  private HierarchicalUriComponents(@Nullable String scheme, @Nullable String fragment,
           @Nullable String userInfo, @Nullable String host, @Nullable String port,
           PathComponent path, MultiValueMap<String, String> queryParams,
           EncodeState encodeState, @Nullable UnaryOperator<String> variableEncoder) {
@@ -232,14 +229,14 @@ final class HierarchicalUriComponents extends UriComponents {
       String name = entry.getKey();
       List<String> values = entry.getValue();
       if (CollectionUtils.isEmpty(values)) {
-        if (queryBuilder.length() != 0) {
+        if (!queryBuilder.isEmpty()) {
           queryBuilder.append('&');
         }
         queryBuilder.append(name);
       }
       else {
         for (Object value : values) {
-          if (queryBuilder.length() != 0) {
+          if (!queryBuilder.isEmpty()) {
             queryBuilder.append('&');
           }
           queryBuilder.append(name);
@@ -309,7 +306,7 @@ final class HierarchicalUriComponents extends UriComponents {
   }
 
   private MultiValueMap<String, String> encodeQueryParams(BiFunction<String, Type, String> encoder) {
-    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(queryParams.size());
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(queryParams.size());
     for (Entry<String, List<String>> entry : queryParams.entrySet()) {
       String key = entry.getKey();
       List<String> values = entry.getValue();
@@ -320,7 +317,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, encodedValues);
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   /**
@@ -454,13 +451,12 @@ final class HierarchicalUriComponents extends UriComponents {
     MultiValueMap<String, String> queryParamsTo = expandQueryParams(uriVariables);
     String fragmentTo = expandUriComponent(getFragment(), uriVariables, this.variableEncoder);
 
-    return new HierarchicalUriComponents(
-            schemeTo, fragmentTo, userInfoTo,
+    return new HierarchicalUriComponents(schemeTo, fragmentTo, userInfoTo,
             hostTo, portTo, pathTo, queryParamsTo, this.encodeState, this.variableEncoder);
   }
 
   private MultiValueMap<String, String> expandQueryParams(UriTemplateVariables variables) {
-    DefaultMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(queryParams.size());
+    LinkedMultiValueMap<String, String> result = MultiValueMap.forLinkedHashMap(queryParams.size());
     QueryUriTemplateVariables queryVariables = new QueryUriTemplateVariables(variables);
 
     for (Entry<String, List<String>> entry : queryParams.entrySet()) {
@@ -472,7 +468,7 @@ final class HierarchicalUriComponents extends UriComponents {
       }
       result.put(name, expandedValues);
     }
-    return MultiValueMap.forUnmodifiable(result);
+    return result.asReadOnly();
   }
 
   @Override
@@ -506,7 +502,7 @@ final class HierarchicalUriComponents extends UriComponents {
     }
     String path = getPath();
     if (StringUtils.isNotEmpty(path)) {
-      if (uriBuilder.length() != 0 && path.charAt(0) != PATH_DELIMITER) {
+      if (!uriBuilder.isEmpty() && path.charAt(0) != PATH_DELIMITER) {
         uriBuilder.append(PATH_DELIMITER);
       }
       uriBuilder.append(path);

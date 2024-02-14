@@ -206,7 +206,7 @@ class ResponseEntityExceptionHandlerTests {
 
   @Test
   public void noHandlerFoundException() {
-    HttpHeaders requestHeaders = HttpHeaders.create();
+    HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // gh-29626
 
     var req = new ServletServerHttpRequest(new MockHttpServletRequest("GET", "/resource"));
@@ -365,7 +365,7 @@ class ResponseEntityExceptionHandlerTests {
     protected ResponseEntity<Object> handleRequestBindingException(
             RequestBindingException ex, HttpHeaders headers, HttpStatusCode status, RequestContext request) {
 
-      headers = HttpHeaders.create();
+      headers = HttpHeaders.forWritable();
       headers.set("someHeader", "someHeaderValue");
       return handleExceptionInternal(ex, "error content", headers, status, request);
     }

@@ -143,7 +143,7 @@ public class MockMultipartFile implements MultipartFile {
   }
 
   protected DefaultHttpHeaders createHttpHeaders() {
-    DefaultHttpHeaders headers = HttpHeaders.create();
+    DefaultHttpHeaders headers = HttpHeaders.forWritable();
     headers.set(HttpHeaders.CONTENT_TYPE, getContentType());
     return headers;
   }

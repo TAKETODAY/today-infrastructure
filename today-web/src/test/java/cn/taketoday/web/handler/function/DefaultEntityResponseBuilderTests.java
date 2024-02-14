@@ -147,7 +147,7 @@ class DefaultEntityResponseBuilderTests {
   @Test
   void headers() {
     String body = "foo";
-    HttpHeaders headers = HttpHeaders.create();
+    HttpHeaders headers = HttpHeaders.forWritable();
     headers.set("foo", "bar");
     EntityResponse<String> result = EntityResponse.fromObject(body)
             .headers(h -> h.addAll(headers))

@@ -379,7 +379,7 @@ class ForwardedHeaderUtilsTests {
 
       @Override
       public HttpHeaders getHeaders() {
-        return HttpHeaders.create();
+        return HttpHeaders.forWritable();
       }
     };
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders()).build();

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
@@ -37,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.DefaultMultiValueMap;
+import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
@@ -355,14 +352,15 @@ public class RequestContextUtils {
    * @return Map of list parameters
    */
   public static MultiValueMap<String, String> parseParameters(String s) {
-    DefaultMultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    LinkedMultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
     parseParameters(params, s);
     return params;
   }
 
-  private static void addParam(
-          String s, int nameStart, int valueStart, int valueEnd, MultiValueMap<String, String> params
-  ) {
+  private static void addParam(String s, int nameStart,
+          int valueStart, int valueEnd, MultiValueMap<String, String> params) //
+  {
+
     if (nameStart < valueEnd) {
       if (valueStart <= nameStart) {
         valueStart = valueEnd + 1;

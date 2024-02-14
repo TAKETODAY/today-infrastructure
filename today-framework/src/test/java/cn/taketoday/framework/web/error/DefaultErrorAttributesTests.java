@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -260,11 +260,27 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void path() {
+  void shouldIncludePathByDefault() {
     this.request.setAttribute("jakarta.servlet.error.request_uri", "path");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
     assertThat(attributes.get("path")).isEqualTo("path");
+  }
+
+  @Test
+  void shouldIncludePath() {
+    this.request.setAttribute("jakarta.servlet.error.request_uri", "path");
+    Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
+            ErrorAttributeOptions.of(Include.PATH));
+    assertThat(attributes).containsEntry("path", "path");
+  }
+
+  @Test
+  void shouldExcludePath() {
+    this.request.setAttribute("jakarta.servlet.error.request_uri", "path");
+    Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
+            ErrorAttributeOptions.of());
+    assertThat(attributes).doesNotContainEntry("path", "path");
   }
 
   @Test

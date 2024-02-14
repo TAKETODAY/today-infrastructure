@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -27,8 +24,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.concurrent.Executor;
 
-import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
 
@@ -37,65 +34,69 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * functionality found in  {@code <task:*>} XML namespace. To be used
  * on {@link Configuration @Configuration} classes as follows:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableScheduling
+ * <pre>{@code
+ * @Configuration
+ * @EnableScheduling
  * public class AppConfig {
  *
- *     // various &#064;Bean definitions
+ *     // various @Bean definitions
+ * }
  * }</pre>
  *
  * <p>This enables detection of {@link Scheduled @Scheduled} annotations on any
  * Framework-managed bean in the container. For example, given a class {@code MyTask}:
  *
- * <pre class="code">
+ * <pre>{@code
  * package com.myco.tasks;
  *
  * public class MyTask {
  *
- *     &#064;Scheduled(fixedRate=1000)
+ *     @Scheduled(fixedRate=1000)
  *     public void work() {
  *         // task execution logic
  *     }
- * }</pre>
+ * }}</pre>
  *
  * <p>the following configuration would ensure that {@code MyTask.work()} is called
  * once every 1000 ms:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableScheduling
+ * <pre>{@code
+ * @Configuration
+ * @EnableScheduling
  * public class AppConfig {
  *
- *     &#064;Bean
+ *     @Bean
  *     public MyTask task() {
  *         return new MyTask();
  *     }
- * }</pre>
+ * }}</pre>
  *
  * <p>Alternatively, if {@code MyTask} were annotated with {@code @Component}, the
  * following configuration would ensure that its {@code @Scheduled} method is
  * invoked at the desired interval:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableScheduling
- * &#064;ComponentScan(basePackages="com.myco.tasks")
+ * <pre>{@code
+ * @Configuration
+ * @EnableScheduling
+ * @ComponentScan(basePackages="com.myco.tasks")
  * public class AppConfig {
+ *
+ * }
  * }</pre>
  *
  * <p>Methods annotated with {@code @Scheduled} may even be declared directly within
  * {@code @Configuration} classes:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableScheduling
+ * <pre>{@code
+ * @Configuration
+ * @EnableScheduling
  * public class AppConfig {
  *
- *     &#064;Scheduled(fixedRate=1000)
+ *     @Scheduled(fixedRate=1000)
  *     public void work() {
  *         // task execution logic
  *     }
+ * }
  * }</pre>
  *
  * <p>By default, Framework will search for an associated scheduler definition: either
@@ -111,20 +112,21 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * demonstrates how to customize the {@link Executor} used to execute scheduled
  * tasks:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableScheduling
+ * <pre>{@code
+ * @Configuration
+ * @EnableScheduling
  * public class AppConfig implements SchedulingConfigurer {
  *
- *     &#064;Override
+ *     @Override
  *     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
  *         taskRegistrar.setScheduler(taskExecutor());
  *     }
  *
- *     &#064;Bean(destroyMethod="shutdown")
+ *     @Bean(destroyMethod="shutdown")
  *     public Executor taskExecutor() {
  *         return Executors.newScheduledThreadPool(100);
  *     }
+ * }
  * }</pre>
  *
  * <p>Note in the example above the use of {@code @Component(destroyMethod="shutdown")}.
@@ -136,49 +138,49 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  * For example, the following configures the execution of a particular bean
  * method per a custom {@code Trigger} implementation:
  *
- * <pre class="code">
- * &#064;Configuration
- * &#064;EnableScheduling
+ * <pre>{@code
+ * @Configuration
+ * @EnableScheduling
  * public class AppConfig implements SchedulingConfigurer {
  *
- *     &#064;Override
+ *     @Override
  *     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
  *         taskRegistrar.setScheduler(taskScheduler());
  *         taskRegistrar.addTriggerTask(
- *             () -&gt; myTask().work(),
+ *             () -> myTask().work(),
  *             new CustomTrigger()
  *         );
  *     }
  *
- *     &#064;Bean(destroyMethod="shutdown")
+ *     @Bean(destroyMethod="shutdown")
  *     public Executor taskScheduler() {
  *         return Executors.newScheduledThreadPool(42);
  *     }
  *
- *     &#064;Bean
+ *     @Bean
  *     public MyTask myTask() {
  *         return new MyTask();
  *     }
- * }</pre>
+ * }}</pre>
  *
  * <p>For reference, the example above can be compared to the following Framework XML
  * configuration:
  *
- * <pre class="code">
- * &lt;beans&gt;
+ * <pre>{@code
+ * <beans>
  *
- *     &lt;task:annotation-driven scheduler="taskScheduler"/&gt;
+ *     <task:annotation-driven scheduler="taskScheduler"/>
  *
- *     &lt;task:scheduler id="taskScheduler" pool-size="42"/&gt;
+ *     <task:scheduler id="taskScheduler" pool-size="42"/>
  *
- *     &lt;task:scheduled-tasks scheduler="taskScheduler"&gt;
- *         &lt;task:scheduled ref="myTask" method="work" fixed-rate="1000"/&gt;
- *     &lt;/task:scheduled-tasks&gt;
+ *     <task:scheduled-tasks scheduler="taskScheduler">
+ *         <task:scheduled ref="myTask" method="work" fixed-rate="1000"/>
+ *     </task:scheduled-tasks>
  *
- *     &lt;bean id="myTask" class="com.foo.MyTask"/&gt;
+ *     <bean id="myTask" class="com.foo.MyTask"/>
  *
- * &lt;/beans&gt;
- * </pre>
+ * </beans>
+ * }</pre>
  *
  * <p>The examples are equivalent save that in XML a <em>fixed-rate</em> period is used
  * instead of a custom <em>{@code Trigger}</em> implementation; this is because the
@@ -194,6 +196,7 @@ import cn.taketoday.scheduling.config.ScheduledTaskRegistrar;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Scheduled
  * @see SchedulingConfiguration
  * @see SchedulingConfigurer

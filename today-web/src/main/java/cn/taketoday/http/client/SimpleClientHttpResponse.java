@@ -67,7 +67,7 @@ final class SimpleClientHttpResponse implements ClientHttpResponse {
   @Override
   public HttpHeaders getHeaders() {
     if (this.headers == null) {
-      this.headers = HttpHeaders.create();
+      this.headers = HttpHeaders.forWritable();
       // Header field 0 is the status line for most HttpURLConnections, but not on GAE
       String name = this.connection.getHeaderFieldKey(0);
       if (StringUtils.isNotEmpty(name)) {

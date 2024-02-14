@@ -36,7 +36,7 @@ import reactor.core.publisher.Mono;
  * @author Andy Wilkinson
  * @since 4.0
  */
-class WebServerManager {
+final class WebServerManager {
 
   public final ReactiveWebServerApplicationContext applicationContext;
 
@@ -46,8 +46,8 @@ class WebServerManager {
 
   WebServerManager(ReactiveWebServerApplicationContext applicationContext,
           ReactiveWebServerFactory factory, Supplier<HttpHandler> handlerSupplier, boolean lazyInit) {
-    this.applicationContext = applicationContext;
     Assert.notNull(factory, "Factory is required");
+    this.applicationContext = applicationContext;
     this.handler = new DelayedInitializationHttpHandler(handlerSupplier, lazyInit);
     this.webServer = factory.getWebServer(handler);
   }
@@ -55,8 +55,7 @@ class WebServerManager {
   void start() {
     handler.initializeHandler();
     webServer.start();
-    applicationContext.publishEvent(
-            new ReactiveWebServerInitializedEvent(webServer, applicationContext));
+    applicationContext.publishEvent(new ReactiveWebServerInitializedEvent(webServer, applicationContext));
   }
 
   void shutDownGracefully(GracefulShutdownCallback callback) {

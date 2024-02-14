@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -74,7 +71,7 @@ class UnmodifiableMultiValueMapTests {
 
   @Test
   void unsupported() {
-    UnmodifiableMultiValueMap<String, String> map = new UnmodifiableMultiValueMap<>(new DefaultMultiValueMap<>());
+    UnmodifiableMultiValueMap<String, String> map = new UnmodifiableMultiValueMap<>(new MappingMultiValueMap<>());
 
     assertThatUnsupportedOperationException().isThrownBy(() -> map.put("foo", List.of("bar")));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.putIfAbsent("foo", List.of("bar")));
@@ -82,7 +79,7 @@ class UnmodifiableMultiValueMapTests {
     assertThatUnsupportedOperationException().isThrownBy(() -> map.remove("foo"));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.add("foo", "bar"));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.addAll("foo", List.of("bar")));
-    assertThatUnsupportedOperationException().isThrownBy(() -> map.addAll(new DefaultMultiValueMap<>()));
+    assertThatUnsupportedOperationException().isThrownBy(() -> map.addAll(new MappingMultiValueMap<>()));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.addIfAbsent("foo", "baz"));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.set("foo", "baz"));
     assertThatUnsupportedOperationException().isThrownBy(() -> map.setAll(Map.of("foo", "baz")));
@@ -129,7 +126,7 @@ class UnmodifiableMultiValueMapTests {
   @Test
   @SuppressWarnings("unchecked")
   void entrySetUnsupported() {
-    Set<Map.Entry<String, List<String>>> set = new UnmodifiableMultiValueMap<String, String>(new DefaultMultiValueMap<>()).entrySet();
+    Set<Map.Entry<String, List<String>>> set = new UnmodifiableMultiValueMap<String, String>(new MappingMultiValueMap<>()).entrySet();
 
     assertThatUnsupportedOperationException().isThrownBy(() -> set.add(mock(Map.Entry.class)));
     assertThatUnsupportedOperationException().isThrownBy(() -> set.remove(mock(Map.Entry.class)));
@@ -169,7 +166,7 @@ class UnmodifiableMultiValueMapTests {
   @Test
   void valuesUnsupported() {
     Collection<List<String>> values =
-            new UnmodifiableMultiValueMap<String, String>(new DefaultMultiValueMap<>()).values();
+            new UnmodifiableMultiValueMap<String, String>(new MappingMultiValueMap<>()).values();
 
     assertThatUnsupportedOperationException().isThrownBy(() -> values.add(List.of("foo")));
     assertThatUnsupportedOperationException().isThrownBy(() -> values.remove(List.of("foo")));

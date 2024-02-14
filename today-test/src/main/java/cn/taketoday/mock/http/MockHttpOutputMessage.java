@@ -35,7 +35,7 @@ import cn.taketoday.util.StreamUtils;
  */
 public class MockHttpOutputMessage implements HttpOutputMessage {
 
-  private final HttpHeaders headers = HttpHeaders.create();
+  private final HttpHeaders headers = HttpHeaders.forWritable();
 
   private final ByteArrayOutputStream body = new ByteArrayOutputStream(1024);
 

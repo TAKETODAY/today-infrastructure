@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.support;
@@ -357,30 +357,6 @@ public class StandardEvaluationContext implements EvaluationContext {
               "Method filter cannot be set as the reflective method resolver is not in use");
     }
     resolver.registerMethodFilter(type, filter);
-  }
-
-  /**
-   * Apply the internal delegates of this instance to the specified
-   * {@code evaluationContext}. Typically, invoked right after the new context
-   * instance has been created to reuse the delegates. Do not modify the
-   * {@linkplain #setRootObject(Object) root object} or any registered
-   * {@linkplain #setVariables(Map) variables}.
-   *
-   * @param evaluationContext the evaluation context to update
-   */
-  @Deprecated
-  public void applyDelegatesTo(StandardEvaluationContext evaluationContext) {
-    // Triggers initialization for default delegates
-    evaluationContext.setConstructorResolvers(new ArrayList<>(getConstructorResolvers()));
-    evaluationContext.setMethodResolvers(new ArrayList<>(getMethodResolvers()));
-    evaluationContext.setPropertyAccessors(new ArrayList<>(getPropertyAccessors()));
-    evaluationContext.setTypeLocator(getTypeLocator());
-    evaluationContext.setTypeConverter(getTypeConverter());
-
-    evaluationContext.beanResolver = this.beanResolver;
-    evaluationContext.operatorOverloader = this.operatorOverloader;
-    evaluationContext.reflectiveMethodResolver = this.reflectiveMethodResolver;
-    evaluationContext.typeComparator = this.typeComparator;
   }
 
   private List<PropertyAccessor> initPropertyAccessors() {

@@ -848,7 +848,7 @@ public class MockHttpServletRequestBuilder
 
       @Override
       public HttpHeaders getHeaders() {
-        HttpHeaders headers = HttpHeaders.create();
+        HttpHeaders headers = HttpHeaders.forWritable();
         headers.setContentType(mediaType);
         return headers;
       }

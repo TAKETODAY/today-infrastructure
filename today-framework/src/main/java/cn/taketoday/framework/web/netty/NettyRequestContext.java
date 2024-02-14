@@ -352,7 +352,7 @@ public class NettyRequestContext extends RequestContext {
             parameters.add(data.getName(), ((Attribute) data).getValue());
           }
           catch (IOException e) {
-            throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content netty read failed", e, this);
+            throw new HttpMessageNotReadableException("'application/x-www-form-urlencoded' content read failed", e, this);
           }
         }
       }
@@ -576,7 +576,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  public void writeHeaders() {
+  protected void writeHeaders() {
     if (committed.compareAndSet(false, true)) {
       // ---------------------------------------------
       // apply Status code and headers

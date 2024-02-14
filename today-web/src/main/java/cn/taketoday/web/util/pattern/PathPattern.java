@@ -649,7 +649,7 @@ public class PathPattern implements Comparable<PathPattern> {
     public int remainingPathIndex;
 
     @Nullable
-    private List<String> uriVariables;
+    public List<String> uriVariables;
 
     public MatchingContext(PathContainer pathContainer, boolean extractVariables) {
       this.candidate = pathContainer;
@@ -681,7 +681,7 @@ public class PathPattern implements Comparable<PathPattern> {
         if (extractedMatrixVariables == null) {
           this.extractedMatrixVariables = new HashMap<>();
         }
-        extractedMatrixVariables.put(key, MultiValueMap.forUnmodifiable(parameters));
+        extractedMatrixVariables.put(key, parameters.asReadOnly());
       }
     }
 
@@ -700,7 +700,7 @@ public class PathPattern implements Comparable<PathPattern> {
      * @param pathIndex possible index of a separator
      * @return {@code true} if element is a separator
      */
-    boolean isSeparator(int pathIndex) {
+    public boolean isSeparator(int pathIndex) {
       return this.pathElements.get(pathIndex) instanceof Separator;
     }
 
@@ -710,7 +710,7 @@ public class PathPattern implements Comparable<PathPattern> {
      * @param pathIndex path element index
      * @return the decoded value
      */
-    String pathElementValue(int pathIndex) {
+    public String pathElementValue(int pathIndex) {
       Element element = pathIndex < this.pathLength ? this.pathElements.get(pathIndex) : null;
       return element instanceof PathContainer.PathSegment pathSegment ? pathSegment.valueToMatch() : "";
     }

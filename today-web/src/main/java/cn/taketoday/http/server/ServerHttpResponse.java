@@ -20,6 +20,7 @@ package cn.taketoday.http.server;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.OutputStream;
 
 import cn.taketoday.http.HttpOutputMessage;
 import cn.taketoday.http.HttpStatusCode;
@@ -44,6 +45,9 @@ public interface ServerHttpResponse extends HttpOutputMessage, Flushable, Closea
    * Ensure that the headers and the content of the response are written out.
    * <p>After the first flush, headers can no longer be changed.
    * Only further content writing and content flushing is possible.
+   * <p>
+   * <b>
+   * NOTE: Not recommended to use {@link OutputStream#flush() getBody().flush()}
    */
   @Override
   void flush() throws IOException;
