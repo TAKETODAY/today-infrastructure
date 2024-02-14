@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -162,22 +162,22 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   //---------------------------------------------------------------------
 
   @Override
-  public void persist(Object entity) throws DataAccessException {
-    persist(entity, defaultUpdateStrategy(), returnGeneratedKeys);
+  public int persist(Object entity) throws DataAccessException {
+    return persist(entity, defaultUpdateStrategy(), returnGeneratedKeys);
   }
 
   @Override
-  public void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(entity, defaultUpdateStrategy(), returnGeneratedKeys);
+  public int persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException {
+    return persist(entity, defaultUpdateStrategy(), returnGeneratedKeys);
   }
 
   @Override
-  public void persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
-    persist(entity, strategy, returnGeneratedKeys);
+  public int persist(Object entity, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    return persist(entity, strategy, returnGeneratedKeys);
   }
 
   @Override
-  public void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
+  public int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
     if (strategy == null) {
       strategy = defaultUpdateStrategy();
     }
@@ -197,7 +197,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         setPersistParameter(entity, statement, strategy, entityMetadata);
         // execute
         int updateCount = statement.executeUpdate();
-        assertUpdateCount(sql, updateCount, 1);
         if (returnGeneratedKeys) {
           try {
             ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -209,6 +208,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
             throw new GeneratedKeysException("Cannot get generated keys", e);
           }
         }
+        return updateCount;
       }
     }
     catch (SQLException ex) {
@@ -376,12 +376,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public void updateById(Object entity) {
-    updateById(entity, null);
+  public int updateById(Object entity) {
+    return updateById(entity, null);
   }
 
   @Override
-  public void updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
+  public int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
     if (strategy == null) {
       strategy = defaultUpdateStrategy();
     }
@@ -426,8 +426,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
       // last one is ID
       idProperty.setParameter(statement, idx, id);
-      int updateCount = statement.executeUpdate();
-      assertUpdateCount(sql, updateCount, 1);
+      return statement.executeUpdate();
     }
     catch (SQLException ex) {
       throw translateException("Update entity By ID", sql, ex);
@@ -439,12 +438,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public void updateBy(Object entity, String where) {
-    updateBy(entity, where, null);
+  public int updateBy(Object entity, String where) {
+    return updateBy(entity, where, null);
   }
 
   @Override
-  public void updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy) {
+  public int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy) {
     if (strategy == null) {
       strategy = defaultUpdateStrategy();
     }
@@ -501,8 +500,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
       // last one is where
       updateBy.setParameter(statement, idx, updateByValue);
-      int updateCount = statement.executeUpdate();
-      assertUpdateCount(sql, updateCount, 1);
+      return statement.executeUpdate();
     }
     catch (SQLException ex) {
       throw translateException("Update entity By " + where, sql, ex);
@@ -514,7 +512,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public void delete(Class<?> entityClass, Object id) {
+  public int delete(Class<?> entityClass, Object id) {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     StringBuilder sql = new StringBuilder();
 
@@ -534,7 +532,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     try {
       statement = prepareStatement(con, sql.toString(), false);
       metadata.idProperty.setParameter(statement, 1, id);
-      statement.executeUpdate();
+      return statement.executeUpdate();
     }
     catch (SQLException ex) {
       throw translateException("Delete entity using ID", sql.toString(), ex);
