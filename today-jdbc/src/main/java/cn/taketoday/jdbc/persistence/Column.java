@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -30,7 +30,7 @@ import cn.taketoday.lang.Constant;
  * Specifies the mapped column for a persistent property or field.
  * If no <code>Column</code> annotation is specified, the default values apply.
  * <pre> {@code
- *    Example 1:
+ *    // Example
  *
  *    @Column(name = "DESC")
  *    public String getDescription() {
@@ -39,11 +39,12 @@ import cn.taketoday.lang.Constant;
  *
  * }</pre>
  *
- * @author TODAY 2021/1/27 22:32
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2021/1/27 22:32
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
 public @interface Column {
 
   @AliasFor("name")

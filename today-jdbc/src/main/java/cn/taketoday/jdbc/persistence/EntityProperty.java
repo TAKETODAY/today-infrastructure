@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -36,8 +33,11 @@ import cn.taketoday.lang.Nullable;
  */
 public class EntityProperty {
   public final String columnName;
+
   public final boolean isIdProperty;
+
   public final BeanProperty property;
+
   public final TypeHandler<Object> typeHandler;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -146,12 +146,10 @@ public class EntityProperty {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof EntityProperty that))
-      return false;
-    return Objects.equals(property, that.property)
-            && Objects.equals(typeHandler, that.typeHandler);
+    return this == o
+            || (o instanceof EntityProperty that
+            && Objects.equals(property, that.property)
+            && Objects.equals(typeHandler, that.typeHandler));
   }
 
   @Override
