@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 
@@ -24,7 +21,7 @@ package cn.taketoday.jdbc.persistence;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 
 /**
  * A translated HQL query
@@ -35,7 +32,7 @@ import cn.taketoday.jdbc.persistence.dialect.Dialect;
  */
 public class QuerySelect {
 
-  private final Dialect dialect;
+  private final Platform platform;
   private JoinFragment joins;
   private final StringBuilder select = new StringBuilder();
   private final StringBuilder where = new StringBuilder();
@@ -75,9 +72,9 @@ public class QuerySelect {
     DONT_SPACE_TOKENS.add(")");
   }
 
-  public QuerySelect(Dialect dialect) {
-    this.dialect = dialect;
-    joins = new QueryJoinFragment(dialect, false);
+  public QuerySelect(Platform platform) {
+    this.platform = platform;
+    joins = new QueryJoinFragment(platform, false);
   }
 
   public JoinFragment getJoinFragment() {
@@ -85,12 +82,12 @@ public class QuerySelect {
   }
 
   public void addSelectFragmentString(String fragment) {
-    if (fragment.length() > 0 && fragment.charAt(0) == ',') {
+    if (!fragment.isEmpty() && fragment.charAt(0) == ',') {
       fragment = fragment.substring(1);
     }
     fragment = fragment.trim();
-    if (fragment.length() > 0) {
-      if (select.length() > 0) {
+    if (!fragment.isEmpty()) {
+      if (!select.isEmpty()) {
         select.append(", ");
       }
       select.append(fragment);
@@ -111,7 +108,7 @@ public class QuerySelect {
   }
 
   public void prependWhereConditions(String conditions) {
-    if (where.length() > 0) {
+    if (!where.isEmpty()) {
       where.insert(0, conditions + " and ");
     }
     else {
@@ -135,7 +132,7 @@ public class QuerySelect {
   }
 
   public void addOrderBy(String orderByString) {
-    if (orderBy.length() > 0) {
+    if (!orderBy.isEmpty()) {
       orderBy.append(", ");
     }
     orderBy.append(orderByString);
@@ -144,7 +141,7 @@ public class QuerySelect {
   public String toQueryString() {
     StringBuilder buf = new StringBuilder(50);
     if (comment != null) {
-      buf.append("/* ").append(Dialect.escapeComment(comment)).append(" */ ");
+      buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
     buf.append("select ");
     if (distinct) {
@@ -164,8 +161,8 @@ public class QuerySelect {
 
     String outerJoinsAfterWhere = joins.toWhereFragmentString().trim();
     String whereConditions = where.toString().trim();
-    boolean hasOuterJoinsAfterWhere = outerJoinsAfterWhere.length() > 0;
-    boolean hasWhereConditions = whereConditions.length() > 0;
+    boolean hasOuterJoinsAfterWhere = !outerJoinsAfterWhere.isEmpty();
+    boolean hasWhereConditions = !whereConditions.isEmpty();
     if (hasOuterJoinsAfterWhere || hasWhereConditions) {
       buf.append(" where ");
       if (hasOuterJoinsAfterWhere) {
@@ -182,13 +179,13 @@ public class QuerySelect {
       }
     }
 
-    if (groupBy.length() > 0) {
+    if (!groupBy.isEmpty()) {
       buf.append(" group by ").append(groupBy);
     }
-    if (having.length() > 0) {
+    if (!having.isEmpty()) {
       buf.append(" having ").append(having);
     }
-    if (orderBy.length() > 0) {
+    if (!orderBy.isEmpty()) {
       buf.append(" order by ").append(orderBy);
     }
 
@@ -218,7 +215,7 @@ public class QuerySelect {
   }
 
   public QuerySelect copy() {
-    QuerySelect copy = new QuerySelect(dialect);
+    QuerySelect copy = new QuerySelect(platform);
     copy.joins = this.joins.copy();
     copy.select.append(this.select);
     copy.where.append(this.where);

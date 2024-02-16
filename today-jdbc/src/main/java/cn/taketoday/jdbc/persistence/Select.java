@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,41 +12,52 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 
 package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 
 /**
  * A simple SQL <tt>SELECT</tt> statement
- * <p> from hibernate
  *
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 public class Select {
 
-  protected String selectClause;
-  protected String fromClause;
-  protected String outerJoinsAfterFrom;
-  protected String whereClause;
-  protected String outerJoinsAfterWhere;
-  protected String orderByClause;
-  protected String groupByClause;
-  protected String comment;
+  protected CharSequence selectClause;
+
+  protected CharSequence fromClause;
+
+  @Nullable
+  protected CharSequence outerJoinsAfterFrom;
+
+  @Nullable
+  protected CharSequence whereClause;
+
+  protected CharSequence outerJoinsAfterWhere;
+
+  @Nullable
+  protected CharSequence orderByClause;
+
+  protected CharSequence groupByClause;
+
+  @Nullable
+  protected CharSequence comment;
 
   protected boolean forUpdate;
 
-  public final Dialect dialect;
+  public final Platform platform;
 
   private int guesstimatedBufferSize = 20;
 
-  public Select(Dialect dialect) {
-    this.dialect = dialect;
+  public Select(Platform platform) {
+    this.platform = platform;
   }
 
   /**
@@ -58,24 +66,24 @@ public class Select {
   public String toStatementString() {
     StringBuilder buf = new StringBuilder(guesstimatedBufferSize);
     if (StringUtils.isNotEmpty(comment)) {
-      buf.append("/* ").append(Dialect.escapeComment(comment)).append(" */ ");
+      buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
 
-    buf.append("select ").append(selectClause)
-            .append(" from ").append(fromClause);
+    buf.append("SELECT ").append(selectClause)
+            .append(" FROM ").append(fromClause);
 
-    if (StringUtils.isNotEmpty(outerJoinsAfterFrom)) {
+    if (outerJoinsAfterFrom != null) {
       buf.append(outerJoinsAfterFrom);
     }
 
     if (StringUtils.isNotEmpty(whereClause) || StringUtils.isNotEmpty(outerJoinsAfterWhere)) {
-      buf.append(" where ");
+      buf.append(" WHERE ");
       // the outerJoinsAfterWhere needs to come before where clause to properly
       // handle dynamic filters
       if (StringUtils.isNotEmpty(outerJoinsAfterWhere)) {
         buf.append(outerJoinsAfterWhere);
         if (StringUtils.isNotEmpty(whereClause)) {
-          buf.append(" and ");
+          buf.append(" AND ");
         }
       }
       if (StringUtils.isNotEmpty(whereClause)) {
@@ -87,12 +95,12 @@ public class Select {
       buf.append(" group by ").append(groupByClause);
     }
 
-    if (StringUtils.isNotEmpty(orderByClause)) {
+    if (orderByClause != null) {
       buf.append(" order by ").append(orderByClause);
     }
 
     if (forUpdate) {
-      buf.append(dialect.getForUpdateString());
+      buf.append(platform.getForUpdateString());
     }
 
     return buf.toString();
@@ -103,7 +111,7 @@ public class Select {
    *
    * @param fromClause The fromClause to set
    */
-  public Select setFromClause(String fromClause) {
+  public Select setFromClause(CharSequence fromClause) {
     this.fromClause = fromClause;
     this.guesstimatedBufferSize += fromClause.length();
     return this;
@@ -115,19 +123,19 @@ public class Select {
     return this;
   }
 
-  public Select setOrderByClause(String orderByClause) {
+  public Select setOrderByClause(CharSequence orderByClause) {
     this.orderByClause = orderByClause;
     this.guesstimatedBufferSize += orderByClause.length();
     return this;
   }
 
-  public Select setGroupByClause(String groupByClause) {
+  public Select setGroupByClause(CharSequence groupByClause) {
     this.groupByClause = groupByClause;
     this.guesstimatedBufferSize += groupByClause.length();
     return this;
   }
 
-  public Select setOuterJoins(String outerJoinsAfterFrom, String outerJoinsAfterWhere) {
+  public Select setOuterJoins(CharSequence outerJoinsAfterFrom, String outerJoinsAfterWhere) {
     this.outerJoinsAfterFrom = outerJoinsAfterFrom;
 
     // strip off any leading 'and' token
@@ -146,7 +154,7 @@ public class Select {
    *
    * @param selectClause The selectClause to set
    */
-  public Select setSelectClause(String selectClause) {
+  public Select setSelectClause(CharSequence selectClause) {
     this.selectClause = selectClause;
     this.guesstimatedBufferSize += selectClause.length();
     return this;
@@ -162,13 +170,13 @@ public class Select {
    *
    * @param whereClause The whereClause to set
    */
-  public Select setWhereClause(String whereClause) {
+  public Select setWhereClause(CharSequence whereClause) {
     this.whereClause = whereClause;
     this.guesstimatedBufferSize += whereClause.length();
     return this;
   }
 
-  public Select setComment(String comment) {
+  public Select setComment(CharSequence comment) {
     this.comment = comment;
     this.guesstimatedBufferSize += comment.length();
     return this;

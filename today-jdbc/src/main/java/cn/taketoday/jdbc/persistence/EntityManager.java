@@ -273,7 +273,7 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> T findFirst(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
   /**
@@ -292,7 +292,7 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> T findUnique(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
   /**
@@ -301,6 +301,8 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   <T> List<T> find(Class<T> entityClass) throws DataAccessException;
+
+  <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
@@ -313,9 +315,11 @@ public interface EntityManager {
   <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException;
 
   /**
+   * @param handler build {@link Select}
    * @throws IllegalEntityException entityClass is legal entity
+   * @see #iterate(Class, QueryHandler)
    */
-  <T> List<T> find(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
   /**
@@ -345,7 +349,7 @@ public interface EntityManager {
    * @return Map containing key pair data.
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryCondition conditions, String mapKey)
+  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey)
           throws DataAccessException;
 
   /**
@@ -357,18 +361,32 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
+  <T> void iterate(Class<T> entityClass, @Nullable QueryHandler conditions, Consumer<T> entityConsumer)
+          throws DataAccessException;
+
+  /**
+   * Iterate entities
+   *
+   * @throws IllegalEntityException entityClass is legal entity
+   */
   <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params)
           throws DataAccessException;
 
   /**
-   * @throws IllegalEntityException entityClass is legal entity
-   */
-  <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer)
-          throws DataAccessException;
-
-  /**
+   * Iterate entities with given {@link QueryCondition}
+   *
    * @throws IllegalEntityException entityClass is legal entity
    */
   <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions)
           throws DataAccessException;
+
+  /**
+   * Iterate entities with given {@link QueryHandler}
+   *
+   * @param handler build {@link Select}
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler)
+          throws DataAccessException;
+
 }

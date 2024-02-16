@@ -41,6 +41,7 @@ import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
 import cn.taketoday.jdbc.result.ResultSetHandler;
@@ -77,10 +78,16 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
+  private Platform platform = Platform.forClasspath();
+
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     setDataSource(repositoryManager.getDataSource());
     setExceptionTranslator(repositoryManager.getExceptionTranslator());
     this.repositoryManager = repositoryManager;
+  }
+
+  public void setPlatform(@Nullable Platform platform) {
+    this.platform = platform == null ? Platform.forClasspath() : platform;
   }
 
   public void setDefaultUpdateStrategy(PropertyUpdateStrategy defaultUpdateStrategy) {
@@ -663,8 +670,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+  public <T> T findFirst(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
       while (iterator.hasNext()) {
         T returnValue = iterator.next();
         if (returnValue != null) {
@@ -707,8 +714,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+  public <T> T findUnique(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
       T returnValue = null;
       while (iterator.hasNext()) {
         if (returnValue != null) {
@@ -722,7 +729,13 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public <T> List<T> find(Class<T> entityClass) throws DataAccessException {
-    return find(entityClass, null);
+    return find(entityClass, (QueryHandler) null);
+  }
+
+  @Override
+  public <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException {
+    Assert.notEmpty(sortKeys, "sortKeys is required");
+    return find(entityClass, new FindAllOrderByQueryHandler(sortKeys));
   }
 
   @Override
@@ -749,10 +762,21 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  public <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    ArrayList<T> entities = new ArrayList<>();
+    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
+      while (iterator.hasNext()) {
+        entities.add(iterator.next());
+      }
+    }
+    return entities;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey) throws DataAccessException {
     LinkedHashMap<K, T> entities = new LinkedHashMap<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
+    try (var iterator = iterate(entityClass, params)) {
       EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
       BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
       while (iterator.hasNext()) {
@@ -766,28 +790,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   @SuppressWarnings("unchecked")
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryCondition conditions, String mapKey)
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey)
           throws DataAccessException //
   {
     var entities = new LinkedHashMap<K, T>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+    try (var iterator = iterate(entityClass, handler)) {
       EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
       BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
       while (iterator.hasNext()) {
         T entity = iterator.next();
         Object propertyValue = beanProperty.getValue(entity);
         entities.put((K) propertyValue, entity);
-      }
-    }
-    return entities;
-  }
-
-  @Override
-  public <T> List<T> find(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
       }
     }
     return entities;
@@ -810,7 +823,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT * FROM ");
     sql.append(metadata.tableName);
-    sql.append(" WHERE ");
 
     StringBuilder columnNamesBuf = new StringBuilder();
 
@@ -825,7 +837,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     boolean first = true;
-    List<Condition> conditions = new ArrayList<>();
+    ArrayList<Condition> conditions = new ArrayList<>();
     for (EntityProperty entityProperty : queryMetadata.entityProperties) {
       Object propertyValue = entityProperty.getValue(params);
       if (propertyValue != null) {
@@ -846,10 +858,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
 
-    if (columnNamesBuf.isEmpty()) {
-      sql.append("1=1");
-    }
-    else {
+    if (!columnNamesBuf.isEmpty()) {
+      sql.append(" WHERE ");
       sql.append(columnNamesBuf);
     }
 
@@ -859,9 +869,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement;
     try {
-      statement = prepareStatement(con, sql.toString(), false);
+      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
       int idx = 1;
       for (Condition condition : conditions) {
         condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
@@ -875,7 +884,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer)
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler conditions, Consumer<T> entityConsumer)
           throws DataAccessException //
   {
     try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
@@ -887,36 +896,41 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
+    return iterate(entityClass, (QueryHandler) conditions);
+  }
+
+  @Override
+  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM ");
-    sql.append(metadata.tableName);
-
-    if (conditions != null) {
-      sql.append(" WHERE ");
+    Select select = new Select(platform);
+    if (handler != null) {
       // WHERE column_name operator value;
-      conditions.render(sql);
+      handler.render(metadata, select);
+    }
+    else {
+      select.setSelectClause("*");
+      select.setFromClause(metadata.tableName);
     }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement;
+
     try {
-      statement = prepareStatement(con, sql.toString(), false);
-      if (conditions != null) {
-        conditions.setParameter(statement);
+      PreparedStatement statement = prepareStatement(con, select.toStatementString(), false);
+      if (handler != null) {
+        handler.setParameter(metadata, statement);
       }
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement("Lookup entities", sql.toString());
+        stmtLogger.logStatement("Lookup entities", select.toStatementString());
       }
 
       return new EntityIterator<>(con, statement, entityClass);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
+      throw translateException("Iterate entities with query-handler", select.toStatementString(), ex);
     }
   }
 

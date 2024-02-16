@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package cn.taketoday.jdbc.persistence;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 
@@ -180,7 +180,7 @@ public class Update {
 
     StringBuilder buf = new StringBuilder((columns.size() * 15) + tableName.length() + 10);
     if (comment != null) {
-      buf.append("/* ").append(Dialect.escapeComment(comment)).append(" */ ");
+      buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
     buf.append("update ").append(tableName).append(" set ");
     boolean assignmentsAppended = false;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 
@@ -25,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
 
@@ -76,7 +73,7 @@ public class InsertSelect {
 
     StringBuilder buf = new StringBuilder((columnNames.size() * 15) + tableName.length() + 10);
     if (comment != null) {
-      buf.append("/* ").append(Dialect.escapeComment(comment)).append(" */ ");
+      buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
     buf.append("insert into ").append(tableName);
     if (!columnNames.isEmpty()) {

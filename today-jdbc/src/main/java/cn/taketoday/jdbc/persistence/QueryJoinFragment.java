@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -32,11 +29,11 @@ public class QueryJoinFragment extends JoinFragment {
 
   private StringBuilder afterFrom = new StringBuilder();
   private StringBuilder afterWhere = new StringBuilder();
-  private final Dialect dialect;
+  private final Platform platform;
   private final boolean useThetaStyleInnerJoins;
 
-  public QueryJoinFragment(Dialect dialect, boolean useThetaStyleInnerJoins) {
-    this.dialect = dialect;
+  public QueryJoinFragment(Platform platform, boolean useThetaStyleInnerJoins) {
+    this.platform = platform;
     this.useThetaStyleInnerJoins = useThetaStyleInnerJoins;
   }
 
@@ -58,7 +55,7 @@ public class QueryJoinFragment extends JoinFragment {
 
   private void addJoin(String tableName, String alias, String concreteAlias, String[] fkColumns, String[] pkColumns, JoinType joinType, String on) {
     if (!useThetaStyleInnerJoins || joinType != JoinType.INNER_JOIN) {
-      JoinFragment jf = dialect.createOuterJoinFragment();
+      JoinFragment jf = platform.createOuterJoinFragment();
       jf.addJoin(tableName, alias, fkColumns, pkColumns, joinType, on);
       addFragment(jf);
     }
@@ -71,7 +68,7 @@ public class QueryJoinFragment extends JoinFragment {
 
   private void addJoin(String tableName, String alias, String concreteAlias, String[][] fkColumns, String[] pkColumns, JoinType joinType, String on) {
     if (!useThetaStyleInnerJoins || joinType != JoinType.INNER_JOIN) {
-      JoinFragment jf = dialect.createOuterJoinFragment();
+      JoinFragment jf = platform.createOuterJoinFragment();
       jf.addJoin(tableName, alias, fkColumns, pkColumns, joinType, on);
       addFragment(jf);
     }
@@ -96,7 +93,7 @@ public class QueryJoinFragment extends JoinFragment {
   }
 
   public JoinFragment copy() {
-    QueryJoinFragment copy = new QueryJoinFragment(dialect, useThetaStyleInnerJoins);
+    QueryJoinFragment copy = new QueryJoinFragment(platform, useThetaStyleInnerJoins);
     copy.afterFrom = new StringBuilder(afterFrom.toString());
     copy.afterWhere = new StringBuilder(afterWhere.toString());
     return copy;

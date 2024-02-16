@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence.dialect;
@@ -30,6 +27,7 @@ import cn.taketoday.jdbc.persistence.ANSIJoinFragment;
 import cn.taketoday.jdbc.persistence.CaseFragment;
 import cn.taketoday.jdbc.persistence.JoinFragment;
 import cn.taketoday.jdbc.result.JdbcBeanMetadata;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 
@@ -39,7 +37,8 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/10/10 13:11
  * @since 4.0
  */
-public abstract class Dialect {
+public abstract class Platform {
+
   /**
    * Defines a default batch size constant
    */
@@ -67,7 +66,7 @@ public abstract class Dialect {
   private static final Pattern ESCAPE_CLOSING_COMMENT_PATTERN = Pattern.compile("\\*/");
   private static final Pattern ESCAPE_OPENING_COMMENT_PATTERN = Pattern.compile("/\\*");
 
-  public static String escapeComment(String comment) {
+  public static CharSequence escapeComment(CharSequence comment) {
     if (StringUtils.isNotEmpty(comment)) {
       final String escaped = ESCAPE_CLOSING_COMMENT_PATTERN.matcher(comment).replaceAll("*\\\\/");
       return ESCAPE_OPENING_COMMENT_PATTERN.matcher(escaped).replaceAll("/\\\\*");
@@ -101,7 +100,7 @@ public abstract class Dialect {
         sql.append(" * ");
       }
       sql.append("FROM ").append(sqlParams.getTableName());
-      if (sqlParams.getConditionSQL().length() > 0) {
+      if (!sqlParams.getConditionSQL().isEmpty()) {
         sql.append(" WHERE ").append(sqlParams.getConditionSQL().substring(5));
       }
     }
@@ -118,7 +117,7 @@ public abstract class Dialect {
   public String count(SQLParams sqlParams) {
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT COUNT(*) FROM ").append(sqlParams.getTableName());
-    if (sqlParams.getConditionSQL().length() > 0) {
+    if (!sqlParams.getConditionSQL().isEmpty()) {
       sql.append(" WHERE ").append(sqlParams.getConditionSQL().substring(5));
     }
     return sql.toString();
@@ -148,7 +147,7 @@ public abstract class Dialect {
       }
     }
     sql.append(setSQL.substring(0, setSQL.length() - 2));
-    if (sqlParams.getConditionSQL().length() > 0) {
+    if (!sqlParams.getConditionSQL().isEmpty()) {
       sql.append(" WHERE ").append(sqlParams.getConditionSQL().substring(5));
     }
     return sql.toString();
@@ -158,7 +157,7 @@ public abstract class Dialect {
     StringBuilder sql = new StringBuilder();
     sql.append("DELETE FROM ").append(sqlParams.getTableName());
 
-    if (sqlParams.getConditionSQL().length() > 0) {
+    if (!sqlParams.getConditionSQL().isEmpty()) {
       sql.append(" WHERE ").append(sqlParams.getConditionSQL().substring(5));
     }
     else {
@@ -172,7 +171,7 @@ public abstract class Dialect {
           }
           columnNames.append(property.getName()).append(" = ? and ");
         }
-        if (columnNames.length() > 0) {
+        if (!columnNames.isEmpty()) {
           sql.append(" WHERE ").append(columnNames.substring(0, columnNames.length() - 5));
         }
       }
@@ -191,7 +190,7 @@ public abstract class Dialect {
         sql.append(alias).append(',');
       }
     }
-    if (sql.length() > 0) {
+    if (!sql.isEmpty()) {
       return sql.substring(0, sql.length() - 1);
     }
     return "*";
@@ -226,6 +225,19 @@ public abstract class Dialect {
    */
   public CaseFragment createCaseFragment() {
     return new ANSICaseFragment();
+  }
+
+  public static Platform forClasspath() {
+    if (ClassUtils.isPresent("com.mysql.cj.jdbc.Driver")) {
+      return new MySQLPlatform();
+    }
+    else if (ClassUtils.isPresent("oracle.jdbc.driver.OracleDriver")) {
+      return new OraclePlatform();
+    }
+    else if (ClassUtils.isPresent("org.postgresql.Driver")) {
+      return new PostgreSQLPlatform();
+    }
+    throw new IllegalStateException("Cannot determine database platform");
   }
 
 }

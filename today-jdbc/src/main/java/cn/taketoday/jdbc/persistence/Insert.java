@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 
@@ -25,7 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import cn.taketoday.jdbc.persistence.dialect.Dialect;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 
 /**
  * An SQL <tt>INSERT</tt> statement
@@ -41,14 +38,14 @@ public class Insert {
 
   protected Map<String, String> columns = new LinkedHashMap<>();
 
-  private final Dialect dialect;
+  private final Platform platform;
 
-  public Insert(Dialect dialect) {
-    this.dialect = dialect;
+  public Insert(Platform platform) {
+    this.platform = platform;
   }
 
-  protected Dialect getDialect() {
-    return dialect;
+  protected Platform getDialect() {
+    return platform;
   }
 
   public Insert setComment(String comment) {
@@ -98,12 +95,12 @@ public class Insert {
   public String toStatementString() {
     StringBuilder buf = new StringBuilder(columns.size() * 15 + tableName.length() + 10);
     if (comment != null) {
-      buf.append("/* ").append(Dialect.escapeComment(comment)).append(" */ ");
+      buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
     buf.append("insert into ");
     buf.append(tableName);
     if (columns.isEmpty()) {
-      buf.append(' ').append(dialect.getNoColumnsInsertString());
+      buf.append(' ').append(platform.getNoColumnsInsertString());
     }
     else {
       buf.append(" (");

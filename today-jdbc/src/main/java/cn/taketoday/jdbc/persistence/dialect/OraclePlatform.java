@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +12,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence.dialect;
 
 /**
- * @author TODAY 2021/10/10 13:13
+ * @author TODAY 2021/10/10 13:12
  * @since 4.0
  */
-public class PostgreSQLDialect extends Dialect {
+public class OraclePlatform extends Platform {
 
   @Override
   public String pagination(SQLParams sqlParams) {
     PageRow pageRow = sqlParams.getPageRow();
     int limit = pageRow.getPageSize();
-    int offset = limit * (pageRow.getPageNum() - 1);
-    String limitSQL = " LIMIT " + limit + " OFFSET " + offset;
+    int pageNum = pageRow.getPageNum();
 
-    return select(sqlParams) + limitSQL;
+    int start = (pageNum - 1) * limit + 1;
+    int end = pageNum * limit;
+    StringBuilder sql = new StringBuilder();
+    sql.append("SELECT * FROM ( SELECT row_.*, rownum rownum_ FROM (  ");
+    sql.append(select(sqlParams));
+    sql.append(" ) row_ where rownum <= ").append(end).append(") table_alias");
+    sql.append(" WHERE table_alias.rownum_ >= ").append(start);
+    return sql.toString();
   }
+
 }

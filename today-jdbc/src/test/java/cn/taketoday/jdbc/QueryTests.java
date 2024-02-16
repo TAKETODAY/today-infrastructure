@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc;
@@ -40,7 +37,6 @@ class QueryTests extends AbstractRepositoryManagerTests {
 
   @Override
   protected void prepareTestsData(DbType dbType, RepositoryManager repositoryManager) {
-    // language=MySQL
     try (NamedQuery query = repositoryManager.createNamedQuery("""
             drop table if exists t_user;
             create table t_user
@@ -68,7 +64,7 @@ class QueryTests extends AbstractRepositoryManagerTests {
     createData(entityManager);
 
     try (JdbcConnection connection = repositoryManager.open()) {
-      // language=MySQL
+
       Query query = connection.createQuery("select * from t_user where id=?")
               .addParameter(1);
 
@@ -86,7 +82,6 @@ class QueryTests extends AbstractRepositoryManagerTests {
     createData(entityManager);
 
     try (JdbcConnection connection = repositoryManager.open()) {
-      // language=MySQL
       Query query = connection.createQuery("select * from t_user where id=? and name=?")
               .addParameter(1)
               .addParameter("TODAY");
