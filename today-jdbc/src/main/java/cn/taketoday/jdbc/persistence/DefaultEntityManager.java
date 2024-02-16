@@ -177,15 +177,16 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId) throws DataAccessException {
-    if (strategy == null) {
-      strategy = defaultUpdateStrategy();
-    }
     Class<?> entityClass = entity.getClass();
     EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
     String sql = insert(entityMetadata, entity, strategy);
 
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Persist entity: {}", entity), sql);
+    }
+
+    if (strategy == null) {
+      strategy = defaultUpdateStrategy();
     }
 
     DataSource dataSource = obtainDataSource();
@@ -304,10 +305,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  public int updateById(Object entity, Object id) {
+    return updateById(entity, id, null);
+  }
+
+  @Override
   public int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
-    if (strategy == null) {
-      strategy = defaultUpdateStrategy();
-    }
     Class<?> entityClass = entity.getClass();
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     EntityProperty idProperty = metadata.idProperty();
@@ -315,6 +318,10 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Object id = idProperty.getValue(entity);
     if (id == null) {
       throw new IllegalArgumentException("Update an entity, ID property is required");
+    }
+
+    if (strategy == null) {
+      strategy = defaultUpdateStrategy();
     }
 
     Update updateStmt = new Update();
@@ -362,21 +369,72 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  public int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy) {
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
+    EntityProperty idProperty = metadata.idProperty();
+    Assert.isTrue(idProperty.property.isInstance(id), "Entity Id matches failed");
+
+    Update updateStmt = new Update();
+    updateStmt.setTableName(metadata.tableName);
+    updateStmt.addWhereColumn(idProperty.columnName);
+
+    if (strategy == null) {
+      strategy = defaultUpdateStrategy();
+    }
+
+    for (EntityProperty property : metadata.entityProperties) {
+      if (strategy.shouldUpdate(entity, property)) {
+        updateStmt.addColumn(property.columnName);
+      }
+    }
+
+    String sql = updateStmt.toStatementString();
+
+    if (stmtLogger.isDebugEnabled()) {
+      stmtLogger.logStatement(LogMessage.format("Update entity using ID: '{}'", id), sql);
+    }
+
+    DataSource dataSource = obtainDataSource();
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    PreparedStatement statement = null;
+    try {
+      statement = prepareStatement(con, sql, false);
+      int idx = 1;
+      for (EntityProperty property : metadata.entityProperties) {
+        if (strategy.shouldUpdate(entity, property)) {
+          Object propertyValue = property.getValue(entity);
+          property.setParameter(statement, idx++, propertyValue);
+        }
+      }
+
+      // last one is ID
+      idProperty.setParameter(statement, idx, id);
+      return statement.executeUpdate();
+    }
+    catch (SQLException ex) {
+      throw translateException("Update entity By ID", sql, ex);
+    }
+    finally {
+      JdbcUtils.closeStatement(statement);
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
+  }
+
+  @Override
   public int updateBy(Object entity, String where) {
     return updateBy(entity, where, null);
   }
 
   @Override
   public int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy) {
-    if (strategy == null) {
-      strategy = defaultUpdateStrategy();
-    }
-
-    Class<?> entityClass = entity.getClass();
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
+
+    if (strategy == null) {
+      strategy = defaultUpdateStrategy();
+    }
 
     EntityProperty updateBy = null;
     for (EntityProperty property : metadata.entityProperties) {

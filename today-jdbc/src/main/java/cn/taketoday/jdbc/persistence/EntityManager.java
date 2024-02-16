@@ -182,10 +182,30 @@ public interface EntityManager {
    * Merge the state of the given entity into underlying repository
    *
    * @param entity entity instance
+   * @param id entity id
+   * @return update count
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  int updateById(Object entity, Object id);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
   int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @param id entity id
+   * @return update count
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy);
 
   /**
    * Merge the state of the given entity into underlying repository
