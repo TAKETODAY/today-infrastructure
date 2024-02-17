@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
@@ -188,8 +188,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   @Override
   @Nullable
   public PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
-    PathContainer lookupPath = request.getLookupPath();
-    PathPattern[] matches = getMatchingPatterns(lookupPath);
+    PathPattern[] matches = getMatchingPatterns(request.getLookupPath());
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
 
@@ -197,7 +196,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   private PathPattern[] getMatchingPatterns(PathContainer lookupPath) {
     PathPattern[] pathPatterns = new PathPattern[patterns.length];
     int i = 0;
-    for (PathPattern pattern : this.patterns) {
+    for (PathPattern pattern : patterns) {
       if (pattern.matches(lookupPath)) {
         pathPatterns[i++] = pattern;
       }
@@ -206,7 +205,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
       return null;
     }
 
-    if (i == 1 && this.patterns.length == 1) {
+    if (i == 1 && patterns.length == 1) {
       return pathPatterns;
     }
 

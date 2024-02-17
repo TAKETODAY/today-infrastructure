@@ -110,11 +110,6 @@ public class MockServletRequestContext extends RequestContext implements Servlet
     return 0;
   }
 
-  @Override
-  protected String doGetContextPath() {
-    return request.getContextPath();
-  }
-
   @SuppressWarnings("unchecked")
   public <T> T nativeRequest() {
     return (T) request;
@@ -398,10 +393,6 @@ public class MockServletRequestContext extends RequestContext implements Servlet
     else {
       return request.getAttributeNames().asIterator();
     }
-  }
-
-  public void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
   }
 
   public void setCookies(HttpCookie[] cookies) {

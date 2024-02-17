@@ -68,13 +68,6 @@ public class NettyRequestConfig {
   @Nullable
   private Function<RequestContext, ByteBuf> responseBodyFactory;
 
-  /**
-   * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
-   *
-   * @see jakarta.servlet.http.HttpServletRequest#getContextPath()
-   */
-  private String contextPath = "";
-
   private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
   private HttpDataFactory httpDataFactory;
@@ -163,19 +156,6 @@ public class NettyRequestConfig {
    */
   public void setBodyInitialSize(int bodyInitialSize) {
     this.bodyInitialSize = bodyInitialSize;
-  }
-
-  public void setContextPath(@Nullable String contextPath) {
-    this.contextPath = contextPath == null ? "" : contextPath;
-  }
-
-  /**
-   * {@code contextPath} just like {@code HttpServletRequest.getContextPath()}
-   *
-   * @see jakarta.servlet.http.HttpServletRequest#getContextPath()
-   */
-  public String getContextPath() {
-    return contextPath;
   }
 
   public void setPostRequestDecoderCharset(@Nullable Charset charset) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -109,7 +109,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     if (handler == null) {
       // We need to care for the default handler directly
       Object rawHandler = null;
-      String lookupPath = request.getRequestURI();
+      String lookupPath = request.getLookupPath().value();
       if (StringUtils.matchesCharacter(lookupPath, '/')) {
         rawHandler = getRootHandler();
       }
@@ -137,15 +137,16 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    */
   @Nullable
   protected Object lookupHandler(RequestContext request) {
-    String requestPath = request.getRequestURI();
+    PathContainer lookupPath = request.getLookupPath();
+
+    String requestPath = lookupPath.value();
     Object handler = getDirectMatch(requestPath, request);
     if (handler != null) {
       var matchingMetadata = new HandlerMatchingMetadata(
-              handler, requestPath, request.getLookupPath(), null, getPatternParser());
+              handler, requestPath, lookupPath, null, getPatternParser());
       request.setMatchingMetadata(matchingMetadata);
       return handler;
     }
-    PathContainer lookupPath = request.getLookupPath();
 
     ArrayList<PathPattern> matches = null;
     for (PathPattern pattern : pathPatternHandlerMap.keySet()) {
