@@ -15,19 +15,41 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.util;
 
-import java.util.List;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
+ * Stream Iterable
+ * <p>
+ * just use once
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/20 12:47
+ * @since 1.0 2024/2/14 18:46
  */
-public interface BatchPersistListener {
-  /**
-   * @param entityMetadata entity metadata
-   * @param entities entities to persist
-   * @param implicitExecution maxBatchRecords
-   */
-  void executeBatch(EntityMetadata entityMetadata, List<Object> entities, boolean implicitExecution);
+public class StreamIterable<T> implements Iterable<T> {
+  private final Stream<T> stream;
+
+  public StreamIterable(Stream<T> stream) {
+    this.stream = stream;
+  }
+
+  @Override
+  public Iterator<T> iterator() {
+    return stream.iterator();
+  }
+
+  @Override
+  public void forEach(Consumer<? super T> action) {
+    stream.forEach(action);
+  }
+
+  @Override
+  public Spliterator<T> spliterator() {
+    return stream.spliterator();
+  }
+
 }

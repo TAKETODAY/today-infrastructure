@@ -23,39 +23,35 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import cn.taketoday.core.annotation.AliasFor;
-
 /**
- * Specifies the primary table for the annotated entity
+ * Specifies the primary key of an entity.
+ * The field or property to which the <code>GeneratedId</code> annotation
+ * is applied should be one of the following types: any Java primitive type;
+ * any primitive wrapper type;
+ * <code>java.math.BigDecimal</code>;
+ * <code>java.math.BigInteger</code>.
  *
- * <p> If no <code>Table</code> annotation is specified for an entity
- * class, the default values apply.
+ * <p>The mapped column for the primary key of the entity is assumed
+ * to be the primary key of the primary table. If no <code>Column</code> annotation
+ * is specified, the primary key column name is assumed to be the name
+ * of the primary key property or field.
  *
- * <pre> {@code
- *    Example:
+ * <pre>{@code
+ *   // Example:
  *
- *    @Table(name="t_user")
- *    public class User {
- *      ...
- *    }
+ *   @GeneratedId
+ *   public Long getId() {
+ *     return id;
+ *   }
  * }</pre>
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/8/16 21:05
+ * @since 1.0 2024/2/14 21:11
  */
+@Id
 @Documented
-@Target({ ElementType.ANNOTATION_TYPE, ElementType.TYPE })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Table {
-
-  @AliasFor("name")
-  String value() default "";
-
-  /**
-   * (Optional) The name of the table.
-   * <p> Defaults to the entity name.
-   */
-  @AliasFor("value")
-  String name() default "";
+public @interface GeneratedId {
 
 }

@@ -15,19 +15,25 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.util;
 
-import java.util.List;
+import org.junit.jupiter.api.Test;
+
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/20 12:47
+ * @since 1.0 2024/2/14 18:49
  */
-public interface BatchPersistListener {
-  /**
-   * @param entityMetadata entity metadata
-   * @param entities entities to persist
-   * @param implicitExecution maxBatchRecords
-   */
-  void executeBatch(EntityMetadata entityMetadata, List<Object> entities, boolean implicitExecution);
+class StreamIterableTests {
+
+  @Test
+  void test() {
+    StreamIterable<String> objects = new StreamIterable<>(Stream.of("1"));
+    assertThat(objects).hasSize(1);
+    assertThat(new StreamIterable<>(Stream.of("1"))).contains("1");
+  }
+
 }

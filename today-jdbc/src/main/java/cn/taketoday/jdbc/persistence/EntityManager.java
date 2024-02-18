@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,12 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StreamIterable;
 
 /**
  * Entity manager
@@ -39,18 +41,20 @@ public interface EntityManager {
    * persist an entity to underlying repository
    *
    * @param entity entity instance
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Object entity) throws DataAccessException;
+  int persist(Object entity) throws DataAccessException;
 
   /**
    * persist an entity to underlying repository
    *
    * @param entity entity instance
    * @param strategy property persist strategy
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy)
+  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
 
   /**
@@ -58,11 +62,12 @@ public interface EntityManager {
    *
    * @param entity entity instance
    * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  void persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException;
+  int persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException;
 
   /**
    * persist an entity to underlying repository
@@ -71,11 +76,12 @@ public interface EntityManager {
    * @param strategy property persist strategy
    * @param returnGeneratedKeys a flag indicating whether auto-generated
    * keys should be returned
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  void persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
           throws DataAccessException;
 
   /**
@@ -119,38 +125,107 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Merge the state of the given entity into underlying repository
+   * persist entities to underlying repository
    *
-   * @param entity entity instance
+   * @param entities entities instances
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void updateById(Object entity);
+  default void persist(Stream<?> entities) throws DataAccessException {
+    persist(new StreamIterable<>(entities));
+  }
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param entities entities instances
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
+    persist(new StreamIterable<>(entities), returnGeneratedKeys);
+  }
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param entities entities instances
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy) throws DataAccessException {
+    persist(new StreamIterable<>(entities), strategy);
+  }
+
+  /**
+   * persist entities to underlying repository
+   *
+   * @param returnGeneratedKeys a flag indicating whether
+   * auto-generated keys should be returned;
+   * @param entities entities instances
+   * @param strategy property persist strategy
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
+    persist(new StreamIterable<>(entities), strategy, returnGeneratedKeys);
+  }
 
   /**
    * Merge the state of the given entity into underlying repository
    *
    * @param entity entity instance
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void updateById(Object entity, @Nullable PropertyUpdateStrategy strategy);
+  int updateById(Object entity);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @param id entity id
+   * @return update count
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  int updateById(Object entity, Object id);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @return update count
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy);
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entity entity instance
+   * @param id entity id
+   * @return update count
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy);
 
   /**
    * Merge the state of the given entity into underlying repository
    *
    * @param entity entity instance
    * @param where columnName or property name
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void updateBy(Object entity, String where);
+  int updateBy(Object entity, String where);
 
   /**
    * Merge the state of the given entity into underlying repository
    *
    * @param entity entity instance
    * @param where columnName or property name
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy);
+  int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy);
 
   /**
    * Delete an entity.
@@ -159,9 +234,10 @@ public interface EntityManager {
    *
    * @param entityClass entity descriptor
    * @param id id
+   * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void delete(Class<?> entityClass, Object id);
+  int delete(Class<?> entityClass, Object id);
 
   /**
    * delete entity

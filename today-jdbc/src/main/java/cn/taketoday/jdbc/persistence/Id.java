@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -29,8 +29,6 @@ import java.lang.annotation.Target;
  * should be one of the following types: any Java primitive type;
  * any primitive wrapper type;
  * <code>String</code>;
- * <code>java.util.Date</code>;
- * <code>java.sql.Date</code>;
  * <code>java.math.BigDecimal</code>;
  * <code>java.math.BigInteger</code>.
  *
@@ -40,7 +38,7 @@ import java.lang.annotation.Target;
  * of the primary key property or field.
  *
  * <pre>{@code
- *   Example:
+ *   // Example:
  *
  *   @Id
  *   public Long getId() {
@@ -52,7 +50,7 @@ import java.lang.annotation.Target;
  * @since 4.0 2022/8/16 20:58
  */
 @Documented
-@Target({ ElementType.FIELD, ElementType.METHOD })
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Id {
 
