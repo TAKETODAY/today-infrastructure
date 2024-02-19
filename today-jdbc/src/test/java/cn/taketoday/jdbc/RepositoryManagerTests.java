@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc;
@@ -52,10 +52,6 @@ import cn.taketoday.jdbc.pojos.ComplexEntity;
 import cn.taketoday.jdbc.pojos.EntityWithPrivateFields;
 import cn.taketoday.jdbc.pojos.StringConversionPojo;
 import cn.taketoday.jdbc.pojos.SuperPojo;
-import cn.taketoday.jdbc.result.LazyTable;
-import cn.taketoday.jdbc.result.ResultSetIterable;
-import cn.taketoday.jdbc.result.Row;
-import cn.taketoday.jdbc.result.Table;
 import cn.taketoday.jdbc.type.BytesInputStreamTypeHandler;
 import cn.taketoday.jdbc.type.Enumerated;
 import cn.taketoday.jdbc.type.TypeHandlerManager;
@@ -1161,7 +1157,9 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   public void testExecuteAndFetchLazy() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = repositoryManager.createNamedQuery("select * from User").fetchIterable(User.class);
+    ResultSetIterable<User> allUsers = repositoryManager.createNamedQuery("select * from User")
+            .iterate(User.class)
+            .asIterable();
 
     // read in batches, because maybe we are bulk exporting and can't fit them all into a list
     int totalSize = 0;
@@ -1186,7 +1184,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
   public void testResultSetIterator_multipleHasNextWorks() {
     createAndFillUserTable();
 
-    ResultSetIterable<User> allUsers = repositoryManager.createNamedQuery("select * from User").fetchIterable(User.class);
+    ResultSetIterable<User> allUsers = repositoryManager.createNamedQuery("select * from User").iterate(User.class).asIterable();
 
     Iterator<User> usersIterator = allUsers.iterator();
 
@@ -1234,7 +1232,7 @@ public class RepositoryManagerTests extends BaseMemDbTest {
     JdbcConnection con = repositoryManager.open();
 
     try (ResultSetIterable<User> userIterable = con.createNamedQuery("select * from User")
-            .fetchIterable(User.class)) {
+            .iterate(User.class).asIterable()) {
 
       userIterable.setAutoCloseConnection(true);
 

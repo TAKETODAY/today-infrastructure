@@ -26,7 +26,7 @@ import cn.taketoday.jdbc.persistence.ANSICaseFragment;
 import cn.taketoday.jdbc.persistence.ANSIJoinFragment;
 import cn.taketoday.jdbc.persistence.CaseFragment;
 import cn.taketoday.jdbc.persistence.JoinFragment;
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
+import cn.taketoday.jdbc.JdbcBeanMetadata;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;

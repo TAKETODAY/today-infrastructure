@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.jdbc.result.ResultSetIterator;
+import cn.taketoday.jdbc.ResultSetIterator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamIterable;
 
@@ -267,7 +267,7 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findFirst(Class<T> entityClass, Object query) throws DataAccessException;
+  <T> T findFirst(Class<T> entityClass, Object example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
@@ -280,13 +280,13 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUnique(T entity) throws DataAccessException;
+  <T> T findUnique(T example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUnique(Class<T> entityClass, Object query) throws DataAccessException;
+  <T> T findUnique(Class<T> entityClass, Object example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
@@ -312,7 +312,7 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException;
+  <T> List<T> find(Class<T> entityClass, Object example) throws DataAccessException;
 
   /**
    * @param handler build {@link Select}
@@ -326,7 +326,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, params, "id")
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
@@ -334,14 +334,14 @@ public interface EntityManager {
    * @return Map containing key pair data.
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey)
+  <K, T> Map<K, T> find(Class<T> entityClass, Object example, String mapKey)
           throws DataAccessException;
 
   /**
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, params, "id")
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
@@ -355,7 +355,7 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer)
+  <T> void iterate(Class<T> entityClass, Object example, Consumer<T> entityConsumer)
           throws DataAccessException;
 
   /**
@@ -369,7 +369,7 @@ public interface EntityManager {
    *
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params)
+  <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object example)
           throws DataAccessException;
 
   /**
