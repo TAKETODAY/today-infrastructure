@@ -135,6 +135,11 @@ public abstract class QueryCondition extends AbstractColumnsQueryHandler impleme
     next.preNode = this;
   }
 
+  @Override
+  public String getDescription() {
+    return "Query entities with condition";
+  }
+
   // Static factory methods
 
   public static DefaultQueryCondition of(String columnName, Operator operator, Object value) {

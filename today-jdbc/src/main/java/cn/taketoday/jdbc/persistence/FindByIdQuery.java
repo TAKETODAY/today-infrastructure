@@ -20,27 +20,36 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import cn.taketoday.lang.Descriptive;
+import cn.taketoday.logging.LogMessage;
 
 /**
- * Query condition builder
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/16 14:45
+ * @since 1.0 2024/2/19 19:31
  */
-public interface QueryHandler extends Descriptive {
+class FindByIdQuery extends AbstractColumnsQueryHandler implements QueryHandler {
+  private final Object id;
 
-  void render(EntityMetadata metadata, Select select);
-
-  void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
+  FindByIdQuery(Object id) {
+    this.id = id;
+  }
 
   @Override
-  default String getDescription() {
-    return "Query entities with query-handler";
+  protected void renderInternal(EntityMetadata metadata, Select select) {
+    select.setWhereClause('`' + metadata.idColumnName + "`=? LIMIT 1");
   }
 
-  default Object getDebugLogMessage() {
-    return "Lookup entities";
+  @Override
+  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
+    metadata.idProperty().setParameter(statement, 1, id);
   }
 
+  @Override
+  public String getDescription() {
+    return "Fetch entity By ID";
+  }
+
+  @Override
+  public Object getDebugLogMessage() {
+    return LogMessage.format("Lookup entity using ID: '{}'", id);
+  }
 }

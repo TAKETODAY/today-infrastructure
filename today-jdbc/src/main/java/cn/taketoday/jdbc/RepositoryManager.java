@@ -37,7 +37,6 @@ import cn.taketoday.jdbc.parsing.QueryParameter;
 import cn.taketoday.jdbc.parsing.SqlParameterParser;
 import cn.taketoday.jdbc.persistence.DefaultEntityManager;
 import cn.taketoday.jdbc.persistence.EntityManager;
-import cn.taketoday.jdbc.result.PrimitiveTypeNullHandler;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;

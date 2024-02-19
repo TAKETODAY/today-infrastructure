@@ -35,20 +35,18 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
+import cn.taketoday.jdbc.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.GeneratedKeysException;
+import cn.taketoday.jdbc.JdbcBeanMetadata;
 import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
+import cn.taketoday.jdbc.ResultSetHandler;
+import cn.taketoday.jdbc.ResultSetIterator;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
-import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
-import cn.taketoday.jdbc.result.ResultSetHandler;
-import cn.taketoday.jdbc.result.ResultSetIterator;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
-import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
@@ -163,9 +161,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
   }
 
-  //---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
   // Implementation of EntityManager
-  //---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
 
   @Override
   public int persist(Object entity) throws DataAccessException {
@@ -601,6 +599,10 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
   }
 
+  // -----------------------------------------------------------------------------------------------
+  // Query methods
+  // -----------------------------------------------------------------------------------------------
+
   /**
    * Find by primary key.
    * Search for an entity of the specified class and primary key.
@@ -619,33 +621,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   @Nullable
   public <T> T findById(Class<T> entityClass, Object id) throws DataAccessException {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM `");
-    sql.append(metadata.tableName);
-    sql.append("` WHERE `");
-    sql.append(metadata.idColumnName);
-    sql.append("`=? LIMIT 1");
-
-    if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Lookup entity using ID: '{}'", id), sql.toString());
-    }
-
-    DataSource dataSource = obtainDataSource();
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
-      metadata.idProperty().setParameter(statement, 1, id);
-
-      try (var iterator = new EntityIterator<T>(con, statement, entityClass)) {
-        return iterator.hasNext() ? iterator.next() : null;
-      }
-    }
-    catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Fetch entity By ID", sql.toString(), ex);
-    }
+    return iterate(entityClass, new FindByIdQuery(id)).first();
   }
 
   @Nullable
@@ -657,74 +633,31 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Nullable
   @Override
-  public <T> T findFirst(Class<T> entityClass, Object query) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, query)) {
-      while (iterator.hasNext()) {
-        T returnValue = iterator.next();
-        if (returnValue != null) {
-          return returnValue;
-        }
-      }
-    }
-    return null;
+  public <T> T findFirst(Class<T> entityClass, Object example) throws DataAccessException {
+    return iterate(entityClass, example).first();
   }
 
   @Override
   public <T> T findFirst(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
-      while (iterator.hasNext()) {
-        T returnValue = iterator.next();
-        if (returnValue != null) {
-          return returnValue;
-        }
-      }
-    }
-    return null;
+    return iterate(entityClass, handler).first();
   }
 
   @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T findUnique(T entity) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
-      T returnValue = null;
-      while (iterator.hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = iterator.next();
-      }
-      return returnValue;
-    }
+  public <T> T findUnique(T example) throws DataAccessException {
+    return iterate((Class<T>) example.getClass(), example).unique();
   }
 
   @Nullable
   @Override
-  public <T> T findUnique(Class<T> entityClass, Object query) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, query)) {
-      T returnValue = null;
-      while (iterator.hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = iterator.next();
-      }
-      return returnValue;
-    }
+  public <T> T findUnique(Class<T> entityClass, Object example) throws DataAccessException {
+    return iterate(entityClass, example).unique();
   }
 
   @Override
   public <T> T findUnique(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
-      T returnValue = null;
-      while (iterator.hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = iterator.next();
-      }
-      return returnValue;
-    }
+    return iterate(entityClass, handler).unique();
   }
 
   @Override
@@ -741,161 +674,48 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   @SuppressWarnings("unchecked")
   public <T> List<T> find(T entity) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
-      }
-    }
-    return entities;
+    return iterate((Class<T>) entity.getClass(), entity).list();
   }
 
   @Override
-  public <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
-      }
-    }
-    return entities;
+  public <T> List<T> find(Class<T> entityClass, Object example) throws DataAccessException {
+    return iterate(entityClass, example).list();
   }
 
   @Override
   public <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
-      }
-    }
-    return entities;
+    return iterate(entityClass, handler).list();
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey) throws DataAccessException {
-    LinkedHashMap<K, T> entities = new LinkedHashMap<>();
-    try (var iterator = iterate(entityClass, params)) {
-      EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
-      while (iterator.hasNext()) {
-        T entity = iterator.next();
-        Object propertyValue = beanProperty.getValue(entity);
-        entities.put((K) propertyValue, entity);
-      }
-    }
-    return entities;
+  public <K, T> Map<K, T> find(Class<T> entityClass, Object example, String mapKey) throws DataAccessException {
+    return iterate(entityClass, example).map(mapKey);
   }
 
   @Override
-  @SuppressWarnings("unchecked")
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey)
-          throws DataAccessException //
-  {
-    var entities = new LinkedHashMap<K, T>();
-    try (var iterator = iterate(entityClass, handler)) {
-      EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
-      while (iterator.hasNext()) {
-        T entity = iterator.next();
-        Object propertyValue = beanProperty.getValue(entity);
-        entities.put((K) propertyValue, entity);
-      }
-    }
-    return entities;
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey) throws DataAccessException {
+    return iterate(entityClass, handler).map(mapKey);
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
-      while (iterator.hasNext()) {
-        entityConsumer.accept(iterator.next());
-      }
-    }
+  public <T> void iterate(Class<T> entityClass, Object example, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate(entityClass, example).consume(entityConsumer);
   }
 
   @Override
-  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(params.getClass());
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM ");
-    sql.append(metadata.tableName);
-
-    StringBuilder columnNamesBuf = new StringBuilder();
-
-    class Condition {
-      final Object propertyValue;
-      final TypeHandler<Object> typeHandler;
-
-      Condition(TypeHandler<Object> typeHandler, Object propertyValue) {
-        this.typeHandler = typeHandler;
-        this.propertyValue = propertyValue;
-      }
-    }
-
-    boolean first = true;
-    ArrayList<Condition> conditions = new ArrayList<>();
-    for (EntityProperty entityProperty : queryMetadata.entityProperties) {
-      Object propertyValue = entityProperty.getValue(params);
-      if (propertyValue != null) {
-        if (first) {
-          first = false;
-        }
-        else {
-          columnNamesBuf.append(" AND ");
-        }
-
-        columnNamesBuf.append('`')
-                .append(entityProperty.columnName)
-                .append('`')
-                .append(" = ?");
-
-        // and
-        conditions.add(new Condition(entityProperty.typeHandler, propertyValue));
-      }
-    }
-
-    if (!columnNamesBuf.isEmpty()) {
-      sql.append(" WHERE ");
-      sql.append(columnNamesBuf);
-    }
-
-    if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Lookup entity using query-model: {}", params), sql.toString());
-    }
-
-    DataSource dataSource = obtainDataSource();
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
-      int idx = 1;
-      for (Condition condition : conditions) {
-        condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
-      }
-      return new EntityIterator<>(con, statement, entityClass);
-    }
-    catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Iterate entities with query-model", sql.toString(), ex);
-    }
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate(entityClass, handler).consume(entityConsumer);
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer)
-          throws DataAccessException //
-  {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
-      while (iterator.hasNext()) {
-        entityConsumer.accept(iterator.next());
-      }
-    }
+  public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
+    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(example.getClass());
+    ExampleQuery exampleQuery = new ExampleQuery(example, queryMetadata);
+    return iterate(entityClass, exampleQuery);
   }
 
   @Override
-  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+  public <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     Select select = new Select(platform);
@@ -912,20 +732,22 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Connection con = DataSourceUtils.getConnection(dataSource);
 
     try {
-      PreparedStatement statement = prepareStatement(con, select.toStatementString(), false);
+      PreparedStatement statement = con.prepareStatement(select.toStatementString());
       if (handler != null) {
         handler.setParameter(metadata, statement);
       }
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement("Lookup entities", select.toStatementString());
+        stmtLogger.logStatement(handler != null ? handler.getDebugLogMessage() : "Lookup entities", select.toStatementString());
       }
 
-      return new EntityIterator<>(con, statement, entityClass);
+      return new EntityIterator<>(con, statement, entityClass, metadata);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Iterate entities with query-handler", select.toStatementString(), ex);
+      throw translateException(handler != null
+                               ? handler.getDescription()
+                               : "Iterate entities with query-handler", select.toStatementString(), ex);
     }
   }
 
@@ -960,17 +782,20 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   final class EntityIterator<T> extends ResultSetIterator<T> {
+
     private final Connection connection;
 
     private final PreparedStatement statement;
 
     private final ResultSetHandler<T> handler;
 
-    private EntityIterator(Connection connection,
-            PreparedStatement statement, Class<?> entityClass) throws SQLException {
+    private final EntityMetadata entityMetadata;
+
+    private EntityIterator(Connection connection, PreparedStatement statement, Class<?> entityClass, EntityMetadata entityMetadata) throws SQLException {
       super(statement.executeQuery());
       this.statement = statement;
       this.connection = connection;
+      this.entityMetadata = entityMetadata;
       try {
         var factory = new DefaultResultSetHandlerFactory<T>(
                 new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
@@ -990,6 +815,23 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     @Override
     protected RuntimeException handleReadError(SQLException ex) {
       return translateException("Read Entity", null, ex);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <K> Map<K, T> map(String mapKey) {
+      try {
+        LinkedHashMap<K, T> entities = new LinkedHashMap<>();
+        BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
+        while (hasNext()) {
+          T entity = next();
+          Object propertyValue = beanProperty.getValue(entity);
+          entities.put((K) propertyValue, entity);
+        }
+        return entities;
+      }
+      finally {
+        close();
+      }
     }
 
     @Override

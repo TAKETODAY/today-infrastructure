@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.result;
+package cn.taketoday.jdbc;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
