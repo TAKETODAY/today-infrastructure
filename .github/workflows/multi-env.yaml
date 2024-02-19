@@ -2,7 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [ * ]
+    branches:
+      - master
+      - 'dev/**'
+      - 'fix/**'
 
 jobs:
   check:

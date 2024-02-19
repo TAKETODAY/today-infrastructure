@@ -20,7 +20,10 @@ name: Coveralls
 
 on:
   push:
-    branches: [ * ]
+    branches:
+      - master
+      - 'dev/**'
+      - 'fix/**'
     paths-ignore:
       - 'infra-docs/**/*.css'
       - 'infra-docs/**/*.html'
@@ -33,7 +36,10 @@ on:
       - 'README.md'
 
   pull_request:
-    branches: [ * ]
+    branches:
+      - master
+      - 'dev/**'
+      - 'fix/**'
     paths-ignore:
       - 'infra-docs/**/*.css'
       - 'infra-docs/**/*.html'
