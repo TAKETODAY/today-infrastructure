@@ -4,8 +4,14 @@ on:
   push:
     branches:
       - master
+
+  pull_request:
+    branches:
+      - master
       - 'dev/**'
       - 'fix/**'
+      - 'feat/**'
+      - 'feature/**'
 
 jobs:
   check:
