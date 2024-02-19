@@ -961,7 +961,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   final class EntityIterator<T> extends ResultSetIterator<T> {
     private final Connection connection;
+
     private final PreparedStatement statement;
+
     private final ResultSetHandler<T> handler;
 
     private EntityIterator(Connection connection,
@@ -997,7 +999,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
       catch (SQLException e) {
         if (repositoryManager.isCatchResourceCloseErrors()) {
-          throw translateException("Closing ResultSet", null, e);
+          throw translateException("Closing Connection", null, e);
         }
         else {
           logger.debug("Could not close JDBC Connection", e);
@@ -1012,7 +1014,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
           throw translateException("Closing Statement", null, e);
         }
         else {
-          logger.trace("Could not close JDBC Statement", e);
+          logger.debug("Could not close JDBC Statement", e);
         }
       }
 
@@ -1024,7 +1026,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
           throw translateException("Closing ResultSet", null, e);
         }
         else {
-          logger.trace("Could not close JDBC ResultSet", e);
+          logger.debug("Could not close JDBC ResultSet", e);
         }
       }
     }
