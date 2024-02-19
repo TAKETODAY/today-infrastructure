@@ -61,27 +61,27 @@ public interface EntityManager {
    * persist an entity to underlying repository
    *
    * @param entity entity instance
-   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param autoGenerateId a flag indicating whether auto-generated keys should be returned;
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  int persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException;
+  int persist(Object entity, boolean autoGenerateId) throws DataAccessException;
 
   /**
    * persist an entity to underlying repository
    *
    * @param entity entity instance
    * @param strategy property persist strategy
-   * @param returnGeneratedKeys a flag indicating whether auto-generated
+   * @param autoGenerateId a flag indicating whether auto-generated
    * keys should be returned
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -115,13 +115,13 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether
+   * @param autoGenerateId a flag indicating whether
    * auto-generated keys should be returned;
    * @param entities entities instances
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -137,12 +137,12 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param autoGenerateId a flag indicating whether auto-generated keys should be returned;
    * @param entities entities instances
    * @throws IllegalEntityException entityClass is legal entity
    */
-  default void persist(Stream<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(new StreamIterable<>(entities), returnGeneratedKeys);
+  default void persist(Stream<?> entities, boolean autoGenerateId) throws DataAccessException {
+    persist(new StreamIterable<>(entities), autoGenerateId);
   }
 
   /**
@@ -159,14 +159,14 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether
+   * @param autoGenerateId a flag indicating whether
    * auto-generated keys should be returned;
    * @param entities entities instances
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(new StreamIterable<>(entities), strategy, returnGeneratedKeys);
+  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId) throws DataAccessException {
+    persist(new StreamIterable<>(entities), strategy, autoGenerateId);
   }
 
   /**
@@ -361,7 +361,7 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> void iterate(Class<T> entityClass, @Nullable QueryHandler conditions, Consumer<T> entityConsumer)
+  <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer)
           throws DataAccessException;
 
   /**
@@ -370,14 +370,6 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params)
-          throws DataAccessException;
-
-  /**
-   * Iterate entities with given {@link QueryCondition}
-   *
-   * @throws IllegalEntityException entityClass is legal entity
-   */
-  <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions)
           throws DataAccessException;
 
   /**

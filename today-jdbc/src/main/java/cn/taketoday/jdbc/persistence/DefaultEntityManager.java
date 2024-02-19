@@ -884,19 +884,14 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler conditions, Consumer<T> entityConsumer)
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer)
           throws DataAccessException //
   {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
+    try (ResultSetIterator<T> iterator = iterate(entityClass, handler)) {
       while (iterator.hasNext()) {
         entityConsumer.accept(iterator.next());
       }
     }
-  }
-
-  @Override
-  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    return iterate(entityClass, (QueryHandler) conditions);
   }
 
   @Override
