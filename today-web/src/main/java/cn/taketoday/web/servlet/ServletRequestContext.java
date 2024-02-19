@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -149,11 +150,6 @@ public final class ServletRequestContext extends RequestContext implements Servl
     return ServletUtils.getNativeRequest(request, requestClass);
   }
 
-  @SuppressWarnings("unchecked")
-  public <T> T nativeResponse() {
-    return (T) response;
-  }
-
   @Override
   protected OutputStream doGetOutputStream() throws IOException {
     this.bodyUsed = true;
@@ -210,16 +206,10 @@ public final class ServletRequestContext extends RequestContext implements Servl
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public MultiValueMap<String, String> doGetParameters() {
-//    var ret = MultiValueMap.forLinkedHashMap(MultiValueMap.smartListMappingFunction);
-    MultiValueMap<String, String> ret = MultiValueMap.forLinkedHashMap();
-    Map<String, String[]> parameterMap = request.getParameterMap();
-    for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-      String key = entry.getKey();
-      for (String value : entry.getValue()) {
-        ret.add(key, value);
-      }
+    var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
+    for (var entry : request.getParameterMap().entrySet()) {
+      ret.addAll(entry.getKey(), entry.getValue());
     }
     return ret;
   }

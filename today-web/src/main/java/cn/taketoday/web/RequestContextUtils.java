@@ -19,6 +19,7 @@ package cn.taketoday.web;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Supplier;
@@ -34,7 +35,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
@@ -352,7 +352,7 @@ public class RequestContextUtils {
    * @return Map of list parameters
    */
   public static MultiValueMap<String, String> parseParameters(String s) {
-    LinkedMultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
+    MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
     parseParameters(params, s);
     return params;
   }

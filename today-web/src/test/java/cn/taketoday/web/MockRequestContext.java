@@ -34,6 +34,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
@@ -172,6 +173,10 @@ public class MockRequestContext extends RequestContext {
       return MultiValueMap.forLinkedHashMap();
     }
     return parameters;
+  }
+
+  public void setParameter(String key, String value) {
+    getParameters().add(key, value);
   }
 
   public void setParameters(MultiValueMap<String, String> parameters) {
