@@ -20,12 +20,13 @@ package cn.taketoday.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.type.TypeHandler;
 
 /**
  * @author TODAY 2021/1/7 22:52
  */
-final class TypeHandlerResultSetHandler<T> extends ResultSetHandler<T> {
+final class TypeHandlerResultSetHandler<T> implements ResultSetExtractor<T> {
   final TypeHandler<T> typeHandler;
 
   TypeHandlerResultSetHandler(TypeHandler<T> typeHandler) {
@@ -33,7 +34,7 @@ final class TypeHandlerResultSetHandler<T> extends ResultSetHandler<T> {
   }
 
   @Override
-  public T handle(ResultSet resultSet) throws SQLException {
+  public T extractData(ResultSet resultSet) throws SQLException {
     return typeHandler.getResult(resultSet, 1);
   }
 }

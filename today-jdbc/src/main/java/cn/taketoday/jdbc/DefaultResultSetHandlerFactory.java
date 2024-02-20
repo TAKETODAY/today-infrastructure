@@ -23,6 +23,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.BeanUtils;
+import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Nullable;
@@ -47,7 +48,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   @Override
   @SuppressWarnings("unchecked")
-  public ResultSetHandler<T> getResultSetHandler(ResultSetMetaData meta) throws SQLException {
+  public ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData meta) throws SQLException {
     int columnCount = meta.getColumnCount();
     StringBuilder builder = new StringBuilder(columnCount * 10);
     for (int i = 1; i <= columnCount; i++) {
@@ -58,7 +59,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
   }
 
   @SuppressWarnings("unchecked")
-  private ResultSetHandler<T> createHandler(ResultSetMetaData meta) throws SQLException {
+  private ResultSetExtractor<T> createHandler(ResultSetMetaData meta) throws SQLException {
     // cache key is ResultSetMetadata + Bean type
     int columnCount = meta.getColumnCount();
 
@@ -79,7 +80,7 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
       // If more than 1 column is fetched (we cannot fall back to executeScalar),
       // and the setter doesn't exist, throw exception.
       if (accessor == null && columnCount > 1 && metadata.throwOnMappingFailure) {
-        throw new PersistenceException("Could not map " + colName + " to any property.");
+        throw new PersistenceException("Could not map %s to any property.".formatted(colName));
       }
       accessors[i - 1] = accessor;
     }
@@ -140,11 +141,11 @@ public class DefaultResultSetHandlerFactory<T> implements ResultSetHandlerFactor
 
   }
 
-  static final MapCache<HandlerKey, ResultSetHandler, ResultSetMetaData> CACHE
+  static final MapCache<HandlerKey, ResultSetExtractor, ResultSetMetaData> CACHE
           = new MapCache<>(new ConcurrentReferenceHashMap<>()) {
 
     @Override
-    protected ResultSetHandler createValue(HandlerKey key, ResultSetMetaData param) {
+    protected ResultSetExtractor createValue(HandlerKey key, ResultSetMetaData param) {
       try {
         return key.factory.createHandler(param);
       }

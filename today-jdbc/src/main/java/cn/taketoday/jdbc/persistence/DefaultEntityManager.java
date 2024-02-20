@@ -41,8 +41,8 @@ import cn.taketoday.jdbc.JdbcBeanMetadata;
 import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.ResultSetHandler;
 import cn.taketoday.jdbc.ResultSetIterator;
+import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.jdbc.support.JdbcAccessor;
@@ -787,7 +787,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     private final PreparedStatement statement;
 
-    private final ResultSetHandler<T> handler;
+    private final ResultSetExtractor<T> handler;
 
     private final EntityMetadata entityMetadata;
 
@@ -809,7 +809,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
-      return handler.handle(resultSet);
+      return handler.extractData(resultSet);
     }
 
     @Override
