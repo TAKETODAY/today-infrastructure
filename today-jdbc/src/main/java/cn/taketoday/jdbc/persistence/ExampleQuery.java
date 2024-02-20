@@ -85,7 +85,7 @@ class ExampleQuery extends AbstractColumnsQueryHandler {
 
   @Override
   public Object getDebugLogMessage() {
-    return LogMessage.format("Lookup entity using example: {}", example);
+    return LogMessage.format("Query entity using example: {}", example);
   }
 
   static class Condition {

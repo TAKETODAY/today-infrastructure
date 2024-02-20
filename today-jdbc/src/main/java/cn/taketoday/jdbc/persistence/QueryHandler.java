@@ -40,7 +40,7 @@ public interface QueryHandler extends Descriptive {
   }
 
   default Object getDebugLogMessage() {
-    return "Lookup entities";
+    return "Query entities";
   }
 
 }

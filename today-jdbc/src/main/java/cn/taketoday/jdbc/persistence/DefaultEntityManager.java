@@ -187,7 +187,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     String sql = insert(entityMetadata, entity, strategy);
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Persist entity: {}", entity), sql);
+      stmtLogger.logStatement(LogMessage.format("Persisting entity: {}", entity), sql);
     }
 
     if (strategy == null) {
@@ -219,7 +219,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
     catch (SQLException ex) {
-      throw translateException("Persist entity", sql, ex);
+      throw translateException("Persisting entity", sql, ex);
     }
     finally {
       DataSourceUtils.releaseConnection(con, dataSource);
@@ -322,7 +322,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     Object id = idProperty.getValue(entity);
     if (id == null) {
-      throw new IllegalArgumentException("Update an entity, ID property is required");
+      throw new IllegalArgumentException("Updating an entity, ID property is required");
     }
 
     if (strategy == null) {
@@ -343,7 +343,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     String sql = updateStmt.toStatementString();
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Update entity using ID: '{}'", id), sql);
+      stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
     }
 
     DataSource dataSource = obtainDataSource();
@@ -365,7 +365,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Update entity By ID", sql, ex);
+      throw translateException("Updating entity By ID", sql, ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -396,7 +396,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     String sql = updateStmt.toStatementString();
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Update entity using ID: '{}'", id), sql);
+      stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
     }
 
     DataSource dataSource = obtainDataSource();
@@ -417,7 +417,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Update entity By ID", sql, ex);
+      throw translateException("Updating entity By ID", sql, ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -454,7 +454,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     if (updateBy == null) {
-      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' not found");
+      throw new IllegalArgumentException("Updating an entity, 'where' property '%s' not found".formatted(where));
     }
 
     updateStmt.addWhereColumn(updateBy.columnName);
@@ -462,12 +462,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Object updateByValue = updateBy.getValue(entity);
     if (updateByValue == null) {
       throw new IllegalArgumentException(
-              "Update an entity, 'where' property value '" + where + "' is required");
+              "Updating an entity, 'where' property value '%s' is required".formatted(where));
     }
 
     String sql = updateStmt.toStatementString();
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Update entity using {} : '{}'", where, updateByValue), sql);
+      stmtLogger.logStatement(LogMessage.format("Updating entity using {} : '{}'", where, updateByValue), sql);
     }
 
     DataSource dataSource = obtainDataSource();
@@ -490,7 +490,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Update entity By " + where, sql, ex);
+      throw translateException("Updating entity By " + where, sql, ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -504,7 +504,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     StringBuilder sql = new StringBuilder();
 
     if (metadata.idProperty == null) {
-      throw new IllegalEntityException("Delete an entity, Id property not found");
+      throw new IllegalEntityException("Deleting an entity, Id property not found");
     }
     sql.append("DELETE FROM ");
     sql.append(metadata.tableName);
@@ -513,7 +513,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     sql.append("` = ? ");
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Delete entity using ID: {}", id), sql.toString());
+      stmtLogger.logStatement(LogMessage.format("Deleting entity using ID: {}", id), sql);
     }
 
     DataSource dataSource = obtainDataSource();
@@ -525,7 +525,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Delete entity using ID", sql.toString(), ex);
+      throw translateException("Deleting entity using ID", sql.toString(), ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -567,7 +567,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Delete entity"), sql.toString());
+      stmtLogger.logStatement(LogMessage.format("Deleting entity: [{}]", entity), sql);
     }
 
     DataSource dataSource = obtainDataSource();
@@ -591,7 +591,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Delete entity", sql.toString(), ex);
+      throw translateException("Deleting entity", sql.toString(), ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -719,35 +719,29 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     Select select = new Select(platform);
-    if (handler != null) {
-      // WHERE column_name operator value;
-      handler.render(metadata, select);
+    if (handler == null) {
+      handler = NoConditionsQuery.instance;
     }
-    else {
-      select.setSelectClause("*");
-      select.setFromClause(metadata.tableName);
-    }
+
+    // WHERE column_name operator value;
+    handler.render(metadata, select);
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
 
     try {
       PreparedStatement statement = con.prepareStatement(select.toStatementString());
-      if (handler != null) {
-        handler.setParameter(metadata, statement);
-      }
+      handler.setParameter(metadata, statement);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(handler != null ? handler.getDebugLogMessage() : "Lookup entities", select.toStatementString());
+        stmtLogger.logStatement(handler.getDebugLogMessage(), select.toStatementString());
       }
 
       return new EntityIterator<>(con, statement, entityClass, metadata);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException(handler != null
-                               ? handler.getDescription()
-                               : "Iterate entities with query-handler", select.toStatementString(), ex);
+      throw translateException(handler.getDescription(), select.toStatementString(), ex);
     }
   }
 
@@ -814,7 +808,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     @Override
     protected RuntimeException handleReadError(SQLException ex) {
-      return translateException("Read Entity", null, ex);
+      return translateException("Reading Entity", null, ex);
     }
 
     @SuppressWarnings("unchecked")

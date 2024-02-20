@@ -322,12 +322,12 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     assertThatThrownBy(() -> entityManager.updateBy(userModel, "id_"))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Update an entity, 'where' property 'id_' not found");
+            .hasMessage("Updating an entity, 'where' property 'id_' not found");
 
     userModel.setId(null);
     assertThatThrownBy(() -> entityManager.updateBy(userModel, "id"))
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageStartingWith("Update an entity, 'where' property value 'id' is required");
+            .hasMessageStartingWith("Updating an entity, 'where' property value 'id' is required");
   }
 
   public static void createData(DefaultEntityManager entityManager) {

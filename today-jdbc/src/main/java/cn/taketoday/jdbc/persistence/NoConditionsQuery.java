@@ -24,32 +24,30 @@ import cn.taketoday.logging.LogMessage;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/19 19:31
+ * @since 1.0 2024/2/20 17:03
  */
-class FindByIdQuery extends AbstractColumnsQueryHandler implements QueryHandler {
-  private final Object id;
+final class NoConditionsQuery extends AbstractColumnsQueryHandler {
 
-  FindByIdQuery(Object id) {
-    this.id = id;
-  }
+  static final NoConditionsQuery instance = new NoConditionsQuery();
 
   @Override
   protected void renderInternal(EntityMetadata metadata, Select select) {
-    select.setWhereClause('`' + metadata.idColumnName + "`=? LIMIT 1");
+    // noop
   }
 
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-    metadata.idProperty().setParameter(statement, 1, id);
-  }
-
-  @Override
-  public String getDescription() {
-    return "Fetch entity By ID";
+    // noop
   }
 
   @Override
   public Object getDebugLogMessage() {
-    return LogMessage.format("Query entity using ID: '{}'", id);
+    return LogMessage.format(getDescription());
   }
+
+  @Override
+  public String getDescription() {
+    return "Query entities without conditions";
+  }
+
 }
