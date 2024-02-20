@@ -241,14 +241,6 @@ public class TomcatWebServerFactoryCustomizer
             .equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
   }
 
-  private void customizeMaxThreads(ConfigurableTomcatWebServerFactory factory, int maxThreads) {
-    customizeHandler(factory, maxThreads, AbstractProtocol.class, AbstractProtocol::setMaxThreads);
-  }
-
-  private void customizeMinThreads(ConfigurableTomcatWebServerFactory factory, int minSpareThreads) {
-    customizeHandler(factory, minSpareThreads, AbstractProtocol.class, AbstractProtocol::setMinSpareThreads);
-  }
-
   private void customizeMaxHttpRequestHeaderSize(ConfigurableTomcatWebServerFactory factory,
           int maxHttpRequestHeaderSize) {
     customizeHandler(factory, maxHttpRequestHeaderSize, AbstractHttp11Protocol.class,
