@@ -34,6 +34,7 @@ import java.util.Spliterator;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.format.SqlStatementLogger;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
@@ -264,7 +265,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    *
    * @return iterable results
    */
-  public <T> List<T> fetch(ResultSetHandler<T> handler) {
+  public <T> List<T> fetch(ResultSetExtractor<T> handler) {
     return iterate(handler).list();
   }
 
@@ -283,7 +284,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   }
 
   @Nullable
-  public <T> T fetchFirst(ResultSetHandler<T> handler) {
+  public <T> T fetchFirst(ResultSetExtractor<T> handler) {
     return iterate(handler).first();
   }
 
@@ -314,7 +315,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    * @param handler ResultSetHandler
    * @return iterable results
    */
-  public <T> ResultSetIterator<T> iterate(ResultSetHandler<T> handler) {
+  public <T> ResultSetIterator<T> iterate(ResultSetExtractor<T> handler) {
     return new ResultSetHandlerIterator<>(handler);
   }
 
@@ -804,9 +805,9 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    * @since 4.0
    */
   final class ResultSetHandlerIterator<T> extends CloseResultSetIterator<T> {
-    private final ResultSetHandler<T> handler;
+    private final ResultSetExtractor<T> handler;
 
-    public ResultSetHandlerIterator(ResultSetHandler<T> handler) {
+    public ResultSetHandlerIterator(ResultSetExtractor<T> handler) {
       super(executeQuery());
       this.handler = handler;
     }
@@ -823,7 +824,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
 
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
-      return handler.handle(resultSet);
+      return handler.extractData(resultSet);
     }
 
   }

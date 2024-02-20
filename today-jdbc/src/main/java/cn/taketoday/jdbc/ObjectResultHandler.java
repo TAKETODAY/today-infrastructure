@@ -14,21 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import cn.taketoday.jdbc.core.ResultSetExtractor;
+
 /**
  * @author TODAY 2021/1/2 18:28
  */
-public final class ObjectResultHandler<T> extends ResultSetHandler<T> {
+final class ObjectResultHandler<T> implements ResultSetExtractor<T> {
+
   private final int columnCount;
+
   private final JdbcBeanMetadata metadata;
+
   private final ObjectPropertySetter[] setters;
 
-  public ObjectResultHandler(
-          JdbcBeanMetadata metadata, ObjectPropertySetter[] setters, int columnCount) {
+  ObjectResultHandler(JdbcBeanMetadata metadata, ObjectPropertySetter[] setters, int columnCount) {
     this.metadata = metadata;
     this.setters = setters;
     this.columnCount = columnCount;
@@ -36,7 +41,7 @@ public final class ObjectResultHandler<T> extends ResultSetHandler<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public T handle(final ResultSet resultSet) throws SQLException {
+  public T extractData(final ResultSet resultSet) throws SQLException {
     // otherwise we want executeAndFetch with object mapping
     final int columnCount = this.columnCount;
     final Object pojo = metadata.newInstance();
