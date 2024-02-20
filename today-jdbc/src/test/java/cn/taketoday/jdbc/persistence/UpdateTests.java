@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,10 +36,10 @@ class UpdateTests {
     update.setVersionColumnName("version");
     update.setPrimaryKeyColumnNames("id");
 
-    assertThat(update.toStatementString()).isEqualTo("update t_user set `name`=? where id=? and version=?");
+    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE id=? AND version=?");
 
     update.addColumn("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("update t_user set `name`=:name where id=? and version=?");
+    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE id=? AND version=?");
   }
 
 }
