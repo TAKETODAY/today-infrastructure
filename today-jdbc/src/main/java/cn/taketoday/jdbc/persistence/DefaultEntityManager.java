@@ -35,6 +35,7 @@ import javax.sql.DataSource;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.GeneratedKeysException;
 import cn.taketoday.jdbc.JdbcBeanMetadata;
@@ -316,13 +317,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
-    Class<?> entityClass = entity.getClass();
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
     EntityProperty idProperty = metadata.idProperty();
 
     Object id = idProperty.getValue(entity);
     if (id == null) {
-      throw new IllegalArgumentException("Updating an entity, ID property is required");
+      throw new InvalidDataAccessApiUsageException("Updating an entity, ID property is required");
     }
 
     if (strategy == null) {
@@ -333,11 +333,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     updateStmt.setTableName(metadata.tableName);
     updateStmt.addWhereColumn(idProperty.columnName);
 
+    boolean emptyUpdateColumns = true;
     for (EntityProperty property : metadata.entityProperties) {
       if (property.property != idProperty.property
               && strategy.shouldUpdate(entity, property)) {
         updateStmt.addColumn(property.columnName);
+        emptyUpdateColumns = false;
       }
+    }
+
+    if (emptyUpdateColumns) {
+      throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
     }
 
     String sql = updateStmt.toStatementString();
@@ -350,7 +356,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql, false);
+      statement = con.prepareStatement(sql);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if (property.property != idProperty.property
@@ -375,6 +381,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy) {
+    Assert.notNull(id, "Entity id is required");
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
     EntityProperty idProperty = metadata.idProperty();
     Assert.isTrue(idProperty.property.isInstance(id), "Entity Id matches failed");
@@ -403,7 +410,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql, false);
+      statement = con.prepareStatement(sql);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if (strategy.shouldUpdate(entity, property)) {
@@ -454,14 +461,14 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     if (updateBy == null) {
-      throw new IllegalArgumentException("Updating an entity, 'where' property '%s' not found".formatted(where));
+      throw new InvalidDataAccessApiUsageException("Updating an entity, 'where' property '%s' not found".formatted(where));
     }
 
     updateStmt.addWhereColumn(updateBy.columnName);
 
     Object updateByValue = updateBy.getValue(entity);
     if (updateByValue == null) {
-      throw new IllegalArgumentException(
+      throw new InvalidDataAccessApiUsageException(
               "Updating an entity, 'where' property value '%s' is required".formatted(where));
     }
 
@@ -474,7 +481,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql, false);
+      statement = con.prepareStatement(sql);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if ((!Objects.equals(where, property.columnName)
@@ -504,7 +511,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     StringBuilder sql = new StringBuilder();
 
     if (metadata.idProperty == null) {
-      throw new IllegalEntityException("Deleting an entity, Id property not found");
+      throw new InvalidDataAccessApiUsageException("Deleting an entity, Id property not found");
     }
     sql.append("DELETE FROM ");
     sql.append(metadata.tableName);
@@ -520,7 +527,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql.toString(), false);
+      statement = con.prepareStatement(sql.toString());
       metadata.idProperty.setParameter(statement, 1, id);
       return statement.executeUpdate();
     }
@@ -574,7 +581,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql.toString(), false);
+      statement = con.prepareStatement(sql.toString());
       if (id != null) {
         metadata.idProperty.setParameter(statement, 1, id);
       }
@@ -668,7 +675,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   public <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException {
     Assert.notEmpty(sortKeys, "sortKeys is required");
-    return find(entityClass, new FindAllOrderByQueryHandler(sortKeys));
+    return find(entityClass, new NoConditionsOrderByQuery(sortKeys));
   }
 
   @Override
@@ -869,45 +876,30 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   }
 
-  final class PreparedBatch {
-
-    public final String sql;
+  final class PreparedBatch extends BatchExecution {
 
     public final PreparedStatement statement;
-
-    public final boolean autoGenerateId;
-
-    public final EntityMetadata entityMetadata;
-
-    public final PropertyUpdateStrategy strategy;
-
-    public final ArrayList<Object> entities = new ArrayList<>();
 
     public int currentBatchRecords = 0;
 
     PreparedBatch(Connection connection, String sql, PropertyUpdateStrategy strategy,
             EntityMetadata entityMetadata, boolean autoGenerateId) throws SQLException {
-      this.sql = sql;
-      this.strategy = strategy;
+      super(sql, strategy, entityMetadata, autoGenerateId);
       this.statement = prepareStatement(connection, sql, autoGenerateId);
-      this.entityMetadata = entityMetadata;
-      this.autoGenerateId = autoGenerateId;
     }
 
-    public void addBatchUpdate(Object entity, int maxBatchRecords) throws SQLException {
+    public void addBatchUpdate(Object entity, int maxBatchRecords) throws Throwable {
       entities.add(entity);
       PreparedStatement statement = this.statement;
       setPersistParameter(entity, statement, strategy, entityMetadata);
       statement.addBatch();
       if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
-        executeBatch(statement);
-        fireBatchExecution(true);
+        executeBatch(statement, true);
       }
     }
 
-    public void explicitExecuteBatch() throws SQLException {
-      executeBatch(statement);
-      fireBatchExecution(false);
+    public void explicitExecuteBatch() throws Throwable {
+      executeBatch(statement, false);
       try {
         statement.close();
       }
@@ -921,39 +913,58 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
 
-    private void fireBatchExecution(boolean implicitExecution) {
-      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
-        for (BatchPersistListener listener : batchPersistListeners) {
-          listener.executeBatch(entityMetadata, entities, implicitExecution);
-        }
-      }
-    }
-
-    private void executeBatch(PreparedStatement statement) throws SQLException {
+    private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
+      beforeProcessing(implicitExecution);
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), sql);
       }
-      int[] updateCounts = statement.executeBatch();
-      assertUpdateCount(sql, updateCounts.length, entities.size());
+      Throwable exception = null;
+      try {
+        int[] updateCounts = statement.executeBatch();
+        assertUpdateCount(sql, updateCounts.length, entities.size());
 
-      if (autoGenerateId) {
-        EntityProperty idProperty = entityMetadata.idProperty;
-        if (idProperty != null) {
-          ResultSet generatedKeys = statement.getGeneratedKeys();
-          for (Object entity : entities) {
-            try {
-              if (generatedKeys.next()) {
-                idProperty.setProperty(entity, generatedKeys, 1);
+        if (autoGenerateId) {
+          EntityProperty idProperty = entityMetadata.idProperty;
+          if (idProperty != null) {
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            for (Object entity : entities) {
+              try {
+                if (generatedKeys.next()) {
+                  idProperty.setProperty(entity, generatedKeys, 1);
+                }
               }
-            }
-            catch (SQLException e) {
-              throw new GeneratedKeysException("Cannot get generated keys", e);
+              catch (SQLException e) {
+                throw new GeneratedKeysException("Cannot get generated keys", e);
+              }
             }
           }
         }
       }
-      this.currentBatchRecords = 0;
-      this.entities.clear();
+      catch (Throwable e) {
+        exception = e;
+        throw e;
+      }
+      finally {
+        afterProcessing(implicitExecution, exception);
+        this.currentBatchRecords = 0;
+        this.entities.clear();
+      }
+    }
+
+    private void afterProcessing(boolean implicitExecution, @Nullable Throwable exception) {
+      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
+        for (BatchPersistListener listener : batchPersistListeners) {
+          listener.afterProcessing(this, implicitExecution, exception);
+        }
+      }
+    }
+
+    private void beforeProcessing(boolean implicitExecution) {
+      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
+        for (BatchPersistListener listener : batchPersistListeners) {
+          listener.beforeProcessing(this, implicitExecution);
+        }
+      }
     }
 
   }

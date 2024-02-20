@@ -178,7 +178,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity);
+  int updateById(Object entity) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -188,7 +188,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, Object id);
+  int updateById(Object entity, Object id) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -197,7 +197,8 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy);
+  int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -207,7 +208,8 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy);
+  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -217,7 +219,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateBy(Object entity, String where);
+  int updateBy(Object entity, String where) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -227,7 +229,8 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy);
+  int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * Delete an entity.
@@ -239,7 +242,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int delete(Class<?> entityClass, Object id);
+  int delete(Class<?> entityClass, Object id) throws DataAccessException;
 
   /**
    * delete entity
@@ -251,7 +254,7 @@ public interface EntityManager {
    * @return delete rows
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int delete(Object entity);
+  int delete(Object entity) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity

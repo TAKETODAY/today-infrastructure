@@ -182,7 +182,7 @@ public class Update {
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
-    buf.append("update ").append(tableName).append(" set ");
+    buf.append("UPDATE ").append(tableName).append(" set ");
     boolean assignmentsAppended = false;
 
     var iter = columns.entrySet().iterator();
@@ -207,7 +207,7 @@ public class Update {
             || where != null
             || !whereColumns.isEmpty()
             || versionColumnName != null) {
-      buf.append(" where ");
+      buf.append(" WHERE ");
     }
 
     if (primaryKeyColumns != null) {
@@ -216,7 +216,7 @@ public class Update {
         Map.Entry<String, String> e = iter.next();
         buf.append(e.getKey()).append('=').append(e.getValue());
         if (iter.hasNext()) {
-          buf.append(" and ");
+          buf.append(" AND ");
         }
         conditionsAppended = true;
       }
@@ -224,7 +224,7 @@ public class Update {
 
     if (where != null) {
       if (conditionsAppended) {
-        buf.append(" and ");
+        buf.append(" AND ");
       }
       buf.append(where);
       conditionsAppended = true;
@@ -233,14 +233,14 @@ public class Update {
     while (iter.hasNext()) {
       final Map.Entry<String, String> e = iter.next();
       if (conditionsAppended) {
-        buf.append(" and ");
+        buf.append(" AND ");
       }
       buf.append(e.getKey()).append(e.getValue());
       conditionsAppended = true;
     }
     if (versionColumnName != null) {
       if (conditionsAppended) {
-        buf.append(" and ");
+        buf.append(" AND ");
       }
       buf.append(versionColumnName).append("=?");
     }

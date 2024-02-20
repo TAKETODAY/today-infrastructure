@@ -25,11 +25,11 @@ import java.util.Map;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/16 22:39
  */
-class FindAllOrderByQueryHandler extends AbstractColumnsQueryHandler implements QueryHandler {
+class NoConditionsOrderByQuery extends AbstractColumnsQueryHandler implements QueryHandler {
 
   private final Map<String, Order> sortKeys;
 
-  FindAllOrderByQueryHandler(Map<String, Order> sortKeys) {
+  NoConditionsOrderByQuery(Map<String, Order> sortKeys) {
     this.sortKeys = sortKeys;
   }
 
@@ -59,8 +59,6 @@ class FindAllOrderByQueryHandler extends AbstractColumnsQueryHandler implements 
   }
 
   @Override
-  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-
-  }
+  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException { }
 
 }

@@ -17,31 +17,32 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
-import cn.taketoday.jdbc.persistence.dialect.MySQLPlatform;
-import cn.taketoday.jdbc.persistence.model.UserModel;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.ArrayList;
 
 /**
+ * Batch execution metadata
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/16 22:47
+ * @since 1.0 2024/2/20 23:25
  */
-class FindAllOrderByQueryHandlerTests {
-  DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
+public class BatchExecution {
 
-  @Test
-  void render() {
-    EntityMetadata entityMetadata = factory.createEntityMetadata(UserModel.class);
-    var handler = new FindAllOrderByQueryHandler(Map.of("name", Order.ASC, "age", Order.DESC));
+  public final String sql;
 
-    Select select = new Select(new MySQLPlatform());
-    handler.render(entityMetadata, select);
+  public final boolean autoGenerateId;
 
-    assertThat(select.orderByClause).isNotNull().asString().contains("`name` ASC").contains("`age` DESC");
+  public final EntityMetadata entityMetadata;
+
+  public final PropertyUpdateStrategy strategy;
+
+  public final ArrayList<Object> entities = new ArrayList<>();
+
+  BatchExecution(String sql, PropertyUpdateStrategy strategy,
+          EntityMetadata entityMetadata, boolean autoGenerateId) {
+    this.sql = sql;
+    this.strategy = strategy;
+    this.entityMetadata = entityMetadata;
+    this.autoGenerateId = autoGenerateId;
   }
 
 }

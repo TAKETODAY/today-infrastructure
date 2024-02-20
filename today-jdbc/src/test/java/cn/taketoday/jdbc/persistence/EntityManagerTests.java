@@ -26,13 +26,17 @@ import java.lang.annotation.Target;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
+import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.NamedQuery;
 import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.persistence.model.Gender;
+import cn.taketoday.jdbc.persistence.model.NoIdModel;
 import cn.taketoday.jdbc.persistence.model.UserModel;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.util.CollectionUtils;
 
 import static cn.taketoday.jdbc.persistence.QueryCondition.between;
@@ -321,13 +325,122 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     // throw
 
     assertThatThrownBy(() -> entityManager.updateBy(userModel, "id_"))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
             .hasMessage("Updating an entity, 'where' property 'id_' not found");
 
     userModel.setId(null);
     assertThatThrownBy(() -> entityManager.updateBy(userModel, "id"))
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
             .hasMessageStartingWith("Updating an entity, 'where' property value 'id' is required");
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void updateById(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel userModel = entityManager.findById(UserModel.class, 1);
+    assertThat(userModel).isNotNull();
+
+    String name = "TEST-UPDATE";
+    userModel.setName(name);
+
+    assertThat(entityManager.updateById(userModel, 1)).isEqualTo(1);
+
+    UserModel model = entityManager.findById(UserModel.class, 1);
+    assertThat(model).isNotNull();
+    assertThat(model.getName()).isEqualTo(name);
+    assertThat(userModel.getAge()).isEqualTo(model.getAge());
+    assertThat(userModel.getAvatar()).isEqualTo(model.getAvatar());
+    assertThat(userModel.getGender()).isEqualTo(model.getGender());
+
+    // throw
+
+    userModel.setId(null);
+
+    assertThatThrownBy(() -> entityManager.updateById(userModel, null, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Entity id is required");
+
+    assertThatThrownBy(() -> entityManager.updateById(userModel))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("Updating an entity, ID property is required");
+
+    assertThatThrownBy(() -> entityManager.updateById(userModel, "errorId"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Entity Id matches failed");
+
+    assertThatThrownBy(() -> entityManager.updateById(new NoIdModel(), "errorId"))
+            .isInstanceOf(IllegalEntityException.class)
+            .hasMessage("ID property is required");
+
+    UserModel update = UserModel.forId(1);
+
+    assertThatThrownBy(() -> entityManager.updateById(update, (entity, property) -> false))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("Updating an entity, There is no update properties");
+
+    assertThat(entityManager.updateById(update, (entity, property) -> property.property.getName().equals("age")))
+            .isEqualTo(1);
+
+    UserModel newVal = entityManager.findById(UserModel.class, 1);
+    assertThat(newVal).isNotNull();
+    assertThat(newVal.getAge()).isNull();
+
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findMap(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = new UserModel();
+    example.setName("TODAY");
+    assertThat(entityManager.find(UserModel.class, example, "age")).isNotEmpty().hasSize(11);
+
+    assertThat(entityManager.find(UserModel.class, isEqualsTo("name", "TODAY"), "age"))
+            .isEqualTo(entityManager.find(UserModel.class, example, "age"));
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findList(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = new UserModel();
+    example.setName("TODAY");
+    assertThat(entityManager.find(UserModel.class, example)).isNotEmpty().hasSize(11);
+
+    assertThat(entityManager.find(UserModel.class, isEqualsTo("name", "TODAY")))
+            .isEqualTo(entityManager.find(UserModel.class, example))
+            .isEqualTo(entityManager.find(example));
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void findSortBy(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    assertThat(entityManager.find(UserModel.class, Map.of("age", Order.DESC)))
+            .isEqualTo(entityManager.find(UserModel.class, Map.of("id", Order.DESC)));
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void batchPersistListener(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    entityManager.setMaxBatchRecords(120);
+    EntityMetadataFactory entityMetadataFactory = ReflectionTestUtils.getField(entityManager, "entityMetadataFactory");
+    assertThat(entityMetadataFactory).isNotNull();
+
+    entityManager.addBatchPersistListeners((execution, implicitExecution, e) -> {
+      assertThat(implicitExecution).isFalse();
+      assertThat(execution.entityMetadata).isEqualTo(entityMetadataFactory.getEntityMetadata(UserModel.class));
+      assertThat(execution.entities).hasSize(11);
+      assertThat(execution.autoGenerateId).isTrue();
+      assertThat(e).isNull();
+    });
+
+    createData(entityManager);
   }
 
   public static void createData(DefaultEntityManager entityManager) {

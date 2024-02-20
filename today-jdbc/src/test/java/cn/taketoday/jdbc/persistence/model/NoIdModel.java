@@ -15,28 +15,20 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.dao;
+package cn.taketoday.jdbc.persistence.model;
+
+import cn.taketoday.jdbc.persistence.Table;
+import lombok.Data;
 
 /**
- * Exception thrown when the underlying resource denied a permission
- * to access a specific element, such as a specific database table.
- *
- * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 1.0 2024/2/20 21:18
  */
-@SuppressWarnings("serial")
-public class PermissionDeniedDataAccessException extends NonTransientDataAccessException {
+@Data
+@Table("t_no_id")
+public class NoIdModel {
 
-  /**
-   * Constructor for PermissionDeniedDataAccessException.
-   *
-   * @param msg the detail message
-   * @param cause the root cause from the underlying data access API,
-   * such as JDBC
-   */
-  public PermissionDeniedDataAccessException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+  public Integer age;
 
+  public String name;
 }

@@ -17,29 +17,31 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.lang.Nullable;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+
+import cn.taketoday.jdbc.persistence.dialect.MySQLPlatform;
+import cn.taketoday.jdbc.persistence.model.UserModel;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/20 12:47
+ * @since 1.0 2024/2/16 22:47
  */
-public interface BatchPersistListener {
+class NoConditionsOrderByQueryTests {
+  DefaultEntityMetadataFactory factory = new DefaultEntityMetadataFactory();
 
-  /**
-   * before batch processing
-   *
-   * @param execution batch execution
-   * @param implicitExecution implicit Execution
-   */
-  default void beforeProcessing(BatchExecution execution, boolean implicitExecution) { }
+  @Test
+  void render() {
+    EntityMetadata entityMetadata = factory.createEntityMetadata(UserModel.class);
+    var handler = new NoConditionsOrderByQuery(Map.of("name", Order.ASC, "age", Order.DESC));
 
-  /**
-   * after batch processing
-   *
-   * @param execution batch execution
-   * @param implicitExecution implicit Execution
-   * @param exception batch execution error
-   */
-  void afterProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception);
+    Select select = new Select(new MySQLPlatform());
+    handler.render(entityMetadata, select);
+
+    assertThat(select.orderByClause).isNotNull().asString().contains("`name` ASC").contains("`age` DESC");
+  }
 
 }
