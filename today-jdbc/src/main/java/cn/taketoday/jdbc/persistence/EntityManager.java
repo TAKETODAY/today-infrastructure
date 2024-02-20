@@ -31,6 +31,8 @@ import cn.taketoday.util.StreamIterable;
 
 /**
  * Entity manager
+ * <p>
+ * for simple and single table operations
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:47
