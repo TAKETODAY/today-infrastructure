@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import cn.taketoday.lang.Descriptive;
+import cn.taketoday.logging.LogMessage;
 
 /**
  * Query condition builder
@@ -40,7 +41,7 @@ public interface QueryHandler extends Descriptive {
   }
 
   default Object getDebugLogMessage() {
-    return "Query entities";
+    return LogMessage.format(getDescription());
   }
 
 }

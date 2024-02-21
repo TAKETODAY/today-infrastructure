@@ -20,8 +20,6 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import cn.taketoday.logging.LogMessage;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/20 17:03
@@ -38,11 +36,6 @@ final class NoConditionsQuery extends AbstractColumnsQueryHandler {
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     // noop
-  }
-
-  @Override
-  public Object getDebugLogMessage() {
-    return LogMessage.format(getDescription());
   }
 
   @Override
