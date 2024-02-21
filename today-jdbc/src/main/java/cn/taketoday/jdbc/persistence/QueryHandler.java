@@ -31,8 +31,20 @@ import cn.taketoday.logging.LogMessage;
  */
 public interface QueryHandler extends Descriptive {
 
+  /**
+   * prepare select statement
+   *
+   * @param metadata entity info
+   * @param select select
+   */
   void render(EntityMetadata metadata, Select select);
 
+  /**
+   * apply statement parameters
+   *
+   * @param metadata entity info
+   * @param statement JDBC statement
+   */
   void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
 
   @Override
