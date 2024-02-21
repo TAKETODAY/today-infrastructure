@@ -129,8 +129,8 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       String columnName = columnNameDiscover.getColumnName(property);
       if (columnName == null) {
-        throw new IllegalEntityException("Cannot determine column name for property: " +
-                ClassUtils.getShortName(property.getDeclaringClass()) + "#" + property.getName());
+        throw new IllegalEntityException("Cannot determine column name for property: %s#%s"
+                .formatted(ClassUtils.getShortName(property.getDeclaringClass()), property.getName()));
       }
 
       columnNames.add(columnName);
