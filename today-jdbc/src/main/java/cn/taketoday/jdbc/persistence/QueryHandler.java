@@ -37,7 +37,7 @@ public interface QueryHandler extends Descriptive {
 
   @Override
   default String getDescription() {
-    return "Query entities with query-handler";
+    return "Query entities";
   }
 
   default Object getDebugLogMessage() {
