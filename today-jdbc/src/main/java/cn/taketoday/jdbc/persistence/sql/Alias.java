@@ -15,8 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 
@@ -24,17 +23,19 @@ import cn.taketoday.jdbc.persistence.dialect.Platform;
  * An alias generator for SQL identifiers
  *
  * @author Gavin King
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public final class Alias {
 
   private final int length;
+
   private final String suffix;
 
   /**
    * Constructor for Alias.
    */
   public Alias(int length, String suffix) {
-    super();
     this.length = (suffix == null) ? length : length - suffix.length();
     this.suffix = suffix;
   }
@@ -43,7 +44,6 @@ public final class Alias {
    * Constructor for Alias.
    */
   public Alias(String suffix) {
-    super();
     this.length = Integer.MAX_VALUE;
     this.suffix = suffix;
   }

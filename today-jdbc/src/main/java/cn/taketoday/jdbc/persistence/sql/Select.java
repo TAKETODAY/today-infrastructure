@@ -15,9 +15,9 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
+package cn.taketoday.jdbc.persistence.sql;
 
-package cn.taketoday.jdbc.persistence;
-
+import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
@@ -28,7 +28,7 @@ import cn.taketoday.util.StringUtils;
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
-public class Select {
+public class Select implements StatementSequence {
 
   protected CharSequence selectClause;
 
@@ -63,6 +63,7 @@ public class Select {
   /**
    * Construct an SQL <tt>SELECT</tt> statement from the given clauses
    */
+  @Override
   public String toStatementString() {
     StringBuilder buf = new StringBuilder(guesstimatedBufferSize);
     if (StringUtils.isNotEmpty(comment)) {

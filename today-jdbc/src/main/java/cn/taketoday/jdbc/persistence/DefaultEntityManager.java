@@ -46,6 +46,8 @@ import cn.taketoday.jdbc.ResultSetIterator;
 import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
+import cn.taketoday.jdbc.persistence.sql.Select;
+import cn.taketoday.jdbc.persistence.sql.Update;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Assert;
@@ -331,13 +333,13 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
-    updateStmt.addWhereColumn(idProperty.columnName);
+    updateStmt.addRestriction(idProperty.columnName);
 
     boolean emptyUpdateColumns = true;
     for (EntityProperty property : metadata.entityProperties) {
       if (property.property != idProperty.property
               && strategy.shouldUpdate(entity, property)) {
-        updateStmt.addColumn(property.columnName);
+        updateStmt.addAssignment(property.columnName);
         emptyUpdateColumns = false;
       }
     }
@@ -388,7 +390,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
-    updateStmt.addWhereColumn(idProperty.columnName);
+    updateStmt.addRestriction(idProperty.columnName);
 
     if (strategy == null) {
       strategy = defaultUpdateStrategy();
@@ -396,7 +398,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     for (EntityProperty property : metadata.entityProperties) {
       if (strategy.shouldUpdate(entity, property)) {
-        updateStmt.addColumn(property.columnName);
+        updateStmt.addAssignment(property.columnName);
       }
     }
 
@@ -456,7 +458,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         updateBy = property;
       }
       else if (strategy.shouldUpdate(entity, property)) {
-        updateStmt.addColumn(property.columnName);
+        updateStmt.addAssignment(property.columnName);
       }
     }
 
@@ -464,7 +466,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       throw new InvalidDataAccessApiUsageException("Updating an entity, 'where' property '%s' not found".formatted(where));
     }
 
-    updateStmt.addWhereColumn(updateBy.columnName);
+    updateStmt.addRestriction(updateBy.columnName);
 
     Object updateByValue = updateBy.getValue(entity);
     if (updateByValue == null) {

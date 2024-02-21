@@ -15,62 +15,46 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
+package cn.taketoday.jdbc.persistence.sql;
 
-package cn.taketoday.jdbc.persistence;
-
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
+import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 
 /**
  * A translated HQL query
- * <p> from hibernate
  *
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class QuerySelect {
+public class QuerySelect implements StatementSequence {
+
+  private static final Set<String> DONT_SPACE_TOKENS = Set.of(
+          ".", "+", "-", "/", "*", "<", ">",
+          "=", "#", "~", "|", "&", "<=", ">=",
+          "=>", "=<", "!=", "<>", "!#", "!~",
+          "!<", "!>", "(", /*for MySQL*/ ")");
 
   private final Platform platform;
-  private JoinFragment joins;
+
   private final StringBuilder select = new StringBuilder();
+
   private final StringBuilder where = new StringBuilder();
+
   private final StringBuilder groupBy = new StringBuilder();
+
   private final StringBuilder orderBy = new StringBuilder();
+
   private final StringBuilder having = new StringBuilder();
+
   private String comment;
+
   private boolean distinct;
 
-  private static final HashSet<String> DONT_SPACE_TOKENS = new HashSet<String>();
-
-  static {
-    //dontSpace.add("'");
-    DONT_SPACE_TOKENS.add(".");
-    DONT_SPACE_TOKENS.add("+");
-    DONT_SPACE_TOKENS.add("-");
-    DONT_SPACE_TOKENS.add("/");
-    DONT_SPACE_TOKENS.add("*");
-    DONT_SPACE_TOKENS.add("<");
-    DONT_SPACE_TOKENS.add(">");
-    DONT_SPACE_TOKENS.add("=");
-    DONT_SPACE_TOKENS.add("#");
-    DONT_SPACE_TOKENS.add("~");
-    DONT_SPACE_TOKENS.add("|");
-    DONT_SPACE_TOKENS.add("&");
-    DONT_SPACE_TOKENS.add("<=");
-    DONT_SPACE_TOKENS.add(">=");
-    DONT_SPACE_TOKENS.add("=>");
-    DONT_SPACE_TOKENS.add("=<");
-    DONT_SPACE_TOKENS.add("!=");
-    DONT_SPACE_TOKENS.add("<>");
-    DONT_SPACE_TOKENS.add("!#");
-    DONT_SPACE_TOKENS.add("!~");
-    DONT_SPACE_TOKENS.add("!<");
-    DONT_SPACE_TOKENS.add("!>");
-    DONT_SPACE_TOKENS.add("("); //for MySQL
-    DONT_SPACE_TOKENS.add(")");
-  }
+  private JoinFragment joins;
 
   public QuerySelect(Platform platform) {
     this.platform = platform;
@@ -138,39 +122,38 @@ public class QuerySelect {
     orderBy.append(orderByString);
   }
 
-  public String toQueryString() {
+  @Override
+  public String toStatementString() {
     StringBuilder buf = new StringBuilder(50);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
-    buf.append("select ");
+    buf.append("SELECT ");
     if (distinct) {
-      buf.append("distinct ");
+      buf.append("DISTINCT ");
     }
     String from = joins.toFromFragmentString();
     if (from.startsWith(",")) {
       from = from.substring(1);
     }
-    else if (from.startsWith(" inner join")) {
+    else if (from.startsWith(" INNER JOIN")) {
       from = from.substring(11);
     }
 
-    buf.append(select)
-            .append(" from")
-            .append(from);
+    buf.append(select).append(" FROM ").append(from);
 
     String outerJoinsAfterWhere = joins.toWhereFragmentString().trim();
     String whereConditions = where.toString().trim();
     boolean hasOuterJoinsAfterWhere = !outerJoinsAfterWhere.isEmpty();
     boolean hasWhereConditions = !whereConditions.isEmpty();
     if (hasOuterJoinsAfterWhere || hasWhereConditions) {
-      buf.append(" where ");
+      buf.append(" WHERE ");
       if (hasOuterJoinsAfterWhere) {
         buf.append(outerJoinsAfterWhere.substring(4));
       }
       if (hasWhereConditions) {
         if (hasOuterJoinsAfterWhere) {
-          buf.append(" and (");
+          buf.append(" AND (");
         }
         buf.append(whereConditions);
         if (hasOuterJoinsAfterWhere) {
@@ -180,10 +163,10 @@ public class QuerySelect {
     }
 
     if (!groupBy.isEmpty()) {
-      buf.append(" group by ").append(groupBy);
+      buf.append(" GROUP BY ").append(groupBy);
     }
     if (!having.isEmpty()) {
-      buf.append(" having ").append(having);
+      buf.append(" HAVING ").append(having);
     }
     if (!orderBy.isEmpty()) {
       buf.append(" order by ").append(orderBy);

@@ -15,8 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,11 +23,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import static cn.taketoday.jdbc.persistence.CaseFragment.qualify;
+import static cn.taketoday.jdbc.persistence.sql.CaseFragment.qualify;
 
 /**
  * A fragment of an SQL <tt>SELECT</tt> clause
- * <p> from hibernate
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @author Gavin King

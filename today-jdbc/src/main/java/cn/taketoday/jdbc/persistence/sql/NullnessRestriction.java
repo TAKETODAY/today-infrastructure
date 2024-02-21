@@ -15,33 +15,38 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.core;
-
-import cn.taketoday.lang.Nullable;
+package cn.taketoday.jdbc.persistence.sql;
 
 /**
- * Interface to be implemented by objects that can provide SQL strings.
+ * Nullness restriction - IS (NOT)? NULL
  *
- * <p>Typically implemented by PreparedStatementCreators, CallableStatementCreators
- * and StatementCallbacks that want to expose the SQL they use to create their
- * statements, to allow for better contextual information in case of exceptions.
- *
- * @author Juergen Hoeller
+ * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see PreparedStatementCreator
- * @see CallableStatementCreator
- * @see StatementCallback
  * @since 4.0
  */
-public interface SqlProvider {
+public class NullnessRestriction implements Restriction {
 
-  /**
-   * Return the SQL string for this object, i.e.
-   * typically the SQL used for creating statements.
-   *
-   * @return the SQL string, or {@code null} if not available
-   */
-  @Nullable
-  String getSql();
+  private final String columnName;
 
+  private final boolean affirmative;
+
+  public NullnessRestriction(String columnName) {
+    this(columnName, true);
+  }
+
+  public NullnessRestriction(String columnName, boolean affirmative) {
+    this.columnName = columnName;
+    this.affirmative = affirmative;
+  }
+
+  @Override
+  public void render(StringBuilder sqlBuffer) {
+    sqlBuffer.append(columnName);
+    if (affirmative) {
+      sqlBuffer.append(" is null");
+    }
+    else {
+      sqlBuffer.append(" is not null");
+    }
+  }
 }

@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.logging.LogMessage;
 

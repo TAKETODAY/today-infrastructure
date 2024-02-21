@@ -15,33 +15,28 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.core;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.lang.Nullable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Interface to be implemented by objects that can provide SQL strings.
+ * Where clause to add to the element Entity or target entity of a collection.
+ * The clause is written in SQL. A common use case here is for soft-deletes.
  *
- * <p>Typically implemented by PreparedStatementCreators, CallableStatementCreators
- * and StatementCallbacks that want to expose the SQL they use to create their
- * statements, to allow for better contextual information in case of exceptions.
- *
- * @author Juergen Hoeller
+ * @author Emmanuel Bernard
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see PreparedStatementCreator
- * @see CallableStatementCreator
- * @see StatementCallback
  * @since 4.0
  */
-public interface SqlProvider {
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Where {
 
   /**
-   * Return the SQL string for this object, i.e.
-   * typically the SQL used for creating statements.
-   *
-   * @return the SQL string, or {@code null} if not available
+   * The where-clause predicate.
    */
-  @Nullable
-  String getSql();
+  String clause();
 
 }

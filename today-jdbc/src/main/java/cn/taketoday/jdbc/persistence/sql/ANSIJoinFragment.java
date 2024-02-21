@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 /**
  * An ANSI-style join.
- * <p> from hibernate
  *
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class ANSIJoinFragment extends JoinFragment {
   private StringBuilder buffer = new StringBuilder();
@@ -56,13 +53,7 @@ public class ANSIJoinFragment extends JoinFragment {
    * @param joinType The type of join to produce (INNER, etc).
    * @param on Any extra join restrictions
    */
-  public void addJoin(
-          String rhsTableName,
-          String rhsAlias,
-          String[] lhsColumns,
-          String[] rhsColumns,
-          JoinType joinType,
-          String on) {
+  public void addJoin(String rhsTableName, String rhsAlias, String[] lhsColumns, String[] rhsColumns, JoinType joinType, String on) {
     String joinString = switch (joinType) {
       case INNER_JOIN -> " inner join ";
       case LEFT_OUTER_JOIN -> " left outer join ";
@@ -92,13 +83,8 @@ public class ANSIJoinFragment extends JoinFragment {
 
   }
 
-  public void addJoin(
-          String rhsTableName,
-          String rhsAlias,
-          String[][] lhsColumns,
-          String[] rhsColumns,
-          JoinType joinType,
-          String on) {
+  public void addJoin(String rhsTableName, String rhsAlias,
+          String[][] lhsColumns, String[] rhsColumns, JoinType joinType, String on) {
     final String joinString = switch (joinType) {
       case INNER_JOIN -> " inner join ";
       case LEFT_OUTER_JOIN -> " left outer join ";

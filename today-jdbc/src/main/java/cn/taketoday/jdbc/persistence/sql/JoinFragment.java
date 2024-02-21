@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 import cn.taketoday.util.StringUtils;
 
@@ -27,39 +24,30 @@ import cn.taketoday.util.StringUtils;
  * An abstract SQL join fragment renderer
  *
  * @author Gavin King
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public abstract class JoinFragment {
+
   /**
    * Specifies an inner join.
-   *
-   * @deprecated use {@link JoinType#INNER_JOIN} instead.
    */
-  @Deprecated
   public static final int INNER_JOIN = JoinType.INNER_JOIN.getJoinTypeValue();
 
   /**
    * Specifies a full join
-   *
-   * @deprecated use {@link JoinType#FULL_JOIN} instead.
    */
-  @Deprecated
   @SuppressWarnings("UnusedDeclaration")
   public static final int FULL_JOIN = JoinType.FULL_JOIN.getJoinTypeValue();
 
   /**
    * Specifies a left join.
-   *
-   * @deprecated use {@link JoinType#LEFT_OUTER_JOIN} instead.
    */
-  @Deprecated
   public static final int LEFT_OUTER_JOIN = JoinType.LEFT_OUTER_JOIN.getJoinTypeValue();
 
   /**
    * Specifies a right join.
-   *
-   * @deprecated use {@link JoinType#RIGHT_OUTER_JOIN} instead.
    */
-  @Deprecated
   @SuppressWarnings("UnusedDeclaration")
   public static final int RIGHT_OUTER_JOIN = JoinType.RIGHT_OUTER_JOIN.getJoinTypeValue();
 

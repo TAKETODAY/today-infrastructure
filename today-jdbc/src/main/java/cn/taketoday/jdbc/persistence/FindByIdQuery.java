@@ -20,6 +20,7 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.logging.LogMessage;
 
 /**

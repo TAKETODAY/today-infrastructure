@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.util.StringUtils;
@@ -24,12 +24,16 @@ import cn.taketoday.util.StringUtils;
  * A join that appears in a translated HQL query
  *
  * @author Gavin King
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class QueryJoinFragment extends JoinFragment {
 
   private StringBuilder afterFrom = new StringBuilder();
   private StringBuilder afterWhere = new StringBuilder();
+
   private final Platform platform;
+
   private final boolean useThetaStyleInnerJoins;
 
   public QueryJoinFragment(Platform platform, boolean useThetaStyleInnerJoins) {
@@ -79,19 +83,23 @@ public class QueryJoinFragment extends JoinFragment {
     }
   }
 
+  @Override
   public String toFromFragmentString() {
     return afterFrom.toString();
   }
 
+  @Override
   public String toWhereFragmentString() {
     return afterWhere.toString();
   }
 
+  @Override
   public void addJoins(String fromFragment, String whereFragment) {
     afterFrom.append(fromFragment);
     afterWhere.append(whereFragment);
   }
 
+  @Override
   public JoinFragment copy() {
     QueryJoinFragment copy = new QueryJoinFragment(platform, useThetaStyleInnerJoins);
     copy.afterFrom = new StringBuilder(afterFrom.toString());
@@ -109,6 +117,7 @@ public class QueryJoinFragment extends JoinFragment {
     }
   }
 
+  @Override
   public void addCrossJoin(String tableName, String alias) {
     afterFrom.append(", ")
             .append(tableName)
@@ -116,6 +125,7 @@ public class QueryJoinFragment extends JoinFragment {
             .append(alias);
   }
 
+  @Override
   public void addCondition(String alias, String[] fkColumns, String[] pkColumns) {
     for (int j = 0; j < fkColumns.length; j++) {
       afterWhere.append(" and ")
@@ -155,9 +165,9 @@ public class QueryJoinFragment extends JoinFragment {
   /**
    * Add the condition string to the join fragment.
    *
-   * @param condition
    * @return true if the condition was added, false if it was already in the fragment.
    */
+  @Override
   public boolean addCondition(String condition) {
     // if the condition is not already there...
     if (!StringUtils.isEmpty(condition)

@@ -15,25 +15,26 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 
 /**
  * An SQL <tt>INSERT</tt> statement
- * <p> from hibernate
  *
  * @author Gavin King
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class Insert {
+public class Insert implements StatementSequence {
 
   protected String tableName;
+
   protected String comment;
 
   protected Map<String, String> columns = new LinkedHashMap<>();
@@ -44,13 +45,13 @@ public class Insert {
     this.platform = platform;
   }
 
-  protected Platform getDialect() {
-    return platform;
-  }
-
   public Insert setComment(String comment) {
     this.comment = comment;
     return this;
+  }
+
+  public Map<String, String> getColumns() {
+    return columns;
   }
 
   public Insert addColumn(String columnName) {
@@ -92,36 +93,46 @@ public class Insert {
     return this;
   }
 
+  @Override
   public String toStatementString() {
-    StringBuilder buf = new StringBuilder(columns.size() * 15 + tableName.length() + 10);
+    final StringBuilder buf = new StringBuilder(columns.size() * 15 + tableName.length() + 10);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
-    buf.append("insert into ");
-    buf.append(tableName);
+
+    buf.append("INSERT INTO ").append(tableName);
+
     if (columns.isEmpty()) {
       buf.append(' ').append(platform.getNoColumnsInsertString());
     }
     else {
       buf.append(" (");
-      Iterator<String> iter = columns.keySet().iterator();
-      while (iter.hasNext()) {
-        buf.append(iter.next());
-        if (iter.hasNext()) {
-          buf.append(", ");
-        }
-      }
+      renderInsertionSpec(buf);
       buf.append(") values (");
-      iter = columns.values().iterator();
-      while (iter.hasNext()) {
-        buf.append(iter.next());
-        if (iter.hasNext()) {
-          buf.append(", ");
-        }
-      }
+      renderRowValues(buf);
       buf.append(')');
     }
     return buf.toString();
+  }
+
+  private void renderInsertionSpec(StringBuilder buf) {
+    final Iterator<String> itr = columns.keySet().iterator();
+    while (itr.hasNext()) {
+      buf.append(itr.next());
+      if (itr.hasNext()) {
+        buf.append(", ");
+      }
+    }
+  }
+
+  private void renderRowValues(StringBuilder buf) {
+    final Iterator<String> itr = columns.values().iterator();
+    while (itr.hasNext()) {
+      buf.append(itr.next());
+      if (itr.hasNext()) {
+        buf.append(", ");
+      }
+    }
   }
 
 }

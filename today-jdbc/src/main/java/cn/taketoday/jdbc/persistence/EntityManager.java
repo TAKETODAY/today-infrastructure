@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.ResultSetIterator;
+import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamIterable;
 

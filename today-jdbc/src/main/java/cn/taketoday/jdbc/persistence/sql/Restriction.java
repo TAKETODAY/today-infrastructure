@@ -15,33 +15,43 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.core;
+package cn.taketoday.jdbc.persistence.sql;
 
-import cn.taketoday.lang.Nullable;
+import java.util.ArrayList;
 
 /**
- * Interface to be implemented by objects that can provide SQL strings.
+ * A restriction (predicate) to be applied to a query
  *
- * <p>Typically implemented by PreparedStatementCreators, CallableStatementCreators
- * and StatementCallbacks that want to expose the SQL they use to create their
- * statements, to allow for better contextual information in case of exceptions.
- *
- * @author Juergen Hoeller
+ * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see PreparedStatementCreator
- * @see CallableStatementCreator
- * @see StatementCallback
  * @since 4.0
  */
-public interface SqlProvider {
+public interface Restriction {
 
   /**
-   * Return the SQL string for this object, i.e.
-   * typically the SQL used for creating statements.
-   *
-   * @return the SQL string, or {@code null} if not available
+   * Render the restriction into the SQL buffer
    */
-  @Nullable
-  String getSql();
+  void render(StringBuilder sqlBuffer);
+
+  /**
+   * Render the restriction into the SQL buffer
+   */
+  static void render(ArrayList<Restriction> restrictions, StringBuilder buf) {
+    if (restrictions.isEmpty()) {
+      return;
+    }
+    buf.append(" WHERE ");
+
+    boolean appended = false;
+    for (Restriction restriction : restrictions) {
+      if (appended) {
+        buf.append(" AND ");
+      }
+      else {
+        appended = true;
+      }
+      restriction.render(buf);
+    }
+  }
 
 }

@@ -17,6 +17,8 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import cn.taketoday.jdbc.persistence.sql.Select;
+
 /**
  * Render select Columns from table
  *

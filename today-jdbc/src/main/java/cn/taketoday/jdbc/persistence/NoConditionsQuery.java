@@ -20,6 +20,8 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import cn.taketoday.jdbc.persistence.sql.Select;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/20 17:03

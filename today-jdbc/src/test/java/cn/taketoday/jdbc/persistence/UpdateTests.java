@@ -19,6 +19,8 @@ package cn.taketoday.jdbc.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.jdbc.persistence.sql.Update;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -31,15 +33,13 @@ class UpdateTests {
   void sql() {
     Update update = new Update();
     update.setTableName("t_user");
+    update.addAssignment("name");
+    update.addRestriction("id");
 
-    update.addColumn("name");
-    update.setVersionColumnName("version");
-    update.setPrimaryKeyColumnNames("id");
+    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE id=?");
 
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE id=? AND version=?");
-
-    update.addColumn("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE id=? AND version=?");
+    update.addAssignment("name", ":name");
+    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE id=?");
   }
 
 }

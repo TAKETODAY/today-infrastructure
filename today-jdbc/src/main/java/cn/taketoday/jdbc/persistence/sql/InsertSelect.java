@@ -15,27 +15,28 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.sql;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.CollectionUtils;
 
 /**
  * Implementation of InsertSelect.
- * <p> from hibernate
  *
  * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
-public class InsertSelect {
+public class InsertSelect implements StatementSequence {
 
   protected String tableName;
+
   protected String comment;
 
   protected List<String> columnNames = new ArrayList<>();
@@ -67,6 +68,7 @@ public class InsertSelect {
     return this;
   }
 
+  @Override
   public String toStatementString() {
     Assert.state(select != null, "no select defined for insert-select");
     Assert.state(tableName != null, "no table name defined for insert-select");
@@ -75,7 +77,7 @@ public class InsertSelect {
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
-    buf.append("insert into ").append(tableName);
+    buf.append("INSERT INTO ").append(tableName);
     if (!columnNames.isEmpty()) {
       buf.append(" (");
       Iterator<String> itr = columnNames.iterator();

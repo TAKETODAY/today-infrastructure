@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import cn.taketoday.beans.BeanProperty;
-import cn.taketoday.jdbc.persistence.ANSICaseFragment;
-import cn.taketoday.jdbc.persistence.ANSIJoinFragment;
-import cn.taketoday.jdbc.persistence.CaseFragment;
-import cn.taketoday.jdbc.persistence.JoinFragment;
+import cn.taketoday.jdbc.persistence.sql.ANSICaseFragment;
+import cn.taketoday.jdbc.persistence.sql.ANSIJoinFragment;
+import cn.taketoday.jdbc.persistence.sql.CaseFragment;
+import cn.taketoday.jdbc.persistence.sql.JoinFragment;
 import cn.taketoday.jdbc.JdbcBeanMetadata;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
