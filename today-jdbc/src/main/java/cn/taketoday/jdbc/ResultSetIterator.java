@@ -17,7 +17,6 @@
 
 package cn.taketoday.jdbc;
 
-import java.io.Closeable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
+public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T>, AutoCloseable {
   // fields needed to read result set
   protected final ResultSet resultSet;
 
@@ -117,29 +116,101 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
     return iteratorIndex;
   }
 
+  /**
+   * If a remaining element exists, performs the given action on it,
+   * returning {@code true}; else returns {@code false}.  If this
+   * Spliterator is {@link #ORDERED} the action is performed on the
+   * next element in encounter order.  Exceptions thrown by the
+   * action are relayed to the caller.
+   * <p>
+   * Subsequent behavior of a spliterator is unspecified if the action throws
+   * an exception.
+   *
+   * @param action The action
+   * @return {@code false} if no remaining elements existed
+   * upon entry to this method, else {@code true}.
+   * @throws NullPointerException if the specified action is null
+   */
+  @Override
+  public boolean tryAdvance(Consumer<? super T> action) {
+    if (hasNext()) {
+      action.accept(next());
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  @Nullable
+  public Spliterator<T> trySplit() {
+    return null;
+  }
+
+  @Override
+  public long estimateSize() {
+    return Long.MAX_VALUE;
+  }
+
+  @Override
+  public int characteristics() {
+    return Spliterator.ORDERED;
+  }
+
+  /**
+   * Performs the given action for each remaining element until all elements
+   * have been processed or the action throws an exception.  Actions are
+   * performed in the order of iteration, if that order is specified.
+   * Exceptions thrown by the action are relayed to the caller.
+   * <p>
+   * The behavior of an iterator is unspecified if the action modifies the
+   * collection in any way (even by calling the {@link #remove remove} method
+   * or other mutator methods of {@code Iterator} subtypes),
+   * unless an overriding class has specified a concurrent modification policy.
+   * <p>
+   * Subsequent behavior of an iterator is unspecified if the action throws an
+   * exception.
+   *
+   * @param action The action to be performed for each element
+   * @throws NullPointerException if the specified action is null
+   * @implSpec <p>The default implementation behaves as if:
+   * <pre>{@code
+   *     while (hasNext())
+   *         action.accept(next());
+   * }</pre>
+   * @since 4.0
+   */
+  @Override
+  public void forEachRemaining(Consumer<? super T> action) {
+    while (hasNext())
+      action.accept(next());
+  }
+
   // -----------------------------------------------------------------------------------------------
   // Common methods
   // -----------------------------------------------------------------------------------------------
 
   /**
+   * Returns a sequential {@code Stream} with this iterator as its source.
+   *
+   * @return a sequential {@code Stream} over the elements in this iterator
    * @since 4.0
    */
   public Stream<T> stream() {
-    return StreamSupport.stream(new ResultIteratorSpliterator<>(this), false);
+    return StreamSupport.stream(this, false)
+            .onClose(this::close);
   }
 
   /**
+   * Returns a possibly parallel {@code Stream} with this iterator as its
+   * source. It is allowable for this method to return a sequential stream.
+   *
+   * @return a possibly parallel {@code Stream} over the elements in this
+   * iterator
    * @since 4.0
    */
   public Stream<T> parallelStream() {
-    return StreamSupport.stream(new ResultIteratorSpliterator<>(this), true);
-  }
-
-  /**
-   * @since 4.0
-   */
-  public Spliterator<T> spliterator() {
-    return new ResultIteratorSpliterator<>(this);
+    return StreamSupport.stream(this, true)
+            .onClose(this::close);
   }
 
   /**
@@ -155,7 +226,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
 
       @Override
       public Spliterator<T> spliterator() {
-        return new ResultIteratorSpliterator<>(ResultSetIterator.this);
+        return ResultSetIterator.this;
       }
 
       @Override
@@ -264,43 +335,6 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Closeable {
     private ResultSetValue(T value) {
       this.value = value;
     }
-  }
-
-  /**
-   * Spliterator for query adaptation of a ResultSet to a Stream.
-   */
-  final static class ResultIteratorSpliterator<T> implements Spliterator<T> {
-    private final ResultSetIterator<T> iterator;
-
-    private ResultIteratorSpliterator(ResultSetIterator<T> iterator) {
-      this.iterator = iterator;
-    }
-
-    @Override
-    public boolean tryAdvance(Consumer<? super T> action) {
-      if (iterator.hasNext()) {
-        action.accept(iterator.next());
-        return true;
-      }
-      return false;
-    }
-
-    @Override
-    @Nullable
-    public Spliterator<T> trySplit() {
-      return null;
-    }
-
-    @Override
-    public long estimateSize() {
-      return Long.MAX_VALUE;
-    }
-
-    @Override
-    public int characteristics() {
-      return Spliterator.ORDERED;
-    }
-
   }
 
 }

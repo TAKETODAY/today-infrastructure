@@ -748,7 +748,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
 
     @Override
     public Spliterator<T> spliterator() {
-      return iterator.spliterator();
+      return iterator;
     }
 
     @Override

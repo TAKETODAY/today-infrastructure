@@ -717,6 +717,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <T> ResultSetIterator<T> iterate(T example) throws DataAccessException {
+    return iterate((Class<T>) example.getClass(), example);
+  }
+
+  @Override
   public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
     EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(example.getClass());
     ExampleQuery exampleQuery = new ExampleQuery(example, queryMetadata);
