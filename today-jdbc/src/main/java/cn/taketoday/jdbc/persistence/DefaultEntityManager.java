@@ -25,7 +25,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,7 +32,6 @@ import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.DefaultResultSetHandlerFactory;
@@ -42,7 +40,6 @@ import cn.taketoday.jdbc.JdbcBeanMetadata;
 import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
-import cn.taketoday.jdbc.ResultSetIterator;
 import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
@@ -682,8 +679,8 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> List<T> find(T entity) throws DataAccessException {
-    return iterate((Class<T>) entity.getClass(), entity).list();
+  public <T> List<T> find(T example) throws DataAccessException {
+    return iterate((Class<T>) example.getClass(), example).list();
   }
 
   @Override
@@ -697,13 +694,25 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   }
 
   @Override
+  @SuppressWarnings("unchecked")
+  public <K, T> Map<K, T> find(T example, String mapKey) throws DataAccessException {
+    return find((Class<T>) example.getClass(), example, mapKey);
+  }
+
+  @Override
   public <K, T> Map<K, T> find(Class<T> entityClass, Object example, String mapKey) throws DataAccessException {
-    return iterate(entityClass, example).map(mapKey);
+    return iterate(entityClass, example).toMap(mapKey);
   }
 
   @Override
   public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey) throws DataAccessException {
-    return iterate(entityClass, handler).map(mapKey);
+    return iterate(entityClass, handler).toMap(mapKey);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> void iterate(T example, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate((Class<T>) example.getClass(), example, entityConsumer);
   }
 
   @Override
@@ -718,7 +727,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> ResultSetIterator<T> iterate(T example) throws DataAccessException {
+  public <T> EntityIterator<T> iterate(T example) throws DataAccessException {
     return iterate((Class<T>) example.getClass(), example);
   }
 
@@ -752,7 +761,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         stmtLogger.logStatement(handler.getDebugLogMessage(), select.toStatementString());
       }
 
-      return new EntityIterator<>(con, statement, entityClass, metadata);
+      return new EntityIterator0<>(con, statement, entityClass, metadata);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
@@ -790,7 +799,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     return sql.toString();
   }
 
-  final class EntityIterator<T> extends ResultSetIterator<T> {
+  final class EntityIterator0<T> extends EntityIterator<T> {
 
     private final Connection connection;
 
@@ -798,13 +807,10 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     private final ResultSetExtractor<T> handler;
 
-    private final EntityMetadata entityMetadata;
-
-    private EntityIterator(Connection connection, PreparedStatement statement, Class<?> entityClass, EntityMetadata entityMetadata) throws SQLException {
-      super(statement.executeQuery());
+    private EntityIterator0(Connection connection, PreparedStatement statement, Class<?> entityClass, EntityMetadata entityMetadata) throws SQLException {
+      super(statement.executeQuery(), entityMetadata);
       this.statement = statement;
       this.connection = connection;
-      this.entityMetadata = entityMetadata;
       try {
         var factory = new DefaultResultSetHandlerFactory<T>(
                 new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
@@ -824,23 +830,6 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     @Override
     protected RuntimeException handleReadError(SQLException ex) {
       return translateException("Reading Entity", null, ex);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <K> Map<K, T> map(String mapKey) {
-      try {
-        LinkedHashMap<K, T> entities = new LinkedHashMap<>();
-        BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
-        while (hasNext()) {
-          T entity = next();
-          Object propertyValue = beanProperty.getValue(entity);
-          entities.put((K) propertyValue, entity);
-        }
-        return entities;
-      }
-      finally {
-        close();
-      }
     }
 
     @Override

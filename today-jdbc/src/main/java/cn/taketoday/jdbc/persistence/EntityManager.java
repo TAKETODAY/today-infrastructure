@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.jdbc.ResultSetIterator;
 import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamIterable;
@@ -313,7 +312,7 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> List<T> find(T entity) throws DataAccessException;
+  <T> List<T> find(T example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
@@ -327,6 +326,20 @@ public interface EntityManager {
    */
   <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
+
+  /**
+   * The find Map is a special case in that it is designed to convert a list
+   * of results into a Map based on one of the properties in the resulting
+   * objects.
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
+   *
+   * @param <K> the returned Map keys type
+   * @param <T> the returned Map values type
+   * @param mapKey The property to use as key for each value in the list.
+   * @return Map containing key pair data.
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <K, T> Map<K, T> find(T example, String mapKey) throws DataAccessException;
 
   /**
    * The find Map is a special case in that it is designed to convert a list
@@ -361,6 +374,11 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
+  <T> void iterate(T example, Consumer<T> entityConsumer) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
   <T> void iterate(Class<T> entityClass, Object example, Consumer<T> entityConsumer)
           throws DataAccessException;
 
@@ -375,14 +393,14 @@ public interface EntityManager {
    *
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> ResultSetIterator<T> iterate(T example) throws DataAccessException;
+  <T> EntityIterator<T> iterate(T example) throws DataAccessException;
 
   /**
    * Iterate entities
    *
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object example)
+  <T> EntityIterator<T> iterate(Class<T> entityClass, Object example)
           throws DataAccessException;
 
   /**
@@ -391,7 +409,7 @@ public interface EntityManager {
    * @param handler build {@link Select}
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler)
+  <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
 }

@@ -37,7 +37,6 @@ import cn.taketoday.lang.Nullable;
  * {@link #hasNext()} to work properly, meaning it can be called multiple times
  * without calling {@link #next()}.
  *
- * @author TODAY
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
