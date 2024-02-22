@@ -20,7 +20,6 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Descriptive;
 import cn.taketoday.logging.LogMessage;
 
@@ -36,9 +35,8 @@ public interface QueryHandler extends Descriptive {
    * prepare select statement
    *
    * @param metadata entity info
-   * @param select select
    */
-  void render(EntityMetadata metadata, Select select);
+  StatementSequence render(EntityMetadata metadata);
 
   /**
    * apply statement parameters

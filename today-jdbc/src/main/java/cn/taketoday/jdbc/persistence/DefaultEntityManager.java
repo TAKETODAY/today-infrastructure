@@ -43,7 +43,7 @@ import cn.taketoday.jdbc.RepositoryManager;
 import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
-import cn.taketoday.jdbc.persistence.sql.Select;
+import cn.taketoday.jdbc.persistence.dialect.PlatformAware;
 import cn.taketoday.jdbc.persistence.sql.Update;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
@@ -740,32 +740,33 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-
-    Select select = new Select(platform);
     if (handler == null) {
       handler = NoConditionsQuery.instance;
     }
 
-    // WHERE column_name operator value;
-    handler.render(metadata, select);
+    if (handler instanceof PlatformAware aware) {
+      aware.setPlatform(platform);
+    }
+
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
 
+    String statement = handler.render(metadata).toStatementString();
     try {
-      PreparedStatement statement = con.prepareStatement(select.toStatementString());
-      handler.setParameter(metadata, statement);
+      PreparedStatement stmt = con.prepareStatement(statement);
+      handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(handler.getDebugLogMessage(), select.toStatementString());
+        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
       }
 
-      return new EntityIterator0<>(con, statement, entityClass, metadata);
+      return new DefaultEntityIterator<>(con, stmt, entityClass, metadata);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException(handler.getDescription(), select.toStatementString(), ex);
+      throw translateException(handler.getDescription(), statement, ex);
     }
   }
 
@@ -799,7 +800,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     return sql.toString();
   }
 
-  final class EntityIterator0<T> extends EntityIterator<T> {
+  private final class DefaultEntityIterator<T> extends EntityIterator<T> {
 
     private final Connection connection;
 
@@ -807,7 +808,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     private final ResultSetExtractor<T> handler;
 
-    private EntityIterator0(Connection connection, PreparedStatement statement, Class<?> entityClass, EntityMetadata entityMetadata) throws SQLException {
+    private DefaultEntityIterator(Connection connection, PreparedStatement statement, Class<?> entityClass, EntityMetadata entityMetadata) throws SQLException {
       super(statement.executeQuery(), entityMetadata);
       this.statement = statement;
       this.connection = connection;

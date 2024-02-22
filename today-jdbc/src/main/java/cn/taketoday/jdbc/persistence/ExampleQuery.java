@@ -29,12 +29,13 @@ import cn.taketoday.logging.LogMessage;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/19 19:56
  */
-class ExampleQuery extends AbstractColumnsQueryHandler {
+final class ExampleQuery extends AbstractColumnsQueryHandler {
 
-  final Object example;
+  private final Object example;
 
-  final EntityMetadata exampleMetadata;
-  final ArrayList<Condition> conditions = new ArrayList<>();
+  private final EntityMetadata exampleMetadata;
+
+  private final ArrayList<Condition> conditions = new ArrayList<>();
 
   ExampleQuery(Object example, EntityMetadata exampleMetadata) {
     this.example = example;

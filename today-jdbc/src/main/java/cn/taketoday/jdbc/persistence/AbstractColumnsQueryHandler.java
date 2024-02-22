@@ -17,6 +17,8 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import cn.taketoday.jdbc.persistence.dialect.Platform;
+import cn.taketoday.jdbc.persistence.dialect.PlatformAware;
 import cn.taketoday.jdbc.persistence.sql.Select;
 
 /**
@@ -25,10 +27,18 @@ import cn.taketoday.jdbc.persistence.sql.Select;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/16 18:10
  */
-public abstract class AbstractColumnsQueryHandler implements QueryHandler {
+public abstract class AbstractColumnsQueryHandler implements QueryHandler, PlatformAware {
+
+  protected Platform platform;
 
   @Override
-  public void render(EntityMetadata metadata, Select select) {
+  public void setPlatform(Platform platform) {
+    this.platform = platform;
+  }
+
+  @Override
+  public StatementSequence render(EntityMetadata metadata) {
+    Select select = new Select(platform);
     StringBuilder selectClause = new StringBuilder();
 
     boolean first = true;
@@ -48,6 +58,7 @@ public abstract class AbstractColumnsQueryHandler implements QueryHandler {
     select.setFromClause(metadata.tableName);
 
     renderInternal(metadata, select);
+    return select;
   }
 
   protected abstract void renderInternal(EntityMetadata metadata, Select select);
