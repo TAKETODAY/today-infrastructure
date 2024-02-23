@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import cn.taketoday.jdbc.persistence.StatementSequence;
-import cn.taketoday.jdbc.persistence.Where;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 
 /**
@@ -85,7 +84,7 @@ public class SimpleSelect implements StatementSequence {
   }
 
   /**
-   * Appends a complete {@linkplain Where where} condition.
+   * Appends a complete where condition.
    * The {@code condition} is added as-is.
    */
   public SimpleSelect addWhereToken(String condition) {
