@@ -170,10 +170,11 @@ public class SimpleSelect implements StatementSequence {
       final String alias = getAlias(col);
       if (uniqueColumns.add(alias == null ? col : alias)) {
         if (appendComma) {
-          buf.append(", ");
+          buf.append(", `");
         }
         else {
           appendComma = true;
+          buf.append('`');
         }
         buf.append(col);
         if (alias != null && !alias.equals(col)) {

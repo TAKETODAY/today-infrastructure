@@ -20,9 +20,12 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
+import cn.taketoday.jdbc.persistence.PropertyConditionStrategy.Condition;
 import cn.taketoday.jdbc.persistence.sql.Select;
-import cn.taketoday.jdbc.type.TypeHandler;
+import cn.taketoday.jdbc.persistence.support.DefaultConditionStrategy;
 import cn.taketoday.logging.LogMessage;
 
 /**
@@ -30,6 +33,8 @@ import cn.taketoday.logging.LogMessage;
  * @since 1.0 2024/2/19 19:56
  */
 final class ExampleQuery extends AbstractColumnsQueryHandler {
+
+  static final List<PropertyConditionStrategy> strategies = List.of(new DefaultConditionStrategy());
 
   private final Object example;
 
@@ -44,39 +49,44 @@ final class ExampleQuery extends AbstractColumnsQueryHandler {
 
   @Override
   protected void renderInternal(EntityMetadata metadata, Select select) {
-    boolean first = true;
-    StringBuilder where = new StringBuilder();
-
     for (EntityProperty entityProperty : exampleMetadata.entityProperties) {
       Object propertyValue = entityProperty.getValue(example);
       if (propertyValue != null) {
-        if (first) {
-          first = false;
+        for (PropertyConditionStrategy strategy : strategies) {
+          var condition = strategy.resolve(entityProperty, propertyValue);
+          if (condition != null) {
+            conditions.add(condition);
+          }
         }
-        else {
-          where.append(" AND ");
-        }
-
-        where.append('`')
-                .append(entityProperty.columnName)
-                .append('`')
-                .append(" = ?");
-
-        // and
-        conditions.add(new Condition(entityProperty.typeHandler, propertyValue));
       }
     }
 
-    if (!conditions.isEmpty()) {
-      select.setWhereClause(where);
+    StringBuilder where = new StringBuilder(conditions.size() * 12);
+    renderWhereClause(conditions, where);
+    select.setWhereClause(where);
+  }
+
+  /**
+   * Render the restriction into the SQL buffer
+   */
+  static void renderWhereClause(Collection<Condition> restrictions, StringBuilder buf) {
+    boolean appended = false;
+    for (Condition condition : restrictions) {
+      if (appended) {
+        buf.append(" AND ");
+      }
+      else {
+        appended = true;
+      }
+      condition.restriction.render(buf);
     }
   }
 
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     int idx = 1;
-    for (Condition condition : conditions) {
-      condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
+    for (var condition : conditions) {
+      condition.entityProperty.setParameter(statement, idx++, condition.propertyValue);
     }
   }
 
@@ -90,13 +100,4 @@ final class ExampleQuery extends AbstractColumnsQueryHandler {
     return LogMessage.format("Query entity using example: {}", example);
   }
 
-  static class Condition {
-    final Object propertyValue;
-    final TypeHandler<Object> typeHandler;
-
-    private Condition(TypeHandler<Object> typeHandler, Object propertyValue) {
-      this.typeHandler = typeHandler;
-      this.propertyValue = propertyValue;
-    }
-  }
 }

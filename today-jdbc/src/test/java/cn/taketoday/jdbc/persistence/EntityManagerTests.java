@@ -157,11 +157,10 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     @Id
     @Column("id")
-    @Nullable
     Integer userId;
 
-    @Nullable
-    @Where("name like ?")
+    @SuffixLike("name like ?")
+    @TrimWhere("name like ?")
     String name;
 
     @Nullable

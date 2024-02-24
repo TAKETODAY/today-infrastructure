@@ -42,6 +42,13 @@ public interface Restriction {
     }
     buf.append(" WHERE ");
 
+    renderWhereClause(restrictions, buf);
+  }
+
+  /**
+   * Render the restriction into the SQL buffer
+   */
+  static void renderWhereClause(Collection<Restriction> restrictions, StringBuilder buf) {
     boolean appended = false;
     for (Restriction restriction : restrictions) {
       if (appended) {

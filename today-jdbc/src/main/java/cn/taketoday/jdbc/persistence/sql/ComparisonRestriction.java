@@ -48,14 +48,16 @@ public class ComparisonRestriction implements Restriction {
 
   @Override
   public void render(StringBuilder sqlBuffer) {
-    sqlBuffer.append(lhs);
-    sqlBuffer.append(operator.getSqlText());
-    sqlBuffer.append(rhs);
+    sqlBuffer.append('`')
+            .append(lhs)
+            .append('`')
+            .append(operator.getSqlText())
+            .append(rhs);
   }
 
   public enum Operator {
-    EQ("="),
-    NE("<>");
+    EQ(" = "),
+    NE(" <> ");
 
     private final String sqlText;
 

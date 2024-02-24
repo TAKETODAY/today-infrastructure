@@ -17,31 +17,30 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import cn.taketoday.lang.Constant;
+import cn.taketoday.jdbc.persistence.sql.Restriction;
+import cn.taketoday.lang.Nullable;
 
 /**
- * Where clause to add to the element Entity or target entity of a collection.
- * The clause is written in SQL. A common use case here is for soft-deletes.
- *
- * @author Emmanuel Bernard
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/2/24 23:58
  */
-@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Where {
+public interface PropertyConditionStrategy {
 
-  /**
-   * The where-clause predicate.
-   */
-  String value() default Constant.DEFAULT_NONE;
+  @Nullable
+  Condition resolve(EntityProperty entityProperty, Object propertyValue);
 
-  String condition() default Constant.DEFAULT_NONE;
+  class Condition {
 
-  String[] args() default {};
+    public final Object propertyValue;
+
+    public final Restriction restriction;
+
+    public final EntityProperty entityProperty;
+
+    public Condition(Object propertyValue, Restriction restriction, EntityProperty entityProperty) {
+      this.propertyValue = propertyValue;
+      this.restriction = restriction;
+      this.entityProperty = entityProperty;
+    }
+  }
 }

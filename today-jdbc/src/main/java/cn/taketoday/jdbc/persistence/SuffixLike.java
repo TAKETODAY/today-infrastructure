@@ -22,26 +22,28 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.core.annotation.AliasFor;
 import cn.taketoday.lang.Constant;
 
 /**
- * Where clause to add to the element Entity or target entity of a collection.
- * The clause is written in SQL. A common use case here is for soft-deletes.
- *
- * @author Emmanuel Bernard
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/2/24 23:53
  */
+@Where
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Where {
+public @interface SuffixLike {
 
   /**
    * The where-clause predicate.
    */
+  @AliasFor(annotation = Where.class, attribute = "value")
   String value() default Constant.DEFAULT_NONE;
 
+  @AliasFor(annotation = Where.class, attribute = "condition")
   String condition() default Constant.DEFAULT_NONE;
 
+  @AliasFor(annotation = Where.class, attribute = "args")
   String[] args() default {};
+
 }
