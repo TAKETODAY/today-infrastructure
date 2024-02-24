@@ -37,6 +37,9 @@ public @interface Where {
   /**
    * The where-clause predicate.
    */
-  String clause();
+  String value() default "";
 
+  String condition() default "";
+
+  String[] args() default {};
 }

@@ -20,10 +20,10 @@ package cn.taketoday.jdbc.persistence.sql;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
+import cn.taketoday.lang.Nullable;
 
 /**
  * A SQL {@code SELECT} statement with no table joins.
@@ -36,15 +36,18 @@ public class SimpleSelect implements StatementSequence {
 
   protected String tableName;
 
-  protected String orderBy;
+  @Nullable
+  protected CharSequence orderBy;
 
-  protected String comment;
+  @Nullable
+  protected CharSequence comment;
 
-  protected ArrayList<String> columns = new ArrayList<>();
+  protected final ArrayList<String> columns = new ArrayList<>();
 
-  protected HashMap<String, String> aliases = new HashMap<>();
+  @Nullable
+  protected HashMap<String, String> aliases;
 
-  protected ArrayList<Restriction> restrictions = new ArrayList<>();
+  protected final ArrayList<Restriction> restrictions = new ArrayList<>();
 
   /**
    * Sets the name of the table we are selecting from
@@ -79,6 +82,9 @@ public class SimpleSelect implements StatementSequence {
    */
   public SimpleSelect addColumn(String columnName, String alias) {
     columns.add(columnName);
+    if (aliases == null) {
+      aliases = new HashMap<>();
+    }
     aliases.put(columnName, alias);
     return this;
   }
@@ -126,12 +132,12 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
-  public SimpleSelect setOrderBy(String orderBy) {
+  public SimpleSelect setOrderBy(@Nullable CharSequence orderBy) {
     this.orderBy = orderBy;
     return this;
   }
 
-  public SimpleSelect setComment(String comment) {
+  public SimpleSelect setComment(@Nullable String comment) {
     this.comment = comment;
     return this;
   }
@@ -159,21 +165,29 @@ public class SimpleSelect implements StatementSequence {
     buf.append("SELECT ");
 
     boolean appendComma = false;
-    final Set<String> uniqueColumns = new HashSet<>();
+    final HashSet<String> uniqueColumns = new HashSet<>();
     for (final String col : columns) {
-      final String alias = aliases.get(col);
-
+      final String alias = getAlias(col);
       if (uniqueColumns.add(alias == null ? col : alias)) {
         if (appendComma) {
           buf.append(", ");
         }
+        else {
+          appendComma = true;
+        }
         buf.append(col);
         if (alias != null && !alias.equals(col)) {
-          buf.append(" as ").append(alias);
+          buf.append(" AS ").append(alias);
         }
-        appendComma = true;
       }
     }
+  }
+
+  private String getAlias(String col) {
+    if (aliases == null) {
+      return null;
+    }
+    return aliases.get(col);
   }
 
   private void applyFromClause(StringBuilder buf) {

@@ -17,7 +17,7 @@
 
 package cn.taketoday.jdbc.persistence.sql;
 
-import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * A restriction (predicate) to be applied to a query
@@ -36,7 +36,7 @@ public interface Restriction {
   /**
    * Render the restriction into the SQL buffer
    */
-  static void render(ArrayList<Restriction> restrictions, StringBuilder buf) {
+  static void render(Collection<Restriction> restrictions, StringBuilder buf) {
     if (restrictions.isEmpty()) {
       return;
     }
