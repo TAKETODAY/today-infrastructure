@@ -39,7 +39,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class SettableListenableFuture<T> implements ListenableFuture<T> {
+public class SettableFuture<T> implements ListenableFuture<T> {
 
   private static final Callable<Object> DUMMY_CALLABLE = () -> {
     throw new IllegalStateException("Should never be called");
