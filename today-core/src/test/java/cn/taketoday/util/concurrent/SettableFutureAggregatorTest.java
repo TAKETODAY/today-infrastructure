@@ -59,12 +59,12 @@ public class SettableFutureAggregatorTest {
 
   @Mock
   private SettableFuture<Void> p3;
-  private PromiseAggregator combiner;
+  private SettableFutureAggregator combiner;
 
   @BeforeEach
   public void setup() {
     MockitoAnnotations.initMocks(this);
-    combiner = new PromiseAggregator();
+    combiner = new SettableFutureAggregator();
   }
 
   @Test

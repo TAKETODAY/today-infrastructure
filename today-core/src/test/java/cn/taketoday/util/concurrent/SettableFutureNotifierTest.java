@@ -34,7 +34,7 @@ public class SettableFutureNotifierTest {
     assertThrows(NullPointerException.class, new Executable() {
       @Override
       public void execute() {
-        new PromiseNotifier<Void, ListenableFuture<Void>>((SettableFuture<Void>[]) null);
+        new SettableFutureNotifier<Void, ListenableFuture<Void>>((SettableFuture<Void>[]) null);
       }
     });
   }
@@ -45,7 +45,7 @@ public class SettableFutureNotifierTest {
     assertThrows(IllegalArgumentException.class, new Executable() {
       @Override
       public void execute() {
-        new PromiseNotifier<Void, ListenableFuture<Void>>((SettableFuture<Void>) null);
+        new SettableFutureNotifier<Void, ListenableFuture<Void>>((SettableFuture<Void>) null);
       }
     });
   }
@@ -58,8 +58,8 @@ public class SettableFutureNotifierTest {
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
     @SuppressWarnings("unchecked")
-    PromiseNotifier<Void, ListenableFuture<Void>> notifier =
-            new PromiseNotifier<Void, ListenableFuture<Void>>(p1, p2);
+    SettableFutureNotifier<Void, ListenableFuture<Void>> notifier =
+            new SettableFutureNotifier<Void, ListenableFuture<Void>>(p1, p2);
 
     @SuppressWarnings("unchecked")
     ListenableFuture<Void> future = mock(ListenableFuture.class);
@@ -81,8 +81,8 @@ public class SettableFutureNotifierTest {
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
     @SuppressWarnings("unchecked")
-    PromiseNotifier<Void, ListenableFuture<Void>> notifier =
-            new PromiseNotifier<Void, ListenableFuture<Void>>(p1, p2);
+    SettableFutureNotifier<Void, ListenableFuture<Void>> notifier =
+            new SettableFutureNotifier<Void, ListenableFuture<Void>>(p1, p2);
 
     @SuppressWarnings("unchecked")
     ListenableFuture<Void> future = mock(ListenableFuture.class);
@@ -103,7 +103,7 @@ public class SettableFutureNotifierTest {
     SettableFuture<Void> p1 = new DefaultFuture<>();
     SettableFuture<Void> p2 = new DefaultFuture<>();
 
-    SettableFuture<Void> returned = PromiseNotifier.cascade(p1, p2);
+    SettableFuture<Void> returned = SettableFutureNotifier.cascade(p1, p2);
     assertSame(p1, returned);
 
     assertTrue(returned.cancel(false));

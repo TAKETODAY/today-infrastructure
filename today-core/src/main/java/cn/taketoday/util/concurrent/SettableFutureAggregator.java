@@ -23,22 +23,22 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * <p>A promise combiner monitors the outcome of a number of discrete
- * futures, then notifies a final, aggregate promise when all of the
- * combined futures are finished. The aggregate promise will succeed
+ * <p>A SettableFuture combiner monitors the outcome of a number of discrete
+ * futures, then notifies a final, aggregate SettableFuture when all of the
+ * combined futures are finished. The aggregate SettableFuture will succeed
  * if and only if all of the combined futures succeed. If any of the
- * combined futures fail, the aggregate promise will fail. The cause
- * failure for the aggregate promise will be the failure for one of
+ * combined futures fail, the aggregate SettableFuture will fail. The cause
+ * failure for the aggregate SettableFuture will be the failure for one of
  * the failed combined futures; if more than one of the combined
  * futures fails, exactly which cause of failure will be assigned to
- * the aggregate promise is undefined.</p>
+ * the aggregate SettableFuture is undefined.</p>
  *
- * <p>Callers may populate a promise combiner with any number of futures
- * to be combined via the {@link PromiseAggregator#add(ListenableFuture)}
- * and {@link PromiseAggregator#addAll(ListenableFuture[])} methods.
+ * <p>Callers may populate a SettableFuture combiner with any number of futures
+ * to be combined via the {@link SettableFutureAggregator#add(ListenableFuture)}
+ * and {@link SettableFutureAggregator#addAll(ListenableFuture[])} methods.
  * When all futures to be combined have been added, callers must provide
- * an aggregate promise to be notified when all combined promises have
- * finished via the {@link PromiseAggregator#finish(SettableFuture)} method.
+ * an aggregate SettableFuture to be notified when all combined SettableFutures have
+ * finished via the {@link SettableFutureAggregator#finish(SettableFuture)} method.
  *
  * <p>This implementation is <strong>NOT</strong> thread-safe and all
  * methods must be called from the {@link Executor} thread.
@@ -46,7 +46,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class PromiseAggregator implements FutureListener<ListenableFuture<?>> {
+public final class SettableFutureAggregator implements FutureListener<ListenableFuture<?>> {
 
   private int expectedCount;
 
@@ -62,9 +62,9 @@ public final class PromiseAggregator implements FutureListener<ListenableFuture<
   private final Executor executor;
 
   /**
-   * Deprecated use {@link PromiseAggregator#PromiseAggregator(Executor)}.
+   * Deprecated use {@link SettableFutureAggregator#SettableFutureAggregator(Executor)}.
    */
-  public PromiseAggregator() {
+  public SettableFutureAggregator() {
     this(null);
   }
 
@@ -75,15 +75,15 @@ public final class PromiseAggregator implements FutureListener<ListenableFuture<
    *
    * @param executor the {@link Executor} to use for notifications.
    */
-  public PromiseAggregator(@Nullable Executor executor) {
+  public SettableFutureAggregator(@Nullable Executor executor) {
     this.executor = executor;
   }
 
   /**
-   * Adds a new future to be combined. New futures may be added until an aggregate promise is added via the
-   * {@link PromiseAggregator#finish(SettableFuture)} method.
+   * Adds a new future to be combined. New futures may be added until an aggregate SettableFuture is added via the
+   * {@link SettableFutureAggregator#finish(SettableFuture)} method.
    *
-   * @param future the future to add to this promise combiner
+   * @param future the future to add to this SettableFuture combiner
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public void add(ListenableFuture future) {
@@ -93,10 +93,10 @@ public final class PromiseAggregator implements FutureListener<ListenableFuture<
   }
 
   /**
-   * Adds new futures to be combined. New futures may be added until an aggregate promise is added via the
-   * {@link PromiseAggregator#finish(SettableFuture)} method.
+   * Adds new futures to be combined. New futures may be added until an aggregate SettableFuture is added via the
+   * {@link SettableFutureAggregator#finish(SettableFuture)} method.
    *
-   * @param futures the futures to add to this promise combiner
+   * @param futures the futures to add to this SettableFuture combiner
    */
   @SuppressWarnings({ "rawtypes" })
   public void addAll(ListenableFuture... futures) {
@@ -106,38 +106,38 @@ public final class PromiseAggregator implements FutureListener<ListenableFuture<
   }
 
   /**
-   * <p>Sets the promise to be notified when all combined futures have
+   * <p>Sets the SettableFuture to be notified when all combined futures have
    * finished. If all combined futures succeed, then the aggregate
-   * promise will succeed. If one or more combined futures fails, then
-   * the aggregate promise will fail with the cause of one of the failed
+   * SettableFuture will succeed. If one or more combined futures fails, then
+   * the aggregate SettableFuture will fail with the cause of one of the failed
    * futures. If more than one combined future fails, then exactly which
-   * failure will be assigned to the aggregate promise is undefined.
+   * failure will be assigned to the aggregate SettableFuture is undefined.
    *
    * <p>After this method is called, no more futures may be added via
-   * the {@link PromiseAggregator#add(ListenableFuture)} or
-   * {@link PromiseAggregator#addAll(ListenableFuture[])} methods.</p>
+   * the {@link SettableFutureAggregator#add(ListenableFuture)} or
+   * {@link SettableFutureAggregator#addAll(ListenableFuture[])} methods.</p>
    *
-   * @param aggregateFuture the promise to notify when all combined
+   * @param aggregateFuture the SettableFuture to notify when all combined
    * futures have finished
    */
   public void finish(SettableFuture<Void> aggregateFuture) {
-    Assert.notNull(aggregateFuture, "aggregatePromise is required");
+    Assert.notNull(aggregateFuture, "aggregateFuture is required");
     if (this.aggregateFuture != null) {
       throw new IllegalStateException("Already finished");
     }
     this.aggregateFuture = aggregateFuture;
     if (doneCount == expectedCount) {
-      tryPromise(aggregateFuture);
+      trySettableFuture(aggregateFuture);
     }
   }
 
-  private boolean tryPromise(SettableFuture<Void> aggregateFuture) {
+  private boolean trySettableFuture(SettableFuture<Void> aggregateFuture) {
     return cause == null ? aggregateFuture.trySuccess(null) : aggregateFuture.tryFailure(cause);
   }
 
   private void checkAddAllowed() {
     if (aggregateFuture != null) {
-      throw new IllegalStateException("Adding promises is not allowed after finished adding");
+      throw new IllegalStateException("Adding SettableFutures is not allowed after finished adding");
     }
   }
 
@@ -157,7 +157,7 @@ public final class PromiseAggregator implements FutureListener<ListenableFuture<
       cause = future.cause();
     }
     if (doneCount == expectedCount && aggregateFuture != null) {
-      tryPromise(aggregateFuture);
+      trySettableFuture(aggregateFuture);
     }
   }
 }

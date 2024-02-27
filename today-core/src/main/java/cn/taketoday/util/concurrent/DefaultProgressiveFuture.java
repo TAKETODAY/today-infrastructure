@@ -40,7 +40,7 @@ public class DefaultProgressiveFuture<V> extends DefaultFuture<V> implements Pro
    * Creates a new instance.
    *
    * @param executor the {@link Executor} which is used to notify the
-   * promise when it progresses or it is complete
+   * SettableFuture when it progresses or it is complete
    */
   public DefaultProgressiveFuture(@Nullable Executor executor) {
     super(executor);

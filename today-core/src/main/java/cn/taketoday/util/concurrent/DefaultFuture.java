@@ -99,7 +99,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * Creates a new instance.
    *
    * @param executor the {@link Executor} which is used to notify
-   * the promise once it is complete.
+   * the SettableFuture once it is complete.
    */
   public DefaultFuture(@Nullable Executor executor) {
     this.executor = executor;
@@ -605,7 +605,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   /**
    * Check if there are any waiters and if so notify these.
    *
-   * @return {@code true} if there are any listeners attached to the promise, {@code false} otherwise.
+   * @return {@code true} if there are any listeners attached to the SettableFuture, {@code false} otherwise.
    */
   private synchronized boolean checkNotifyWaiters() {
     if (waiters > 0) {

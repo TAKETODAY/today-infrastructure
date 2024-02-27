@@ -239,23 +239,23 @@ public class DefaultSettableFutureTest {
 
   @Test
   public void testListenerNotifyLater() throws Exception {
-    // Testing first execution path in DefaultPromise
+    // Testing first execution path in
     testListenerNotifyLater(1);
 
-    // Testing second execution path in DefaultPromise
+    // Testing second execution path in
     testListenerNotifyLater(2);
   }
 
   @Test
   @Timeout(value = 2000, unit = TimeUnit.MILLISECONDS)
-  public void testPromiseListenerAddWhenCompleteFailure() throws Exception {
-    testPromiseListenerAddWhenComplete(fakeException());
+  public void testSettableFutureListenerAddWhenCompleteFailure() throws Exception {
+    testSettableFutureListenerAddWhenComplete(fakeException());
   }
 
   @Test
   @Timeout(value = 2000, unit = TimeUnit.MILLISECONDS)
-  public void testPromiseListenerAddWhenCompleteSuccess() throws Exception {
-    testPromiseListenerAddWhenComplete(null);
+  public void testSettableFutureListenerAddWhenCompleteSuccess() throws Exception {
+    testSettableFutureListenerAddWhenComplete(null);
   }
 
   @Test
@@ -276,22 +276,22 @@ public class DefaultSettableFutureTest {
     Executor executor = new TestExecutor();
 
     final int numberOfAttempts = 4096;
-    final Map<Thread, DefaultFuture<Void>> promises = new HashMap<Thread, DefaultFuture<Void>>();
+    final Map<Thread, DefaultFuture<Void>> futures = new HashMap<Thread, DefaultFuture<Void>>();
     for (int i = 0; i < numberOfAttempts; i++) {
-      final DefaultFuture<Void> promise = new DefaultFuture<Void>(executor);
+      final DefaultFuture<Void> future = new DefaultFuture<Void>(executor);
       final Thread thread = new Thread(new Runnable() {
         @Override
         public void run() {
-          promise.setSuccess(null);
+          future.setSuccess(null);
         }
       });
-      promises.put(thread, promise);
+      futures.put(thread, future);
     }
 
-    for (final Map.Entry<Thread, DefaultFuture<Void>> promise : promises.entrySet()) {
-      promise.getKey().start();
+    for (final Map.Entry<Thread, DefaultFuture<Void>> future : futures.entrySet()) {
+      future.getKey().start();
       final long start = System.nanoTime();
-      promise.getValue().awaitUninterruptibly(wait, TimeUnit.NANOSECONDS);
+      future.getValue().awaitUninterruptibly(wait, TimeUnit.NANOSECONDS);
       assertThat(System.nanoTime() - start).isLessThan(wait);
     }
   }
@@ -328,10 +328,10 @@ public class DefaultSettableFutureTest {
     assertEquals("success", future.getNow());
   }
 
-  private static void testStackOverFlowChainedFuturesA(int promiseChainLength, final Executor executor,
+  private static void testStackOverFlowChainedFuturesA(int futureChainLength, final Executor executor,
           boolean runTestInExecutorThread) throws InterruptedException {
-    final SettableFuture<Void>[] p = new DefaultFuture[promiseChainLength];
-    final CountDownLatch latch = new CountDownLatch(promiseChainLength);
+    final SettableFuture<Void>[] p = new DefaultFuture[futureChainLength];
+    final CountDownLatch latch = new CountDownLatch(futureChainLength);
 
     if (runTestInExecutorThread) {
       executor.execute(new Runnable() {
@@ -366,10 +366,10 @@ public class DefaultSettableFutureTest {
     p[0].setSuccess(null);
   }
 
-  private static void testStackOverFlowChainedFuturesB(int promiseChainLength,
+  private static void testStackOverFlowChainedFuturesB(int futureChainLength,
           final Executor executor, boolean runTestInExecutorThread) throws InterruptedException {
-    final SettableFuture<Void>[] p = new DefaultFuture[promiseChainLength];
-    final CountDownLatch latch = new CountDownLatch(promiseChainLength);
+    final SettableFuture<Void>[] p = new DefaultFuture[futureChainLength];
+    final CountDownLatch latch = new CountDownLatch(futureChainLength);
 
     if (runTestInExecutorThread) {
       executor.execute(new Runnable() {
@@ -409,7 +409,7 @@ public class DefaultSettableFutureTest {
    * This test is mean to simulate the following sequence of events, which all take place on the I/O thread:
    * <ol>
    * <li>A write is done</li>
-   * <li>The write operation completes, and the promise state is changed to done</li>
+   * <li>The write operation completes, and the future state is changed to done</li>
    * <li>A listener is added to the return from the write. The {@link FutureListener#operationComplete(ListenableFuture)}
    * updates state which must be invoked before the response to the previous write is read.</li>
    * <li>The write operation</li>
@@ -420,21 +420,21 @@ public class DefaultSettableFutureTest {
     final AtomicInteger state = new AtomicInteger();
     final CountDownLatch latch1 = new CountDownLatch(1);
     final CountDownLatch latch2 = new CountDownLatch(2);
-    final SettableFuture<Void> promise = new DefaultFuture<Void>(executor);
+    final SettableFuture<Void> future = new DefaultFuture<Void>(executor);
 
     // Add a listener before completion so "lateListener" is used next time we add a listener.
-    promise.addListener(future -> assertTrue(state.compareAndSet(0, 1)));
+    future.addListener(future1 -> assertTrue(state.compareAndSet(0, 1)));
 
     // Simulate write operation completing, which will execute listeners in another thread.
     if (cause == null) {
-      promise.setSuccess(null);
+      future.setSuccess(null);
     }
     else {
-      promise.setFailure(cause);
+      future.setFailure(cause);
     }
 
     // Add a "late listener"
-    promise.addListener(future -> {
+    future.addListener(future1 -> {
       assertTrue(state.compareAndSet(1, 2));
       latch1.countDown();
     });
@@ -445,7 +445,7 @@ public class DefaultSettableFutureTest {
 
     // This is the important listener. A late listener that is added after all late listeners
     // have completed, and needs to update state before a read operation (on the same executor).
-    executor.execute(() -> promise.addListener(future -> {
+    executor.execute(() -> future.addListener(future1 -> {
       assertTrue(state.compareAndSet(2, 3));
       latch2.countDown();
     }));
@@ -460,15 +460,15 @@ public class DefaultSettableFutureTest {
     latch2.await();
   }
 
-  private static void testPromiseListenerAddWhenComplete(Throwable cause) throws InterruptedException {
+  private static void testSettableFutureListenerAddWhenComplete(Throwable cause) throws InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
-    final SettableFuture<Void> promise = new DefaultFuture<>();
-    promise.addListener(future -> promise.addListener(future1 -> latch.countDown()));
+    final SettableFuture<Void> settableFuture = new DefaultFuture<>();
+    settableFuture.addListener(future -> settableFuture.addListener(future1 -> latch.countDown()));
     if (cause == null) {
-      promise.setSuccess(null);
+      settableFuture.setSuccess(null);
     }
     else {
-      promise.setFailure(cause);
+      settableFuture.setFailure(cause);
     }
     latch.await();
   }
