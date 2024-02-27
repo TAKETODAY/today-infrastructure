@@ -28,7 +28,6 @@ import java.util.concurrent.TimeoutException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -39,7 +38,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 class SettableFutureTests {
 
-  private final SettableFuture<String> settableFuture = new SettableFuture<>();
+  private final SettableFuture<String> settableFuture = new DefaultFuture<>();
 
   @Test
   void validateInitialValues() {
@@ -50,7 +49,7 @@ class SettableFutureTests {
   @Test
   void returnsSetValue() throws ExecutionException, InterruptedException {
     String string = "hello";
-    assertThat(settableFuture.set(string)).isTrue();
+    assertThat(settableFuture.trySuccess(string)).isTrue();
     assertThat(settableFuture.get()).isEqualTo(string);
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -59,7 +58,7 @@ class SettableFutureTests {
   @Test
   void returnsSetValueFromCompletable() throws ExecutionException, InterruptedException {
     String string = "hello";
-    assertThat(settableFuture.set(string)).isTrue();
+    assertThat(settableFuture.trySuccess(string)).isTrue();
     Future<String> completable = settableFuture.completable();
     assertThat(completable.get()).isEqualTo(string);
     assertThat(completable.isCancelled()).isFalse();
@@ -68,7 +67,7 @@ class SettableFutureTests {
 
   @Test
   void setValueUpdatesDoneStatus() {
-    settableFuture.set("hello");
+    settableFuture.trySuccess("hello");
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
   }
@@ -76,7 +75,7 @@ class SettableFutureTests {
   @Test
   void throwsSetExceptionWrappedInExecutionException() throws Exception {
     Throwable exception = new RuntimeException();
-    assertThat(settableFuture.setException(exception)).isTrue();
+    assertThat(settableFuture.tryFailure(exception)).isTrue();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     settableFuture::get)
@@ -89,7 +88,7 @@ class SettableFutureTests {
   @Test
   void throwsSetExceptionWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new RuntimeException();
-    assertThat(settableFuture.setException(exception)).isTrue();
+    assertThat(settableFuture.tryFailure(exception)).isTrue();
     Future<String> completable = settableFuture.completable();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
@@ -103,7 +102,7 @@ class SettableFutureTests {
   @Test
   void throwsSetErrorWrappedInExecutionException() throws Exception {
     Throwable exception = new OutOfMemoryError();
-    assertThat(settableFuture.setException(exception)).isTrue();
+    assertThat(settableFuture.tryFailure(exception)).isTrue();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     settableFuture::get)
@@ -116,7 +115,7 @@ class SettableFutureTests {
   @Test
   void throwsSetErrorWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new OutOfMemoryError();
-    assertThat(settableFuture.setException(exception)).isTrue();
+    assertThat(settableFuture.tryFailure(exception)).isTrue();
     Future<String> completable = settableFuture.completable();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
@@ -132,19 +131,17 @@ class SettableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableFuture.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
-        callbackHolder[0] = result;
+    settableFuture.addListener(future -> {
+      if (future.isSuccess()) {
+        callbackHolder[0] = future.getNow();
+        fail("Expected onFailure() to be called");
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        throw new AssertionError("Expected onSuccess() to be called", ex);
+      else {
+        throw new AssertionError("Expected onSuccess() to be called", future.cause());
       }
     });
 
-    settableFuture.set(string);
+    settableFuture.trySuccess(string);
     assertThat(callbackHolder[0]).isEqualTo(string);
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -155,20 +152,18 @@ class SettableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableFuture.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
-        callbackHolder[0] = result;
+    settableFuture.addListener(future -> {
+      if (future.isSuccess()) {
+        callbackHolder[0] = future.getNow();
+        fail("Expected onFailure() to be called");
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        throw new AssertionError("Expected onSuccess() to be called", ex);
+      else {
+        throw new AssertionError("Expected onSuccess() to be called", future.cause());
       }
     });
 
-    settableFuture.set(string);
-    assertThat(settableFuture.set("good bye")).isFalse();
+    settableFuture.trySuccess(string);
+    assertThat(settableFuture.trySuccess("good bye")).isFalse();
     assertThat(callbackHolder[0]).isEqualTo(string);
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -179,19 +174,16 @@ class SettableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableFuture.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
+    settableFuture.addListener(future -> {
+      if (future.isSuccess()) {
         fail("Expected onFailure() to be called");
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        callbackHolder[0] = ex;
+      else {
+        callbackHolder[0] = future.cause();
       }
     });
 
-    settableFuture.setException(exception);
+    settableFuture.tryFailure(exception);
     assertThat(callbackHolder[0]).isEqualTo(exception);
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -202,20 +194,17 @@ class SettableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableFuture.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
+    settableFuture.addListener(future -> {
+      if (future.isSuccess()) {
         fail("Expected onFailure() to be called");
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        callbackHolder[0] = ex;
+      else {
+        callbackHolder[0] = future.cause();
       }
     });
 
-    settableFuture.setException(exception);
-    assertThat(settableFuture.setException(new IllegalArgumentException())).isFalse();
+    settableFuture.tryFailure(exception);
+    assertThat(settableFuture.tryFailure(new IllegalArgumentException())).isFalse();
     assertThat(callbackHolder[0]).isEqualTo(exception);
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -223,7 +212,7 @@ class SettableFutureTests {
 
   @Test
   void nullIsAcceptedAsValueToSet() throws ExecutionException, InterruptedException {
-    settableFuture.set(null);
+    settableFuture.trySuccess(null);
     assertThat((Object) settableFuture.get()).isNull();
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -236,7 +225,7 @@ class SettableFutureTests {
     new Thread(() -> {
       try {
         Thread.sleep(20L);
-        settableFuture.set(string);
+        settableFuture.trySuccess(string);
       }
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
@@ -262,7 +251,7 @@ class SettableFutureTests {
     new Thread(() -> {
       try {
         Thread.sleep(20L);
-        settableFuture.set(string);
+        settableFuture.trySuccess(string);
       }
       catch (InterruptedException ex) {
         throw new RuntimeException(ex);
@@ -278,7 +267,7 @@ class SettableFutureTests {
   @Test
   void cancelPreventsValueFromBeingSet() {
     assertThat(settableFuture.cancel(true)).isTrue();
-    assertThat(settableFuture.set("hello")).isFalse();
+    assertThat(settableFuture.trySuccess("hello")).isFalse();
     assertThat(settableFuture.isCancelled()).isTrue();
     assertThat(settableFuture.isDone()).isTrue();
   }
@@ -310,7 +299,7 @@ class SettableFutureTests {
 
   @Test
   void setPreventsCancel() {
-    assertThat(settableFuture.set("hello")).isTrue();
+    assertThat(settableFuture.trySuccess("hello")).isTrue();
     assertThat(settableFuture.cancel(true)).isFalse();
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -319,14 +308,14 @@ class SettableFutureTests {
   @Test
   void cancelPreventsExceptionFromBeingSet() {
     assertThat(settableFuture.cancel(true)).isTrue();
-    assertThat(settableFuture.setException(new RuntimeException())).isFalse();
+    assertThat(settableFuture.tryFailure(new RuntimeException())).isFalse();
     assertThat(settableFuture.isCancelled()).isTrue();
     assertThat(settableFuture.isDone()).isTrue();
   }
 
   @Test
   void setExceptionPreventsCancel() {
-    assertThat(settableFuture.setException(new RuntimeException())).isTrue();
+    assertThat(settableFuture.tryFailure(new RuntimeException())).isTrue();
     assertThat(settableFuture.cancel(true)).isFalse();
     assertThat(settableFuture.isCancelled()).isFalse();
     assertThat(settableFuture.isDone()).isTrue();
@@ -336,8 +325,7 @@ class SettableFutureTests {
   void cancelStateThrowsExceptionWhenCallingGet() throws ExecutionException, InterruptedException {
     settableFuture.cancel(true);
 
-    assertThatExceptionOfType(CancellationException.class).isThrownBy(() ->
-            settableFuture.get());
+    assertThatExceptionOfType(CancellationException.class).isThrownBy(settableFuture::get);
 
     assertThat(settableFuture.isCancelled()).isTrue();
     assertThat(settableFuture.isDone()).isTrue();
@@ -364,15 +352,15 @@ class SettableFutureTests {
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void cancelDoesNotNotifyCallbacksOnSet() {
+  public void cancelDoesNotNotifyCallbacksOnSet() throws Exception {
     FutureListener callback = mock(FutureListener.class);
     settableFuture.addListener(callback);
     settableFuture.cancel(true);
 
-    verify(callback).onFailure(any(CancellationException.class));
+    verify(callback).operationComplete(settableFuture);
     verifyNoMoreInteractions(callback);
 
-    settableFuture.set("hello");
+    settableFuture.trySuccess("hello");
     verifyNoMoreInteractions(callback);
 
     assertThat(settableFuture.isCancelled()).isTrue();
@@ -381,22 +369,23 @@ class SettableFutureTests {
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void cancelDoesNotNotifyCallbacksOnSetException() {
+  public void cancelDoesNotNotifyCallbacksOnSetException() throws Exception {
     FutureListener callback = mock(FutureListener.class);
     settableFuture.addListener(callback);
     settableFuture.cancel(true);
 
-    verify(callback).onFailure(any(CancellationException.class));
+    verify(callback).operationComplete(settableFuture);
+
     verifyNoMoreInteractions(callback);
 
-    settableFuture.setException(new RuntimeException());
+    settableFuture.tryFailure(new RuntimeException());
     verifyNoMoreInteractions(callback);
 
     assertThat(settableFuture.isCancelled()).isTrue();
     assertThat(settableFuture.isDone()).isTrue();
   }
 
-  private static class InterruptibleSettableFuture extends SettableFuture<String> {
+  private static class InterruptibleSettableFuture extends DefaultFuture<String> {
 
     private boolean interrupted = false;
 

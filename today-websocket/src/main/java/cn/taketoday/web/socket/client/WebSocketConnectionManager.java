@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.socket.client;
 
 import java.net.URI;
@@ -22,8 +23,8 @@ import java.util.List;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.FutureListener;
+import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -37,11 +38,13 @@ import cn.taketoday.web.socket.handler.LoggingWebSocketHandlerDecorator;
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @author TODAY 2021/11/12 15:58
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/11/12 15:58
  */
-public class WebSocketConnectionManager extends ConnectionManagerSupport {
+public class WebSocketConnectionManager extends ConnectionManagerSupport implements FutureListener<ListenableFuture<WebSocketSession>> {
+
   private final WebSocketClient client;
+
   private final WebSocketHandler webSocketHandler;
 
   @Nullable
@@ -52,9 +55,7 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport {
   /**
    * Constructor with the client to use and a handler to handle messages with.
    */
-  public WebSocketConnectionManager(
-          WebSocketClient client, WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables) {
-
+  public WebSocketConnectionManager(WebSocketClient client, WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables) {
     super(uriTemplate, uriVariables);
     this.client = client;
     this.webSocketHandler = decorateWebSocketHandler(webSocketHandler);
@@ -144,22 +145,8 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport {
   @Override
   protected void openConnection() {
     logger.info("Connecting to WebSocket at {}", getUri());
-
-    ListenableFuture<WebSocketSession> future =
-            this.client.doHandshake(this.webSocketHandler, this.headers, getUri());
-
-    future.addListener(new FutureListener<>() {
-      @Override
-      public void onSuccess(@Nullable WebSocketSession result) {
-        webSocketSession = result;
-        logger.info("Successfully connected");
-      }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        logger.error("Failed to connect", ex);
-      }
-    });
+    client.doHandshake(this.webSocketHandler, this.headers, getUri())
+            .addListener(this);
   }
 
   @Override
@@ -172,6 +159,17 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport {
   @Override
   protected boolean isConnected() {
     return (this.webSocketSession != null && this.webSocketSession.isOpen());
+  }
+
+  @Override
+  public void operationComplete(ListenableFuture<WebSocketSession> future) {
+    if (future.isSuccess()) {
+      webSocketSession = future.getNow();
+      logger.info("Successfully connected");
+    }
+    else {
+      logger.error("Failed to connect", future.cause());
+    }
   }
 
 }

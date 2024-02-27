@@ -56,8 +56,8 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.concurrent.ListenableFuture;
 import cn.taketoday.util.concurrent.FutureListener;
+import cn.taketoday.util.concurrent.ListenableFuture;
 
 /**
  * {@link GenericApplicationListener} adapter that delegates the processing of
@@ -75,7 +75,7 @@ import cn.taketoday.util.concurrent.FutureListener;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/5 11:51
  */
-public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered, FutureListener<Object> {
+public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered, FutureListener<ListenableFuture<?>> {
 
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
@@ -112,7 +112,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     this.beanName = beanName;
     this.method = BridgeMethodResolver.findBridgedMethod(method);
     this.targetMethod = Proxy.isProxyClass(targetClass)
-                        ? this.method : AopUtils.getMostSpecificMethod(method, targetClass);
+            ? this.method : AopUtils.getMostSpecificMethod(method, targetClass);
     this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
 
     MergedAnnotations annotations = MergedAnnotations.from(targetMethod, SearchStrategy.TYPE_HIERARCHY);
@@ -199,8 +199,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   public boolean supportsEventType(ResolvableType eventType) {
     for (ResolvableType declaredEventType : this.declaredEventTypes) {
       if (eventType.hasUnresolvableGenerics() ?
-          declaredEventType.toClass().isAssignableFrom(eventType.toClass()) :
-          declaredEventType.isAssignableFrom(eventType)) {
+              declaredEventType.toClass().isAssignableFrom(eventType.toClass()) :
+              declaredEventType.isAssignableFrom(eventType)) {
         return true;
       }
       if (PayloadApplicationEvent.class.isAssignableFrom(eventType.toClass())) {
@@ -360,6 +360,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     return ClassUtils.getQualifiedMethodName(method) + sj;
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void handleResult(Object result) {
     if (ReactiveStreams.isPresent && ReactiveDelegate.subscribeToPublisher(this, result)) {
       if (log.isTraceEnabled()) {
@@ -376,7 +377,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
         }
       });
     }
-    else if (result instanceof ListenableFuture<?> d) {
+    else if (result instanceof ListenableFuture d) {
       d.addListener(this);
     }
     else {
@@ -385,13 +386,13 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   @Override
-  public void onSuccess(Object result) {
-    publishEvents(result);
-  }
-
-  @Override
-  public void onFailure(Throwable ex) {
-    handleAsyncError(ex);
+  public void operationComplete(ListenableFuture<?> future) {
+    if (future.isSuccess()) {
+      publishEvents(future.getNow());
+    }
+    else {
+      handleAsyncError(future.cause());
+    }
   }
 
   private void publishEvents(Object result) {

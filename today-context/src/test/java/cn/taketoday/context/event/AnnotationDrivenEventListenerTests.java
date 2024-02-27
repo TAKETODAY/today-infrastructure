@@ -63,6 +63,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.concurrent.DefaultFuture;
 import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor;
@@ -284,8 +285,8 @@ class AnnotationDrivenEventListenerTests {
   @Test
   void listenableFutureReply() {
     load(TestEventListener.class, ReplyEventListener.class);
-    cn.taketoday.util.concurrent.SettableFuture<String> future = new SettableFuture<>();
-    future.set("dummy");
+    SettableFuture<String> future = new DefaultFuture<>();
+    future.setSuccess("dummy");
     AnotherTestEvent event = new AnotherTestEvent(this, future);
     ReplyEventListener replyEventListener = this.context.getBean(ReplyEventListener.class);
     TestEventListener listener = this.context.getBean(TestEventListener.class);

@@ -43,17 +43,15 @@ class ListenableFutureTaskTests {
     Callable<String> callable = () -> s;
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
-        assertThat(result).isEqualTo(s);
+    task.addListener(future -> {
+      if (future.isSuccess()) {
+        assertThat(future.getNow()).isEqualTo(s);
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        throw new AssertionError(ex.getMessage(), ex);
+      else {
+        throw new AssertionError(future.cause().getMessage(), future.cause());
       }
     });
+
     task.run();
 
     assertThat(task.get()).isSameAs(s);
@@ -69,17 +67,16 @@ class ListenableFutureTaskTests {
     };
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
+
+    task.addListener(future -> {
+      if (future.isSuccess()) {
         fail("onSuccess not expected");
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        assertThat(ex.getMessage()).isEqualTo(s);
+      else {
+        assertThat(future.cause().getMessage()).isEqualTo(s);
       }
     });
+
     task.run();
 
     assertThatExceptionOfType(ExecutionException.class)
