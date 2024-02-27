@@ -17,169 +17,82 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * A {@link ListenableFuture} whose value can be set via {@link #set(Object)}
- * or {@link #setException(Throwable)}. It may also get cancelled.
+ * Special {@link ListenableFuture} which is writable.
  *
- * <p>Inspired by {@code com.google.common.util.concurrent.SettableFuture}.
- *
- * @param <T> the result type returned by this Future's {@code get} method
- * @author Mattias Severson
- * @author Rossen Stoyanchev
- * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/2/26 15:57
  */
-public class SettableFuture<T> implements ListenableFuture<T> {
-
-  private static final Callable<Object> DUMMY_CALLABLE = () -> {
-    throw new IllegalStateException("Should never be called");
-  };
-
-  private final SettableTask<T> settableTask = new SettableTask<>();
+public interface SettableFuture<V> extends ListenableFuture<V> {
 
   /**
-   * Set the value of this future. This method will return {@code true} if the
-   * value was set successfully, or {@code false} if the future has already been
-   * set or cancelled.
+   * Marks this future as a success and notifies all
+   * listeners.
    *
-   * @param value the value that will be set
-   * @return {@code true} if the value was successfully set, else {@code false}
+   * If it is success or failed already it will throw an {@link IllegalStateException}.
    */
-  public boolean set(@Nullable T value) {
-    return this.settableTask.setResultValue(value);
-  }
+  SettableFuture<V> setSuccess(@Nullable V result);
 
   /**
-   * Set the exception of this future. This method will return {@code true} if the
-   * exception was set successfully, or {@code false} if the future has already been
-   * set or cancelled.
+   * Marks this future as a success and notifies all
+   * listeners.
    *
-   * @param exception the value that will be set
-   * @return {@code true} if the exception was successfully set, else {@code false}
+   * @return {@code true} if and only if successfully marked this future as
+   * a success. Otherwise {@code false} because this future is
+   * already marked as either a success or a failure.
    */
-  public boolean setException(Throwable exception) {
-    Assert.notNull(exception, "Exception is required");
-    return this.settableTask.setExceptionResult(exception);
-  }
-
-  @Override
-  public void addListener(FutureListener<? super T> listener) {
-    this.settableTask.addListener(listener);
-  }
-
-  @Override
-  public CompletableFuture<T> completable() {
-    return this.settableTask.completable();
-  }
-
-  @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    boolean cancelled = this.settableTask.cancel(mayInterruptIfRunning);
-    if (cancelled && mayInterruptIfRunning) {
-      interruptTask();
-    }
-    return cancelled;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return this.settableTask.isCancelled();
-  }
-
-  @Override
-  public boolean isDone() {
-    return this.settableTask.isDone();
-  }
+  boolean trySuccess(@Nullable V result);
 
   /**
-   * Retrieve the value.
-   * <p>This method returns the value if it has been set via {@link #set(Object)},
-   * throws an {@link ExecutionException} if an exception has
-   * been set via {@link #setException(Throwable)}, or throws a
-   * {@link java.util.concurrent.CancellationException} if the future has been cancelled.
+   * Marks this future as a failure and notifies all
+   * listeners.
    *
-   * @return the value associated with this future
+   * If it is success or failed already it will throw an {@link IllegalStateException}.
    */
-  @Override
-  @Nullable
-  public T get() throws InterruptedException, ExecutionException {
-    return this.settableTask.get();
-  }
+  SettableFuture<V> setFailure(Throwable cause);
 
   /**
-   * Retrieve the value.
-   * <p>This method returns the value if it has been set via {@link #set(Object)},
-   * throws an {@link ExecutionException} if an exception has
-   * been set via {@link #setException(Throwable)}, or throws a
-   * {@link java.util.concurrent.CancellationException} if the future has been cancelled.
+   * Marks this future as a failure and notifies all
+   * listeners.
    *
-   * @param timeout the maximum time to wait
-   * @param unit the unit of the timeout argument
-   * @return the value associated with this future
+   * @return {@code true} if and only if successfully marked this future as
+   * a failure. Otherwise {@code false} because this future is
+   * already marked as either a success or a failure.
    */
-  @Override
-  @Nullable
-  public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-    return this.settableTask.get(timeout, unit);
-  }
+  boolean tryFailure(Throwable cause);
 
   /**
-   * Subclasses can override this method to implement interruption of the future's
-   * computation. The method is invoked automatically by a successful call to
-   * {@link #cancel(boolean) cancel(true)}.
-   * <p>The default implementation is empty.
+   * Make this future impossible to cancel.
+   *
+   * @return {@code true} if and only if successfully marked this
+   * future as uncancellable or it is already done without being cancelled.
+   * {@code false} if this future has been cancelled already.
    */
-  protected void interruptTask() {
-  }
+  boolean setUncancellable();
 
-  private static class SettableTask<T> extends ListenableFutureTask<T> {
+  @Override
+  SettableFuture<V> addListener(FutureListener<? extends ListenableFuture<V>> listener);
 
-    @Nullable
-    private volatile Thread completingThread;
+  @Override
+  SettableFuture<V> addListeners(FutureListener<? extends ListenableFuture<V>>... listeners);
 
-    @SuppressWarnings("unchecked")
-    public SettableTask() {
-      super((Callable<T>) DUMMY_CALLABLE);
-    }
+  @Override
+  SettableFuture<V> removeListener(FutureListener<? extends ListenableFuture<V>> listener);
 
-    public boolean setResultValue(@Nullable T value) {
-      set(value);
-      return checkCompletingThread();
-    }
+  @Override
+  SettableFuture<V> removeListeners(FutureListener<? extends ListenableFuture<V>>... listeners);
 
-    public boolean setExceptionResult(Throwable exception) {
-      setException(exception);
-      return checkCompletingThread();
-    }
+  @Override
+  SettableFuture<V> await() throws InterruptedException;
 
-    @Override
-    protected void done() {
-      if (!isCancelled()) {
-        // Implicitly invoked by set/setException: store current thread for
-        // determining whether the given result has actually triggered completion
-        // (since FutureTask.set/setException unfortunately don't expose that)
-        this.completingThread = Thread.currentThread();
-      }
-      super.done();
-    }
+  @Override
+  SettableFuture<V> awaitUninterruptibly();
 
-    private boolean checkCompletingThread() {
-      boolean check = (this.completingThread == Thread.currentThread());
-      if (check) {
-        this.completingThread = null;  // only first match actually counts
-      }
-      return check;
-    }
-  }
+  @Override
+  SettableFuture<V> sync() throws InterruptedException;
 
+  @Override
+  SettableFuture<V> syncUninterruptibly();
 }

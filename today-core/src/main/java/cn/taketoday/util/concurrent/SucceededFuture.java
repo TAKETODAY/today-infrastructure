@@ -17,27 +17,50 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.EventListener;
+import java.util.concurrent.Executor;
+
+import cn.taketoday.lang.Nullable;
 
 /**
- * Listens to the result of a {@link ListenableFuture}.
- * The result of the asynchronous operation is notified once this listener
- * is added by calling {@link ListenableFuture#addListener(FutureListener)}.
+ * The {@link CompleteFuture} which is succeeded already.
  *
- * @param <F> the future type
- * @author Arjen Poutsma
- * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/2/26 21:33
  */
-public interface FutureListener<F extends ListenableFuture<?>> extends EventListener {
+public final class SucceededFuture<V> extends CompleteFuture<V> {
+  private final V result;
 
   /**
-   * Invoked when the operation associated with
-   * the {@link ListenableFuture} has been completed.
-   *
-   * @param future the source {@link ListenableFuture} which called this callback
+   * Creates a new instance.
    */
-  void operationComplete(F future) throws Exception;
+  public SucceededFuture(V result) {
+    super();
+    this.result = result;
+  }
 
+  /**
+   * Creates a new instance.
+   *
+   * @param executor the {@link Executor} associated with this future
+   */
+  public SucceededFuture(@Nullable Executor executor, V result) {
+    super(executor);
+    this.result = result;
+  }
+
+  @Override
+  public Throwable cause() {
+    return null;
+  }
+
+  @Override
+  public boolean isSuccess() {
+    return true;
+  }
+
+  @Override
+  public V getNow() {
+    return result;
+  }
 }
+

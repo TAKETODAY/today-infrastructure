@@ -43,7 +43,6 @@ import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ErrorHandler;
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
@@ -352,16 +351,12 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
 
   private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> listenableFuture) {
     Future<?> scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
-    this.listenableFutureMap.put(scheduledFuture, listenableFuture);
-    listenableFuture.addListener(new FutureListener<Object>() {
-
-      @Override
-      public void onFailure(Throwable ex) {
+    listenableFutureMap.put(scheduledFuture, listenableFuture);
+    listenableFuture.addListener(future -> {
+      if (future.isSuccess()) {
         listenableFutureMap.remove(scheduledFuture);
       }
-
-      @Override
-      public void onSuccess(@Nullable Object result) {
+      else {
         listenableFutureMap.remove(scheduledFuture);
       }
     });

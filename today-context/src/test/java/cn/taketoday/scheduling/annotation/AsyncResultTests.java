@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.FutureListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -40,17 +39,11 @@ public class AsyncResultTests {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
     ListenableFuture<String> future = AsyncResult.forValue(value);
-    future.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
-        values.add(result);
-      }
 
-      @Override
-      public void onFailure(Throwable ex) {
-        throw new AssertionError("Failure callback not expected: " + ex, ex);
-      }
+    future.addListener(values::add, ex -> {
+      throw new AssertionError("Failure callback not expected: " + ex, ex);
     });
+
     assertThat(values.iterator().next()).isSameAs(value);
     assertThat(future.get()).isSameAs(value);
     assertThat(future.completable().get()).isSameAs(value);
@@ -62,17 +55,11 @@ public class AsyncResultTests {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
     ListenableFuture<String> future = AsyncResult.forExecutionException(ex);
-    future.addListener(new FutureListener<String>() {
-      @Override
-      public void onSuccess(String result) {
-        throw new AssertionError("Success callback not expected: " + result);
-      }
 
-      @Override
-      public void onFailure(Throwable ex) {
-        values.add(ex);
-      }
-    });
+    future.addListener(result -> {
+      throw new AssertionError("Success callback not expected: " + result);
+    }, values::add);
+
     assertThat(values.iterator().next()).isSameAs(ex);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     future::get)

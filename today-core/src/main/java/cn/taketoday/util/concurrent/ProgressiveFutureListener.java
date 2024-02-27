@@ -17,23 +17,22 @@
 
 package cn.taketoday.util.concurrent;
 
-import reactor.core.publisher.Mono;
-
 /**
- * Adapts a {@link Mono} into a {@link ListenableFuture} by obtaining a
- * {@code CompletableFuture} from the {@code Mono} via {@link Mono#toFuture()}
- * and then adapting it with {@link CompletableToListenableFutureAdapter}.
+ * Listens to the result of a {@link ProgressiveFuture}.
  *
- * @param <T> the object type
- * @author Rossen Stoyanchev
- * @author Stephane Maldini
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/2/26 20:48
  */
-public class MonoToListenableFutureAdapter<T> extends CompletableToListenableFutureAdapter<T> {
+public interface ProgressiveFutureListener<F extends ProgressiveFuture<?>> extends FutureListener<F> {
 
-  public MonoToListenableFutureAdapter(Mono<T> mono) {
-    super(mono.toFuture());
-  }
+  /**
+   * Invoked when the operation has progressed.
+   *
+   * @param progress the progress of the operation so far (cumulative)
+   * @param total the number that signifies the end of the
+   * operation when {@code progress} reaches at it.
+   * {@code -1} if the end of operation is unknown.
+   */
+  void operationProgressed(F future, long progress, long total) throws Exception;
 
 }

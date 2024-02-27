@@ -22,7 +22,6 @@ import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -51,9 +50,8 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
   }
 
   @Override
-  public void handleReturnValue(
-          RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
-
+  @SuppressWarnings("unchecked")
+  public void handleReturnValue(RequestContext context, Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -62,8 +60,8 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     if (returnValue instanceof DeferredResult) {
       result = (DeferredResult<?>) returnValue;
     }
-    else if (returnValue instanceof ListenableFuture) {
-      result = adaptListenableFuture((ListenableFuture<?>) returnValue);
+    else if (returnValue instanceof ListenableFuture<?>) {
+      result = adaptListenableFuture((ListenableFuture<Object>) returnValue);
     }
     else if (returnValue instanceof CompletionStage) {
       result = adaptCompletionStage((CompletionStage<?>) returnValue);
@@ -77,20 +75,9 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
             .startDeferredResultProcessing(result, handler);
   }
 
-  private DeferredResult<Object> adaptListenableFuture(ListenableFuture<?> future) {
+  private DeferredResult<Object> adaptListenableFuture(ListenableFuture<Object> future) {
     DeferredResult<Object> result = new DeferredResult<>();
-    future.addListener(new FutureListener<Object>() {
-
-      @Override
-      public void onSuccess(@Nullable Object res) {
-        result.setResult(res);
-      }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        result.setErrorResult(ex);
-      }
-    });
+    future.addListener(result);
     return result;
   }
 
