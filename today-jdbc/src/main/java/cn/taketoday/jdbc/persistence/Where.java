@@ -43,5 +43,4 @@ public @interface Where {
 
   String condition() default Constant.DEFAULT_NONE;
 
-  String[] args() default {};
 }

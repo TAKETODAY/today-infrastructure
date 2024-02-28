@@ -19,6 +19,9 @@ package cn.taketoday.jdbc.persistence.sql;
 
 import java.util.Collection;
 
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
+
 /**
  * A restriction (predicate) to be applied to a query
  *
@@ -36,13 +39,11 @@ public interface Restriction {
   /**
    * Render the restriction into the SQL buffer
    */
-  static void render(Collection<Restriction> restrictions, StringBuilder buf) {
-    if (restrictions.isEmpty()) {
-      return;
+  static void render(@Nullable Collection<Restriction> restrictions, StringBuilder buf) {
+    if (CollectionUtils.isNotEmpty(restrictions)) {
+      buf.append(" WHERE ");
+      renderWhereClause(restrictions, buf);
     }
-    buf.append(" WHERE ");
-
-    renderWhereClause(restrictions, buf);
   }
 
   /**

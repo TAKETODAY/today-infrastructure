@@ -24,6 +24,7 @@ import java.util.HashSet;
 import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * A SQL {@code SELECT} statement with no table joins.
@@ -37,7 +38,7 @@ public class SimpleSelect implements StatementSequence {
   protected String tableName;
 
   @Nullable
-  protected CharSequence orderBy;
+  protected CharSequence orderByClause;
 
   @Nullable
   protected CharSequence comment;
@@ -61,11 +62,7 @@ public class SimpleSelect implements StatementSequence {
    * Adds selections
    */
   public SimpleSelect addColumns(String[] columnNames) {
-    for (String columnName : columnNames) {
-      if (columnName != null) {
-        addColumn(columnName);
-      }
-    }
+    CollectionUtils.addAll(this.columns, columnNames);
     return this;
   }
 
@@ -132,8 +129,13 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
-  public SimpleSelect setOrderBy(@Nullable CharSequence orderBy) {
-    this.orderBy = orderBy;
+  public SimpleSelect addRestriction(Restriction restriction) {
+    restrictions.add(restriction);
+    return this;
+  }
+
+  public SimpleSelect setOrderByClause(@Nullable CharSequence orderByClause) {
+    this.orderByClause = orderByClause;
     return this;
   }
 
@@ -177,13 +179,18 @@ public class SimpleSelect implements StatementSequence {
           buf.append('`');
         }
         buf.append(col);
+
         if (alias != null && !alias.equals(col)) {
-          buf.append(" AS ").append(alias);
+          buf.append("` AS ").append(alias);
+        }
+        else {
+          buf.append('`');
         }
       }
     }
   }
 
+  @Nullable
   private String getAlias(String col) {
     if (aliases == null) {
       return null;
@@ -200,8 +207,8 @@ public class SimpleSelect implements StatementSequence {
   }
 
   private void applyOrderBy(StringBuilder buf) {
-    if (orderBy != null) {
-      buf.append(' ').append(orderBy);
+    if (orderByClause != null) {
+      buf.append(" order by ").append(orderByClause);
     }
   }
 

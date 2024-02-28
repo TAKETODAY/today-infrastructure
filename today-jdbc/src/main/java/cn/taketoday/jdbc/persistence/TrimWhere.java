@@ -46,6 +46,4 @@ public @interface TrimWhere {
   @AliasFor(annotation = Where.class, attribute = "condition")
   String condition() default Constant.DEFAULT_NONE;
 
-  @AliasFor(annotation = Where.class, attribute = "args")
-  String[] args() default {};
 }

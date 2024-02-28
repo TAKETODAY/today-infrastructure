@@ -29,7 +29,6 @@ import cn.taketoday.lang.Constant;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/24 23:53
  */
-@Where
 @Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Like {
@@ -37,13 +36,11 @@ public @interface Like {
   /**
    * The where-clause predicate.
    */
-  @AliasFor(annotation = Where.class, attribute = "value")
+  @AliasFor(annotation = Like.class, attribute = "column")
   String value() default Constant.DEFAULT_NONE;
 
-  @AliasFor(annotation = Where.class, attribute = "condition")
-  String condition() default Constant.DEFAULT_NONE;
+  @AliasFor(annotation = Like.class, attribute = "value")
+  String column() default Constant.DEFAULT_NONE;
 
-  @AliasFor(annotation = Where.class, attribute = "args")
-  String[] args() default {};
-  
+  boolean trim() default true;
 }

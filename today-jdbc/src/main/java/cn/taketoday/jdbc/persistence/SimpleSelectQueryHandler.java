@@ -15,23 +15,28 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence.support;
+package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.jdbc.persistence.EntityProperty;
-import cn.taketoday.jdbc.persistence.PropertyConditionStrategy;
-import cn.taketoday.jdbc.persistence.sql.ComparisonRestriction;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/28 22:43
+ * @since 4.0 2024/2/28 22:19
  */
-public class DefaultConditionStrategy implements PropertyConditionStrategy {
+public abstract class SimpleSelectQueryHandler implements QueryHandler {
 
-  @Nullable
   @Override
-  public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
-    return new Condition(propertyValue, new ComparisonRestriction(entityProperty.columnName), entityProperty);
+  public StatementSequence render(EntityMetadata metadata) {
+    SimpleSelect select = new SimpleSelect();
+
+    select.addColumns(metadata.columnNames);
+    select.setTableName(metadata.tableName);
+
+    renderInternal(metadata, select);
+    return select;
+
   }
+
+  protected abstract void renderInternal(EntityMetadata metadata, SimpleSelect select);
 
 }
