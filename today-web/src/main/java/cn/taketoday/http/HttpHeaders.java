@@ -76,8 +76,7 @@ import static java.time.format.DateTimeFormatter.ofPattern;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0 2020-01-28 17:15
  */
-public abstract class HttpHeaders
-        implements /*Iterable<String>,*/ MultiValueMap<String, String>, Serializable {
+public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap<String, String>, Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -602,8 +601,8 @@ public abstract class HttpHeaders
   public List<Locale.LanguageRange> getAcceptLanguage() {
     String value = getFirst(ACCEPT_LANGUAGE);
     return StringUtils.isNotEmpty(value)
-           ? Locale.LanguageRange.parse(value)
-           : Collections.emptyList();
+            ? Locale.LanguageRange.parse(value)
+            : Collections.emptyList();
   }
 
   /**
@@ -1041,8 +1040,8 @@ public abstract class HttpHeaders
   public ContentDisposition getContentDisposition() {
     String contentDisposition = getFirst(CONTENT_DISPOSITION);
     return contentDisposition != null
-           ? ContentDisposition.parse(contentDisposition)
-           : ContentDisposition.empty();
+            ? ContentDisposition.parse(contentDisposition)
+            : ContentDisposition.empty();
   }
 
   /**
@@ -1265,8 +1264,8 @@ public abstract class HttpHeaders
     String host = null;
     int port = 0;
     int separator = StringUtils.matchesFirst(value, '[')
-                    ? value.indexOf(':', value.indexOf(']'))
-                    : value.lastIndexOf(':');
+            ? value.indexOf(':', value.indexOf(']'))
+            : value.lastIndexOf(':');
     if (separator != -1) {
       host = value.substring(0, separator);
       String portString = value.substring(separator + 1);
@@ -1346,8 +1345,8 @@ public abstract class HttpHeaders
   /**
    * Set the (new) value of the {@code If-None-Match} header.
    */
-  public void setIfNoneMatch(String ifNoneMatch) {
-    set(IF_NONE_MATCH, ifNoneMatch);
+  public void setIfNoneMatch(@Nullable String ifNoneMatch) {
+    setOrRemove(IF_NONE_MATCH, ifNoneMatch);
   }
 
   /**
@@ -1475,7 +1474,7 @@ public abstract class HttpHeaders
   /**
    * Set the (new) value of the {@code Origin} header.
    */
-  public void setOrigin(String origin) {
+  public void setOrigin(@Nullable String origin) {
     setOrRemove(ORIGIN, origin);
   }
 
@@ -1490,7 +1489,7 @@ public abstract class HttpHeaders
   /**
    * Set the (new) value of the {@code Pragma} header.
    */
-  public void setPragma(String pragma) {
+  public void setPragma(@Nullable String pragma) {
     setOrRemove(PRAGMA, pragma);
   }
 
@@ -1922,8 +1921,8 @@ public abstract class HttpHeaders
               List<String> values = entry.getValue();
               return entry.getKey() + ":"
                       + (values.size() == 1
-                         ? "\"" + values.get(0) + "\""
-                         : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+                      ? "\"" + values.get(0) + "\""
+                      : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }
@@ -2003,8 +2002,8 @@ public abstract class HttpHeaders
    */
   public static HttpHeaders readOnlyHttpHeaders(MultiValueMap<String, String> headers) {
     return headers instanceof HttpHeaders
-           ? ((HttpHeaders) headers).asReadOnly()
-           : new ReadOnlyHttpHeaders(headers);
+            ? ((HttpHeaders) headers).asReadOnly()
+            : new ReadOnlyHttpHeaders(headers);
   }
 
   /**
