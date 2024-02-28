@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.util;
 
@@ -125,6 +125,17 @@ public abstract class ObjectUtils {
   }
 
   /**
+   * Determine whether the given array is not empty:
+   * i.e. {@code null} or of zero length.
+   *
+   * @param array the array to check
+   * @see #isEmpty(Object[])
+   */
+  public static boolean isNotEmpty(@Nullable Object[] array) {
+    return array != null && array.length != 0;
+  }
+
+  /**
    * Determine whether the given object is empty.
    * <p>This method supports the following object types.
    * <ul>
@@ -162,10 +173,6 @@ public abstract class ObjectUtils {
       return ((Map<?, ?>) obj).isEmpty();
     }
     return obj.getClass().isArray() && Array.getLength(obj) == 0;
-  }
-
-  public static boolean isNotEmpty(@Nullable Object[] array) {
-    return !isEmpty(array);
   }
 
   public static boolean isNotEmpty(@Nullable Object obj) {
@@ -343,8 +350,8 @@ public abstract class ObjectUtils {
   public static boolean containsConstant(Enum<?>[] enumValues, String constant, boolean caseSensitive) {
     for (Enum<?> candidate : enumValues) {
       if (caseSensitive
-          ? candidate.toString().equals(constant)
-          : candidate.toString().equalsIgnoreCase(constant)) {
+              ? candidate.toString().equals(constant)
+              : candidate.toString().equalsIgnoreCase(constant)) {
         return true;
       }
     }
@@ -590,11 +597,11 @@ public abstract class ObjectUtils {
 
   public static String toHexString(@Nullable Object obj) {
     return obj == null
-           ? NULL_STRING
-           : new StringBuilder()
-                   .append(obj.getClass().getName())
-                   .append('@')
-                   .append(Integer.toHexString(obj.hashCode())).toString();
+            ? NULL_STRING
+            : new StringBuilder()
+                    .append(obj.getClass().getName())
+                    .append('@')
+                    .append(Integer.toHexString(obj.hashCode())).toString();
   }
 
   /**
