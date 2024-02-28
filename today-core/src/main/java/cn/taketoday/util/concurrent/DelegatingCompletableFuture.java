@@ -21,7 +21,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Extension of {@link CompletableFuture} which allows for cancelling
@@ -32,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class DelegatingCompletableFuture<T> extends CompletableFuture<T> implements FutureListener<T> {
+class DelegatingCompletableFuture<T> extends CompletableFuture<T> implements FutureListener<ListenableFuture<T>> {
 
   private final Future<T> delegate;
 
@@ -49,13 +48,13 @@ class DelegatingCompletableFuture<T> extends CompletableFuture<T> implements Fut
   }
 
   @Override
-  public void onFailure(Throwable ex) {
-    completeExceptionally(ex);
-  }
-
-  @Override
-  public void onSuccess(@Nullable T result) {
-    complete(result);
+  public void operationComplete(ListenableFuture<T> future) throws Exception {
+    if (future.isSuccess()) {
+      complete(future.get());
+    }
+    else {
+      completeExceptionally(future.getCause());
+    }
   }
 
 }

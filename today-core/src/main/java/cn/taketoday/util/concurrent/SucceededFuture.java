@@ -17,23 +17,52 @@
 
 package cn.taketoday.util.concurrent;
 
-import reactor.core.publisher.Mono;
+import java.util.concurrent.Executor;
+
+import cn.taketoday.lang.Nullable;
 
 /**
- * Adapts a {@link Mono} into a {@link ListenableFuture} by obtaining a
- * {@code CompletableFuture} from the {@code Mono} via {@link Mono#toFuture()}
- * and then adapting it with {@link CompletableToListenableFutureAdapter}.
+ * The {@link CompleteFuture} which is succeeded already.
  *
- * @param <T> the object type
- * @author Rossen Stoyanchev
- * @author Stephane Maldini
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/2/26 21:33
  */
-public class MonoToListenableFutureAdapter<T> extends CompletableToListenableFutureAdapter<T> {
+public final class SucceededFuture<V> extends CompleteFuture<V> {
 
-  public MonoToListenableFutureAdapter(Mono<T> mono) {
-    super(mono.toFuture());
+  @Nullable
+  private final V result;
+
+  /**
+   * Creates a new instance.
+   */
+  public SucceededFuture(@Nullable V result) {
+    super();
+    this.result = result;
   }
 
+  /**
+   * Creates a new instance.
+   *
+   * @param executor the {@link Executor} associated with this future
+   */
+  public SucceededFuture(@Nullable Executor executor, @Nullable V result) {
+    super(executor);
+    this.result = result;
+  }
+
+  @Override
+  public Throwable getCause() {
+    return null;
+  }
+
+  @Override
+  public boolean isSuccess() {
+    return true;
+  }
+
+  @Override
+  public V getNow() {
+    return result;
+  }
 }
+

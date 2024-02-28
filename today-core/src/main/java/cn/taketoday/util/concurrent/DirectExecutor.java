@@ -15,12 +15,19 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-/**
- * Useful generic {@code java.util.concurrent.Future} extensions.
- */
-@NonNullApi
-@NonNullFields
 package cn.taketoday.util.concurrent;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import java.util.concurrent.Executor;
+
+/**
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2024/2/28 14:03
+ */
+public class DirectExecutor implements Executor {
+
+  @Override
+  public void execute(Runnable command) {
+    command.run();
+  }
+
+}

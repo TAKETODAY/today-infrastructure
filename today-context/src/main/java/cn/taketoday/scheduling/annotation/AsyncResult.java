@@ -23,8 +23,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.concurrent.CompleteFuture;
 import cn.taketoday.util.concurrent.ListenableFuture;
-import cn.taketoday.util.concurrent.FutureListener;
 
 /**
  * A pass-through {@code Future} handle that can be used for method signatures
@@ -46,7 +47,7 @@ import cn.taketoday.util.concurrent.FutureListener;
  * @see #forExecutionException(Throwable)
  * @since 4.0
  */
-public class AsyncResult<V> implements ListenableFuture<V> {
+public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFuture<V> {
 
   @Nullable
   private final V value;
@@ -93,8 +94,8 @@ public class AsyncResult<V> implements ListenableFuture<V> {
   public V get() throws ExecutionException {
     if (this.executionException != null) {
       throw (this.executionException instanceof ExecutionException ?
-             (ExecutionException) this.executionException :
-             new ExecutionException(this.executionException));
+              (ExecutionException) this.executionException :
+              new ExecutionException(this.executionException));
     }
     return this.value;
   }
@@ -106,18 +107,36 @@ public class AsyncResult<V> implements ListenableFuture<V> {
   }
 
   @Override
-  public void addListener(FutureListener<? super V> listener) {
-    try {
-      if (this.executionException != null) {
-        listener.onFailure(exposedException(this.executionException));
-      }
-      else {
-        listener.onSuccess(this.value);
-      }
+  public boolean isSuccess() {
+    return executionException == null;
+  }
+
+  @Nullable
+  @Override
+  public Throwable getCause() {
+    return executionException;
+  }
+
+  @Nullable
+  @Override
+  public V getNow() {
+    return value;
+  }
+
+  @Override
+  public ListenableFuture<V> sync() {
+    if (executionException != null) {
+      throw ExceptionUtils.sneakyThrow(executionException);
     }
-    catch (Throwable ex) {
-      // Ignore
+    return this;
+  }
+
+  @Override
+  public ListenableFuture<V> syncUninterruptibly() {
+    if (executionException != null) {
+      throw ExceptionUtils.sneakyThrow(executionException);
     }
+    return this;
   }
 
   @Override

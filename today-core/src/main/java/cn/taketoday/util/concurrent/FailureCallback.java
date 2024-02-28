@@ -17,12 +17,8 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.function.BiConsumer;
-
 /**
  * Failure callback for a {@link ListenableFuture}.
- * <p>
- * in favor of {@link java.util.concurrent.CompletableFuture#whenComplete(BiConsumer)}
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -37,6 +33,20 @@ public interface FailureCallback {
    *
    * @param ex the failure
    */
-  void onFailure(Throwable ex);
+  void onFailure(Throwable ex) throws Throwable;
+
+  /**
+   * on failure callback
+   *
+   * @param future target future
+   * @param failureCallback failure callback
+   * @param <V> value type
+   */
+  static <V> void onFailure(ListenableFuture<V> future, FailureCallback failureCallback) throws Throwable {
+    Throwable cause = future.getCause();
+    if (cause != null && !future.isCancelled()) {
+      failureCallback.onFailure(cause);
+    }
+  }
 
 }

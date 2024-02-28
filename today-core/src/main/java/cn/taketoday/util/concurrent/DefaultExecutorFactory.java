@@ -15,12 +15,17 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-/**
- * Useful generic {@code java.util.concurrent.Future} extensions.
- */
-@NonNullApi
-@NonNullFields
 package cn.taketoday.util.concurrent;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+import java.util.concurrent.Executor;
+
+/**
+ * for {@link DefaultFuture#defaultExecutor}
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2024/2/28 13:24
+ */
+public interface DefaultExecutorFactory {
+
+  Executor createExecutor();
+}

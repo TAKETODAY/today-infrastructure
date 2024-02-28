@@ -15,12 +15,24 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-/**
- * Useful generic {@code java.util.concurrent.Future} extensions.
- */
-@NonNullApi
-@NonNullFields
 package cn.taketoday.util.concurrent;
 
-import cn.taketoday.lang.NonNullApi;
-import cn.taketoday.lang.NonNullFields;
+/**
+ * Listens to the result of a {@link ProgressiveFuture}.
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2024/2/26 20:48
+ */
+public interface ProgressiveFutureListener<F extends ProgressiveFuture<?>> extends FutureListener<F> {
+
+  /**
+   * Invoked when the operation has progressed.
+   *
+   * @param progress the progress of the operation so far (cumulative)
+   * @param total the number that signifies the end of the
+   * operation when {@code progress} reaches at it.
+   * {@code -1} if the end of operation is unknown.
+   */
+  void operationProgressed(F future, long progress, long total) throws Exception;
+
+}
