@@ -60,10 +60,7 @@ public interface FutureListener<F extends ListenableFuture<?>> extends EventList
         onSuccess.onSuccess(future.getNow());
       }
       else if (onFailure != null) {
-        Throwable cause = future.getCause();
-        if (cause != null && !future.isCancelled()) {
-          onFailure.onFailure(cause);
-        }
+        FailureCallback.onFailure(future, onFailure);
       }
     };
   }
@@ -75,12 +72,7 @@ public interface FutureListener<F extends ListenableFuture<?>> extends EventList
    */
   static <V, F extends ListenableFuture<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
     Assert.notNull(failureCallback, "failureCallback is required");
-    return future -> {
-      Throwable cause = future.getCause();
-      if (cause != null && !future.isCancelled()) {
-        failureCallback.onFailure(cause);
-      }
-    };
+    return future -> FailureCallback.onFailure(future, failureCallback);
   }
 
 }

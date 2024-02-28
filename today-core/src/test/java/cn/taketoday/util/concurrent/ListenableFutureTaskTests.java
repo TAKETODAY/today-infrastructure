@@ -90,7 +90,7 @@ class ListenableFutureTaskTests {
   }
 
   @Test
-  void successWithLambdas() throws Exception {
+  void successWithLambdas() throws Throwable {
     final String s = "Hello World";
     Callable<String> callable = () -> s;
 
@@ -108,7 +108,7 @@ class ListenableFutureTaskTests {
   }
 
   @Test
-  void failureWithLambdas() throws Exception {
+  void failureWithLambdas() throws Throwable {
     final String s = "Hello World";
     IOException ex = new IOException(s);
     Callable<String> callable = () -> {

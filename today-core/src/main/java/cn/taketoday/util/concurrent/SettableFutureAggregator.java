@@ -61,9 +61,6 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
   @Nullable
   private final Executor executor;
 
-  /**
-   * Deprecated use {@link #SettableFutureAggregator(Executor)}.
-   */
   public SettableFutureAggregator() {
     this(null);
   }
@@ -95,7 +92,7 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
 
   /**
    * Adds new futures to be combined. New futures may be added until an aggregate SettableFuture is added via the
-   * {@link SettableFutureAggregator#finish(SettableFuture)} method.
+   * {@link #finish(SettableFuture)} method.
    *
    * @param futures the futures to add to this SettableFuture combiner
    */
@@ -115,8 +112,8 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
    * failure will be assigned to the aggregate SettableFuture is undefined.
    *
    * <p>After this method is called, no more futures may be added via
-   * the {@link SettableFutureAggregator#add(ListenableFuture)} or
-   * {@link SettableFutureAggregator#addAll(ListenableFuture[])} methods.</p>
+   * the {@link #add(ListenableFuture)} or
+   * {@link #addAll(ListenableFuture[])} methods.</p>
    *
    * @param aggregateFuture the SettableFuture to notify when all combined
    * futures have finished
