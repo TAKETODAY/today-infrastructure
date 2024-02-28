@@ -159,8 +159,6 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     @Column("id")
     Integer userId;
 
-    @SuffixLike("name like ?")
-    @TrimWhere("name like ?")
     String name;
 
     @Nullable
@@ -175,7 +173,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
-  void findByQuery(RepositoryManager repositoryManager) {
+  void findByExample(RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     UserForm userForm = new UserForm();
