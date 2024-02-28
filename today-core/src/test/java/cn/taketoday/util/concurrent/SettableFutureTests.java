@@ -137,7 +137,7 @@ class SettableFutureTests {
         fail("Expected onFailure() to be called");
       }
       else {
-        throw new AssertionError("Expected onSuccess() to be called", future.cause());
+        throw new AssertionError("Expected onSuccess() to be called", future.getCause());
       }
     });
 
@@ -158,7 +158,7 @@ class SettableFutureTests {
         fail("Expected onFailure() to be called");
       }
       else {
-        throw new AssertionError("Expected onSuccess() to be called", future.cause());
+        throw new AssertionError("Expected onSuccess() to be called", future.getCause());
       }
     });
 
@@ -179,7 +179,7 @@ class SettableFutureTests {
         fail("Expected onFailure() to be called");
       }
       else {
-        callbackHolder[0] = future.cause();
+        callbackHolder[0] = future.getCause();
       }
     });
 
@@ -199,7 +199,7 @@ class SettableFutureTests {
         fail("Expected onFailure() to be called");
       }
       else {
-        callbackHolder[0] = future.cause();
+        callbackHolder[0] = future.getCause();
       }
     });
 
@@ -352,7 +352,7 @@ class SettableFutureTests {
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void cancelDoesNotNotifyCallbacksOnSet() throws Exception {
+  public void cancelDoesNotNotifyCallbacksOnSet() throws Throwable {
     FutureListener callback = mock(FutureListener.class);
     settableFuture.addListener(callback);
     settableFuture.cancel(true);
@@ -369,7 +369,7 @@ class SettableFutureTests {
 
   @Test
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public void cancelDoesNotNotifyCallbacksOnSetException() throws Exception {
+  public void cancelDoesNotNotifyCallbacksOnSetException() throws Throwable {
     FutureListener callback = mock(FutureListener.class);
     settableFuture.addListener(callback);
     settableFuture.cancel(true);

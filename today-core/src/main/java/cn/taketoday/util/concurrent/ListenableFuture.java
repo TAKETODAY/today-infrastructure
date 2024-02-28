@@ -19,6 +19,7 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -60,7 +61,35 @@ public interface ListenableFuture<T> extends Future<T> {
    * this future is not completed yet.
    */
   @Nullable
-  Throwable cause();
+  Throwable getCause();
+
+  /**
+   * Java 8 lambda-friendly alternative with success and failure callbacks.
+   *
+   * @param successCallback the success callback
+   * @param failureCallback the failure callback
+   */
+  default ListenableFuture<T> addListener(SuccessCallback<T> successCallback, @Nullable FailureCallback failureCallback) {
+    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with success callbacks.
+   *
+   * @param successCallback the success callback
+   */
+  default ListenableFuture<T> onSuccess(SuccessCallback<T> successCallback) {
+    return addListener(successCallback, null);
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with failure callbacks.
+   *
+   * @param failureCallback the failure callback
+   */
+  default ListenableFuture<T> onFailure(FailureCallback failureCallback) {
+    return addListener(FutureListener.forFailure(failureCallback));
+  }
 
   /**
    * Adds the specified listener to this future.
@@ -180,6 +209,18 @@ public interface ListenableFuture<T> extends Future<T> {
   T getNow();
 
   /**
+   * Return the result without blocking.
+   * <p>
+   * must invoke after {@link #isSuccess()}
+   *
+   * @throws IllegalStateException {@link SettableFuture#setSuccess(Object)} is set {@code null}
+   * @see #isSuccess()
+   * @see #getNow()
+   * @see SettableFuture#setSuccess(Object)
+   */
+  T obtain() throws IllegalStateException;
+
+  /**
    * {@inheritDoc}
    *
    * If the cancellation was successful it will fail the future with a {@link CancellationException}.
@@ -188,29 +229,22 @@ public interface ListenableFuture<T> extends Future<T> {
   boolean cancel(boolean mayInterruptIfRunning);
 
   /**
-   * Java 8 lambda-friendly alternative with success and failure callbacks.
-   *
-   * @param successCallback the success callback
-   * @param failureCallback the failure callback
-   */
-  default ListenableFuture<T> addListener(SuccessCallback<T> successCallback, FailureCallback failureCallback) {
-    return addListener(future -> {
-      if (future.isSuccess()) {
-        successCallback.onSuccess(future.getNow());
-      }
-      else {
-        failureCallback.onFailure(future.cause());
-      }
-    });
-  }
-
-  /**
    * Expose this {@link ListenableFuture} as a JDK {@link CompletableFuture}.
    */
   default CompletableFuture<T> completable() {
     DelegatingCompletableFuture<T> completable = new DelegatingCompletableFuture<>(this);
     addListener(completable);
     return completable;
+  }
+
+  // Static Factory Methods
+
+  static <V> SettableFuture<V> settable() {
+    return new DefaultFuture<>();
+  }
+
+  static <V> SettableFuture<V> settable(@Nullable Executor executor) {
+    return new DefaultFuture<>(executor);
   }
 
 }

@@ -31,6 +31,7 @@ import cn.taketoday.lang.Assert;
  * and implementations.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class FutureUtils {

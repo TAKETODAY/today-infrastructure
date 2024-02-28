@@ -73,6 +73,22 @@ public interface SettableFuture<V> extends ListenableFuture<V> {
   boolean setUncancellable();
 
   @Override
+  default SettableFuture<V> addListener(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
+    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+  }
+
+  @Override
+  default SettableFuture<V> onSuccess(SuccessCallback<V> successCallback) {
+    return addListener(successCallback, null);
+  }
+
+  @Override
+  default SettableFuture<V> onFailure(FailureCallback failureCallback) {
+    addListener(FutureListener.forFailure(failureCallback));
+    return this;
+  }
+
+  @Override
   SettableFuture<V> addListener(FutureListener<? extends ListenableFuture<V>> listener);
 
   @Override

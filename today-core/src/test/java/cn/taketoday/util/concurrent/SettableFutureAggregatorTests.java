@@ -34,7 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SettableFutureAggregatorTest {
+class SettableFutureAggregatorTests {
 
   @Mock
   private SettableFuture<Void> p1;
@@ -117,7 +117,6 @@ public class SettableFutureAggregatorTest {
     });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testAddAllAfterFinish() {
     combiner.finish(p1);
@@ -129,7 +128,6 @@ public class SettableFutureAggregatorTest {
     });
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testFinishCalledTwiceThrows() {
     combiner.finish(p1);
@@ -142,7 +140,7 @@ public class SettableFutureAggregatorTest {
   }
 
   @Test
-  public void testAddAllSuccess() throws Exception {
+  public void testAddAllSuccess() throws Throwable {
     mockSuccessPromise(p1, l1Consumer);
     mockSuccessPromise(p2, l2Consumer);
     combiner.addAll(p1, p2);
@@ -154,7 +152,7 @@ public class SettableFutureAggregatorTest {
   }
 
   @Test
-  public void testAddSuccess() throws Exception {
+  public void testAddSuccess() throws Throwable {
     mockSuccessPromise(p1, l1Consumer);
     mockSuccessPromise(p2, l2Consumer);
     combiner.add(p1);
@@ -167,7 +165,7 @@ public class SettableFutureAggregatorTest {
   }
 
   @Test
-  public void testAddAllFail() throws Exception {
+  public void testAddAllFail() throws Throwable {
     RuntimeException e1 = new RuntimeException("fake exception 1");
     RuntimeException e2 = new RuntimeException("fake exception 2");
     mockFailedPromise(p1, e1, l1Consumer);
@@ -181,7 +179,7 @@ public class SettableFutureAggregatorTest {
   }
 
   @Test
-  public void testAddFail() throws Exception {
+  public void testAddFail() throws Throwable {
     RuntimeException e1 = new RuntimeException("fake exception 1");
     RuntimeException e2 = new RuntimeException("fake exception 2");
     mockFailedPromise(p1, e1, l1Consumer);
@@ -219,7 +217,7 @@ public class SettableFutureAggregatorTest {
   private static void mockFailedPromise(SettableFuture<Void> p, Throwable cause, GenericFutureListenerConsumer consumer) {
     when(p.isDone()).thenReturn(true);
     when(p.isSuccess()).thenReturn(false);
-    when(p.cause()).thenReturn(cause);
+    when(p.getCause()).thenReturn(cause);
     mockListener(p, consumer);
   }
 

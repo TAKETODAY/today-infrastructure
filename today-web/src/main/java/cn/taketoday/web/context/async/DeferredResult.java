@@ -292,7 +292,7 @@ public class DeferredResult<T> implements FutureListener<ListenableFuture<T>> {
       setResult(future.getNow());
     }
     else {
-      setErrorResult(future.cause());
+      setErrorResult(future.getCause());
     }
   }
 

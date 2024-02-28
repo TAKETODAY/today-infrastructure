@@ -48,7 +48,7 @@ class ListenableFutureTaskTests {
         assertThat(future.getNow()).isEqualTo(s);
       }
       else {
-        throw new AssertionError(future.cause().getMessage(), future.cause());
+        throw new AssertionError(future.getCause().getMessage(), future.getCause());
       }
     });
 
@@ -73,7 +73,7 @@ class ListenableFutureTaskTests {
         fail("onSuccess not expected");
       }
       else {
-        assertThat(future.cause().getMessage()).isEqualTo(s);
+        assertThat(future.getCause().getMessage()).isEqualTo(s);
       }
     });
 

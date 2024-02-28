@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -37,7 +38,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
   public V get() throws InterruptedException, ExecutionException {
     await();
 
-    Throwable cause = cause();
+    Throwable cause = getCause();
     if (cause == null) {
       return getNow();
     }
@@ -51,7 +52,7 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
   @Override
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     if (await(timeout, unit)) {
-      Throwable cause = cause();
+      Throwable cause = getCause();
       if (cause == null) {
         return getNow();
       }
@@ -60,7 +61,14 @@ public abstract class AbstractFuture<V> implements ListenableFuture<V> {
       }
       throw new ExecutionException(cause);
     }
-    throw new TimeoutException();
+    throw new TimeoutException("Timeout");
+  }
+
+  @Override
+  public V obtain() {
+    V now = getNow();
+    Assert.state(now != null, "Result is required");
+    return now;
   }
 
 }

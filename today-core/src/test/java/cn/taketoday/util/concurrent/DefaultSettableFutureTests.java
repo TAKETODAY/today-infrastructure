@@ -35,11 +35,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import io.netty.util.Signal;
 import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import static java.lang.Math.max;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,8 +51,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class DefaultSettableFutureTest {
-  private static final InternalLogger logger = InternalLoggerFactory.getInstance(DefaultSettableFutureTest.class);
+class DefaultSettableFutureTests {
+  private static final Logger logger = LoggerFactory.getLogger(DefaultSettableFutureTests.class);
+
   private static int stackOverflowDepth;
 
   @BeforeAll
@@ -76,7 +77,7 @@ public class DefaultSettableFutureTest {
     return max(stackOverflowDepth << 1, stackOverflowDepth);
   }
 
-  private static class RejectingEventExecutor implements Executor {
+  private static class RejectingExecutor implements Executor {
 
     @Override
     public void execute(Runnable command) {
@@ -86,36 +87,35 @@ public class DefaultSettableFutureTest {
 
   @Test
   public void testCancelDoesNotScheduleWhenNoListeners() {
-    Executor executor = new RejectingEventExecutor();
-
-    SettableFuture<Void> future = new DefaultFuture<Void>(executor);
+    Executor executor = new RejectingExecutor();
+    SettableFuture<Void> future = ListenableFuture.settable(executor);
     assertTrue(future.cancel(false));
     assertTrue(future.isCancelled());
   }
 
   @Test
   public void testSuccessDoesNotScheduleWhenNoListeners() {
-    Executor executor = new RejectingEventExecutor();
+    Executor executor = new RejectingExecutor();
 
     Object value = new Object();
-    SettableFuture<Object> future = new DefaultFuture<Object>(executor);
+    SettableFuture<Object> future = new DefaultFuture<>(executor);
     future.setSuccess(value);
     assertSame(value, future.getNow());
   }
 
   @Test
   public void testFailureDoesNotScheduleWhenNoListeners() {
-    Executor executor = new RejectingEventExecutor();
+    Executor executor = new RejectingExecutor();
 
     Exception cause = new Exception();
     SettableFuture<Void> future = new DefaultFuture<Void>(executor);
     future.setFailure(cause);
-    assertSame(cause, future.cause());
+    assertSame(cause, future.getCause());
   }
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGet() {
-    final SettableFuture<Void> future = new DefaultFuture<Void>();
+    final SettableFuture<Void> future = ListenableFuture.settable();
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
@@ -141,7 +141,7 @@ public class DefaultSettableFutureTest {
   public void testCancellationExceptionIsReturnedAsCause() {
     final SettableFuture<Void> future = new DefaultFuture<Void>();
     assertTrue(future.cancel(false));
-    assertThat(future.cause()).isInstanceOf(CancellationException.class);
+    assertThat(future.getCause()).isInstanceOf(CancellationException.class);
   }
 
   @Test

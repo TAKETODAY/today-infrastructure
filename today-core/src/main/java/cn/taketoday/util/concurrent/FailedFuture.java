@@ -55,7 +55,7 @@ public final class FailedFuture<V> extends CompleteFuture<V> {
   }
 
   @Override
-  public Throwable cause() {
+  public Throwable getCause() {
     return cause;
   }
 
@@ -77,6 +77,11 @@ public final class FailedFuture<V> extends CompleteFuture<V> {
   @Override
   public V getNow() {
     return null;
+  }
+
+  @Override
+  public V obtain() throws IllegalStateException {
+    throw new IllegalStateException("FailedFuture");
   }
 
 }

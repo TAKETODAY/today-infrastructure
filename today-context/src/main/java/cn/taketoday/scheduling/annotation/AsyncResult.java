@@ -113,7 +113,7 @@ public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFutur
 
   @Nullable
   @Override
-  public Throwable cause() {
+  public Throwable getCause() {
     return executionException;
   }
 

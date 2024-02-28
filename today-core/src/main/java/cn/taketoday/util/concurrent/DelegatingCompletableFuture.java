@@ -53,7 +53,7 @@ class DelegatingCompletableFuture<T> extends CompletableFuture<T> implements Fut
       complete(future.get());
     }
     else {
-      completeExceptionally(future.cause());
+      completeExceptionally(future.getCause());
     }
   }
 

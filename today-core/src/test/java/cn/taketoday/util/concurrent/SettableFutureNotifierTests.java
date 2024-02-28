@@ -18,7 +18,6 @@
 package cn.taketoday.util.concurrent;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,27 +26,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class SettableFutureNotifierTest {
+class SettableFutureNotifierTests {
 
   @Test
   public void testNullPromisesArray() {
-    assertThrows(NullPointerException.class, new Executable() {
-      @Override
-      public void execute() {
-        new SettableFutureNotifier<Void, ListenableFuture<Void>>((SettableFuture<Void>[]) null);
-      }
-    });
+    assertThrows(NullPointerException.class, () -> new SettableFutureNotifier<>((SettableFuture<Void>[]) null));
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testNullPromiseInArray() {
-    assertThrows(IllegalArgumentException.class, new Executable() {
-      @Override
-      public void execute() {
-        new SettableFutureNotifier<Void, ListenableFuture<Void>>((SettableFuture<Void>) null);
-      }
-    });
+    assertThrows(IllegalArgumentException.class, () -> new SettableFutureNotifier<>((SettableFuture<Void>) null));
   }
 
   @Test
@@ -57,7 +45,6 @@ public class SettableFutureNotifierTest {
     @SuppressWarnings("unchecked")
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
-    @SuppressWarnings("unchecked")
     SettableFutureNotifier<Void, ListenableFuture<Void>> notifier =
             new SettableFutureNotifier<Void, ListenableFuture<Void>>(p1, p2);
 
@@ -80,7 +67,6 @@ public class SettableFutureNotifierTest {
     @SuppressWarnings("unchecked")
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
-    @SuppressWarnings("unchecked")
     SettableFutureNotifier<Void, ListenableFuture<Void>> notifier =
             new SettableFutureNotifier<Void, ListenableFuture<Void>>(p1, p2);
 
@@ -89,7 +75,7 @@ public class SettableFutureNotifierTest {
     Throwable t = mock(Throwable.class);
     when(future.isSuccess()).thenReturn(false);
     when(future.isCancelled()).thenReturn(false);
-    when(future.cause()).thenReturn(t);
+    when(future.getCause()).thenReturn(t);
     when(p1.tryFailure(t)).thenReturn(true);
     when(p2.tryFailure(t)).thenReturn(true);
 

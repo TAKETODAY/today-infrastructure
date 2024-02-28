@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -57,6 +58,10 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
           StacklessCancellationException.newInstance(DefaultFuture.class, "cancel(...)"));
 
   private static final StackTraceElement[] CANCELLATION_STACK = CANCELLATION_CAUSE_HOLDER.cause.getStackTrace();
+
+  static final Executor defaultExecutor = TodayStrategies.findFirst(DefaultExecutorFactory.class)
+          .map(DefaultExecutorFactory::createExecutor)
+          .orElse(new DirectExecutor());
 
   @Nullable
   private final Executor executor;
@@ -103,91 +108,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    */
   public DefaultFuture(@Nullable Executor executor) {
     this.executor = executor;
-  }
-
-  @Override
-  public SettableFuture<V> setSuccess(@Nullable V result) {
-    if (doSetSuccess(result)) {
-      return this;
-    }
-    throw new IllegalStateException("complete already: " + this);
-  }
-
-  @Override
-  public boolean trySuccess(@Nullable V result) {
-    return doSetSuccess(result);
-  }
-
-  @Override
-  public SettableFuture<V> setFailure(Throwable cause) {
-    if (doSetFailure(cause)) {
-      return this;
-    }
-    throw new IllegalStateException("complete already: " + this, cause);
-  }
-
-  @Override
-  public boolean tryFailure(Throwable cause) {
-    return doSetFailure(cause);
-  }
-
-  @Override
-  public boolean setUncancellable() {
-    if (RESULT_UPDATER.compareAndSet(this, null, UNCANCELLABLE)) {
-      return true;
-    }
-    Object result = this.result;
-    return !isDone(result) || !isCancelled(result);
-  }
-
-  @Override
-  public boolean isSuccess() {
-    Object result = this.result;
-    return result != null && result != UNCANCELLABLE && !(result instanceof CauseHolder);
-  }
-
-  @Override
-  public boolean isCancellable() {
-    return result == null;
-  }
-
-  private static final class LeanCancellationException extends CancellationException {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
-    // Suppress a warning since the method doesn't need synchronization
-    @Override
-    public Throwable fillInStackTrace() {
-      setStackTrace(CANCELLATION_STACK);
-      return this;
-    }
-
-    @Override
-    public String toString() {
-      return CancellationException.class.getName();
-    }
-  }
-
-  @Override
-  public Throwable cause() {
-    return doCause(result);
-  }
-
-  @Nullable
-  private Throwable doCause(@Nullable Object result) {
-    if (result instanceof CauseHolder) {
-      if (result == CANCELLATION_CAUSE_HOLDER) {
-        var ce = new LeanCancellationException();
-        if (RESULT_UPDATER.compareAndSet(this, CANCELLATION_CAUSE_HOLDER, new CauseHolder(ce))) {
-          return ce;
-        }
-        result = this.result;
-      }
-      if (result instanceof CauseHolder holder) {
-        return holder.cause;
-      }
-    }
-    return null;
   }
 
   @Override
@@ -241,12 +161,103 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     Assert.notNull(listeners, "listeners is required");
     synchronized(this) {
       for (var listener : listeners) {
-        if (listener == null) {
-          break;
+        if (listener != null) {
+          doRemoveListener(listener);
         }
-        doRemoveListener(listener);
       }
     }
+    return this;
+  }
+
+  @Override
+  public SettableFuture<V> setSuccess(@Nullable V result) {
+    if (doSetSuccess(result)) {
+      return this;
+    }
+    throw new IllegalStateException("complete already: " + this);
+  }
+
+  @Override
+  public boolean trySuccess(@Nullable V result) {
+    return doSetSuccess(result);
+  }
+
+  @Override
+  public SettableFuture<V> setFailure(Throwable cause) {
+    if (doSetFailure(cause)) {
+      return this;
+    }
+    throw new IllegalStateException("complete already: " + this, cause);
+  }
+
+  @Override
+  public boolean tryFailure(Throwable cause) {
+    return doSetFailure(cause);
+  }
+
+  @Override
+  public boolean setUncancellable() {
+    if (RESULT_UPDATER.compareAndSet(this, null, UNCANCELLABLE)) {
+      return true;
+    }
+    Object result = this.result;
+    return !isDone(result) || !isCancelled(result);
+  }
+
+  @Override
+  public boolean isSuccess() {
+    Object result = this.result;
+    return result != null && result != UNCANCELLABLE && !(result instanceof CauseHolder);
+  }
+
+  @Override
+  public boolean isCancellable() {
+    return result == null;
+  }
+
+  @Override
+  public boolean isCancelled() {
+    return isCancelled(result);
+  }
+
+  @Override
+  public boolean isDone() {
+    return isDone(result);
+  }
+
+  @Override
+  public Throwable getCause() {
+    return getCause(result);
+  }
+
+  @Nullable
+  private Throwable getCause(@Nullable Object result) {
+    if (result instanceof CauseHolder) {
+      if (result == CANCELLATION_CAUSE_HOLDER) {
+        var ce = new LeanCancellationException();
+        if (RESULT_UPDATER.compareAndSet(this, CANCELLATION_CAUSE_HOLDER, new CauseHolder(ce))) {
+          return ce;
+        }
+        result = this.result;
+      }
+      if (result instanceof CauseHolder holder) {
+        return holder.cause;
+      }
+    }
+    return null;
+  }
+
+  @Override
+  public SettableFuture<V> sync() throws InterruptedException {
+    await();
+    rethrowIfFailed();
+    return this;
+  }
+
+  @Override
+  public SettableFuture<V> syncUninterruptibly() {
+    awaitUninterruptibly();
+    rethrowIfFailed();
     return this;
   }
 
@@ -357,7 +368,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     if (result == SUCCESS || result == UNCANCELLABLE) {
       return null;
     }
-    Throwable cause = doCause(result);
+    Throwable cause = getCause(result);
     if (cause == null) {
       return (V) result;
     }
@@ -381,7 +392,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     if (result == SUCCESS || result == UNCANCELLABLE) {
       return null;
     }
-    Throwable cause = doCause(result);
+    Throwable cause = getCause(result);
     if (cause == null) {
       return (V) result;
     }
@@ -417,30 +428,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * <p>The default implementation is empty.
    */
   protected void interruptTask() { }
-
-  @Override
-  public boolean isCancelled() {
-    return isCancelled(result);
-  }
-
-  @Override
-  public boolean isDone() {
-    return isDone(result);
-  }
-
-  @Override
-  public SettableFuture<V> sync() throws InterruptedException {
-    await();
-    rethrowIfFailed();
-    return this;
-  }
-
-  @Override
-  public SettableFuture<V> syncUninterruptibly() {
-    awaitUninterruptibly();
-    rethrowIfFailed();
-    return this;
-  }
 
   @Override
   public String toString() {
@@ -626,7 +613,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   private void rethrowIfFailed() {
-    Throwable cause = cause();
+    Throwable cause = getCause();
     if (cause == null) {
       return;
     }
@@ -779,7 +766,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   private static void safeExecute(@Nullable Executor executor, Runnable task) {
     if (executor == null) {
-      executor = Runnable::run;
+      executor = defaultExecutor;
     }
     try {
       executor.execute(task);
@@ -787,6 +774,23 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     catch (Throwable t) {
       rejectedExecutionLogger.error(
               "Failed to submit a listener notification task. Executor shutting-down?", t);
+    }
+  }
+
+  private static final class LeanCancellationException extends CancellationException {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    // Suppress a warning since the method doesn't need synchronization
+    @Override
+    public Throwable fillInStackTrace() {
+      setStackTrace(CANCELLATION_STACK);
+      return this;
+    }
+
+    @Override
+    public String toString() {
+      return CancellationException.class.getName();
     }
   }
 

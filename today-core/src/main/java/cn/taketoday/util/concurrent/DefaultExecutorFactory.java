@@ -19,50 +19,13 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Executor;
 
-import cn.taketoday.lang.Nullable;
-
 /**
- * The {@link CompleteFuture} which is succeeded already.
+ * for {@link DefaultFuture#defaultExecutor}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/26 21:33
+ * @since 4.0 2024/2/28 13:24
  */
-public final class SucceededFuture<V> extends CompleteFuture<V> {
+public interface DefaultExecutorFactory {
 
-  @Nullable
-  private final V result;
-
-  /**
-   * Creates a new instance.
-   */
-  public SucceededFuture(@Nullable V result) {
-    super();
-    this.result = result;
-  }
-
-  /**
-   * Creates a new instance.
-   *
-   * @param executor the {@link Executor} associated with this future
-   */
-  public SucceededFuture(@Nullable Executor executor, @Nullable V result) {
-    super(executor);
-    this.result = result;
-  }
-
-  @Override
-  public Throwable getCause() {
-    return null;
-  }
-
-  @Override
-  public boolean isSuccess() {
-    return true;
-  }
-
-  @Override
-  public V getNow() {
-    return result;
-  }
+  Executor createExecutor();
 }
-

@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util.concurrent;
 
 import cn.taketoday.lang.Assert;
@@ -132,7 +133,7 @@ public class SettableFutureNotifier<V, F extends ListenableFuture<V>> implements
       }
     }
     else {
-      Throwable cause = future.cause();
+      Throwable cause = future.getCause();
       for (SettableFuture<? super V> p : futures) {
         tryFailure(p, cause, logger);
       }
@@ -144,7 +145,7 @@ public class SettableFutureNotifier<V, F extends ListenableFuture<V>> implements
    */
   private static void tryCancel(SettableFuture<?> p, @Nullable Logger logger) {
     if (!p.cancel(false) && logger != null) {
-      Throwable err = p.cause();
+      Throwable err = p.getCause();
       if (err == null) {
         logger.warn("Failed to cancel SettableFuture because it has succeeded already: {}", p);
       }
@@ -160,7 +161,7 @@ public class SettableFutureNotifier<V, F extends ListenableFuture<V>> implements
    */
   private static <V> void trySuccess(SettableFuture<? super V> p, V result, @Nullable Logger logger) {
     if (!p.trySuccess(result) && logger != null) {
-      Throwable err = p.cause();
+      Throwable err = p.getCause();
       if (err == null) {
         logger.warn("Failed to mark a SettableFuture as success because it has succeeded already: {}", p);
       }
@@ -175,7 +176,7 @@ public class SettableFutureNotifier<V, F extends ListenableFuture<V>> implements
    */
   private static void tryFailure(SettableFuture<?> p, Throwable cause, @Nullable Logger logger) {
     if (!p.tryFailure(cause) && logger != null) {
-      Throwable err = p.cause();
+      Throwable err = p.getCause();
       if (err == null) {
         logger.warn("Failed to mark a SettableFuture as failure because it has succeeded already: {}", p, cause);
       }

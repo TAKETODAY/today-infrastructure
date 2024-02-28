@@ -168,7 +168,7 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport impleme
       logger.info("Successfully connected");
     }
     else {
-      logger.error("Failed to connect", future.cause());
+      logger.error("Failed to connect", future.getCause());
     }
   }
 

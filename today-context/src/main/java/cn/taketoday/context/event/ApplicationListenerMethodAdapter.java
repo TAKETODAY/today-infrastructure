@@ -88,8 +88,14 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   @Nullable
   private EventExpressionEvaluator evaluator;
 
+  /**
+   * <p>Matches the {@code condition} attribute of the {@link EventListener}
+   * annotation or any matching attribute on a composed annotation that
+   * is meta-annotated with {@code @EventListener}.
+   */
   @Nullable
-  private final String condition;
+  protected final String condition;
+
   private final String beanName;
 
   private final int order;
@@ -182,17 +188,6 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    */
   protected Method getTargetMethod() {
     return this.targetMethod;
-  }
-
-  /**
-   * Return the condition to use.
-   * <p>Matches the {@code condition} attribute of the {@link EventListener}
-   * annotation or any matching attribute on a composed annotation that
-   * is meta-annotated with {@code @EventListener}.
-   */
-  @Nullable
-  protected String getCondition() {
-    return this.condition;
   }
 
   @Override
@@ -388,10 +383,10 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   @Override
   public void operationComplete(ListenableFuture<?> future) {
     if (future.isSuccess()) {
-      publishEvents(future.getNow());
+      publishEvents(future.obtain());
     }
     else {
-      handleAsyncError(future.cause());
+      handleAsyncError(future.getCause());
     }
   }
 

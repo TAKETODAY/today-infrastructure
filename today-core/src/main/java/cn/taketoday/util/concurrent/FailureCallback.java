@@ -37,6 +37,6 @@ public interface FailureCallback {
    *
    * @param ex the failure
    */
-  void onFailure(Throwable ex);
+  void onFailure(Throwable ex) throws Throwable;
 
 }

@@ -62,7 +62,7 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
   private final Executor executor;
 
   /**
-   * Deprecated use {@link SettableFutureAggregator#SettableFutureAggregator(Executor)}.
+   * Deprecated use {@link #SettableFutureAggregator(Executor)}.
    */
   public SettableFutureAggregator() {
     this(null);
@@ -80,8 +80,9 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
   }
 
   /**
-   * Adds a new future to be combined. New futures may be added until an aggregate SettableFuture is added via the
-   * {@link SettableFutureAggregator#finish(SettableFuture)} method.
+   * Adds a new future to be combined. New futures may be added until an
+   * aggregate SettableFuture is added via the
+   * {@link #finish(SettableFuture)} method.
    *
    * @param future the future to add to this SettableFuture combiner
    */
@@ -143,21 +144,20 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
 
   @Override
   public void operationComplete(final ListenableFuture<?> future) {
-    if (executor != null) {
-      executor.execute((() -> doComplete(future)));
+    Executor executor = this.executor;
+    if (executor == null) {
+      executor = DefaultFuture.defaultExecutor;
     }
-    else {
-      doComplete(future);
-    }
+
+    executor.execute(() -> {
+      ++doneCount;
+      if (!future.isSuccess() && cause == null) {
+        cause = future.getCause();
+      }
+      if (doneCount == expectedCount && aggregateFuture != null) {
+        trySettableFuture(aggregateFuture);
+      }
+    });
   }
 
-  private void doComplete(final ListenableFuture<?> future) {
-    ++doneCount;
-    if (!future.isSuccess() && cause == null) {
-      cause = future.cause();
-    }
-    if (doneCount == expectedCount && aggregateFuture != null) {
-      trySettableFuture(aggregateFuture);
-    }
-  }
 }

@@ -19,6 +19,9 @@ package cn.taketoday.util.concurrent;
 
 import java.util.EventListener;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+
 /**
  * Listens to the result of a {@link ListenableFuture}.
  * The result of the asynchronous operation is notified once this listener
@@ -30,6 +33,7 @@ import java.util.EventListener;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@FunctionalInterface
 public interface FutureListener<F extends ListenableFuture<?>> extends EventListener {
 
   /**
@@ -38,6 +42,45 @@ public interface FutureListener<F extends ListenableFuture<?>> extends EventList
    *
    * @param future the source {@link ListenableFuture} which called this callback
    */
-  void operationComplete(F future) throws Exception;
+  void operationComplete(F future) throws Throwable;
+
+  // Static Factory Methods
+
+  /**
+   * Java 8 lambda-friendly alternative with success and failure callbacks.
+   *
+   * @param onSuccess success callback
+   * @param onFailure failure callback
+   * @param <F> ListenableFuture sub-type
+   */
+  static <V, F extends ListenableFuture<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
+    Assert.notNull(onSuccess, "successCallback is required");
+    return future -> {
+      if (future.isSuccess()) {
+        onSuccess.onSuccess(future.getNow());
+      }
+      else if (onFailure != null) {
+        Throwable cause = future.getCause();
+        if (cause != null && !future.isCancelled()) {
+          onFailure.onFailure(cause);
+        }
+      }
+    };
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with failure callbacks.
+   *
+   * @param failureCallback the failure callback
+   */
+  static <V, F extends ListenableFuture<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
+    Assert.notNull(failureCallback, "failureCallback is required");
+    return future -> {
+      Throwable cause = future.getCause();
+      if (cause != null && !future.isCancelled()) {
+        failureCallback.onFailure(cause);
+      }
+    };
+  }
 
 }

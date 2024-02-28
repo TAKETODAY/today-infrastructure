@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.lang;
@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -73,7 +74,7 @@ public class TodayStrategies {
     try {
       ClassLoader cl = TodayStrategies.class.getClassLoader();
       URL url = (cl != null ? cl.getResource(PROPERTIES_RESOURCE_LOCATION) :
-                 ClassLoader.getSystemResource(PROPERTIES_RESOURCE_LOCATION));
+              ClassLoader.getSystemResource(PROPERTIES_RESOURCE_LOCATION));
       if (url != null) {
         try (InputStream is = url.openStream()) {
           localProperties.load(is);
@@ -682,6 +683,11 @@ public class TodayStrategies {
       return defaultValue.get();
     }
     return first;
+  }
+
+  public static <T> Optional<T> findFirst(Class<T> strategyClass) {
+    T first = CollectionUtils.firstElement(find(strategyClass, (ClassLoader) null));
+    return Optional.ofNullable(first);
   }
 
   /**
