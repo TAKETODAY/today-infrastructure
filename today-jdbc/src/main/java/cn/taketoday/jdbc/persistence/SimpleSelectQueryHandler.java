@@ -17,29 +17,26 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @since 4.0 2024/2/28 22:19
  */
-class UpdateTests {
+public abstract class SimpleSelectQueryHandler implements QueryHandler {
 
-  @Test
-  void sql() {
-    Update update = new Update();
-    update.setTableName("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
+  @Override
+  public StatementSequence render(EntityMetadata metadata) {
+    SimpleSelect select = new SimpleSelect();
 
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
+    select.addColumns(metadata.columnNames);
+    select.setTableName(metadata.tableName);
 
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
+    renderInternal(metadata, select);
+    return select;
+
   }
+
+  protected abstract void renderInternal(EntityMetadata metadata, SimpleSelect select);
 
 }

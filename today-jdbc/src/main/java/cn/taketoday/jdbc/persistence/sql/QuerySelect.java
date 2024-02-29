@@ -38,8 +38,6 @@ public class QuerySelect implements StatementSequence {
           "=>", "=<", "!=", "<>", "!#", "!~",
           "!<", "!>", "(", /*for MySQL*/ ")");
 
-  private final Platform platform;
-
   private final StringBuilder select = new StringBuilder();
 
   private final StringBuilder where = new StringBuilder();
@@ -54,10 +52,9 @@ public class QuerySelect implements StatementSequence {
 
   private boolean distinct;
 
-  private JoinFragment joins;
+  private final JoinFragment joins;
 
   public QuerySelect(Platform platform) {
-    this.platform = platform;
     joins = new QueryJoinFragment(platform, false);
   }
 
@@ -195,19 +192,6 @@ public class QuerySelect implements StatementSequence {
 
   public void setComment(String comment) {
     this.comment = comment;
-  }
-
-  public QuerySelect copy() {
-    QuerySelect copy = new QuerySelect(platform);
-    copy.joins = this.joins.copy();
-    copy.select.append(this.select);
-    copy.where.append(this.where);
-    copy.groupBy.append(this.groupBy);
-    copy.orderBy.append(this.orderBy);
-    copy.having.append(this.having);
-    copy.comment = this.comment;
-    copy.distinct = this.distinct;
-    return copy;
   }
 
 }

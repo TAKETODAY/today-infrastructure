@@ -15,31 +15,23 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence;
+package cn.taketoday.jdbc.persistence.support;
 
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.jdbc.persistence.EntityProperty;
+import cn.taketoday.jdbc.persistence.PropertyConditionStrategy;
+import cn.taketoday.jdbc.persistence.sql.ComparisonRestriction;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @since 4.0 2024/2/28 22:43
  */
-class UpdateTests {
+public class DefaultConditionStrategy implements PropertyConditionStrategy {
 
-  @Test
-  void sql() {
-    Update update = new Update();
-    update.setTableName("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
-
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
-
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
+  @Nullable
+  @Override
+  public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
+    return new Condition(propertyValue, new ComparisonRestriction(entityProperty.columnName), entityProperty);
   }
 
 }

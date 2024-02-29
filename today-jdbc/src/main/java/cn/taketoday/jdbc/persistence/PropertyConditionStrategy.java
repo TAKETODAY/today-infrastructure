@@ -17,29 +17,30 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.jdbc.persistence.sql.Restriction;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @since 4.0 2024/2/24 23:58
  */
-class UpdateTests {
+public interface PropertyConditionStrategy {
 
-  @Test
-  void sql() {
-    Update update = new Update();
-    update.setTableName("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
+  @Nullable
+  Condition resolve(EntityProperty entityProperty, Object propertyValue);
 
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
+  class Condition {
 
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
+    public final Object propertyValue;
+
+    public final Restriction restriction;
+
+    public final EntityProperty entityProperty;
+
+    public Condition(Object propertyValue, Restriction restriction, EntityProperty entityProperty) {
+      this.propertyValue = propertyValue;
+      this.restriction = restriction;
+      this.entityProperty = entityProperty;
+    }
   }
-
 }

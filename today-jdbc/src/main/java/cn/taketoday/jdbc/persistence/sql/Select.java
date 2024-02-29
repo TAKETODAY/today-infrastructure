@@ -20,7 +20,6 @@ package cn.taketoday.jdbc.persistence.sql;
 import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.StringUtils;
 
 /**
  * A simple SQL <tt>SELECT</tt> statement
@@ -40,11 +39,13 @@ public class Select implements StatementSequence {
   @Nullable
   protected CharSequence whereClause;
 
+  @Nullable
   protected CharSequence outerJoinsAfterWhere;
 
   @Nullable
   protected CharSequence orderByClause;
 
+  @Nullable
   protected CharSequence groupByClause;
 
   @Nullable
@@ -66,7 +67,8 @@ public class Select implements StatementSequence {
   @Override
   public String toStatementString() {
     StringBuilder buf = new StringBuilder(guesstimatedBufferSize);
-    if (StringUtils.isNotEmpty(comment)) {
+
+    if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
 
@@ -77,22 +79,22 @@ public class Select implements StatementSequence {
       buf.append(outerJoinsAfterFrom);
     }
 
-    if (StringUtils.isNotEmpty(whereClause) || StringUtils.isNotEmpty(outerJoinsAfterWhere)) {
+    if (whereClause != null || outerJoinsAfterWhere != null) {
       buf.append(" WHERE ");
       // the outerJoinsAfterWhere needs to come before where clause to properly
       // handle dynamic filters
-      if (StringUtils.isNotEmpty(outerJoinsAfterWhere)) {
+      if (outerJoinsAfterWhere != null) {
         buf.append(outerJoinsAfterWhere);
-        if (StringUtils.isNotEmpty(whereClause)) {
+        if (whereClause != null) {
           buf.append(" AND ");
         }
       }
-      if (StringUtils.isNotEmpty(whereClause)) {
+      if (whereClause != null) {
         buf.append(whereClause);
       }
     }
 
-    if (StringUtils.isNotEmpty(groupByClause)) {
+    if (groupByClause != null) {
       buf.append(" group by ").append(groupByClause);
     }
 
@@ -171,9 +173,14 @@ public class Select implements StatementSequence {
    *
    * @param whereClause The whereClause to set
    */
-  public Select setWhereClause(CharSequence whereClause) {
+  public Select setWhereClause(@Nullable CharSequence whereClause) {
+    if (this.whereClause != null) {
+      this.guesstimatedBufferSize -= this.whereClause.length();
+    }
+    if (whereClause != null) {
+      this.guesstimatedBufferSize += whereClause.length();
+    }
     this.whereClause = whereClause;
-    this.guesstimatedBufferSize += whereClause.length();
     return this;
   }
 
