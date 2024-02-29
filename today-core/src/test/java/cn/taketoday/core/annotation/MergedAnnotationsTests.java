@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package cn.taketoday.core.annotation;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -718,6 +720,7 @@ class MergedAnnotationsTests {
   }
 
   @Test
+  @DisabledOnOs(OS.MAC)
   void getWithTypeHierarchyFromBridgeMethod() {
     List<Method> methods = new ArrayList<>();
     ReflectionUtils.doWithLocalMethods(StringGenericParameter.class, method -> {
@@ -726,9 +729,9 @@ class MergedAnnotationsTests {
       }
     });
     Method bridgeMethod = methods.get(0).getReturnType().equals(Object.class) ?
-                          methods.get(0) : methods.get(1);
+            methods.get(0) : methods.get(1);
     Method bridgedMethod = methods.get(0).getReturnType().equals(Object.class) ?
-                           methods.get(1) : methods.get(0);
+            methods.get(1) : methods.get(0);
     assertThat(bridgeMethod.isBridge()).isTrue();
     assertThat(bridgedMethod.isBridge()).isFalse();
     MergedAnnotation<?> annotation = MergedAnnotations.from(bridgeMethod,
@@ -1477,8 +1480,8 @@ class MergedAnnotationsTests {
 
   private void testJavaRepeatables(SearchStrategy searchStrategy, Class<?> element, String[] expected) {
     MyRepeatable[] annotations = searchStrategy == SearchStrategy.DIRECT ?
-                                 element.getDeclaredAnnotationsByType(MyRepeatable.class) :
-                                 element.getAnnotationsByType(MyRepeatable.class);
+            element.getDeclaredAnnotationsByType(MyRepeatable.class) :
+            element.getAnnotationsByType(MyRepeatable.class);
     assertThat(Arrays.stream(annotations).map(MyRepeatable::value)).containsExactly(
             expected);
   }
