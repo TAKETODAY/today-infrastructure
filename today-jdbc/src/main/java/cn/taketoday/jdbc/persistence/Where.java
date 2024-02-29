@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.lang.Constant;
+
 /**
  * Where clause to add to the element Entity or target entity of a collection.
  * The clause is written in SQL. A common use case here is for soft-deletes.
@@ -37,6 +39,8 @@ public @interface Where {
   /**
    * The where-clause predicate.
    */
-  String clause();
+  String value() default Constant.DEFAULT_NONE;
+
+  String condition() default Constant.DEFAULT_NONE;
 
 }

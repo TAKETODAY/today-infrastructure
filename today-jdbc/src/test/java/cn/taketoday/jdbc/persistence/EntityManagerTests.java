@@ -157,27 +157,23 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     @Id
     @Column("id")
-    @Nullable
     Integer userId;
 
-    @Nullable
-    @Query(expression = "#root.name != null", render = "like %#{name}%")
     String name;
 
     @Nullable
-    @Query(expression = "#root.name != null", render = "=#{age}")
     Integer age;
 
-    @Query(expression = "#root.name != null", render = "> #{birthdayBegin}")
+    @Where("birthday >= ?")
     LocalDate birthdayBegin;
 
-    @Query(expression = "#root.birthdayEnd != null", render = "< #{birthdayEnd}")
+    @Where("birthday <= ?")
     LocalDate birthdayEnd;
 
   }
 
   @ParameterizedRepositoryManagerTest
-  void findByQuery(RepositoryManager repositoryManager) {
+  void findByExample(RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
     UserForm userForm = new UserForm();

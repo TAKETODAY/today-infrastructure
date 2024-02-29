@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -326,6 +326,23 @@ public class Property implements Member, AnnotatedElement, Serializable {
   }
 
   /**
+   * Return whether this property which can be {@code null}:
+   * either in the form of any variant of a parameter-level {@code Nullable}
+   * annotation (such as from JSR-305 or the FindBugs set of annotations),
+   * or a language-level nullable type declaration
+   *
+   * @since 4.0
+   */
+  public boolean isNullable() {
+    for (Annotation ann : getAnnotations(false)) {
+      if ("Nullable".equals(ann.annotationType().getSimpleName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Returns the {@code Class} object representing the class or interface
    * that declares the field represented by this {@code Field} object.
    *
@@ -381,7 +398,8 @@ public class Property implements Member, AnnotatedElement, Serializable {
     MethodParameter write = getWriteMethodParameter();
     if (write == null) {
       if (read == null) {
-        throw new IllegalStateException("Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
+        throw new IllegalStateException("Property '%s' in '%s' is neither readable nor writeable"
+                .formatted(name, declaringClass));
       }
       return read;
     }
@@ -456,8 +474,8 @@ public class Property implements Member, AnnotatedElement, Serializable {
       addAnnotationsToMap(annotationMap, getReadMethod());
       addAnnotationsToMap(annotationMap, getWriteMethod());
       addAnnotationsToMap(annotationMap, getField());
-      annotations = annotationMap.isEmpty() ? Constant.EMPTY_ANNOTATIONS :
-                    annotationMap.values().toArray(Constant.EMPTY_ANNOTATIONS);
+      annotations = annotationMap.isEmpty() ? Constant.EMPTY_ANNOTATIONS
+              : annotationMap.values().toArray(Constant.EMPTY_ANNOTATIONS);
       annotationCache.put(this, annotations);
     }
     return annotations;

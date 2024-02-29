@@ -17,29 +17,30 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.junit.jupiter.api.Test;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.lang.Constant;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @since 4.0 2024/2/24 23:53
  */
-class UpdateTests {
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Like {
 
-  @Test
-  void sql() {
-    Update update = new Update();
-    update.setTableName("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
+  /**
+   * The where-clause predicate.
+   */
+  @AliasFor(annotation = Like.class, attribute = "column")
+  String value() default Constant.DEFAULT_NONE;
 
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
+  @AliasFor(annotation = Like.class, attribute = "value")
+  String column() default Constant.DEFAULT_NONE;
 
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
-  }
-
+  boolean trim() default true;
 }
