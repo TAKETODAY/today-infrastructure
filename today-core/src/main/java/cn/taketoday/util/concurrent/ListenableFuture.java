@@ -239,12 +239,55 @@ public interface ListenableFuture<T> extends Future<T> {
 
   // Static Factory Methods
 
-  static <V> SettableFuture<V> settable() {
+  /**
+   * Creates a new SettableFuture instance.
+   */
+  static <V> SettableFuture<V> forSettable() {
     return new DefaultFuture<>();
   }
 
-  static <V> SettableFuture<V> settable(@Nullable Executor executor) {
+  /**
+   * Creates a new SettableFuture instance.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the SettableFuture once it is complete.
+   */
+  static <V> SettableFuture<V> forSettable(@Nullable Executor executor) {
     return new DefaultFuture<>(executor);
+  }
+
+  /**
+   * Creates a new FailedFuture instance.
+   */
+  static <V> FailedFuture<V> forFailed(Throwable cause) {
+    return new FailedFuture<>(cause);
+  }
+
+  /**
+   * Creates a new FailedFuture instance.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the Future once it is complete.
+   */
+  static <V> FailedFuture<V> forFailed(@Nullable Executor executor, Throwable cause) {
+    return new FailedFuture<>(executor, cause);
+  }
+
+  /**
+   * Creates a new SucceededFuture instance.
+   */
+  static <V> SucceededFuture<V> forSucceeded(V result) {
+    return new SucceededFuture<>(result);
+  }
+
+  /**
+   * Creates a new SucceededFuture instance.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the Future once it is complete.
+   */
+  static <V> SucceededFuture<V> forSucceeded(@Nullable Executor executor, V result) {
+    return new SucceededFuture<>(executor, result);
   }
 
 }

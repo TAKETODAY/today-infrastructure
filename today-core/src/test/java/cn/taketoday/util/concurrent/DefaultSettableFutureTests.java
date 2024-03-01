@@ -88,7 +88,7 @@ class DefaultSettableFutureTests {
   @Test
   public void testCancelDoesNotScheduleWhenNoListeners() {
     Executor executor = new RejectingExecutor();
-    SettableFuture<Void> future = ListenableFuture.settable(executor);
+    SettableFuture<Void> future = ListenableFuture.forSettable(executor);
     assertTrue(future.cancel(false));
     assertTrue(future.isCancelled());
   }
@@ -115,7 +115,7 @@ class DefaultSettableFutureTests {
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGet() {
-    final SettableFuture<Void> future = ListenableFuture.settable();
+    final SettableFuture<Void> future = ListenableFuture.forSettable();
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
