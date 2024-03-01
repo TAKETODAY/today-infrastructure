@@ -276,7 +276,7 @@ public interface ListenableFuture<T> extends Future<T> {
   /**
    * Creates a new SucceededFuture instance.
    */
-  static <V> SucceededFuture<V> forSucceeded(V result) {
+  static <V> SucceededFuture<V> forSucceeded(@Nullable V result) {
     return new SucceededFuture<>(result);
   }
 
@@ -286,7 +286,7 @@ public interface ListenableFuture<T> extends Future<T> {
    * @param executor the {@link Executor} which is used to notify
    * the Future once it is complete.
    */
-  static <V> SucceededFuture<V> forSucceeded(@Nullable Executor executor, V result) {
+  static <V> SucceededFuture<V> forSucceeded(@Nullable Executor executor, @Nullable V result) {
     return new SucceededFuture<>(executor, result);
   }
 

@@ -91,7 +91,8 @@ public class ExponentialAverageRetryStatisticsTests {
     stats.incrementAbortCount();
     assertThat(stats.getAbortCount()).isEqualTo(1);
     // Wind back time to epoch 0
-    ReflectionTestUtils.setField((Object)ReflectionTestUtils.getField(stats, "abort"), "lastTime", 0);
+    Object abort = ReflectionTestUtils.getField(stats, "abort");
+    ReflectionTestUtils.setField(abort, "lastTime", 0);
     // rounds down to 1
     assertThat(stats.getRollingAbortCount()).isEqualTo(0);
   }
