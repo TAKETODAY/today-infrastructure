@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
@@ -34,11 +35,6 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
   SettableFutureTask(@Nullable Executor executor, Runnable runnable, @Nullable V result) {
     super(executor);
     task = result == null ? runnable : new RunnableAdapter<>(runnable, result);
-  }
-
-  SettableFutureTask(@Nullable Executor executor, Runnable runnable) {
-    super(executor);
-    task = runnable;
   }
 
   SettableFutureTask(@Nullable Executor executor, Callable<V> callable) {
@@ -107,10 +103,6 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
     return false;
   }
 
-  protected final boolean tryFailureInternal(Throwable cause) {
-    return clearTaskAfterCompletion(super.tryFailure(cause), FAILED);
-  }
-
   @Override
   public final SettableFuture<V> setSuccess(@Nullable V result) {
     throw new IllegalStateException();
@@ -125,10 +117,6 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
   @Override
   public final boolean trySuccess(@Nullable V result) {
     return false;
-  }
-
-  protected final boolean trySuccessInternal(V result) {
-    return clearTaskAfterCompletion(super.trySuccess(result), COMPLETED);
   }
 
   @Override
