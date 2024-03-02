@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.multipart.MultipartConfig;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 /**
@@ -105,10 +106,13 @@ public class NettyWebServerFactoryAutoConfiguration {
     NettyChannelInitializer initializer = new NettyChannelInitializer(channelHandler);
     initializer.setCloseOnExpectationFailed(netty.isCloseOnExpectationFailed());
     initializer.setMaxContentLength(netty.getMaxContentLength().toBytesInt());
-    initializer.setMaxChunkSize(netty.getMaxChunkSize().toBytesInt());
-    initializer.setMaxInitialLineLength(netty.getMaxInitialLineLength());
-    initializer.setValidateHeaders(netty.isValidateHeaders());
-    initializer.setMaxHeaderSize(netty.getMaxHeaderSize());
+
+    HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
+            .setMaxInitialLineLength(netty.getMaxInitialLineLength())
+            .setMaxHeaderSize(netty.getMaxHeaderSize())
+            .setMaxChunkSize(netty.getMaxChunkSize().toBytesInt())
+            .setValidateHeaders(netty.isValidateHeaders());
+    initializer.setHttpDecoderConfig(httpDecoderConfig);
     return initializer;
   }
 

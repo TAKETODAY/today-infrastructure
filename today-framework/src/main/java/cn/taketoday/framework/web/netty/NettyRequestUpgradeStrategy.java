@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.netty;
@@ -31,7 +31,6 @@ import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -54,11 +53,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    ChannelHandlerContext channelContext = context.getChannelContext();
     String scheme = context.getScheme();
-
     WebSocketSession session = new NettyWebSocketSession(context.getHeaders(),
-            Constant.HTTPS.equals(scheme) || "wss".equals(scheme), channelContext);
+            Constant.HTTPS.equals(scheme) || "wss".equals(scheme), context.channelContext);
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);
@@ -77,8 +74,8 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   @Override
-  public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol,
-          List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
+  public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
+          WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
     if (!(context instanceof NettyRequestContext nettyContext)) {
       throw new IllegalStateException("not running in netty");
@@ -87,7 +84,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     WebSocketSession session = createSession(nettyContext, sessionDecorator);
     FullHttpRequest request = nettyContext.nativeRequest();
     WebSocketServerHandshaker handShaker = createHandshakeFactory(request).newHandshaker(request);
-    Channel channel = nettyContext.getChannelContext().channel();
+    Channel channel = nettyContext.channelContext.channel();
     if (handShaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
       return null;

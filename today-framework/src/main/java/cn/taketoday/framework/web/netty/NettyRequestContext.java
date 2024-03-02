@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.DefaultHttpHeaders;
@@ -61,7 +60,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DefaultHeaders;
-import io.netty.handler.codec.http.CombinedHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -98,7 +96,8 @@ public class NettyRequestContext extends RequestContext {
   private final AtomicBoolean committed = new AtomicBoolean();
 
   private final FullHttpRequest request;
-  private final ChannelHandlerContext channelContext;
+
+  final ChannelHandlerContext channelContext;
 
   @Nullable
   private InterfaceHttpPostRequestDecoder requestDecoder;
@@ -136,10 +135,7 @@ public class NettyRequestContext extends RequestContext {
     this.config = config;
     this.request = request;
     this.channelContext = ctx;
-    this.nettyResponseHeaders =
-            config.isSingleFieldHeaders()
-            ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
-            : new CombinedHttpHeaders(config.isValidateHeaders());
+    this.nettyResponseHeaders = config.getHttpHeadersFactory().newHeaders();
   }
 
   @Override
@@ -357,10 +353,6 @@ public class NettyRequestContext extends RequestContext {
     commit();
   }
 
-  public void setKeepAlive(boolean keepAlive) {
-    this.keepAlive = keepAlive;
-  }
-
   private boolean isKeepAlive() {
     Boolean keepAlive = this.keepAlive;
     if (keepAlive == null) {
@@ -378,7 +370,7 @@ public class NettyRequestContext extends RequestContext {
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
-      Function<RequestContext, ByteBuf> bodyFactory = config.getResponseBodyFactory();
+      var bodyFactory = config.getResponseBodyFactory();
       if (bodyFactory != null) {
         responseBody = bodyFactory.apply(this); // may null
       }
@@ -538,12 +530,11 @@ public class NettyRequestContext extends RequestContext {
       }
 
       // write response
-      HttpVersion httpVersion = config.getHttpVersion();
       if (isKeepAlive()) {
-        HttpUtil.setKeepAlive(headers, httpVersion, true);
+        HttpUtil.setKeepAlive(headers, HttpVersion.HTTP_1_1, true);
       }
 
-      var noBody = new DefaultHttpResponse(httpVersion, status, headers);
+      var noBody = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers);
       channelContext.write(noBody);
     }
 
@@ -634,10 +625,6 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
     return new NettyAsyncWebRequest(this);
-  }
-
-  public ChannelHandlerContext getChannelContext() {
-    return channelContext;
   }
 
   /**

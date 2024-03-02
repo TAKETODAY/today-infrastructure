@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +34,11 @@ import cn.taketoday.web.socket.Message;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
 import cn.taketoday.web.socket.TextMessage;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -51,6 +52,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
 
 import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
+import static io.netty.handler.codec.http.DefaultHttpHeadersFactory.trailersFactory;
 
 /**
  * ChannelInboundHandler
@@ -114,15 +116,18 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     if (!websocketPresent || !WebSocketDelegate.isErrorHandled(ctx, cause, logger)) {
-      HttpResponse response = getErrorResponse(ctx, cause);
-      ctx.writeAndFlush(response)
-              .addListener(ChannelFutureListener.CLOSE);
+      HttpResponse response = createErrorResponse(ctx, cause);
+      if (response != null) {
+        ctx.writeAndFlush(response)
+                .addListener(ChannelFutureListener.CLOSE);
+      }
     }
   }
 
-  protected HttpResponse getErrorResponse(ChannelHandlerContext ctx, Throwable cause) {
-    return new DefaultHttpResponse(HttpVersion.HTTP_1_1,
-            HttpResponseStatus.INTERNAL_SERVER_ERROR, false, false);
+  @Nullable
+  protected HttpResponse createErrorResponse(ChannelHandlerContext ctx, Throwable cause) {
+    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+            Unpooled.EMPTY_BUFFER, requestConfig.getHttpHeadersFactory(), trailersFactory());
   }
 
   //

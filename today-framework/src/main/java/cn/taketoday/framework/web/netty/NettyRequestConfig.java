@@ -26,8 +26,9 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.DefaultHttpHeadersFactory;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
@@ -44,24 +45,17 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
  */
 public class NettyRequestConfig {
 
-  /**
-   * Should Netty validate HTTP response Header values to ensure they aren't malicious.
-   */
-  private boolean validateHeaders = false;
-  private boolean singleFieldHeaders = true;
-
-  private HttpVersion httpVersion = HttpVersion.HTTP_1_1;
-
   @Nullable
   private Consumer<? super HttpHeaders> trailerHeadersConsumer;
 
   private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
+
   private ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
 
   /**
    * response body initial size
    *
-   * @see io.netty.buffer.Unpooled#buffer(int)
+   * @see io.netty.buffer.ByteBufAllocator#ioBuffer(int)
    */
   private int bodyInitialSize = 512;
 
@@ -72,31 +66,14 @@ public class NettyRequestConfig {
 
   private HttpDataFactory httpDataFactory;
 
+  private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
+
   private final SendErrorHandler sendErrorHandler;
 
   public NettyRequestConfig(HttpDataFactory httpDataFactory, SendErrorHandler sendErrorHandler) {
     Assert.notNull(sendErrorHandler, "SendErrorHandler is required");
     setHttpDataFactory(httpDataFactory);
     this.sendErrorHandler = sendErrorHandler;
-  }
-
-  /**
-   * Should Netty validate Header values to ensure they aren't malicious.
-   */
-  public void setValidateHeaders(boolean validateHeaders) {
-    this.validateHeaders = validateHeaders;
-  }
-
-  public void setSingleFieldHeaders(boolean singleFieldHeaders) {
-    this.singleFieldHeaders = singleFieldHeaders;
-  }
-
-  public boolean isSingleFieldHeaders() {
-    return singleFieldHeaders;
-  }
-
-  public boolean isValidateHeaders() {
-    return validateHeaders;
   }
 
   public void setTrailerHeadersConsumer(@Nullable Consumer<? super HttpHeaders> consumer) {
@@ -106,15 +83,6 @@ public class NettyRequestConfig {
   @Nullable
   public Consumer<? super HttpHeaders> getTrailerHeadersConsumer() {
     return trailerHeadersConsumer;
-  }
-
-  public void setHttpVersion(HttpVersion httpVersion) {
-    Assert.notNull(httpVersion, "HttpVersion is required");
-    this.httpVersion = httpVersion;
-  }
-
-  public HttpVersion getHttpVersion() {
-    return httpVersion;
   }
 
   public void setCookieDecoder(@Nullable ServerCookieDecoder cookieDecoder) {
@@ -144,7 +112,7 @@ public class NettyRequestConfig {
 
   /**
    * @return response body initial capacity
-   * @see io.netty.buffer.Unpooled#buffer(int)
+   * @see io.netty.buffer.ByteBufAllocator#buffer(int)
    */
   public int getBodyInitialSize() {
     return bodyInitialSize;
@@ -152,7 +120,7 @@ public class NettyRequestConfig {
 
   /**
    * @param bodyInitialSize response body initial capacity
-   * @see io.netty.buffer.Unpooled#buffer(int)
+   * @see io.netty.buffer.ByteBufAllocator#buffer(int)
    */
   public void setBodyInitialSize(int bodyInitialSize) {
     this.bodyInitialSize = bodyInitialSize;
@@ -178,6 +146,15 @@ public class NettyRequestConfig {
 
   public SendErrorHandler getSendErrorHandler() {
     return sendErrorHandler;
+  }
+
+  public void setHttpHeadersFactory(@Nullable HttpHeadersFactory headersFactory) {
+    this.httpHeadersFactory = headersFactory == null ? DefaultHttpHeadersFactory.headersFactory()
+            : headersFactory;
+  }
+
+  public HttpHeadersFactory getHttpHeadersFactory() {
+    return httpHeadersFactory;
   }
 
 }

@@ -160,9 +160,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected String responseContentType;
 
   /** @since 4.0 */
-  protected final ApplicationContext applicationContext;
-
-  /** @since 4.0 */
   protected MultipartRequest multipartRequest;
 
   /** @since 4.0 */
@@ -195,6 +192,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
   private String id;
 
   protected final DispatcherHandler dispatcherHandler;
+
+  /** @since 4.0 */
+  protected final ApplicationContext applicationContext;
 
   protected RequestContext(ApplicationContext context, DispatcherHandler dispatcherHandler) {
     this.applicationContext = context;
@@ -1318,7 +1318,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodValue());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?
-                HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
+              HttpStatus.NOT_MODIFIED.value() : HttpStatus.PRECONDITION_FAILED.value());
     }
     if (isHttpGetOrHead) {
       HttpHeaders httpHeaders = responseHeaders();
