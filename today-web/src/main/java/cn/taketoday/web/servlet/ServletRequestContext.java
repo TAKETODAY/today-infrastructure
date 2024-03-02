@@ -130,8 +130,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
     return request.getServerPort();
   }
 
-  @Override
-  protected String doGetContextPath() {
+  public String getContextPath() {
     return request.getContextPath();
   }
 
@@ -572,16 +571,15 @@ public final class ServletRequestContext extends RequestContext implements Servl
     }
 
     public static RequestPath parse(ServletRequestContext request) {
-      String requestUri = request.getRequestURI();
-      String servletPath = getServletPath(request.getRequest());
+      HttpServletRequest servletRequest = request.getRequest();
+      String servletPath = getServletPath(servletRequest);
       if (StringUtils.hasText(servletPath)) {
         if (servletPath.endsWith("/")) {
           servletPath = servletPath.substring(0, servletPath.length() - 1);
         }
-        return new ServletRequestPath(requestUri, request.getContextPath(), servletPath);
+        return new ServletRequestPath(request.getRequestURI(), servletRequest.getContextPath(), servletPath);
       }
-
-      return RequestPath.parse(requestUri, request.getContextPath());
+      return RequestPath.parse(request.getRequestURI(), servletRequest.getContextPath());
     }
 
     @Nullable

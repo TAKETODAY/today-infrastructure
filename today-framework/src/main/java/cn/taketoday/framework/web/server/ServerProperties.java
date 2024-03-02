@@ -45,7 +45,6 @@ import cn.taketoday.util.StringUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.undertow.UndertowOptions;
 
@@ -1551,36 +1550,38 @@ public class ServerProperties {
     private boolean closeOnExpectationFailed = false;
 
     /**
-     * @see HttpObjectDecoder#maxChunkSize
+     * The maximum chunk size.
+     * <p>
+     * HTTP requests and responses can be quite large, in which case
+     * it's better to process the data as a stream of chunks. This
+     * sets the limit, in bytes, at which Netty will send a chunk
+     * down the pipeline.
      */
     private DataSize maxChunkSize = DataSize.ofBytes(8192);
 
     /**
-     * For {@link HttpObjectDecoder.HeaderParser#maxLength}
-     *
-     * HTTP header cannot larger than {@code maxHeaderSize} bytes.
-     *
-     * @see io.netty.handler.codec.TooLongFrameException
-     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     * The maximum line length of header lines.
+     * <p>
+     * This limits how much memory Netty will use when parsing
+     * HTTP header key-value pairs. You would typically set this
+     * to the same value as {@link #setMaxInitialLineLength(int)}.
      */
     private int maxHeaderSize = 8192;
 
     /**
-     * For {@link HttpObjectDecoder.LineParser#maxLength}
-     *
-     * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
-     *
-     * @see io.netty.handler.codec.TooLongFrameException
-     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     * The maximum length of the first line of the HTTP header.
+     * <p>
+     * This limits how much memory Netty will use when parsed the
+     * initial HTTP header line. You would typically set this to
+     * the same value as {@link #setMaxHeaderSize(int)}.
      */
     private int maxInitialLineLength = 4096;
 
     /**
-     * For validate HTTP request headers
-     *
-     * @see HttpObjectDecoder#validateHeaders
-     * @see io.netty.handler.codec.http.HttpHeaders
-     * @see io.netty.handler.codec.DefaultHeaders.NameValidator
+     * Whether header validation should be enabled or not.
+     * <p>
+     * You usually want header validation enabled (which is the default)
+     * in order to prevent request-/response-splitting attacks.
      */
     private boolean validateHeaders = true;
 
@@ -1632,44 +1633,52 @@ public class ServerProperties {
     }
 
     /**
-     * Set {@link HttpObjectDecoder#maxChunkSize}
+     * Set the maximum chunk size.
+     * <p>
+     * HTTP requests and responses can be quite large, in which case
+     * it's better to process the data as a stream of chunks. This
+     * sets the limit, in bytes, at which Netty will send a chunk
+     * down the pipeline.
      *
-     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     * @param maxChunkSize The maximum chunk size.
      */
     public void setMaxChunkSize(DataSize maxChunkSize) {
       this.maxChunkSize = maxChunkSize;
     }
 
     /**
-     * Set {@link HttpObjectDecoder.HeaderParser#maxLength}
+     * Set the maximum line length of header lines.
+     * <p>
+     * This limits how much memory Netty will use when parsing
+     * HTTP header key-value pairs. You would typically set this
+     * to the same value as {@link #setMaxInitialLineLength(int)}.
      *
-     * HTTP header cannot larger than {@code maxHeaderSize} bytes.
-     *
-     * @see io.netty.handler.codec.TooLongFrameException
-     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     * @param maxHeaderSize The maximum length, in bytes.
      */
     public void setMaxHeaderSize(int maxHeaderSize) {
       this.maxHeaderSize = maxHeaderSize;
     }
 
     /**
-     * Set validate HTTP request headers
+     * Set whether header validation should be enabled or not.
+     * <p>
+     * You usually want header validation enabled (which is the default)
+     * in order to prevent request-/response-splitting attacks.
      *
-     * @see HttpObjectDecoder#validateHeaders
-     * @see io.netty.handler.codec.http.HttpHeaders
-     * @see io.netty.handler.codec.DefaultHeaders.NameValidator
+     * @param validateHeaders set to {@code false} to disable header validation.
      */
     public void setValidateHeaders(boolean validateHeaders) {
       this.validateHeaders = validateHeaders;
     }
 
     /**
-     * Set {@link HttpObjectDecoder.LineParser#maxLength}
+     * Set the maximum length of the first line of the HTTP header.
+     * <p>
+     * This limits how much memory Netty will use when parsed the
+     * initial HTTP header line. You would typically set this to
+     * the same value as {@link #setMaxHeaderSize(int)}.
      *
-     * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
-     *
-     * @see io.netty.handler.codec.TooLongFrameException
-     * @see io.netty.handler.codec.http.HttpObjectDecoder
+     * @param maxInitialLineLength The maximum length, in bytes.
      */
     public void setMaxInitialLineLength(int maxInitialLineLength) {
       this.maxInitialLineLength = maxInitialLineLength;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import cn.taketoday.lang.Assert;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.codec.http.HttpServerCodec;
@@ -55,38 +56,14 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   private boolean closeOnExpectationFailed = false;
 
   /**
-   * @see HttpObjectDecoder#maxChunkSize
+   * A configuration object for specifying the behaviour
+   * of {@link HttpObjectDecoder} and its subclasses.
    */
-  private int maxChunkSize = 8192;
-
-  /**
-   * For {@link HttpObjectDecoder.HeaderParser#maxLength}
-   *
-   * HTTP header cannot larger than {@code maxHeaderSize} bytes.
-   *
-   * @see io.netty.handler.codec.TooLongFrameException
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  private int maxHeaderSize = 8192;
-
-  /**
-   * For {@link HttpObjectDecoder.LineParser#maxLength}
-   *
-   * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
-   *
-   * @see io.netty.handler.codec.TooLongFrameException
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  private int maxInitialLineLength = 4096;
-
-  /**
-   * For validate HTTP request headers
-   *
-   * @see HttpObjectDecoder#validateHeaders
-   * @see io.netty.handler.codec.http.HttpHeaders
-   * @see io.netty.handler.codec.DefaultHeaders.NameValidator
-   */
-  private boolean validateHeaders = true;
+  private HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
+          .setMaxInitialLineLength(4096)
+          .setMaxHeaderSize(8192)
+          .setMaxChunkSize(8192)
+          .setValidateHeaders(true);
 
   public NettyChannelInitializer(NettyChannelHandler channelHandler) {
     Assert.notNull(channelHandler, "NettyChannelHandler is required");
@@ -97,7 +74,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   protected void initChannel(final Channel ch) {
 
     ch.pipeline()
-            .addLast("HttpServerCodec", new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize, validateHeaders))
+            .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
             .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
             .addLast("NettyChannelHandler", nettyChannelHandler);
@@ -109,6 +86,14 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
   }
 
   //
+
+  /**
+   * Set a configuration object for specifying the behaviour
+   * of {@link HttpObjectDecoder} and its subclasses.
+   */
+  public void setHttpDecoderConfig(HttpDecoderConfig httpDecoderConfig) {
+    this.httpDecoderConfig = httpDecoderConfig;
+  }
 
   /**
    * Set the maximum length of the aggregated content.
@@ -132,122 +117,6 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
    */
   public void setCloseOnExpectationFailed(boolean closeOnExpectationFailed) {
     this.closeOnExpectationFailed = closeOnExpectationFailed;
-  }
-
-  /**
-   * The maximum length of the aggregated content.
-   * If the length of the aggregated content exceeds this value,
-   *
-   * @see HttpObjectAggregator#maxContentLength
-   */
-  public int getMaxContentLength() {
-    return maxContentLength;
-  }
-
-  /**
-   * If a 100-continue response is detected but the content
-   * length is too large then true means close the connection.
-   * otherwise the connection will remain open and data will be
-   * consumed and discarded until the next request is received.
-   *
-   * @see HttpObjectAggregator#closeOnExpectationFailed
-   */
-  public boolean isCloseOnExpectationFailed() {
-    return closeOnExpectationFailed;
-  }
-
-  /**
-   * Get Netty {@link cn.taketoday.web.handler} implementation
-   * like {@link cn.taketoday.web.servlet.DispatcherServlet}
-   */
-  public NettyChannelHandler getNettyChannelHandler() {
-    return nettyChannelHandler;
-  }
-
-  // HttpServerCodec
-
-  /**
-   * Set {@link HttpObjectDecoder#maxChunkSize}
-   *
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  public void setMaxChunkSize(int maxChunkSize) {
-    this.maxChunkSize = maxChunkSize;
-  }
-
-  /**
-   * Set {@link HttpObjectDecoder.HeaderParser#maxLength}
-   *
-   * HTTP header cannot larger than {@code maxHeaderSize} bytes.
-   *
-   * @see io.netty.handler.codec.TooLongFrameException
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  public void setMaxHeaderSize(int maxHeaderSize) {
-    this.maxHeaderSize = maxHeaderSize;
-  }
-
-  /**
-   * Set validate HTTP request headers
-   *
-   * @see HttpObjectDecoder#validateHeaders
-   * @see io.netty.handler.codec.http.HttpHeaders
-   * @see io.netty.handler.codec.DefaultHeaders.NameValidator
-   */
-  public void setValidateHeaders(boolean validateHeaders) {
-    this.validateHeaders = validateHeaders;
-  }
-
-  /**
-   * Set {@link HttpObjectDecoder.LineParser#maxLength}
-   *
-   * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
-   *
-   * @see io.netty.handler.codec.TooLongFrameException
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  public void setMaxInitialLineLength(int maxInitialLineLength) {
-    this.maxInitialLineLength = maxInitialLineLength;
-  }
-
-  /**
-   * @see HttpObjectDecoder#validateHeaders
-   * @see io.netty.handler.codec.http.HttpHeaders
-   * @see io.netty.handler.codec.DefaultHeaders.NameValidator
-   */
-  public boolean isValidateHeaders() {
-    return validateHeaders;
-  }
-
-  /**
-   * @see HttpObjectDecoder#maxChunkSize
-   */
-  public int getMaxChunkSize() {
-    return maxChunkSize;
-  }
-
-  /**
-   * For {@link HttpObjectDecoder.HeaderParser#maxLength}
-   *
-   * HTTP header cannot larger than {@code maxHeaderSize} bytes.
-   *
-   * @see io.netty.handler.codec.TooLongFrameException
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  public int getMaxHeaderSize() {
-    return maxHeaderSize;
-  }
-
-  /**
-   * For {@link HttpObjectDecoder.LineParser#maxLength}
-   *
-   * An HTTP line cannot larger than {@code maxInitialLineLength} bytes.
-   *
-   * @see io.netty.handler.codec.TooLongFrameException
-   * @see io.netty.handler.codec.http.HttpObjectDecoder
-   */
-  public int getMaxInitialLineLength() {
-    return maxInitialLineLength;
   }
 
 }

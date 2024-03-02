@@ -125,16 +125,6 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public String getContextPath() {
-    return getDelegate().getContextPath();
-  }
-
-  @Override
-  protected String doGetContextPath() {
-    return getDelegate().doGetContextPath();
-  }
-
-  @Override
   public URI getURI() {
     return getDelegate().getURI();
   }
