@@ -36,6 +36,6 @@ public interface SuccessCallback<T> {
    *
    * @param result the result
    */
-  void onSuccess(@Nullable T result);
+  void onSuccess(@Nullable T result) throws Throwable;
 
 }

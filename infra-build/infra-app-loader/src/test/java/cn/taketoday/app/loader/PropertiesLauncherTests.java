@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
@@ -144,7 +144,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.config.name", "foo");
     this.launcher = new PropertiesLauncher();
     assertThat(this.launcher.getMainClass()).isEqualTo("my.Application");
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[etc/]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[etc/]");
   }
 
   @Test
@@ -158,14 +158,14 @@ class PropertiesLauncherTests {
   void testUserSpecifiedDotPath() {
     System.setProperty("loader.path", ".");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[.]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[.]");
   }
 
   @Test
   void testUserSpecifiedSlashPath() throws Exception {
     System.setProperty("loader.path", "jars/");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/]");
     List<Archive> archives = new ArrayList<>();
     this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
     assertThat(archives).areExactly(1, endingWith("app.jar"));
@@ -176,7 +176,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "jars/*");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -186,7 +186,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "jars/app.jar");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/app.jar]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -195,7 +195,7 @@ class PropertiesLauncherTests {
   void testUserSpecifiedRootOfJarPath() throws Exception {
     System.setProperty("loader.path", "jar:file:./src/test/resources/nested-jars1/app.jar!/");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths"))
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths"))
             .hasToString("[jar:file:./src/test/resources/nested-jars1/app.jar!/]");
     List<Archive> archives = new ArrayList<>();
     this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
@@ -238,7 +238,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "nested-jars1/nested-jar-app.jar!/BOOT-INF/classes/");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths"))
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths"))
             .hasToString("[nested-jars1/nested-jar-app.jar!/BOOT-INF/classes/]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
@@ -258,7 +258,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "./jars/app.jar");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/app.jar]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -268,7 +268,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "jars/app.jar");
     System.setProperty("loader.classLoader", URLClassLoader.class.getName());
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/app.jar]");
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths")).hasToString("[jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -278,7 +278,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "more-jars/app.jar,jars/app.jar");
     System.setProperty("loader.classLoader", URLClassLoader.class.getName());
     this.launcher = new PropertiesLauncher();
-    assertThat(ReflectionTestUtils.getField(this.launcher, "paths"))
+    assertThat((Object) ReflectionTestUtils.getField(this.launcher, "paths"))
             .hasToString("[more-jars/app.jar, jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello Other World");
@@ -378,7 +378,7 @@ class PropertiesLauncherTests {
     List<Archive> archives = new ArrayList<>();
     this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
     assertThat(archives).hasSize(1);
-    File archiveRoot = (File) ReflectionTestUtils.getField(archives.get(0), "root");
+    File archiveRoot = ReflectionTestUtils.getField(archives.get(0), "root");
     assertThat(archiveRoot).isEqualTo(loaderPath);
   }
 

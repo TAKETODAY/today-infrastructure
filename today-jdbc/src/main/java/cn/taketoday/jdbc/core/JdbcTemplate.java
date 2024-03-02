@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,10 +44,10 @@ import cn.taketoday.dao.support.DataAccessUtils;
 import cn.taketoday.jdbc.InvalidResultSetAccessException;
 import cn.taketoday.jdbc.datasource.ConnectionProxy;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
+import cn.taketoday.jdbc.datasource.WrappedConnection;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.support.KeyHolder;
-import cn.taketoday.jdbc.datasource.WrappedConnection;
 import cn.taketoday.jdbc.support.rowset.SqlRowSet;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -879,8 +879,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public <T> Stream<T> queryForStream(
-          String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
+  public <T> Stream<T> queryForStream(String sql, RowMapper<T> rowMapper, @Nullable Object... args) throws DataAccessException {
     return queryForStream(new SimplePreparedStatementCreator(sql), newArgPreparedStatementSetter(args), rowMapper);
   }
 
@@ -934,26 +933,22 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
   }
 
   @Override
-  public <T> List<T> queryForList(String sql,
-          Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
+  public <T> List<T> queryForList(String sql, Object[] args, int[] argTypes, Class<T> elementType) throws DataAccessException {
     return query(sql, args, argTypes, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(String sql,
-          @Nullable Object[] args, Class<T> elementType) throws DataAccessException {
+  public <T> List<T> queryForList(String sql, @Nullable Object[] args, Class<T> elementType) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public <T> List<T> queryForList(
-          String sql, Class<T> elementType, @Nullable Object... args) throws DataAccessException {
+  public <T> List<T> queryForList(String sql, Class<T> elementType, @Nullable Object... args) throws DataAccessException {
     return query(sql, args, getSingleColumnRowMapper(elementType));
   }
 
   @Override
-  public List<Map<String, Object>> queryForList(
-          String sql, Object[] args, int[] argTypes) throws DataAccessException {
+  public List<Map<String, Object>> queryForList(String sql, Object[] args, int[] argTypes) throws DataAccessException {
     return query(sql, args, argTypes, getColumnMapRowMapper());
   }
 
@@ -1077,45 +1072,42 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
       return new int[0];
     }
 
-    return batchUpdate(sql,
-            new BatchPreparedStatementSetter() {
-              @Override
-              public void setValues(PreparedStatement ps, int i) throws SQLException {
-                Object[] values = batchArgs.get(i);
-                int colIndex = 0;
-                for (Object value : values) {
-                  colIndex++;
-                  if (value instanceof SqlParameterValue paramValue) {
-                    StatementCreatorUtils.setParameterValue(ps, colIndex, paramValue, paramValue.getValue());
-                  }
-                  else {
-                    int colType;
-                    if (argTypes.length < colIndex) {
-                      colType = SqlTypeValue.TYPE_UNKNOWN;
-                    }
-                    else {
-                      colType = argTypes[colIndex - 1];
-                    }
-                    StatementCreatorUtils.setParameterValue(ps, colIndex, colType, value);
-                  }
-                }
-              }
+    return batchUpdate(sql, new BatchPreparedStatementSetter() {
+      @Override
+      public void setValues(PreparedStatement ps, int i) throws SQLException {
+        Object[] values = batchArgs.get(i);
+        int colIndex = 0;
+        for (Object value : values) {
+          colIndex++;
+          if (value instanceof SqlParameterValue paramValue) {
+            StatementCreatorUtils.setParameterValue(ps, colIndex, paramValue, paramValue.getValue());
+          }
+          else {
+            int colType;
+            if (argTypes.length < colIndex) {
+              colType = SqlTypeValue.TYPE_UNKNOWN;
+            }
+            else {
+              colType = argTypes[colIndex - 1];
+            }
+            StatementCreatorUtils.setParameterValue(ps, colIndex, colType, value);
+          }
+        }
+      }
 
-              @Override
-              public int getBatchSize() {
-                return batchArgs.size();
-              }
-            });
+      @Override
+      public int getBatchSize() {
+        return batchArgs.size();
+      }
+    });
   }
 
   @Override
-  public <T> int[][] batchUpdate(
-          String sql, final Collection<T> batchArgs, final int batchSize,
+  public <T> int[][] batchUpdate(String sql, final Collection<T> batchArgs, final int batchSize,
           final ParameterizedPreparedStatementSetter<T> pss) throws DataAccessException {
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(
-              LogMessage.format("Executing SQL batch update with a batch size of '{}'", batchSize), sql);
+      stmtLogger.logStatement(LogMessage.format("Executing SQL batch update with a batch size of '{}'", batchSize), sql);
     }
     int[][] result = execute(sql, (PreparedStatementCallback<int[][]>) ps -> {
       List<int[]> rowsAffected = new ArrayList<>();
@@ -1328,9 +1320,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param parameters parameter list for the stored procedure
    * @return a Map that contains returned results
    */
-  protected Map<String, Object> extractOutputParameters(CallableStatement cs, List<SqlParameter> parameters)
-          throws SQLException {
-
+  protected Map<String, Object> extractOutputParameters(CallableStatement cs, List<SqlParameter> parameters) throws SQLException {
     Map<String, Object> results = CollectionUtils.newLinkedHashMap(parameters.size());
     int sqlColIndex = 1;
     for (SqlParameter param : parameters) {
@@ -1375,9 +1365,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations, Initia
    * @param param the corresponding stored procedure parameter
    * @return a Map that contains returned results
    */
-  protected Map<String, Object> processResultSet(
-          @Nullable ResultSet rs, ResultSetSupportingSqlParameter param) throws SQLException {
-
+  protected Map<String, Object> processResultSet(@Nullable ResultSet rs, ResultSetSupportingSqlParameter param) throws SQLException {
     if (rs != null) {
       try {
         if (param.getRowMapper() != null) {

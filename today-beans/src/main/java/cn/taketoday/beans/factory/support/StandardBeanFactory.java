@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,6 @@ import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
@@ -1047,11 +1046,13 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           throw ex;
         }
         // Probably a placeholder: let's ignore it for type matching purposes.
-        LogMessage message =
-                (ex instanceof BeanClassLoadFailedException
-                 ? LogMessage.format("Ignoring bean class loading failure for bean '{}'", beanName)
-                 : LogMessage.format("Ignoring unresolvable metadata in bean definition '{}'", beanName));
-        log.trace(message, ex);
+        if (log.isTraceEnabled()) {
+          String message =
+                  (ex instanceof BeanClassLoadFailedException
+                   ? "Ignoring bean class loading failure for bean '%s'".formatted(beanName)
+                   : "Ignoring unresolvable metadata in bean definition '%s'".formatted(beanName));
+          log.trace(message, ex);
+        }
         // Register exception, in case the bean was accidentally unresolvable.
         onSuppressedException(ex);
       }

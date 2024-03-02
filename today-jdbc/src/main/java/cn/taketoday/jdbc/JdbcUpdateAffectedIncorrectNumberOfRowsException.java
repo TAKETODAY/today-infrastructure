@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc;
@@ -29,6 +26,8 @@ import cn.taketoday.dao.IncorrectUpdateSemanticsDataAccessException;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 public class JdbcUpdateAffectedIncorrectNumberOfRowsException extends IncorrectUpdateSemanticsDataAccessException {
@@ -47,7 +46,7 @@ public class JdbcUpdateAffectedIncorrectNumberOfRowsException extends IncorrectU
    * @param actual the actual number of rows affected
    */
   public JdbcUpdateAffectedIncorrectNumberOfRowsException(String sql, int expected, int actual) {
-    super("SQL update '" + sql + "' affected " + actual + " rows, not " + expected + " as expected");
+    super("SQL update '%s' affected %s rows, not %s as expected".formatted(sql, actual, expected));
     this.expected = expected;
     this.actual = actual;
   }
@@ -68,7 +67,7 @@ public class JdbcUpdateAffectedIncorrectNumberOfRowsException extends IncorrectU
 
   @Override
   public boolean wasDataUpdated() {
-    return (getActualRowsAffected() > 0);
+    return getActualRowsAffected() > 0;
   }
 
 }

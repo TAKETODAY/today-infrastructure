@@ -25,7 +25,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,21 +32,21 @@ import java.util.function.Consumer;
 
 import javax.sql.DataSource;
 
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.dao.IncorrectResultSizeDataAccessException;
+import cn.taketoday.dao.InvalidDataAccessApiUsageException;
+import cn.taketoday.jdbc.DefaultResultSetHandlerFactory;
 import cn.taketoday.jdbc.GeneratedKeysException;
+import cn.taketoday.jdbc.JdbcBeanMetadata;
 import cn.taketoday.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 import cn.taketoday.jdbc.PersistenceException;
 import cn.taketoday.jdbc.RepositoryManager;
+import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
-import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
-import cn.taketoday.jdbc.result.ResultSetHandler;
-import cn.taketoday.jdbc.result.ResultSetIterator;
+import cn.taketoday.jdbc.persistence.dialect.Platform;
+import cn.taketoday.jdbc.persistence.dialect.PlatformAware;
+import cn.taketoday.jdbc.persistence.sql.Update;
 import cn.taketoday.jdbc.support.JdbcAccessor;
 import cn.taketoday.jdbc.support.JdbcUtils;
-import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LogMessage;
@@ -77,10 +76,16 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
+  private Platform platform = Platform.forClasspath();
+
   public DefaultEntityManager(RepositoryManager repositoryManager) {
     setDataSource(repositoryManager.getDataSource());
     setExceptionTranslator(repositoryManager.getExceptionTranslator());
     this.repositoryManager = repositoryManager;
+  }
+
+  public void setPlatform(@Nullable Platform platform) {
+    this.platform = platform == null ? Platform.forClasspath() : platform;
   }
 
   public void setDefaultUpdateStrategy(PropertyUpdateStrategy defaultUpdateStrategy) {
@@ -156,9 +161,9 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
   }
 
-  //---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
   // Implementation of EntityManager
-  //---------------------------------------------------------------------
+  // ---------------------------------------------------------------------
 
   @Override
   public int persist(Object entity) throws DataAccessException {
@@ -182,7 +187,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     String sql = insert(entityMetadata, entity, strategy);
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Persist entity: {}", entity), sql);
+      stmtLogger.logStatement(LogMessage.format("Persisting entity: {}", entity), sql);
     }
 
     if (strategy == null) {
@@ -214,7 +219,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
     catch (SQLException ex) {
-      throw translateException("Persist entity", sql, ex);
+      throw translateException("Persisting entity", sql, ex);
     }
     finally {
       DataSourceUtils.releaseConnection(con, dataSource);
@@ -311,13 +316,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy) {
-    Class<?> entityClass = entity.getClass();
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
     EntityProperty idProperty = metadata.idProperty();
 
     Object id = idProperty.getValue(entity);
     if (id == null) {
-      throw new IllegalArgumentException("Update an entity, ID property is required");
+      throw new InvalidDataAccessApiUsageException("Updating an entity, ID property is required");
     }
 
     if (strategy == null) {
@@ -326,26 +330,32 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
-    updateStmt.addWhereColumn(idProperty.columnName);
+    updateStmt.addRestriction(idProperty.columnName);
 
+    boolean emptyUpdateColumns = true;
     for (EntityProperty property : metadata.entityProperties) {
       if (property.property != idProperty.property
               && strategy.shouldUpdate(entity, property)) {
-        updateStmt.addColumn(property.columnName);
+        updateStmt.addAssignment(property.columnName);
+        emptyUpdateColumns = false;
       }
+    }
+
+    if (emptyUpdateColumns) {
+      throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
     }
 
     String sql = updateStmt.toStatementString();
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Update entity using ID: '{}'", id), sql);
+      stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
     }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql, false);
+      statement = con.prepareStatement(sql);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if (property.property != idProperty.property
@@ -360,7 +370,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Update entity By ID", sql, ex);
+      throw translateException("Updating entity By ID", sql, ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -370,13 +380,14 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Override
   public int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy) {
+    Assert.notNull(id, "Entity id is required");
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entity.getClass());
     EntityProperty idProperty = metadata.idProperty();
     Assert.isTrue(idProperty.property.isInstance(id), "Entity Id matches failed");
 
     Update updateStmt = new Update();
     updateStmt.setTableName(metadata.tableName);
-    updateStmt.addWhereColumn(idProperty.columnName);
+    updateStmt.addRestriction(idProperty.columnName);
 
     if (strategy == null) {
       strategy = defaultUpdateStrategy();
@@ -384,21 +395,21 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     for (EntityProperty property : metadata.entityProperties) {
       if (strategy.shouldUpdate(entity, property)) {
-        updateStmt.addColumn(property.columnName);
+        updateStmt.addAssignment(property.columnName);
       }
     }
 
     String sql = updateStmt.toStatementString();
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Update entity using ID: '{}'", id), sql);
+      stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
     }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql, false);
+      statement = con.prepareStatement(sql);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if (strategy.shouldUpdate(entity, property)) {
@@ -412,7 +423,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Update entity By ID", sql, ex);
+      throw translateException("Updating entity By ID", sql, ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -444,32 +455,32 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
         updateBy = property;
       }
       else if (strategy.shouldUpdate(entity, property)) {
-        updateStmt.addColumn(property.columnName);
+        updateStmt.addAssignment(property.columnName);
       }
     }
 
     if (updateBy == null) {
-      throw new IllegalArgumentException("Update an entity, 'where' property '" + where + "' not found");
+      throw new InvalidDataAccessApiUsageException("Updating an entity, 'where' property '%s' not found".formatted(where));
     }
 
-    updateStmt.addWhereColumn(updateBy.columnName);
+    updateStmt.addRestriction(updateBy.columnName);
 
     Object updateByValue = updateBy.getValue(entity);
     if (updateByValue == null) {
-      throw new IllegalArgumentException(
-              "Update an entity, 'where' property value '" + where + "' is required");
+      throw new InvalidDataAccessApiUsageException(
+              "Updating an entity, 'where' property value '%s' is required".formatted(where));
     }
 
     String sql = updateStmt.toStatementString();
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Update entity using {} : '{}'", where, updateByValue), sql);
+      stmtLogger.logStatement(LogMessage.format("Updating entity using {} : '{}'", where, updateByValue), sql);
     }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql, false);
+      statement = con.prepareStatement(sql);
       int idx = 1;
       for (EntityProperty property : metadata.entityProperties) {
         if ((!Objects.equals(where, property.columnName)
@@ -485,7 +496,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Update entity By " + where, sql, ex);
+      throw translateException("Updating entity By " + where, sql, ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -499,7 +510,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     StringBuilder sql = new StringBuilder();
 
     if (metadata.idProperty == null) {
-      throw new IllegalEntityException("Delete an entity, Id property not found");
+      throw new InvalidDataAccessApiUsageException("Deleting an entity, Id property not found");
     }
     sql.append("DELETE FROM ");
     sql.append(metadata.tableName);
@@ -508,19 +519,19 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     sql.append("` = ? ");
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Delete entity using ID: {}", id), sql.toString());
+      stmtLogger.logStatement(LogMessage.format("Deleting entity using ID: {}", id), sql);
     }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql.toString(), false);
+      statement = con.prepareStatement(sql.toString());
       metadata.idProperty.setParameter(statement, 1, id);
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Delete entity using ID", sql.toString(), ex);
+      throw translateException("Deleting entity using ID", sql.toString(), ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
@@ -562,14 +573,14 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     }
 
     if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Delete entity"), sql.toString());
+      stmtLogger.logStatement(LogMessage.format("Deleting entity: [{}]", entity), sql);
     }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
     PreparedStatement statement = null;
     try {
-      statement = prepareStatement(con, sql.toString(), false);
+      statement = con.prepareStatement(sql.toString());
       if (id != null) {
         metadata.idProperty.setParameter(statement, 1, id);
       }
@@ -586,13 +597,17 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       return statement.executeUpdate();
     }
     catch (SQLException ex) {
-      throw translateException("Delete entity", sql.toString(), ex);
+      throw translateException("Deleting entity", sql.toString(), ex);
     }
     finally {
       JdbcUtils.closeStatement(statement);
       DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
+
+  // -----------------------------------------------------------------------------------------------
+  // Query methods
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Find by primary key.
@@ -612,33 +627,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
   @Override
   @Nullable
   public <T> T findById(Class<T> entityClass, Object id) throws DataAccessException {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM `");
-    sql.append(metadata.tableName);
-    sql.append("` WHERE `");
-    sql.append(metadata.idColumnName);
-    sql.append("`=? LIMIT 1");
-
-    if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Lookup entity using ID: '{}'", id), sql.toString());
-    }
-
-    DataSource dataSource = obtainDataSource();
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    try {
-      PreparedStatement statement = prepareStatement(con, sql.toString(), false);
-      metadata.idProperty().setParameter(statement, 1, id);
-
-      try (var iterator = new EntityIterator<T>(con, statement, entityClass)) {
-        return iterator.hasNext() ? iterator.next() : null;
-      }
-    }
-    catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Fetch entity By ID", sql.toString(), ex);
-    }
+    return iterate(entityClass, new FindByIdQuery(id)).first();
   }
 
   @Nullable
@@ -650,273 +639,134 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
   @Nullable
   @Override
-  public <T> T findFirst(Class<T> entityClass, Object query) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, query)) {
-      while (iterator.hasNext()) {
-        T returnValue = iterator.next();
-        if (returnValue != null) {
-          return returnValue;
-        }
-      }
-    }
-    return null;
+  public <T> T findFirst(Class<T> entityClass, Object example) throws DataAccessException {
+    return iterate(entityClass, example).first();
   }
 
   @Override
-  public <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
-      while (iterator.hasNext()) {
-        T returnValue = iterator.next();
-        if (returnValue != null) {
-          return returnValue;
-        }
-      }
-    }
-    return null;
+  public <T> T findFirst(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    return iterate(entityClass, handler).first();
   }
 
   @Nullable
   @Override
   @SuppressWarnings("unchecked")
-  public <T> T findUnique(T entity) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
-      T returnValue = null;
-      while (iterator.hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = iterator.next();
-      }
-      return returnValue;
-    }
+  public <T> T findUnique(T example) throws DataAccessException {
+    return iterate((Class<T>) example.getClass(), example).unique();
   }
 
   @Nullable
   @Override
-  public <T> T findUnique(Class<T> entityClass, Object query) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, query)) {
-      T returnValue = null;
-      while (iterator.hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = iterator.next();
-      }
-      return returnValue;
-    }
+  public <T> T findUnique(Class<T> entityClass, Object example) throws DataAccessException {
+    return iterate(entityClass, example).unique();
   }
 
   @Override
-  public <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
-      T returnValue = null;
-      while (iterator.hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = iterator.next();
-      }
-      return returnValue;
-    }
+  public <T> T findUnique(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    return iterate(entityClass, handler).unique();
   }
 
   @Override
   public <T> List<T> find(Class<T> entityClass) throws DataAccessException {
-    return find(entityClass, null);
+    return find(entityClass, (QueryHandler) null);
+  }
+
+  @Override
+  public <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException {
+    Assert.notEmpty(sortKeys, "sortKeys is required");
+    return find(entityClass, new NoConditionsOrderByQuery(sortKeys));
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <T> List<T> find(T entity) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate((Class<T>) entity.getClass(), entity)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
-      }
-    }
-    return entities;
+  public <T> List<T> find(T example) throws DataAccessException {
+    return iterate((Class<T>) example.getClass(), example).list();
   }
 
   @Override
-  public <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
-      }
-    }
-    return entities;
+  public <T> List<T> find(Class<T> entityClass, Object example) throws DataAccessException {
+    return iterate(entityClass, example).list();
+  }
+
+  @Override
+  public <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    return iterate(entityClass, handler).list();
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey) throws DataAccessException {
-    LinkedHashMap<K, T> entities = new LinkedHashMap<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
-      EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
-      while (iterator.hasNext()) {
-        T entity = iterator.next();
-        Object propertyValue = beanProperty.getValue(entity);
-        entities.put((K) propertyValue, entity);
-      }
-    }
-    return entities;
+  public <K, T> Map<K, T> find(T example, String mapKey) throws DataAccessException {
+    return find((Class<T>) example.getClass(), example, mapKey);
+  }
+
+  @Override
+  public <K, T> Map<K, T> find(Class<T> entityClass, Object example, String mapKey) throws DataAccessException {
+    return iterate(entityClass, example).toMap(mapKey);
+  }
+
+  @Override
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey) throws DataAccessException {
+    return iterate(entityClass, handler).toMap(mapKey);
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryCondition conditions, String mapKey)
-          throws DataAccessException //
-  {
-    var entities = new LinkedHashMap<K, T>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
-      EntityMetadata entityMetadata = entityMetadataFactory.getEntityMetadata(entityClass);
-      BeanProperty beanProperty = entityMetadata.root.obtainBeanProperty(mapKey);
-      while (iterator.hasNext()) {
-        T entity = iterator.next();
-        Object propertyValue = beanProperty.getValue(entity);
-        entities.put((K) propertyValue, entity);
-      }
-    }
-    return entities;
+  public <T> void iterate(T example, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate((Class<T>) example.getClass(), example, entityConsumer);
   }
 
   @Override
-  public <T> List<T> find(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    ArrayList<T> entities = new ArrayList<>();
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
-      while (iterator.hasNext()) {
-        entities.add(iterator.next());
-      }
-    }
-    return entities;
+  public <T> void iterate(Class<T> entityClass, Object example, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate(entityClass, example).consume(entityConsumer);
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer) throws DataAccessException {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, params)) {
-      while (iterator.hasNext()) {
-        entityConsumer.accept(iterator.next());
-      }
-    }
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer) throws DataAccessException {
+    iterate(entityClass, handler).consume(entityConsumer);
   }
 
   @Override
-  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params) throws DataAccessException {
+  @SuppressWarnings("unchecked")
+  public <T> EntityIterator<T> iterate(T example) throws DataAccessException {
+    return iterate((Class<T>) example.getClass(), example);
+  }
+
+  @Override
+  public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
+    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(example.getClass());
+    ExampleQuery exampleQuery = new ExampleQuery(example, queryMetadata);
+    return iterate(entityClass, exampleQuery);
+  }
+
+  @Override
+  public <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+    if (handler == null) {
+      handler = NoConditionsQuery.instance;
+    }
+
+    if (handler instanceof PlatformAware aware) {
+      aware.setPlatform(platform);
+    }
+
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(params.getClass());
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM ");
-    sql.append(metadata.tableName);
-    sql.append(" WHERE ");
-
-    StringBuilder columnNamesBuf = new StringBuilder();
-
-    class Condition {
-      final Object propertyValue;
-      final TypeHandler<Object> typeHandler;
-
-      Condition(TypeHandler<Object> typeHandler, Object propertyValue) {
-        this.typeHandler = typeHandler;
-        this.propertyValue = propertyValue;
-      }
-    }
-
-    boolean first = true;
-    List<Condition> conditions = new ArrayList<>();
-    for (EntityProperty entityProperty : queryMetadata.entityProperties) {
-      Object propertyValue = entityProperty.getValue(params);
-      if (propertyValue != null) {
-        if (first) {
-          first = false;
-        }
-        else {
-          columnNamesBuf.append(" AND ");
-        }
-
-        columnNamesBuf.append('`')
-                .append(entityProperty.columnName)
-                .append('`')
-                .append(" = ?");
-
-        // and
-        conditions.add(new Condition(entityProperty.typeHandler, propertyValue));
-      }
-    }
-
-    if (columnNamesBuf.isEmpty()) {
-      sql.append("1=1");
-    }
-    else {
-      sql.append(columnNamesBuf);
-    }
-
-    if (stmtLogger.isDebugEnabled()) {
-      stmtLogger.logStatement(LogMessage.format("Lookup entity using query-model: {}", params), sql.toString());
-    }
 
     DataSource dataSource = obtainDataSource();
     Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement;
+
+    String statement = handler.render(metadata).toStatementString();
     try {
-      statement = prepareStatement(con, sql.toString(), false);
-      int idx = 1;
-      for (Condition condition : conditions) {
-        condition.typeHandler.setParameter(statement, idx++, condition.propertyValue);
-      }
-      return new EntityIterator<>(con, statement, entityClass);
-    }
-    catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Iterate entities with query-model", sql.toString(), ex);
-    }
-  }
-
-  @Override
-  public <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer)
-          throws DataAccessException //
-  {
-    try (ResultSetIterator<T> iterator = iterate(entityClass, conditions)) {
-      while (iterator.hasNext()) {
-        entityConsumer.accept(iterator.next());
-      }
-    }
-  }
-
-  @Override
-  public <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions) throws DataAccessException {
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-
-    StringBuilder sql = new StringBuilder();
-    sql.append("SELECT * FROM ");
-    sql.append(metadata.tableName);
-
-    if (conditions != null) {
-      sql.append(" WHERE ");
-      // WHERE column_name operator value;
-      conditions.render(sql);
-    }
-
-    DataSource dataSource = obtainDataSource();
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    PreparedStatement statement;
-    try {
-      statement = prepareStatement(con, sql.toString(), false);
-      if (conditions != null) {
-        conditions.setParameter(statement);
-      }
+      PreparedStatement stmt = con.prepareStatement(statement);
+      handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement("Lookup entities", sql.toString());
+        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
       }
 
-      return new EntityIterator<>(con, statement, entityClass);
+      return new DefaultEntityIterator<>(con, stmt, entityClass, metadata);
     }
     catch (SQLException ex) {
       DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException("Iterate entities with query-conditions", sql.toString(), ex);
+      throw translateException(handler.getDescription(), statement, ex);
     }
   }
 
@@ -950,14 +800,16 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
     return sql.toString();
   }
 
-  final class EntityIterator<T> extends ResultSetIterator<T> {
-    private final Connection connection;
-    private final PreparedStatement statement;
-    private final ResultSetHandler<T> handler;
+  private final class DefaultEntityIterator<T> extends EntityIterator<T> {
 
-    private EntityIterator(Connection connection,
-            PreparedStatement statement, Class<?> entityClass) throws SQLException {
-      super(statement.executeQuery());
+    private final Connection connection;
+
+    private final PreparedStatement statement;
+
+    private final ResultSetExtractor<T> handler;
+
+    private DefaultEntityIterator(Connection connection, PreparedStatement statement, Class<?> entityClass, EntityMetadata entityMetadata) throws SQLException {
+      super(statement.executeQuery(), entityMetadata);
       this.statement = statement;
       this.connection = connection;
       try {
@@ -973,12 +825,12 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
 
     @Override
     protected T readNext(ResultSet resultSet) throws SQLException {
-      return handler.handle(resultSet);
+      return handler.extractData(resultSet);
     }
 
     @Override
     protected RuntimeException handleReadError(SQLException ex) {
-      return translateException("Read Entity", null, ex);
+      return translateException("Reading Entity", null, ex);
     }
 
     @Override
@@ -988,7 +840,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
       catch (SQLException e) {
         if (repositoryManager.isCatchResourceCloseErrors()) {
-          throw translateException("Closing ResultSet", null, e);
+          throw translateException("Closing Connection", null, e);
         }
         else {
           logger.debug("Could not close JDBC Connection", e);
@@ -1003,7 +855,7 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
           throw translateException("Closing Statement", null, e);
         }
         else {
-          logger.trace("Could not close JDBC Statement", e);
+          logger.debug("Could not close JDBC Statement", e);
         }
       }
 
@@ -1015,52 +867,37 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
           throw translateException("Closing ResultSet", null, e);
         }
         else {
-          logger.trace("Could not close JDBC ResultSet", e);
+          logger.debug("Could not close JDBC ResultSet", e);
         }
       }
     }
 
   }
 
-  final class PreparedBatch {
-
-    public final String sql;
+  final class PreparedBatch extends BatchExecution {
 
     public final PreparedStatement statement;
-
-    public final boolean autoGenerateId;
-
-    public final EntityMetadata entityMetadata;
-
-    public final PropertyUpdateStrategy strategy;
-
-    public final ArrayList<Object> entities = new ArrayList<>();
 
     public int currentBatchRecords = 0;
 
     PreparedBatch(Connection connection, String sql, PropertyUpdateStrategy strategy,
             EntityMetadata entityMetadata, boolean autoGenerateId) throws SQLException {
-      this.sql = sql;
-      this.strategy = strategy;
+      super(sql, strategy, entityMetadata, autoGenerateId);
       this.statement = prepareStatement(connection, sql, autoGenerateId);
-      this.entityMetadata = entityMetadata;
-      this.autoGenerateId = autoGenerateId;
     }
 
-    public void addBatchUpdate(Object entity, int maxBatchRecords) throws SQLException {
+    public void addBatchUpdate(Object entity, int maxBatchRecords) throws Throwable {
       entities.add(entity);
       PreparedStatement statement = this.statement;
       setPersistParameter(entity, statement, strategy, entityMetadata);
       statement.addBatch();
       if (maxBatchRecords > 0 && ++currentBatchRecords % maxBatchRecords == 0) {
-        executeBatch(statement);
-        fireBatchExecution(true);
+        executeBatch(statement, true);
       }
     }
 
-    public void explicitExecuteBatch() throws SQLException {
-      executeBatch(statement);
-      fireBatchExecution(false);
+    public void explicitExecuteBatch() throws Throwable {
+      executeBatch(statement, false);
       try {
         statement.close();
       }
@@ -1074,39 +911,58 @@ public class DefaultEntityManager extends JdbcAccessor implements EntityManager 
       }
     }
 
-    private void fireBatchExecution(boolean implicitExecution) {
-      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
-        for (BatchPersistListener listener : batchPersistListeners) {
-          listener.executeBatch(entityMetadata, entities, implicitExecution);
-        }
-      }
-    }
-
-    private void executeBatch(PreparedStatement statement) throws SQLException {
+    private void executeBatch(PreparedStatement statement, boolean implicitExecution) throws Throwable {
+      beforeProcessing(implicitExecution);
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(LogMessage.format("Executing batch size: {}", entities.size()), sql);
       }
-      int[] updateCounts = statement.executeBatch();
-      assertUpdateCount(sql, updateCounts.length, entities.size());
+      Throwable exception = null;
+      try {
+        int[] updateCounts = statement.executeBatch();
+        assertUpdateCount(sql, updateCounts.length, entities.size());
 
-      if (autoGenerateId) {
-        EntityProperty idProperty = entityMetadata.idProperty;
-        if (idProperty != null) {
-          ResultSet generatedKeys = statement.getGeneratedKeys();
-          for (Object entity : entities) {
-            try {
-              if (generatedKeys.next()) {
-                idProperty.setProperty(entity, generatedKeys, 1);
+        if (autoGenerateId) {
+          EntityProperty idProperty = entityMetadata.idProperty;
+          if (idProperty != null) {
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            for (Object entity : entities) {
+              try {
+                if (generatedKeys.next()) {
+                  idProperty.setProperty(entity, generatedKeys, 1);
+                }
               }
-            }
-            catch (SQLException e) {
-              throw new GeneratedKeysException("Cannot get generated keys", e);
+              catch (SQLException e) {
+                throw new GeneratedKeysException("Cannot get generated keys", e);
+              }
             }
           }
         }
       }
-      this.currentBatchRecords = 0;
-      this.entities.clear();
+      catch (Throwable e) {
+        exception = e;
+        throw e;
+      }
+      finally {
+        afterProcessing(implicitExecution, exception);
+        this.currentBatchRecords = 0;
+        this.entities.clear();
+      }
+    }
+
+    private void afterProcessing(boolean implicitExecution, @Nullable Throwable exception) {
+      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
+        for (BatchPersistListener listener : batchPersistListeners) {
+          listener.afterProcessing(this, implicitExecution, exception);
+        }
+      }
+    }
+
+    private void beforeProcessing(boolean implicitExecution) {
+      if (CollectionUtils.isNotEmpty(batchPersistListeners)) {
+        for (BatchPersistListener listener : batchPersistListeners) {
+          listener.beforeProcessing(this, implicitExecution);
+        }
+      }
     }
 
   }

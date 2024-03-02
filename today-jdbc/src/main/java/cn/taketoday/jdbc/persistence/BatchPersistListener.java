@@ -17,17 +17,29 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import java.util.List;
+import cn.taketoday.lang.Nullable;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/20 12:47
  */
 public interface BatchPersistListener {
+
   /**
-   * @param entityMetadata entity metadata
-   * @param entities entities to persist
-   * @param implicitExecution maxBatchRecords
+   * before batch processing
+   *
+   * @param execution batch execution
+   * @param implicitExecution implicit Execution
    */
-  void executeBatch(EntityMetadata entityMetadata, List<Object> entities, boolean implicitExecution);
+  default void beforeProcessing(BatchExecution execution, boolean implicitExecution) { }
+
+  /**
+   * after batch processing
+   *
+   * @param execution batch execution
+   * @param implicitExecution implicit Execution
+   * @param exception batch execution error
+   */
+  void afterProcessing(BatchExecution execution, boolean implicitExecution, @Nullable Throwable exception);
+
 }

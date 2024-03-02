@@ -147,7 +147,7 @@ public class SqlStatementLogger {
    * @param desc description of this SQL
    * @param statement The SQL statement.
    */
-  public void logStatement(@Nullable Object desc, String statement) {
+  public void logStatement(@Nullable Object desc, CharSequence statement) {
     // for now just assume a DML log for formatting
     logStatement(desc, statement, BasicSQLFormatter.INSTANCE);
   }
@@ -169,17 +169,17 @@ public class SqlStatementLogger {
    * @param statement The SQL statement.
    * @param formatter The formatter to use.
    */
-  public void logStatement(@Nullable Object desc, String statement, SQLFormatter formatter) {
+  public void logStatement(@Nullable Object desc, CharSequence statement, SQLFormatter formatter) {
     if (format) {
-      statement = formatter.format(statement);
+      statement = formatter.format(statement.toString());
     }
     if (highlight) {
-      statement = HighlightingSQLFormatter.INSTANCE.format(statement);
+      statement = HighlightingSQLFormatter.INSTANCE.format(statement.toString());
     }
 
     if (!stdoutOnly) {
       if (desc != null) {
-        String sql = statement;
+        String sql = statement.toString();
         LogFormatUtils.traceDebug(sqlLogger,
                 traceOn -> LogFormatUtils.formatValue(desc, !traceOn) + ", SQL: " + sql);
       }

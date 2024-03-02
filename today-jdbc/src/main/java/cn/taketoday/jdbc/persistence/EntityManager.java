@@ -25,12 +25,14 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
-import cn.taketoday.jdbc.result.ResultSetIterator;
+import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamIterable;
 
 /**
  * Entity manager
+ * <p>
+ * for simple and single table operations
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:47
@@ -61,27 +63,27 @@ public interface EntityManager {
    * persist an entity to underlying repository
    *
    * @param entity entity instance
-   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param autoGenerateId a flag indicating whether auto-generated keys should be returned;
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  int persist(Object entity, boolean returnGeneratedKeys) throws DataAccessException;
+  int persist(Object entity, boolean autoGenerateId) throws DataAccessException;
 
   /**
    * persist an entity to underlying repository
    *
    * @param entity entity instance
    * @param strategy property persist strategy
-   * @param returnGeneratedKeys a flag indicating whether auto-generated
+   * @param autoGenerateId a flag indicating whether auto-generated
    * keys should be returned
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    * @see PreparedStatement
    * @see Connection#prepareStatement(String, int)
    */
-  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+  int persist(Object entity, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -115,13 +117,13 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether
+   * @param autoGenerateId a flag indicating whether
    * auto-generated keys should be returned;
    * @param entities entities instances
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys)
+  void persist(Iterable<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId)
           throws DataAccessException;
 
   /**
@@ -137,12 +139,12 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether auto-generated keys should be returned;
+   * @param autoGenerateId a flag indicating whether auto-generated keys should be returned;
    * @param entities entities instances
    * @throws IllegalEntityException entityClass is legal entity
    */
-  default void persist(Stream<?> entities, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(new StreamIterable<>(entities), returnGeneratedKeys);
+  default void persist(Stream<?> entities, boolean autoGenerateId) throws DataAccessException {
+    persist(new StreamIterable<>(entities), autoGenerateId);
   }
 
   /**
@@ -159,14 +161,14 @@ public interface EntityManager {
   /**
    * persist entities to underlying repository
    *
-   * @param returnGeneratedKeys a flag indicating whether
+   * @param autoGenerateId a flag indicating whether
    * auto-generated keys should be returned;
    * @param entities entities instances
    * @param strategy property persist strategy
    * @throws IllegalEntityException entityClass is legal entity
    */
-  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean returnGeneratedKeys) throws DataAccessException {
-    persist(new StreamIterable<>(entities), strategy, returnGeneratedKeys);
+  default void persist(Stream<?> entities, @Nullable PropertyUpdateStrategy strategy, boolean autoGenerateId) throws DataAccessException {
+    persist(new StreamIterable<>(entities), strategy, autoGenerateId);
   }
 
   /**
@@ -176,7 +178,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity);
+  int updateById(Object entity) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -186,7 +188,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, Object id);
+  int updateById(Object entity, Object id) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -195,7 +197,8 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy);
+  int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -205,7 +208,8 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy);
+  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -215,7 +219,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateBy(Object entity, String where);
+  int updateBy(Object entity, String where) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
@@ -225,7 +229,8 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy);
+  int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
 
   /**
    * Delete an entity.
@@ -237,7 +242,7 @@ public interface EntityManager {
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int delete(Class<?> entityClass, Object id);
+  int delete(Class<?> entityClass, Object id) throws DataAccessException;
 
   /**
    * delete entity
@@ -249,7 +254,7 @@ public interface EntityManager {
    * @return delete rows
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int delete(Object entity);
+  int delete(Object entity) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
@@ -267,32 +272,32 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findFirst(Class<T> entityClass, Object query) throws DataAccessException;
+  <T> T findFirst(Class<T> entityClass, Object example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findFirst(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> T findFirst(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUnique(T entity) throws DataAccessException;
+  <T> T findUnique(T example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUnique(Class<T> entityClass, Object query) throws DataAccessException;
+  <T> T findUnique(Class<T> entityClass, Object example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
   @Nullable
-  <T> T findUnique(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> T findUnique(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
   /**
@@ -302,27 +307,31 @@ public interface EntityManager {
    */
   <T> List<T> find(Class<T> entityClass) throws DataAccessException;
 
-  /**
-   * @throws IllegalEntityException entityClass is legal entity
-   */
-  <T> List<T> find(T entity) throws DataAccessException;
+  <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> List<T> find(Class<T> entityClass, Object params) throws DataAccessException;
+  <T> List<T> find(T example) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> List<T> find(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> List<T> find(Class<T> entityClass, Object example) throws DataAccessException;
+
+  /**
+   * @param handler build {@link Select}
+   * @throws IllegalEntityException entityClass is legal entity
+   * @see #iterate(Class, QueryHandler)
+   */
+  <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
 
   /**
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, params, "id")
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
@@ -330,14 +339,13 @@ public interface EntityManager {
    * @return Map containing key pair data.
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <K, T> Map<K, T> find(Class<T> entityClass, Object params, String mapKey)
-          throws DataAccessException;
+  <K, T> Map<K, T> find(T example, String mapKey) throws DataAccessException;
 
   /**
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, params, "id")
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
@@ -345,30 +353,63 @@ public interface EntityManager {
    * @return Map containing key pair data.
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryCondition conditions, String mapKey)
+  <K, T> Map<K, T> find(Class<T> entityClass, Object example, String mapKey)
+          throws DataAccessException;
+
+  /**
+   * The find Map is a special case in that it is designed to convert a list
+   * of results into a Map based on one of the properties in the resulting
+   * objects.
+   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
+   *
+   * @param <K> the returned Map keys type
+   * @param <T> the returned Map values type
+   * @param mapKey The property to use as key for each value in the list.
+   * @return Map containing key pair data.
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey)
           throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> void iterate(Class<T> entityClass, Object params, Consumer<T> entityConsumer)
+  <T> void iterate(T example, Consumer<T> entityConsumer) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> void iterate(Class<T> entityClass, Object example, Consumer<T> entityConsumer)
           throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> ResultSetIterator<T> iterate(Class<T> entityClass, Object params)
+  <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer)
           throws DataAccessException;
 
   /**
+   * Iterate entities
+   *
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> void iterate(Class<T> entityClass, @Nullable QueryCondition conditions, Consumer<T> entityConsumer)
+  <T> EntityIterator<T> iterate(T example) throws DataAccessException;
+
+  /**
+   * Iterate entities
+   *
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> EntityIterator<T> iterate(Class<T> entityClass, Object example)
           throws DataAccessException;
 
   /**
+   * Iterate entities with given {@link QueryHandler}
+   *
+   * @param handler build {@link Select}
    * @throws IllegalEntityException entityClass is legal entity
    */
-  <T> ResultSetIterator<T> iterate(Class<T> entityClass, @Nullable QueryCondition conditions)
+  <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler)
           throws DataAccessException;
+
 }

@@ -109,7 +109,7 @@ public abstract class CollectionUtils {
    * @since 4.0
    */
   public static boolean isNotEmpty(@Nullable Collection<?> collection) {
-    return !isEmpty(collection);
+    return collection != null && !collection.isEmpty();
   }
 
   /**
