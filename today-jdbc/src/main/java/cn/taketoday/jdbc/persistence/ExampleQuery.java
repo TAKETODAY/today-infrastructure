@@ -27,6 +27,7 @@ import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 import cn.taketoday.jdbc.persistence.support.DefaultConditionStrategy;
 import cn.taketoday.jdbc.persistence.support.FuzzyQueryConditionStrategy;
 import cn.taketoday.jdbc.persistence.support.WhereAnnotationConditionStrategy;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.LogMessage;
 
 /**
@@ -35,10 +36,15 @@ import cn.taketoday.logging.LogMessage;
  */
 final class ExampleQuery extends SimpleSelectQueryHandler {
 
-  static final List<PropertyConditionStrategy> strategies = List.of(
-          new WhereAnnotationConditionStrategy(),
-          new FuzzyQueryConditionStrategy(),
-          new DefaultConditionStrategy());
+  static final List<PropertyConditionStrategy> strategies;
+
+  static {
+    List<PropertyConditionStrategy> strategyList = TodayStrategies.find(PropertyConditionStrategy.class);
+    strategyList.add(new WhereAnnotationConditionStrategy());
+    strategyList.add(new FuzzyQueryConditionStrategy());
+    strategyList.add(new DefaultConditionStrategy());
+    strategies = List.copyOf(strategyList);
+  }
 
   private final Object example;
 
