@@ -81,8 +81,8 @@ import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 /**
  * Context holder for request-specific state.
  *
- * @author TODAY 2019-06-22 15:48
- * @since 2.3.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.3.7 2019-06-22 15:48
  */
 public abstract class RequestContext extends AttributeAccessorSupport
         implements InputStreamSource, OutputStreamSource, HttpInputMessage, HttpRequest, AttributeAccessor {
