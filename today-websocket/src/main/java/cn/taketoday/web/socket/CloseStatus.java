@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket;
@@ -39,8 +39,8 @@ import cn.taketoday.lang.Assert;
  * "Defined Status Codes"</a>.
  *
  * @author Rossen Stoyanchev
- * @author TODAY 2021/4/5 17:53
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/4/5 17:53
  */
 public final class CloseStatus {
 
@@ -213,11 +213,11 @@ public final class CloseStatus {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof CloseStatus)) {
+    if (!(other instanceof CloseStatus otherStatus)) {
       return false;
     }
-    CloseStatus otherStatus = (CloseStatus) other;
-    return (this.code == otherStatus.code && Objects.equals(this.reason, otherStatus.reason));
+    return this.code == otherStatus.code
+            && Objects.equals(this.reason, otherStatus.reason);
   }
 
   @Override

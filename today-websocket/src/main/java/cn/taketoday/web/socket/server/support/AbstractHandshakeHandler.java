@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Assert;
@@ -212,8 +213,8 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
   protected void handleInvalidConnectHeader(RequestContext request) throws IOException {
     if (logger.isErrorEnabled()) {
-      logger.error(LogFormatUtils.formatValue(
-              "Handshake failed due to invalid Connection header" + request.getHeaders().getConnection(), -1, true));
+      logger.error(LogFormatUtils.formatValue("Handshake failed due to invalid Connection header" +
+              request.getHeaders().getConnection(), -1, true));
     }
     request.setStatus(HttpStatus.BAD_REQUEST);
     request.getOutputStream()
@@ -232,18 +233,17 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
   }
 
   protected String[] getSupportedVersions() {
-    return this.requestUpgradeStrategy.getSupportedVersions();
+    return requestUpgradeStrategy.getSupportedVersions();
   }
 
   protected void handleWebSocketVersionNotSupported(RequestContext request) {
     if (logger.isErrorEnabled()) {
-      String version = request.getHeaders().getFirst("Sec-WebSocket-Version");
-      logger.error(LogFormatUtils.formatValue(
-              "Handshake failed due to unsupported WebSocket version: " + version +
-                      ". Supported versions: " + Arrays.toString(getSupportedVersions()), -1, true));
+      String version = request.getHeaders().getFirst(HttpHeaders.SEC_WEBSOCKET_VERSION);
+      logger.error(LogFormatUtils.formatValue("Handshake failed due to unsupported WebSocket version: %s. Supported versions: %s"
+              .formatted(version, Arrays.toString(getSupportedVersions())), -1, true));
     }
     request.setStatus(HttpStatus.UPGRADE_REQUIRED);
-    request.setHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_VERSION,
+    request.setHeader(HttpHeaders.SEC_WEBSOCKET_VERSION,
             StringUtils.arrayToCommaDelimitedString(getSupportedVersions()));
   }
 

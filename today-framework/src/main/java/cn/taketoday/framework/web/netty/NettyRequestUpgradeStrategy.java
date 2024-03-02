@@ -31,7 +31,6 @@ import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
@@ -54,11 +53,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    ChannelHandlerContext channelContext = context.channelContext;
     String scheme = context.getScheme();
-
     WebSocketSession session = new NettyWebSocketSession(context.getHeaders(),
-            Constant.HTTPS.equals(scheme) || "wss".equals(scheme), channelContext);
+            Constant.HTTPS.equals(scheme) || "wss".equals(scheme), context.channelContext);
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);
@@ -77,8 +74,8 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   @Override
-  public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol,
-          List<WebSocketExtension> selectedExtensions, WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
+  public WebSocketSession upgrade(RequestContext context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
+          WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
     if (!(context instanceof NettyRequestContext nettyContext)) {
       throw new IllegalStateException("not running in netty");

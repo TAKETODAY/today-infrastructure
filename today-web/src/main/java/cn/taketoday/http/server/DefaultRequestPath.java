@@ -38,19 +38,20 @@ class DefaultRequestPath extends RequestPath {
   private final PathContainer pathWithinApplication;
 
   DefaultRequestPath(String rawPath, @Nullable String contextPath) {
-    this.fullPath = PathContainer.parsePath(rawPath);
-    this.contextPath = initContextPath(this.fullPath, contextPath);
-    this.pathWithinApplication = extractPathWithinApplication(this.fullPath, this.contextPath);
+    this(PathContainer.parsePath(rawPath), contextPath);
   }
 
-  private DefaultRequestPath(RequestPath requestPath, String contextPath) {
-    this.fullPath = requestPath;
-    this.contextPath = initContextPath(this.fullPath, contextPath);
-    this.pathWithinApplication = extractPathWithinApplication(this.fullPath, this.contextPath);
+  private DefaultRequestPath(PathContainer fullPath, @Nullable String contextPath) {
+    this.fullPath = fullPath;
+    this.contextPath = initContextPath(fullPath, contextPath);
+    this.pathWithinApplication =
+            contextPath == null ? fullPath : fullPath.subPath(this.contextPath.elements().size());
   }
 
   private static PathContainer initContextPath(PathContainer path, @Nullable String contextPath) {
-    if (StringUtils.isBlank(contextPath) || StringUtils.matchesCharacter(contextPath, '/')) {
+    if (contextPath == null
+            || StringUtils.isBlank(contextPath)
+            || StringUtils.matchesCharacter(contextPath, '/')) {
       return PathContainer.empty();
     }
 
@@ -92,10 +93,6 @@ class DefaultRequestPath extends RequestPath {
     }
   }
 
-  private static PathContainer extractPathWithinApplication(PathContainer fullPath, PathContainer contextPath) {
-    return fullPath.subPath(contextPath.elements().size());
-  }
-
   // PathContainer methods..
 
   @Override
@@ -121,7 +118,7 @@ class DefaultRequestPath extends RequestPath {
   }
 
   @Override
-  public RequestPath modifyContextPath(String contextPath) {
+  public RequestPath modifyContextPath(@Nullable String contextPath) {
     return new DefaultRequestPath(this, contextPath);
   }
 

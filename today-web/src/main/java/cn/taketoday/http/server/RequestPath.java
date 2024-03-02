@@ -59,7 +59,7 @@ public abstract class RequestPath extends PathContainer {
    * @param contextPath the new context path
    * @return a new {@code RequestPath} instance
    */
-  public abstract RequestPath modifyContextPath(String contextPath);
+  public abstract RequestPath modifyContextPath(@Nullable String contextPath);
 
   /**
    * Parse the URI for a request into a {@code RequestPath}.

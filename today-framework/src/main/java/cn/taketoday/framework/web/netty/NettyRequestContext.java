@@ -33,7 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.http.DefaultHttpHeaders;
@@ -61,7 +60,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.channel.FileRegion;
 import io.netty.handler.codec.DefaultHeaders;
-import io.netty.handler.codec.http.CombinedHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -141,11 +139,8 @@ public class NettyRequestContext extends RequestContext {
           DispatcherHandler dispatcherHandler, ObjectPool.Handle<NettyRequestContext> handle) {
     super(context, dispatcherHandler);
     this.config = config;
-    this.nettyResponseHeaders =
-            config.isSingleFieldHeaders()
-            ? new io.netty.handler.codec.http.DefaultHttpHeaders(config.isValidateHeaders())
-            : new CombinedHttpHeaders(config.isValidateHeaders());
     this.handle = handle;
+    this.nettyResponseHeaders = config.getHttpHeadersFactory().newHeaders();
   }
 
   @Override
@@ -279,7 +274,6 @@ public class NettyRequestContext extends RequestContext {
     for (Map.Entry<String, String> header : headers) {
       ret.add(header.getKey(), header.getValue());
     }
-    new NettyHttpHeaders(nettyResponseHeaders);
     return ret;
   }
 
@@ -461,7 +455,7 @@ public class NettyRequestContext extends RequestContext {
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
-      Function<RequestContext, ByteBuf> bodyFactory = config.getResponseBodyFactory();
+      var bodyFactory = config.getResponseBodyFactory();
       if (bodyFactory != null) {
         responseBody = bodyFactory.apply(this); // may null
       }
@@ -624,12 +618,11 @@ public class NettyRequestContext extends RequestContext {
       }
 
       // write response
-      HttpVersion httpVersion = config.getHttpVersion();
       if (isKeepAlive()) {
-        HttpUtil.setKeepAlive(headers, httpVersion, true);
+        HttpUtil.setKeepAlive(headers, HttpVersion.HTTP_1_1, true);
       }
 
-      var noBody = new DefaultHttpResponse(httpVersion, status, headers);
+      var noBody = new DefaultHttpResponse(HttpVersion.HTTP_1_1, status, headers);
       channelContext.write(noBody);
     }
 
@@ -671,6 +664,47 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
+  public void setStatus(int sc) {
+    this.status = HttpResponseStatus.valueOf(sc);
+  }
+
+  @Override
+  public void setStatus(HttpStatusCode status) {
+    this.status = HttpResponseStatus.valueOf(status.value());
+  }
+
+  @Override
+  public int getStatus() {
+    return status.code();
+  }
+
+  @Override
+  public void sendError(int sc) throws IOException {
+    sendError(sc, null);
+  }
+
+  @Override
+  public void sendError(int sc, @Nullable String msg) throws IOException {
+    reset();
+    this.status = HttpResponseStatus.valueOf(sc);
+    config.getSendErrorHandler().handleError(this, msg);
+  }
+
+  @Override
+  protected MultipartRequest createMultipartRequest() {
+    return new NettyMultipartRequest(this);
+  }
+
+  @Override
+  protected AsyncWebRequest createAsyncWebRequest() {
+    return new NettyAsyncWebRequest(this);
+  }
+
+  public ChannelHandlerContext getChannelContext() {
+    return channelContext;
+  }
+
+  @Override
   protected String doGetContextPath() {
     return config.getContextPath();
   }
@@ -699,7 +733,6 @@ public class NettyRequestContext extends RequestContext {
     remoteAddress = null;
     keepAlive = null;
     requestDecoder = null;
-    contextPath = null;
     cookies = null;
     writer = null;
     reader = null;
@@ -839,8 +872,8 @@ public class NettyRequestContext extends RequestContext {
     @Override
     public void validateName(CharSequence name) {
       if (!declaredHeaderNames.contains(name.toString())) {
-        throw new IllegalArgumentException("Trailer header name [" + name +
-                "] not declared with [Trailer] header, or it is not a valid trailer header name");
+        throw new IllegalArgumentException("Trailer header name [%s] not declared with [Trailer] header, or it is not a valid trailer header name"
+                .formatted(name));
       }
     }
   }

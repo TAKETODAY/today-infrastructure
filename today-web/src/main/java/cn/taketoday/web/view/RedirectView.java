@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -41,7 +41,10 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
+import cn.taketoday.web.ServletDetector;
+import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriUtils;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * View that redirects to an absolute, context relative, or current request
@@ -174,8 +177,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * <p>Default is "false": A URL that starts with a slash will be interpreted
    * as absolute, i.e. taken as-is. If "true", the context path will be
    * prepended to the URL in such a case.
-   *
-   * @see RequestContext#getContextPath
    */
   public void setContextRelative(boolean contextRelative) {
     this.contextRelative = contextRelative;
@@ -337,11 +338,15 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   }
 
   private String getContextPath(RequestContext request) {
-    String contextPath = request.getContextPath();
-    while (contextPath.startsWith("//")) {
-      contextPath = contextPath.substring(1);
+    if (ServletDetector.runningInServlet(request)) {
+      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
+      String contextPath = servletRequest.getContextPath();
+      while (contextPath.startsWith("//")) {
+        contextPath = contextPath.substring(1);
+      }
+      return contextPath;
     }
-    return contextPath;
+    return "";
   }
 
   /**

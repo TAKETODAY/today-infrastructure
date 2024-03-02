@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.core;
 
 import java.util.Iterator;
@@ -32,9 +30,8 @@ import cn.taketoday.util.ArrayIterator;
  * to/from arbitrary objects.
  *
  * @author Rob Harrop
- * @author TODAY <br>
- * 2020-02-22 12:47
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.7 2020-02-22 12:47
  */
 public interface AttributeAccessor {
 
@@ -138,7 +135,7 @@ public interface AttributeAccessor {
     if (value == null) {
       value = computeFunction.apply(name);
       if (value == null) {
-        throw new IllegalStateException("Compute function must not return null for attribute named '" + name + '\'');
+        throw new IllegalStateException("Compute function must not return null for attribute named '%s'".formatted(name));
       }
       setAttribute(name, value);
     }
