@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -30,7 +31,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/9/11 21:51
  */
-public abstract class QueryCondition {
+public abstract class QueryCondition extends AbstractColumnsQueryHandler implements QueryHandler {
 
   @Nullable
   protected String logic;
@@ -64,6 +65,18 @@ public abstract class QueryCondition {
   }
 
   protected abstract int setParameterInternal(PreparedStatement ps, int idx) throws SQLException;
+
+  @Override
+  protected void renderInternal(EntityMetadata metadata, Select select) {
+    StringBuilder whereClause = new StringBuilder();
+    render(whereClause);
+    select.setWhereClause(whereClause);
+  }
+
+  @Override
+  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
+    setParameter(statement);
+  }
 
   /**
    * append sql
@@ -121,6 +134,11 @@ public abstract class QueryCondition {
   protected void setNext(QueryCondition next) {
     this.nextNode = next;
     next.preNode = this;
+  }
+
+  @Override
+  public String getDescription() {
+    return "Query entities with condition";
   }
 
   // Static factory methods

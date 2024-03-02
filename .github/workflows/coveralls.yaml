@@ -20,30 +20,16 @@ name: Coveralls
 
 on:
   push:
-    branches: [ master ]
-    paths-ignore:
-      - 'infra-docs/**/*.css'
-      - 'infra-docs/**/*.html'
-      - 'infra-docs/**/*.ico'
-      - 'infra-docs/**/*.md'
-      - 'infra-docs/**/*.adoc'
-      - 'infra-docs/**/*.png'
-      - 'infra-docs/**/*.svg'
-      - 'infra-samples/**'
-      - 'README.md'
+    branches:
+      - master
 
   pull_request:
-    branches: [ master ]
-    paths-ignore:
-      - 'infra-docs/**/*.css'
-      - 'infra-docs/**/*.html'
-      - 'infra-docs/**/*.ico'
-      - 'infra-docs/**/*.md'
-      - 'infra-docs/**/*.adoc'
-      - 'infra-docs/**/*.png'
-      - 'infra-docs/**/*.svg'
-      - 'infra-samples/**'
-      - 'README.md'
+    branches:
+      - master
+      - 'dev/**'
+      - 'fix/**'
+      - 'feat/**'
+      - 'feature/**'
 
 jobs:
   code-coverage:

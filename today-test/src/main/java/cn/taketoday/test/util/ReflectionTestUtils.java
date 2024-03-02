@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.util;
@@ -188,13 +188,13 @@ public abstract class ReflectionTestUtils {
 
     Field field = ReflectionUtils.findField(targetClass, name, type);
     if (field == null) {
-      throw new IllegalArgumentException(String.format(
+      throw new IllegalArgumentException(java.lang.String.format(
               "Could not find field '%s' of type [%s] on %s or target class [%s]", name, type,
               safeToString(targetObject), targetClass));
     }
 
     if (log.isDebugEnabled()) {
-      log.debug(String.format(
+      log.debug(java.lang.String.format(
               "Setting field '%s' of type [%s] on %s or target class [%s] to value [%s]", name, type,
               safeToString(targetObject), targetClass, value));
     }
@@ -215,7 +215,7 @@ public abstract class ReflectionTestUtils {
    * @see #getField(Class, String)
    */
   @Nullable
-  public static Object getField(Object targetObject, String name) {
+  public static <T> T getField(Object targetObject, String name) {
     return getField(targetObject, null, name);
   }
 
@@ -232,7 +232,7 @@ public abstract class ReflectionTestUtils {
    * @see #getField(Object, String)
    */
   @Nullable
-  public static Object getField(Class<?> targetClass, String name) {
+  public static <T> T getField(Class<?> targetClass, String name) {
     return getField(null, targetClass, name);
   }
 
@@ -261,7 +261,8 @@ public abstract class ReflectionTestUtils {
    * @see AopTestUtils#getUltimateTargetObject(Object)
    */
   @Nullable
-  public static Object getField(@Nullable Object targetObject, @Nullable Class<?> targetClass, String name) {
+  @SuppressWarnings("unchecked")
+  public static <T> T getField(@Nullable Object targetObject, @Nullable Class<?> targetClass, String name) {
     Assert.isTrue(targetObject != null || targetClass != null,
             "Either targetObject or targetClass for the field must be specified");
 
@@ -274,7 +275,7 @@ public abstract class ReflectionTestUtils {
 
     Field field = ReflectionUtils.findField(targetClass, name);
     if (field == null) {
-      throw new IllegalArgumentException(String.format("Could not find field '%s' on %s or target class [%s]",
+      throw new IllegalArgumentException(java.lang.String.format("Could not find field '%s' on %s or target class [%s]",
               name, safeToString(targetObject), targetClass));
     }
 
@@ -283,7 +284,7 @@ public abstract class ReflectionTestUtils {
               name, safeToString(targetObject), targetClass);
     }
     ReflectionUtils.makeAccessible(field);
-    return ReflectionUtils.getField(field, targetObject);
+    return (T) ReflectionUtils.getField(field, targetObject);
   }
 
   /**
@@ -349,13 +350,13 @@ public abstract class ReflectionTestUtils {
       method = ReflectionUtils.findMethod(target.getClass(), setterMethodName, paramTypes);
     }
     if (method == null) {
-      throw new IllegalArgumentException(String.format(
+      throw new IllegalArgumentException(java.lang.String.format(
               "Could not find setter method '%s' on %s with parameter type [%s]", setterMethodName,
               safeToString(target), type));
     }
 
     if (log.isDebugEnabled()) {
-      log.debug(String.format("Invoking setter method '%s' on %s with value [%s]", setterMethodName,
+      log.debug(java.lang.String.format("Invoking setter method '%s' on %s with value [%s]", setterMethodName,
               safeToString(target), value));
     }
 
@@ -399,12 +400,12 @@ public abstract class ReflectionTestUtils {
       method = ReflectionUtils.findMethod(target.getClass(), getterMethodName);
     }
     if (method == null) {
-      throw new IllegalArgumentException(String.format(
+      throw new IllegalArgumentException(java.lang.String.format(
               "Could not find getter method '%s' on %s", getterMethodName, safeToString(target)));
     }
 
     if (log.isDebugEnabled()) {
-      log.debug(String.format("Invoking getter method '%s' on %s", getterMethodName, safeToString(target)));
+      log.debug(java.lang.String.format("Invoking getter method '%s' on %s", getterMethodName, safeToString(target)));
     }
     ReflectionUtils.makeAccessible(method);
     return ReflectionUtils.invokeMethod(method, target);
@@ -498,7 +499,7 @@ public abstract class ReflectionTestUtils {
       methodInvoker.prepare();
 
       if (log.isDebugEnabled()) {
-        log.debug(String.format("Invoking method '%s' on %s or %s with arguments %s", name,
+        log.debug(java.lang.String.format("Invoking method '%s' on %s or %s with arguments %s", name,
                 safeToString(targetObject), safeToString(targetClass), ObjectUtils.nullSafeToString(args)));
       }
 
@@ -512,16 +513,16 @@ public abstract class ReflectionTestUtils {
 
   private static String safeToString(@Nullable Object target) {
     try {
-      return String.format("target object [%s]", target);
+      return java.lang.String.format("target object [%s]", target);
     }
     catch (Exception ex) {
-      return String.format("target of type [%s] whose toString() method threw [%s]",
+      return java.lang.String.format("target of type [%s] whose toString() method threw [%s]",
               (target != null ? target.getClass().getName() : "unknown"), ex);
     }
   }
 
   private static String safeToString(@Nullable Class<?> clazz) {
-    return String.format("target class [%s]", (clazz != null ? clazz.getName() : null));
+    return java.lang.String.format("target class [%s]", (clazz != null ? clazz.getName() : null));
   }
 
 }

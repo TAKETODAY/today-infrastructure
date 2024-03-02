@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.performance;
@@ -128,7 +128,7 @@ public class PojoPerformanceTest {
 
     Random r = new Random();
 
-    NamedQuery insQuery = operations.createNamedQuery( // language=MySQL
+    NamedQuery insQuery = operations.createNamedQuery(
             "insert into post (text, creation_date, last_change_date, counter1, counter2, counter3, counter4, counter5, counter6, counter7, counter8, counter9) values (:text, :creation_date, :last_change_date, :counter1, :counter2, :counter3, :counter4, :counter5, :counter6, :counter7, :counter8, :counter9)");
     for (int idx = 0; idx < ITERATIONS; idx++) {
       insQuery.addParameter("text", "a name " + idx)
@@ -203,7 +203,7 @@ public class PojoPerformanceTest {
     @Override
     public void init() {
       conn = operations.open();
-      // language=MySQL
+
       query = conn.createNamedQuery(SELECT_OPTIMAL + " WHERE id = :id");
       query.setAutoDerivingColumns(true);
     }
@@ -227,7 +227,7 @@ public class PojoPerformanceTest {
     @Override
     public void init() {
       conn = operations.open();
-      // language=MySQL
+
       query = conn.createNamedQuery(SELECT_TYPICAL + " WHERE id = :id")
               .setAutoDerivingColumns(true);
     }
@@ -259,7 +259,7 @@ public class PojoPerformanceTest {
 //      final Post post = new Post();
 //      post.id = input;
 //      List<Post> list1 = suid.select(post);
-      // language=MySQL
+
       beeSql.select(SELECT_TYPICAL + " WHERE id = " + input);
 
     }

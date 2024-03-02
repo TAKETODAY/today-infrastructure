@@ -17,48 +17,62 @@
 
 package cn.taketoday.util.concurrent;
 
+import java.util.EventListener;
+
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Callback mechanism for the outcome, success or failure, from a
- * {@link ListenableFuture}.
+ * Listens to the result of a {@link ListenableFuture}.
+ * The result of the asynchronous operation is notified once this listener
+ * is added by calling {@link ListenableFuture#addListener(FutureListener)}.
  *
- * @param <T> the result type
+ * @param <F> the future type
  * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public interface FutureListener<T> extends SuccessCallback<T>, FailureCallback {
+@FunctionalInterface
+public interface FutureListener<F extends ListenableFuture<?>> extends EventListener {
 
   /**
-   * Called when the {@link ListenableFuture} completes with success.
-   * <p>Note that Exceptions raised by this method are ignored.
+   * Invoked when the operation associated with
+   * the {@link ListenableFuture} has been completed.
    *
-   * @param result the result
+   * @param future the source {@link ListenableFuture} which called this callback
    */
-  void onSuccess(@Nullable T result);
+  void operationComplete(F future) throws Throwable;
+
+  // Static Factory Methods
 
   /**
-   * Called when the {@link ListenableFuture} completes with failure.
-   * <p>Note that Exceptions raised by this method are ignored.
+   * Java 8 lambda-friendly alternative with success and failure callbacks.
    *
-   * @param ex the failure
+   * @param onSuccess success callback
+   * @param onFailure failure callback
+   * @param <F> ListenableFuture sub-type
    */
-  void onFailure(Throwable ex);
-
-  static <T> FutureListener<T> forListenable(SuccessCallback<T> successCallback, FailureCallback failureCallback) {
-    return new FutureListener<>() {
-      @Override
-      public void onSuccess(@Nullable T result) {
-        successCallback.onSuccess(result);
+  static <V, F extends ListenableFuture<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
+    Assert.notNull(onSuccess, "successCallback is required");
+    return future -> {
+      if (future.isSuccess()) {
+        onSuccess.onSuccess(future.getNow());
       }
-
-      @Override
-      public void onFailure(Throwable ex) {
-        failureCallback.onFailure(ex);
+      else if (onFailure != null) {
+        FailureCallback.onFailure(future, onFailure);
       }
     };
+  }
+
+  /**
+   * Java 8 lambda-friendly alternative with failure callbacks.
+   *
+   * @param failureCallback the failure callback
+   */
+  static <V, F extends ListenableFuture<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
+    Assert.notNull(failureCallback, "failureCallback is required");
+    return future -> FailureCallback.onFailure(future, failureCallback);
   }
 
 }

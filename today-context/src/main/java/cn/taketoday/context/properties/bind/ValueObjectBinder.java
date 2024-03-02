@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -269,20 +269,20 @@ class ValueObjectBinder implements DataObjectBinder {
   /**
    * A constructor parameter being bound.
    */
-  private static class ConstructorParameter {
+  private final static class ConstructorParameter {
 
     public final String name;
     public final ResolvableType type;
     public final Annotation[] annotations;
 
-    ConstructorParameter(String name, ResolvableType type, Annotation[] annotations) {
+    private ConstructorParameter(String name, ResolvableType type, Annotation[] annotations) {
       this.name = DataObjectPropertyName.toDashedForm(name);
       this.type = type;
       this.annotations = annotations;
     }
 
     @Nullable
-    Object bind(DataObjectPropertyBinder propertyBinder) {
+    public Object bind(DataObjectPropertyBinder propertyBinder) {
       return propertyBinder.bindProperty(this.name, Bindable.of(this.type).withAnnotations(this.annotations));
     }
 
