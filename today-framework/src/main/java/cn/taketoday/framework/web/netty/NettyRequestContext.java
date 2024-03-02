@@ -729,8 +729,8 @@ public class NettyRequestContext extends RequestContext {
     @Override
     public void validateName(CharSequence name) {
       if (!declaredHeaderNames.contains(name.toString())) {
-        throw new IllegalArgumentException("Trailer header name [" + name +
-                "] not declared with [Trailer] header, or it is not a valid trailer header name");
+        throw new IllegalArgumentException("Trailer header name [%s] not declared with [Trailer] header, or it is not a valid trailer header name"
+                .formatted(name));
       }
     }
   }
