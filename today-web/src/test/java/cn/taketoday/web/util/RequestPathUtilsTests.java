@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util;
@@ -23,7 +20,7 @@ package cn.taketoday.web.util;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,12 +46,10 @@ class RequestPathUtilsTests {
     testParseAndCache("/app/a//", "/app", "/a//");
   }
 
-  private void testParseAndCache(
-          String requestUri, String contextPath, String pathWithinApplication) {
-
+  private void testParseAndCache(String requestUri, String contextPath, String pathWithinApplication) {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
     request.setContextPath(contextPath);
-    MockServletRequestContext context = new MockServletRequestContext(request, null);
+    ServletRequestContext context = new ServletRequestContext(null, request, null);
     RequestPath requestPath = context.getRequestPath();
 
     assertThat(requestPath.contextPath().value()).isEqualTo(contextPath);

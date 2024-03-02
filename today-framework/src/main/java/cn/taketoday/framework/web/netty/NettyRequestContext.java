@@ -640,11 +640,6 @@ public class NettyRequestContext extends RequestContext {
     return channelContext;
   }
 
-  @Override
-  protected String doGetContextPath() {
-    return config.getContextPath();
-  }
-
   /**
    * write result to client
    *

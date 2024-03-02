@@ -61,7 +61,6 @@ import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -120,7 +119,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
-  protected String contextPath;
   protected HttpCookie[] cookies;
 
   protected PrintWriter writer;
@@ -298,28 +296,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public abstract int getServerPort();
 
-  /**
-   * Returns the portion of the request URI that indicates the context of the
-   * request. The context path always comes first in a request URI. The path
-   * starts with a "" character but does not end with a "" character. The
-   * container does not decode this string.
-   *
-   * @return a <code>String</code> specifying the portion of the request URI that
-   * indicates the context of the request
-   */
-  public String getContextPath() {
-    String contextPath = this.contextPath;
-    if (contextPath == null) {
-      contextPath = doGetContextPath();
-      this.contextPath = contextPath;
-    }
-    return contextPath;
-  }
-
-  protected String doGetContextPath() {
-    return Constant.BLANK;
-  }
-
   // @since 4.0
   @Override
   public URI getURI() {
@@ -403,7 +379,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   protected RequestPath doGetRequestPath() {
-    return RequestPath.parse(getRequestURI(), getContextPath());
+    return RequestPath.parse(getRequestURI(), null);
   }
 
   /**
@@ -1485,9 +1461,9 @@ public abstract class RequestContext extends AttributeAccessorSupport
       }
     }
     Object attribute = getAttribute(RedirectModel.INPUT_ATTRIBUTE);
-    if (attribute instanceof RedirectModel redirectModel) {
-      this.redirectModel = redirectModel;
-      return redirectModel;
+    if (attribute instanceof RedirectModel ret) {
+      this.redirectModel = ret;
+      return ret;
     }
     this.redirectModel = NullValue.INSTANCE;
     return null;

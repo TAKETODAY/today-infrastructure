@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -36,7 +33,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.i18n.LocaleChangeInterceptor;
-import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 import cn.taketoday.web.view.PathPatternsTestUtils;
@@ -53,7 +50,7 @@ class MappedInterceptorTests {
 
   private static final LocaleChangeInterceptor delegate = new LocaleChangeInterceptor();
 
-  public static Stream<Named<Function<String, MockServletRequestContext>>> requestArguments(@Nullable String contextPath) {
+  public static Stream<Named<Function<String, ServletRequestContext>>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
             Named.named("ServletRequestPathUtils",
                     path -> PathPatternsTestUtils.createRequest("GET", contextPath, path)
@@ -62,18 +59,18 @@ class MappedInterceptorTests {
   }
 
   @SuppressWarnings("unused")
-  private static Stream<Named<Function<String, MockServletRequestContext>>> pathPatternsArguments() {
+  private static Stream<Named<Function<String, ServletRequestContext>>> pathPatternsArguments() {
     return requestArguments(null);
   }
 
   @PathPatternsParameterizedTest
-  void noPatterns(Function<String, MockServletRequestContext> requestFactory) {
+  void noPatterns(Function<String, ServletRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(null, null, delegate);
     assertThat(interceptor.matches(requestFactory.apply("/foo"))).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void includePattern(Function<String, MockServletRequestContext> requestFactory) {
+  void includePattern(Function<String, RequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/*" }, null, delegate);
 
     assertThat(interceptor.matches(requestFactory.apply("/foo/bar"))).isTrue();
@@ -81,13 +78,13 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-  void includePatternWithMatrixVariables(Function<String, MockServletRequestContext> requestFactory) {
+  void includePatternWithMatrixVariables(Function<String, RequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo*/*" }, null, delegate);
     assertThat(interceptor.matches(requestFactory.apply("/foo;q=1/bar;s=2"))).isTrue();
   }
 
   @PathPatternsParameterizedTest
-  void excludePattern(Function<String, MockServletRequestContext> requestFactory) {
+  void excludePattern(Function<String, ServletRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(null, new String[] { "/admin/**" }, delegate);
 
     assertThat(interceptor.matches(requestFactory.apply("/foo"))).isTrue();
@@ -95,7 +92,7 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-  void includeAndExcludePatterns(Function<String, MockServletRequestContext> requestFactory) {
+  void includeAndExcludePatterns(Function<String, RequestContext> requestFactory) {
     MappedInterceptor interceptor =
             new MappedInterceptor(new String[] { "/**" }, new String[] { "/admin/**" }, delegate);
 
@@ -104,8 +101,7 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-    // gh-26690
-  void includePatternWithFallbackOnPathMatcher(Function<String, MockServletRequestContext> requestFactory) {
+  void includePatternWithFallbackOnPathMatcher(Function<String, RequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/path1/**/path2" }, null, delegate);
 
     assertThat(interceptor.matches(requestFactory.apply("/path1/foo/bar/path2"))).isTrue();
@@ -115,7 +111,7 @@ class MappedInterceptorTests {
 
   @Disabled
   @PathPatternsParameterizedTest
-  void customPathMatcher(Function<String, MockServletRequestContext> requestFactory) {
+  void customPathMatcher(Function<String, ServletRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/[0-9]*" }, null, delegate);
     interceptor.setPathMatcher(new TestPathMatcher());
 
