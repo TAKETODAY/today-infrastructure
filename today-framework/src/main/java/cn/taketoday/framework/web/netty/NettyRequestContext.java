@@ -253,10 +253,7 @@ public class NettyRequestContext extends RequestContext {
   public cn.taketoday.http.HttpHeaders requestHeaders() {
     var requestHeaders = this.requestHeaders;
     if (requestHeaders == null) {
-      requestHeaders = new DefaultHttpHeaders();
-      for (Map.Entry<String, String> header : request.headers()) {
-        requestHeaders.add(header.getKey(), header.getValue());
-      }
+      requestHeaders = createRequestHeaders();
       this.requestHeaders = requestHeaders;
     }
     else if (requestHeaders.isEmpty()) {
@@ -380,10 +377,6 @@ public class NettyRequestContext extends RequestContext {
     this.status = HttpResponseStatus.FOUND;
     nettyResponseHeaders.set(DefaultHttpHeaders.LOCATION, location);
     commit();
-  }
-
-  public void setKeepAlive(boolean keepAlive) {
-    this.keepAlive = keepAlive;
   }
 
   private boolean isKeepAlive() {
@@ -661,52 +654,6 @@ public class NettyRequestContext extends RequestContext {
     if (committed.get()) {
       throw new IllegalStateException("The response has been committed");
     }
-  }
-
-  @Override
-  public void setStatus(int sc) {
-    this.status = HttpResponseStatus.valueOf(sc);
-  }
-
-  @Override
-  public void setStatus(HttpStatusCode status) {
-    this.status = HttpResponseStatus.valueOf(status.value());
-  }
-
-  @Override
-  public int getStatus() {
-    return status.code();
-  }
-
-  @Override
-  public void sendError(int sc) throws IOException {
-    sendError(sc, null);
-  }
-
-  @Override
-  public void sendError(int sc, @Nullable String msg) throws IOException {
-    reset();
-    this.status = HttpResponseStatus.valueOf(sc);
-    config.getSendErrorHandler().handleError(this, msg);
-  }
-
-  @Override
-  protected MultipartRequest createMultipartRequest() {
-    return new NettyMultipartRequest(this);
-  }
-
-  @Override
-  protected AsyncWebRequest createAsyncWebRequest() {
-    return new NettyAsyncWebRequest(this);
-  }
-
-  public ChannelHandlerContext getChannelContext() {
-    return channelContext;
-  }
-
-  @Override
-  protected String doGetContextPath() {
-    return config.getContextPath();
   }
 
   /**
