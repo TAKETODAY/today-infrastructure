@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.object;
@@ -57,6 +54,7 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SqlQuery
  * @see SqlUpdate
  * @see StoredProcedure
@@ -64,6 +62,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 public abstract class RdbmsOperation implements InitializingBean {
+
   private static final Logger log = LoggerFactory.getLogger(RdbmsOperation.class);
 
   /** Lower-level class used to execute SQL. */
@@ -321,8 +320,8 @@ public abstract class RdbmsOperation implements InitializingBean {
         this.declaredParameters.add(parameters[i]);
       }
       else {
-        throw new InvalidDataAccessApiUsageException("Cannot add parameter at index " + i + " from " +
-                Arrays.asList(parameters) + " since it is 'null'");
+        throw new InvalidDataAccessApiUsageException("Cannot add parameter at index %s from %s since it is 'null'"
+                .formatted(i, Arrays.asList(parameters)));
       }
     }
   }
@@ -440,8 +439,8 @@ public abstract class RdbmsOperation implements InitializingBean {
                   "BLOB or CLOB parameters are not allowed for this kind of operation");
         }
         if (param.getName() != null && !paramsToUse.containsKey(param.getName())) {
-          throw new InvalidDataAccessApiUsageException("The parameter named '" + param.getName() +
-                  "' was not among the parameters supplied: " + paramsToUse.keySet());
+          throw new InvalidDataAccessApiUsageException("The parameter named '%s' was not among the parameters supplied: %s"
+                  .formatted(param.getName(), paramsToUse.keySet()));
         }
         declaredInParameters++;
       }
@@ -457,14 +456,12 @@ public abstract class RdbmsOperation implements InitializingBean {
    */
   private void validateParameterCount(int suppliedParamCount, int declaredInParamCount) {
     if (suppliedParamCount < declaredInParamCount) {
-      throw new InvalidDataAccessApiUsageException(
-              suppliedParamCount + " parameters were supplied, but " +
-                      declaredInParamCount + " in parameters were declared in class [" + getClass().getName() + "]");
+      throw new InvalidDataAccessApiUsageException("%s parameters were supplied, but %s in parameters were declared in class [%s]"
+              .formatted(suppliedParamCount, declaredInParamCount, getClass().getName()));
     }
     if (suppliedParamCount > this.declaredParameters.size() && !allowsUnusedParameters()) {
-      throw new InvalidDataAccessApiUsageException(
-              suppliedParamCount + " parameters were supplied, but " +
-                      declaredInParamCount + " parameters were declared in class [" + getClass().getName() + "]");
+      throw new InvalidDataAccessApiUsageException("%s parameters were supplied, but %s parameters were declared in class [%s]"
+              .formatted(suppliedParamCount, declaredInParamCount, getClass().getName()));
     }
   }
 

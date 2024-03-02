@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc;
@@ -20,6 +20,7 @@ package cn.taketoday.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -28,21 +29,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Spliterator;
 
 import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
+import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.format.SqlStatementLogger;
-import cn.taketoday.jdbc.result.DefaultResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.JdbcBeanMetadata;
-import cn.taketoday.jdbc.result.LazyTable;
-import cn.taketoday.jdbc.result.ResultSetHandler;
-import cn.taketoday.jdbc.result.ResultSetHandlerFactory;
-import cn.taketoday.jdbc.result.ResultSetHandlerIterator;
-import cn.taketoday.jdbc.result.ResultSetIterable;
-import cn.taketoday.jdbc.result.Row;
-import cn.taketoday.jdbc.result.Table;
-import cn.taketoday.jdbc.result.TableResultSetIterator;
-import cn.taketoday.jdbc.result.TypeHandlerResultSetHandler;
+import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerManager;
@@ -175,7 +169,17 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   // Execute
   //---------------------------------------------------------------------
 
-  protected PreparedStatement buildStatement() throws SQLException {
+  private ResultSet executeQuery() {
+    try {
+      logStatement();
+      return buildStatement().executeQuery();
+    }
+    catch (SQLException e) {
+      throw translateException("Statement execute query", e);
+    }
+  }
+
+  protected PreparedStatement buildStatement() {
     return buildStatement(true);
   }
 
@@ -184,7 +188,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    * @throws ParameterBindFailedException parameter bind failed
    * @throws ArrayParameterBindFailedException array parameter bind failed
    */
-  protected PreparedStatement buildStatement(boolean allowArrayParameters) throws SQLException {
+  protected PreparedStatement buildStatement(boolean allowArrayParameters) {
     // prepare statement creation
     PreparedStatement statement = this.preparedStatement;
     if (statement == null) {
@@ -197,7 +201,12 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     postProcessStatement(statement);
 
     if (statementCallback != null) {
-      statementCallback.doWith(statement);
+      try {
+        statementCallback.doWith(statement);
+      }
+      catch (SQLException ex) {
+        throw translateException("User statement callback", ex);
+      }
     }
 
     // the parameters need to be cleared, so in case of batch,
@@ -228,7 +237,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
   /**
    * add a Statement processor when {@link  #buildStatement() build a PreparedStatement}
    */
-  public AbstractQuery processStatement(QueryStatementCallback callback) {
+  public AbstractQuery processStatement(@Nullable QueryStatementCallback callback) {
     statementCallback = callback;
     return this;
   }
@@ -237,62 +246,9 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
     return querySQL;
   }
 
-  /**
-   * Read a collection lazily. Generally speaking, this should only be used if you
-   * are reading MANY results and keeping them all in a Collection would cause
-   * memory issues. You MUST call {@link ResultSetIterable#close()} when
-   * you are done iterating.
-   *
-   * @param returnType type of each row
-   * @return iterable results
-   */
-  public <T> ResultSetIterable<T> fetchIterable(Class<T> returnType) {
-    return fetchIterable(createHandlerFactory(returnType));
-  }
-
-  public <T> ResultSetHandlerFactory<T> createHandlerFactory(Class<T> returnType) {
-    return new DefaultResultSetHandlerFactory<>(
-            new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, throwOnMappingFailure),
-            connection.getManager(), getColumnMappings());
-  }
-
-  /**
-   * Read a collection lazily. Generally speaking, this should only be used if you
-   * are reading MANY results and keeping them all in a Collection would cause
-   * memory issues. You MUST call {@link ResultSetIterable#close()} when
-   * you are done iterating.
-   *
-   * @param factory factory to provide ResultSetHandler
-   * @return iterable results
-   */
-  public <T> ResultSetIterable<T> fetchIterable(ResultSetHandlerFactory<T> factory) {
-    final class FactoryResultSetIterable extends AbstractQuery.AbstractResultSetIterable<T> {
-      @Override
-      public Iterator<T> iterator() {
-        return new ResultSetHandlerIterator<>(rs, factory);
-      }
-    }
-    return new FactoryResultSetIterable();
-  }
-
-  /**
-   * Read a collection lazily. Generally speaking, this should only be used if you
-   * are reading MANY results and keeping them all in a Collection would cause
-   * memory issues. You MUST call {@link ResultSetIterable#close()} when
-   * you are done iterating.
-   *
-   * @param handler ResultSetHandler
-   * @return iterable results
-   */
-  public <T> ResultSetIterable<T> fetchIterable(ResultSetHandler<T> handler) {
-    final class HandlerResultSetIterable extends AbstractResultSetIterable<T> {
-      @Override
-      public Iterator<T> iterator() {
-        return new ResultSetHandlerIterator<>(rs, handler);
-      }
-    }
-    return new HandlerResultSetIterable();
-  }
+  // -----------------------------------------------------------------------------------------------
+  // Fetch data
+  // -----------------------------------------------------------------------------------------------
 
   /**
    * Read a collection of T.
@@ -301,52 +257,85 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
    * @return iterable results
    */
   public <T> List<T> fetch(Class<T> returnType) {
-    return fetch(createHandlerFactory(returnType));
+    return iterate(returnType).list();
   }
 
-  public <T> List<T> fetch(ResultSetHandler<T> handler) {
-    try (ResultSetIterable<T> iterable = fetchIterable(handler)) {
-      return fetch(iterable);
-    }
+  /**
+   * Read a collection of T.
+   *
+   * @return iterable results
+   */
+  public <T> List<T> fetch(ResultSetExtractor<T> handler) {
+    return iterate(handler).list();
   }
 
+  /**
+   * Read a collection of T.
+   *
+   * @return iterable results
+   */
   public <T> List<T> fetch(ResultSetHandlerFactory<T> factory) {
-    try (ResultSetIterable<T> iterable = fetchIterable(factory)) {
-      return fetch(iterable);
-    }
-  }
-
-  public <T> List<T> fetch(ResultSetIterable<T> iterable) {
-    ArrayList<T> list = new ArrayList<>();
-    for (T item : iterable) {
-      list.add(item);
-    }
-    return list;
+    return iterate(factory).list();
   }
 
   @Nullable
   public <T> T fetchFirst(Class<T> returnType) {
-    return fetchFirst(createHandlerFactory(returnType));
+    return iterate(returnType).first();
   }
 
   @Nullable
-  public <T> T fetchFirst(ResultSetHandler<T> handler) {
-    try (ResultSetIterable<T> iterable = fetchIterable(handler)) {
-      return fetchFirst(iterable);
-    }
+  public <T> T fetchFirst(ResultSetExtractor<T> handler) {
+    return iterate(handler).first();
   }
 
   @Nullable
   public <T> T fetchFirst(ResultSetHandlerFactory<T> factory) {
-    try (ResultSetIterable<T> iterable = fetchIterable(factory)) {
-      return fetchFirst(iterable);
-    }
+    return iterate(factory).first();
   }
 
-  @Nullable
-  public <T> T fetchFirst(ResultSetIterable<T> iterable) {
-    Iterator<T> iterator = iterable.iterator();
-    return iterator.hasNext() ? iterator.next() : null;
+  /**
+   * Iterate Elements. Generally speaking, this should only be used if you
+   * are reading MANY results and keeping them all in a Collection would cause
+   * memory issues. You MUST call {@link ResultSetIterator#close()} when
+   * you are done iterating.
+   *
+   * @param returnType type of each row
+   * @return iterable results
+   */
+  public <T> ResultSetIterator<T> iterate(Class<T> returnType) {
+    return new ResultSetHandlerIterator<>(createHandlerFactory(returnType));
+  }
+
+  /**
+   * Iterate Elements. Generally speaking, this should only be used if you
+   * are reading MANY results and keeping them all in a Collection would cause
+   * memory issues. You MUST call {@link ResultSetIterator#close()} when
+   * you are done iterating.
+   *
+   * @param handler ResultSetHandler
+   * @return iterable results
+   */
+  public <T> ResultSetIterator<T> iterate(ResultSetExtractor<T> handler) {
+    return new ResultSetHandlerIterator<>(handler);
+  }
+
+  /**
+   * Iterate Elements. Generally speaking, this should only be used if you
+   * are reading MANY results and keeping them all in a Collection would cause
+   * memory issues. You MUST call {@link ResultSetIterator#close()} when
+   * you are done iterating.
+   *
+   * @param factory factory to provide ResultSetHandler
+   * @return iterable results
+   */
+  public <T> ResultSetIterator<T> iterate(ResultSetHandlerFactory<T> factory) {
+    return new ResultSetHandlerIterator<>(factory);
+  }
+
+  public <T> ResultSetHandlerFactory<T> createHandlerFactory(Class<T> returnType) {
+    return new DefaultResultSetHandlerFactory<>(
+            new JdbcBeanMetadata(returnType, caseSensitive, autoDerivingColumns, throwOnMappingFailure),
+            connection.getManager(), getColumnMappings());
   }
 
   public LazyTable fetchLazyTable() {
@@ -355,13 +344,7 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
 
   public LazyTable fetchLazyTable(@Nullable ConversionService conversionService) {
     LazyTable lt = new LazyTable();
-    final class RowResultSetIterable extends AbstractResultSetIterable<Row> {
-      @Override
-      public Iterator<Row> iterator() {
-        return new TableResultSetIterator(rs, isCaseSensitive(), lt, conversionService);
-      }
-    }
-    lt.setRows(new RowResultSetIterable());
+    lt.setRows(new TableResultSetIterator(executeQuery(), isCaseSensitive(), lt, conversionService).asIterable());
     return lt;
   }
 
@@ -747,42 +730,31 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
 
   /**
    * Iterable {@link ResultSet} that wraps {@link ResultSetHandlerIterator}.
+   *
+   * @since 4.0
    */
-  private abstract class AbstractResultSetIterable<T> extends ResultSetIterable<T> {
-    private final long start;
-    private final long afterExecQuery;
-    protected final ResultSet rs;
+  private class ResultIterable<T> extends ResultSetIterable<T> {
 
-    AbstractResultSetIterable() {
-      try {
-        start = System.currentTimeMillis();
-        logStatement();
-        rs = buildStatement().executeQuery();
-        afterExecQuery = System.currentTimeMillis();
-      }
-      catch (SQLException ex) {
-        throw translateException("Execute query", ex);
-      }
+    private final ResultSetIterator<T> iterator;
+
+    private ResultIterable(ResultSetIterator<T> iterator) {
+      this.iterator = iterator;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+      return iterator;
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+      return iterator;
     }
 
     @Override
     public void close() {
       try {
-        rs.close();
-        if (log.isDebugEnabled()) {
-          long afterClose = System.currentTimeMillis();
-          log.debug("total: {} ms, execution: {} ms, reading and parsing: {} ms; executed [{}]",
-                  afterClose - start, afterExecQuery - start,
-                  afterClose - afterExecQuery, name);
-        }
-      }
-      catch (SQLException ex) {
-        if (connection.getManager().isCatchResourceCloseErrors()) {
-          throw translateException("Closing ResultSet", ex);
-        }
-        else {
-          log.error("ResultSet close failed", ex);
-        }
+        iterator.close();
       }
       finally {
         if (isAutoCloseConnection()) {
@@ -792,6 +764,120 @@ public sealed abstract class AbstractQuery implements AutoCloseable permits Name
           closeConnectionIfNecessary();
         }
       }
+    }
+
+  }
+
+  /**
+   * @since 4.0
+   */
+  abstract class CloseResultSetIterator<T> extends ResultSetIterator<T> {
+
+    protected CloseResultSetIterator(ResultSet rs) {
+      super(rs);
+    }
+
+    @Override
+    public ResultSetIterable<T> asIterable() {
+      return new ResultIterable<>(this);
+    }
+
+    @Override
+    public void close() {
+      try {
+        resultSet.close();
+      }
+      catch (SQLException ex) {
+        if (connection.getManager().isCatchResourceCloseErrors()) {
+          throw translateException("Closing ResultSet", ex);
+        }
+        else {
+          log.debug("ResultSet close failed", ex);
+        }
+      }
+      finally {
+        closeConnectionIfNecessary();
+      }
+    }
+  }
+
+  /**
+   * @since 4.0
+   */
+  final class ResultSetHandlerIterator<T> extends CloseResultSetIterator<T> {
+    private final ResultSetExtractor<T> handler;
+
+    public ResultSetHandlerIterator(ResultSetExtractor<T> handler) {
+      super(executeQuery());
+      this.handler = handler;
+    }
+
+    public ResultSetHandlerIterator(ResultSetHandlerFactory<T> factory) {
+      super(executeQuery());
+      try {
+        this.handler = factory.getResultSetHandler(resultSet.getMetaData());
+      }
+      catch (SQLException e) {
+        throw translateException("Get ResultSetHandler", e);
+      }
+    }
+
+    @Override
+    protected T readNext(ResultSet resultSet) throws SQLException {
+      return handler.extractData(resultSet);
+    }
+
+  }
+
+  /**
+   * @since 4.0
+   */
+  final class TableResultSetIterator extends CloseResultSetIterator<Row> {
+    private final List<Column> columns;
+
+    private final boolean isCaseSensitive;
+
+    private final ConversionService conversionService;
+
+    private final Map<String, Integer> columnNameToIdxMap;
+
+    private TableResultSetIterator(ResultSet rs, boolean isCaseSensitive, LazyTable lt, @Nullable ConversionService conversionService) {
+      super(rs);
+      this.isCaseSensitive = isCaseSensitive;
+      this.conversionService = conversionService == null ? DefaultConversionService.getSharedInstance() : conversionService;
+      try {
+        ResultSetMetaData meta = rs.getMetaData();
+        ArrayList<Column> columns = new ArrayList<>();
+        HashMap<String, Integer> columnNameToIdxMap = new HashMap<>();
+
+        lt.setName(meta.getTableName(1));
+        lt.setColumns(columns);
+
+        int columnCount = meta.getColumnCount();
+        for (int colIdx = 1; colIdx <= columnCount; colIdx++) {
+          String colName = JdbcUtils.lookupColumnName(meta, colIdx);
+          String colType = meta.getColumnTypeName(colIdx);
+          columns.add(new Column(colName, colIdx - 1, colType));
+
+          String colMapName = isCaseSensitive ? colName : colName.toLowerCase();
+          columnNameToIdxMap.put(colMapName, colIdx - 1);
+        }
+        this.columns = columns;
+        this.columnNameToIdxMap = columnNameToIdxMap;
+      }
+      catch (SQLException e) {
+        throw new PersistenceException("Error while reading metadata from database", e);
+      }
+    }
+
+    @Override
+    protected Row readNext(ResultSet resultSet) throws SQLException {
+      final Row row = new Row(columnNameToIdxMap, columns.size(), isCaseSensitive, conversionService);
+      for (Column column : columns) {
+        final int index = column.getIndex();
+        row.addValue(index, resultSet.getObject(index + 1));
+      }
+      return row;
     }
 
   }

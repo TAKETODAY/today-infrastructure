@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.format;
@@ -25,6 +25,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.LogFormatUtils;
 
 /**
  * Centralize logging for SQL statements.
@@ -146,7 +147,7 @@ public class SqlStatementLogger {
    * @param desc description of this SQL
    * @param statement The SQL statement.
    */
-  public void logStatement(@Nullable Object desc, String statement) {
+  public void logStatement(@Nullable Object desc, CharSequence statement) {
     // for now just assume a DML log for formatting
     logStatement(desc, statement, BasicSQLFormatter.INSTANCE);
   }
@@ -168,17 +169,19 @@ public class SqlStatementLogger {
    * @param statement The SQL statement.
    * @param formatter The formatter to use.
    */
-  public void logStatement(@Nullable Object desc, String statement, SQLFormatter formatter) {
+  public void logStatement(@Nullable Object desc, CharSequence statement, SQLFormatter formatter) {
     if (format) {
-      statement = formatter.format(statement);
+      statement = formatter.format(statement.toString());
     }
     if (highlight) {
-      statement = HighlightingSQLFormatter.INSTANCE.format(statement);
+      statement = HighlightingSQLFormatter.INSTANCE.format(statement.toString());
     }
 
     if (!stdoutOnly) {
       if (desc != null) {
-        sqlLogger.debug("{}, SQL: {}", desc, statement);
+        String sql = statement.toString();
+        LogFormatUtils.traceDebug(sqlLogger,
+                traceOn -> LogFormatUtils.formatValue(desc, !traceOn) + ", SQL: " + sql);
       }
       else {
         sqlLogger.debug(statement);

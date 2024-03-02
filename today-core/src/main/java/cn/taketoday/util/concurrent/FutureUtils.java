@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.concurrent;
@@ -34,55 +31,58 @@ import cn.taketoday.lang.Assert;
  * and implementations.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class FutureUtils {
 
-	/**
-	 * Return a new {@code CompletableFuture} that is asynchronously completed
-	 * by a task running in the {@link ForkJoinPool#commonPool()} with
-	 * the value obtained by calling the given {@code Callable}.
-	 * @param callable a function that returns the value to be used, or throws
-	 * an exception
-	 * @return the new CompletableFuture
-	 * @see CompletableFuture#supplyAsync(Supplier)
-	 */
-	public static <T> CompletableFuture<T> callAsync(Callable<T> callable) {
-		Assert.notNull(callable, "Callable is required");
+  /**
+   * Return a new {@code CompletableFuture} that is asynchronously completed
+   * by a task running in the {@link ForkJoinPool#commonPool()} with
+   * the value obtained by calling the given {@code Callable}.
+   *
+   * @param callable a function that returns the value to be used, or throws
+   * an exception
+   * @return the new CompletableFuture
+   * @see CompletableFuture#supplyAsync(Supplier)
+   */
+  public static <T> CompletableFuture<T> callAsync(Callable<T> callable) {
+    Assert.notNull(callable, "Callable is required");
 
-		CompletableFuture<T> result = new CompletableFuture<>();
-		return result.completeAsync(toSupplier(callable, result));
-	}
+    CompletableFuture<T> result = new CompletableFuture<>();
+    return result.completeAsync(toSupplier(callable, result));
+  }
 
-	/**
-	 * Return a new {@code CompletableFuture} that is asynchronously completed
-	 * by a task running in the given executor with the value obtained
-	 * by calling the given {@code Callable}.
-	 * @param callable a function that returns the value to be used, or throws
-	 * an exception
-	 * @param executor the executor to use for asynchronous execution
-	 * @return the new CompletableFuture
-	 * @see CompletableFuture#supplyAsync(Supplier, Executor)
-	 */
-	public static <T> CompletableFuture<T> callAsync(Callable<T> callable, Executor executor) {
-		Assert.notNull(callable, "Callable is required");
-		Assert.notNull(executor, "Executor is required");
+  /**
+   * Return a new {@code CompletableFuture} that is asynchronously completed
+   * by a task running in the given executor with the value obtained
+   * by calling the given {@code Callable}.
+   *
+   * @param callable a function that returns the value to be used, or throws
+   * an exception
+   * @param executor the executor to use for asynchronous execution
+   * @return the new CompletableFuture
+   * @see CompletableFuture#supplyAsync(Supplier, Executor)
+   */
+  public static <T> CompletableFuture<T> callAsync(Callable<T> callable, Executor executor) {
+    Assert.notNull(callable, "Callable is required");
+    Assert.notNull(executor, "Executor is required");
 
-		CompletableFuture<T> result = new CompletableFuture<>();
-		return result.completeAsync(toSupplier(callable, result), executor);
-	}
+    CompletableFuture<T> result = new CompletableFuture<>();
+    return result.completeAsync(toSupplier(callable, result), executor);
+  }
 
-	private static <T> Supplier<T> toSupplier(Callable<T> callable, CompletableFuture<T> result) {
-		return () -> {
-			try {
-				return callable.call();
-			}
-			catch (Exception ex) {
-				// wrap the exception just like CompletableFuture::supplyAsync does
-				result.completeExceptionally((ex instanceof CompletionException) ? ex : new CompletionException(ex));
-				return null;
-			}
-		};
-	}
+  private static <T> Supplier<T> toSupplier(Callable<T> callable, CompletableFuture<T> result) {
+    return () -> {
+      try {
+        return callable.call();
+      }
+      catch (Exception ex) {
+        // wrap the exception just like CompletableFuture::supplyAsync does
+        result.completeExceptionally((ex instanceof CompletionException) ? ex : new CompletionException(ex));
+        return null;
+      }
+    };
+  }
 
 }

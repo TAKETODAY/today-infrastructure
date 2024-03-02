@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.util;
@@ -143,12 +143,12 @@ class ReflectionTestUtilsTests {
     setField(person, "favoriteNumber", PI, Number.class);
 
     // Get reflectively
-    assertThat(getField(person, "id")).isEqualTo(Long.valueOf(99));
-    assertThat(getField(person, "name")).isEqualTo("Tom");
-    assertThat(getField(person, "age")).isEqualTo(Integer.valueOf(42));
-    assertThat(getField(person, "eyeColor")).isEqualTo("blue");
-    assertThat(getField(person, "likesPets")).isEqualTo(Boolean.TRUE);
-    assertThat(getField(person, "favoriteNumber")).isEqualTo(PI);
+    assertThat((Object) getField(person, "id")).isEqualTo(Long.valueOf(99));
+    assertThat((Object) getField(person, "name")).isEqualTo("Tom");
+    assertThat((Object) getField(person, "age")).isEqualTo(Integer.valueOf(42));
+    assertThat((Object) getField(person, "eyeColor")).isEqualTo("blue");
+    assertThat((Object) getField(person, "likesPets")).isEqualTo(Boolean.TRUE);
+    assertThat((Object) getField(person, "favoriteNumber")).isEqualTo(PI);
 
     // Get directly
     assertThat(person.getId()).as("ID (private field in a superclass)").isEqualTo(99);
@@ -236,15 +236,15 @@ class ReflectionTestUtilsTests {
 
   @Test
   void getStaticFieldViaClass() throws Exception {
-    assertThat(getField(StaticFields.class, "publicField")).as("public static field").isEqualTo("public");
-    assertThat(getField(StaticFields.class, "privateField")).as("private static field").isEqualTo("private");
+    assertThat((Object) getField(StaticFields.class, "publicField")).as("public static field").isEqualTo("public");
+    assertThat((Object) getField(StaticFields.class, "privateField")).as("private static field").isEqualTo("private");
   }
 
   @Test
   void getStaticFieldViaInstance() throws Exception {
     StaticFields staticFields = new StaticFields();
-    assertThat(getField(staticFields, "publicField")).as("public static field").isEqualTo("public");
-    assertThat(getField(staticFields, "privateField")).as("private static field").isEqualTo("private");
+    assertThat((Object) getField(staticFields, "publicField")).as("public static field").isEqualTo("public");
+    assertThat((Object) getField(staticFields, "privateField")).as("private static field").isEqualTo("private");
   }
 
   @Test

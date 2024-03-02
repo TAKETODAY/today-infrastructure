@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.persistence;
@@ -119,7 +119,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
     BeanMetadata metadata = BeanMetadata.from(entityClass);
     ArrayList<String> columnNames = new ArrayList<>();
     ArrayList<BeanProperty> beanProperties = new ArrayList<>();
-    ArrayList<EntityProperty> propertyHandlers = new ArrayList<>();
+    ArrayList<EntityProperty> entityProperties = new ArrayList<>();
 
     EntityProperty idProperty = null;
     for (BeanProperty property : metadata) {
@@ -129,9 +129,8 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
 
       String columnName = columnNameDiscover.getColumnName(property);
       if (columnName == null) {
-        throw new IllegalEntityException(
-                "Cannot determine column name for property: " +
-                        ClassUtils.getShortName(property.getDeclaringClass()) + "#" + property.getName());
+        throw new IllegalEntityException("Cannot determine column name for property: %s#%s"
+                .formatted(ClassUtils.getShortName(property.getDeclaringClass()), property.getName()));
       }
 
       columnNames.add(columnName);
@@ -142,19 +141,19 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
           throw new IllegalEntityException("Only one Id property supported, entity: " + entityClass);
         }
         idProperty = createEntityProperty(property, columnName, true);
-        propertyHandlers.add(idProperty);
+        entityProperties.add(idProperty);
       }
       else {
-        propertyHandlers.add(createEntityProperty(property, columnName, false));
+        entityProperties.add(createEntityProperty(property, columnName, false));
       }
     }
-    if (idProperty == null) {
-      // TODO id can be null
-      throw new IllegalEntityException("Cannot determine ID property for entity: " + entityClass);
+
+    if (idProperty == null && entityProperties.isEmpty()) {
+      throw new IllegalEntityException("Cannot determine properties for entity: " + entityClass);
     }
 
     return new EntityMetadata(metadata, entityClass,
-            idProperty, tableName, beanProperties, columnNames, propertyHandlers);
+            idProperty, tableName, beanProperties, columnNames, entityProperties);
   }
 
   private EntityProperty createEntityProperty(BeanProperty property, String columnName, boolean isId) {
