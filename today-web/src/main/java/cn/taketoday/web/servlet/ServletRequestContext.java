@@ -205,7 +205,7 @@ public final class ServletRequestContext extends RequestContext implements Servl
   }
 
   @Override
-  public MultiValueMap<String, String> doGetParameters() {
+  protected MultiValueMap<String, String> doGetParameters() {
     var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
     for (var entry : request.getParameterMap().entrySet()) {
       ret.addAll(entry.getKey(), entry.getValue());

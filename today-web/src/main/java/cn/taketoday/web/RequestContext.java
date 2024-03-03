@@ -568,16 +568,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     return parameters;
   }
 
-  protected MultiValueMap<String, String> doGetParameters() {
-    String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
-    MultiValueMap<String, String> parameters = RequestContextUtils.parseParameters(queryString);
-    postGetParameters(parameters);
-    return parameters;
-  }
-
-  protected void postGetParameters(MultiValueMap<String, String> parameters) {
-    // no-op
-  }
+  protected abstract MultiValueMap<String, String> doGetParameters();
 
   /**
    * Returns an <code>Iterator</code> of <code>String</code> objects containing

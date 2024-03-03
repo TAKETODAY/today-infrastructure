@@ -33,6 +33,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.MockMultipartServletRequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockMultipartFile;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
@@ -60,7 +61,7 @@ public class WebDataBinderTests {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("spouse", "someValue");
     request.addParameter("spouse.name", "test");
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new ServletRequestContext(null, request, null));
 
     assertThat(tb.getSpouse()).isNotNull();
     assertThat(tb.getSpouse().getName()).isEqualTo("test");
@@ -75,7 +76,7 @@ public class WebDataBinderTests {
 
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("concreteSpouse.name", "test");
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new ServletRequestContext(null, request, null));
 
     assertThat(tb.getSpouse()).isNotNull();
     assertThat(tb.getSpouse().getName()).isEqualTo("test");
@@ -89,11 +90,11 @@ public class WebDataBinderTests {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new ServletRequestContext(null, request, null));
     assertThat(target.isPostProcessed()).isTrue();
 
     request.removeParameter("postProcessed");
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new ServletRequestContext(null, request, null));
     assertThat(target.isPostProcessed()).isFalse();
   }
 
@@ -106,11 +107,11 @@ public class WebDataBinderTests {
     MockHttpServletRequest request = new MockHttpServletRequest();
     request.addParameter("_postProcessed", "visible");
     request.addParameter("postProcessed", "on");
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new ServletRequestContext(null, request, null));
     assertThat(target.isPostProcessed()).isTrue();
 
     request.removeParameter("postProcessed");
-    binder.bind(new MockServletRequestContext(request, null));
+    binder.bind(new ServletRequestContext(null, request, null));
     assertThat(target.isPostProcessed()).isFalse();
   }
 

@@ -23,10 +23,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,6 +53,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
@@ -307,7 +311,11 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  protected void postGetParameters(MultiValueMap<String, String> parameters) {
+  protected MultiValueMap<String, String> doGetParameters() {
+    String queryString = URLDecoder.decode(getQueryString(), StandardCharsets.UTF_8);
+    MultiValueMap<String, String> parameters = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
+    RequestContextUtils.parseParameters(parameters, queryString);
+
     HttpMethod method = getMethod();
     if (method != HttpMethod.GET && method != HttpMethod.HEAD
             && StringUtils.startsWithIgnoreCase(getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
@@ -322,6 +330,7 @@ public class NettyRequestContext extends RequestContext {
         }
       }
     }
+    return parameters;
   }
 
   InterfaceHttpPostRequestDecoder requestDecoder() {

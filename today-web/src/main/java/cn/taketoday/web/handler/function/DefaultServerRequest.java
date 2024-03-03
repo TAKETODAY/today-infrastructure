@@ -507,6 +507,16 @@ class DefaultServerRequest implements ServerRequest {
     }
 
     @Override
+    protected MultiValueMap<String, String> doGetParameters() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MultiValueMap<String, String> getParameters() {
+      return context.getParameters();
+    }
+
+    @Override
     public HttpHeaders requestHeaders() {
       return context.requestHeaders();
     }

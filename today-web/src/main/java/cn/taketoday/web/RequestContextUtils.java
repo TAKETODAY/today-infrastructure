@@ -19,7 +19,6 @@ package cn.taketoday.web;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.function.Supplier;
@@ -343,18 +342,6 @@ public class RequestContextUtils {
       }
       addParam(s, nameStart, valueStart, i, parameterMap);
     }
-  }
-
-  /**
-   * Parse Parameters
-   *
-   * @param s decoded {@link String}
-   * @return Map of list parameters
-   */
-  public static MultiValueMap<String, String> parseParameters(String s) {
-    MultiValueMap<String, String> params = MultiValueMap.forSmartListAdaption(new LinkedHashMap<>());
-    parseParameters(params, s);
-    return params;
   }
 
   private static void addParam(String s, int nameStart,
