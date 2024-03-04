@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import cn.taketoday.lang.Nullable;
@@ -180,7 +179,7 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
 
     @Override
     protected boolean matchName(RequestContext request) {
-      Map<String, String[]> parameters = request.getParameters();
+      var parameters = request.getParameters();
       for (String current : namesToMatch) {
         if (parameters.get(current) != null) {
           return true;

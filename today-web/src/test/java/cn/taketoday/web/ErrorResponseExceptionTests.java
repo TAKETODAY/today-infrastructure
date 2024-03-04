@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
@@ -33,6 +30,8 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ProblemDetail;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.LinkedMultiValueMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.FieldError;
@@ -183,9 +182,9 @@ class ErrorResponseExceptionTests {
 
   @Test
   void unsatisfiedServletRequestParameterException() {
-
+    LinkedMultiValueMap<String, String> copied = MultiValueMap.copyOf(Collections.singletonMap("q", List.of("1")));
     ErrorResponse ex = new UnsatisfiedRequestParameterException(
-            new String[] { "foo=bar", "bar=baz" }, Collections.singletonMap("q", new String[] { "1" }));
+            new String[] { "foo=bar", "bar=baz" }, copied);
 
     assertStatus(ex, HttpStatus.BAD_REQUEST);
     assertDetail(ex, "Invalid request parameters.");

@@ -97,14 +97,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
         return new LinkedMultiValueMap<>();
       }
       else {
-        Map<String, String[]> parameterMap = context.getParameters();
-        MultiValueMap<String, String> result = new LinkedMultiValueMap<>(parameterMap.size());
-        parameterMap.forEach((key, values) -> {
-          for (String value : values) {
-            result.add(key, value);
-          }
-        });
-        return result;
+        return context.getParameters();
       }
     }
 
@@ -131,17 +124,7 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
         return new LinkedHashMap<>();
       }
       else {
-        Map<String, String[]> parameterMap = context.getParameters();
-        Map<String, String> result = CollectionUtils.newLinkedHashMap(parameterMap.size());
-
-        for (Map.Entry<String, String[]> entry : parameterMap.entrySet()) {
-          String[] values = entry.getValue();
-          if (values.length > 0) {
-            result.put(entry.getKey(), values[0]);
-          }
-        }
-
-        return result;
+        return context.getParameters().toSingleValueMap();
       }
     }
   }

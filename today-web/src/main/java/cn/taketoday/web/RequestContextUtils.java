@@ -34,7 +34,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.bind.MissingRequestParameterException;
@@ -343,18 +342,6 @@ public class RequestContextUtils {
       }
       addParam(s, nameStart, valueStart, i, parameterMap);
     }
-  }
-
-  /**
-   * Parse Parameters
-   *
-   * @param s decoded {@link String}
-   * @return Map of list parameters
-   */
-  public static MultiValueMap<String, String> parseParameters(String s) {
-    LinkedMultiValueMap<String, String> params = MultiValueMap.forLinkedHashMap();
-    parseParameters(params, s);
-    return params;
   }
 
   private static void addParam(String s, int nameStart,

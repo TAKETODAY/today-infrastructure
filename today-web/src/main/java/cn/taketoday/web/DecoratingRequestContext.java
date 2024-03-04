@@ -216,18 +216,13 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public Map<String, String[]> getParameters() {
+  public MultiValueMap<String, String> getParameters() {
     return getDelegate().getParameters();
   }
 
   @Override
-  protected Map<String, String[]> doGetParameters() {
+  protected MultiValueMap<String, String> doGetParameters() {
     return getDelegate().doGetParameters();
-  }
-
-  @Override
-  protected void postGetParameters(MultiValueMap<String, String> parameters) {
-    getDelegate().postGetParameters(parameters);
   }
 
   @Override
