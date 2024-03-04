@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -36,8 +36,7 @@ import cn.taketoday.util.StringUtils;
  * @author TODAY 2021/10/1 14:56
  * @since 4.0
  */
-public class SimpleBeanDefinitionRegistry
-        extends DefaultAliasRegistry implements BeanDefinitionRegistry {
+public class SimpleBeanDefinitionRegistry extends DefaultAliasRegistry implements BeanDefinitionRegistry {
 
   /** Map of bean definition objects, keyed by bean name. */
   private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
@@ -108,8 +107,8 @@ public class SimpleBeanDefinitionRegistry
 
   private Predicate<AbstractBeanDefinition> getPredicate(final Class<?> type, final boolean equals) {
     return equals
-           ? beanDef -> type == beanDef.getBeanClass()
-           : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
+            ? beanDef -> type == beanDef.getBeanClass()
+            : beanDef -> type.isAssignableFrom(beanDef.getBeanClass());
   }
 
   @Override

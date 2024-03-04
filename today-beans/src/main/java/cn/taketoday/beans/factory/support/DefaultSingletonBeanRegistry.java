@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -65,12 +65,12 @@ import cn.taketoday.util.StringUtils;
  * helper to delegate to.
  *
  * @author Juergen Hoeller
- * @author TODAY 2021/10/1 22:47
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #registerSingleton
  * @see #registerDisposableBean
  * @see DisposableBean
  * @see ConfigurableBeanFactory
- * @since 4.0
+ * @since 4.0 2021/10/1 22:47
  */
 public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implements SingletonBeanRegistry {
 
@@ -123,9 +123,8 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     synchronized(this.singletonObjects) {
       Object oldObject = this.singletonObjects.get(beanName);
       if (oldObject != null) {
-        throw new IllegalStateException(
-                "Could not register object [" + singletonObject +
-                        "] under bean name '" + beanName + "': there is already object [" + oldObject + "] bound");
+        throw new IllegalStateException("Could not register object [%s] under bean name '%s': there is already object [%s] bound"
+                .formatted(singletonObject, beanName, oldObject));
       }
       addSingleton(beanName, singletonObject);
     }
@@ -225,8 +224,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
       Object singletonObject = singletonObjects.get(beanName);
       if (singletonObject == null) {
         if (singletonsCurrentlyInDestruction) {
-          throw new BeanCreationNotAllowedException(
-                  beanName,
+          throw new BeanCreationNotAllowedException(beanName,
                   "Singleton bean creation not allowed while singletons of this factory are in destruction " +
                           "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
         }
@@ -377,7 +375,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    */
   protected void afterSingletonCreation(String beanName) {
     if (!inCreationCheckExclusions.contains(beanName) && !singletonsCurrentlyInCreation.remove(beanName)) {
-      throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
+      throw new IllegalStateException("Singleton '%s' isn't currently in creation".formatted(beanName));
     }
   }
 
@@ -409,8 +407,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    */
   public void registerContainedBean(String containedBeanName, String containingBeanName) {
     synchronized(containedBeanMap) {
-      Set<String> containedBeans =
-              containedBeanMap.computeIfAbsent(containingBeanName, k -> new LinkedHashSet<>(8));
+      Set<String> containedBeans = containedBeanMap.computeIfAbsent(containingBeanName, k -> new LinkedHashSet<>(8));
       if (!containedBeans.add(containedBeanName)) {
         return;
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -262,7 +262,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
           for (String dep : dependsOn) {
             if (isDependent(beanName, dep)) {
               throw new BeanCreationException(merged.getResourceDescription(), beanName,
-                      "Circular depends-on relationship between '" + beanName + "' and '" + dep + "'");
+                      "Circular depends-on relationship between '%s' and '%s'".formatted(beanName, dep));
             }
             registerDependentBean(dep, beanName);
             try {
@@ -270,7 +270,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             }
             catch (NoSuchBeanDefinitionException ex) {
               throw new BeanCreationException(merged.getResourceDescription(), beanName,
-                      "'" + beanName + "' depends on missing bean '" + dep + "'", ex);
+                      "'%s' depends on missing bean '%s'".formatted(beanName, dep), ex);
             }
           }
         }
@@ -310,12 +310,12 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
           // other scope
           String scopeName = merged.getScope();
           if (StringUtils.isEmpty(scopeName)) {
-            throw new IllegalStateException("No scope name defined for bean '" + beanName + "'");
+            throw new IllegalStateException("No scope name defined for bean '%s'".formatted(beanName));
           }
 
           Scope scope = this.scopes.get(scopeName);
           if (scope == null) {
-            throw new IllegalStateException("No Scope registered for scope name '" + scopeName + "'");
+            throw new IllegalStateException("No Scope registered for scope name '%s'".formatted(scopeName));
           }
 
           try {
@@ -382,8 +382,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeanCreationException if the bean could not be created
    */
   @Nullable
-  protected abstract Object createBean(
-          String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException;
+  protected abstract Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
+          throws BeanCreationException;
 
   @Nullable
   @SuppressWarnings("unchecked")
@@ -485,8 +485,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
       classToMatch = FactoryBean.class;
     }
     Class<?>[] typesToMatch = FactoryBean.class == classToMatch
-                              ? new Class<?>[] { classToMatch }
-                              : new Class<?>[] { FactoryBean.class, classToMatch };
+            ? new Class<?>[] { classToMatch } : new Class<?>[] { FactoryBean.class, classToMatch };
 
     // Attempt to predict the bean type
     Class<?> predictedType = null;
@@ -571,7 +570,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeanClassLoadFailedException if we failed to load the class
    */
   @Nullable
-  protected Class<?> resolveBeanClass(String beanName, RootBeanDefinition merged, Class<?>... typesToMatch) throws BeanClassLoadFailedException {
+  protected Class<?> resolveBeanClass(String beanName, RootBeanDefinition merged, Class<?>... typesToMatch)
+          throws BeanClassLoadFailedException //
+  {
     if (merged.hasBeanClass()) {
       return merged.getBeanClass();
     }
@@ -696,7 +697,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         // A bean with a custom scope...
         Scope scope = this.scopes.get(mbd.getScope());
         if (scope == null) {
-          throw new IllegalStateException("No Scope registered for scope name '" + mbd.getScope() + "'");
+          throw new IllegalStateException("No Scope registered for scope name '%s'".formatted(mbd.getScope()));
         }
         scope.registerDestructionCallback(
                 beanName, new DisposableBeanAdapter(beanName, bean, mbd, postProcessors().destruction));
@@ -714,8 +715,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     Assert.notNull(dependencyType, "Dependency type is required");
     if (autowiredValue != null) {
       if (!(autowiredValue instanceof Supplier<?> || dependencyType.isInstance(autowiredValue))) {
-        throw new IllegalArgumentException("Value [" + autowiredValue +
-                "] does not implement specified dependency type [" + dependencyType.getName() + "]");
+        throw new IllegalArgumentException("Value [%s] does not implement specified dependency type [%s]"
+                .formatted(autowiredValue, dependencyType.getName()));
       }
       objectFactories.put(dependencyType, autowiredValue);
     }
@@ -845,8 +846,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
       // to determine the decorated bean's type than the proxy's type.
       BeanDefinitionHolder decorated = mergedDef.getDecoratedDefinition();
       if (decorated != null && !BeanFactoryUtils.isFactoryDereference(name)) {
-        RootBeanDefinition tbd = getMergedBeanDefinition(
-                decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
+        RootBeanDefinition tbd = getMergedBeanDefinition(decorated.getBeanName(), decorated.getBeanDefinition(), mergedDef);
         Class<?> targetClass = predictBeanType(decorated.getBeanName(), tbd);
         if (targetClass != null && !FactoryBean.class.isAssignableFrom(targetClass)) {
           return targetClass;
@@ -1147,11 +1147,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
     if (merged.isSingleton() || merged.isPrototype()) {
       throw new IllegalArgumentException(
-              "Bean name '" + beanName + "' does not correspond to an object in a mutable scope");
+              "Bean name '%s' does not correspond to an object in a mutable scope".formatted(beanName));
     }
     Scope scope = scopes.get(merged.getScope());
     if (scope == null) {
-      throw new IllegalStateException("No Scope SPI registered for scope name '" + merged.getScope() + "'");
+      throw new IllegalStateException("No Scope SPI registered for scope name '%s'".formatted(merged.getScope()));
     }
     Object bean = scope.remove(beanName);
     if (bean != null) {
@@ -1487,8 +1487,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     if (beanInstance instanceof FactoryBean) {
       return (FactoryBean<?>) beanInstance;
     }
-    throw new BeanCreationException(beanName,
-            "Bean instance of type [" + beanInstance.getClass() + "] is not a FactoryBean");
+    throw new BeanCreationException(beanName, "Bean instance of type [%s] is not a FactoryBean".formatted(beanInstance.getClass()));
   }
 
   /**
@@ -1898,9 +1897,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @return a (potentially merged) BeanDefinition for the given bean
    * @throws BeanDefinitionStoreException in case of an invalid bean definition
    */
-  protected RootBeanDefinition getMergedBeanDefinition(
-          String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
-          throws BeanDefinitionStoreException {
+  protected RootBeanDefinition getMergedBeanDefinition(String beanName, BeanDefinition bd, @Nullable BeanDefinition containingBd)
+          throws BeanDefinitionStoreException //
+  {
 
     synchronized(this.mergedBeanDefinitions) {
       RootBeanDefinition mbd = null;
@@ -1936,14 +1935,14 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
               }
               else {
                 throw new NoSuchBeanDefinitionException(parentBeanName,
-                        "Parent name '" + parentBeanName + "' is equal to bean name '" + beanName +
-                                "': cannot be resolved without a ConfigurableBeanFactory parent");
+                        "Parent name '%s' is equal to bean name '%s': cannot be resolved without a ConfigurableBeanFactory parent"
+                                .formatted(parentBeanName, beanName));
               }
             }
           }
           catch (NoSuchBeanDefinitionException ex) {
             throw new BeanDefinitionStoreException(bd.getResourceDescription(), beanName,
-                    "Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
+                    "Could not resolve parent bean definition '%s'".formatted(bd.getParentName()), ex);
           }
           // Deep copy with overridden values.
           mbd = new RootBeanDefinition(pbd);
@@ -2052,8 +2051,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @see #setBeanExpressionResolver
    */
   @Nullable
-  protected Object evaluateBeanDefinitionString(
-          @Nullable String value, @Nullable BeanDefinition beanDefinition) {
+  protected Object evaluateBeanDefinitionString(@Nullable String value, @Nullable BeanDefinition beanDefinition) {
     if (this.beanExpressionResolver == null) {
       return value;
     }
@@ -2069,6 +2067,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   }
 
   protected final static class BeanPostProcessors {
+
     public final ArrayList<MergedBeanDefinitionPostProcessor> definitions = new ArrayList<>();
     public final ArrayList<DestructionAwareBeanPostProcessor> destruction = new ArrayList<>();
     public final ArrayList<DependenciesBeanPostProcessor> dependencies = new ArrayList<>();
@@ -2078,23 +2077,23 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     BeanPostProcessors(ArrayList<BeanPostProcessor> postProcessors) {
       for (BeanPostProcessor postProcessor : postProcessors) {
-        if (postProcessor instanceof DestructionAwareBeanPostProcessor destruction) {
-          this.destruction.add(destruction);
+        if (postProcessor instanceof DestructionAwareBeanPostProcessor des) {
+          this.destruction.add(des);
         }
-        if (postProcessor instanceof DependenciesBeanPostProcessor dependencies) {
-          this.dependencies.add(dependencies);
+        if (postProcessor instanceof DependenciesBeanPostProcessor dep) {
+          this.dependencies.add(dep);
         }
-        if (postProcessor instanceof InitializationBeanPostProcessor initialization) {
-          this.initialization.add(initialization);
+        if (postProcessor instanceof InitializationBeanPostProcessor init) {
+          this.initialization.add(init);
         }
-        if (postProcessor instanceof InstantiationAwareBeanPostProcessor instantiation) {
-          this.instantiation.add(instantiation);
+        if (postProcessor instanceof InstantiationAwareBeanPostProcessor ins) {
+          this.instantiation.add(ins);
         }
         if (postProcessor instanceof MergedBeanDefinitionPostProcessor definition) {
           this.definitions.add(definition);
         }
-        if (postProcessor instanceof SmartInstantiationAwareBeanPostProcessor smartInstantiation) {
-          this.smartInstantiation.add(smartInstantiation);
+        if (postProcessor instanceof SmartInstantiationAwareBeanPostProcessor smart) {
+          this.smartInstantiation.add(smart);
         }
       }
 

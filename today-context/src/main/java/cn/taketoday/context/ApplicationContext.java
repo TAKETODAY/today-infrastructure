@@ -100,13 +100,6 @@ public interface ApplicationContext extends HierarchicalBeanFactory, MessageSour
   void close();
 
   /**
-   * Context has started
-   *
-   * @return is started
-   */
-  boolean hasStarted();
-
-  /**
    * Get the context startup time stamp
    *
    * @return startup timestamp

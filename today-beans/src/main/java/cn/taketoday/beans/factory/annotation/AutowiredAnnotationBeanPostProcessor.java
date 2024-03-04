@@ -371,8 +371,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
           }
           catch (Throwable ex) {
             throw new BeanCreationException(beanName,
-                    "Resolution of declared constructors on bean Class [" + beanClass.getName() +
-                            "] from ClassLoader [" + beanClass.getClassLoader() + "] failed", ex);
+                    "Resolution of declared constructors on bean Class [%s] from ClassLoader [%s] failed"
+                            .formatted(beanClass.getName(), beanClass.getClassLoader()), ex);
           }
           List<Constructor<?>> candidates = new ArrayList<>(rawCandidates.length);
           Constructor<?> requiredConstructor = null;
@@ -395,17 +395,15 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
             if (ann != null) {
               if (requiredConstructor != null) {
                 throw new BeanCreationException(beanName,
-                        "Invalid autowire-marked constructor: " + candidate +
-                                ". Found constructor with 'required' Autowired annotation already: " +
-                                requiredConstructor);
+                        "Invalid autowire-marked constructor: %s. Found constructor with 'required' Autowired annotation already: %s"
+                                .formatted(candidate, requiredConstructor));
               }
               boolean required = determineRequiredStatus(ann);
               if (required) {
                 if (!candidates.isEmpty()) {
                   throw new BeanCreationException(beanName,
-                          "Invalid autowire-marked constructors: " + candidates +
-                                  ". Found constructor with 'required' Autowired annotation: " +
-                                  candidate);
+                          "Invalid autowire-marked constructors: %s. Found constructor with 'required' Autowired annotation: %s"
+                                  .formatted(candidates, candidate));
                 }
                 requiredConstructor = candidate;
               }
@@ -513,7 +511,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     }
     catch (Throwable ex) {
       throw new BeanCreationException(
-              "Injection of autowired dependencies failed for class [" + clazz + "]", ex);
+              "Injection of autowired dependencies failed for class [%s]".formatted(clazz), ex);
     }
   }
 
@@ -950,12 +948,10 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       Member member = autowiredElement.getMember();
       boolean required = autowiredElement.required;
       if (member instanceof Field field) {
-        return generateMethodStatementForField(
-                targetClassName, field, required, hints);
+        return generateMethodStatementForField(targetClassName, field, required, hints);
       }
       if (member instanceof Method method) {
-        return generateMethodStatementForMethod(
-                targetClassName, method, required, hints);
+        return generateMethodStatementForMethod(targetClassName, method, required, hints);
       }
       throw new IllegalStateException(
               "Unsupported member type " + member.getClass().getName());
@@ -965,9 +961,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
             Field field, boolean required, RuntimeHints hints) {
 
       hints.reflection().registerField(field);
-      CodeBlock resolver = CodeBlock.of("$T.$L($S)",
-              AutowiredFieldValueResolver.class,
-              (!required) ? "forField" : "forRequiredField", field.getName());
+      CodeBlock resolver = CodeBlock.of("$T.$L($S)", AutowiredFieldValueResolver.class, (!required) ? "forField" : "forRequiredField", field.getName());
       AccessControl accessControl = AccessControl.forMember(field);
       if (!accessControl.isAccessibleFrom(targetClassName)) {
         return CodeBlock.of("$L.resolveAndSet($L, $L)", resolver,

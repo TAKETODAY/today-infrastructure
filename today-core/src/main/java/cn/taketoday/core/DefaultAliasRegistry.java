@@ -67,9 +67,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
             return;
           }
           if (!allowAliasOverriding()) {
-            throw new IllegalStateException(
-                    "Cannot define alias '" + alias + "' for name '"
-                            + name + "': It is already registered for name '" + registeredName + "'.");
+            throw new IllegalStateException("Cannot define alias '%s' for name '%s': It is already registered for name '%s'."
+                    .formatted(alias, name, registeredName));
           }
           if (log.isDebugEnabled()) {
             log.debug("Overriding alias '{}' definition for registered name '{}' with new target name '{}'",
@@ -110,7 +109,7 @@ public class DefaultAliasRegistry implements AliasRegistry {
     synchronized(aliasMap) {
       String name = aliasMap.remove(alias);
       if (name == null) {
-        throw new IllegalStateException("No alias '" + alias + "' registered");
+        throw new IllegalStateException("No alias '%s' registered".formatted(alias));
       }
     }
   }
@@ -181,9 +180,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
               return;
             }
             throw new IllegalStateException(
-                    "Cannot register resolved alias '" + resolvedAlias + "' (original: '" + alias +
-                            "') for name '" + resolvedName + "': It is already registered for name '" +
-                            existingName + "'.");
+                    "Cannot register resolved alias '%s' (original: '%s') for name '%s': It is already registered for name '%s'."
+                            .formatted(resolvedAlias, alias, resolvedName, existingName));
           }
           checkForAliasCircle(resolvedName, resolvedAlias);
           aliasMap.remove(alias);
@@ -209,9 +207,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
   protected void checkForAliasCircle(String name, String alias) {
     if (hasAlias(alias, name)) {
       throw new IllegalStateException(
-              "Cannot register alias '" + alias
-                      + "' for name '" + name + "': Circular reference - '"
-                      + name + "' is a direct or indirect alias for '" + alias + "' already");
+              "Cannot register alias '%s' for name '%s': Circular reference - '%s' is a direct or indirect alias for '%s' already"
+                      .formatted(alias, name, name, alias));
     }
   }
 

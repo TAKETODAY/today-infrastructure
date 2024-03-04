@@ -105,10 +105,10 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @author Chris Beams
  * @author Sam Brannen
  * @author Phillip Webb
- * @author TODAY 2021/10/1 23:06
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanDefinition
  * @see BeanDefinitionRegistry
- * @since 4.0
+ * @since 4.0 2021/10/1 23:06
  */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
@@ -253,8 +253,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       }
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(
-              mbdToUse.getResourceDescription(), beanName,
+      throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName,
               "BeanPostProcessor before instantiation of bean failed", ex);
     }
 
@@ -271,9 +270,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       throw ex;
     }
     catch (Throwable ex) {
-      throw new BeanCreationException(
-              mbdToUse.getResourceDescription(),
-              beanName, "Unexpected exception during bean creation", ex);
+      throw new BeanCreationException(mbdToUse.getResourceDescription(), beanName,
+              "Unexpected exception during bean creation", ex);
     }
   }
 
@@ -365,13 +363,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             }
           }
           if (!actualDependentBeans.isEmpty()) {
-            throw new BeanCurrentlyInCreationException(beanName,
-                    "Bean with name '" + beanName + "' has been injected into other beans [" +
-                            StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
-                            "] in its raw version as part of a circular reference, but has eventually been " +
-                            "wrapped. This means that said other beans do not use the final version of the " +
-                            "bean. This is often the result of over-eager type matching - consider using " +
-                            "'getBeanNamesForType' with the 'allowEagerInit' flag turned off, for example.");
+            throw new BeanCurrentlyInCreationException(beanName, """
+                    Bean with name '%s' has been injected into other beans [%s] in its raw version \
+                    as part of a circular reference, but has eventually been wrapped. This means \
+                    that said other beans do not use the final version of the bean. This is often \
+                    the result of over-eager type matching - consider using 'getBeanNamesForType' \
+                    with the 'allowEagerInit' flag turned off, for example."""
+                    .formatted(beanName, StringUtils.collectionToCommaDelimitedString(actualDependentBeans)));
           }
         }
       }
@@ -552,13 +550,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             String methodName = descriptor.methodName();
 
             Method initMethod = def.isNonPublicAccessAllowed() ?
-                                BeanUtils.findMethod(descriptor.declaringClass(), methodName) :
-                                ReflectionUtils.getMethodIfAvailable(beanClass, methodName);
+                    BeanUtils.findMethod(descriptor.declaringClass(), methodName) :
+                    ReflectionUtils.getMethodIfAvailable(beanClass, methodName);
 
             if (initMethod == null) {
               if (def.isEnforceInitMethod()) {
-                throw new BeanDefinitionValidationException("Could not find an init method named '" +
-                        initMethodName + "' on bean with name '" + beanName + "'");
+                throw new BeanDefinitionValidationException("Could not find an init method named '%s' on bean with name '%s'"
+                        .formatted(initMethodName, beanName));
               }
               else {
                 if (log.isTraceEnabled()) {
@@ -804,8 +802,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       if (ex instanceof BeansException beansException) {
         throw beansException;
       }
-      throw new BeanCreationException(beanName,
-              "Instantiation of supplied bean failed", ex);
+      throw new BeanCreationException(beanName, "Instantiation of supplied bean failed", ex);
     }
     finally {
       if (outerBean != null) {
@@ -1540,7 +1537,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       // If all factory methods have the same return type, return that type.
       // Can't clearly figure out exact method due to type converting / autowiring!
       int minNrOfArgs = merged.hasConstructorArgumentValues()
-                        ? merged.getConstructorArgumentValues().getArgumentCount() : 0;
+              ? merged.getConstructorArgumentValues().getArgumentCount() : 0;
       Method[] candidates = ReflectionUtils.getUniqueDeclaredMethods(
               factoryClass, ReflectionUtils.USER_DECLARED_METHODS);
 
@@ -1582,7 +1579,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
               Class<?> returnType = AutowireUtils.resolveReturnTypeForFactoryMethod(
                       candidate, args, getBeanClassLoader());
               uniqueCandidate = commonType == null && returnType == candidate.getReturnType()
-                                ? candidate : null;
+                      ? candidate : null;
               commonType = ClassUtils.determineCommonAncestor(returnType, commonType);
               if (commonType == null) {
                 // Ambiguous return types found: return null to indicate "not determinable".
@@ -1615,8 +1612,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     // Common return type found: all factory methods return same type. For a non-parameterized
     // unique candidate, cache the full type declaration context of the target factory method.
     cachedReturnType = uniqueCandidate != null
-                       ? ResolvableType.forReturnType(uniqueCandidate)
-                       : ResolvableType.forClass(commonType);
+            ? ResolvableType.forReturnType(uniqueCandidate)
+            : ResolvableType.forClass(commonType);
     merged.factoryMethodReturnType = cachedReturnType;
     return cachedReturnType.resolve();
   }
