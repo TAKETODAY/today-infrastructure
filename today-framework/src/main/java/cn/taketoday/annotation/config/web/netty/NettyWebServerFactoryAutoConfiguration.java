@@ -149,7 +149,8 @@ public class NettyWebServerFactoryAutoConfiguration {
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyRequestConfig nettyRequestConfig(MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
+  static NettyRequestConfig nettyRequestConfig(NettyChannelInitializer initializer,
+          MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
     String location = multipartConfig.getLocation();
     var factory = new DefaultHttpDataFactory(location != null);
     if (multipartConfig.getMaxRequestSize() != null) {
@@ -158,7 +159,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     if (location != null) {
       factory.setBaseDir(location);
     }
-    return new NettyRequestConfig(factory, sendErrorHandler);
+    return new NettyRequestConfig(factory, sendErrorHandler, initializer instanceof SSLNettyChannelInitializer);
   }
 
   @Component

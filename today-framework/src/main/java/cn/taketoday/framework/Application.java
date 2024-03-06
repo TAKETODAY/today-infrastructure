@@ -155,7 +155,9 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @since 4.0 2021/10/5 23:49
  */
 public class Application {
+
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
+
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
@@ -1547,13 +1549,6 @@ public class Application {
 
     @Nullable
     private final ConfigurableApplicationContext applicationContext;
-
-    /**
-     * Create a new {@link AbandonedRunException} instance.
-     */
-    public AbandonedRunException() {
-      this(null);
-    }
 
     /**
      * Create a new {@link AbandonedRunException} instance with the given application

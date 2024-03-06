@@ -93,20 +93,27 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  */
 public class NettyRequestContext extends RequestContext {
 
-  @Nullable
-  private String remoteAddress;
+  private final FullHttpRequest request;
+
+  private final NettyRequestConfig config;
+
+  final ChannelHandlerContext channelContext;
+
+  /**
+   * response headers
+   */
+  final HttpHeaders nettyResponseHeaders;
 
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
 
-  private final FullHttpRequest request;
+  private final long requestTimeMillis = System.currentTimeMillis();
 
-  final ChannelHandlerContext channelContext;
+  @Nullable
+  private String remoteAddress;
 
   @Nullable
   private InterfaceHttpPostRequestDecoder requestDecoder;
-
-  private final NettyRequestConfig config;
 
   // response
   @Nullable
@@ -120,18 +127,11 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private FileRegion fileToSend;
 
-  /**
-   * response headers
-   */
-  final HttpHeaders nettyResponseHeaders;
-
   @Nullable
   private Integer queryStringIndex;
 
   @Nullable
   private InetSocketAddress inetSocketAddress;
-
-  private final long requestTimeMillis = System.currentTimeMillis();
 
   NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
@@ -149,14 +149,10 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public String getScheme() {
-    int port = inetSocketAddress().getPort();
-    if (port == 443) {
-      return Constant.HTTPS;
-    }
-    return Constant.HTTP;
+    return config.secure ? Constant.HTTPS : Constant.HTTP;
   }
 
-  private InetSocketAddress inetSocketAddress() {
+  private InetSocketAddress localAddress() {
     InetSocketAddress inetSocketAddress = this.inetSocketAddress;
     if (inetSocketAddress == null) {
       SocketAddress socketAddress = channelContext.channel().localAddress();
@@ -173,12 +169,12 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public int getServerPort() {
-    return inetSocketAddress().getPort();
+    return localAddress().getPort();
   }
 
   @Override
   public String getServerName() {
-    return inetSocketAddress().getHostString();
+    return localAddress().getHostString();
   }
 
   @Override
@@ -234,7 +230,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   public final String doGetMethod() {
-    return this.request.method().name();
+    return request.method().name();
   }
 
   @Override
@@ -608,7 +604,7 @@ public class NettyRequestContext extends RequestContext {
   public void sendError(int sc, @Nullable String msg) throws IOException {
     reset();
     this.status = HttpResponseStatus.valueOf(sc);
-    config.getSendErrorHandler().handleError(this, msg);
+    config.sendErrorHandler.handleError(this, msg);
   }
 
   @Override

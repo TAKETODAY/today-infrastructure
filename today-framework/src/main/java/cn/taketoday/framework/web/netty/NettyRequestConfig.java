@@ -68,11 +68,14 @@ public class NettyRequestConfig {
 
   private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
 
-  private final SendErrorHandler sendErrorHandler;
+  public final SendErrorHandler sendErrorHandler;
 
-  public NettyRequestConfig(HttpDataFactory httpDataFactory, SendErrorHandler sendErrorHandler) {
+  public final boolean secure;
+
+  public NettyRequestConfig(HttpDataFactory httpDataFactory, SendErrorHandler sendErrorHandler, boolean secure) {
     Assert.notNull(sendErrorHandler, "SendErrorHandler is required");
     setHttpDataFactory(httpDataFactory);
+    this.secure = secure;
     this.sendErrorHandler = sendErrorHandler;
   }
 
@@ -142,10 +145,6 @@ public class NettyRequestConfig {
   public void setHttpDataFactory(HttpDataFactory httpDataFactory) {
     Assert.notNull(httpDataFactory, "HttpDataFactory is required");
     this.httpDataFactory = httpDataFactory;
-  }
-
-  public SendErrorHandler getSendErrorHandler() {
-    return sendErrorHandler;
   }
 
   public void setHttpHeadersFactory(@Nullable HttpHeadersFactory headersFactory) {
