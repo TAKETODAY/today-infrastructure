@@ -133,7 +133,7 @@ public class NettyRequestContext extends RequestContext {
 
   private final long requestTimeMillis = System.currentTimeMillis();
 
-  public NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
+  NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.config = config;
