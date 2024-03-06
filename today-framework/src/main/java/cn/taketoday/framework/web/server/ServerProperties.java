@@ -1587,6 +1587,8 @@ public class ServerProperties {
 
     private final Shutdown shutdown = new Shutdown();
 
+    private final NettySSL ssl = new NettySSL();
+
     public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
       this.loggingLevel = loggingLevel;
     }
@@ -1734,6 +1736,75 @@ public class ServerProperties {
 
     public Shutdown getShutdown() {
       return shutdown;
+    }
+
+    public NettySSL getSsl() {
+      return ssl;
+    }
+
+    public static class NettySSL {
+
+      private boolean enabled = false;
+
+      private String privateKey;
+
+      @Nullable
+      private String keyPassword;
+
+      private String publicKey;
+
+      /**
+       * Return whether to enable SSL support.
+       *
+       * @return whether to enable SSL support
+       */
+      public boolean isEnabled() {
+        return this.enabled;
+      }
+
+      public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+      }
+
+      public void setKeyPassword(String keyPassword) {
+        this.keyPassword = keyPassword;
+      }
+
+      public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+      }
+
+      public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+      }
+
+      /**
+       * Private key password
+       *
+       * @return Private key password
+       */
+      @Nullable
+      public String getKeyPassword() {
+        return keyPassword;
+      }
+
+      /**
+       * Private key resource location
+       *
+       * @return privateKey
+       */
+      public String getPrivateKey() {
+        return privateKey;
+      }
+
+      /**
+       * Public key resource location
+       *
+       * @return Public key resource location
+       */
+      public String getPublicKey() {
+        return publicKey;
+      }
     }
 
     public static class Shutdown {

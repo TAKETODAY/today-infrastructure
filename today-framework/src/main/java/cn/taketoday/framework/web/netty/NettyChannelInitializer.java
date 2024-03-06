@@ -28,7 +28,7 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
 
 /**
- * Netty HTTP Channel Initializer
+ * HTTP netty channel initializer
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:34
