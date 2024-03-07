@@ -149,7 +149,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyRequestConfig nettyRequestConfig(NettyChannelInitializer initializer,
+  static NettyRequestConfig nettyRequestConfig(ServerProperties properties,
           MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
     String location = multipartConfig.getLocation();
     var factory = new DefaultHttpDataFactory(location != null);
@@ -159,7 +159,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     if (location != null) {
       factory.setBaseDir(location);
     }
-    return new NettyRequestConfig(factory, sendErrorHandler, initializer instanceof SSLNettyChannelInitializer);
+    return new NettyRequestConfig(factory, sendErrorHandler, properties.getNetty().getSsl().isEnabled());
   }
 
   @Component
