@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.Decorator;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.socket.WebSocketExtension;
@@ -53,9 +52,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    String scheme = context.getScheme();
-    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(),
-            Constant.HTTPS.equals(scheme) || "wss".equals(scheme), context.channelContext);
+    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(), context.config.secure, context.channelContext);
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);

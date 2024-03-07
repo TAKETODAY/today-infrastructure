@@ -93,7 +93,7 @@ public class NettyRequestContext extends RequestContext {
 
   private final FullHttpRequest request;
 
-  private final NettyRequestConfig config;
+  final NettyRequestConfig config;
 
   final ChannelHandlerContext channelContext;
 
