@@ -159,7 +159,12 @@ public class NettyWebServerFactoryAutoConfiguration {
     if (location != null) {
       factory.setBaseDir(location);
     }
-    return new NettyRequestConfig(factory, sendErrorHandler, properties.getNetty().getSsl().isEnabled());
+
+    return NettyRequestConfig.forBuilder()
+            .httpDataFactory(factory)
+            .sendErrorHandler(sendErrorHandler)
+            .secure(properties.getNetty().getSsl().isEnabled())
+            .build();
   }
 
   @Component

@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -79,7 +78,6 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
-import io.netty.handler.codec.http.multipart.HttpDataFactory;
 import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
@@ -133,13 +131,13 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private InetSocketAddress inetSocketAddress;
 
-  NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
+  protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
           FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.config = config;
     this.request = request;
     this.channelContext = ctx;
-    this.nettyResponseHeaders = config.getHttpHeadersFactory().newHeaders();
+    this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
   @Override
@@ -283,7 +281,7 @@ public class NettyRequestContext extends RequestContext {
       return EMPTY_COOKIES;
     }
     Set<Cookie> decoded;
-    ServerCookieDecoder cookieDecoder = config.getCookieDecoder();
+    ServerCookieDecoder cookieDecoder = config.cookieDecoder;
     if (allCookie.size() == 1) {
       decoded = cookieDecoder.decode(allCookie.get(0));
     }
@@ -332,13 +330,11 @@ public class NettyRequestContext extends RequestContext {
   InterfaceHttpPostRequestDecoder requestDecoder() {
     InterfaceHttpPostRequestDecoder requestDecoder = this.requestDecoder;
     if (requestDecoder == null) {
-      Charset charset = config.getPostRequestDecoderCharset();
-      HttpDataFactory httpDataFactory = config.getHttpDataFactory();
       if (isMultipart()) {
-        requestDecoder = new HttpPostMultipartRequestDecoder(httpDataFactory, request, charset);
+        requestDecoder = new HttpPostMultipartRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
       }
       else {
-        requestDecoder = new HttpPostStandardRequestDecoder(httpDataFactory, request, charset);
+        requestDecoder = new HttpPostStandardRequestDecoder(config.httpDataFactory, request, config.postRequestDecoderCharset);
       }
       requestDecoder.setDiscardThreshold(0);
       this.requestDecoder = requestDecoder;
@@ -375,7 +371,7 @@ public class NettyRequestContext extends RequestContext {
   public final ByteBuf responseBody() {
     ByteBuf responseBody = this.responseBody;
     if (responseBody == null) {
-      var bodyFactory = config.getResponseBodyFactory();
+      var bodyFactory = config.responseBodyFactory;
       if (bodyFactory != null) {
         responseBody = bodyFactory.apply(this); // may null
       }
@@ -389,7 +385,7 @@ public class NettyRequestContext extends RequestContext {
   }
 
   protected ByteBuf createResponseBody(ChannelHandlerContext channelContext, NettyRequestConfig config) {
-    return channelContext.alloc().ioBuffer(config.getBodyInitialSize());
+    return channelContext.alloc().ioBuffer(config.responseBodyInitialCapacity);
   }
 
   @Override
@@ -430,7 +426,6 @@ public class NettyRequestContext extends RequestContext {
 
     flush();
 
-    var trailerHeadersConsumer = config.getTrailerHeadersConsumer();
     LastHttpContent lastHttpContent = LastHttpContent.EMPTY_LAST_CONTENT;
     // https://datatracker.ietf.org/doc/html/rfc7230#section-4.1.2
     // A trailer allows the sender to include additional fields at the end
@@ -438,7 +433,7 @@ public class NettyRequestContext extends RequestContext {
     // dynamically generated while the message body is sent, such as a
     // message integrity check, digital signature, or post-processing
     // status.
-    if (trailerHeadersConsumer != null && isTransferEncodingChunked(nettyResponseHeaders)) {
+    if (config.trailerHeadersConsumer != null && isTransferEncodingChunked(nettyResponseHeaders)) {
       // https://datatracker.ietf.org/doc/html/rfc7230#section-4.4
       // When a message includes a message body encoded with the chunked
       // transfer coding and the sender desires to send metadata in the form
@@ -449,7 +444,7 @@ public class NettyRequestContext extends RequestContext {
       if (declaredHeaderNames != null) {
         HttpHeaders trailerHeaders = new TrailerHeaders(declaredHeaderNames);
         try {
-          trailerHeadersConsumer.accept(trailerHeaders);
+          config.trailerHeadersConsumer.accept(trailerHeaders);
         }
         catch (IllegalArgumentException e) {
           // A sender MUST NOT generate a trailer when header names are
@@ -518,7 +513,7 @@ public class NettyRequestContext extends RequestContext {
       // apply cookies
       ArrayList<HttpCookie> responseCookies = this.responseCookies;
       if (responseCookies != null) {
-        ServerCookieEncoder cookieEncoder = config.getCookieEncoder();
+        ServerCookieEncoder cookieEncoder = config.cookieEncoder;
         for (HttpCookie cookie : responseCookies) {
           DefaultCookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
           if (cookie instanceof ResponseCookie responseCookie) {

@@ -1743,14 +1743,25 @@ public class ServerProperties {
     }
 
     public static class NettySSL {
-
+      /**
+       * Whether to enable SSL support.
+       */
       private boolean enabled = false;
 
+      /**
+       * Private key resource location
+       */
       private String privateKey;
 
+      /**
+       * Private key password
+       */
       @Nullable
       private String keyPassword;
 
+      /**
+       * Public key resource location
+       */
       private String publicKey;
 
       /**
@@ -1762,18 +1773,38 @@ public class ServerProperties {
         return this.enabled;
       }
 
+      /**
+       * Whether to enable SSL support.
+       *
+       * @param enabled whether to enable SSL support
+       */
       public void setEnabled(boolean enabled) {
         this.enabled = enabled;
       }
 
+      /**
+       * Private key password
+       *
+       * @param keyPassword Private key password
+       */
       public void setKeyPassword(String keyPassword) {
         this.keyPassword = keyPassword;
       }
 
+      /**
+       * Private key resource location
+       *
+       * @param privateKey Private key resource location
+       */
       public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
       }
 
+      /**
+       * Public key resource location
+       *
+       * @param publicKey Public key resource location
+       */
       public void setPublicKey(String publicKey) {
         this.publicKey = publicKey;
       }

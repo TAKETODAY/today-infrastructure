@@ -32,13 +32,10 @@ import io.netty.handler.codec.http.HttpHeadersFactory;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.handler.codec.http.multipart.HttpDataFactory;
+import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
 
 /**
- * To help build a {@link NettyRequestContext}
- *
- * <p>
- * User can use this class to customize {@link NettyRequestContext}
- * </p>
+ * Netty HTTP request config
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2021/3/30 17:46
@@ -46,114 +43,175 @@ import io.netty.handler.codec.http.multipart.HttpDataFactory;
 public class NettyRequestConfig {
 
   @Nullable
-  private Consumer<? super HttpHeaders> trailerHeadersConsumer;
+  public final Consumer<? super HttpHeaders> trailerHeadersConsumer;
 
-  private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
+  public final ServerCookieEncoder cookieEncoder;
 
-  private ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
+  public final ServerCookieDecoder cookieDecoder;
 
   /**
    * response body initial size
    *
    * @see io.netty.buffer.ByteBufAllocator#ioBuffer(int)
    */
-  private int bodyInitialSize = 512;
+  public final int responseBodyInitialCapacity;
 
   @Nullable
-  private Function<RequestContext, ByteBuf> responseBodyFactory;
+  public final Function<RequestContext, ByteBuf> responseBodyFactory;
 
-  private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
+  /**
+   * @see InterfaceHttpPostRequestDecoder
+   */
+  public final Charset postRequestDecoderCharset;
 
-  private HttpDataFactory httpDataFactory;
+  public final HttpHeadersFactory httpHeadersFactory;
 
-  private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
+  public final HttpDataFactory httpDataFactory;
 
   public final SendErrorHandler sendErrorHandler;
 
   public final boolean secure;
 
-  public NettyRequestConfig(HttpDataFactory httpDataFactory, SendErrorHandler sendErrorHandler, boolean secure) {
-    Assert.notNull(sendErrorHandler, "SendErrorHandler is required");
-    setHttpDataFactory(httpDataFactory);
-    this.secure = secure;
-    this.sendErrorHandler = sendErrorHandler;
+  private NettyRequestConfig(Builder builder) {
+    Assert.notNull(builder.sendErrorHandler, "SendErrorHandler is required");
+    Assert.notNull(builder.httpDataFactory, "HttpDataFactory is required");
+    Assert.isTrue(builder.responseBodyInitialCapacity > 0, "responseBodyInitialCapacity is required");
+
+    this.secure = builder.secure;
+    this.cookieEncoder = builder.cookieEncoder;
+    this.cookieDecoder = builder.cookieDecoder;
+    this.httpDataFactory = builder.httpDataFactory;
+    this.sendErrorHandler = builder.sendErrorHandler;
+    this.httpHeadersFactory = builder.httpHeadersFactory;
+    this.responseBodyFactory = builder.responseBodyFactory;
+    this.trailerHeadersConsumer = builder.trailerHeadersConsumer;
+    this.responseBodyInitialCapacity = builder.responseBodyInitialCapacity;
+    this.postRequestDecoderCharset = builder.postRequestDecoderCharset == null
+            ? Constant.DEFAULT_CHARSET : builder.postRequestDecoderCharset;
   }
 
-  public void setTrailerHeadersConsumer(@Nullable Consumer<? super HttpHeaders> consumer) {
-    this.trailerHeadersConsumer = consumer;
+  public static Builder forBuilder() {
+    return new Builder();
   }
 
-  @Nullable
-  public Consumer<? super HttpHeaders> getTrailerHeadersConsumer() {
-    return trailerHeadersConsumer;
-  }
+  public static class Builder {
 
-  public void setCookieDecoder(@Nullable ServerCookieDecoder cookieDecoder) {
-    this.cookieDecoder = cookieDecoder == null ? ServerCookieDecoder.STRICT : cookieDecoder;
-  }
+    @Nullable
+    private Consumer<? super HttpHeaders> trailerHeadersConsumer;
 
-  public void setCookieEncoder(@Nullable ServerCookieEncoder cookieEncoder) {
-    this.cookieEncoder = cookieEncoder == null ? ServerCookieEncoder.STRICT : cookieEncoder;
-  }
+    private ServerCookieEncoder cookieEncoder = ServerCookieEncoder.STRICT;
 
-  public ServerCookieDecoder getCookieDecoder() {
-    return cookieDecoder;
-  }
+    private ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
 
-  public ServerCookieEncoder getCookieEncoder() {
-    return cookieEncoder;
-  }
+    /**
+     * response body initial size
+     *
+     * @see io.netty.buffer.ByteBufAllocator#ioBuffer(int)
+     */
+    private int responseBodyInitialCapacity = 128;
 
-  public void setResponseBodyFactory(@Nullable Function<RequestContext, ByteBuf> factory) {
-    this.responseBodyFactory = factory;
-  }
+    @Nullable
+    private Function<RequestContext, ByteBuf> responseBodyFactory;
 
-  @Nullable
-  public Function<RequestContext, ByteBuf> getResponseBodyFactory() {
-    return responseBodyFactory;
-  }
+    @Nullable
+    private Charset postRequestDecoderCharset = Constant.DEFAULT_CHARSET;
 
-  /**
-   * @return response body initial capacity
-   * @see io.netty.buffer.ByteBufAllocator#buffer(int)
-   */
-  public int getBodyInitialSize() {
-    return bodyInitialSize;
-  }
+    private HttpHeadersFactory httpHeadersFactory = DefaultHttpHeadersFactory.headersFactory();
 
-  /**
-   * @param bodyInitialSize response body initial capacity
-   * @see io.netty.buffer.ByteBufAllocator#buffer(int)
-   */
-  public void setBodyInitialSize(int bodyInitialSize) {
-    this.bodyInitialSize = bodyInitialSize;
-  }
+    private HttpDataFactory httpDataFactory;
 
-  public void setPostRequestDecoderCharset(@Nullable Charset charset) {
-    this.postRequestDecoderCharset =
-            charset == null ? Constant.DEFAULT_CHARSET : charset;
-  }
+    private SendErrorHandler sendErrorHandler;
 
-  public Charset getPostRequestDecoderCharset() {
-    return postRequestDecoderCharset;
-  }
+    private boolean secure;
 
-  public HttpDataFactory getHttpDataFactory() {
-    return httpDataFactory;
-  }
+    public Builder secure(boolean secure) {
+      this.secure = secure;
+      return this;
+    }
 
-  public void setHttpDataFactory(HttpDataFactory httpDataFactory) {
-    Assert.notNull(httpDataFactory, "HttpDataFactory is required");
-    this.httpDataFactory = httpDataFactory;
-  }
+    public Builder sendErrorHandler(SendErrorHandler sendErrorHandler) {
+      this.sendErrorHandler = sendErrorHandler;
+      return this;
+    }
 
-  public void setHttpHeadersFactory(@Nullable HttpHeadersFactory headersFactory) {
-    this.httpHeadersFactory = headersFactory == null ? DefaultHttpHeadersFactory.headersFactory()
-            : headersFactory;
-  }
+    /**
+     * Interface to enable creation of InterfaceHttpData objects
+     */
+    public Builder httpDataFactory(HttpDataFactory httpDataFactory) {
+      this.httpDataFactory = httpDataFactory;
+      return this;
+    }
 
-  public HttpHeadersFactory getHttpHeadersFactory() {
-    return httpHeadersFactory;
+    public Builder trailerHeadersConsumer(@Nullable Consumer<? super HttpHeaders> consumer) {
+      this.trailerHeadersConsumer = consumer;
+      return this;
+    }
+
+    /**
+     * A <a href="https://tools.ietf.org/html/rfc6265">RFC6265</a> compliant cookie decoder to be used server side.
+     *
+     * Only name and value fields are expected, so old fields are not populated (path, domain, etc).
+     *
+     * Old <a href="https://tools.ietf.org/html/rfc2965">RFC2965</a> cookies are still supported,
+     * old fields will simply be ignored.
+     *
+     * @see ServerCookieEncoder
+     */
+    public Builder cookieDecoder(@Nullable ServerCookieDecoder cookieDecoder) {
+      this.cookieDecoder = cookieDecoder == null ? ServerCookieDecoder.STRICT : cookieDecoder;
+      return this;
+    }
+
+    /**
+     * A <a href="https://tools.ietf.org/html/rfc6265">RFC6265</a> compliant cookie encoder to be used server side,
+     * so some fields are sent (Version is typically ignored).
+     *
+     * As Netty's Cookie merges Expires and MaxAge into one single field, only Max-Age field is sent.
+     *
+     * Note that multiple cookies must be sent as separate "Set-Cookie" headers.
+     *
+     * @see ServerCookieDecoder
+     */
+    public Builder cookieEncoder(@Nullable ServerCookieEncoder cookieEncoder) {
+      this.cookieEncoder = cookieEncoder == null ? ServerCookieEncoder.STRICT : cookieEncoder;
+      return this;
+    }
+
+    public Builder responseBodyFactory(@Nullable Function<RequestContext, ByteBuf> factory) {
+      this.responseBodyFactory = factory;
+      return this;
+    }
+
+    /**
+     * @param responseBodyInitialCapacity response body initial capacity
+     * @see io.netty.buffer.ByteBufAllocator#buffer(int)
+     */
+    public Builder responseBodyInitialCapacity(int responseBodyInitialCapacity) {
+      this.responseBodyInitialCapacity = responseBodyInitialCapacity;
+      return this;
+    }
+
+    public Builder postRequestDecoderCharset(@Nullable Charset charset) {
+      this.postRequestDecoderCharset = charset == null ? Constant.DEFAULT_CHARSET : charset;
+      return this;
+    }
+
+    /**
+     * A builder of {@link HttpHeadersFactory} instances, that itself implements {@link HttpHeadersFactory}.
+     * The builder is immutable, and every {@code with-} method produce a new, modified instance.
+     * <p>
+     * The default builder you most likely want to start with is {@link DefaultHttpHeadersFactory#headersFactory()}.
+     */
+    public Builder headersFactory(@Nullable HttpHeadersFactory headersFactory) {
+      this.httpHeadersFactory = headersFactory == null ? DefaultHttpHeadersFactory.headersFactory()
+              : headersFactory;
+      return this;
+    }
+
+    public NettyRequestConfig build() {
+      return new NettyRequestConfig(this);
+    }
+
   }
 
 }
