@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet;
@@ -156,8 +156,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   public void init(ServletConfig servletConfig) {
     this.servletConfig = servletConfig;
     String servletName = servletConfig.getServletName();
-    servletConfig.getServletContext().log(
-            "Initializing Infra " + getClass().getSimpleName() + " '" + servletName + "'");
+    servletConfig.getServletContext().log("Initializing Infra %s '%s'".formatted(getClass().getSimpleName(), servletName));
     logger.info("Initializing Servlet '{}'", servletName);
 
     init();
@@ -247,8 +246,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     if (attrName == null) {
       return null;
     }
-    WebApplicationContext wac =
-            WebApplicationContextUtils.getWebApplicationContext(getServletContext(), attrName);
+    WebApplicationContext wac = WebApplicationContextUtils.getWebApplicationContext(getServletContext(), attrName);
     if (wac == null) {
       throw new IllegalStateException("No WebApplicationContext found: initializer not registered?");
     }
@@ -315,7 +313,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
 
   @Override
   public final String getServletInfo() {
-    return "DispatcherServlet, Copyright © TODAY & 2017 - 2022 All Rights Reserved";
+    return "DispatcherServlet, Copyright © TODAY & 2017 - 2024 All Rights Reserved";
   }
 
   /**

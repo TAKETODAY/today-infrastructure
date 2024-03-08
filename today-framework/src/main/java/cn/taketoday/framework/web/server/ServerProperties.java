@@ -1587,6 +1587,8 @@ public class ServerProperties {
 
     private final Shutdown shutdown = new Shutdown();
 
+    private final NettySSL ssl = new NettySSL();
+
     public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
       this.loggingLevel = loggingLevel;
     }
@@ -1734,6 +1736,106 @@ public class ServerProperties {
 
     public Shutdown getShutdown() {
       return shutdown;
+    }
+
+    public NettySSL getSsl() {
+      return ssl;
+    }
+
+    public static class NettySSL {
+      /**
+       * Whether to enable SSL support.
+       */
+      private boolean enabled = false;
+
+      /**
+       * Private key resource location
+       */
+      private String privateKey;
+
+      /**
+       * Private key password
+       */
+      @Nullable
+      private String keyPassword;
+
+      /**
+       * Public key resource location
+       */
+      private String publicKey;
+
+      /**
+       * Return whether to enable SSL support.
+       *
+       * @return whether to enable SSL support
+       */
+      public boolean isEnabled() {
+        return this.enabled;
+      }
+
+      /**
+       * Whether to enable SSL support.
+       *
+       * @param enabled whether to enable SSL support
+       */
+      public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+      }
+
+      /**
+       * Private key password
+       *
+       * @param keyPassword Private key password
+       */
+      public void setKeyPassword(String keyPassword) {
+        this.keyPassword = keyPassword;
+      }
+
+      /**
+       * Private key resource location
+       *
+       * @param privateKey Private key resource location
+       */
+      public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+      }
+
+      /**
+       * Public key resource location
+       *
+       * @param publicKey Public key resource location
+       */
+      public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+      }
+
+      /**
+       * Private key password
+       *
+       * @return Private key password
+       */
+      @Nullable
+      public String getKeyPassword() {
+        return keyPassword;
+      }
+
+      /**
+       * Private key resource location
+       *
+       * @return privateKey
+       */
+      public String getPrivateKey() {
+        return privateKey;
+      }
+
+      /**
+       * Public key resource location
+       *
+       * @return Public key resource location
+       */
+      public String getPublicKey() {
+        return publicKey;
+      }
     }
 
     public static class Shutdown {

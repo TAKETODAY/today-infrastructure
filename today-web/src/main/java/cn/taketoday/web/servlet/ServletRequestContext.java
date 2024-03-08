@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,6 +47,7 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
@@ -203,8 +205,12 @@ public final class ServletRequestContext extends RequestContext implements Servl
   }
 
   @Override
-  public Map<String, String[]> doGetParameters() {
-    return request.getParameterMap();
+  protected MultiValueMap<String, String> doGetParameters() {
+    var ret = MultiValueMap.<String, String>forSmartListAdaption(new LinkedHashMap<>());
+    for (var entry : request.getParameterMap().entrySet()) {
+      ret.addAll(entry.getKey(), entry.getValue());
+    }
+    return ret;
   }
 
   @Override

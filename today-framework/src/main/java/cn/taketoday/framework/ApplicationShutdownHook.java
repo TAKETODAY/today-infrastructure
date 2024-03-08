@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -46,7 +46,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/30 11:30
  */
-class ApplicationShutdownHook implements Runnable {
+class ApplicationShutdownHook implements Runnable, ApplicationListener<ContextClosedEvent> {
 
   private static final int SLEEP = 50;
 
@@ -56,11 +56,9 @@ class ApplicationShutdownHook implements Runnable {
 
   public final Handlers handlers = new Handlers();
 
-  private final Set<ConfigurableApplicationContext> contexts = new LinkedHashSet<>();
+  private final LinkedHashSet<ConfigurableApplicationContext> contexts = new LinkedHashSet<>();
 
   private final Set<ConfigurableApplicationContext> closedContexts = Collections.newSetFromMap(new WeakHashMap<>());
-
-  private final ApplicationContextClosedListener contextCloseListener = new ApplicationContextClosedListener();
 
   private final AtomicBoolean shutdownHookAdded = new AtomicBoolean();
 
@@ -76,7 +74,7 @@ class ApplicationShutdownHook implements Runnable {
     addRuntimeShutdownHookIfNecessary();
     synchronized(ApplicationShutdownHook.class) {
       assertNotInProgress();
-      context.addApplicationListener(contextCloseListener);
+      context.addApplicationListener(this);
       contexts.add(context);
     }
   }
@@ -88,7 +86,7 @@ class ApplicationShutdownHook implements Runnable {
   }
 
   void addRuntimeShutdownHook() {
-    Runtime.getRuntime().addShutdownHook(new Thread(this, "ApplicationShutdownHook"));
+    Runtime.getRuntime().addShutdownHook(new Thread(this, "app-shutdown-hook"));
   }
 
   void deregisterFailedApplicationContext(ConfigurableApplicationContext applicationContext) {
@@ -126,6 +124,20 @@ class ApplicationShutdownHook implements Runnable {
       closedContexts.clear();
       handlers.actions.clear();
       this.inProgress = false;
+    }
+  }
+
+  @Override
+  public void onApplicationEvent(ContextClosedEvent event) {
+    // The ContextClosedEvent is fired at the start of a call to {@code close()}
+    // and if that happens in a different thread then the context may still be
+    // active. Rather than just removing the context, we add it to a {@code
+    // closedContexts} set. This is weak set so that the context can be GC'd once
+    // the {@code close()} method returns.
+    synchronized(ApplicationShutdownHook.class) {
+      ApplicationContext applicationContext = event.getApplicationContext();
+      contexts.remove((ConfigurableApplicationContext) applicationContext);
+      closedContexts.add((ConfigurableApplicationContext) applicationContext);
     }
   }
 
@@ -188,27 +200,6 @@ class ApplicationShutdownHook implements Runnable {
       synchronized(ApplicationShutdownHook.class) {
         assertNotInProgress();
         actions.remove(action);
-      }
-    }
-
-  }
-
-  /**
-   * {@link ApplicationListener} to track closed contexts.
-   */
-  private class ApplicationContextClosedListener implements ApplicationListener<ContextClosedEvent> {
-
-    @Override
-    public void onApplicationEvent(ContextClosedEvent event) {
-      // The ContextClosedEvent is fired at the start of a call to {@code close()}
-      // and if that happens in a different thread then the context may still be
-      // active. Rather than just removing the context, we add it to a {@code
-      // closedContexts} set. This is weak set so that the context can be GC'd once
-      // the {@code close()} method returns.
-      synchronized(ApplicationShutdownHook.class) {
-        ApplicationContext applicationContext = event.getApplicationContext();
-        contexts.remove(applicationContext);
-        closedContexts.add((ConfigurableApplicationContext) applicationContext);
       }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.multipart;
 
 import java.io.File;
@@ -47,6 +48,7 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * (or no file has been chosen in the multipart form)
    */
   @Nullable
+  @Override
   String getContentType();
 
   /**
@@ -61,6 +63,7 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    *
    * @return the name of the parameter (never {@code null} or empty)
    */
+  @Override
   String getName();
 
   /**
@@ -83,6 +86,51 @@ public interface MultipartFile extends Multipart, InputStreamSource {
   String getOriginalFilename();
 
   /**
+   * Return whether the uploaded file is empty, that is, either no file has
+   * been chosen in the multipart form or the chosen file has no content.
+   */
+  boolean isEmpty();
+
+  /**
+   * Returns the contents of the file item as an array of bytes.
+   *
+   * @throws IOException If any IO exception occurred
+   * @since 2.3.3
+   */
+  @Override
+  byte[] getBytes() throws IOException;
+
+  /**
+   * Get original resource
+   *
+   * @return Original resource
+   * @since 2.3.3
+   */
+  Object getOriginalResource();
+
+  /**
+   * Deletes the underlying storage for a file item, including deleting any
+   * associated temporary disk file.
+   *
+   * @throws IOException if an error occurs.
+   * @since 2.3.3
+   */
+  @Override
+  void delete() throws IOException;
+
+  /**
+   * Return a Resource representation of this MultipartFile. This can be used
+   * as input to the {@code RestTemplate} or the {@code WebClient} to expose
+   * content length and the filename along with the InputStream.
+   *
+   * @return this MultipartFile adapted to the Resource contract
+   * @since 4.0
+   */
+  default Resource getResource() {
+    return new MultipartFileResource(this);
+  }
+
+  /**
    * Transfer the received file to the given destination file.
    * <p>This may either move the file in the filesystem, copy the file in the
    * filesystem, or save memory-held contents to the destination file. If the
@@ -103,49 +151,6 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * @see jakarta.servlet.http.Part#write(String)
    */
   void transferTo(File dest) throws IOException, IllegalStateException;
-
-  /**
-   * Return whether the uploaded file is empty, that is, either no file has
-   * been chosen in the multipart form or the chosen file has no content.
-   */
-  boolean isEmpty();
-
-  /**
-   * Returns the contents of the file item as an array of bytes.
-   *
-   * @throws IOException If any IO exception occurred
-   * @since 2.3.3
-   */
-  byte[] getBytes() throws IOException;
-
-  /**
-   * Get original resource
-   *
-   * @return Original resource
-   * @since 2.3.3
-   */
-  Object getOriginalResource();
-
-  /**
-   * Deletes the underlying storage for a file item, including deleting any
-   * associated temporary disk file.
-   *
-   * @throws IOException if an error occurs.
-   * @since 2.3.3
-   */
-  void delete() throws IOException;
-
-  /**
-   * Return a Resource representation of this MultipartFile. This can be used
-   * as input to the {@code RestTemplate} or the {@code WebClient} to expose
-   * content length and the filename along with the InputStream.
-   *
-   * @return this MultipartFile adapted to the Resource contract
-   * @since 4.0
-   */
-  default Resource getResource() {
-    return new MultipartFileResource(this);
-  }
 
   /**
    * Transfer the received file to the given destination file.

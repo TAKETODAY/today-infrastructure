@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -470,8 +470,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   private MessageSource getMessageSource() throws IllegalStateException {
     if (this.messageSource == null) {
-      throw new IllegalStateException("MessageSource not initialized - " +
-              "call 'refresh' before accessing messages via the context: " + this);
+      throw new IllegalStateException("MessageSource not initialized - call 'refresh' before accessing messages via the context: " + this);
     }
     return this.messageSource;
   }
@@ -1027,11 +1026,6 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public boolean hasStarted() {
-    return state == State.STARTED;
-  }
-
-  @Override
   public State getState() {
     return state;
   }
@@ -1303,15 +1297,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public <T> Map<String, T> getBeansOfType(
-          @Nullable Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public <T> Map<String, T> getBeansOfType(@Nullable Class<T> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType, includeNonSingletons, allowEagerInit);
   }
 
   @Override
-  public <T> Map<String, T> getBeansOfType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeansOfType(requiredType, includeNonSingletons, allowEagerInit);
   }
@@ -1323,8 +1315,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   @Override
-  public Set<String> getBeanNamesForType(
-          ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
+  public Set<String> getBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     assertBeanFactoryActive();
     return getBeanFactory().getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
   }
@@ -1417,8 +1408,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   public LifecycleProcessor getLifecycleProcessor() throws IllegalStateException {
     if (this.lifecycleProcessor == null) {
       throw new IllegalStateException(
-              "LifecycleProcessor not initialized - " +
-                      "call 'refresh' before invoking lifecycle methods via the context: " + this);
+              "LifecycleProcessor not initialized - call 'refresh' before invoking lifecycle methods via the context: " + this);
     }
     return this.lifecycleProcessor;
   }
@@ -1435,8 +1425,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   public ApplicationEventMulticaster getApplicationEventMulticaster() throws IllegalStateException {
     if (this.applicationEventMulticaster == null) {
-      throw new IllegalStateException("ApplicationEventMulticaster not initialized - " +
-              "call 'refresh' before multicasting events via the context: " + this);
+      throw new IllegalStateException(
+              "ApplicationEventMulticaster not initialized - call 'refresh' before multicasting events via the context: " + this);
     }
     return this.applicationEventMulticaster;
   }
@@ -1731,16 +1721,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    */
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(getDisplayName());
-    sb.append(": state: [")
-            .append(state)
-            .append("], on startup date: ")
-            .append(formatStartupDate());
-    ApplicationContext parent = getParent();
-    if (parent != null) {
-      sb.append(", parent: ").append(parent.getDisplayName());
-    }
-    return sb.toString();
+    return "%s: state: [%s], on startup date: %s, parent: %s".formatted(
+            getDisplayName(), state, formatStartupDate(), parent != null ? parent.getDisplayName() : "none");
   }
 
   public String formatStartupDate() {

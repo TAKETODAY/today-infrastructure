@@ -23,10 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.context.ApplicationContext;
@@ -36,6 +33,8 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
@@ -169,29 +168,19 @@ public class MockRequestContext extends RequestContext {
   }
 
   @Override
-  public Map<String, String[]> doGetParameters() {
+  public MultiValueMap<String, String> doGetParameters() {
     if (parameters == null) {
-      return Collections.emptyMap();
+      return MultiValueMap.forLinkedHashMap();
     }
     return parameters;
   }
 
-  public void setParameters(Map<String, String[]> parameters) {
+  public void setParameter(String key, String value) {
+    getParameters().add(key, value);
+  }
+
+  public void setParameters(MultiValueMap<String, String> parameters) {
     this.parameters = parameters;
-  }
-
-  public void setParameter(String name, String parameter) {
-    if (parameters == null) {
-      setParameters(new LinkedHashMap<>());
-    }
-    parameters.put(name, new String[] { parameter });
-  }
-
-  public void setParameter(String name, String[] parameter) {
-    if (parameters == null) {
-      setParameters(new LinkedHashMap<>());
-    }
-    parameters.put(name, parameter);
   }
 
   @Override

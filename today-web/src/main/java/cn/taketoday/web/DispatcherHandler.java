@@ -20,7 +20,6 @@ package cn.taketoday.web;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Collectors;
@@ -39,7 +38,6 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AsyncHandler;
 import cn.taketoday.web.handler.HandlerAdapterAware;
-import cn.taketoday.web.handler.HandlerAdapters;
 import cn.taketoday.web.handler.HandlerNotFoundException;
 import cn.taketoday.web.handler.HandlerWrapper;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -463,10 +461,6 @@ public class DispatcherHandler extends InfraHandler {
     this.handlerMapping = handlerMapping;
   }
 
-  public void setHandlerAdapters(HandlerAdapter... handlerAdapters) {
-    this.handlerAdapter = new HandlerAdapters(handlerAdapters);
-  }
-
   public void setHandlerAdapter(HandlerAdapter handlerAdapter) {
     Assert.notNull(handlerAdapter, "HandlerAdapter is required");
     this.handlerAdapter = handlerAdapter;
@@ -585,13 +579,13 @@ public class DispatcherHandler extends InfraHandler {
       }
       else if (isEnableLoggingRequestDetails()) {
         params = request.getParameters().entrySet().stream()
-                .map(entry -> entry.getKey() + ":" + Arrays.toString(entry.getValue()))
+                .map(entry -> entry.getKey() + ":" + entry.getValue())
                 .collect(Collectors.joining(", "));
       }
       else {
         // Avoid request body parsing for form data
         params = StringUtils.startsWithIgnoreCase(contentType, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                         || !request.getParameters().isEmpty() ? "masked" : "";
+                || !request.getParameters().isEmpty() ? "masked" : "";
       }
 
       String queryString = request.getQueryString();
@@ -599,7 +593,7 @@ public class DispatcherHandler extends InfraHandler {
       String message = request.getMethod() + " " + request.getRequestURL() + queryClause;
 
       if (!params.isEmpty()) {
-        message += ", parameters={" + params + "}";
+        message += ", parameters={%s}".formatted(params);
       }
 
       message = URLDecoder.decode(message, StandardCharsets.UTF_8);
@@ -630,7 +624,7 @@ public class DispatcherHandler extends InfraHandler {
           }
         }
 
-        logger.trace(message + ", headers={" + headers + "} in DispatcherHandler '" + beanName + "'");
+        logger.trace("%s, headers={%s} in DispatcherHandler '%s'".formatted(message, headers, beanName));
       }
       else {
         logger.debug(message);
@@ -665,7 +659,7 @@ public class DispatcherHandler extends InfraHandler {
           else {
             headers = httpHeaders.isEmpty() ? "" : "masked";
           }
-          headers = ", headers={" + headers + "}";
+          headers = ", headers={%s}".formatted(headers);
         }
         HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
         logger.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);

@@ -141,7 +141,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
   @Nullable
   protected HttpResponse createErrorResponse(ChannelHandlerContext ctx, Throwable cause) {
     return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
-            Unpooled.EMPTY_BUFFER, requestConfig.getHttpHeadersFactory(), trailersFactory());
+            Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
   }
 
   //

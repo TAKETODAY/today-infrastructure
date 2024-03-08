@@ -155,7 +155,9 @@ import cn.taketoday.util.function.ThrowingSupplier;
  * @since 4.0 2021/10/5 23:49
  */
 public class Application {
+
   public static final String PROPERTIES_BINDER_PREFIX = "app.main";
+
   private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
 
   static final ApplicationShutdownHook shutdownHook = new ApplicationShutdownHook();
@@ -419,8 +421,7 @@ public class Application {
    * <p>
    * from TodayStrategies, {@link #startupListeners} ,{@link ApplicationHook}
    */
-  private ApplicationStartupListeners getStartupListeners(
-          BootstrapContext bootstrapContext, ApplicationArguments arguments) {
+  private ApplicationStartupListeners getStartupListeners(BootstrapContext bootstrapContext, ApplicationArguments arguments) {
     var instantiator = new Instantiator<ApplicationStartupListener>(ApplicationStartupListener.class,
             parameters -> {
               parameters.add(Application.class, this);
@@ -746,8 +747,7 @@ public class Application {
       if (sources.contains(name)) {
         PropertySource<?> source = sources.get(name);
         CompositePropertySource composite = new CompositePropertySource(name);
-        composite.addPropertySource(
-                new SimpleCommandLinePropertySource("applicationCommandLineArgs", args));
+        composite.addPropertySource(new SimpleCommandLinePropertySource("applicationCommandLineArgs", args));
         composite.addPropertySource(source);
         sources.replace(name, composite);
       }
@@ -763,8 +763,7 @@ public class Application {
    * @param applicationContextFactory the factory for the context
    */
   public void setApplicationContextFactory(@Nullable ApplicationContextFactory applicationContextFactory) {
-    this.applicationContextFactory =
-            applicationContextFactory != null
+    this.applicationContextFactory = applicationContextFactory != null
             ? applicationContextFactory : ApplicationContextFactory.DEFAULT;
   }
 
@@ -842,7 +841,7 @@ public class Application {
       }
       else {
         String message = (activeProfiles.size() == 1) ? "1 profile is active: "
-                                                      : activeProfiles.size() + " profiles are active: ";
+                : activeProfiles.size() + " profiles are active: ";
         log.info("The following " + message + StringUtils.collectionToDelimitedString(activeProfiles, ", "));
       }
     }
@@ -1271,7 +1270,7 @@ public class Application {
       logger.warn("Unable to close ApplicationContext", ex);
     }
     return exception instanceof RuntimeException runtimeException
-           ? runtimeException : new IllegalStateException(exception);
+            ? runtimeException : new IllegalStateException(exception);
   }
 
   private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {
@@ -1552,13 +1551,6 @@ public class Application {
     private final ConfigurableApplicationContext applicationContext;
 
     /**
-     * Create a new {@link AbandonedRunException} instance.
-     */
-    public AbandonedRunException() {
-      this(null);
-    }
-
-    /**
      * Create a new {@link AbandonedRunException} instance with the given application
      * context.
      *
@@ -1774,7 +1766,7 @@ public class Application {
 
     static Startup create() {
       return (!ClassUtils.isPresent("jdk.crac.management.CRaCMXBean", Startup.class))
-             ? new StandardStartup() : new CoordinatedRestoreAtCheckpointStartup();
+              ? new StandardStartup() : new CoordinatedRestoreAtCheckpointStartup();
     }
 
   }

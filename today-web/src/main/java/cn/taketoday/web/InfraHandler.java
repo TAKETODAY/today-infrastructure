@@ -217,8 +217,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
       if (logger.isDebugEnabled()) {
         String value = isEnableLoggingRequestDetails() ?
-                       "shown which may lead to unsafe logging of potentially sensitive data" :
-                       "masked to prevent unsafe logging of potentially sensitive data";
+                "shown which may lead to unsafe logging of potentially sensitive data" :
+                "masked to prevent unsafe logging of potentially sensitive data";
         logger.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
                 isEnableLoggingRequestDetails(), value);
       }
@@ -345,8 +345,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     Class<?> contextClass = getContextClass();
     if (!ConfigurableApplicationContext.class.isAssignableFrom(contextClass)) {
       throw new ApplicationContextException(
-              "Fatal initialization error: custom ApplicationContext class [" + contextClass.getName() +
-                      "] is not of type ConfigurableApplicationContext");
+              "Fatal initialization error: custom ApplicationContext class [%s] is not of type ConfigurableApplicationContext"
+                      .formatted(contextClass.getName()));
     }
     ConfigurableApplicationContext context =
             (ConfigurableApplicationContext) BeanUtils.newInstance(contextClass);
@@ -412,13 +412,12 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   protected final ApplicationContextInitializer loadInitializer(String className, ConfigurableApplicationContext context) {
     try {
-      var initializerClass = ClassUtils.<ApplicationContextInitializer>
-              forName(className, context.getClassLoader());
+      var initializerClass = ClassUtils.<ApplicationContextInitializer>forName(className, context.getClassLoader());
       return BeanUtils.newInstance(initializerClass);
     }
     catch (ClassNotFoundException ex) {
-      throw new ApplicationContextException(String.format(
-              "Could not load class [%s] specified via 'contextInitializerClasses' init-param", className), ex);
+      throw new ApplicationContextException(
+              "Could not load class [%s] specified via 'contextInitializerClasses' init-param".formatted(className), ex);
     }
   }
 
@@ -461,9 +460,8 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
         if (state != ApplicationContext.State.CLOSING && state != ApplicationContext.State.CLOSED) {
           context.close();
           var dateFormat = new SimpleDateFormat(Constant.DEFAULT_DATE_FORMAT);
-          logInfo(String.format("Your application destroyed at: [%s] on startup date: [%s]",
-                  dateFormat.format(System.currentTimeMillis()),
-                  dateFormat.format(context.getStartupDate())));
+          logInfo("Your application destroyed at: [%s] on startup date: [%s]"
+                  .formatted(dateFormat.format(System.currentTimeMillis()), dateFormat.format(context.getStartupDate())));
         }
       }
     }

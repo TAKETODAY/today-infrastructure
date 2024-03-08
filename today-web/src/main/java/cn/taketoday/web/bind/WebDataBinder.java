@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -452,7 +452,7 @@ public class WebDataBinder extends DataBinder {
    * @return a map of bind values
    */
   public PropertyValues getValuesToBind(RequestContext request) {
-    PropertyValues propertyValues = new PropertyValues(request.getParameters());
+    PropertyValues propertyValues = new PropertyValues(request.getParameters().toArrayMap(String[]::new));
     if (request.isMultipart()) {
       var multipartFiles = request.getMultipartRequest().getMultipartFiles();
       if (!multipartFiles.isEmpty()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
 
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.AbstractMultipartFile;
@@ -79,6 +80,11 @@ final class NettyMultipartFile extends AbstractMultipartFile implements Multipar
     int length = byteBuf.readableBytes();
     byteBuf.readBytes(out, length);
     return length;
+  }
+
+  @Override
+  public void transferTo(Path dest) throws IOException, IllegalStateException {
+    transferTo(dest.toFile());
   }
 
   @Override

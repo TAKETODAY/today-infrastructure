@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2023 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind;
@@ -26,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -41,12 +39,13 @@ import cn.taketoday.web.annotation.RequestMapping;
  * @since 4.0 2022/3/2 16:23
  */
 public class UnsatisfiedRequestParameterException extends RequestBindingException {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
   private final List<String[]> paramConditions;
 
-  private final Map<String, String[]> actualParams;
+  private final MultiValueMap<String, String> actualParams;
 
   /**
    * Create a new UnsatisfiedServletRequestParameterException.
@@ -54,7 +53,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
    * @param paramConditions the parameter conditions that have been violated
    * @param actualParams the actual parameter Map associated with the ServletRequest
    */
-  public UnsatisfiedRequestParameterException(String[] paramConditions, Map<String, String[]> actualParams) {
+  public UnsatisfiedRequestParameterException(String[] paramConditions, MultiValueMap<String, String> actualParams) {
     this(List.<String[]>of(paramConditions), actualParams);
   }
 
@@ -65,7 +64,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
    * @param actualParams the actual parameter Map associated with the ServletRequest
    */
   public UnsatisfiedRequestParameterException(List<String[]> paramConditions,
-          Map<String, String[]> actualParams) {
+          MultiValueMap<String, String> actualParams) {
 
     super("");
     Assert.notEmpty(paramConditions, "Parameter conditions must not be empty");
@@ -116,14 +115,14 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
    *
    * @see jakarta.servlet.ServletRequest#getParameterMap()
    */
-  public final Map<String, String[]> getActualParams() {
+  public final MultiValueMap<String, String> getActualParams() {
     return this.actualParams;
   }
 
-  private static String requestParameterMapToString(Map<String, String[]> actualParams) {
+  private static String requestParameterMapToString(MultiValueMap<String, String> actualParams) {
     StringBuilder result = new StringBuilder();
-    for (Iterator<Map.Entry<String, String[]>> it = actualParams.entrySet().iterator(); it.hasNext(); ) {
-      Map.Entry<String, String[]> entry = it.next();
+    for (Iterator<Map.Entry<String, List<String>>> it = actualParams.entrySet().iterator(); it.hasNext(); ) {
+      Map.Entry<String, List<String>> entry = it.next();
       result.append(entry.getKey()).append('=').append(ObjectUtils.nullSafeToString(entry.getValue()));
       if (it.hasNext()) {
         result.append(", ");

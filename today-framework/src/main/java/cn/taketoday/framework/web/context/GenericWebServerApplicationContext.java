@@ -119,8 +119,8 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
               getClass(), WebServerFactory.class, ApplicationType.NETTY_WEB);
     }
     if (beanNames.size() > 1) {
-      throw new ApplicationContextException("Unable to start WebServerApplicationContext due to multiple "
-              + "WebServerFactory beans : " + StringUtils.collectionToCommaDelimitedString(beanNames));
+      throw new ApplicationContextException("Unable to start WebServerApplicationContext due to multiple WebServerFactory beans : "
+              + StringUtils.collectionToCommaDelimitedString(beanNames));
     }
     return beanFactory.getBean(CollectionUtils.firstElement(beanNames), WebServerFactory.class);
   }
