@@ -137,7 +137,7 @@ public class NettyRequestContext extends RequestContext {
    */
   private final ObjectPool.Handle<NettyRequestContext> handle;
 
-  public NettyRequestContext(ApplicationContext context, NettyRequestConfig config,
+  protected NettyRequestContext(ApplicationContext context, NettyRequestConfig config,
           DispatcherHandler dispatcherHandler, ObjectPool.Handle<NettyRequestContext> handle) {
     super(context, dispatcherHandler);
     this.config = config;
