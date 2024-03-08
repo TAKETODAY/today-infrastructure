@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -486,8 +486,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       throw new IllegalStateException("No bean class specified on bean definition");
     }
     if (!(beanClassObject instanceof Class<?> clazz)) {
-      throw new IllegalStateException(
-              "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
+      throw new IllegalStateException("Bean class name [%s] has not been resolved into an actual Class"
+              .formatted(beanClassObject));
     }
     return clazz;
   }
@@ -1278,9 +1278,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   protected void prepareMethodOverride(MethodOverride mo) throws BeanDefinitionValidationException {
     int count = ReflectionUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
     if (count == 0) {
-      throw new BeanDefinitionValidationException(
-              "Invalid method override: no method with name '" + mo.getMethodName() +
-                      "' on class [" + getBeanClassName() + "]");
+      throw new BeanDefinitionValidationException("Invalid method override: no method with name '%s' on class [%s]"
+              .formatted(mo.getMethodName(), getBeanClassName()));
     }
     else if (count == 1) {
       // Mark override as not overloaded, to avoid the overhead of arg type checking.

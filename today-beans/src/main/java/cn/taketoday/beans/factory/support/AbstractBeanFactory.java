@@ -211,8 +211,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeansException if the bean could not be created
    */
   @SuppressWarnings("unchecked")
-  protected final <T> T doGetBean(
-          String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
+  protected final <T> T doGetBean(String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
     // 1. check singleton cache

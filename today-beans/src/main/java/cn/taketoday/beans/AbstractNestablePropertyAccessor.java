@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -272,7 +272,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
     catch (NotReadablePropertyException ex) {
       throw new NotWritablePropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Nested property in path '" + propertyName + "' does not exist", ex);
+              "Nested property in path '%s' does not exist".formatted(propertyName), ex);
     }
   }
 
@@ -321,7 +321,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       }
       catch (IndexOutOfBoundsException ex) {
         throw new InvalidPropertyException(getRootClass(), this.nestedPath + tokens.canonicalName,
-                "Invalid array index in property path '" + tokens.canonicalName + "'", ex);
+                "Invalid array index in property path '%s'".formatted(tokens.canonicalName), ex);
       }
     }
     else if (propValue instanceof List list) {
@@ -340,10 +340,9 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             list.add(null);
           }
           catch (NullPointerException ex) {
-            throw new InvalidPropertyException(getRootClass(), this.nestedPath + tokens.canonicalName,
-                    "Cannot set element with index " + index + " in List of size " +
-                            size + ", accessed using property path '" + tokens.canonicalName +
-                            "': List does not support filling up gaps with null elements");
+            throw new InvalidPropertyException(getRootClass(), this.nestedPath + tokens.canonicalName, """
+                    Cannot set element with index %s in List of size %s, accessed using property path '%s': \
+                    List does not support filling up gaps with null elements""".formatted(index, size, tokens.canonicalName));
           }
         }
         list.add(convertedValue);
@@ -354,7 +353,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
         }
         catch (IndexOutOfBoundsException ex) {
           throw new InvalidPropertyException(getRootClass(), this.nestedPath + tokens.canonicalName,
-                  "Invalid list index in property path '" + tokens.canonicalName + "'", ex);
+                  "Invalid list index in property path '%s'".formatted(tokens.canonicalName), ex);
         }
       }
     }
@@ -377,8 +376,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
     else {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + tokens.canonicalName,
-              "Property referenced in indexed property path '" + tokens.canonicalName +
-                      "' is neither an array nor a List nor a Map; returned value was [" + propValue + "]");
+              "Property referenced in indexed property path '%s' is neither an array nor a List nor a Map; returned value was [%s]"
+                      .formatted(tokens.canonicalName, propValue));
     }
   }
 
@@ -397,8 +396,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
     catch (NotReadablePropertyException ex) {
       throw new NotWritablePropertyException(getRootClass(), this.nestedPath + tokens.canonicalName,
-              "Cannot access indexed value in property referenced " +
-                      "in indexed property path '" + tokens.canonicalName + "'", ex);
+              "Cannot access indexed value in property referenced in indexed property path '%s'".formatted(tokens.canonicalName), ex);
     }
 
     if (propValue == null) {
@@ -410,8 +408,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       }
       else {
         throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + tokens.canonicalName,
-                "Cannot access indexed value in property referenced " +
-                        "in indexed property path '" + tokens.canonicalName + "': returned null");
+                "Cannot access indexed value in property referenced in indexed property path '%s': returned null"
+                        .formatted(tokens.canonicalName));
       }
     }
     return propValue;
@@ -483,8 +481,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
       }
     }
     catch (Exception ex) {
-      PropertyChangeEvent pce = new PropertyChangeEvent(
-              getRootInstance(), this.nestedPath + tokens.canonicalName, oldValue, pv.getValue());
+      var pce = new PropertyChangeEvent(getRootInstance(), this.nestedPath + tokens.canonicalName, oldValue, pv.getValue());
       throw new MethodInvocationException(pce, ex);
     }
   }
@@ -602,8 +599,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
   }
 
   @Nullable
-  protected Object convertForProperty(String propertyName,
-          @Nullable Object oldValue, @Nullable Object newValue, TypeDescriptor td) throws TypeMismatchException {
+  protected Object convertForProperty(String propertyName, @Nullable Object oldValue,
+          @Nullable Object newValue, TypeDescriptor td) throws TypeMismatchException {
 
     return convertIfNecessary(propertyName, oldValue, newValue, td.getType(), td);
   }
@@ -635,8 +632,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           }
           else {
             throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + propertyName,
-                    "Cannot access indexed value of property referenced in indexed " +
-                            "property path '" + propertyName + "': returned null");
+                    "Cannot access indexed value of property referenced in indexed property path '%s': returned null".formatted(propertyName));
           }
         }
         StringBuilder indexedPropertyName = new StringBuilder(tokens.actualName);
@@ -645,8 +641,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           String key = keys[i];
           if (value == null) {
             throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + propertyName,
-                    "Cannot access indexed value of property referenced in indexed " +
-                            "property path '" + propertyName + "': returned null");
+                    "Cannot access indexed value of property referenced in indexed property path '%s': returned null".formatted(propertyName));
           }
           else if (value.getClass().isArray()) {
             int index = Integer.parseInt(key);
@@ -664,8 +659,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             if (value instanceof Collection<?> coll) {
               if (index < 0 || index >= coll.size()) {
                 throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                        "Cannot get element with index " + index + " from Collection of size " +
-                                coll.size() + ", accessed using property path '" + propertyName + "'");
+                        "Cannot get element with index %s from Collection of size %s, accessed using property path '%s'"
+                                .formatted(index, coll.size(), propertyName));
               }
             }
             Iterator<Object> it = iterable.iterator();
@@ -681,8 +676,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
             }
             if (!found) {
               throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                      "Cannot get element with index " + index + " from Iterable of size " +
-                              currIndex + ", accessed using property path '" + propertyName + "'");
+                      "Cannot get element with index %s from Iterable of size %s, accessed using property path '%s'"
+                              .formatted(index, currIndex, propertyName));
             }
           }
           else if (value instanceof Map<?, ?> map) {
@@ -695,8 +690,8 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
           }
           else {
             throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-                    "Property referenced in indexed property path '" + propertyName +
-                            "' is neither an array nor a List nor a Set nor a Map; returned value was [" + value + "]");
+                    "Property referenced in indexed property path '%s' is neither an array nor a List nor a Set nor a Map; returned value was [%s]"
+                            .formatted(propertyName, value));
           }
           indexedPropertyName.append(PROPERTY_KEY_PREFIX);
           indexedPropertyName.append(key);
@@ -710,19 +705,19 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
     catch (IndexOutOfBoundsException ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Index of out of bounds in property path '" + propertyName + "'", ex);
+              "Index of out of bounds in property path '%s'".formatted(propertyName), ex);
     }
     catch (NumberFormatException | TypeMismatchException ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Invalid index in property path '" + propertyName + "'", ex);
+              "Invalid index in property path '%s'".formatted(propertyName), ex);
     }
     catch (InvocationTargetException ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Getter for property '" + actualName + "' threw exception", ex);
+              "Getter for property '%s' threw exception".formatted(actualName), ex);
     }
     catch (Exception ex) {
       throw new InvalidPropertyException(getRootClass(), this.nestedPath + propertyName,
-              "Illegal attempt to get property '" + actualName + "' threw exception", ex);
+              "Illegal attempt to get property '%s' threw exception".formatted(actualName), ex);
     }
   }
 
@@ -937,7 +932,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     }
     catch (Throwable ex) {
       throw new NullValueInNestedPathException(getRootClass(), this.nestedPath + name,
-              "Could not instantiate property type [" + type.getName() + "] to auto-grow nested property path", ex);
+              "Could not instantiate property type [%s] to auto-grow nested property path".formatted(type.getName()), ex);
     }
   }
 
@@ -1012,7 +1007,7 @@ public abstract class AbstractNestablePropertyAccessor extends AbstractPropertyA
     if (this.wrappedObject == null) {
       return className + ": no wrapped object set";
     }
-    return className + ": wrapping object [" + ObjectUtils.identityToString(this.wrappedObject) + ']';
+    return "%s: wrapping object [%s]".formatted(className, ObjectUtils.identityToString(this.wrappedObject));
   }
 
   /**

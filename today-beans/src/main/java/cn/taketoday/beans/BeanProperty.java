@@ -46,8 +46,8 @@ import cn.taketoday.util.ReflectionUtils;
  * @see #isReadable()
  * @since 3.0 2021/1/27 22:28
  */
-public sealed class BeanProperty extends Property
-        implements Member, AnnotatedElement, Serializable permits FieldBeanProperty {
+public sealed class BeanProperty extends Property implements Member, AnnotatedElement, Serializable permits FieldBeanProperty {
+
   @Serial
   private static final long serialVersionUID = 1L;
 

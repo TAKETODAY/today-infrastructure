@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -36,6 +33,7 @@ import cn.taketoday.util.CollectionUtils;
  * @author Rod Johnson
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -72,7 +70,7 @@ public class ManagedList<E> extends ArrayList<E> implements Mergeable, BeanMetad
   /**
    * Set the default element type name (class name) to be used for this list.
    */
-  public void setElementTypeName(String elementTypeName) {
+  public void setElementTypeName(@Nullable String elementTypeName) {
     this.elementTypeName = elementTypeName;
   }
 
@@ -107,7 +105,7 @@ public class ManagedList<E> extends ArrayList<E> implements Mergeable, BeanMetad
       return this;
     }
     if (!(parent instanceof List)) {
-      throw new IllegalArgumentException("Cannot merge with object of type [" + parent.getClass() + "]");
+      throw new IllegalArgumentException("Cannot merge with object of type [%s]".formatted(parent.getClass()));
     }
     List<E> merged = new ManagedList<>();
     merged.addAll((List<E>) parent);
