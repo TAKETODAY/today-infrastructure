@@ -24,30 +24,30 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.concurrent.EventExecutor;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 13:47
  */
 public class NettyAsyncWebRequest extends AsyncWebRequest {
+
   private static final Logger log = LoggerFactory.getLogger(NettyAsyncWebRequest.class);
 
   private final NettyRequestContext request;
+
   private final ChannelHandlerContext channelContext;
 
   private volatile boolean asyncStarted;
 
-  public NettyAsyncWebRequest(NettyRequestContext request) {
+  NettyAsyncWebRequest(NettyRequestContext request) {
     this.request = request;
     this.channelContext = request.channelContext;
   }
 
   @Override
   public void startAsync() {
-    EventExecutor executor = channelContext.executor();
     if (timeout != null) {
-      executor.schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
+      channelContext.executor().schedule(this::checkTimeout, timeout, TimeUnit.MILLISECONDS);
     }
 
     this.asyncStarted = true;
@@ -70,8 +70,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   public void dispatch(Object concurrentResult) {
     this.asyncStarted = false;
     if (asyncCompleted.compareAndSet(false, true)) {
-      EventExecutor executor = channelContext.executor();
-      executor.execute(() -> {
+      channelContext.executor().execute(() -> {
         try {
           request.dispatchConcurrentResult(concurrentResult);
         }
