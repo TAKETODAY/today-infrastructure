@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource.embedded;
+
+import java.util.function.UnaryOperator;
 
 import javax.sql.DataSource;
 
@@ -31,6 +30,7 @@ import cn.taketoday.lang.Assert;
  *
  * @author Keith Donald
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface EmbeddedDatabaseConfigurer {
@@ -70,6 +70,23 @@ public interface EmbeddedDatabaseConfigurer {
     catch (ClassNotFoundException | NoClassDefFoundError ex) {
       throw new IllegalStateException("Driver for test database type [" + type + "] is not available", ex);
     }
+  }
+
+  /**
+   * Customize the default configurer for the given embedded database type.
+   * <p>The {@code customizer} typically uses
+   * {@link EmbeddedDatabaseConfigurerDelegate} to customize things as necessary.
+   *
+   * @param type the {@linkplain EmbeddedDatabaseType embedded database type}
+   * @param customizer the customizer to return based on the default
+   * @return the customized configurer instance
+   * @throws IllegalStateException if the driver for the specified database type is not available
+   */
+  static EmbeddedDatabaseConfigurer customizeConfigurer(
+          EmbeddedDatabaseType type, UnaryOperator<EmbeddedDatabaseConfigurer> customizer) {
+
+    EmbeddedDatabaseConfigurer defaultConfigurer = from(type);
+    return customizer.apply(defaultConfigurer);
   }
 
 }
