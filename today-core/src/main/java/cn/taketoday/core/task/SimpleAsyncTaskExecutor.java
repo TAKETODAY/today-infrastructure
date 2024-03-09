@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.task;
@@ -166,13 +166,16 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   }
 
   /**
-   * Specify a timeout for task termination when closing this executor.
-   * The default is 0, not waiting for task termination at all.
+   * Specify a timeout (in milliseconds) for task termination when closing
+   * this executor. The default is 0, not waiting for task termination at all.
    * <p>Note that a concrete >0 timeout specified here will lead to the
    * wrapping of every submitted task into a task-tracking runnable which
    * involves considerable overhead in case of a high number of tasks.
    * However, for a modest level of submissions with longer-running
    * tasks, this is feasible in order to arrive at a graceful shutdown.
+   * <p>Note that {@code SimpleAsyncTaskExecutor} does not participate in
+   * a coordinated lifecycle stop but rather just awaits task termination
+   * on {@link #close()}.
    *
    * @param timeout the timeout in milliseconds
    * @see #close()
