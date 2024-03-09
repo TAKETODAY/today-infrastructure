@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,10 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.reactive.server;
+
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.spi.mapper.MappingProvider;
 
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
@@ -58,6 +61,7 @@ import cn.taketoday.web.reactive.function.BodyInserters;
 import cn.taketoday.web.reactive.function.client.ClientRequest;
 import cn.taketoday.web.reactive.function.client.ClientResponse;
 import cn.taketoday.web.reactive.function.client.ExchangeFunction;
+import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriBuilderFactory;
 import reactor.core.publisher.Flux;
@@ -68,11 +72,15 @@ import reactor.core.publisher.Flux;
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @author Michał Rowicki
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class DefaultWebTestClient implements WebTestClient {
 
   private final WiretapConnector wiretapConnector;
+
+  @Nullable
+  private final JsonEncoderDecoder jsonEncoderDecoder;
 
   private final ExchangeFunction exchangeFunction;
 
@@ -92,13 +100,15 @@ class DefaultWebTestClient implements WebTestClient {
 
   private final AtomicLong requestIndex = new AtomicLong();
 
-  DefaultWebTestClient(ClientHttpConnector connector,
+  DefaultWebTestClient(ClientHttpConnector connector, ExchangeStrategies exchangeStrategies,
           Function<ClientHttpConnector, ExchangeFunction> exchangeFactory, UriBuilderFactory uriBuilderFactory,
           @Nullable HttpHeaders headers, @Nullable MultiValueMap<String, String> cookies,
           Consumer<EntityExchangeResult<?>> entityResultConsumer,
           @Nullable Duration responseTimeout, DefaultWebTestClientBuilder clientBuilder) {
 
     this.wiretapConnector = new WiretapConnector(connector);
+    this.jsonEncoderDecoder = JsonEncoderDecoder.from(
+            exchangeStrategies.messageWriters(), exchangeStrategies.messageReaders());
     this.exchangeFunction = exchangeFactory.apply(this.wiretapConnector);
     this.uriBuilderFactory = uriBuilderFactory;
     this.defaultHeaders = headers;
@@ -356,7 +366,7 @@ class DefaultWebTestClient implements WebTestClient {
               this.requestId, this.uriTemplate, getResponseTimeout());
 
       return new DefaultResponseSpec(result, response,
-              DefaultWebTestClient.this.entityResultConsumer, getResponseTimeout());
+              DefaultWebTestClient.this.entityResultConsumer, getResponseTimeout(), jsonEncoderDecoder);
     }
 
     private ClientRequest.Builder initRequestBuilder() {
@@ -406,15 +416,18 @@ class DefaultWebTestClient implements WebTestClient {
 
     private final Duration timeout;
 
-    DefaultResponseSpec(
-            ExchangeResult exchangeResult, ClientResponse response,
+    @Nullable
+    private final JsonEncoderDecoder jsonEncoderDecoder;
+
+    DefaultResponseSpec(ExchangeResult exchangeResult, ClientResponse response,
             Consumer<EntityExchangeResult<?>> entityResultConsumer,
-            Duration timeout) {
+            Duration timeout, @Nullable JsonEncoderDecoder jsonEncoderDecoder) {
 
       this.exchangeResult = exchangeResult;
       this.response = response;
       this.entityResultConsumer = entityResultConsumer;
       this.timeout = timeout;
+      this.jsonEncoderDecoder = jsonEncoderDecoder;
     }
 
     @Override
@@ -468,7 +481,7 @@ class DefaultWebTestClient implements WebTestClient {
       ByteArrayResource resource = this.response.bodyToMono(ByteArrayResource.class).block(this.timeout);
       byte[] body = (resource != null ? resource.getByteArray() : null);
       EntityExchangeResult<byte[]> entityResult = initEntityExchangeResult(body);
-      return new DefaultBodyContentSpec(entityResult);
+      return new DefaultBodyContentSpec(entityResult, jsonEncoderDecoder);
     }
 
     private <B> EntityExchangeResult<B> initEntityExchangeResult(@Nullable B body) {
@@ -624,11 +637,15 @@ class DefaultWebTestClient implements WebTestClient {
 
     private final EntityExchangeResult<byte[]> result;
 
+    @Nullable
+    private final JsonEncoderDecoder jsonEncoderDecoder;
+
     private final boolean isEmpty;
 
-    DefaultBodyContentSpec(EntityExchangeResult<byte[]> result) {
+    DefaultBodyContentSpec(EntityExchangeResult<byte[]> result, @Nullable JsonEncoderDecoder jsonEncoderDecoder) {
       this.result = result;
       this.isEmpty = (result.getResponseBody() == null || result.getResponseBody().length == 0);
+      this.jsonEncoderDecoder = jsonEncoderDecoder;
     }
 
     @Override
@@ -665,8 +682,16 @@ class DefaultWebTestClient implements WebTestClient {
     }
 
     @Override
+    public JsonPathAssertions jsonPath(String expression) {
+      return new JsonPathAssertions(this, getBodyAsString(), expression,
+              JsonPathConfigurationProvider.getConfiguration(this.jsonEncoderDecoder));
+    }
+
+    @Override
+    @SuppressWarnings("removal")
     public JsonPathAssertions jsonPath(String expression, Object... args) {
-      return new JsonPathAssertions(this, getBodyAsString(), expression, args);
+      Assert.hasText(expression, "expression must not be null or empty");
+      return jsonPath(expression.formatted(args));
     }
 
     @Override
@@ -696,4 +721,16 @@ class DefaultWebTestClient implements WebTestClient {
     }
   }
 
+  private static class JsonPathConfigurationProvider {
+
+    static Configuration getConfiguration(@Nullable JsonEncoderDecoder jsonEncoderDecoder) {
+      Configuration jsonPathConfiguration = Configuration.defaultConfiguration();
+      if (jsonEncoderDecoder != null) {
+        MappingProvider mappingProvider = new EncoderDecoderMappingProvider(
+                jsonEncoderDecoder.encoder(), jsonEncoderDecoder.decoder());
+        return jsonPathConfiguration.mappingProvider(mappingProvider);
+      }
+      return jsonPathConfiguration;
+    }
+  }
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.reactive.server;
+
+import com.jayway.jsonpath.Configuration;
 
 import org.hamcrest.Matcher;
 
 import java.util.function.Consumer;
 
+import cn.taketoday.core.ParameterizedTypeReference;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.util.JsonPathExpectationsHelper;
 
@@ -43,10 +44,12 @@ public class JsonPathAssertions {
 
   private final JsonPathExpectationsHelper pathHelper;
 
-  JsonPathAssertions(WebTestClient.BodyContentSpec spec, String content, String expression, Object... args) {
+  JsonPathAssertions(WebTestClient.BodyContentSpec spec, String content, String expression,
+          @Nullable Configuration configuration) {
+    Assert.hasText(expression, "expression must not be null or empty");
     this.bodySpec = spec;
     this.content = content;
-    this.pathHelper = new JsonPathExpectationsHelper(expression, args);
+    this.pathHelper = new JsonPathExpectationsHelper(expression, configuration);
   }
 
   /**
@@ -91,6 +94,8 @@ public class JsonPathAssertions {
 
   /**
    * Applies {@link JsonPathExpectationsHelper#hasJsonPath}.
+   *
+   * @since 5.0.3
    */
   public WebTestClient.BodyContentSpec hasJsonPath() {
     this.pathHelper.hasJsonPath(this.content);
@@ -99,6 +104,8 @@ public class JsonPathAssertions {
 
   /**
    * Applies {@link JsonPathExpectationsHelper#doesNotHaveJsonPath}.
+   *
+   * @since 5.0.3
    */
   public WebTestClient.BodyContentSpec doesNotHaveJsonPath() {
     this.pathHelper.doesNotHaveJsonPath(this.content);
@@ -139,6 +146,8 @@ public class JsonPathAssertions {
 
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher)}.
+   *
+   * @since 5.1
    */
   public <T> WebTestClient.BodyContentSpec value(Matcher<? super T> matcher) {
     this.pathHelper.assertValue(this.content, matcher);
@@ -147,14 +156,40 @@ public class JsonPathAssertions {
 
   /**
    * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, Class)}.
+   *
+   * @since 6.2
    */
+  public <T> WebTestClient.BodyContentSpec value(Class<T> targetType, Matcher<? super T> matcher) {
+    this.pathHelper.assertValue(this.content, matcher, targetType);
+    return this.bodySpec;
+  }
+
+  /**
+   * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, Class)}.
+   *
+   * @since 5.1
+   * @deprecated in favor of {@link #value(Class, Matcher)}
+   */
+  @Deprecated(since = "6.2", forRemoval = true)
   public <T> WebTestClient.BodyContentSpec value(Matcher<? super T> matcher, Class<T> targetType) {
     this.pathHelper.assertValue(this.content, matcher, targetType);
     return this.bodySpec;
   }
 
   /**
+   * Delegates to {@link JsonPathExpectationsHelper#assertValue(String, Matcher, ParameterizedTypeReference)}.
+   *
+   * @since 6.2
+   */
+  public <T> WebTestClient.BodyContentSpec value(ParameterizedTypeReference<T> targetType, Matcher<? super T> matcher) {
+    this.pathHelper.assertValue(this.content, matcher, targetType);
+    return this.bodySpec;
+  }
+
+  /**
    * Consume the result of the JSONPath evaluation.
+   *
+   * @since 5.1
    */
   @SuppressWarnings("unchecked")
   public <T> WebTestClient.BodyContentSpec value(Consumer<T> consumer) {
@@ -166,10 +201,28 @@ public class JsonPathAssertions {
   /**
    * Consume the result of the JSONPath evaluation and provide a target class.
    */
-  @SuppressWarnings("unchecked")
+  public <T> WebTestClient.BodyContentSpec value(Class<T> targetType, Consumer<T> consumer) {
+    T value = this.pathHelper.evaluateJsonPath(this.content, targetType);
+    consumer.accept(value);
+    return this.bodySpec;
+  }
+
+  /**
+   * Consume the result of the JSONPath evaluation and provide a target class.
+   *
+   * @deprecated in favor of {@link #value(Class, Consumer)}
+   */
+  @Deprecated(since = "6.2", forRemoval = true)
   public <T> WebTestClient.BodyContentSpec value(Consumer<T> consumer, Class<T> targetType) {
-    Object value = this.pathHelper.evaluateJsonPath(this.content, targetType);
-    consumer.accept((T) value);
+    return value(targetType, consumer);
+  }
+
+  /**
+   * Consume the result of the JSONPath evaluation and provide a parameterized type.
+   */
+  public <T> WebTestClient.BodyContentSpec value(ParameterizedTypeReference<T> targetType, Consumer<T> consumer) {
+    T value = this.pathHelper.evaluateJsonPath(this.content, targetType);
+    consumer.accept(value);
     return this.bodySpec;
   }
 

@@ -124,12 +124,12 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
       this.defaultHeaders = null;
     }
     this.defaultCookies = (other.defaultCookies != null ?
-                           new LinkedMultiValueMap<>(other.defaultCookies) : null);
+            new LinkedMultiValueMap<>(other.defaultCookies) : null);
     this.filters = (other.filters != null ? new ArrayList<>(other.filters) : null);
     this.entityResultConsumer = other.entityResultConsumer;
     this.strategies = other.strategies;
     this.strategiesConfigurers = (other.strategiesConfigurers != null ?
-                                  new ArrayList<>(other.strategiesConfigurers) : null);
+            new ArrayList<>(other.strategiesConfigurers) : null);
   }
 
   @Override
@@ -257,8 +257,9 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
     if (connectorToUse == null) {
       connectorToUse = initConnector();
     }
+    ExchangeStrategies exchangeStrategies = initExchangeStrategies();
     Function<ClientHttpConnector, ExchangeFunction> exchangeFactory = connector -> {
-      ExchangeFunction exchange = ExchangeFunctions.create(connector, initExchangeStrategies());
+      ExchangeFunction exchange = ExchangeFunctions.create(connector, exchangeStrategies);
       if (CollectionUtils.isEmpty(this.filters)) {
         return exchange;
       }
@@ -268,7 +269,7 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
               .orElse(exchange);
 
     };
-    return new DefaultWebTestClient(connectorToUse, exchangeFactory, initUriBuilderFactory(),
+    return new DefaultWebTestClient(connectorToUse, exchangeStrategies, exchangeFactory, initUriBuilderFactory(),
             this.defaultHeaders != null ? defaultHeaders.asReadOnly() : null,
             this.defaultCookies != null ? defaultCookies.asReadOnly() : null,
             this.entityResultConsumer, this.responseTimeout, new DefaultWebTestClientBuilder(this));
