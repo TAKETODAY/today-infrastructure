@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -612,6 +612,15 @@ public interface ServerResponse {
      * @throws IOException in case of I/O errors
      */
     void send(Object object) throws IOException;
+
+    /**
+     * Sends the buffered content as a server-sent event, without data.
+     * Only the {@link #event(String) events} and {@link #comment(String) comments}
+     * will be sent.
+     *
+     * @throws IOException in case of I/O errors
+     */
+    void send() throws IOException;
 
     /**
      * Add an SSE "id" line.
