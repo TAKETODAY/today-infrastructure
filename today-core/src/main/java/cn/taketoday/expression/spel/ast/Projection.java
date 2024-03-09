@@ -34,8 +34,10 @@ import cn.taketoday.util.ObjectUtils;
 
 /**
  * Represents projection, where a given operation is performed on all elements in some
- * input sequence, returning a new sequence of the same size. For example:
- * "{1,2,3,4,5,6,7,8,9,10}.!{#isEven(#this)}" returns "[n, y, n, y, n, y, n, y, n, y]"
+ * input sequence, returning a new sequence of the same size.
+ *
+ * <p>For example: <code>{1,2,3,4,5,6,7,8,9,10}.![#isEven(#this)]</code> evaluates
+ * to {@code [n, y, n, y, n, y, n, y, n, y]}.
  *
  * @author Andy Clement
  * @author Mark Fisher
