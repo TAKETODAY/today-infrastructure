@@ -192,6 +192,9 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * Returns a sequential {@code Stream} with this iterator as its source.
    *
    * @return a sequential {@code Stream} over the elements in this iterator
+   * @apiNote This method must be used within a try-with-resources statement or similar
+   * control structure to ensure that the stream's open connection is closed
+   * promptly after the stream's operations have completed.
    * @since 4.0
    */
   public Stream<T> stream() {
@@ -205,6 +208,9 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    *
    * @return a possibly parallel {@code Stream} over the elements in this
    * iterator
+   * @apiNote This method must be used within a try-with-resources statement or similar
+   * control structure to ensure that the stream's open connection is closed
+   * promptly after the stream's operations have completed.
    * @since 4.0
    */
   public Stream<T> parallelStream() {
