@@ -327,7 +327,7 @@ public class ResolvableType implements Serializable {
       }
     }
     else {
-      // As of 6.1: shortcut assignability check for top-level Class references
+      // shortcut assignability check for top-level Class references
       if (this.type instanceof Class<?> clazz && other.type instanceof Class<?> otherClazz) {
         return (strict ? clazz.isAssignableFrom(otherClazz) : ClassUtils.isAssignable(clazz, otherClazz));
       }
@@ -352,8 +352,8 @@ public class ResolvableType implements Serializable {
     // In the form X is assignable to <? extends Number>
     if (typeBounds != null) {
       if (ourBounds != null) {
-        return (ourBounds.isSameKind(typeBounds) &&
-                ourBounds.isAssignableFrom(typeBounds.bounds, matchedBefore));
+        return ourBounds.isSameKind(typeBounds)
+                && ourBounds.isAssignableFrom(typeBounds.bounds, matchedBefore);
       }
       else if (upUntilUnresolvable) {
         return typeBounds.isAssignableFrom(this, matchedBefore);
@@ -1909,8 +1909,9 @@ public class ResolvableType implements Serializable {
      */
     public boolean isAssignableFrom(ResolvableType type, @Nullable Map<Type, Type> matchedBefore) {
       for (ResolvableType bound : this.bounds) {
-        if (this.kind == Kind.UPPER ? !bound.isAssignableFrom(type, false, matchedBefore, false) :
-                !type.isAssignableFrom(bound, false, matchedBefore, false)) {
+        if (this.kind == Kind.UPPER
+                ? !bound.isAssignableFrom(type, false, matchedBefore, false)
+                : !type.isAssignableFrom(bound, false, matchedBefore, false)) {
           return false;
         }
       }

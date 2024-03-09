@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -62,10 +62,20 @@ import cn.taketoday.util.StringUtils;
  * --foo=bar --foo=baz --foo=biz
  * }</pre>
  *
+ * <h3>End of option arguments</h3>
+ * <p>The underlying parser supports the POSIX "end of options" delimiter, meaning
+ * that any {@code "--"} (empty option name) in the command line signals that all
+ * remaining arguments are non-option arguments. For example, {@code "--opt1=ignored"},
+ * {@code "--opt2"}, and {@code "filename"} in the following command line are
+ * considered non-option arguments.
+ * <pre class="code">
+ * --foo=bar -- --opt1=ignored -opt2 filename</pre>
+ *
  * <h3>Working with non-option arguments</h3>
- * <p>Any and all arguments specified at the command line without the "{@code --}"
- * option prefix will be considered as "non-option arguments" and made available
- * through the {@link CommandLineArgs#getNonOptionArgs()} method.
+ * <p>Any arguments following the "end of options" delimiter ({@code --}) or
+ * specified without the "{@code --}" option prefix will be considered as
+ * "non-option arguments" and made available through the
+ * {@link CommandLineArgs#getNonOptionArgs()} method.
  *
  * <h3>Typical usage</h3>
  * <pre>{@code
@@ -79,10 +89,9 @@ import cn.taketoday.util.StringUtils;
  *
  * <h3>Beyond the basics</h3>
  *
- * <p>When more fully-featured command line parsing is necessary, consider using
- * the provided {@link JOptCommandLinePropertySource}, or implement your own
- * {@code CommandLinePropertySource} against the command line parsing library of your
- * choice.
+ * <p>When more fully-featured command line parsing is necessary, consider
+ * implementing your own {@code CommandLinePropertySource} against the command line
+ * parsing library of your choice.
  *
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -47,10 +47,20 @@ package cn.taketoday.core.env;
  * --foo = bar
  * --foo=bar --foo=baz --foo=biz</pre>
  *
+ * <h3>End of option arguments</h3>
+ * <p>This parser supports the POSIX "end of options" delimiter, meaning that any
+ * {@code "--"} (empty option name) in the command line signals that all remaining
+ * arguments are non-option arguments. For example, {@code "--opt1=ignored"},
+ * {@code "--opt2"}, and {@code "filename"} in the following command line are
+ * considered non-option arguments.
+ * <pre class="code">
+ * --foo=bar -- --opt1=ignored -opt2 filename</pre>
+ *
  * <h3>Working with non-option arguments</h3>
- * <p>Any and all arguments specified at the command line without the "{@code --}"
- * option prefix will be considered as "non-option arguments" and made available
- * through the {@link CommandLineArgs#getNonOptionArgs()} method.
+ * <p>Any arguments following the "end of options" delimiter ({@code --}) or
+ * specified without the "{@code --}" option prefix will be considered as
+ * "non-option arguments" and made available through the
+ * {@link CommandLineArgs#getNonOptionArgs()} method.
  *
  * @author Chris Beams
  * @author Sam Brannen
