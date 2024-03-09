@@ -167,7 +167,7 @@ class PropertySourcesPlaceholderConfigurerTests {
     assertThatExceptionOfType(BeanDefinitionStoreException.class)
             .isThrownBy(() -> ppc.postProcessBeanFactory(bf))
             .havingCause()
-            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .isExactlyInstanceOf(PlaceholderResolutionException.class)
             .withMessage("Could not resolve placeholder 'my.name' in value \"${my.name}\"");
   }
 
@@ -186,7 +186,6 @@ class PropertySourcesPlaceholderConfigurerTests {
   }
 
   @Test
-  // https://github.com/spring-projects/spring-framework/issues/27947
   public void ignoreUnresolvablePlaceholdersInAtValueAnnotation__falseIsDefault() {
     MockPropertySource mockPropertySource = new MockPropertySource("test");
     mockPropertySource.setProperty("my.key", "${enigma}");
@@ -199,7 +198,7 @@ class PropertySourcesPlaceholderConfigurerTests {
             .isThrownBy(context::refresh)
             .havingCause()
             .isExactlyInstanceOf(PlaceholderResolutionException.class)
-            .withMessage("Could not resolve placeholder 'enigma' in value \"${enigma}\"");
+            .withMessage("Could not resolve placeholder 'enigma' in value \"${enigma}\" <-- \"${my.key}\"");
   }
 
   @Test
