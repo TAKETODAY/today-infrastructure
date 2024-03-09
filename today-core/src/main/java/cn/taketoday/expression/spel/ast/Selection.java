@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -24,7 +21,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.TypeDescriptor;
@@ -40,15 +36,19 @@ import cn.taketoday.util.ObjectUtils;
 
 /**
  * Represents selection over a map or collection.
- * For example: {1,2,3,4,5,6,7,8,9,10}.?{#isEven(#this) == 'y'} returns [2, 4, 6, 8, 10]
+ * Represents selection over a map or collection.
  *
- * <p>Basically a subset of the input data is returned based on the
- * evaluation of the expression supplied as selection criteria.
+ * <p>For example, <code>{1,2,3,4,5,6,7,8,9,10}.?[#isEven(#this)]</code> evaluates
+ * to {@code [2, 4, 6, 8, 10]}.
+ *
+ * <p>Basically a subset of the input data is returned based on the evaluation of
+ * the expression supplied as selection criteria.
  *
  * @author Andy Clement
  * @author Mark Fisher
  * @author Sam Brannen
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Selection extends SpelNodeImpl {
@@ -89,9 +89,7 @@ public class Selection extends SpelNodeImpl {
     Object operand = op.getValue();
     SpelNodeImpl selectionCriteria = this.children[0];
 
-    if (operand instanceof Map) {
-      Map<?, ?> mapdata = (Map<?, ?>) operand;
-      // TODO don't lose generic info for the new map
+    if (operand instanceof Map<?, ?> mapdata) {
       Map<Object, Object> result = new HashMap<>();
       Object lastKey = null;
 
@@ -101,13 +99,12 @@ public class Selection extends SpelNodeImpl {
           state.pushActiveContextObject(kvPair);
           state.enterScope();
           Object val = selectionCriteria.getValueInternal(state).getValue();
-          if (val instanceof Boolean) {
-            if ((Boolean) val) {
+          if (val instanceof Boolean b) {
+            if (b) {
+              result.put(entry.getKey(), entry.getValue());
               if (this.variant == FIRST) {
-                result.put(entry.getKey(), entry.getValue());
                 return new ValueRef.TypedValueHolderValueRef(new TypedValue(result), this);
               }
-              result.put(entry.getKey(), entry.getValue());
               lastKey = entry.getKey();
             }
           }
@@ -123,7 +120,7 @@ public class Selection extends SpelNodeImpl {
       }
 
       if ((this.variant == FIRST || this.variant == LAST) && result.isEmpty()) {
-        return new ValueRef.TypedValueHolderValueRef(new TypedValue(null), this);
+        return new ValueRef.TypedValueHolderValueRef(TypedValue.NULL, this);
       }
 
       if (this.variant == LAST) {
@@ -138,17 +135,16 @@ public class Selection extends SpelNodeImpl {
 
     if (operand instanceof Iterable || ObjectUtils.isArray(operand)) {
       Iterable<?> data = (operand instanceof Iterable ?
-                          (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand)));
+              (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand)));
 
-      List<Object> result = new ArrayList<>();
-      int index = 0;
+      ArrayList<Object> result = new ArrayList<>();
       for (Object element : data) {
         try {
           state.pushActiveContextObject(new TypedValue(element));
-          state.enterScope("index", index);
+          state.enterScope();
           Object val = selectionCriteria.getValueInternal(state).getValue();
-          if (val instanceof Boolean) {
-            if ((Boolean) val) {
+          if (val instanceof Boolean b) {
+            if (b) {
               if (this.variant == FIRST) {
                 return new ValueRef.TypedValueHolderValueRef(new TypedValue(element), this);
               }
@@ -159,7 +155,6 @@ public class Selection extends SpelNodeImpl {
             throw new SpelEvaluationException(selectionCriteria.getStartPosition(),
                     SpelMessage.RESULT_OF_SELECTION_CRITERIA_IS_NOT_BOOLEAN);
           }
-          index++;
         }
         finally {
           state.exitScope();
