@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -52,6 +49,7 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class FunctionReference extends SpelNodeImpl {
@@ -74,47 +72,52 @@ public class FunctionReference extends SpelNodeImpl {
     if (value == TypedValue.NULL) {
       throw new SpelEvaluationException(getStartPosition(), SpelMessage.FUNCTION_NOT_DEFINED, this.name);
     }
-    Object resolvedValue = value.getValue();
-    if (resolvedValue instanceof MethodHandle methodHandle) {
+    Object function = value.getValue();
+
+    // Static Java method registered via a Method.
+    // Note: "javaMethod" cannot be named "method" due to a bug in Checkstyle.
+    if (function instanceof Method javaMethod) {
       try {
-        return executeFunctionBoundMethodHandle(state, methodHandle);
+        return executeFunctionViaMethod(state, javaMethod);
       }
       catch (SpelEvaluationException ex) {
         ex.setPosition(getStartPosition());
         throw ex;
       }
     }
-    if (!(resolvedValue instanceof Method function)) {
-      // Possibly a static Java method registered as a function
-      throw new SpelEvaluationException(
-              SpelMessage.FUNCTION_REFERENCE_CANNOT_BE_INVOKED, this.name, value.getClass());
+
+    // Function registered via a MethodHandle.
+    if (function instanceof MethodHandle methodHandle) {
+      try {
+        return executeFunctionViaMethodHandle(state, methodHandle);
+      }
+      catch (SpelEvaluationException ex) {
+        ex.setPosition(getStartPosition());
+        throw ex;
+      }
     }
 
-    try {
-      return executeFunctionJLRMethod(state, function);
-    }
-    catch (SpelEvaluationException ex) {
-      ex.setPosition(getStartPosition());
-      throw ex;
-    }
+    // Neither a Method nor a MethodHandle?
+    throw new SpelEvaluationException(
+            SpelMessage.FUNCTION_REFERENCE_CANNOT_BE_INVOKED, this.name, value.getClass());
   }
 
   /**
-   * Execute a function represented as a {@code java.lang.reflect.Method}.
+   * Execute a function represented as a {@link Method}.
    *
    * @param state the expression evaluation state
    * @param method the method to invoke
    * @return the return value of the invoked Java method
    * @throws EvaluationException if there is any problem invoking the method
    */
-  private TypedValue executeFunctionJLRMethod(ExpressionState state, Method method) throws EvaluationException {
+  private TypedValue executeFunctionViaMethod(ExpressionState state, Method method) throws EvaluationException {
     Object[] functionArgs = getArguments(state);
 
     if (!method.isVarArgs()) {
       int declaredParamCount = method.getParameterCount();
       if (declaredParamCount != functionArgs.length) {
         throw new SpelEvaluationException(SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION,
-                functionArgs.length, declaredParamCount);
+                this.name, functionArgs.length, declaredParamCount);
       }
     }
     if (!Modifier.isStatic(method.getModifiers())) {
@@ -154,17 +157,17 @@ public class FunctionReference extends SpelNodeImpl {
   }
 
   /**
-   * Execute a function represented as {@code java.lang.invoke.MethodHandle}.
-   * Method types that take no arguments (fully bound handles or static methods
-   * with no parameters) can use {@code #invoke()} which is the most efficient.
-   * Otherwise, {@code #invokeWithArguments)} is used.
+   * Execute a function represented as {@link MethodHandle}.
+   * <p>Method types that take no arguments (fully bound handles or static methods
+   * with no parameters) can use {@link MethodHandle#invoke()} which is the most
+   * efficient. Otherwise, {@link MethodHandle#invokeWithArguments()} is used.
    *
    * @param state the expression evaluation state
-   * @param methodHandle the method to invoke
+   * @param methodHandle the method handle to invoke
    * @return the return value of the invoked Java method
    * @throws EvaluationException if there is any problem invoking the method
    */
-  private TypedValue executeFunctionBoundMethodHandle(ExpressionState state, MethodHandle methodHandle) throws EvaluationException {
+  private TypedValue executeFunctionViaMethodHandle(ExpressionState state, MethodHandle methodHandle) throws EvaluationException {
     Object[] functionArgs = getArguments(state);
     MethodType declaredParams = methodHandle.type();
     int spelParamCount = functionArgs.length;
@@ -172,17 +175,15 @@ public class FunctionReference extends SpelNodeImpl {
 
     boolean isSuspectedVarargs = declaredParams.lastParameterType().isArray();
 
-    if (spelParamCount < declaredParamCount || (spelParamCount > declaredParamCount
-            && !isSuspectedVarargs)) {
-      //incorrect number, including more arguments and not a vararg
+    if (spelParamCount < declaredParamCount || (spelParamCount > declaredParamCount && !isSuspectedVarargs)) {
+      // incorrect number, including more arguments and not a vararg
+      // perhaps a subset of arguments was provided but the MethodHandle wasn't bound?
       throw new SpelEvaluationException(SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION,
-              functionArgs.length, declaredParamCount);
-      //perhaps a subset of arguments was provided but the MethodHandle wasn't bound?
+              this.name, functionArgs.length, declaredParamCount);
     }
 
     // simplest case: the MethodHandle is fully bound or represents a static method with no params:
     if (declaredParamCount == 0) {
-      //note we consider MethodHandles not compilable
       try {
         return new TypedValue(methodHandle.invoke());
       }
@@ -191,6 +192,7 @@ public class FunctionReference extends SpelNodeImpl {
                 this.name, ex.getMessage());
       }
       finally {
+        // Note: we consider MethodHandles not compilable
         this.exitTypeDescriptor = null;
         this.method = null;
       }
@@ -203,13 +205,13 @@ public class FunctionReference extends SpelNodeImpl {
     }
     TypeConverter converter = state.getEvaluationContext().getTypeConverter();
     ReflectionHelper.convertAllMethodHandleArguments(converter, functionArgs, methodHandle, varArgPosition);
+
     if (isSuspectedVarargs && declaredParamCount == 1) {
-      //we only repack the varargs if it is the ONLY argument
+      // we only repack the varargs if it is the ONLY argument
       functionArgs = ReflectionHelper.setupArgumentsForVarargsInvocation(
               methodHandle.type().parameterArray(), functionArgs);
     }
 
-    //note we consider MethodHandles not compilable
     try {
       return new TypedValue(methodHandle.invokeWithArguments(functionArgs));
     }
@@ -218,6 +220,7 @@ public class FunctionReference extends SpelNodeImpl {
               this.name, ex.getMessage());
     }
     finally {
+      // Note: we consider MethodHandles not compilable
       this.exitTypeDescriptor = null;
       this.method = null;
     }
@@ -239,10 +242,9 @@ public class FunctionReference extends SpelNodeImpl {
    */
   private Object[] getArguments(ExpressionState state) throws EvaluationException {
     // Compute arguments to the function
-    int i = 0;
     Object[] arguments = new Object[getChildCount()];
-    for (SpelNodeImpl child : children) {
-      arguments[i++] = child.getValueInternal(state).getValue();
+    for (int i = 0; i < arguments.length; i++) {
+      arguments[i] = this.children[i].getValueInternal(state).getValue();
     }
     return arguments;
   }
@@ -254,9 +256,8 @@ public class FunctionReference extends SpelNodeImpl {
       return false;
     }
     int methodModifiers = method.getModifiers();
-    if (!Modifier.isStatic(methodModifiers)
-            || !Modifier.isPublic(methodModifiers)
-            || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+    if (!Modifier.isStatic(methodModifiers) || !Modifier.isPublic(methodModifiers) ||
+            !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
       return false;
     }
     for (SpelNodeImpl child : this.children) {
