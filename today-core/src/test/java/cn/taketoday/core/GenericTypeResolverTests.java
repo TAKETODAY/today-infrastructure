@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -192,6 +192,13 @@ public class GenericTypeResolverTests {
     Type resolvedType = resolveType(methodParameter.getGenericParameterType(), WithMethodParameter.class);
     ParameterizedTypeReference<List<Map<String, Integer>>> reference = new ParameterizedTypeReference<>() { };
     assertThat(resolvedType).isEqualTo(reference.getType());
+  }
+
+  @Test
+  void resolveNestedTypeVariable() throws Exception {
+    Type resolved = resolveType(ListOfListSupplier.class.getMethod("get").getGenericReturnType(),
+            StringListOfListSupplier.class);
+    assertThat(ResolvableType.forType(resolved).getGeneric(0).getGeneric(0).resolve()).isEqualTo(String.class);
   }
 
   private static Method method(Class<?> target, String methodName, Class<?>... parameterTypes) {
@@ -391,6 +398,14 @@ public class GenericTypeResolverTests {
   static class WithMethodParameter {
     public void nestedGenerics(List<Map<String, Integer>> input) {
     }
+  }
+
+  public interface ListOfListSupplier<T> {
+
+    List<List<T>> get();
+  }
+
+  public interface StringListOfListSupplier extends ListOfListSupplier<String> {
   }
 
 }
