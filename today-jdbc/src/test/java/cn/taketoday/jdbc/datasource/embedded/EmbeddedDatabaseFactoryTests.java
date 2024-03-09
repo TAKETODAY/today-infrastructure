@@ -70,7 +70,7 @@ public class EmbeddedDatabaseFactoryTests {
                       @Override
                       public void configureConnectionProperties(ConnectionProperties properties, String databaseName) {
                         super.configureConnectionProperties(properties, databaseName);
-                        properties.setUrl("jdbc:h2:mem:custom-db-name;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=MariaDB");
+                        properties.setUrl("jdbc:h2:mem:custom-db-name;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;MODE=MySQL");
                       }
                     }));
     EmbeddedDatabase db = this.factory.getDatabase();

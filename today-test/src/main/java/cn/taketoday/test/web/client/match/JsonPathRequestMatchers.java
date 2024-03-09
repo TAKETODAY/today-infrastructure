@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.client.match;
@@ -28,6 +25,7 @@ import java.io.IOException;
 import java.text.ParseException;
 
 import cn.taketoday.http.client.ClientHttpRequest;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.test.util.JsonPathExpectationsHelper;
 import cn.taketoday.test.web.client.RequestMatcher;
@@ -42,6 +40,7 @@ import cn.taketoday.test.web.client.RequestMatcher;
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class JsonPathRequestMatchers {
@@ -58,7 +57,8 @@ public class JsonPathRequestMatchers {
    * using formatting specifiers defined in {@link String#format(String, Object...)}
    */
   protected JsonPathRequestMatchers(String expression, Object... args) {
-    this.jsonPathHelper = new JsonPathExpectationsHelper(expression, args);
+    Assert.hasText(expression, "expression must not be null or empty");
+    this.jsonPathHelper = new JsonPathExpectationsHelper(expression.formatted(args));
   }
 
   /**
@@ -80,8 +80,6 @@ public class JsonPathRequestMatchers {
    * against.
    * <p>This can be useful for matching numbers reliably &mdash; for example,
    * to coerce an integer into a double.
-   *
-   * @since 4.0
    */
   public <T> RequestMatcher value(Matcher<? super T> matcher, Class<T> targetType) {
     return new AbstractJsonPathRequestMatcher() {
@@ -147,7 +145,6 @@ public class JsonPathRequestMatchers {
    *
    * @see #exists()
    * @see #isNotEmpty()
-   * @since 4.0
    */
   public RequestMatcher hasJsonPath() {
     return new AbstractJsonPathRequestMatcher() {
@@ -168,7 +165,6 @@ public class JsonPathRequestMatchers {
    *
    * @see #doesNotExist()
    * @see #isEmpty()
-   * @since 4.0
    */
   public RequestMatcher doesNotHaveJsonPath() {
     return new AbstractJsonPathRequestMatcher() {
@@ -188,7 +184,6 @@ public class JsonPathRequestMatchers {
    * @see #isNotEmpty()
    * @see #exists()
    * @see #doesNotExist()
-   * @since 4.0
    */
   public RequestMatcher isEmpty() {
     return new AbstractJsonPathRequestMatcher() {
@@ -208,7 +203,6 @@ public class JsonPathRequestMatchers {
    * @see #isEmpty()
    * @see #exists()
    * @see #doesNotExist()
-   * @since 4.0
    */
   public RequestMatcher isNotEmpty() {
     return new AbstractJsonPathRequestMatcher() {
@@ -222,8 +216,6 @@ public class JsonPathRequestMatchers {
   /**
    * Evaluate the JSON path expression against the request content and
    * assert that the result is a {@link String}.
-   *
-   * @since 4.0
    */
   public RequestMatcher isString() {
     return new AbstractJsonPathRequestMatcher() {
@@ -237,8 +229,6 @@ public class JsonPathRequestMatchers {
   /**
    * Evaluate the JSON path expression against the request content and
    * assert that the result is a {@link Boolean}.
-   *
-   * @since 4.0
    */
   public RequestMatcher isBoolean() {
     return new AbstractJsonPathRequestMatcher() {
@@ -252,8 +242,6 @@ public class JsonPathRequestMatchers {
   /**
    * Evaluate the JSON path expression against the request content and
    * assert that the result is a {@link Number}.
-   *
-   * @since 4.0
    */
   public RequestMatcher isNumber() {
     return new AbstractJsonPathRequestMatcher() {
@@ -280,8 +268,6 @@ public class JsonPathRequestMatchers {
   /**
    * Evaluate the JSON path expression against the request content and
    * assert that the result is a {@link java.util.Map}.
-   *
-   * @since 4.0
    */
   public RequestMatcher isMap() {
     return new AbstractJsonPathRequestMatcher() {
