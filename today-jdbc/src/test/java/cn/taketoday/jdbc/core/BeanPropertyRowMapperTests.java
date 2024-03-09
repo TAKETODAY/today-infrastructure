@@ -21,8 +21,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
+import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.core.test.ConcretePerson;
@@ -137,6 +142,16 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
   }
 
   @Test
+  void queryWithCustomNameMatchOnBirthDate() throws Exception {
+    Mock mock = new Mock(MockType.FOUR);
+    Person person = mock.getJdbcTemplate().queryForObject(
+            "select name, age, birthdate, balance from people",
+            new CustomBeanPropertyRowMapper());
+    verifyPerson(person);
+    mock.verifyClosed();
+  }
+
+  @Test
   void queryWithUnderscoreInColumnNameAndPersonWithMultipleAdjacentUppercaseLettersInPropertyName() throws Exception {
     Mock mock = new Mock();
     List<EmailPerson> result = mock.getJdbcTemplate().query(
@@ -159,6 +174,43 @@ public class BeanPropertyRowMapperTests extends AbstractRowMapperTests {
   void underscoreName(String input, String expected) {
     BeanPropertyRowMapper<?> mapper = RowMapper.forMappedClass(Object.class);
     assertThat(mapper.underscoreName(input)).isEqualTo(expected);
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface MyColumnName {
+
+    String value();
+  }
+
+  private static class CustomPerson extends Person {
+
+    @Override
+    @MyColumnName("birthdate")
+    public Date getBirth_date() {
+      return super.getBirth_date();
+    }
+
+    @Override
+    public void setBirth_date(Date birth_date) {
+      super.setBirth_date(birth_date);
+    }
+  }
+
+  private static class CustomBeanPropertyRowMapper extends BeanPropertyRowMapper<CustomPerson> {
+
+    public CustomBeanPropertyRowMapper() {
+      super(CustomPerson.class);
+    }
+
+    @Override
+    protected Set<String> mappedNames(BeanProperty property) {
+      Set<String> mappedNames = super.mappedNames(property);
+      MyColumnName customName = property.getAnnotation(MyColumnName.class);
+      if (customName != null) {
+        mappedNames.add(customName.value());
+      }
+      return mappedNames;
+    }
   }
 
 }

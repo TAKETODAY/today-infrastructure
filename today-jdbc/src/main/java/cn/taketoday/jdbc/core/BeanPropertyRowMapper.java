@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core;
@@ -247,11 +247,9 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
     HashMap<String, BeanProperty> mappedFields = new HashMap<>();
     for (BeanProperty property : metadata) {
       if (property.isWriteable()) {
-        String lowerCaseName = lowerCaseName(property.getName());
-        mappedFields.put(lowerCaseName, property);
-        String underscoreName = underscoreName(property.getName());
-        if (!lowerCaseName.equals(underscoreName)) {
-          mappedFields.put(underscoreName, property);
+        Set<String> mappedNames = mappedNames(property);
+        for (String mappedName : mappedNames) {
+          mappedFields.put(mappedName, property);
         }
         mappedProperties.add(property.getName());
       }
@@ -271,6 +269,26 @@ public class BeanPropertyRowMapper<T> implements RowMapper<T> {
       this.mappedFields.remove(lowerCaseName(propertyName));
       this.mappedFields.remove(underscoreName(propertyName));
     }
+  }
+
+  /**
+   * Determine the mapped names for the given property.
+   * <p>Subclasses may override this method to customize the mapped names,
+   * adding to or removing from the set determined by this base method
+   * (which returns the property name in lower-case and underscore-based
+   * form), or replacing the set completely.
+   *
+   * @param property the property descriptor discovered on initialization
+   * @return a set of mapped names
+   * @see #initialize
+   * @see #lowerCaseName
+   * @see #underscoreName
+   */
+  protected Set<String> mappedNames(BeanProperty property) {
+    Set<String> mappedNames = new HashSet<>(4);
+    mappedNames.add(lowerCaseName(property.getName()));
+    mappedNames.add(underscoreName(property.getName()));
+    return mappedNames;
   }
 
   /**
