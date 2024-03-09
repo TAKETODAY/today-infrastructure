@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -27,11 +24,13 @@ import java.util.Map;
 
 import cn.taketoday.core.testfixture.env.MockPropertySource;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.util.PlaceholderResolutionException;
 
 import static cn.taketoday.core.env.Environment.DEFAULT_PROFILE;
 import static cn.taketoday.core.env.Environment.KEY_ACTIVE_PROFILES;
 import static cn.taketoday.core.env.Environment.KEY_DEFAULT_PROFILES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -210,9 +209,9 @@ public class StandardEnvironmentTests {
   void defaultProfileWithCircularPlaceholder() {
     try {
       System.setProperty(KEY_DEFAULT_PROFILES, "${infra.profiles.default}");
-      assertThatIllegalArgumentException()
+      assertThatExceptionOfType(PlaceholderResolutionException.class)
               .isThrownBy(environment::getDefaultProfiles)
-              .withMessage("Circular placeholder reference 'infra.profiles.default' in property definitions");
+              .withMessageContaining("Circular placeholder reference 'infra.profiles.default'");
     }
     finally {
       System.clearProperty(KEY_DEFAULT_PROFILES);

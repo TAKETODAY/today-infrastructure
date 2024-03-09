@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -40,6 +37,7 @@ import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.testfixture.env.MockPropertySource;
+import cn.taketoday.util.PlaceholderResolutionException;
 
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.genericBeanDefinition;
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
@@ -200,7 +198,7 @@ class PropertySourcesPlaceholderConfigurerTests {
     assertThatExceptionOfType(BeanCreationException.class)
             .isThrownBy(context::refresh)
             .havingCause()
-            .isExactlyInstanceOf(IllegalArgumentException.class)
+            .isExactlyInstanceOf(PlaceholderResolutionException.class)
             .withMessage("Could not resolve placeholder 'enigma' in value \"${enigma}\"");
   }
 

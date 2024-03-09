@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +12,33 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author TODAY 2021/9/28 22:37
  */
 class PropertyPlaceholderHandlerTests {
 
-  private final PropertyPlaceholderHandler placeholderHandler = new PropertyPlaceholderHandler("${", "}");
+  private final PropertyPlaceholderHandler helper = new PropertyPlaceholderHandler("${", "}");
 
   @Test
   void withProperties() {
@@ -40,7 +46,7 @@ class PropertyPlaceholderHandlerTests {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, props)).isEqualTo("foo=bar");
+    assertThat(this.helper.replacePlaceholders(text, props)).isEqualTo("foo=bar");
   }
 
   @Test
@@ -50,7 +56,7 @@ class PropertyPlaceholderHandlerTests {
     props.setProperty("foo", "bar");
     props.setProperty("bar", "baz");
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, props)).isEqualTo("foo=bar,bar=baz");
+    assertThat(this.helper.replacePlaceholders(text, props)).isEqualTo("foo=bar,bar=baz");
   }
 
   @Test
@@ -60,7 +66,7 @@ class PropertyPlaceholderHandlerTests {
     props.setProperty("bar", "${baz}");
     props.setProperty("baz", "bar");
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, props)).isEqualTo("foo=bar");
+    assertThat(this.helper.replacePlaceholders(text, props)).isEqualTo("foo=bar");
   }
 
   @Test
@@ -70,7 +76,7 @@ class PropertyPlaceholderHandlerTests {
     props.setProperty("bar", "bar");
     props.setProperty("inner", "ar");
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, props)).isEqualTo("foo=bar");
+    assertThat(this.helper.replacePlaceholders(text, props)).isEqualTo("foo=bar");
 
     text = "${top}";
     props = new Properties();
@@ -79,7 +85,7 @@ class PropertyPlaceholderHandlerTests {
     props.setProperty("differentiator", "first");
     props.setProperty("first.grandchild", "actualValue");
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, props)).isEqualTo("actualValue+actualValue");
+    assertThat(this.helper.replacePlaceholders(text, props)).isEqualTo("actualValue+actualValue");
   }
 
   @Test
@@ -87,7 +93,7 @@ class PropertyPlaceholderHandlerTests {
     String text = "foo=${foo}";
     PlaceholderResolver resolver = placeholderName -> "foo".equals(placeholderName) ? "bar" : null;
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, resolver)).isEqualTo("foo=bar");
+    assertThat(this.helper.replacePlaceholders(text, resolver)).isEqualTo("foo=bar");
   }
 
   @Test
@@ -96,7 +102,7 @@ class PropertyPlaceholderHandlerTests {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
 
-    assertThat(this.placeholderHandler.replacePlaceholders(text, props)).isEqualTo("foo=bar,bar=${bar}");
+    assertThat(this.helper.replacePlaceholders(text, props)).isEqualTo("foo=bar,bar=${bar}");
   }
 
   @Test
@@ -105,9 +111,57 @@ class PropertyPlaceholderHandlerTests {
     Properties props = new Properties();
     props.setProperty("foo", "bar");
 
-    PropertyPlaceholderHandler helper = new PropertyPlaceholderHandler("${", "}", null, false);
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> helper.replacePlaceholders(text, props));
+    PropertyPlaceholderHandler helper = new PropertyPlaceholderHandler("${", "}", null, null, false);
+    assertThatExceptionOfType(PlaceholderResolutionException.class).isThrownBy(() ->
+            helper.replacePlaceholders(text, props));
+  }
+
+  @Nested
+  class DefaultValueTests {
+
+    private final PropertyPlaceholderHandler helper = new PropertyPlaceholderHandler("${", "}", ":", null, true);
+
+    @ParameterizedTest(name = "{0} -> {1}")
+    @MethodSource("defaultValues")
+    void defaultValueIsApplied(String text, String value) {
+      Properties properties = new Properties();
+      properties.setProperty("one", "1");
+      properties.setProperty("two", "2");
+      assertThat(this.helper.replacePlaceholders(text, properties)).isEqualTo(value);
+    }
+
+    @Test
+    void defaultValueIsNotEvaluatedEarly() {
+      PlaceholderResolver resolver = mockPlaceholderResolver("one", "1");
+      assertThat(this.helper.replacePlaceholders("This is ${one:or${two}}", resolver)).isEqualTo("This is 1");
+      verify(resolver).resolvePlaceholder("one");
+      verify(resolver, never()).resolvePlaceholder("two");
+    }
+
+    static Stream<Arguments> defaultValues() {
+      return Stream.of(
+              Arguments.of("${invalid:test}", "test"),
+              Arguments.of("${invalid:${one}}", "1"),
+              Arguments.of("${invalid:${one}${two}}", "12"),
+              Arguments.of("${invalid:${one}:${two}}", "1:2"),
+              Arguments.of("${invalid:${also_invalid:test}}", "test"),
+              Arguments.of("${invalid:${also_invalid:${one}}}", "1")
+      );
+    }
+
+  }
+
+  PlaceholderResolver mockPlaceholderResolver(String... pairs) {
+    if (pairs.length % 2 == 1) {
+      throw new IllegalArgumentException("size must be even, it is a set of key=value pairs");
+    }
+    PlaceholderResolver resolver = mock(PlaceholderResolver.class);
+    for (int i = 0; i < pairs.length; i += 2) {
+      String key = pairs[i];
+      String value = pairs[i + 1];
+      given(resolver.resolvePlaceholder(key)).willReturn(value);
+    }
+    return resolver;
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.config;
@@ -36,35 +33,39 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>The default placeholder syntax follows the Ant / Log4J / JSP EL style:
  *
- * <pre class="code">${...}</pre>
+ * <pre> {@code
+ *   ${...}
+ * } </pre>
  *
  * Example XML bean definition:
  *
- * <pre class="code">
- * &lt;bean id="dataSource" class="cn.taketoday.jdbc.datasource.DriverManagerDataSource"&gt;
- *   &lt;property name="driverClassName" value="${driver}" /&gt;
- *   &lt;property name="url" value="jdbc:${dbname}" /&gt;
- * &lt;/bean&gt;
- * </pre>
+ * <pre>{@code
+ * <bean id="dataSource" class="cn.taketoday.jdbc.datasource.DriverManagerDataSource">
+ *   <property name="driverClassName" value="${driver}" />
+ *   <property name="url" value="jdbc:${dbname}" />
+ * </bean>
+ * }</pre>
  *
  * Example properties file:
  *
- * <pre class="code">
+ * <pre>{@code
  * driver=com.mysql.jdbc.Driver
- * dbname=mysql:mydb</pre>
+ * dbname=mysql:mydb
+ * }</pre>
  *
  * Annotated bean definitions may take advantage of property replacement using
  * the {@link Value @Value} annotation:
  *
- * <pre class="code">@Value("${person.age}")</pre>
+ * <pre>{@code @Value("${person.age}")}</pre>
  *
  * Implementations check simple property values, lists, maps, props, and bean names
  * in bean references. Furthermore, placeholder values can also cross-reference
  * other placeholders, like:
  *
- * <pre class="code">
+ * <pre>{@code
  * rootPath=myrootdir
- * subPath=${rootPath}/subdir</pre>
+ * subPath=${rootPath}/subdir
+ * }</pre>
  *
  * Subclasses of this type allow
  * filling in of explicit placeholders in bean definitions.
@@ -83,9 +84,9 @@ import cn.taketoday.lang.Nullable;
  *
  * <p>Example XML property with default value:
  *
- * <pre class="code">
- *   &lt;property name="url" value="jdbc:${dbname:defaultdb}" /&gt;
- * </pre>
+ * <pre >{@code
+ *   <property name="url" value="jdbc:${dbname:defaultdb}" />
+ * }</pre>
  *
  * @author Chris Beams
  * @author Juergen Hoeller
@@ -93,8 +94,7 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer
  * @since 4.0 2021/12/12 14:38
  */
-public abstract class PlaceholderConfigurerSupport
-        extends PropertyResourceConfigurer implements BeanNameAware, BeanFactoryAware {
+public abstract class PlaceholderConfigurerSupport extends PropertyResourceConfigurer implements BeanNameAware, BeanFactoryAware {
 
   /** Default placeholder prefix: {@value}. */
   public static final String DEFAULT_PLACEHOLDER_PREFIX = "${";
@@ -105,6 +105,9 @@ public abstract class PlaceholderConfigurerSupport
   /** Default value separator: {@value}. */
   public static final String DEFAULT_VALUE_SEPARATOR = ":";
 
+  /** Default escape character: {@code '\'}. */
+  public static final char DEFAULT_ESCAPE_CHARACTER = '\\';
+
   /** Defaults to {@value #DEFAULT_PLACEHOLDER_PREFIX}. */
   protected String placeholderPrefix = DEFAULT_PLACEHOLDER_PREFIX;
 
@@ -114,6 +117,10 @@ public abstract class PlaceholderConfigurerSupport
   /** Defaults to {@value #DEFAULT_VALUE_SEPARATOR}. */
   @Nullable
   protected String valueSeparator = DEFAULT_VALUE_SEPARATOR;
+
+  /** Defaults to {@link #DEFAULT_ESCAPE_CHARACTER}. */
+  @Nullable
+  protected Character escapeCharacter = DEFAULT_ESCAPE_CHARACTER;
 
   protected boolean trimValues = false;
 
@@ -155,6 +162,16 @@ public abstract class PlaceholderConfigurerSupport
   }
 
   /**
+   * Specify the escape character to use to ignore placeholder prefix
+   * or value separator, or {@code null} if no escaping should take
+   * place.
+   * <p>Default is {@link #DEFAULT_ESCAPE_CHARACTER}.
+   */
+  public void setEscapeCharacter(@Nullable Character escsEscapeCharacter) {
+    this.escapeCharacter = escsEscapeCharacter;
+  }
+
+  /**
    * Specify whether to trim resolved values before applying them,
    * removing superfluous whitespace from the beginning and end.
    * <p>Default is {@code false}.
@@ -172,7 +189,7 @@ public abstract class PlaceholderConfigurerSupport
    * there is no way to express {@code null} as a property value
    * unless you explicitly map a corresponding value here.
    */
-  public void setNullValue(String nullValue) {
+  public void setNullValue(@Nullable String nullValue) {
     this.nullValue = nullValue;
   }
 
@@ -196,7 +213,7 @@ public abstract class PlaceholderConfigurerSupport
    * @see #setLocations
    */
   @Override
-  public void setBeanName(String beanName) {
+  public void setBeanName(@Nullable String beanName) {
     this.beanName = beanName;
   }
 
@@ -209,13 +226,11 @@ public abstract class PlaceholderConfigurerSupport
    * @see #setLocations
    */
   @Override
-  public void setBeanFactory(BeanFactory beanFactory) {
+  public void setBeanFactory(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
-  protected void doProcessProperties(
-          ConfigurableBeanFactory beanFactoryToProcess, StringValueResolver valueResolver) {
-
+  protected void doProcessProperties(ConfigurableBeanFactory beanFactoryToProcess, StringValueResolver valueResolver) {
     BeanDefinitionVisitor visitor = new BeanDefinitionVisitor(valueResolver);
 
     String[] beanNames = beanFactoryToProcess.getBeanDefinitionNames();

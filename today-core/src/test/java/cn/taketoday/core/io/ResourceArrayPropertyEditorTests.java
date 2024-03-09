@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.beans.PropertyEditor;
 
 import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.util.PlaceholderResolutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
@@ -75,7 +77,7 @@ class ResourceArrayPropertyEditorTests {
             false);
     System.setProperty("test.prop", "foo");
     try {
-      assertThatIllegalArgumentException().isThrownBy(() ->
+      assertThatExceptionOfType(PlaceholderResolutionException.class).isThrownBy(() ->
               editor.setAsText("${test.prop}-${bar}"));
     }
     finally {

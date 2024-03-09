@@ -17,6 +17,7 @@
 
 package cn.taketoday.util;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,8 +33,10 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class PlaceholderResolutionException extends IllegalArgumentException {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private final String reason;
 
