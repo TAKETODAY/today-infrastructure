@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -177,9 +177,15 @@ public class BindingReflectionHintsRegistrar {
   }
 
   private void registerHintsForClassAttributes(ReflectionHints hints, MergedAnnotation<Annotation> annotation) {
-    annotation.getRoot().asMap().values().forEach(value -> {
+    annotation.getRoot().asMap().forEach((attributeName, value) -> {
       if (value instanceof Class<?> classValue && value != Void.class) {
-        hints.registerType(classValue, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+        if (attributeName.equals("builder")) {
+          hints.registerType(classValue, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+                  MemberCategory.INVOKE_DECLARED_METHODS);
+        }
+        else {
+          hints.registerType(classValue, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS);
+        }
       }
     });
   }
