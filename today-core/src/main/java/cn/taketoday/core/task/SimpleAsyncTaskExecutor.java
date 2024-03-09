@@ -59,20 +59,6 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
 public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
         implements AsyncListenableTaskExecutor, Serializable, AutoCloseable {
 
-  /**
-   * Permit any number of concurrent invocations: that is, don't throttle concurrency.
-   *
-   * @see ConcurrencyThrottleSupport#UNBOUNDED_CONCURRENCY
-   */
-  public static final int UNBOUNDED_CONCURRENCY = ConcurrencyThrottleSupport.UNBOUNDED_CONCURRENCY;
-
-  /**
-   * Switch concurrency 'off': that is, don't allow any concurrent invocations.
-   *
-   * @see ConcurrencyThrottleSupport#NO_CONCURRENCY
-   */
-  public static final int NO_CONCURRENCY = ConcurrencyThrottleSupport.NO_CONCURRENCY;
-
   /** Internal concurrency throttle used by this executor. */
   private final ConcurrencyThrottleAdapter concurrencyThrottle = new ConcurrencyThrottleAdapter();
 

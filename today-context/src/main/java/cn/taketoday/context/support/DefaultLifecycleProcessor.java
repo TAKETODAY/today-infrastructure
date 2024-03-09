@@ -105,7 +105,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private static final boolean exitOnRefresh =
           ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(EXIT_PROPERTY_NAME));
 
-  private volatile long timeoutPerShutdownPhase = 30000;
+  private volatile long timeoutPerShutdownPhase = 10000;
 
   private volatile boolean running;
 

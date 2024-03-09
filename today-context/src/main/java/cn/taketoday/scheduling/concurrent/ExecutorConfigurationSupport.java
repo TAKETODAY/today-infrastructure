@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.lang.Nullable;
@@ -58,6 +59,18 @@ import cn.taketoday.logging.LoggerFactory;
 public abstract class ExecutorConfigurationSupport extends CustomizableThreadFactory
         implements BeanNameAware, ApplicationContextAware, InitializingBean, DisposableBean,
         SmartLifecycle, ApplicationListener<ContextClosedEvent> {
+  /**
+   * The default phase for an executor {@link SmartLifecycle}: {@code Integer.MAX_VALUE / 2}.
+   * <p>This is different from the default phase {@code Integer.MAX_VALUE} associated with
+   * other {@link SmartLifecycle} implementations, putting the typically auto-started
+   * executor/scheduler beans into an earlier startup phase and a later shutdown phase while
+   * still leaving room for regular {@link Lifecycle} components with the common phase 0.
+   *
+   * @see #getPhase()
+   * @see SmartLifecycle#DEFAULT_PHASE
+   * @see cn.taketoday.context.support.DefaultLifecycleProcessor#setTimeoutPerShutdownPhase
+   */
+  public static final int DEFAULT_PHASE = Integer.MAX_VALUE / 2;
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
