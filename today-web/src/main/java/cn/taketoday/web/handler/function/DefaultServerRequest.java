@@ -240,6 +240,7 @@ class DefaultServerRequest implements ServerRequest {
 
   @Override
   public Map<String, Object> attributes() {
+    // TODO requestContext.getAttributes()
     return this.attributes;
   }
 

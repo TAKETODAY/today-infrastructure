@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -31,10 +31,12 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
 
 import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.HttpCookie;
@@ -121,6 +123,44 @@ class DefaultServerRequestTests {
     DefaultServerRequest request = getRequest(servletRequest);
 
     assertThat(request.attribute("foo")).isEqualTo(Optional.of("bar"));
+  }
+
+  @Test
+  void attributes() {
+    MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
+    servletRequest.setAttribute("foo", "bar");
+    servletRequest.setAttribute("baz", "qux");
+
+    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    DefaultServerRequest request = new DefaultServerRequest(context, this.messageConverters);
+
+    Map<String, Object> attributesMap = request.attributes();
+    assertThat(attributesMap).isNotEmpty();
+    assertThat(attributesMap).containsEntry("foo", "bar");
+    assertThat(attributesMap).containsEntry("baz", "qux");
+    assertThat(attributesMap).doesNotContainEntry("foo", "blah");
+
+    Set<Map.Entry<String, Object>> entrySet = attributesMap.entrySet();
+    assertThat(entrySet).isNotEmpty();
+    assertThat(entrySet).hasSize(attributesMap.size());
+    assertThat(entrySet).contains(Map.entry("foo", "bar"));
+    assertThat(entrySet).contains(Map.entry("baz", "qux"));
+    assertThat(entrySet).doesNotContain(Map.entry("foo", "blah"));
+
+    assertThat(entrySet.iterator()).toIterable().contains(Map.entry("foo", "bar"), Map.entry("baz", "qux"));
+    Iterator<String> attributes = servletRequest.getAttributeNames().asIterator();
+    Iterator<Map.Entry<String, Object>> entrySetIterator = entrySet.iterator();
+    while (attributes.hasNext()) {
+      attributes.next();
+      assertThat(entrySetIterator).hasNext();
+      entrySetIterator.next();
+    }
+    assertThat(entrySetIterator).isExhausted();
+
+    attributesMap.clear();
+    assertThat(attributesMap).isEmpty();
+    assertThat(attributesMap).hasSize(0);
+    assertThat(entrySet.iterator()).isExhausted();
   }
 
   private DefaultServerRequest getRequest(MockHttpServletRequest servletRequest) {
