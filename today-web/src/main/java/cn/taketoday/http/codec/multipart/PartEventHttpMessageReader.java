@@ -37,6 +37,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpInputMessage;
 import cn.taketoday.http.codec.HttpMessageReader;
 import cn.taketoday.http.codec.LoggingCodecSupport;
+import cn.taketoday.http.codec.multipart.MultipartParser.HeadersToken;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import reactor.core.publisher.Flux;
@@ -147,37 +148,28 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
     return Flux.defer(() -> {
       byte[] boundary = MultipartUtils.boundary(message, this.headersCharset);
       if (boundary == null) {
-        return Flux.error(new DecodingException("No multipart boundary found in Content-Type: \"" +
-                message.getHeaders().getContentType() + "\""));
+        return Flux.error(new DecodingException("No multipart boundary found in Content-Type: \"%s\""
+                .formatted(message.getHeaders().getContentType())));
       }
       Flux<MultipartParser.Token> allPartsTokens = MultipartParser.parse(message.getBody(), boundary,
               this.maxHeadersSize, this.headersCharset);
 
       AtomicInteger partCount = new AtomicInteger();
-      return allPartsTokens
-              .windowUntil(t -> t instanceof MultipartParser.HeadersToken, true)
-              .concatMap(partTokens -> {
-                if (tooManyParts(partCount)) {
-                  return Mono.error(new DecodingException("Too many parts (" + partCount.get() + "/" +
-                          this.maxParts + " allowed)"));
+      return allPartsTokens.windowUntil(t -> t instanceof HeadersToken, true)
+              .concatMap(partTokens -> partTokens.switchOnFirst((signal, flux) -> {
+                if (!signal.hasValue()) {
+                  // complete or error signal
+                  return flux.cast(PartEvent.class);
                 }
-                else {
-                  return partTokens.switchOnFirst((signal, flux) -> {
-                    if (signal.hasValue()) {
-                      MultipartParser.HeadersToken headersToken = (MultipartParser.HeadersToken) signal.get();
-                      Assert.state(headersToken != null, "Signal should be headers token");
+                else if (tooManyParts(partCount)) {
+                  return Mono.error(new DecodingException("Too many parts (%s/%s allowed)".formatted(partCount.get(), this.maxParts)));
+                }
+                HeadersToken headersToken = (HeadersToken) signal.get();
+                Assert.state(headersToken != null, "Signal should be headers token");
 
-                      HttpHeaders headers = headersToken.getHeaders();
-                      var bodyTokens = flux.ofType(MultipartParser.BodyToken.class);
-                      return createEvents(headers, bodyTokens);
-                    }
-                    else {
-                      // complete or error signal
-                      return flux.cast(PartEvent.class);
-                    }
-                  });
-                }
-              });
+                HttpHeaders headers = headersToken.getHeaders();
+                return createEvents(headers, flux.ofType(MultipartParser.BodyToken.class));
+              }));
     });
   }
 
@@ -213,12 +205,11 @@ public class PartEventHttpMessageReader extends LoggingCodecSupport implements H
                 DataBuffer buffer = body.getBuffer();
                 if (tooLarge(partSize, buffer)) {
                   DataBufferUtils.release(buffer);
-                  return Mono.error(new DataBufferLimitException("Part exceeded the limit of " +
-                          this.maxPartSize + " bytes"));
+                  return Mono.error(new DataBufferLimitException("Part exceeded the limit of %s bytes".formatted(this.maxPartSize)));
                 }
                 else {
                   return isFilePart ? Mono.just(DefaultPartEvents.file(headers, buffer, body.isLast()))
-                                    : Mono.just(DefaultPartEvents.create(headers, body.getBuffer(), body.isLast()));
+                          : Mono.just(DefaultPartEvents.create(headers, body.getBuffer(), body.isLast()));
                 }
               })
               .switchIfEmpty(Mono.fromCallable(() ->
