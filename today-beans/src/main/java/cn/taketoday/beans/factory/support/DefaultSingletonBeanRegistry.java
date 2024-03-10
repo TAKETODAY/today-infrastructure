@@ -724,19 +724,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     dependenciesForBeanMap.remove(beanName);
   }
 
-  /**
-   * Exposes the singleton mutex to subclasses and external collaborators.
-   * <p>Subclasses should synchronize on the given Object if they perform
-   * any sort of extended singleton creation phase. In particular, subclasses
-   * should <i>not</i> have their own mutexes involved in singleton creation,
-   * to avoid the potential for deadlocks in lazy-init situations.
-   */
-  @Override
-  @Deprecated
-  public final Object getSingletonMutex() {
-    return singletonObjects;
-  }
-
   @Override
   public void registerSingleton(Object bean) {
     registerSingleton(BeanDefinitionBuilder.defaultBeanName(bean.getClass()), bean);

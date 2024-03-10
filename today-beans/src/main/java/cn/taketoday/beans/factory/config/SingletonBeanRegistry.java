@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
 
 import java.util.function.Consumer;
@@ -30,8 +31,8 @@ import cn.taketoday.lang.Nullable;
  * Can be implemented by {@link BeanFactory} implementations in
  * order to expose their singleton management facility in a uniform manner.
  *
- * @author TODAY 2018-11-14 19:47
- * @since 2.0.1
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.0.1 2018-11-14 19:47
  */
 public interface SingletonBeanRegistry {
 
@@ -165,20 +166,12 @@ public interface SingletonBeanRegistry {
    * (see {@link #registerSingleton}). Can also be used to check which singletons
    * defined by a bean definition have already been created.
    *
-   * @return the list of names as a String array (never {@code null})
+   * @return the array of names as a String array (never {@code null})
    * @see #registerSingleton
    * @see BeanDefinitionRegistry#getBeanDefinitionNames
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionNames
    * @since 4.0
    */
   String[] getSingletonNames();
-
-  /**
-   * Return the singleton mutex used by this registry (for external collaborators).
-   *
-   * @return the mutex object (never {@code null})
-   * @since 4.0
-   */
-  Object getSingletonMutex();
 
 }
