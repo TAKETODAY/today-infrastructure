@@ -36,6 +36,7 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
@@ -194,7 +195,16 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   }
 
   private Runnable scheduledTask(Runnable task) {
-    return () -> execute(task);
+    return () -> execute(new DelegatingErrorHandlingRunnable(task, this::shutdownAwareErrorHandler));
+  }
+
+  private void shutdownAwareErrorHandler(Throwable ex) {
+    if (this.scheduledExecutor.isTerminated()) {
+      LoggerFactory.getLogger(getClass()).debug("Ignoring scheduled task exception after shutdown", ex);
+    }
+    else {
+      TaskUtils.getDefaultErrorHandler(true).handleError(ex);
+    }
   }
 
   private Runnable taskOnSchedulerThread(Runnable task) {
