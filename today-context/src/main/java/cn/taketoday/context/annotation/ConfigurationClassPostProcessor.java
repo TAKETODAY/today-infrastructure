@@ -356,7 +356,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       // Read the model and create bean definitions based on its content
       if (reader == null) {
         this.reader = new ConfigurationClassBeanDefinitionReader(
-                bootstrapContext, importBeanNameGenerator, parser.getImportRegistry());
+                bootstrapContext, importBeanNameGenerator, parser.importRegistry);
       }
       reader.loadBeanDefinitions(configClasses);
       alreadyParsed.addAll(configClasses);
@@ -385,7 +385,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
 
     // Register the ImportRegistry as a bean in order to support ImportAware @Configuration classes
     if (sbr != null && !sbr.containsSingleton(IMPORT_REGISTRY_BEAN_NAME)) {
-      sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.getImportRegistry());
+      sbr.registerSingleton(IMPORT_REGISTRY_BEAN_NAME, parser.importRegistry);
     }
 
     // Store the PropertySourceDescriptors to contribute them Ahead-of-time if necessary
