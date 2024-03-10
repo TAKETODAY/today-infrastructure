@@ -1884,7 +1884,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         if (primaryBeanName != null) {
           boolean candidateLocal = containsBeanDefinition(candidateBeanName);
           boolean primaryLocal = containsBeanDefinition(primaryBeanName);
-          if (candidateLocal && primaryLocal) {
+          if (candidateLocal == primaryLocal) {
             throw new NoUniqueBeanDefinitionException(requiredType, candidates.size(),
                     "more than one 'primary' bean found among candidates: " + candidates.keySet());
           }

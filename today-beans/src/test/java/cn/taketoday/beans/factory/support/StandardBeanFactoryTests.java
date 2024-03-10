@@ -2118,8 +2118,39 @@ class StandardBeanFactoryTests {
     bd2.setPrimary(true);
     lbf.registerBeanDefinition("test", bd);
     lbf.registerBeanDefinition("spouse", bd2);
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(() ->
-                    lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
+
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
+            .withCauseExactlyInstanceOf(NoUniqueBeanDefinitionException.class);
+  }
+
+  @Test
+  void autowireBeanByTypeWithTwoPrimaryCandidatesInOneAncestor() {
+    StandardBeanFactory parent = new StandardBeanFactory();
+    RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
+    bd.setPrimary(true);
+    RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
+    bd2.setPrimary(true);
+    parent.registerBeanDefinition("test", bd);
+    parent.registerBeanDefinition("spouse", bd2);
+    StandardBeanFactory lbf = new StandardBeanFactory(parent);
+
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
+            .withCauseExactlyInstanceOf(NoUniqueBeanDefinitionException.class);
+  }
+
+  @Test
+  void autowireBeanByTypeWithTwoPrimaryFactoryBeans() {
+    StandardBeanFactory lbf = new StandardBeanFactory();
+    RootBeanDefinition bd1 = new RootBeanDefinition(LazyInitFactory.class);
+    RootBeanDefinition bd2 = new RootBeanDefinition(LazyInitFactory.class);
+    bd1.setPrimary(true);
+    bd2.setPrimary(true);
+    lbf.registerBeanDefinition("bd1", bd1);
+    lbf.registerBeanDefinition("bd2", bd2);
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> lbf.autowire(FactoryBeanDependentBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
             .withCauseExactlyInstanceOf(NoUniqueBeanDefinitionException.class);
   }
 
