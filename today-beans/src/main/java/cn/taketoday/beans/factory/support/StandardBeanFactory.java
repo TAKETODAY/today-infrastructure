@@ -1201,7 +1201,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     if (containsBeanDefinition) {
       RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
       // Check raw bean class, e.g. in case of a proxy.
-      if (merged.hasBeanClass()) {
+      if (merged.hasBeanClass() && merged.getFactoryMethodName() == null) {
         Class<?> beanClass = merged.getBeanClass();
         if (beanClass != beanType) {
           MergedAnnotation<A> annotation =
