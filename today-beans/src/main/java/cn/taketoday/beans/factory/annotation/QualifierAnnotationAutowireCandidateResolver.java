@@ -337,6 +337,20 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
     return false;
   }
 
+  @Override
+  @Nullable
+  public String getSuggestedName(DependencyDescriptor descriptor) {
+    for (Annotation annotation : descriptor.getAnnotations()) {
+      if (isQualifier(annotation.annotationType())) {
+        Object value = AnnotationUtils.getValue(annotation);
+        if (value instanceof String str) {
+          return str;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Determine whether the given dependency declares a value annotation.
    *

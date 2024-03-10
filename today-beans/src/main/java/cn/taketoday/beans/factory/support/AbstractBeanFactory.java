@@ -116,9 +116,6 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
-  /** object factories */
-  protected final ConcurrentHashMap<Class<?>, Object> objectFactories = new ConcurrentHashMap<>(16);
-
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   /** @since 4.0 */
@@ -175,6 +172,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   /** Map from bean name to merged BeanDefinition. @since 4.0 */
   private final ConcurrentHashMap<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
+
+  /** object factories */
+  protected final ConcurrentHashMap<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
   /** Whether to cache bean metadata or rather reobtain it for every access. @since 4.0 */
   private boolean cacheBeanMetadata = true;
@@ -717,7 +717,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         throw new IllegalArgumentException("Value [%s] does not implement specified dependency type [%s]"
                 .formatted(autowiredValue, dependencyType.getName()));
       }
-      objectFactories.put(dependencyType, autowiredValue);
+      resolvableDependencies.put(dependencyType, autowiredValue);
     }
   }
 
@@ -1226,7 +1226,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     if (otherFactory instanceof AbstractBeanFactory beanFactory) {
       this.scopes.putAll(beanFactory.scopes);
-      this.objectFactories.putAll(beanFactory.objectFactories);
+      this.resolvableDependencies.putAll(beanFactory.resolvableDependencies);
       this.dependencyInjector = beanFactory.dependencyInjector;
       this.postProcessors.addAll(beanFactory.postProcessors);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -171,7 +171,7 @@ final class ConstructorResolver {
         Class<?> beanClass = merged.getBeanClass();
         try {
           candidates = merged.isNonPublicAccessAllowed() ?
-                       beanClass.getDeclaredConstructors() : beanClass.getConstructors();
+                  beanClass.getDeclaredConstructors() : beanClass.getConstructors();
         }
         catch (Throwable ex) {
           throw new BeanCreationException(merged.getResourceDescription(), beanName,
@@ -263,8 +263,8 @@ final class ConstructorResolver {
         }
 
         int typeDiffWeight = merged.isLenientConstructorResolution()
-                             ? argsHolder.getTypeDifferenceWeight(paramTypes)
-                             : argsHolder.getAssignabilityWeight(paramTypes);
+                ? argsHolder.getTypeDifferenceWeight(paramTypes)
+                : argsHolder.getAssignabilityWeight(paramTypes);
 
         // Choose this constructor if it represents the closest match.
         if (typeDiffWeight < minTypeDiffWeight) {
@@ -375,8 +375,8 @@ final class ConstructorResolver {
    */
   private Method[] getCandidateMethods(Class<?> factoryClass, RootBeanDefinition merged) {
     return merged.isNonPublicAccessAllowed()
-           ? ReflectionUtils.getUniqueDeclaredMethods(factoryClass)
-           : factoryClass.getMethods();
+            ? ReflectionUtils.getUniqueDeclaredMethods(factoryClass)
+            : factoryClass.getMethods();
   }
 
   private boolean isStaticCandidate(Method method, Class<?> factoryClass) {
@@ -564,8 +564,8 @@ final class ConstructorResolver {
           }
 
           int typeDiffWeight = merged.isLenientConstructorResolution()
-                               ? argsHolder.getTypeDifferenceWeight(paramTypes)
-                               : argsHolder.getAssignabilityWeight(paramTypes);
+                  ? argsHolder.getTypeDifferenceWeight(paramTypes)
+                  : argsHolder.getAssignabilityWeight(paramTypes);
           // Choose this factory method if it represents the closest match.
           if (typeDiffWeight < minTypeDiffWeight) {
             factoryMethodToUse = candidate;
@@ -613,10 +613,10 @@ final class ConstructorResolver {
           valueHolders.addAll(resolvedValues.getGenericArgumentValues());
           for (ValueHolder value : valueHolders) {
             String argType = (value.getType() != null
-                              ? ClassUtils.getShortName(value.getType())
-                              : (value.getValue() != null
-                                 ? value.getValue().getClass().getSimpleName()
-                                 : "null"));
+                    ? ClassUtils.getShortName(value.getType())
+                    : (value.getValue() != null
+                            ? value.getValue().getClass().getSimpleName()
+                            : "null"));
             argTypes.add(argType);
           }
         }
@@ -624,7 +624,7 @@ final class ConstructorResolver {
         throw new BeanCreationException(merged.getResourceDescription(), beanName,
                 "No matching factory method found on class [" + factoryClass.getName() + "]: " +
                         (merged.getFactoryBeanName() != null ?
-                         "factory bean '" + merged.getFactoryBeanName() + "'; " : "") +
+                                "factory bean '" + merged.getFactoryBeanName() + "'; " : "") +
                         "factory method '" + merged.getFactoryMethodName() + "(" + argDesc + ")'. " +
                         "Check that a method with the specified name " +
                         (minNrOfArgs > 0 ? "and arguments " : "") +
@@ -966,7 +966,7 @@ final class ConstructorResolver {
   public Executable resolveConstructorOrFactoryMethod(String beanName, RootBeanDefinition mbd) {
     Supplier<ResolvableType> beanType = () -> getBeanType(beanName, mbd);
     List<ResolvableType> valueTypes = (mbd.hasConstructorArgumentValues() ?
-                                       determineParameterValueTypes(mbd) : Collections.emptyList());
+            determineParameterValueTypes(mbd) : Collections.emptyList());
     Method resolvedFactoryMethod = resolveFactoryMethod(beanName, mbd, valueTypes);
     if (resolvedFactoryMethod != null) {
       return resolvedFactoryMethod;
@@ -1145,7 +1145,7 @@ final class ConstructorResolver {
         throw new BeanCreationException(mbd.getResourceDescription(), beanName,
                 "No matching factory method found on class [" + factoryClass.getName() + "]: " +
                         (mbd.getFactoryBeanName() != null ?
-                         "factory bean '" + mbd.getFactoryBeanName() + "'; " : "") +
+                                "factory bean '" + mbd.getFactoryBeanName() + "'; " : "") +
                         "factory method '" + mbd.getFactoryMethodName() + "'. ");
       }
       return result;
@@ -1398,6 +1398,12 @@ final class ConstructorResolver {
       String shortcut = this.shortcut;
       return (shortcut != null ? beanFactory.getBean(shortcut, getDependencyType()) : null);
     }
+
+    @Override
+    public boolean usesStandardBeanLookup() {
+      return true;
+    }
+
   }
 
   private enum FallbackMode {

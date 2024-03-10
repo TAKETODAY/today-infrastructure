@@ -187,6 +187,20 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
   boolean isPrimary();
 
   /**
+   * Set whether this bean is a fallback autowire candidate.
+   * <p>If this value is {@code true} for all beans but one among multiple
+   * matching candidates, the remaining bean will be selected.
+   *
+   * @see #setPrimary
+   */
+  void setFallback(boolean fallback);
+
+  /**
+   * Return whether this bean is a fallback autowire candidate.
+   */
+  boolean isFallback();
+
+  /**
    * Specify the factory bean to use, if any.
    * This the name of the bean to call the specified factory method on.
    *

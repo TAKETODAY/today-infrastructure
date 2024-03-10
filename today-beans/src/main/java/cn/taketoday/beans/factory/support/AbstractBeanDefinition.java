@@ -198,6 +198,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private boolean primary = false;
 
+  private boolean fallback = false;
+  
   @Nullable
   private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers;
 
@@ -762,6 +764,24 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   public boolean isPrimary() {
     return this.primary;
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>The default is {@code false}.
+   */
+  @Override
+  public void setFallback(boolean fallback) {
+    this.fallback = fallback;
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>The default is {@code false}.
+   */
+  @Override
+  public boolean isFallback() {
+    return this.fallback;
   }
 
   /**

@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers;
 
 import java.io.Closeable;
 import java.io.Serializable;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
@@ -88,7 +87,6 @@ import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -119,18 +117,6 @@ import static org.mockito.Mockito.verify;
 class StandardBeanFactoryTests {
 
   private final StandardBeanFactory lbf = new StandardBeanFactory();
-
-  {
-    // No parameter name discovery expected unless named arguments are used
-    lbf.setParameterNameDiscoverer(new ParameterNameDiscoverer() {
-
-      @Nullable
-      @Override
-      public String[] getParameterNames(@Nullable Executable executable) {
-        throw new UnsupportedOperationException();
-      }
-    });
-  }
 
   @Test
   void unreferencedSingletonWasInstantiated() {
