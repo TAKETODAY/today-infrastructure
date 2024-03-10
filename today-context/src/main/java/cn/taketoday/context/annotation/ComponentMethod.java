@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
+
+import java.util.Map;
 
 import cn.taketoday.beans.factory.parsing.Location;
 import cn.taketoday.beans.factory.parsing.Problem;
@@ -40,6 +42,7 @@ import cn.taketoday.stereotype.Component;
 final class ComponentMethod {
 
   public final MethodMetadata metadata;
+
   public final ConfigurationClass configurationClass;
 
   public ComponentMethod(MethodMetadata metadata, ConfigurationClass configurationClass) {
@@ -62,23 +65,31 @@ final class ComponentMethod {
       return;
     }
 
-    if (configurationClass.metadata.isAnnotated(Configuration.class.getName())) {
-      if (!metadata.isOverridable()) {
-        // instance @Component methods within @Configuration classes must be overridable to accommodate CGLIB
-        problemReporter.error(new NonOverridableMethodError());
-      }
+    Map<String, Object> attributes = configurationClass.metadata.getAnnotationAttributes(Configuration.class.getName());
+    if (attributes != null && (Boolean) attributes.get("proxyBeanMethods") && !metadata.isOverridable()) {
+      // instance @Bean methods within @Configuration classes must be overridable to accommodate CGLIB
+      problemReporter.error(new NonOverridableMethodError());
     }
+
   }
 
   @Override
-  public boolean equals(@Nullable Object obj) {
-    return (this == obj) || ((obj instanceof ComponentMethod)
-            && this.metadata.equals(((ComponentMethod) obj).metadata));
+  public boolean equals(@Nullable Object other) {
+    return (this == other || (other instanceof ComponentMethod that &&
+            this.configurationClass.equals(that.configurationClass) &&
+            getLocalMethodIdentifier(this.metadata).equals(getLocalMethodIdentifier(that.metadata))));
   }
 
   @Override
   public int hashCode() {
-    return this.metadata.hashCode();
+    return this.configurationClass.hashCode() * 31 + getLocalMethodIdentifier(this.metadata).hashCode();
+  }
+
+  private static String getLocalMethodIdentifier(MethodMetadata metadata) {
+    String metadataString = metadata.toString();
+    int index = metadataString.indexOf(metadata.getDeclaringClassName());
+    return (index >= 0 ? metadataString.substring(index + metadata.getDeclaringClassName().length()) :
+            metadataString);
   }
 
   @Override

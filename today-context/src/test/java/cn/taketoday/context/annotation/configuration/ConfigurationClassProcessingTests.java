@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.configuration;
@@ -45,6 +45,7 @@ import cn.taketoday.beans.testfixture.beans.NestedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.BootstrapContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -54,7 +55,6 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.context.support.PropertySourcesPlaceholderConfigurer;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import jakarta.annotation.Resource;
 import jakarta.inject.Provider;
 
@@ -145,6 +145,11 @@ public class ConfigurationClassProcessingTests {
   public void testFinalBeanMethod() {
     assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(() ->
             initBeanFactory(ConfigWithFinalBean.class));
+  }
+
+  @Test
+  void finalBeanMethodWithoutProxy() {
+    initBeanFactory(ConfigWithFinalBeanWithoutProxy.class);
   }
 
   @Test
@@ -427,6 +432,15 @@ public class ConfigurationClassProcessingTests {
 
     public final @Bean
     TestBean testBean() {
+      return new TestBean();
+    }
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class ConfigWithFinalBeanWithoutProxy {
+
+    @Bean
+    public final TestBean testBean() {
       return new TestBean();
     }
   }

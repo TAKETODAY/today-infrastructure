@@ -54,6 +54,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -222,8 +223,13 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setFactoryBeanName(configClass.beanName);
       beanDef.setUniqueFactoryMethodName(methodName);
     }
-    if (methodMetadata instanceof StandardMethodMetadata sam) {
-      beanDef.setResolvedFactoryMethod(sam.getIntrospectedMethod());
+
+    if (methodMetadata instanceof StandardMethodMetadata smm &&
+            configClass.metadata instanceof StandardAnnotationMetadata sam) {
+      Method method = ReflectionUtils.getMostSpecificMethod(smm.getIntrospectedMethod(), sam.getIntrospectedClass());
+      if (method == smm.getIntrospectedMethod()) {
+        beanDef.setResolvedFactoryMethod(method);
+      }
     }
 
     beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);

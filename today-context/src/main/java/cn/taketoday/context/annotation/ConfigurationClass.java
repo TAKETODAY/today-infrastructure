@@ -201,14 +201,12 @@ final class ConfigurationClass {
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
     var annotation = metadata.getAnnotation(Configuration.class);
-    if (annotation.isPresent()
-            && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
-      if (metadata.isFinal()) {
-        problemReporter.error(new FinalConfigurationProblem());
-      }
-      for (ComponentMethod componentMethod : componentMethods) {
-        componentMethod.validate(problemReporter);
-      }
+    if (annotation.isPresent() && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true) && metadata.isFinal()) {
+      problemReporter.error(new FinalConfigurationProblem());
+    }
+
+    for (ComponentMethod componentMethod : componentMethods) {
+      componentMethod.validate(problemReporter);
     }
 
     // A configuration class may not contain overloaded bean methods unless it declares enforceUniqueMethods=false
