@@ -92,12 +92,10 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   private volatile Thread singletonCreationThread;
 
   /** Names of beans that are currently in creation. */
-  private final Set<String> singletonsCurrentlyInCreation =
-          Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+  private final Set<String> singletonsCurrentlyInCreation = ConcurrentHashMap.newKeySet(16);
 
   /** Names of beans currently excluded from in creation checks. */
-  private final Set<String> inCreationCheckExclusions =
-          Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+  private final Set<String> inCreationCheckExclusions = ConcurrentHashMap.newKeySet(16);
 
   /** Cache of singleton factories: bean name to ObjectFactory. */
   private final HashMap<String, Supplier<?>> singletonFactories = new HashMap<>(16);

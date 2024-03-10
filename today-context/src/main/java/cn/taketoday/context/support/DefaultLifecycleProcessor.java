@@ -223,7 +223,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   void stopForRestart() {
     if (this.running) {
-      this.stoppedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      this.stoppedBeans = ConcurrentHashMap.newKeySet();
       stopBeans();
       this.running = false;
     }
@@ -264,7 +264,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private boolean isAutoStartupCandidate(String beanName, Lifecycle bean) {
     Set<String> stoppedBeans = this.stoppedBeans;
     return stoppedBeans != null ? stoppedBeans.contains(beanName) :
-           (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup());
+            (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup());
   }
 
   /**
@@ -300,7 +300,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private boolean toBeStarted(String beanName, Lifecycle bean) {
     Set<String> stoppedBeans = this.stoppedBeans;
     return stoppedBeans != null ? stoppedBeans.contains(beanName) :
-           (!(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup());
+            (!(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup());
   }
 
   private void stopBeans() {

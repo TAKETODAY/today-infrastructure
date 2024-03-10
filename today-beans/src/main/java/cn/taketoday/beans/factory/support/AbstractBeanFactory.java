@@ -20,7 +20,6 @@ package cn.taketoday.beans.factory.support;
 import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -151,7 +150,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   private final ConcurrentHashMap<String, Object> objectFromFactoryBeanCache = new ConcurrentHashMap<>(16);
 
   /** Names of beans that have already been created at least once. */
-  private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
+  private final Set<String> alreadyCreated = ConcurrentHashMap.newKeySet(256);
 
   /** Names of beans that are currently in creation. */
   private final ThreadLocal<Object> prototypesCurrentlyInCreation =

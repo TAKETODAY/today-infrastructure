@@ -17,7 +17,6 @@
 
 package cn.taketoday.beans.factory.config;
 
-import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,7 +75,7 @@ public class PropertyOverrideConfigurer extends PropertyResourceConfigurer {
   /**
    * Contains names of beans that have overrides.
    */
-  private final Set<String> beanNames = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+  private final Set<String> beanNames = ConcurrentHashMap.newKeySet(16);
 
   /**
    * Set the separator to expect between bean name and property path.

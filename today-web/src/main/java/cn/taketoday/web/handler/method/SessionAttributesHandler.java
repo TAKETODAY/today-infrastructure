@@ -55,7 +55,7 @@ public class SessionAttributesHandler {
 
   private final HashSet<Class<?>> attributeTypes = new HashSet<>();
 
-  private final Set<String> knownAttributeNames = Collections.newSetFromMap(new ConcurrentHashMap<>(4));
+  private final Set<String> knownAttributeNames = ConcurrentHashMap.newKeySet(4);
 
   private final SessionAttributeStore sessionAttributeStore;
 

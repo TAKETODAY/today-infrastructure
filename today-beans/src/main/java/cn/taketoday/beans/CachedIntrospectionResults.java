@@ -23,7 +23,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -108,8 +107,7 @@ public final class CachedIntrospectionResults {
    * Set of ClassLoaders that this CachedIntrospectionResults class will always
    * accept classes from, even if the classes do not qualify as cache-safe.
    */
-  static final Set<ClassLoader> acceptedClassLoaders =
-          Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+  static final Set<ClassLoader> acceptedClassLoaders = ConcurrentHashMap.newKeySet(16);
 
   /**
    * Map keyed by Class containing CachedIntrospectionResults, strongly held.
