@@ -308,6 +308,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       setAutowireCandidate(originalAbd.isAutowireCandidate());
       setDefaultCandidate(originalAbd.isDefaultCandidate());
       setPrimary(originalAbd.isPrimary());
+      setFallback(originalAbd.isFallback());
       copyQualifiersFrom(originalAbd);
       setInstanceSupplier(originalAbd.getInstanceSupplier());
       setNonPublicAccessAllowed(originalAbd.isNonPublicAccessAllowed());
@@ -386,6 +387,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       setAutowireCandidate(otherAbd.isAutowireCandidate());
       setDefaultCandidate(otherAbd.isDefaultCandidate());
       setPrimary(otherAbd.isPrimary());
+      setFallback(otherAbd.isFallback());
       copyQualifiersFrom(otherAbd);
       setInstanceSupplier(otherAbd.getInstanceSupplier());
       setNonPublicAccessAllowed(otherAbd.isNonPublicAccessAllowed());

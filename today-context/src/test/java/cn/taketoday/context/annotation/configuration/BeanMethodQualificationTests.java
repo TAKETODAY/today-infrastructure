@@ -36,6 +36,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Fallback;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Primary;
 import cn.taketoday.context.annotation.Scope;

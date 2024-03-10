@@ -1876,6 +1876,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Nullable
   protected String determinePrimaryCandidate(Map<String, Object> candidates, Class<?> requiredType) {
     String primaryBeanName = null;
+    // First pass: identify unique primary candidate
     for (Map.Entry<String, Object> entry : candidates.entrySet()) {
       String candidateBeanName = entry.getKey();
       Object beanInstance = entry.getValue();
@@ -1892,6 +1893,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
           }
         }
         else {
+          primaryBeanName = candidateBeanName;
+        }
+      }
+    }
+    // Second pass: identify unique non-fallback candidate
+    if (primaryBeanName == null) {
+      for (String candidateBeanName : candidates.keySet()) {
+        if (!isFallback(candidateBeanName)) {
+          if (primaryBeanName != null) {
+            return null;
+          }
           primaryBeanName = candidateBeanName;
         }
       }
