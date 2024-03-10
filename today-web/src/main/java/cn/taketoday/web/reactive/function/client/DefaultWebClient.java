@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -156,7 +156,11 @@ class DefaultWebClient implements WebClient {
   }
 
   private RequestBodyUriSpec methodInternal(HttpMethod httpMethod) {
-    return new DefaultRequestBodyUriSpec(httpMethod);
+    DefaultRequestBodyUriSpec spec = new DefaultRequestBodyUriSpec(httpMethod);
+    if (this.defaultRequest != null) {
+      this.defaultRequest.accept(spec);
+    }
+    return spec;
   }
 
   @Override
@@ -321,14 +325,14 @@ class DefaultWebClient implements WebClient {
     @Override
     public RequestBodySpec context(Function<Context, Context> contextModifier) {
       this.contextModifier = (this.contextModifier != null ?
-                              this.contextModifier.andThen(contextModifier) : contextModifier);
+              this.contextModifier.andThen(contextModifier) : contextModifier);
       return this;
     }
 
     @Override
     public RequestBodySpec httpRequest(Consumer<ClientHttpRequest> requestConsumer) {
       this.httpRequestConsumer = (this.httpRequestConsumer != null ?
-                                  this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
+              this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
       return this;
     }
 
@@ -421,9 +425,6 @@ class DefaultWebClient implements WebClient {
     }
 
     private ClientRequest.Builder initRequestBuilder() {
-      if (defaultRequest != null) {
-        defaultRequest.accept(this);
-      }
       ClientRequest.Builder builder = ClientRequest.create(this.httpMethod, initUri())
               .headers(this::initHeaders)
               .cookies(this::initCookies)

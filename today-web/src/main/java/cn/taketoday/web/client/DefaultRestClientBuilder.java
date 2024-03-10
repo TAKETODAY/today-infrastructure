@@ -378,6 +378,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     return new DefaultRestClient(requestFactory,
             this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders,
+            this.defaultRequest,
             this.statusHandlers,
             messageConverters,
             new DefaultRestClientBuilder(this)
