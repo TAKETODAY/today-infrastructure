@@ -196,10 +196,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private boolean autowireCandidate = true;
 
+  private boolean defaultCandidate = true;
+
   private boolean primary = false;
 
   private boolean fallback = false;
-  
+
   @Nullable
   private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers;
 
@@ -304,6 +306,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       setDependencyCheck(originalAbd.getDependencyCheck());
       setDependsOn(originalAbd.getDependsOn());
       setAutowireCandidate(originalAbd.isAutowireCandidate());
+      setDefaultCandidate(originalAbd.isDefaultCandidate());
       setPrimary(originalAbd.isPrimary());
       copyQualifiersFrom(originalAbd);
       setInstanceSupplier(originalAbd.getInstanceSupplier());
@@ -381,6 +384,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       setDependencyCheck(otherAbd.getDependencyCheck());
       setDependsOn(otherAbd.getDependsOn());
       setAutowireCandidate(otherAbd.isAutowireCandidate());
+      setDefaultCandidate(otherAbd.isDefaultCandidate());
       setPrimary(otherAbd.isPrimary());
       copyQualifiersFrom(otherAbd);
       setInstanceSupplier(otherAbd.getInstanceSupplier());
@@ -726,11 +730,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   }
 
   /**
-   * Set whether this bean is a candidate for getting autowired into some other bean.
-   * <p>Note that this flag is designed to only affect type-based autowiring.
-   * It does not affect explicit references by name, which will get resolved even
-   * if the specified bean is not marked as an autowire candidate. As a consequence,
-   * autowiring by name will nevertheless inject a bean if the name matches.
+   * {@inheritDoc}
+   * <p>The default is {@code true}, allowing injection by type at any injection point.
+   * Switch this to {@code false} in order to disable autowiring by type for this bean.
    *
    * @see #AUTOWIRE_BY_TYPE
    * @see #AUTOWIRE_BY_NAME
@@ -741,11 +743,34 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   }
 
   /**
-   * Return whether this bean is a candidate for getting autowired into some other bean.
+   * {@inheritDoc}
+   * <p>The default is {@code true}.
    */
   @Override
   public boolean isAutowireCandidate() {
     return this.autowireCandidate;
+  }
+
+  /**
+   * Set whether this bean is a candidate for getting autowired into some other
+   * bean based on the plain type, without any further indications such as a
+   * qualifier match.
+   * <p>The default is {@code true}, allowing injection by type at any injection point.
+   * Switch this to {@code false} in order to restrict injection by default,
+   * effectively enforcing an additional indication such as a qualifier match.
+   */
+  public void setDefaultCandidate(boolean defaultCandidate) {
+    this.defaultCandidate = defaultCandidate;
+  }
+
+  /**
+   * Return whether this bean is a candidate for getting autowired into some other
+   * bean based on the plain type, without any further indications such as a
+   * qualifier match?
+   * <p>The default is {@code true}.
+   */
+  public boolean isDefaultCandidate() {
+    return this.defaultCandidate;
   }
 
   /**

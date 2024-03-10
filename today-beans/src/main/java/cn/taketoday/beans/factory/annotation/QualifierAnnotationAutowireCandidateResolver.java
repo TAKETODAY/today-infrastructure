@@ -28,6 +28,7 @@ import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
@@ -180,12 +181,14 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
     if (ObjectUtils.isEmpty(annotationsToSearch)) {
       return true;
     }
+    boolean qualifierFound = false;
     SimpleTypeConverter typeConverter = new SimpleTypeConverter();
     for (Annotation annotation : annotationsToSearch) {
       Class<? extends Annotation> type = annotation.annotationType();
       boolean checkMeta = true;
       boolean fallbackToMeta = false;
       if (isQualifier(type)) {
+        qualifierFound = true;
         if (!checkQualifier(bdHolder, annotation, typeConverter)) {
           fallbackToMeta = true;
         }
@@ -198,11 +201,12 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         for (Annotation metaAnn : type.getAnnotations()) {
           Class<? extends Annotation> metaType = metaAnn.annotationType();
           if (isQualifier(metaType)) {
+            qualifierFound = true;
             foundMeta = true;
             // Only accept fallback match if @Qualifier annotation has a value...
-            // Otherwise it is just a marker for a custom qualifier annotation.
-            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn))) ||
-                    !checkQualifier(bdHolder, metaAnn, typeConverter)) {
+            // Otherwise, it is just a marker for a custom qualifier annotation.
+            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn)))
+                    || !checkQualifier(bdHolder, metaAnn, typeConverter)) {
               return false;
             }
           }
@@ -212,7 +216,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
         }
       }
     }
-    return true;
+    return qualifierFound || ((AbstractBeanDefinition) bdHolder.getBeanDefinition()).isDefaultCandidate();
   }
 
   /**
