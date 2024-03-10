@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.beans.factory.config;
+
+import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
@@ -72,6 +71,18 @@ public interface SingletonBeanRegistry {
    * @since 2.1.2
    */
   void registerSingleton(Object bean);
+
+  /**
+   * Add a callback to be triggered when the specified singleton becomes available
+   * in the bean registry.
+   *
+   * @param beanName the name of the bean
+   * @param singletonConsumer a callback for reacting to the availability of the freshly
+   * registered/created singleton instance (intended for follow-up steps before the bean is
+   * actively used by other callers, not for modifying the given singleton instance itself)
+   * @since 4.0
+   */
+  void addSingletonCallback(String beanName, Consumer<Object> singletonConsumer);
 
   /**
    * Return the (raw) singleton object registered under the given name.

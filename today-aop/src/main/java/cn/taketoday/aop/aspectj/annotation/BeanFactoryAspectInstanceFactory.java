@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.annotation;
@@ -42,6 +39,7 @@ import cn.taketoday.util.ClassUtils;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.beans.factory.BeanFactory
  * @see LazySingletonAspectInstanceFactoryDecorator
  * @since 4.0
@@ -115,13 +113,8 @@ public class BeanFactoryAspectInstanceFactory implements MetadataAwareAspectInst
       // Rely on singleton semantics provided by the factory -> no local lock.
       return null;
     }
-    else if (this.beanFactory instanceof ConfigurableBeanFactory) {
-      // No singleton guarantees from the factory -> let's lock locally but
-      // reuse the factory's singleton lock, just in case a lazy dependency
-      // of our advice bean happens to trigger the singleton lock implicitly...
-      return ((ConfigurableBeanFactory) this.beanFactory).getSingletonMutex();
-    }
     else {
+      // No singleton guarantees from the factory -> let's lock locally.
       return this;
     }
   }

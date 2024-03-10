@@ -1550,41 +1550,39 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
     if (factory.isSingleton() && containsSingleton(beanName)) {
-      synchronized(getSingletonMutex()) {
-        Object object = this.objectFromFactoryBeanCache.get(beanName);
-        if (object == null) {
-          object = doGetObjectFromFactoryBean(factory, beanName);
-          // Only post-process and store if not put there already during getObject() call above
-          // (e.g. because of circular reference processing triggered by custom getBean calls)
-          Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
-          if (alreadyThere != null) {
-            object = alreadyThere;
+      Object object = this.objectFromFactoryBeanCache.get(beanName);
+      if (object == null) {
+        object = doGetObjectFromFactoryBean(factory, beanName);
+        // Only post-process and store if not put there already during getObject() call above
+        // (e.g. because of circular reference processing triggered by custom getBean calls)
+        Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
+        if (alreadyThere != null) {
+          object = alreadyThere;
+        }
+        else {
+          if (shouldPostProcess) {
+            if (isSingletonCurrentlyInCreation(beanName)) {
+              // Temporarily return non-post-processed object, not storing it yet..
+              return object;
+            }
+            beforeSingletonCreation(beanName);
+            try {
+              object = postProcessObjectFromFactoryBean(object, beanName);
+            }
+            catch (Throwable ex) {
+              throw new BeanCreationException(beanName,
+                      "Post-processing of FactoryBean's singleton object failed", ex);
+            }
+            finally {
+              afterSingletonCreation(beanName);
+            }
           }
-          else {
-            if (shouldPostProcess) {
-              if (isSingletonCurrentlyInCreation(beanName)) {
-                // Temporarily return non-post-processed object, not storing it yet..
-                return object;
-              }
-              beforeSingletonCreation(beanName);
-              try {
-                object = postProcessObjectFromFactoryBean(object, beanName);
-              }
-              catch (Throwable ex) {
-                throw new BeanCreationException(beanName,
-                        "Post-processing of FactoryBean's singleton object failed", ex);
-              }
-              finally {
-                afterSingletonCreation(beanName);
-              }
-            }
-            if (containsSingleton(beanName)) {
-              objectFromFactoryBeanCache.put(beanName, object);
-            }
+          if (containsSingleton(beanName)) {
+            objectFromFactoryBeanCache.put(beanName, object);
           }
         }
-        return object;
       }
+      return object;
     }
     else {
       Object object = doGetObjectFromFactoryBean(factory, beanName);
@@ -1650,10 +1648,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   @Override
   public void removeSingleton(String beanName) {
-    synchronized(getSingletonMutex()) {
-      super.removeSingleton(beanName);
-      this.objectFromFactoryBeanCache.remove(beanName);
-    }
+    super.removeSingleton(beanName);
+    this.objectFromFactoryBeanCache.remove(beanName);
   }
 
   /**
@@ -1661,10 +1657,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   @Override
   protected void clearSingletonCache() {
-    synchronized(getSingletonMutex()) {
-      super.clearSingletonCache();
-      this.objectFromFactoryBeanCache.clear();
-    }
+    super.clearSingletonCache();
+    this.objectFromFactoryBeanCache.clear();
   }
 
   @Override
