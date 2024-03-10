@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -434,13 +434,17 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
           throw new BeanDefinitionStoreException("Cannot enhance @Configuration bean definition '" +
                   beanName + "' since it is not stored in an AbstractBeanDefinition subclass");
         }
-        else if (log.isWarnEnabled() && beanFactory.containsSingleton(beanName)) {
-          log.warn("Cannot enhance @Configuration bean definition '{}' " +
-                  "since its singleton instance has been created too early. The typical cause " +
-                  "is a non-static @Component method with a BeanDefinitionRegistryPostProcessor " +
-                  "return type: Consider declaring such methods as 'static'.", beanName);
+        else if (beanFactory.containsSingleton(beanName)) {
+          if (log.isWarnEnabled()) {
+            log.warn("Cannot enhance @Configuration bean definition '{}' " +
+                    "since its singleton instance has been created too early. The typical cause " +
+                    "is a non-static @Component method with a BeanDefinitionRegistryPostProcessor " +
+                    "return type: Consider declaring such methods as 'static'.", beanName);
+          }
         }
-        configBeanDefs.put(beanName, abd);
+        else {
+          configBeanDefs.put(beanName, abd);
+        }
       }
     }
     if (configBeanDefs.isEmpty()) {
@@ -482,8 +486,7 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
     }
 
     @Override
-    public PropertyValues processDependencies(
-            @Nullable PropertyValues propertyValues, Object bean, String beanName) {
+    public PropertyValues processDependencies(@Nullable PropertyValues propertyValues, Object bean, String beanName) {
       // postProcessDependencies method attempts to autowire other configuration beans.
       if (bean instanceof EnhancedConfiguration enhancedConfiguration) {
         // FIXME
