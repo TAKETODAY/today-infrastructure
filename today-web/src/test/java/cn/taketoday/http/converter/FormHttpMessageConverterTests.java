@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter;
@@ -56,6 +53,7 @@ import static cn.taketoday.http.MediaType.MULTIPART_FORM_DATA;
 import static cn.taketoday.http.MediaType.MULTIPART_MIXED;
 import static cn.taketoday.http.MediaType.MULTIPART_RELATED;
 import static cn.taketoday.http.MediaType.TEXT_XML;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -144,10 +142,10 @@ public class FormHttpMessageConverterTests {
     MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
     this.converter.write(body, APPLICATION_FORM_URLENCODED, outputMessage);
 
-    assertThat(outputMessage.getBodyAsString(StandardCharsets.UTF_8))
+    assertThat(outputMessage.getBodyAsString(UTF_8))
             .as("Invalid result").isEqualTo("name+1=value+1&name+2=value+2%2B1&name+2=value+2%2B2&name+3");
-    assertThat(outputMessage.getHeaders().getContentType().toString())
-            .as("Invalid content-type").isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
+    assertThat(outputMessage.getHeaders().getContentType())
+            .as("Invalid content-type").isEqualTo(APPLICATION_FORM_URLENCODED);
     assertThat(outputMessage.getHeaders().getContentLength())
             .as("Invalid content-length").isEqualTo(outputMessage.getBodyAsBytes().length);
   }

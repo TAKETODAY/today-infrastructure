@@ -158,9 +158,6 @@ import jakarta.mail.internet.MimeUtility;
  */
 public class FormHttpMessageConverter implements HttpMessageConverter<MultiValueMap<String, ?>> {
 
-  private static final MediaType DEFAULT_FORM_DATA_MEDIA_TYPE =
-          MediaType.APPLICATION_FORM_URLENCODED.withCharset(Constant.DEFAULT_CHARSET);
-
   private ArrayList<MediaType> supportedMediaTypes = new ArrayList<>();
 
   private List<HttpMessageConverter<?>> partConverters = new ArrayList<>();
@@ -335,8 +332,16 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   {
 
     MediaType contentType = inputMessage.getHeaders().getContentType();
-    Charset charset = (contentType != null && contentType.getCharset() != null ?
-                       contentType.getCharset() : this.charset);
+
+    Charset charset = null;
+    if (contentType != null) {
+      charset = contentType.getCharset();
+    }
+
+    if (charset == null) {
+      charset = this.charset;
+    }
+
     String body = StreamUtils.copyToString(inputMessage.getBody(), charset);
 
     String[] pairs = StringUtils.tokenizeToStringArray(body, "&");
@@ -390,7 +395,9 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     headers.setContentType(contentType);
 
     Charset charset = contentType.getCharset();
-    Assert.notNull(charset, "No charset"); // should never occur
+    if (charset == null) {
+      charset = this.charset;
+    }
 
     byte[] bytes = serializeForm(formData, charset).getBytes(charset);
     headers.setContentLength(bytes.length);
@@ -411,7 +418,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    */
   protected MediaType getFormContentType(@Nullable MediaType contentType) {
     if (contentType == null) {
-      return DEFAULT_FORM_DATA_MEDIA_TYPE;
+      return MediaType.APPLICATION_FORM_URLENCODED;
     }
     else if (contentType.getCharset() == null) {
       return contentType.withCharset(this.charset);
@@ -512,7 +519,7 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
   private void writePart(String name, HttpEntity<?> partEntity, OutputStream os) throws IOException {
     Object partBody = partEntity.getBody();
     if (partBody == null) {
-      throw new IllegalStateException("Empty body for part '" + name + "': " + partEntity);
+      throw new IllegalStateException("Empty body for part '%s': %s".formatted(name, partEntity));
     }
     Class<?> partType = partBody.getClass();
     HttpHeaders partHeaders = partEntity.getHeaders();
@@ -530,8 +537,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
       }
     }
     throw new HttpMessageNotWritableException(
-            "Could not write request: no suitable HttpMessageConverter " +
-                    "found for request type [" + partType.getName() + "]");
+            "Could not write request: no suitable HttpMessageConverter found for request type [%s]"
+                    .formatted(partType.getName()));
   }
 
   /**

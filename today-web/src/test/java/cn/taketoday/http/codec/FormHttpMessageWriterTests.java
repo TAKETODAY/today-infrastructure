@@ -89,7 +89,7 @@ public class FormHttpMessageWriterTests extends AbstractLeakCheckingTests {
             .expectComplete()
             .verify();
     HttpHeaders headers = response.getHeaders();
-    assertThat(headers.getContentType().toString()).isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
+    assertThat(headers.getContentType()).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED);
     assertThat(headers.getContentLength()).isEqualTo(expected.length());
   }
 

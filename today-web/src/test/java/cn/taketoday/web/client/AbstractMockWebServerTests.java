@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -194,7 +191,7 @@ abstract class AbstractMockWebServerTests {
   }
 
   private MockResponse formRequest(RecordedRequest request) {
-    assertThat(request.getHeader(CONTENT_TYPE)).isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
+    assertThat(request.getHeader(CONTENT_TYPE)).isEqualTo("application/x-www-form-urlencoded");
     assertThat(request.getBody().readUtf8()).contains("name+1=value+1", "name+2=value+2%2B1", "name+2=value+2%2B2");
     return new MockResponse().setResponseCode(200);
   }
