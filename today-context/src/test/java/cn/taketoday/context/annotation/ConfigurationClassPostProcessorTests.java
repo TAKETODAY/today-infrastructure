@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -36,6 +36,8 @@ import cn.taketoday.aop.support.AopUtils;
 import cn.taketoday.aop.support.DefaultPointcutAdvisor;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanDefinitionStoreException;
+import cn.taketoday.beans.factory.BeanFactory;
+import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
@@ -999,6 +1001,20 @@ class ConfigurationClassPostProcessorTests {
   }
 
   @Test
+  void testConfigWithFailingInit() {  // gh-23343
+    AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+    bpp.setBeanFactory(beanFactory);
+    beanFactory.addBeanPostProcessor(bpp);
+    beanFactory.addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
+    beanFactory.registerBeanDefinition("configClass", new RootBeanDefinition(ConcreteConfigWithFailingInit.class));
+    new ConfigurationClassPostProcessor().postProcessBeanFactory(beanFactory);
+
+    assertThatExceptionOfType(BeanCreationException.class).isThrownBy(beanFactory::preInstantiateSingletons);
+    assertThat(beanFactory.containsSingleton("configClass")).isFalse();
+    assertThat(beanFactory.containsSingleton("provider")).isFalse();
+  }
+
+  @Test
   void testCircularDependency() {
     AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
     bpp.setBeanFactory(beanFactory);
@@ -1664,7 +1680,7 @@ class ConfigurationClassPostProcessorTests {
   }
 
   @ComposedConfigurationWithAttributeOverrides(basePackages = "cn.taketoday.context.annotation.componentscan.simple",
-                                               excludeFilters = @ComponentScan.Filter(Component.class))
+          excludeFilters = @ComponentScan.Filter(Component.class))
   public static class ComposedConfigurationWithAttributeOverrideForExcludeFilter {
   }
 
@@ -1673,7 +1689,7 @@ class ConfigurationClassPostProcessorTests {
   }
 
   @ComponentScan(basePackages = "cn.taketoday.context.annotation.componentscan.simple",
-                 excludeFilters = @ComponentScan.Filter(Component.class))
+          excludeFilters = @ComponentScan.Filter(Component.class))
   public static class ExtendedConfigurationWithAttributeOverrideForExcludeFilter extends BaseConfigurationWithEmptyExcludeFilters {
   }
 
@@ -1798,6 +1814,29 @@ class ConfigurationClassPostProcessorTests {
     @PostConstruct
     public void validate() {
       Assert.notNull(provider, "No ServiceBeanProvider injected");
+    }
+  }
+
+  @Configuration
+  public static class ConcreteConfigWithFailingInit implements DefaultMethodsConfig, BeanFactoryAware {
+
+    private BeanFactory beanFactory;
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) {
+      this.beanFactory = beanFactory;
+    }
+
+    @Bean
+    @Override
+    public ServiceBeanProvider provider() {
+      return new ServiceBeanProvider();
+    }
+
+    @PostConstruct
+    public void validate() {
+      beanFactory.getBean("provider");
+      throw new IllegalStateException();
     }
   }
 
