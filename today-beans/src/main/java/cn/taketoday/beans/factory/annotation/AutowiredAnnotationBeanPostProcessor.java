@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -50,7 +49,6 @@ import cn.taketoday.beans.TypeConverter;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.DependenciesBeanPostProcessor;
 import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
@@ -610,21 +608,6 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
     return ann.getValue(requiredParameterName, boolean.class)
             .map(value -> requiredParameterValue == value)
             .orElse(true);
-  }
-
-  /**
-   * Obtain all beans of the given type as autowire candidates.
-   *
-   * @param type the type of the bean
-   * @return the target beans, or an empty Collection if no bean of this type is found
-   * @throws BeansException if bean retrieval failed
-   */
-  protected <T> Map<String, T> findAutowireCandidates(Class<T> type) throws BeansException {
-    if (this.beanFactory == null) {
-      throw new IllegalStateException("No BeanFactory configured - " +
-              "override the getBeanOfType method or specify the 'beanFactory' property");
-    }
-    return BeanFactoryUtils.beansOfTypeIncludingAncestors(this.beanFactory, type);
   }
 
   /**
