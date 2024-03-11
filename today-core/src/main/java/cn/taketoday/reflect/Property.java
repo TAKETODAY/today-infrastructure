@@ -109,8 +109,8 @@ public class Property implements Member, AnnotatedElement, Serializable {
     this(field.getName(), field);
   }
 
-  public Property(@Nullable Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
-    this(null, readMethod, writeMethod, declaringClass);
+  public Property(Class<?> objectType, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    this(null, readMethod, writeMethod, objectType);
   }
 
   public Property(@Nullable String name, @Nullable Method readMethod,
