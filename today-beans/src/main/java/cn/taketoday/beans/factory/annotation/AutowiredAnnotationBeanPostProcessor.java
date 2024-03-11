@@ -629,7 +629,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
    * Sort the method elements via ASM for deterministic declaration order if possible.
    */
   private List<InjectedElement> sortMethodElements(List<InjectedElement> methodElements, Class<?> targetClass) {
-    if (metadataReaderFactory != null && methodElements.size() > 1) {
+    if (methodElements.size() > 1) {
+      if (metadataReaderFactory == null) {
+        metadataReaderFactory = new SimpleMetadataReaderFactory(beanFactory != null
+                ? beanFactory.getBeanClassLoader() : ClassUtils.getDefaultClassLoader());
+      }
       // Try reading the class file via ASM for deterministic declaration order...
       // Unfortunately, the JVM's standard reflection returns methods in arbitrary
       // order, even between different runs of the same application on the same JVM.
