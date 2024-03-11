@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
@@ -32,7 +29,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MethodClassKey;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Abstract implementation of {@link CacheOperation} that caches attributes
@@ -51,15 +50,16 @@ import cn.taketoday.util.MethodClassKey;
  *
  * @author Costin Leau
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractFallbackCacheOperationSource implements CacheOperationSource {
 
   /**
-   * Canonical value held in cache to indicate no caching attribute was
-   * found for this method and we don't need to look again.
+   * Canonical value held in cache to indicate no cache operation was
+   * found for this method, and we don't need to look again.
    */
-  private static final Collection<CacheOperation> NULL_CACHING_ATTRIBUTE = Collections.emptyList();
+  private static final Collection<CacheOperation> NULL_CACHING_MARKER = Collections.emptyList();
 
   /**
    * Logger available to subclasses.
@@ -73,29 +73,42 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
    * <p>As this base class is not marked Serializable, the cache will be recreated
    * after serialization - provided that the concrete subclass is Serializable.
    */
-  private final Map<Object, Collection<CacheOperation>> attributeCache = new ConcurrentHashMap<>(1024);
+  private final Map<Object, Collection<CacheOperation>> operationCache = new ConcurrentHashMap<>(1024);
 
-  /**
-   * Determine the caching attribute for this method invocation.
-   * <p>Defaults to the class's caching attribute if no method attribute is found.
-   *
-   * @param method the method for the current invocation (never {@code null})
-   * @param targetClass the target class for this invocation (may be {@code null})
-   * @return {@link CacheOperation} for this method, or {@code null} if the method
-   * is not cacheable
-   */
+  @Override
+  public boolean hasCacheOperations(Method method, @Nullable Class<?> targetClass) {
+    return CollectionUtils.isNotEmpty(getCacheOperations(method, targetClass, false));
+  }
+
   @Override
   @Nullable
   public Collection<CacheOperation> getCacheOperations(Method method, @Nullable Class<?> targetClass) {
-    if (method.getDeclaringClass() == Object.class) {
+    return getCacheOperations(method, targetClass, true);
+  }
+
+  /**
+   * Determine the cache operations for this method invocation.
+   * <p>Defaults to class-declared metadata if no method-level metadata is found.
+   *
+   * @param method the method for the current invocation (never {@code null})
+   * @param targetClass the target class for this invocation (can be {@code null})
+   * @param cacheNull whether {@code null} results should be cached as well
+   * @return {@link CacheOperation} for this method, or {@code null} if the method
+   * is not cacheable
+   */
+  @Nullable
+  private Collection<CacheOperation> getCacheOperations(
+          Method method, @Nullable Class<?> targetClass, boolean cacheNull) {
+
+    if (ReflectionUtils.isObjectMethod(method)) {
       return null;
     }
 
     Object cacheKey = getCacheKey(method, targetClass);
-    Collection<CacheOperation> cached = attributeCache.get(cacheKey);
+    Collection<CacheOperation> cached = this.operationCache.get(cacheKey);
 
     if (cached != null) {
-      return cached != NULL_CACHING_ATTRIBUTE ? cached : null;
+      return (cached != NULL_CACHING_MARKER ? cached : null);
     }
     else {
       Collection<CacheOperation> cacheOps = computeCacheOperations(method, targetClass);
@@ -103,10 +116,10 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
         if (logger.isTraceEnabled()) {
           logger.trace("Adding cacheable method '{}' with attribute: {}", method.getName(), cacheOps);
         }
-        attributeCache.put(cacheKey, cacheOps);
+        operationCache.put(cacheKey, cacheOps);
       }
-      else {
-        attributeCache.put(cacheKey, NULL_CACHING_ATTRIBUTE);
+      else if (cacheNull) {
+        operationCache.put(cacheKey, NULL_CACHING_MARKER);
       }
       return cacheOps;
     }
@@ -132,7 +145,7 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
       return null;
     }
 
-    // The method may be on an interface, but we need attributes from the target class.
+    // The method may be on an interface, but we need metadata from the target class.
     // If the target class is null, the method will be unchanged.
     Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 
@@ -165,21 +178,21 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
   }
 
   /**
-   * Subclasses need to implement this to return the caching attribute for the
+   * Subclasses need to implement this to return the cache operations for the
    * given class, if any.
    *
-   * @param clazz the class to retrieve the attribute for
-   * @return all caching attribute associated with this class, or {@code null} if none
+   * @param clazz the class to retrieve the cache operations for
+   * @return all cache operations associated with this class, or {@code null} if none
    */
   @Nullable
   protected abstract Collection<CacheOperation> findCacheOperations(Class<?> clazz);
 
   /**
-   * Subclasses need to implement this to return the caching attribute for the
+   * Subclasses need to implement this to return the cache operations for the
    * given method, if any.
    *
-   * @param method the method to retrieve the attribute for
-   * @return all caching attribute associated with this method, or {@code null} if none
+   * @param method the method to retrieve the cache operations for
+   * @return all cache operations associated with this method, or {@code null} if none
    */
   @Nullable
   protected abstract Collection<CacheOperation> findCacheOperations(Method method);

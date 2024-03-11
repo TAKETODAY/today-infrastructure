@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.cache.interceptor;
+package cn.taketoday.cache.jcache.interceptor;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,45 +28,44 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 
 /**
- * A Pointcut that matches if the underlying {@link CacheOperationSource}
- * has an attribute for a given method.
+ * A {@code Pointcut} that matches if the underlying {@link JCacheOperationSource}
+ * has an operation for a given method.
  *
- * @author Costin Leau
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
+final class JCacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   @Nullable
-  private CacheOperationSource cacheOperationSource;
+  private JCacheOperationSource cacheOperationSource;
 
-  public CacheOperationSourcePointcut() {
-    setClassFilter(new CacheOperationSourceClassFilter());
+  public JCacheOperationSourcePointcut() {
+    setClassFilter(new JCacheOperationSourceClassFilter());
   }
 
-  public void setCacheOperationSource(@Nullable CacheOperationSource cacheOperationSource) {
+  public void setCacheOperationSource(@Nullable JCacheOperationSource cacheOperationSource) {
     this.cacheOperationSource = cacheOperationSource;
   }
 
   @Override
   public boolean matches(Method method, Class<?> targetClass) {
     return (this.cacheOperationSource == null ||
-            this.cacheOperationSource.hasCacheOperations(method, targetClass));
+            this.cacheOperationSource.hasCacheOperation(method, targetClass));
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof CacheOperationSourcePointcut that &&
+    return (this == other || (other instanceof JCacheOperationSourcePointcut that &&
             ObjectUtils.nullSafeEquals(this.cacheOperationSource, that.cacheOperationSource)));
   }
 
   @Override
   public int hashCode() {
-    return CacheOperationSourcePointcut.class.hashCode();
+    return JCacheOperationSourcePointcut.class.hashCode();
   }
 
   @Override
@@ -75,10 +74,10 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
   }
 
   /**
-   * {@link ClassFilter} that delegates to {@link CacheOperationSource#isCandidateClass}
+   * {@link ClassFilter} that delegates to {@link JCacheOperationSource#isCandidateClass}
    * for filtering classes whose methods are not worth searching to begin with.
    */
-  private final class CacheOperationSourceClassFilter implements ClassFilter {
+  private final class JCacheOperationSourceClassFilter implements ClassFilter {
 
     @Override
     public boolean matches(Class<?> clazz) {
@@ -89,24 +88,24 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
     }
 
     @Nullable
-    private CacheOperationSource getCacheOperationSource() {
+    private JCacheOperationSource getCacheOperationSource() {
       return cacheOperationSource;
     }
 
     @Override
     public boolean equals(@Nullable Object other) {
-      return (this == other || (other instanceof CacheOperationSourceClassFilter that &&
+      return (this == other || (other instanceof JCacheOperationSourceClassFilter that &&
               ObjectUtils.nullSafeEquals(getCacheOperationSource(), that.getCacheOperationSource())));
     }
 
     @Override
     public int hashCode() {
-      return CacheOperationSourceClassFilter.class.hashCode();
+      return JCacheOperationSourceClassFilter.class.hashCode();
     }
 
     @Override
     public String toString() {
-      return CacheOperationSourceClassFilter.class.getName() + ": " + getCacheOperationSource();
+      return JCacheOperationSourceClassFilter.class.getName() + ": " + getCacheOperationSource();
     }
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.jcache.interceptor;
 
 import java.io.Serial;
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Objects;
 
 import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.Pointcut;
 import cn.taketoday.aop.support.AbstractBeanFactoryPointcutAdvisor;
-import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
-import cn.taketoday.lang.Nullable;
 
 /**
  * Advisor driven by a {@link JCacheOperationSource}, used to include a
@@ -39,7 +31,6 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class BeanFactoryJCacheOperationSourceAdvisor extends AbstractBeanFactoryPointcutAdvisor {
 
   @Serial
@@ -51,6 +42,8 @@ public class BeanFactoryJCacheOperationSourceAdvisor extends AbstractBeanFactory
    * Set the cache operation attribute source which is used to find cache
    * attributes. This should usually be identical to the source reference
    * set on the cache interceptor itself.
+   *
+   * @see JCacheInterceptor#setCacheOperationSource
    */
   public void setCacheOperationSource(JCacheOperationSource cacheOperationSource) {
     this.pointcut.setCacheOperationSource(cacheOperationSource);
@@ -67,38 +60,6 @@ public class BeanFactoryJCacheOperationSourceAdvisor extends AbstractBeanFactory
   @Override
   public Pointcut getPointcut() {
     return this.pointcut;
-  }
-
-  private static class JCacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
-
-    @Nullable
-    private JCacheOperationSource cacheOperationSource;
-
-    public void setCacheOperationSource(@Nullable JCacheOperationSource cacheOperationSource) {
-      this.cacheOperationSource = cacheOperationSource;
-    }
-
-    @Override
-    public boolean matches(Method method, Class<?> targetClass) {
-      return (this.cacheOperationSource == null ||
-              this.cacheOperationSource.getCacheOperation(method, targetClass) != null);
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      return (this == other || (other instanceof JCacheOperationSourcePointcut otherPc &&
-              Objects.equals(this.cacheOperationSource, otherPc.cacheOperationSource)));
-    }
-
-    @Override
-    public int hashCode() {
-      return JCacheOperationSourcePointcut.class.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return getClass().getName() + ": " + this.cacheOperationSource;
-    }
   }
 
 }
