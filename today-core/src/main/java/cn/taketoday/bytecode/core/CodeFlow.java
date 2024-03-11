@@ -63,21 +63,21 @@ public class CodeFlow implements Opcodes {
   private final Deque<List<String>> compilationScopes;
 
   /**
-   * As SpEL ast nodes are called to generate code for the main evaluation method
+   * As SpEL AST nodes are called to generate code for the main evaluation method
    * they can register to add a field to this class. Any registered FieldAdders
    * will be called after the main evaluation function has finished being generated.
    */
   @Nullable
-  private ArrayList<FieldAdder> fieldAdders;
+  private List<FieldAdder> fieldAdders;
 
   /**
-   * As SpEL ast nodes are called to generate code for the main evaluation method
+   * As SpEL AST nodes are called to generate code for the main evaluation method
    * they can register to add code to a static initializer in the class. Any
    * registered ClinitAdders will be called after the main evaluation function
    * has finished being generated.
    */
   @Nullable
-  private ArrayList<ClinitAdder> clinitAdders;
+  private List<ClinitAdder> clinitAdders;
 
   /**
    * When code generation requires holding a value in a class level field, this
@@ -108,7 +108,7 @@ public class CodeFlow implements Opcodes {
    * Push the byte code to load the target (i.e. what was passed as the first argument
    * to CompiledExpression.getValue(target, context))
    *
-   * @param mv the visitor into which the load instruction should be inserted
+   * @param mv the method visitor into which the load instruction should be inserted
    */
   public void loadTarget(MethodVisitor mv) {
     mv.visitVarInsn(ALOAD, 1);
@@ -118,7 +118,7 @@ public class CodeFlow implements Opcodes {
    * Push the bytecode to load the EvaluationContext (the second parameter passed to
    * the compiled expression method).
    *
-   * @param mv the visitor into which the load instruction should be inserted
+   * @param mv the method visitor into which the load instruction should be inserted
    */
   public void loadEvaluationContext(MethodVisitor mv) {
     mv.visitVarInsn(ALOAD, 2);
@@ -165,7 +165,7 @@ public class CodeFlow implements Opcodes {
    * If the codeflow shows the last expression evaluated to java.lang.Boolean then
    * insert the necessary instructions to unbox that to a boolean primitive.
    *
-   * @param mv the visitor into which new instructions should be inserted
+   * @param mv the method visitor into which new instructions should be inserted
    */
   public void unboxBooleanIfNecessary(MethodVisitor mv) {
     if ("Ljava/lang/Boolean".equals(lastDescriptor())) {
@@ -175,7 +175,7 @@ public class CodeFlow implements Opcodes {
 
   /**
    * Called after the main expression evaluation method has been generated, this
-   * method will callback any registered FieldAdders or ClinitAdders to add any
+   * method will call back any registered FieldAdders or ClinitAdders to add any
    * extra information to the class representing the compiled expression.
    */
   public void finish() {
@@ -199,7 +199,7 @@ public class CodeFlow implements Opcodes {
 
   /**
    * Register a FieldAdder which will add a new field to the generated
-   * class to support the code produced by an ast nodes primary
+   * class to support the code produced by an AST node's primary
    * generateCode() method.
    */
   public void registerNewField(FieldAdder fieldAdder) {
@@ -212,7 +212,7 @@ public class CodeFlow implements Opcodes {
   /**
    * Register a ClinitAdder which will add code to the static
    * initializer in the generated class to support the code
-   * produced by an ast nodes primary generateCode() method.
+   * produced by an AST node's primary generateCode() method.
    */
   public void registerNewClinit(ClinitAdder clinitAdder) {
     if (this.clinitAdders == null) {
@@ -305,9 +305,7 @@ public class CodeFlow implements Opcodes {
    * @param targetDescriptor the primitive type desired as output
    * @param stackDescriptor the descriptor of the type on top of the stack
    */
-  public static void insertUnboxNumberInsns(
-          MethodVisitor mv, char targetDescriptor, @Nullable String stackDescriptor) {
-
+  public static void insertUnboxNumberInsns(MethodVisitor mv, char targetDescriptor, @Nullable String stackDescriptor) {
     if (stackDescriptor == null) {
       return;
     }
@@ -343,81 +341,53 @@ public class CodeFlow implements Opcodes {
   }
 
   /**
-   * Insert any necessary numeric conversion bytecodes based upon what is on the stack and the desired target type.
+   * Insert any necessary numeric conversion bytecodes based upon what is on the
+   * stack and the desired target type.
    *
    * @param mv the method visitor into which instructions should be placed
    * @param targetDescriptor the (primitive) descriptor of the target type
    * @param stackDescriptor the descriptor of the operand on top of the stack
    */
   public static void insertAnyNecessaryTypeConversionBytecodes(MethodVisitor mv, char targetDescriptor, String stackDescriptor) {
-    if (CodeFlow.isPrimitive(stackDescriptor)) {
-      char stackTop = stackDescriptor.charAt(0);
-      if (stackTop == 'I' || stackTop == 'B' || stackTop == 'S' || stackTop == 'C') {
-        if (targetDescriptor == 'D') {
-          mv.visitInsn(I2D);
-        }
-        else if (targetDescriptor == 'F') {
-          mv.visitInsn(I2F);
-        }
-        else if (targetDescriptor == 'J') {
-          mv.visitInsn(I2L);
-        }
-        else if (targetDescriptor == 'I') {
-          // nop
-        }
-        else {
-          throw new IllegalStateException("Cannot get from " + stackTop + " to " + targetDescriptor);
+    if (!CodeFlow.isPrimitive(stackDescriptor)) {
+      return;
+    }
+    char stackTop = stackDescriptor.charAt(0);
+    switch (stackTop) {
+      case 'I', 'B', 'S', 'C' -> {
+        switch (targetDescriptor) {
+          case 'D' -> mv.visitInsn(I2D);
+          case 'F' -> mv.visitInsn(I2F);
+          case 'J' -> mv.visitInsn(I2L);
+          case 'I' -> { /* no-op */ }
+          default -> throw new IllegalStateException("Cannot get from " + stackTop + " to " + targetDescriptor);
         }
       }
-      else if (stackTop == 'J') {
-        if (targetDescriptor == 'D') {
-          mv.visitInsn(L2D);
-        }
-        else if (targetDescriptor == 'F') {
-          mv.visitInsn(L2F);
-        }
-        else if (targetDescriptor == 'J') {
-          // nop
-        }
-        else if (targetDescriptor == 'I') {
-          mv.visitInsn(L2I);
-        }
-        else {
-          throw new IllegalStateException("Cannot get from " + stackTop + " to " + targetDescriptor);
+      case 'J' -> {
+        switch (targetDescriptor) {
+          case 'D' -> mv.visitInsn(L2D);
+          case 'F' -> mv.visitInsn(L2F);
+          case 'J' -> { /* no-op */ }
+          case 'I' -> mv.visitInsn(L2I);
+          default -> throw new IllegalStateException("Cannot get from " + stackTop + " to " + targetDescriptor);
         }
       }
-      else if (stackTop == 'F') {
-        if (targetDescriptor == 'D') {
-          mv.visitInsn(F2D);
-        }
-        else if (targetDescriptor == 'F') {
-          // nop
-        }
-        else if (targetDescriptor == 'J') {
-          mv.visitInsn(F2L);
-        }
-        else if (targetDescriptor == 'I') {
-          mv.visitInsn(F2I);
-        }
-        else {
-          throw new IllegalStateException("Cannot get from " + stackTop + " to " + targetDescriptor);
+      case 'F' -> {
+        switch (targetDescriptor) {
+          case 'D' -> mv.visitInsn(F2D);
+          case 'F' -> { /* no-op */ }
+          case 'J' -> mv.visitInsn(F2L);
+          case 'I' -> mv.visitInsn(F2I);
+          default -> throw new IllegalStateException("Cannot get from " + stackTop + " to " + targetDescriptor);
         }
       }
-      else if (stackTop == 'D') {
-        if (targetDescriptor == 'D') {
-          // nop
-        }
-        else if (targetDescriptor == 'F') {
-          mv.visitInsn(D2F);
-        }
-        else if (targetDescriptor == 'J') {
-          mv.visitInsn(D2L);
-        }
-        else if (targetDescriptor == 'I') {
-          mv.visitInsn(D2I);
-        }
-        else {
-          throw new IllegalStateException("Cannot get from " + stackDescriptor + " to " + targetDescriptor);
+      case 'D' -> {
+        switch (targetDescriptor) {
+          case 'D' -> { /* no-op */ }
+          case 'F' -> mv.visitInsn(D2F);
+          case 'J' -> mv.visitInsn(D2L);
+          case 'I' -> mv.visitInsn(D2I);
+          default -> throw new IllegalStateException("Cannot get from " + stackDescriptor + " to " + targetDescriptor);
         }
       }
     }
@@ -547,10 +517,10 @@ public class CodeFlow implements Opcodes {
   }
 
   /**
-   * Determine whether the descriptor is for a primitive type.
+   * Determine whether the descriptor is for a primitive type or {@code void}.
    *
    * @param descriptor type descriptor
-   * @return {@code true} if a primitive type
+   * @return {@code true} if a primitive type or {@code void}
    */
   public static boolean isPrimitive(@Nullable String descriptor) {
     return (descriptor != null && descriptor.length() == 1);
@@ -566,18 +536,21 @@ public class CodeFlow implements Opcodes {
     if (descriptor == null) {
       return false;
     }
+    boolean primitive = true;
     for (int i = 0, max = descriptor.length(); i < max; i++) {
       char ch = descriptor.charAt(i);
-      if (ch != '[') {
-        return ch != 'L';
+      if (ch == '[') {
+        continue;
       }
+      primitive = (ch != 'L');
+      break;
     }
-    return true;
+    return primitive;
   }
 
   /**
    * Determine whether boxing/unboxing can get from one type to the other.
-   * Assumes at least one of the types is in boxed form (i.e. single char descriptor).
+   * <p>Assumes at least one of the types is in boxed form (i.e. single char descriptor).
    *
    * @return {@code true} if it is possible to get (via boxing) from one descriptor to the other
    */
@@ -586,15 +559,15 @@ public class CodeFlow implements Opcodes {
       return true;
     }
     if (desc1.length() == 1) {
-      return boxingCompatible(desc1, desc2);
+      return checkPairs(desc1, desc2);
     }
     else if (desc2.length() == 1) {
-      return boxingCompatible(desc2, desc1);
+      return checkPairs(desc2, desc1);
     }
     return false;
   }
 
-  private static boolean boxingCompatible(String desc1, String desc2) {
+  private static boolean checkPairs(String desc1, String desc2) {
     return switch (desc1) {
       case "Z" -> desc2.equals("Ljava/lang/Boolean");
       case "D" -> desc2.equals("Ljava/lang/Double");
@@ -620,8 +593,7 @@ public class CodeFlow implements Opcodes {
     if (isPrimitiveOrUnboxableSupportedNumber(descriptor)) {
       return true;
     }
-    return "Z".equals(descriptor)
-            || descriptor.equals("Ljava/lang/Boolean");
+    return ("Z".equals(descriptor) || descriptor.equals("Ljava/lang/Boolean"));
   }
 
   /**
@@ -641,10 +613,7 @@ public class CodeFlow implements Opcodes {
     }
     if (descriptor.startsWith("Ljava/lang/")) {
       String name = descriptor.substring("Ljava/lang/".length());
-      return name.equals("Double")
-              || name.equals("Float")
-              || name.equals("Integer")
-              || name.equals("Long");
+      return (name.equals("Double") || name.equals("Float") || name.equals("Integer") || name.equals("Long"));
     }
     return false;
   }
@@ -657,7 +626,7 @@ public class CodeFlow implements Opcodes {
    * @return {@code true} if it is an {@link Integer}, {@link Short} or {@link Byte}
    */
   public static boolean isIntegerForNumericOp(Number number) {
-    return number instanceof Integer || number instanceof Short || number instanceof Byte;
+    return (number instanceof Integer || number instanceof Short || number instanceof Byte);
   }
 
   /**
@@ -670,39 +639,23 @@ public class CodeFlow implements Opcodes {
     if (descriptor.length() == 1) {
       return descriptor.charAt(0);
     }
-    else if (descriptor.equals("Ljava/lang/Boolean")) {
-      return 'Z';
-    }
-    else if (descriptor.equals("Ljava/lang/Byte")) {
-      return 'B';
-    }
-    else if (descriptor.equals("Ljava/lang/Character")) {
-      return 'C';
-    }
-    else if (descriptor.equals("Ljava/lang/Double")) {
-      return 'D';
-    }
-    else if (descriptor.equals("Ljava/lang/Float")) {
-      return 'F';
-    }
-    else if (descriptor.equals("Ljava/lang/Integer")) {
-      return 'I';
-    }
-    else if (descriptor.equals("Ljava/lang/Long")) {
-      return 'J';
-    }
-    else if (descriptor.equals("Ljava/lang/Short")) {
-      return 'S';
-    }
-    else {
-      throw new IllegalStateException("No primitive for '" + descriptor + "'");
-    }
+    return switch (descriptor) {
+      case "Ljava/lang/Double" -> 'D';
+      case "Ljava/lang/Float" -> 'F';
+      case "Ljava/lang/Integer" -> 'I';
+      case "Ljava/lang/Long" -> 'J';
+      case "Ljava/lang/Boolean" -> 'Z';
+      case "Ljava/lang/Character" -> 'C';
+      case "Ljava/lang/Byte" -> 'B';
+      case "Ljava/lang/Short" -> 'S';
+      default -> throw new IllegalStateException("No primitive for '" + descriptor + "'");
+    };
   }
 
   /**
    * Insert the appropriate CHECKCAST instruction for the supplied descriptor.
    *
-   * @param mv the target visitor into which the instruction should be inserted
+   * @param mv the method visitor into which the instruction should be inserted
    * @param descriptor the descriptor of the type to cast to
    */
   public static void insertCheckCast(MethodVisitor mv, @Nullable String descriptor) {
@@ -728,7 +681,7 @@ public class CodeFlow implements Opcodes {
    * Determine the appropriate boxing instruction for a specific type (if it needs
    * boxing) and insert the instruction into the supplied visitor.
    *
-   * @param mv the target visitor for the new instructions
+   * @param mv the method visitor for the new instructions
    * @param descriptor the descriptor of a type that may or may not need boxing
    */
   public static void insertBoxIfNecessary(MethodVisitor mv, @Nullable String descriptor) {
@@ -741,42 +694,23 @@ public class CodeFlow implements Opcodes {
    * Determine the appropriate boxing instruction for a specific type (if it needs
    * boxing) and insert the instruction into the supplied visitor.
    *
-   * @param mv the target visitor for the new instructions
+   * @param mv the method visitor for the new instructions
    * @param ch the descriptor of the type that might need boxing
    */
   public static void insertBoxIfNecessary(MethodVisitor mv, char ch) {
     switch (ch) {
-      case 'Z':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-        break;
-      case 'B':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
-        break;
-      case 'C':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
-        break;
-      case 'D':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-        break;
-      case 'F':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
-        break;
-      case 'I':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-        break;
-      case 'J':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-        break;
-      case 'S':
-        mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
-        break;
-      case 'L':
-      case 'V':
-      case '[':
+      case 'Z' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+      case 'B' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+      case 'C' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
+      case 'D' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+      case 'F' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+      case 'I' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+      case 'J' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+      case 'S' -> mv.visitMethodInsn(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+      case 'L', 'V', '[' -> {
         // no box needed
-        break;
-      default:
-        throw new IllegalArgumentException("Boxing should not be attempted for descriptor '" + ch + "'");
+      }
+      default -> throw new IllegalArgumentException("Boxing should not be attempted for descriptor '" + ch + "'");
     }
   }
 
@@ -791,36 +725,36 @@ public class CodeFlow implements Opcodes {
     String name = type.getName();
     if (type.isPrimitive()) {
       switch (name.length()) {
-        case 3 -> {
+        case 3:
           return "I";
-        }
-        case 4 -> {
+        case 4:
           return switch (name) {
             case "byte" -> "B";
             case "char" -> "C";
             case "long" -> "J";
             case "void" -> "V";
-            default -> "";
+            default -> throw new IllegalArgumentException("Unknown primitive type: " + name);
           };
-        }
-        case 5 -> {
+        case 5:
           if (name.equals("float")) {
             return "F";
           }
           else if (name.equals("short")) {
             return "S";
           }
-        }
-        case 6 -> {
+          break;
+        case 6:
           if (name.equals("double")) {
             return "D";
           }
-        }
-        case 7 -> {
+          break;
+        case 7:
           if (name.equals("boolean")) {
             return "Z";
           }
-        }
+          break;
+        default:
+          throw new IllegalArgumentException("Unknown primitive type: " + name);
       }
     }
     else {
@@ -908,16 +842,14 @@ public class CodeFlow implements Opcodes {
   public static void insertArrayStore(MethodVisitor mv, String arrayElementType) {
     if (arrayElementType.length() == 1) {
       switch (arrayElementType.charAt(0)) {
+        case 'B', 'Z' -> mv.visitInsn(BASTORE);
         case 'I' -> mv.visitInsn(IASTORE);
         case 'J' -> mv.visitInsn(LASTORE);
         case 'F' -> mv.visitInsn(FASTORE);
         case 'D' -> mv.visitInsn(DASTORE);
-        case 'B' -> mv.visitInsn(BASTORE);
         case 'C' -> mv.visitInsn(CASTORE);
         case 'S' -> mv.visitInsn(SASTORE);
-        case 'Z' -> mv.visitInsn(BASTORE);
-        default -> throw new IllegalArgumentException(
-                "Unexpected arraytype " + arrayElementType.charAt(0));
+        default -> throw new IllegalArgumentException("Unexpected array type " + arrayElementType.charAt(0));
       }
     }
     else {
@@ -928,11 +860,11 @@ public class CodeFlow implements Opcodes {
   /**
    * Determine the appropriate T tag to use for the NEWARRAY bytecode.
    *
-   * @param arraytype the array primitive component type
+   * @param arrayType the array primitive component type
    * @return the T tag to use for NEWARRAY
    */
-  public static int arrayCodeFor(String arraytype) {
-    return switch (arraytype.charAt(0)) {
+  public static int arrayCodeFor(String arrayType) {
+    return switch (arrayType.charAt(0)) {
       case 'I' -> T_INT;
       case 'J' -> T_LONG;
       case 'F' -> T_FLOAT;
@@ -941,20 +873,21 @@ public class CodeFlow implements Opcodes {
       case 'C' -> T_CHAR;
       case 'S' -> T_SHORT;
       case 'Z' -> T_BOOLEAN;
-      default -> throw new IllegalArgumentException("Unexpected arraytype " + arraytype.charAt(0));
+      default -> throw new IllegalArgumentException("Unexpected array type " + arrayType.charAt(0));
     };
   }
 
   /**
    * Return if the supplied array type has a core component reference type.
    */
-  public static boolean isReferenceTypeArray(String arraytype) {
-    int length = arraytype.length();
+  public static boolean isReferenceTypeArray(String arrayType) {
+    int length = arrayType.length();
     for (int i = 0; i < length; i++) {
-      char ch = arraytype.charAt(i);
-      if (ch != '[') {
-        return ch == 'L';
+      char ch = arrayType.charAt(i);
+      if (ch == '[') {
+        continue;
       }
+      return (ch == 'L');
     }
     return false;
   }
@@ -964,28 +897,28 @@ public class CodeFlow implements Opcodes {
    * signature to pass along with the opcode can vary depending on the signature
    * of the array type.
    *
-   * @param mv the methodvisitor into which code should be inserted
+   * @param mv the method visitor into which code should be inserted
    * @param size the size of the array
-   * @param arraytype the type of the array
+   * @param arrayType the type of the array
    */
-  public static void insertNewArrayCode(MethodVisitor mv, int size, String arraytype) {
+  public static void insertNewArrayCode(MethodVisitor mv, int size, String arrayType) {
     insertOptimalLoad(mv, size);
-    if (arraytype.length() == 1) {
-      mv.visitIntInsn(NEWARRAY, CodeFlow.arrayCodeFor(arraytype));
+    if (arrayType.length() == 1) {
+      mv.visitIntInsn(NEWARRAY, CodeFlow.arrayCodeFor(arrayType));
     }
     else {
-      if (arraytype.charAt(0) == '[') {
+      if (arrayType.charAt(0) == '[') {
         // Handling the nested array case here.
         // If vararg is [[I then we want [I and not [I;
-        if (CodeFlow.isReferenceTypeArray(arraytype)) {
-          mv.visitTypeInsn(ANEWARRAY, arraytype + ";");
+        if (CodeFlow.isReferenceTypeArray(arrayType)) {
+          mv.visitTypeInsn(ANEWARRAY, arrayType + ";");
         }
         else {
-          mv.visitTypeInsn(ANEWARRAY, arraytype);
+          mv.visitTypeInsn(ANEWARRAY, arrayType);
         }
       }
       else {
-        mv.visitTypeInsn(ANEWARRAY, arraytype.substring(1));
+        mv.visitTypeInsn(ANEWARRAY, arrayType.substring(1));
       }
     }
   }
@@ -993,7 +926,7 @@ public class CodeFlow implements Opcodes {
   /**
    * For use in mathematical operators, handles converting from a (possibly boxed)
    * number on the stack to a primitive numeric type.
-   * <p>For example, from a Integer to a double, just need to call 'Number.doubleValue()'
+   * <p>For example, from an Integer to a double, just need to call 'Number.doubleValue()'
    * but from an int to a double, need to use the bytecode 'i2d'.
    *
    * @param mv the method visitor when instructions should be appended
