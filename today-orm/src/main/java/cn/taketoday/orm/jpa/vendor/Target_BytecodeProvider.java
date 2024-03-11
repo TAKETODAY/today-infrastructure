@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import org.hibernate.bytecode.spi.ReflectionOptimizer;
 import org.hibernate.property.access.spi.PropertyAccess;
 
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Hibernate 6.3+ substitution designed to leniently return {@code null}, as authorized by the API, to avoid throwing an
@@ -34,11 +35,27 @@ import java.util.Map;
  * @see <a href="https://hibernate.atlassian.net/browse/HHH-17568">HHH-17568</a>
  * @since 4.0
  */
-@TargetClass(className = "org.hibernate.bytecode.internal.none.BytecodeProviderImpl", onlyWith = SubstituteOnlyIfPresent.class)
+@TargetClass(className = "org.hibernate.bytecode.internal.none.BytecodeProviderImpl", onlyWith = Target_BytecodeProvider.SubstituteOnlyIfPresent.class)
 final class Target_BytecodeProvider {
 
   @Substitute
   public ReflectionOptimizer getReflectionOptimizer(Class<?> clazz, Map<String, PropertyAccess> propertyAccessMap) {
     return null;
   }
+
+  static class SubstituteOnlyIfPresent implements Predicate<String> {
+
+    @Override
+    public boolean test(String type) {
+      try {
+        Class<?> clazz = Class.forName(type, false, getClass().getClassLoader());
+        clazz.getDeclaredMethod("getReflectionOptimizer", Class.class, Map.class);
+        return true;
+      }
+      catch (ClassNotFoundException | NoClassDefFoundError | NoSuchMethodException ex) {
+        return false;
+      }
+    }
+  }
+
 }

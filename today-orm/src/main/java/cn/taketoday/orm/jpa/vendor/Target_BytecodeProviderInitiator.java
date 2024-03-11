@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa.vendor;
@@ -24,18 +24,20 @@ import com.oracle.svm.core.annotate.TargetClass;
 
 import org.hibernate.bytecode.spi.BytecodeProvider;
 
+import java.util.function.Predicate;
+
 import static com.oracle.svm.core.annotate.RecomputeFieldValue.Kind;
 
 /**
  * Hibernate substitution designed to prevent ByteBuddy reachability on native, and to enforce the
  * usage of {@code org.hibernate.bytecode.internal.none.BytecodeProviderImpl} with Hibernate 6.3+.
- * TODO Collaborate with Hibernate team on a substitution-less alternative that does not require a custom list of StandardServiceInitiator
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@TargetClass(className = "org.hibernate.bytecode.internal.BytecodeProviderInitiator", onlyWith = SubstituteOnlyIfPresent.class)
+@TargetClass(className = "org.hibernate.bytecode.internal.BytecodeProviderInitiator",
+        onlyWith = Target_BytecodeProviderInitiator.SubstituteOnlyIfPresent.class)
 final class Target_BytecodeProviderInitiator {
 
   @Alias
@@ -48,6 +50,23 @@ final class Target_BytecodeProviderInitiator {
   @Substitute
   public static BytecodeProvider buildBytecodeProvider(String providerName) {
     return new org.hibernate.bytecode.internal.none.BytecodeProviderImpl();
+  }
+
+  static class SubstituteOnlyIfPresent implements Predicate<String> {
+
+    @Override
+    public boolean test(String type) {
+      try {
+        Class<?> clazz = Class.forName(type, false, getClass().getClassLoader());
+        clazz.getDeclaredMethod("buildBytecodeProvider", String.class);
+        clazz.getField("BYTECODE_PROVIDER_NAME_NONE");
+        clazz.getField("BYTECODE_PROVIDER_NAME_DEFAULT");
+        return true;
+      }
+      catch (ClassNotFoundException | NoClassDefFoundError | NoSuchMethodException | NoSuchFieldException ex) {
+        return false;
+      }
+    }
   }
 
 }
