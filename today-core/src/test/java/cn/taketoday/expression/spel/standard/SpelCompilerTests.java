@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.standard;
@@ -26,11 +23,11 @@ import java.util.stream.IntStream;
 
 import cn.taketoday.core.Ordered;
 import cn.taketoday.expression.Expression;
-import cn.taketoday.expression.spel.SpelCompilationCoverageTests;
 import cn.taketoday.expression.spel.SpelCompilerMode;
 import cn.taketoday.expression.spel.SpelParserConfiguration;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static cn.taketoday.expression.spel.standard.SpelExpressionTestUtils.assertIsCompiled;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.InstanceOfAssertFactories.BOOLEAN;
 
@@ -69,7 +66,7 @@ class SpelCompilerTests {
     assertThat(SpelCompiler.compile(expression)).isFalse();
     assertThat(expression.getValue(context)).isEqualTo(false);
     assertThat(SpelCompiler.compile(expression)).isTrue();
-    SpelCompilationCoverageTests.assertIsCompiled(expression);
+    assertIsCompiled(expression);
     assertThat(expression.getValue(context)).isEqualTo(false);
 
     context.setVariable("user", new User());
@@ -77,7 +74,7 @@ class SpelCompilerTests {
     assertThat(SpelCompiler.compile(expression)).isFalse();
     assertThat(expression.getValue(context)).asInstanceOf(BOOLEAN).isTrue();
     assertThat(SpelCompiler.compile(expression)).isTrue();
-    SpelCompilationCoverageTests.assertIsCompiled(expression);
+    assertIsCompiled(expression);
     assertThat(expression.getValue(context)).asInstanceOf(BOOLEAN).isTrue();
   }
 
@@ -115,7 +112,7 @@ class SpelCompilerTests {
   public static class Item implements Editable {
 
     // some fields
-    private final String someField = "";
+    private String someField = "";
 
     // some getters and setters
 

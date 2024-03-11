@@ -15,47 +15,31 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.expression.spel.testresources;
+package cn.taketoday.expression.spel.standard;
 
-public class Person {
+import java.lang.reflect.Field;
 
-  private String privateName;
+import cn.taketoday.expression.Expression;
 
-  private int age;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  Company company;
+/**
+ * Tests utilities for {@link SpelExpression}.
+ *
+ * @author Stephane Nicoll
+ */
+public abstract class SpelExpressionTestUtils {
 
-  public Person(int age) {
-    this.age = age;
-  }
-
-  public Person(String name) {
-    this.privateName = name;
-  }
-
-  public Person(String name, Company company) {
-    this.privateName = name;
-    this.company = company;
-  }
-
-  public String getName() {
-    return privateName;
-  }
-
-  public void setName(String n) {
-    this.privateName = n;
-  }
-
-  public int getAge() {
-    return age;
-  }
-
-  public void setAge(int age) {
-    this.age = age;
-  }
-
-  public Company getCompany() {
-    return company;
+  public static void assertIsCompiled(Expression expression) {
+    try {
+      Field field = SpelExpression.class.getDeclaredField("compiledAst");
+      field.setAccessible(true);
+      Object object = field.get(expression);
+      assertThat(object).isNotNull();
+    }
+    catch (Exception ex) {
+      throw new AssertionError(ex.getMessage(), ex);
+    }
   }
 
 }

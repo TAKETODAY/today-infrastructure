@@ -15,47 +15,27 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.expression.spel.testresources;
+package cn.taketoday.expression.spel;
 
-public class Person {
+/**
+ * This is intentionally a top-level public class.
+ */
+public class PublicSuperclass {
 
-  private String privateName;
-
-  private int age;
-
-  Company company;
-
-  public Person(int age) {
-    this.age = age;
+  public int process(int num) {
+    return num + 1;
   }
 
-  public Person(String name) {
-    this.privateName = name;
+  public int getNumber() {
+    return 1;
   }
 
-  public Person(String name, Company company) {
-    this.privateName = name;
-    this.company = company;
+  public String getMessage() {
+    return "goodbye";
   }
 
-  public String getName() {
-    return privateName;
-  }
-
-  public void setName(String n) {
-    this.privateName = n;
-  }
-
-  public int getAge() {
-    return age;
-  }
-
-  public void setAge(int age) {
-    this.age = age;
-  }
-
-  public Company getCompany() {
-    return company;
+  public String greet(String name) {
+    return "Super, " + name;
   }
 
 }
