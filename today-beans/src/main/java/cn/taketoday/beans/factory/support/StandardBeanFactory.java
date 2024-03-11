@@ -1627,7 +1627,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
             }
             Object result = getBean(dependencyName);
             if (result == null) {
-              result = getInjector().resolve(descriptor, beanName, autowiredBeanNames, typeConverter, null);
+              result = getInjector().resolve(descriptor, dependencyName, autowiredBeanNames, typeConverter, null);
             }
             return resolveInstance(result, descriptor, type, dependencyName);
           }
@@ -1650,10 +1650,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
         }
         // Raise exception if nothing found for required injection point
         Object result = getInjector().resolve(descriptor, beanName, autowiredBeanNames, typeConverter, null);
-        if (result == null && isRequired(descriptor)) {
-          raiseNoMatchingBeanFound(type, descriptor);
-        }
-        return result;
+        return resolveInstance(result, descriptor, type, beanName);
       }
 
       String autowiredBeanName;
@@ -1693,7 +1690,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       Object result = instanceCandidate;
       if (result == null) {
         // for user define
-        result = getInjector().resolve(descriptor, beanName, autowiredBeanNames, typeConverter, null);
+        result = getInjector().resolve(descriptor, autowiredBeanName, autowiredBeanNames, typeConverter, null);
         if (result == null && isRequired(descriptor)) {
           if (matchingBeans.size() == 1) {
             // factory method returns null
