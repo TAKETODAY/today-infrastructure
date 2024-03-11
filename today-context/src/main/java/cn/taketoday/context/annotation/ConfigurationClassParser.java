@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -404,11 +405,14 @@ class ConfigurationClassParser {
         AnnotationMetadata asm = bootstrapContext.getAnnotationMetadata(original.getClassName());
         Set<MethodMetadata> asmMethods = asm.getAnnotatedMethods(Component.class.getName());
         if (asmMethods.size() >= componentMethods.size()) {
+          LinkedHashSet<MethodMetadata> candidateMethods = new LinkedHashSet<>(componentMethods);
           LinkedHashSet<MethodMetadata> selectedMethods = new LinkedHashSet<>(asmMethods.size());
           for (MethodMetadata asmMethod : asmMethods) {
-            for (MethodMetadata beanMethod : componentMethods) {
+            for (Iterator<MethodMetadata> it = candidateMethods.iterator(); it.hasNext(); ) {
+              MethodMetadata beanMethod = it.next();
               if (beanMethod.getMethodName().equals(asmMethod.getMethodName())) {
                 selectedMethods.add(beanMethod);
+                it.remove();
                 break;
               }
             }

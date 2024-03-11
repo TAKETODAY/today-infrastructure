@@ -18,6 +18,7 @@
 package cn.taketoday.beans.factory.annotation;
 
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
@@ -77,6 +78,10 @@ import cn.taketoday.core.PriorityOrdered;
 import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
+import cn.taketoday.core.type.AnnotationMetadata;
+import cn.taketoday.core.type.MethodMetadata;
+import cn.taketoday.core.type.classreading.MetadataReaderFactory;
+import cn.taketoday.core.type.classreading.SimpleMetadataReaderFactory;
 import cn.taketoday.javapoet.ClassName;
 import cn.taketoday.javapoet.CodeBlock;
 import cn.taketoday.lang.Assert;
@@ -168,6 +173,9 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
   @Nullable
   private ConfigurableBeanFactory beanFactory;
+
+  @Nullable
+  private MetadataReaderFactory metadataReaderFactory;
 
   private final Set<String> lookupMethodsChecked = ConcurrentHashMap.newKeySet(256);
 
@@ -267,11 +275,12 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
-    if (!(beanFactory instanceof ConfigurableBeanFactory)) {
+    if (!(beanFactory instanceof ConfigurableBeanFactory cbf)) {
       throw new IllegalArgumentException(
               "AutowiredAnnotationBeanPostProcessor requires a ConfigurableBeanFactory: " + beanFactory);
     }
-    this.beanFactory = (ConfigurableBeanFactory) beanFactory;
+    this.beanFactory = cbf;
+    this.metadataReaderFactory = new SimpleMetadataReaderFactory(cbf.getBeanClassLoader());
   }
 
   @Override
@@ -537,24 +546,25 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
       return InjectionMetadata.EMPTY;
     }
 
-    ArrayList<InjectedElement> elements = new ArrayList<>();
+    final ArrayList<InjectedElement> elements = new ArrayList<>();
     Class<?> targetClass = clazz;
 
     do {
-      final ArrayList<InjectedElement> currElements = new ArrayList<>();
+      final ArrayList<InjectedElement> fieldElements = new ArrayList<>();
 
       ReflectionUtils.doWithLocalFields(targetClass, field -> {
         MergedAnnotation<?> ann = findAutowiredAnnotation(field);
         if (ann != null) {
           if (Modifier.isStatic(field.getModifiers())) {
-            log.warn("Autowired annotation is not supported on static fields: {}", field);
+            log.info("Autowired annotation is not supported on static fields: {}", field);
             return;
           }
           boolean required = determineRequiredStatus(ann);
-          currElements.add(new AutowiredFieldElement(field, required));
+          fieldElements.add(new AutowiredFieldElement(field, required));
         }
       });
 
+      final ArrayList<InjectedElement> methodElements = new ArrayList<>();
       ReflectionUtils.doWithLocalMethods(targetClass, method -> {
         Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
         if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
@@ -563,19 +573,24 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
         MergedAnnotation<?> ann = findAutowiredAnnotation(bridgedMethod);
         if (ann != null && method.equals(ReflectionUtils.getMostSpecificMethod(method, clazz))) {
           if (Modifier.isStatic(method.getModifiers())) {
-            log.warn("Autowired annotation is not supported on static methods: {}", method);
+            log.info("Autowired annotation is not supported on static methods: {}", method);
             return;
           }
           if (method.getParameterCount() == 0) {
-            log.warn("Autowired annotation should only be used on methods with parameters: {}", method);
+            if (method.getDeclaringClass().isRecord()) {
+              // Annotations on the compact constructor arguments made available on accessors, ignoring.
+              return;
+            }
+            log.info("Autowired annotation should only be used on methods with parameters: {}", method);
           }
           boolean required = determineRequiredStatus(ann);
           PropertyDescriptor pd = BeanUtils.findPropertyForMethod(bridgedMethod, clazz);
-          currElements.add(new AutowiredMethodElement(method, required, pd));
+          methodElements.add(new AutowiredMethodElement(method, required, pd));
         }
       });
 
-      elements.addAll(0, currElements);
+      elements.addAll(0, sortMethodElements(methodElements, targetClass));
+      elements.addAll(0, fieldElements);
       targetClass = targetClass.getSuperclass();
     }
     while (targetClass != null && targetClass != Object.class);
@@ -611,6 +626,44 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   }
 
   /**
+   * Sort the method elements via ASM for deterministic declaration order if possible.
+   */
+  private List<InjectedElement> sortMethodElements(List<InjectedElement> methodElements, Class<?> targetClass) {
+    if (metadataReaderFactory != null && methodElements.size() > 1) {
+      // Try reading the class file via ASM for deterministic declaration order...
+      // Unfortunately, the JVM's standard reflection returns methods in arbitrary
+      // order, even between different runs of the same application on the same JVM.
+      try {
+        AnnotationMetadata asm = metadataReaderFactory.getMetadataReader(targetClass.getName()).getAnnotationMetadata();
+        Set<MethodMetadata> asmMethods = asm.getAnnotatedMethods(Autowired.class.getName());
+        if (asmMethods.size() >= methodElements.size()) {
+          ArrayList<InjectedElement> candidateMethods = new ArrayList<>(methodElements);
+          ArrayList<InjectedElement> selectedMethods = new ArrayList<>(asmMethods.size());
+          for (MethodMetadata asmMethod : asmMethods) {
+            for (Iterator<InjectedElement> it = candidateMethods.iterator(); it.hasNext(); ) {
+              InjectedElement element = it.next();
+              if (element.getMember().getName().equals(asmMethod.getMethodName())) {
+                selectedMethods.add(element);
+                it.remove();
+                break;
+              }
+            }
+          }
+          if (selectedMethods.size() == methodElements.size()) {
+            // All reflection-detected methods found in ASM method set -> proceed
+            return selectedMethods;
+          }
+        }
+      }
+      catch (IOException ex) {
+        log.debug("Failed to read class file via ASM for determining @Autowired method order", ex);
+        // No worries, let's continue with the reflection metadata we started with...
+      }
+    }
+    return methodElements;
+  }
+
+  /**
    * Register the specified bean as dependent on the autowired beans.
    */
   private void registerDependentBeans(@Nullable String beanName, Set<String> autowiredBeanNames) {
@@ -643,7 +696,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
   /**
    * Base class representing injection information.
    */
-  private abstract static class AutowiredElement extends InjectionMetadata.InjectedElement {
+  private abstract static class AutowiredElement extends InjectedElement {
 
     protected final boolean required;
 
