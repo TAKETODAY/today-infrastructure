@@ -55,6 +55,11 @@ public class SimpleAutowireCandidateResolver implements AutowireCandidateResolve
   }
 
   @Override
+  public boolean isRequired(DependencyDescriptor descriptor) {
+    return descriptor.isRequired();
+  }
+
+  @Override
   @Nullable
   public Object getLazyResolutionProxyIfNecessary(DependencyDescriptor descriptor, @Nullable String beanName) {
     return null;

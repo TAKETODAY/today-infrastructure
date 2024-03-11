@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @author Juergen Hoeller
  */
-public class BeanMethodQualificationTests {
+class BeanMethodQualificationTests {
 
   @Test
   void standard() {
