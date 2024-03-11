@@ -178,7 +178,8 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       String headerName = (String) key;
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so don't merge
-        return Collections.singletonList(getFirst(headerName));
+        String value = getFirst(headerName);
+        return (value != null ? Collections.singletonList(value) : null);
       }
 
       Collection<String> values1 = servletResponse.getHeaders(headerName);
