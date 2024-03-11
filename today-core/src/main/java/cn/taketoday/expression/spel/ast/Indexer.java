@@ -18,10 +18,6 @@
 package cn.taketoday.expression.spel.ast;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +31,7 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TypeConverter;
 import cn.taketoday.expression.TypedValue;
+import cn.taketoday.expression.spel.CompilablePropertyAccessor;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
 import cn.taketoday.expression.spel.SpelMessage;
@@ -152,9 +149,9 @@ public class Indexer extends SpelNodeImpl {
     // Indexing into a Map
     if (target instanceof Map<?, ?> map) {
       Object key = index;
-      TypeDescriptor mapKeyDescriptor = targetDescriptor.getMapKeyDescriptor();
-      if (mapKeyDescriptor != null) {
-        key = state.convertValue(key, mapKeyDescriptor);
+      TypeDescriptor mapKeyTypeDescriptor = targetDescriptor.getMapKeyDescriptor();
+      if (mapKeyTypeDescriptor != null) {
+        key = state.convertValue(key, mapKeyTypeDescriptor);
       }
       this.indexedType = IndexedType.MAP;
       return new MapIndexingValueRef(state.getTypeConverter(), map, key, targetDescriptor);
@@ -199,17 +196,19 @@ public class Indexer extends SpelNodeImpl {
     if (this.indexedType == IndexedType.ARRAY) {
       return (this.exitTypeDescriptor != null);
     }
-    else if (this.indexedType == IndexedType.LIST) {
-      return this.children[0].isCompilable();
+    SpelNodeImpl index = this.children[0];
+    if (this.indexedType == IndexedType.LIST) {
+      return index.isCompilable();
     }
     else if (this.indexedType == IndexedType.MAP) {
-      return (this.children[0] instanceof PropertyOrFieldReference || this.children[0].isCompilable());
+      return (index instanceof PropertyOrFieldReference || index.isCompilable());
     }
     else if (this.indexedType == IndexedType.OBJECT) {
-      // If the string name is changing, the accessor is clearly going to change (so no compilation possible)
-      return (this.cachedReadAccessor != null &&
-              this.cachedReadAccessor instanceof ReflectivePropertyAccessor.OptimalPropertyAccessor &&
-              getChild(0) instanceof StringLiteral);
+      // If the string name is changing, the accessor is clearly going to change.
+      // So compilation is only possible if the index expression is a StringLiteral.
+      return (index instanceof StringLiteral &&
+              this.cachedReadAccessor instanceof CompilablePropertyAccessor compilablePropertyAccessor &&
+              compilablePropertyAccessor.isCompilable());
     }
     return false;
   }
@@ -293,35 +292,19 @@ public class Indexer extends SpelNodeImpl {
         index.generateCode(mv, cf);
         cf.exitCompilationScope();
       }
-      mv.visitMethodInsn(
-              INVOKEINTERFACE, "java/util/Map", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
+      mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map",
+              "get", "(Ljava/lang/Object;)Ljava/lang/Object;", true);
     }
 
     else if (this.indexedType == IndexedType.OBJECT) {
-      ReflectivePropertyAccessor.OptimalPropertyAccessor accessor =
-              (ReflectivePropertyAccessor.OptimalPropertyAccessor) this.cachedReadAccessor;
-      Assert.state(accessor != null, "No cached read accessor");
-      Member member = accessor.member;
-      boolean isStatic = Modifier.isStatic(member.getModifiers());
-      String classDesc = member.getDeclaringClass().getName().replace('.', '/');
-
-      if (!isStatic) {
-        if (descriptor == null) {
-          cf.loadTarget(mv);
-        }
-        if (descriptor == null || !classDesc.equals(descriptor.substring(1))) {
-          mv.visitTypeInsn(CHECKCAST, classDesc);
-        }
+      if (!(index instanceof StringLiteral stringLiteral)) {
+        throw new IllegalStateException(
+                "Index expression must be a StringLiteral, but was: " + index.getClass().getName());
       }
-
-      if (member instanceof Method method) {
-        mv.visitMethodInsn((isStatic ? INVOKESTATIC : INVOKEVIRTUAL), classDesc, member.getName(),
-                CodeFlow.createSignatureDescriptor(method), false);
-      }
-      else {
-        mv.visitFieldInsn((isStatic ? GETSTATIC : GETFIELD), classDesc, member.getName(),
-                CodeFlow.toJvmDescriptor(((Field) member).getType()));
-      }
+      var compilablePA = (CompilablePropertyAccessor) this.cachedReadAccessor;
+      Assert.state(compilablePA != null, "No cached read accessor");
+      String propertyName = (String) stringLiteral.getLiteralValue().getValue();
+      compilablePA.generateCode(propertyName, mv, cf);
     }
 
     cf.pushDescriptor(this.exitTypeDescriptor);
@@ -506,8 +489,8 @@ public class Indexer extends SpelNodeImpl {
 
     private final TypeDescriptor mapEntryDescriptor;
 
-    public MapIndexingValueRef(
-            TypeConverter typeConverter, Map map, @Nullable Object key, TypeDescriptor mapEntryDescriptor) {
+    public MapIndexingValueRef(TypeConverter typeConverter, Map map,
+            @Nullable Object key, TypeDescriptor mapEntryDescriptor) {
 
       this.typeConverter = typeConverter;
       this.map = map;
@@ -579,10 +562,8 @@ public class Indexer extends SpelNodeImpl {
             Indexer.this.cachedReadAccessor = accessor;
             Indexer.this.cachedReadName = this.name;
             Indexer.this.cachedReadTargetType = targetObjectRuntimeClass;
-            if (accessor instanceof ReflectivePropertyAccessor.OptimalPropertyAccessor optimalAccessor) {
-              Member member = optimalAccessor.member;
-              Indexer.this.exitTypeDescriptor = CodeFlow.toDescriptor(member instanceof Method method ?
-                      method.getReturnType() : ((Field) member).getType());
+            if (accessor instanceof CompilablePropertyAccessor cpa) {
+              Indexer.this.exitTypeDescriptor = CodeFlow.toDescriptor(cpa.getPropertyType());
             }
             return accessor.read(this.evaluationContext, this.targetObject, this.name);
           }
@@ -681,9 +662,9 @@ public class Indexer extends SpelNodeImpl {
     public void setValue(@Nullable Object newValue) {
       growCollectionIfNecessary();
       if (this.collection instanceof List list) {
-        if (this.collectionEntryDescriptor.getElementDescriptor() != null) {
-          newValue = this.typeConverter.convertValue(newValue, TypeDescriptor.forObject(newValue),
-                  this.collectionEntryDescriptor.getElementDescriptor());
+        TypeDescriptor elementDescriptor = this.collectionEntryDescriptor.getElementDescriptor();
+        if (elementDescriptor != null) {
+          newValue = this.typeConverter.convertValue(newValue, TypeDescriptor.forObject(newValue), elementDescriptor);
         }
         list.set(this.index, newValue);
       }

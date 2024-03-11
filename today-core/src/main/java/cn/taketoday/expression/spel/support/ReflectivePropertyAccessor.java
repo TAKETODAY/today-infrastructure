@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -69,13 +68,13 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
 
   private final boolean allowWrite;
 
-  private final Map<PropertyCacheKey, InvokerPair> readerCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<PropertyCacheKey, InvokerPair> readerCache = new ConcurrentHashMap<>(64);
 
-  private final Map<PropertyCacheKey, Member> writerCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<PropertyCacheKey, Member> writerCache = new ConcurrentHashMap<>(64);
 
-  private final Map<PropertyCacheKey, TypeDescriptor> typeDescriptorCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<PropertyCacheKey, TypeDescriptor> typeDescriptorCache = new ConcurrentHashMap<>(64);
 
-  private final Map<Class<?>, Method[]> sortedMethodsCache = new ConcurrentHashMap<>(64);
+  private final ConcurrentHashMap<Class<?>, Method[]> sortedMethodsCache = new ConcurrentHashMap<>(64);
 
   /**
    * Create a new property accessor for reading as well writing.
@@ -183,7 +182,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           return new TypedValue(value, invoker.typeDescriptor.narrow(value));
         }
         catch (Exception ex) {
-          throw new AccessException("Unable to access property '" + name + "' through getter method", ex);
+          throw new AccessException("Unable to access property '%s' through getter method".formatted(name), ex);
         }
       }
     }
@@ -204,12 +203,12 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           return new TypedValue(value, invoker.typeDescriptor.narrow(value));
         }
         catch (Exception ex) {
-          throw new AccessException("Unable to access field '" + name + "'", ex);
+          throw new AccessException("Unable to access field '%s'".formatted(name), ex);
         }
       }
     }
 
-    throw new AccessException("Neither getter method nor field found for property '" + name + "'");
+    throw new AccessException("Neither getter method nor field found for property '%s'".formatted(name));
   }
 
   @Override
@@ -251,8 +250,8 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           throws AccessException {
 
     if (!this.allowWrite) {
-      throw new AccessException("PropertyAccessor for property '" + name +
-              "' on target [" + target + "] does not allow write operations");
+      throw new AccessException("PropertyAccessor for property '%s' on target [%s] does not allow write operations"
+              .formatted(name, target));
     }
 
     Assert.state(target != null, "Target is required");
@@ -290,7 +289,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           return;
         }
         catch (Exception ex) {
-          throw new AccessException("Unable to access property '" + name + "' through setter method", ex);
+          throw new AccessException("Unable to access property '%s' through setter method".formatted(name), ex);
         }
       }
     }
@@ -311,12 +310,12 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           return;
         }
         catch (Exception ex) {
-          throw new AccessException("Unable to access field '" + name + "'", ex);
+          throw new AccessException("Unable to access field '%s'".formatted(name), ex);
         }
       }
     }
 
-    throw new AccessException("Neither setter method nor field found for property '" + name + "'");
+    throw new AccessException("Neither setter method nor field found for property '%s'".formatted(name));
   }
 
   @Nullable
@@ -645,7 +644,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           return new TypedValue(value, this.typeDescriptor.narrow(value));
         }
         catch (Exception ex) {
-          throw new AccessException("Unable to access property '" + name + "' through getter method", ex);
+          throw new AccessException("Unable to access property '%s' through getter method".formatted(name), ex);
         }
       }
       else {
@@ -656,7 +655,7 @@ public class ReflectivePropertyAccessor implements PropertyAccessor {
           return new TypedValue(value, this.typeDescriptor.narrow(value));
         }
         catch (Exception ex) {
-          throw new AccessException("Unable to access field '" + name + "'", ex);
+          throw new AccessException("Unable to access field '%s'".formatted(name), ex);
         }
       }
     }
