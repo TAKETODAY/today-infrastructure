@@ -123,14 +123,13 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       }
 
       // HttpServletResponse exposes some headers as properties: we should include those if not already present
-      MediaType contentType = headers.getContentType();
-      if (servletResponse.getContentType() == null && contentType != null) {
-        servletResponse.setContentType(contentType.toString());
+      MediaType contentTypeHeader = this.headers.getContentType();
+      if (servletResponse.getContentType() == null && contentTypeHeader != null) {
+        servletResponse.setContentType(contentTypeHeader.toString());
       }
       if (servletResponse.getCharacterEncoding() == null
-              && contentType != null
-              && contentType.getCharset() != null) {
-        servletResponse.setCharacterEncoding(contentType.getCharset().name());
+              && contentTypeHeader != null && contentTypeHeader.getCharset() != null) {
+        servletResponse.setCharacterEncoding(contentTypeHeader.getCharset().name());
       }
       long contentLength = headers.getContentLength();
       if (contentLength != -1) {
