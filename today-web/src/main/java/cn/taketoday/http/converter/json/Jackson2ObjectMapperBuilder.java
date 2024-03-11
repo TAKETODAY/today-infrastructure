@@ -45,6 +45,7 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.InputStream;
 import java.text.DateFormat;
@@ -697,8 +698,8 @@ public class Jackson2ObjectMapperBuilder {
     ObjectMapper mapper;
     if (this.createXmlMapper) {
       mapper = (this.defaultUseWrapper != null ?
-                new XmlObjectMapperInitializer().create(this.defaultUseWrapper, this.factory) :
-                new XmlObjectMapperInitializer().create(this.factory));
+              new XmlObjectMapperInitializer().create(this.defaultUseWrapper, this.factory) :
+              new XmlObjectMapperInitializer().create(this.factory));
     }
     else {
       mapper = (this.factory != null ? new ObjectMapper(this.factory) : new ObjectMapper());
@@ -936,6 +937,14 @@ public class Jackson2ObjectMapperBuilder {
     return new Jackson2ObjectMapperBuilder().factory(new CborFactoryInitializer().create());
   }
 
+  /**
+   * Obtain a {@link Jackson2ObjectMapperBuilder} instance in order to
+   * build a YAML data format {@link ObjectMapper} instance.
+   */
+  public static Jackson2ObjectMapperBuilder yaml() {
+    return new Jackson2ObjectMapperBuilder().factory(new YamlFactoryInitializer().create());
+  }
+
   private static class XmlObjectMapperInitializer {
 
     private static final XMLResolver NO_OP_XML_RESOLVER =
@@ -997,6 +1006,13 @@ public class Jackson2ObjectMapperBuilder {
 
     public JsonFactory create() {
       return new CBORFactory();
+    }
+  }
+
+  private static class YamlFactoryInitializer {
+
+    public JsonFactory create() {
+      return new YAMLFactory();
     }
   }
 

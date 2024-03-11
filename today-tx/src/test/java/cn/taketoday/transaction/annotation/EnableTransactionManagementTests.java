@@ -228,7 +228,7 @@ class EnableTransactionManagementTests {
   @Test
   void proxyTypeAspectJCausesRegistrationOfAnnotationTransactionAspect() {
     // should throw CNFE when trying to load AnnotationTransactionAspect.
-    // Do you actually have org.springframework.aspects on the classpath?
+    // Do you actually have cn.taketoday.aspects on the classpath?
     assertThatException()
             .isThrownBy(() -> new AnnotationConfigApplicationContext(EnableAspectjTxConfig.class, TxManagerConfig.class))
             .withMessageContaining("AspectJJtaTransactionManagementConfiguration");

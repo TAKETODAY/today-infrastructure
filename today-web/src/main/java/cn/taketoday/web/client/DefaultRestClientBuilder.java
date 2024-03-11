@@ -45,6 +45,7 @@ import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -82,6 +83,8 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private static final boolean jackson2CborPresent;
 
+  private static final boolean jackson2YamlPresent;
+
   static {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
@@ -95,6 +98,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", loader);
     jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", loader);
+    jackson2YamlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory", loader);
   }
 
   @Nullable
@@ -358,6 +362,9 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
       }
       if (jackson2CborPresent) {
         this.messageConverters.add(new MappingJackson2CborHttpMessageConverter());
+      }
+      if (jackson2YamlPresent) {
+        this.messageConverters.add(new MappingJackson2YamlHttpMessageConverter());
       }
     }
     return this.messageConverters;
