@@ -143,6 +143,15 @@ public @interface Transactional {
    * {@link cn.taketoday.transaction.TransactionManager TransactionManager}
    * bean definition.
    *
+   * <p>A type-level bean qualifier annotation with a
+   * {@link cn.taketoday.beans.factory.annotation.Qualifier#value() qualifier value}
+   * is also taken into account. If it matches the qualifier value (or bean name)
+   * of a specific transaction manager, that transaction manager is going to be used
+   * for transaction definitions without a specific qualifier on this attribute here.
+   * Such a type-level qualifier can be declared on the concrete class, applying
+   * to transaction definitions from a base class as well, effectively overriding
+   * the default transaction manager choice for any unqualified base class methods.
+   *
    * @see #value
    * @see cn.taketoday.transaction.PlatformTransactionManager
    * @see cn.taketoday.transaction.ReactiveTransactionManager

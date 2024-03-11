@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.InitializingBean;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.ReactiveAdapter;
@@ -100,8 +101,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
   @Nullable
   private static final ReactiveAdapterRegistry reactiveAdapterRegistry
           = ReactiveStreams.isPresent
-            ? ReactiveAdapterRegistry.getSharedInstance()
-            : null;
+          ? ReactiveAdapterRegistry.getSharedInstance()
+          : null;
 
   /**
    * Holder to support the {@code currentTransactionStatus()} method,
@@ -311,14 +312,12 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
    */
   @Nullable
   protected Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass, final InvocationCallback invocation) throws Throwable {
-
     // If the transaction attribute is null, the method is non-transactional.
     TransactionAttributeSource tas = getTransactionAttributeSource();
-    final TransactionAttribute txAttr = tas != null
-                                        ? tas.getTransactionAttribute(method, targetClass)
-                                        : null;
+    final TransactionAttribute txAttr = tas != null ? tas.getTransactionAttribute(method, targetClass)
+            : null;
 
-    final TransactionManager tm = determineTransactionManager(txAttr);
+    final TransactionManager tm = determineTransactionManager(txAttr, targetClass);
 
     if (reactiveAdapterRegistry != null && tm instanceof ReactiveTransactionManager) {
       ReactiveTransactionSupport txSupport = transactionSupportCache.computeIfAbsent(method, key -> {
@@ -445,9 +444,14 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
   /**
    * Determine the specific transaction manager to use for the given transaction.
+   *
+   * @param txAttr the current transaction attribute
+   * @param targetClass the target class that the attribute has been declared on
    */
   @Nullable
-  protected TransactionManager determineTransactionManager(@Nullable TransactionAttribute txAttr) {
+  protected TransactionManager determineTransactionManager(
+          @Nullable TransactionAttribute txAttr, @Nullable Class<?> targetClass) {
+
     // Do not attempt to lookup tx manager if no tx attributes are set
     if (txAttr == null || this.beanFactory == null) {
       return getTransactionManager();
@@ -457,7 +461,20 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
     if (StringUtils.hasText(qualifier)) {
       return determineQualifiedTransactionManager(this.beanFactory, qualifier);
     }
-    else if (StringUtils.hasText(this.transactionManagerBeanName)) {
+    else if (targetClass != null) {
+      // Consider type-level qualifier annotations for transaction manager selection
+      String typeQualifier = BeanFactoryAnnotationUtils.getQualifierValue(targetClass);
+      if (StringUtils.hasText(typeQualifier)) {
+        try {
+          return determineQualifiedTransactionManager(this.beanFactory, typeQualifier);
+        }
+        catch (NoSuchBeanDefinitionException ex) {
+          // Consider type qualifier as optional, proceed with regular resolution below.
+        }
+      }
+    }
+
+    if (StringUtils.hasText(this.transactionManagerBeanName)) {
       return determineQualifiedTransactionManager(this.beanFactory, this.transactionManagerBeanName);
     }
     else {
@@ -769,10 +786,6 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     Object[] getArguments();
 
-    default Object getContinuation() {
-      Object[] args = getArguments();
-      return args[args.length - 1];
-    }
   }
 
   /**
@@ -815,11 +828,8 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 
     public Object invokeWithinTransaction(Method method, @Nullable Class<?> targetClass,
             InvocationCallback invocation, @Nullable TransactionAttribute txAttr, ReactiveTransactionManager rtm) {
-
       String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
-
       if (Mono.class.isAssignableFrom(method.getReturnType())) {
-
         return TransactionContextManager.currentContext()
                 .flatMap(context -> Mono.<Object, ReactiveTransactionInfo>usingWhen(
                                 createTransactionIfNecessary(rtm, txAttr, joinpointIdentification),
