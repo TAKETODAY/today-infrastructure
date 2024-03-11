@@ -483,6 +483,14 @@ public class SpelCompilationCoverageTests extends AbstractExpressionTests {
       assertCanCompile(expression);
       assertThat(expression.getValue(map)).isEqualTo(111);
       assertThat(getAst().getExitDescriptor()).isEqualTo("Ljava/lang/Object");
+
+      // String key not enclosed in single quotes
+      expression = parser.parseExpression("[aaa]");
+
+      assertThat(expression.getValue(map)).isEqualTo(111);
+      assertCanCompile(expression);
+      assertThat(expression.getValue(map)).isEqualTo(111);
+      assertThat(getAst().getExitDescriptor()).isEqualTo("Ljava/lang/Object");
     }
 
     @Test
