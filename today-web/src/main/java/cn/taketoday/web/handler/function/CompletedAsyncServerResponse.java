@@ -37,7 +37,7 @@ final class CompletedAsyncServerResponse implements AsyncServerResponse {
   private final ServerResponse serverResponse;
 
   CompletedAsyncServerResponse(ServerResponse serverResponse) {
-    Assert.notNull(serverResponse, "ServerResponse must not be null");
+    Assert.notNull(serverResponse, "ServerResponse is required");
     this.serverResponse = serverResponse;
   }
 

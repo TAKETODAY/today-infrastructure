@@ -144,14 +144,14 @@ public final class PemContent {
    * @throws IOException on IO error
    */
   public static PemContent load(Path path) throws IOException {
-    Assert.notNull(path, "Path must not be null");
+    Assert.notNull(path, "Path is required");
     try (InputStream in = Files.newInputStream(path, StandardOpenOption.READ)) {
       return load(in);
     }
   }
 
   private static PemContent load(URL url) throws IOException {
-    Assert.notNull(url, "Url must not be null");
+    Assert.notNull(url, "Url is required");
     try (InputStream in = url.openStream()) {
       return load(in);
     }

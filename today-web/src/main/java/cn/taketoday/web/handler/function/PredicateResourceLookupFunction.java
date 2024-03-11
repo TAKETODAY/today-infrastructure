@@ -38,8 +38,8 @@ class PredicateResourceLookupFunction implements Function<ServerRequest, Optiona
   private final Resource resource;
 
   public PredicateResourceLookupFunction(RequestPredicate predicate, Resource resource) {
-    Assert.notNull(predicate, "'predicate' must not be null");
-    Assert.notNull(resource, "'resource' must not be null");
+    Assert.notNull(predicate, "'predicate' is required");
+    Assert.notNull(resource, "'resource' is required");
     this.predicate = predicate;
     this.resource = resource;
   }
