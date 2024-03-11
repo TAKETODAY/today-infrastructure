@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.support;
@@ -139,15 +139,21 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
   /**
    * Create a savepoint and hold it for the transaction.
    *
-   * @throws cn.taketoday.transaction.NestedTransactionNotSupportedException if the underlying transaction does not support savepoints
+   * @throws NestedTransactionNotSupportedException if the underlying transaction does not support savepoints
+   * @see SavepointManager#createSavepoint
    */
   public void createAndHoldSavepoint() throws TransactionException {
-    setSavepoint(getSavepointManager().createSavepoint());
+    Object savepoint = getSavepointManager().createSavepoint();
+    TransactionSynchronizationUtils.triggerSavepoint(savepoint);
+    setSavepoint(savepoint);
   }
 
   /**
    * Roll back to the savepoint that is held for the transaction
    * and release the savepoint right afterwards.
+   *
+   * @see SavepointManager#rollbackToSavepoint
+   * @see SavepointManager#releaseSavepoint
    */
   public void rollbackToHeldSavepoint() throws TransactionException {
     Object savepoint = getSavepoint();
@@ -155,14 +161,16 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
       throw new TransactionUsageException(
               "Cannot roll back to savepoint - no savepoint associated with current transaction");
     }
-    SavepointManager savepointManager = getSavepointManager();
-    savepointManager.rollbackToSavepoint(savepoint);
-    savepointManager.releaseSavepoint(savepoint);
+    TransactionSynchronizationUtils.triggerSavepointRollback(savepoint);
+    getSavepointManager().rollbackToSavepoint(savepoint);
+    getSavepointManager().releaseSavepoint(savepoint);
     setSavepoint(null);
   }
 
   /**
    * Release the savepoint that is held for the transaction.
+   *
+   * @see SavepointManager#releaseSavepoint
    */
   public void releaseHeldSavepoint() throws TransactionException {
     Object savepoint = getSavepoint();
@@ -187,7 +195,9 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
    */
   @Override
   public Object createSavepoint() throws TransactionException {
-    return getSavepointManager().createSavepoint();
+    Object savepoint = getSavepointManager().createSavepoint();
+    TransactionSynchronizationUtils.triggerSavepoint(savepoint);
+    return savepoint;
   }
 
   /**
@@ -199,6 +209,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
    */
   @Override
   public void rollbackToSavepoint(Object savepoint) throws TransactionException {
+    TransactionSynchronizationUtils.triggerSavepointRollback(savepoint);
     getSavepointManager().rollbackToSavepoint(savepoint);
   }
 
@@ -218,7 +229,7 @@ public abstract class AbstractTransactionStatus implements TransactionStatus {
    * Return a SavepointManager for the underlying transaction, if possible.
    * <p>Default implementation always throws a NestedTransactionNotSupportedException.
    *
-   * @throws cn.taketoday.transaction.NestedTransactionNotSupportedException if the underlying transaction does not support savepoints
+   * @throws NestedTransactionNotSupportedException if the underlying transaction does not support savepoints
    */
   protected SavepointManager getSavepointManager() {
     throw new NestedTransactionNotSupportedException("This transaction does not support savepoints");
