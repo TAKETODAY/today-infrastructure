@@ -588,7 +588,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   }
 
   public void destroySingletons() {
-    if (log.isDebugEnabled()) {
+    if (log.isTraceEnabled()) {
       log.trace("Destroying singletons in {}", this);
     }
     this.singletonsCurrentlyInDestruction = true;
@@ -612,7 +612,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     finally {
       singletonLock.unlock();
     }
-
   }
 
   /**
