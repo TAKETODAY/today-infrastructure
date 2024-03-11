@@ -265,7 +265,7 @@ public interface ServerResponse {
    * @return the asynchronous response
    */
   static ServerResponse async(Object asyncResponse) {
-    return DefaultAsyncServerResponse.create(asyncResponse, null);
+    return AsyncServerResponse.create(asyncResponse, null);
   }
 
   /**
@@ -285,8 +285,8 @@ public interface ServerResponse {
    * @param timeout maximum time period to wait for before timing out
    * @return the asynchronous response
    */
-  static ServerResponse async(Object asyncResponse, Duration timeout) {
-    return DefaultAsyncServerResponse.create(asyncResponse, timeout);
+  static ServerResponse async(Object asyncResponse, @Nullable Duration timeout) {
+    return AsyncServerResponse.create(asyncResponse, timeout);
   }
 
   /**

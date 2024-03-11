@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
-
-import org.reactivestreams.Publisher;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -27,13 +25,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-import cn.taketoday.core.ReactiveAdapter;
-import cn.taketoday.core.ReactiveAdapterRegistry;
-import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
@@ -54,7 +48,7 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
   @Nullable
   private final Duration timeout;
 
-  private DefaultAsyncServerResponse(CompletableFuture<ServerResponse> futureResponse, @Nullable Duration timeout) {
+  DefaultAsyncServerResponse(CompletableFuture<ServerResponse> futureResponse, @Nullable Duration timeout) {
     this.futureResponse = futureResponse;
     this.timeout = timeout;
   }
@@ -141,28 +135,6 @@ final class DefaultAsyncServerResponse extends ErrorHandlingServerResponse imple
       }
     });
     return result;
-  }
-
-  @SuppressWarnings({ "unchecked" })
-  public static AsyncServerResponse create(Object o, @Nullable Duration timeout) {
-    Assert.notNull(o, "Argument to async is required");
-    if (o instanceof CompletableFuture) {
-      return new DefaultAsyncServerResponse((CompletableFuture<ServerResponse>) o, timeout);
-    }
-    else if (ReactiveStreams.isPresent) {
-      ReactiveAdapterRegistry registry = ReactiveAdapterRegistry.getSharedInstance();
-      ReactiveAdapter publisherAdapter = registry.getAdapter(o.getClass());
-      if (publisherAdapter != null) {
-        Publisher<ServerResponse> publisher = publisherAdapter.toPublisher(o);
-        ReactiveAdapter futureAdapter = registry.getAdapter(CompletableFuture.class);
-        if (futureAdapter != null) {
-          CompletableFuture<ServerResponse> futureResponse =
-                  (CompletableFuture<ServerResponse>) futureAdapter.fromPublisher(publisher);
-          return new DefaultAsyncServerResponse(futureResponse, timeout);
-        }
-      }
-    }
-    throw new IllegalArgumentException("Asynchronous type not supported: " + o.getClass());
   }
 
 }

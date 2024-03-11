@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -31,13 +28,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class DefaultAsyncServerResponseTests {
 
-	@Test
-	void block() {
-		ServerResponse wrappee = ServerResponse.ok().build();
-		CompletableFuture<ServerResponse> future =  CompletableFuture.completedFuture(wrappee);
-		AsyncServerResponse response = AsyncServerResponse.create(future);
+  @Test
+  void blockCompleted() {
+    ServerResponse wrappee = ServerResponse.ok().build();
+    CompletableFuture<ServerResponse> future = CompletableFuture.completedFuture(wrappee);
+    AsyncServerResponse response = AsyncServerResponse.create(future);
 
-		assertThat(response.block()).isSameAs(wrappee);
-	}
+    assertThat(response.block()).isSameAs(wrappee);
+  }
+
+  @Test
+  void blockNotCompleted() {
+    ServerResponse wrappee = ServerResponse.ok().build();
+    CompletableFuture<ServerResponse> future = CompletableFuture.supplyAsync(() -> {
+      try {
+        Thread.sleep(500);
+        return wrappee;
+      }
+      catch (InterruptedException ex) {
+        throw new RuntimeException(ex);
+      }
+    });
+    AsyncServerResponse response = AsyncServerResponse.create(future);
+
+    assertThat(response.block()).isSameAs(wrappee);
+  }
 
 }
