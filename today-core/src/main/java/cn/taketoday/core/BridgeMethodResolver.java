@@ -18,6 +18,7 @@
 package cn.taketoday.core;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,7 +87,10 @@ public abstract class BridgeMethodResolver {
    * @see cn.taketoday.util.ReflectionUtils#getMostSpecificMethod
    */
   public static Method getMostSpecificMethod(Method bridgeMethod, @Nullable Class<?> targetClass) {
-    if (targetClass != null && !bridgeMethod.getDeclaringClass().isAssignableFrom(targetClass)) {
+    if (targetClass != null
+            && !ClassUtils.getUserClass(bridgeMethod.getDeclaringClass()).isAssignableFrom(targetClass)
+            && !Proxy.isProxyClass(bridgeMethod.getDeclaringClass())) {
+      // From a different class hierarchy, and not a JDK or CGLIB proxy either -> return as-is.
       return bridgeMethod;
     }
 
@@ -110,8 +114,8 @@ public abstract class BridgeMethodResolver {
       ReflectionUtils.doWithMethods(targetClass, candidateMethods::add, filter);
       if (!candidateMethods.isEmpty()) {
         bridgedMethod = candidateMethods.size() == 1 ?
-                        candidateMethods.get(0) :
-                        searchCandidates(candidateMethods, bridgeMethod);
+                candidateMethods.get(0) :
+                searchCandidates(candidateMethods, bridgeMethod);
       }
       if (bridgedMethod == null) {
         // A bridge method was passed in but we couldn't find the bridged method.
