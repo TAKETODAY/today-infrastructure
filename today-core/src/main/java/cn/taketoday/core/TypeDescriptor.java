@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ public class TypeDescriptor implements Serializable {
   public TypeDescriptor(ResolvableType resolvableType, @Nullable Class<?> type, @Nullable Annotation[] annotations) {
     this.resolvableType = resolvableType;
     this.type = type != null ? type : resolvableType.toClass();
-    this.annotatedElement = new AnnotatedElementAdapter(annotations, null);
+    this.annotatedElement = AnnotatedElementAdapter.from(annotations);
   }
 
   /**
@@ -814,7 +814,8 @@ public class TypeDescriptor implements Serializable {
    * @see AnnotatedElementUtils#isAnnotated(AnnotatedElement, Class)
    * @see AnnotatedElementUtils#getMergedAnnotation(AnnotatedElement, Class)
    */
-  private class AnnotatedElementAdapter implements AnnotatedElement, Serializable {
+  private static class AnnotatedElementAdapter implements AnnotatedElement, Serializable {
+    private static final AnnotatedElementAdapter EMPTY = new AnnotatedElementAdapter(Constant.EMPTY_ANNOTATIONS, null);
 
     @Nullable
     private volatile Annotation[] annotations;
@@ -825,6 +826,13 @@ public class TypeDescriptor implements Serializable {
     public AnnotatedElementAdapter(@Nullable Annotation[] annotations, @Nullable AnnotatedElement annotated) {
       this.annotations = annotations;
       this.annotated = annotated;
+    }
+
+    private static AnnotatedElementAdapter from(@Nullable Annotation[] annotations) {
+      if (annotations == null || annotations.length == 0) {
+        return EMPTY;
+      }
+      return new AnnotatedElementAdapter(annotations, null);
     }
 
     @Override
@@ -898,8 +906,9 @@ public class TypeDescriptor implements Serializable {
 
     @Override
     public String toString() {
-      return TypeDescriptor.this.toString();
+      return "AnnotatedElementAdapter annotations=" + Arrays.toString(this.annotations);
     }
+
   }
 
 }
