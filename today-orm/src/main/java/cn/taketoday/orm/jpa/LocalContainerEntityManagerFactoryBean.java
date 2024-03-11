@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa;
@@ -78,6 +75,7 @@ import jakarta.persistence.spi.PersistenceUnitInfo;
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setPersistenceXmlLocation
  * @see #setJpaProperties
  * @see #setJpaVendorAdapter
@@ -274,8 +272,9 @@ public class LocalContainerEntityManagerFactoryBean extends AbstractEntityManage
    * @see PersistenceUnitInfo#getNonJtaDataSource()
    * @see #setPersistenceUnitManager
    */
-  public void setDataSource(DataSource dataSource) {
-    this.internalPersistenceUnitManager.setDataSourceLookup(new SingleDataSourceLookup(dataSource));
+  public void setDataSource(@Nullable DataSource dataSource) {
+    this.internalPersistenceUnitManager.setDataSourceLookup(
+            dataSource != null ? new SingleDataSourceLookup(dataSource) : null);
     this.internalPersistenceUnitManager.setDefaultDataSource(dataSource);
   }
 
@@ -292,8 +291,9 @@ public class LocalContainerEntityManagerFactoryBean extends AbstractEntityManage
    * @see PersistenceUnitInfo#getJtaDataSource()
    * @see #setPersistenceUnitManager
    */
-  public void setJtaDataSource(DataSource jtaDataSource) {
-    this.internalPersistenceUnitManager.setDataSourceLookup(new SingleDataSourceLookup(jtaDataSource));
+  public void setJtaDataSource(@Nullable DataSource jtaDataSource) {
+    this.internalPersistenceUnitManager.setDataSourceLookup(
+            jtaDataSource != null ? new SingleDataSourceLookup(jtaDataSource) : null);
     this.internalPersistenceUnitManager.setDefaultJtaDataSource(jtaDataSource);
   }
 

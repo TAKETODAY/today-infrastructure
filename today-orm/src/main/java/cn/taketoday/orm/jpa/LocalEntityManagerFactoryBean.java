@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.orm.jpa;
 
+import javax.sql.DataSource;
+
+import cn.taketoday.lang.Nullable;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceException;
@@ -58,6 +58,7 @@ import jakarta.persistence.spi.PersistenceProvider;
  *
  * @author Juergen Hoeller
  * @author Rod Johnson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setJpaProperties
  * @see #setJpaVendorAdapter
  * @see JpaTransactionManager#setEntityManagerFactory
@@ -71,10 +72,44 @@ import jakarta.persistence.spi.PersistenceProvider;
 @SuppressWarnings("serial")
 public class LocalEntityManagerFactoryBean extends AbstractEntityManagerFactoryBean {
 
+  private static final String DATASOURCE_PROPERTY = "jakarta.persistence.dataSource";
+
+  /**
+   * Specify the JDBC DataSource that the JPA persistence provider is supposed
+   * to use for accessing the database. This is an alternative to keeping the
+   * JDBC configuration in {@code persistence.xml}, passing in a Spring-managed
+   * DataSource through the "jakarta.persistence.dataSource" property instead.
+   * <p>When configured here, the JDBC DataSource will also get autodetected by
+   * {@link JpaTransactionManager} for exposing JPA transactions to JDBC accessors.
+   *
+   * @see #getJpaPropertyMap()
+   * @see JpaTransactionManager#setDataSource
+   */
+  public void setDataSource(@Nullable DataSource dataSource) {
+    if (dataSource != null) {
+      getJpaPropertyMap().put(DATASOURCE_PROPERTY, dataSource);
+    }
+    else {
+      getJpaPropertyMap().remove(DATASOURCE_PROPERTY);
+    }
+  }
+
+  /**
+   * Expose the JDBC DataSource from the "jakarta.persistence.dataSource"
+   * property, if any.
+   *
+   * @see #getJpaPropertyMap()
+   */
+  @Override
+  @Nullable
+  public DataSource getDataSource() {
+    return (DataSource) getJpaPropertyMap().get(DATASOURCE_PROPERTY);
+  }
+
   /**
    * Initialize the EntityManagerFactory for the given configuration.
    *
-   * @throws PersistenceException in case of JPA initialization errors
+   * @throws jakarta.persistence.PersistenceException in case of JPA initialization errors
    */
   @Override
   protected EntityManagerFactory createNativeEntityManagerFactory() throws PersistenceException {
