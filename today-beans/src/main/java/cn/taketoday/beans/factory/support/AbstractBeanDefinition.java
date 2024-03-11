@@ -187,6 +187,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private Boolean lazyInit;
 
+  private boolean backgroundInit = false;
+
   private int autowireMode = AUTOWIRE_NO;
 
   private int dependencyCheck = DEPENDENCY_CHECK_NONE;
@@ -302,6 +304,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       if (lazyInit != null) {
         setLazyInit(lazyInit);
       }
+      setBackgroundInit(originalAbd.isBackgroundInit());
       setAutowireMode(originalAbd.getAutowireMode());
       setDependencyCheck(originalAbd.getDependencyCheck());
       setDependsOn(originalAbd.getDependsOn());
@@ -381,6 +384,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       if (lazyInit != null) {
         setLazyInit(lazyInit);
       }
+      setBackgroundInit(otherAbd.isBackgroundInit());
       setAutowireMode(otherAbd.getAutowireMode());
       setDependencyCheck(otherAbd.getDependencyCheck());
       setDependsOn(otherAbd.getDependsOn());
@@ -1268,6 +1272,39 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    */
   public void setOriginatingBeanDefinition(BeanDefinition originatingBd) {
     this.resource = new BeanDefinitionResource(originatingBd);
+  }
+
+  /**
+   * Specify the bootstrap mode for this bean: default is {@code false} for using
+   * the main pre-instantiation thread for non-lazy singleton beans and the caller
+   * thread for prototype beans.
+   * <p>Set this flag to {@code true} to allow for instantiating this bean on a
+   * background thread. For a non-lazy singleton, a background pre-instantiation
+   * thread can be used then, while still enforcing the completion at the end of
+   * {@link StandardBeanFactory#preInstantiateSingletons()}.
+   * For a lazy singleton, a background pre-instantiation thread can be used as well
+   * - with completion allowed at a later point, enforcing it when actually accessed.
+   * <p>Note that this flag may be ignored by bean factories not set up for
+   * background bootstrapping, always applying single-threaded bootstrapping
+   * for non-lazy singleton beans.
+   *
+   * @see #setLazyInit
+   * @see StandardBeanFactory#setBootstrapExecutor
+   * @since 4.0
+   */
+  public void setBackgroundInit(boolean backgroundInit) {
+    this.backgroundInit = backgroundInit;
+  }
+
+  /**
+   * Return the bootstrap mode for this bean: default is {@code false} for using
+   * the main pre-instantiation thread for non-lazy singleton beans and the caller
+   * thread for prototype beans.
+   *
+   * @since 4.0
+   */
+  public boolean isBackgroundInit() {
+    return this.backgroundInit;
   }
 
   /**

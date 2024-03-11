@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -1618,6 +1619,13 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
    * initializing all remaining singleton beans.
    */
   protected void finishBeanFactoryInitialization(ConfigurableBeanFactory beanFactory) {
+    // Initialize bootstrap executor for this context.
+    if (beanFactory.containsBean(BOOTSTRAP_EXECUTOR_BEAN_NAME) &&
+            beanFactory.isTypeMatch(BOOTSTRAP_EXECUTOR_BEAN_NAME, Executor.class)) {
+      beanFactory.setBootstrapExecutor(
+              beanFactory.getBean(BOOTSTRAP_EXECUTOR_BEAN_NAME, Executor.class));
+    }
+
     // Initialize conversion service for this context.
     if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME)
             && beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {

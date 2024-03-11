@@ -243,6 +243,11 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setDefaultCandidate(false);
     }
 
+    Component.Bootstrap instantiation = component.getEnum("bootstrap", Component.Bootstrap.class);
+    if (instantiation == Component.Bootstrap.BACKGROUND) {
+      beanDef.setBackgroundInit(true);
+    }
+
     String[] initMethodName = component.getStringArray("initMethods");
     if (ObjectUtils.isNotEmpty(initMethodName)) {
       beanDef.setInitMethodNames(initMethodName);

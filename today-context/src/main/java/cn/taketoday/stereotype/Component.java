@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
+import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.core.annotation.AliasFor;
 
 /**
@@ -154,7 +155,47 @@ public @interface Component {
    * injection in general, just enforces an additional indication such as a qualifier.
    *
    * @see #autowireCandidate()
+   * @since 4.0
    */
   boolean defaultCandidate() default true;
+
+  /**
+   * The bootstrap mode for this bean: default is the main pre-instantiation thread
+   * for non-lazy singleton beans and the caller thread for prototype beans.
+   * <p>Set {@link Bootstrap#BACKGROUND} to allow for instantiating this bean on a
+   * background thread. For a non-lazy singleton, a background pre-instantiation
+   * thread can be used then, while still enforcing the completion at the end of
+   * {@link cn.taketoday.context.ConfigurableApplicationContext#refresh()}.
+   * For a lazy singleton, a background pre-instantiation thread can be used as well
+   * - with completion allowed at a later point, enforcing it when actually accessed.
+   *
+   * @see Lazy
+   * @since 4.0
+   */
+  Bootstrap bootstrap() default Bootstrap.DEFAULT;
+
+  /**
+   * Local enumeration for the bootstrap mode.
+   *
+   * @see #bootstrap()
+   * @since 4.0
+   */
+  enum Bootstrap {
+
+    /**
+     * Constant to indicate the main pre-instantiation thread for non-lazy
+     * singleton beans and the caller thread for prototype beans.
+     */
+    DEFAULT,
+
+    /**
+     * Allow for instantiating a bean on a background thread.
+     * <p>For a non-lazy singleton, a background pre-instantiation thread
+     * can be used while still enforcing the completion on context refresh.
+     * For a lazy singleton, a background pre-instantiation thread can be used
+     * with completion allowed at a later point (when actually accessed).
+     */
+    BACKGROUND,
+  }
 
 }

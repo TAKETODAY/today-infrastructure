@@ -57,8 +57,6 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.beans.factory.InjectionPoint;
-import cn.taketoday.beans.factory.SmartFactoryBean;
-import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.UnsatisfiedDependencyException;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.AutowiredPropertyMarker;
@@ -1852,43 +1850,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     finally {
       ConstructorResolver.setCurrentInjectionPoint(previousInjectionPoint);
     }
-  }
-
-  @Override
-  public void preInstantiateSingletons() {
-    if (log.isTraceEnabled()) {
-      log.trace("Pre-instantiating singletons in {}", this);
-    }
-    // Iterate over a copy to allow for init methods which in turn register new bean definitions.
-    // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
-
-    String[] beanNames = getBeanDefinitionNames();
-    // Trigger initialization of all non-lazy singleton beans...
-    for (String beanName : beanNames) {
-      RootBeanDefinition merged = getMergedLocalBeanDefinition(beanName);
-      // Trigger initialization of all non-lazy singleton beans...
-      if (!merged.isAbstract() && merged.isSingleton() && !merged.isLazyInit()) {
-        if (isFactoryBean(beanName)) {
-          Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
-          if (bean instanceof SmartFactoryBean<?> smartFactory && smartFactory.isEagerInit()) {
-            getBean(beanName);
-          }
-        }
-        else {
-          getBean(beanName);
-        }
-      }
-    }
-
-    // Trigger post-initialization callback for all applicable beans...
-    for (String beanName : beanNames) {
-      Object singletonInstance = getSingleton(beanName);
-      if (singletonInstance instanceof SmartInitializingSingleton smartSingleton) {
-        smartSingleton.afterSingletonsInstantiated(this);
-      }
-    }
-
-    log.debug("The singleton objects are initialized.");
   }
 
   /**

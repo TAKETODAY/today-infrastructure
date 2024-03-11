@@ -39,7 +39,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -60,6 +63,8 @@ import cn.taketoday.beans.factory.InjectionPoint;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.beans.factory.ObjectProvider;
+import cn.taketoday.beans.factory.SmartFactoryBean;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.beans.factory.config.AutowireCapableBeanFactory;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -67,6 +72,7 @@ import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
 import cn.taketoday.beans.factory.config.NamedBeanHolder;
+import cn.taketoday.core.NamedThreadLocal;
 import cn.taketoday.core.OrderComparator;
 import cn.taketoday.core.OrderSourceProvider;
 import cn.taketoday.core.Ordered;
@@ -84,6 +90,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import jakarta.inject.Provider;
 
@@ -125,15 +132,31 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private static final Class<?> injectProviderClass = // JSR-330 API not available - Provider interface simply not supported then.
           ClassUtils.load("jakarta.inject.Provider", StandardBeanFactory.class.getClassLoader());
 
+  /** Map from serialized id to factory instance. @since 4.0 */
+  private static final Map<String, Reference<StandardBeanFactory>> serializableFactories =
+          new ConcurrentHashMap<>(8);
+
+  /** Map of bean definition objects, keyed by bean name */
+  private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
+
+  /** Map of singleton and non-singleton bean names, keyed by dependency type. */
+  private final ConcurrentHashMap<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>(64);
+
+  /** Map of singleton-only bean names, keyed by dependency type. */
+  private final ConcurrentHashMap<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
+
+  /** Map from bean name to merged BeanDefinitionHolder. @since 4.0 */
+  private final Map<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
+
+  // Set of bean definition names with a primary marker. */
+  private final Set<String> primaryBeanNames = ConcurrentHashMap.newKeySet(16);
+
   /** Optional id for this factory, for serialization purposes. @since 4.0 */
   @Nullable
   private String serializationId;
 
   /** Whether to allow re-registration of a different definition with the same name. */
   private boolean allowBeanDefinitionOverriding = true;
-
-  /** Map of bean definition objects, keyed by bean name */
-  private final ConcurrentHashMap<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(64);
 
   /** Whether to allow eager class loading even for lazy-init beans. */
   private boolean allowEagerClassLoading = true;
@@ -142,21 +165,11 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Nullable
   private Comparator<Object> dependencyComparator;
 
+  @Nullable
+  private Executor bootstrapExecutor;
+
   /** Resolver to use for checking if a bean definition is an autowire candidate. */
   private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
-
-  /** Map of singleton and non-singleton bean names, keyed by dependency type. */
-  private final ConcurrentHashMap<Class<?>, String[]> allBeanNamesByType = new ConcurrentHashMap<>(64);
-
-  /** Map of singleton-only bean names, keyed by dependency type. */
-  private final ConcurrentHashMap<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
-
-  /** Map from serialized id to factory instance. @since 4.0 */
-  private static final Map<String, Reference<StandardBeanFactory>> serializableFactories =
-          new ConcurrentHashMap<>(8);
-
-  /** Map from bean name to merged BeanDefinitionHolder. @since 4.0 */
-  private final Map<String, BeanDefinitionHolder> mergedBeanDefinitionHolders = new ConcurrentHashMap<>(256);
 
   /** Whether bean definition metadata may be cached for all beans. */
   private volatile boolean configurationFrozen;
@@ -171,8 +184,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   /** List of names of manually registered singletons, in registration order. */
   private volatile LinkedHashSet<String> manualSingletonNames = new LinkedHashSet<>(16);
 
-  // Set of bean definition names with a primary marker. */
-  private final Set<String> primaryBeanNames = ConcurrentHashMap.newKeySet(16);
+  private final NamedThreadLocal<PreInstantiation> preInstantiationThread =
+          new NamedThreadLocal<>("Pre-instantiation thread marker");
 
   /**
    * Create a new StandardBeanFactory.
@@ -297,6 +310,17 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Nullable
   public Comparator<Object> getDependencyComparator() {
     return this.dependencyComparator;
+  }
+
+  @Override
+  public void setBootstrapExecutor(@Nullable Executor bootstrapExecutor) {
+    this.bootstrapExecutor = bootstrapExecutor;
+  }
+
+  @Override
+  @Nullable
+  public Executor getBootstrapExecutor() {
+    return this.bootstrapExecutor;
   }
 
   /**
@@ -439,6 +463,142 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   @Override
   protected boolean isBeanEligibleForMetadataCaching(String beanName) {
     return this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName);
+  }
+
+  @Override
+  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args) {
+    super.checkMergedBeanDefinition(mbd, beanName, args);
+
+    if (mbd.isBackgroundInit()) {
+      if (preInstantiationThread.get() == PreInstantiation.MAIN && getBootstrapExecutor() != null) {
+        throw new BeanCurrentlyInCreationException(beanName, "Bean marked for background " +
+                "initialization but requested in mainline thread - declare ObjectProvider " +
+                "or lazy injection point in dependent mainline beans");
+      }
+    }
+    else {
+      // Bean intended to be initialized in main bootstrap thread
+      if (preInstantiationThread.get() == PreInstantiation.BACKGROUND) {
+        throw new BeanCurrentlyInCreationException(beanName, """
+                Bean marked for mainline initialization \
+                but requested in background thread - enforce early instantiation in mainline thread \
+                through depends-on '%s' declaration for dependent background beans""".formatted(beanName));
+      }
+    }
+  }
+
+  @Override
+  protected boolean isCurrentThreadAllowedToHoldSingletonLock() {
+    return preInstantiationThread.get() != PreInstantiation.BACKGROUND;
+  }
+
+  @Override
+  public void preInstantiateSingletons() {
+    if (log.isTraceEnabled()) {
+      log.trace("Pre-instantiating singletons in {}", this);
+    }
+    // Iterate over a copy to allow for init methods which in turn register new bean definitions.
+    // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+
+    ArrayList<String> beanNames = new ArrayList<>(this.beanDefinitionNames);
+
+    // Trigger initialization of all non-lazy singleton beans...
+    List<CompletableFuture<?>> futures = new ArrayList<>();
+    this.preInstantiationThread.set(PreInstantiation.MAIN);
+    try {
+      for (String beanName : beanNames) {
+        RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+        if (!mbd.isAbstract() && mbd.isSingleton()) {
+          CompletableFuture<?> future = preInstantiateSingleton(beanName, mbd);
+          if (future != null) {
+            futures.add(future);
+          }
+        }
+      }
+    }
+    finally {
+      this.preInstantiationThread.remove();
+    }
+    if (!futures.isEmpty()) {
+      try {
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture<?>[0])).join();
+      }
+      catch (CompletionException ex) {
+        ReflectionUtils.rethrowRuntimeException(ex.getCause());
+      }
+    }
+
+    // Trigger post-initialization callback for all applicable beans...
+    for (String beanName : beanNames) {
+      Object singletonInstance = getSingleton(beanName, false);
+      if (singletonInstance instanceof SmartInitializingSingleton smartSingleton) {
+        smartSingleton.afterSingletonsInstantiated(this);
+      }
+    }
+
+  }
+
+  @Nullable
+  private CompletableFuture<?> preInstantiateSingleton(String beanName, RootBeanDefinition mbd) {
+    if (mbd.isBackgroundInit()) {
+      Executor executor = getBootstrapExecutor();
+      if (executor != null) {
+        String[] dependsOn = mbd.getDependsOn();
+        if (dependsOn != null) {
+          for (String dep : dependsOn) {
+            getBean(dep);
+          }
+        }
+        CompletableFuture<?> future = CompletableFuture.runAsync(
+                () -> instantiateSingletonInBackgroundThread(beanName), executor);
+        addSingletonFactory(beanName, () -> {
+          try {
+            future.join();
+          }
+          catch (CompletionException ex) {
+            ReflectionUtils.rethrowRuntimeException(ex.getCause());
+          }
+          return future;  // not to be exposed, just to lead to ClassCastException in case of mismatch
+        });
+        return (!mbd.isLazyInit() ? future : null);
+      }
+      else if (log.isInfoEnabled()) {
+        log.info("Bean '{}' marked for background initialization " +
+                "without bootstrap executor configured - falling back to mainline initialization", beanName);
+      }
+    }
+    if (!mbd.isLazyInit()) {
+      instantiateSingleton(beanName);
+    }
+    return null;
+  }
+
+  private void instantiateSingletonInBackgroundThread(String beanName) {
+    preInstantiationThread.set(PreInstantiation.BACKGROUND);
+    try {
+      instantiateSingleton(beanName);
+    }
+    catch (RuntimeException | Error ex) {
+      if (log.isWarnEnabled()) {
+        log.warn("Failed to instantiate singleton bean '{}' in background thread", beanName, ex);
+      }
+      throw ex;
+    }
+    finally {
+      preInstantiationThread.remove();
+    }
+  }
+
+  private void instantiateSingleton(String beanName) {
+    if (isFactoryBean(beanName)) {
+      Object bean = getBean(FACTORY_BEAN_PREFIX + beanName);
+      if (bean instanceof SmartFactoryBean<?> smartFactoryBean && smartFactoryBean.isEagerInit()) {
+        getBean(beanName);
+      }
+    }
+    else {
+      getBean(beanName);
+    }
   }
 
   //---------------------------------------------------------------------
@@ -1265,6 +1425,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   public void copyConfigurationFrom(ConfigurableBeanFactory otherFactory) {
     super.copyConfigurationFrom(otherFactory);
     if (otherFactory instanceof StandardBeanFactory std) {
+      this.bootstrapExecutor = std.bootstrapExecutor;
       this.dependencyComparator = std.dependencyComparator;
       this.allowEagerClassLoading = std.allowEagerClassLoading;
       this.allowBeanDefinitionOverriding = std.allowBeanDefinitionOverriding;
@@ -2510,6 +2671,11 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       }
     }
 
+  }
+
+  private enum PreInstantiation {
+
+    MAIN, BACKGROUND
   }
 
 }

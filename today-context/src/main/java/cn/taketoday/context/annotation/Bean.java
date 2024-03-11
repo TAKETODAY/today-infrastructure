@@ -314,8 +314,25 @@ public @interface Bean {
    * injection in general, just enforces an additional indication such as a qualifier.
    *
    * @see #autowireCandidate()
+   * @since 4.0
    */
   @AliasFor(annotation = Component.class)
   boolean defaultCandidate() default true;
+
+  /**
+   * The bootstrap mode for this bean: default is the main pre-instantiation thread
+   * for non-lazy singleton beans and the caller thread for prototype beans.
+   * <p>Set {@link Component.Bootstrap#BACKGROUND} to allow for instantiating this bean on a
+   * background thread. For a non-lazy singleton, a background pre-instantiation
+   * thread can be used then, while still enforcing the completion at the end of
+   * {@link cn.taketoday.context.ConfigurableApplicationContext#refresh()}.
+   * For a lazy singleton, a background pre-instantiation thread can be used as well
+   * - with completion allowed at a later point, enforcing it when actually accessed.
+   *
+   * @see Lazy
+   * @since 4.0
+   */
+  @AliasFor(annotation = Component.class)
+  Component.Bootstrap bootstrap() default Component.Bootstrap.DEFAULT;
 
 }
