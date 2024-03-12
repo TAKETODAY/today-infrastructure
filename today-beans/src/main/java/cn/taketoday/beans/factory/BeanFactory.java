@@ -156,6 +156,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @throws BeansException Exception occurred when getting a named bean
    * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
    */
+  @Nullable
   Object getBean(String name) throws BeansException;
 
   /**
@@ -173,6 +174,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @throws NoSuchBeanDefinitionException if there is no such bean definition
    * @since 4.0
    */
+  @Nullable
   Object getBean(String name, Object... args) throws BeansException;
 
   /**

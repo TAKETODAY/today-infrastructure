@@ -192,7 +192,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     // Use non-singleton bean merged, to avoid registering bean as dependent bean.
     RootBeanDefinition bd = new RootBeanDefinition(beanClass, autowireMode, dependencyCheck);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-    return (T) createBean(beanClass.getName(), bd, null);
+    Object bean = createBean(beanClass.getName(), bd, null);
+    if (bean == NullValue.INSTANCE) {
+      return null;
+    }
+    return (T) bean;
   }
 
   @Override
@@ -215,8 +219,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    * populates the bean instance, applies post-processors, etc.
    *
    * @see #doCreateBean
+   * @see NullValue#INSTANCE
    */
-  @Nullable
   @Override
   protected Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
           throws BeanCreationException {
@@ -281,10 +285,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
    *
    * @param merged the merged bean merged for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
-   * @return a new instance of the bean
+   * @return a new instance of the bean, may be a {@code NullValue.INSTANCE}
    * @throws BeanCreationException if the bean could not be created
+   * @see NullValue#INSTANCE
    */
-  @Nullable
   protected Object doCreateBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args) throws BeanCreationException {
     // Instantiate the bean.
     BeanWrapper instanceWrapper = null;
@@ -299,7 +303,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     Object bean = instanceWrapper.getWrappedInstance();
 
     if (bean == NullValue.INSTANCE) {
-      return null;
+      return bean;
     }
 
     Class<?> beanType = bean.getClass();

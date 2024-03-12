@@ -2334,7 +2334,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({ "rawtypes" })
   void genericsBasedConstructorInjectionWithMixedTargets() {
     RootBeanDefinition bd = new RootBeanDefinition(RepositoryConstructorInjectionBean.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -2360,7 +2360,6 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   void genericsBasedConstructorInjectionWithMixedTargetsIncludingNonGeneric() {
     RootBeanDefinition bd = new RootBeanDefinition(RepositoryConstructorInjectionBean.class);
     bd.setScope(BeanDefinition.SCOPE_PROTOTYPE);
@@ -2496,7 +2495,6 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-    // SPR-15125
   void factoryBeanSelfInjection() {
     bf.registerBeanDefinition("annotatedBean", new RootBeanDefinition(SelfInjectingFactoryBean.class));
 
@@ -2505,7 +2503,6 @@ class AutowiredAnnotationBeanPostProcessorTests {
   }
 
   @Test
-    // SPR-15125
   void factoryBeanSelfInjectionViaFactoryMethod() {
     RootBeanDefinition bd = new RootBeanDefinition(SelfInjectingFactoryBean.class);
     bd.setFactoryMethodName("create");
@@ -4057,7 +4054,7 @@ class AutowiredAnnotationBeanPostProcessorTests {
 
   public static class SometimesNullFactoryMethods {
 
-    public static boolean active = false;
+    public static volatile boolean active = false;
 
     public static TestBean createTestBean() {
       return (active ? new TestBean() : null);

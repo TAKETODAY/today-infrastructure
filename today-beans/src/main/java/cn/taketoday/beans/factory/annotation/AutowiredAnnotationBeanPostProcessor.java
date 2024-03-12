@@ -770,8 +770,8 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
             registerDependentBeans(beanName, autowiredBeanNames);
             if (value != null && autowiredBeanNames.size() == 1) {
               String autowiredBeanName = autowiredBeanNames.iterator().next();
-              if (beanFactory.containsBean(autowiredBeanName) &&
-                      beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
+              if (beanFactory.containsBean(autowiredBeanName)
+                      && beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
                 cachedFieldValue = new ShortcutDependencyDescriptor(desc, autowiredBeanName);
               }
             }
@@ -919,7 +919,11 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
     @Override
     public Object resolveShortcut(BeanFactory beanFactory) {
-      return beanFactory.getBean(this.shortcut, getDependencyType());
+      Object bean = beanFactory.getBean(this.shortcut, getDependencyType());
+      if (bean == null) {
+        throw new BeansException("shortcut could not be obtained");
+      }
+      return bean;
     }
   }
 

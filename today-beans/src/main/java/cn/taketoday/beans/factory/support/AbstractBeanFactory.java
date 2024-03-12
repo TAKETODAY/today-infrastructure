@@ -277,9 +277,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (merged.isSingleton()) {
           beanInstance = getSingleton(beanName, () -> {
             try {
-              Object bean = createBean(beanName, merged, args);
               // cache value
-              return Objects.requireNonNullElse(bean, NullValue.INSTANCE);
+              return createBean(beanName, merged, args);
             }
             catch (BeansException ex) {
               // Explicitly remove instance from singleton cache: It might have been put there
@@ -289,10 +288,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
               throw ex;
             }
           });
-          // unwrap cache value (represent a null bean)
-          if (beanInstance == NullValue.INSTANCE) {
-            return null;
-          }
         }
         else if (merged.isPrototype()) {
           // It's a prototype -> just create a new instance.
@@ -331,8 +326,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             throw new ScopeNotActiveException(beanName, scopeName, ex);
           }
         }
-        // null (a null bean)
-        if (beanInstance == null) {
+        // unwrap cache value (represent a null bean)
+        if (beanInstance == NullValue.INSTANCE) {
           return null;
         }
         beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
@@ -376,10 +371,10 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @param beanName the name of the bean
    * @param merged the merged bean definition for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
-   * @return a new instance of the bean
+   * @return a new instance of the bean or may be a {@code NullValue.INSTANCE}
    * @throws BeanCreationException if the bean could not be created
+   * @see NullValue#INSTANCE
    */
-  @Nullable
   protected abstract Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
           throws BeanCreationException;
 
