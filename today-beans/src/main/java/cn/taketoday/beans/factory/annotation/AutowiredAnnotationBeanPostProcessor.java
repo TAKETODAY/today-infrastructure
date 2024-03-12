@@ -919,11 +919,7 @@ public class AutowiredAnnotationBeanPostProcessor implements SmartInstantiationA
 
     @Override
     public Object resolveShortcut(BeanFactory beanFactory) {
-      Object bean = beanFactory.getBean(this.shortcut, getDependencyType());
-      if (bean == null) {
-        throw new BeansException("shortcut could not be obtained");
-      }
-      return bean;
+      return beanFactory.getBean(this.shortcut, getDependencyType());
     }
   }
 

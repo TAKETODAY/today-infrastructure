@@ -188,7 +188,11 @@ public interface BeanFactory extends DependencyInjectorProvider {
    *
    * @param name the name of the bean to retrieve
    * @param requiredType type the bean must match; can be an interface or superclass
-   * @return an instance of the bean,returns null if its return from a factory-method
+   * @return an instance of the bean.
+   * Note that the return value will never be {@code null}. In case of a stub for
+   * {@code null} from a factory method having been resolved for the requested bean, a
+   * {@code BeanNotOfRequiredTypeException} against the NullValue stub will be raised.
+   * Consider using {@link #getBeanProvider(Class)} for resolving optional dependencies.
    * @throws BeanNotOfRequiredTypeException if the bean is not of the required type
    * @throws BeansException if the bean could not be created
    * @throws NoSuchBeanDefinitionException if there is no such bean definition

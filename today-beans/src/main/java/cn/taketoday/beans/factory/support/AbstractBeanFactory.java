@@ -326,11 +326,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             throw new ScopeNotActiveException(beanName, scopeName, ex);
           }
         }
+
         // unwrap cache value (represent a null bean)
-        if (beanInstance == NullValue.INSTANCE) {
-          return null;
+        if (beanInstance != NullValue.INSTANCE) {
+          beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
         }
-        beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
       }
       catch (BeansException e) {
         cleanupAfterBeanCreationFailure(beanName);
@@ -342,11 +342,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
       }
     }
-    else if (beanInstance == NullValue.INSTANCE) {
-      // unwrap cache value (represent a null bean)
-      return null;
-    }
-    else {
+    else if (beanInstance != NullValue.INSTANCE) {
       // is a singleton bean
       if (log.isDebugEnabled()) {
         if (isSingletonCurrentlyInCreation(beanName)) {
@@ -380,9 +376,15 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   @Nullable
   @SuppressWarnings("unchecked")
-  protected final <T> T adaptBeanInstance(String name, @Nullable Object bean, @Nullable Class<?> requiredType) {
+  protected final <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
+    if (bean == NullValue.INSTANCE) {
+      if (requiredType != null) {
+        throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+      }
+      return null;
+    }
     // Check if required type matches the type of the actual bean instance.
-    if (bean != null && requiredType != null && !requiredType.isInstance(bean)) {
+    if (requiredType != null && !requiredType.isInstance(bean)) {
       try {
         Object convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
         if (convertedBean == null) {
