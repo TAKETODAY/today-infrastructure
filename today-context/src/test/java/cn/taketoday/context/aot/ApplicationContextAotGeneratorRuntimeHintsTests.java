@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.aot;
@@ -61,8 +61,8 @@ class ApplicationContextAotGeneratorRuntimeHintsTests {
   void generateApplicationContextWithAutowiring() {
     GenericApplicationContext context = new AnnotationConfigApplicationContext();
     context.registerBeanDefinition("autowiredComponent", new RootBeanDefinition(AutowiredComponent.class));
-    context.registerBeanDefinition("number", BeanDefinitionBuilder.rootBeanDefinition(Integer.class, "valueOf")
-            .addConstructorArgValue("42").getBeanDefinition());
+    context.registerBeanDefinition("number", BeanDefinitionBuilder.rootBeanDefinition(
+            Integer.class, "valueOf").addConstructorArgValue("42").getBeanDefinition());
     compile(context, (hints, invocations) -> assertThat(invocations).match(hints));
   }
 
@@ -113,13 +113,10 @@ class ApplicationContextAotGeneratorRuntimeHintsTests {
 
     @PreDestroy
     default void destroy() {
-
     }
-
   }
 
   public static class InheritedDestroy implements Destroyable {
-
   }
 
 }
