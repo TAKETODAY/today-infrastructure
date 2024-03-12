@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,6 @@ import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
@@ -54,8 +53,6 @@ public final class TestCompiler {
 
   private final JavaCompiler compiler;
 
-  private final Locale locale;
-
   private final SourceFiles sourceFiles;
 
   private final ResourceFiles resourceFiles;
@@ -66,13 +63,12 @@ public final class TestCompiler {
 
   private final List<String> compilerOptions;
 
-  private TestCompiler(@Nullable ClassLoader classLoader, JavaCompiler compiler, Locale locale,
-          SourceFiles sourceFiles, ResourceFiles resourceFiles, ClassFiles classFiles, List<Processor> processors,
-          List<String> compilerOptions) {
+  private TestCompiler(@Nullable ClassLoader classLoader, JavaCompiler compiler,
+          SourceFiles sourceFiles, ResourceFiles resourceFiles, ClassFiles classFiles,
+          List<Processor> processors, List<String> compilerOptions) {
 
     this.classLoader = classLoader;
     this.compiler = compiler;
-    this.locale = locale;
     this.sourceFiles = sourceFiles;
     this.resourceFiles = resourceFiles;
     this.classFiles = classFiles;
@@ -96,9 +92,8 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public static TestCompiler forCompiler(JavaCompiler javaCompiler) {
-    return new TestCompiler(null, javaCompiler, Locale.getDefault(),
-            SourceFiles.none(), ResourceFiles.none(),
-            ClassFiles.none(), Collections.emptyList(), Collections.emptyList());
+    return new TestCompiler(null, javaCompiler, SourceFiles.none(),
+            ResourceFiles.none(), ClassFiles.none(), Collections.emptyList(), Collections.emptyList());
   }
 
   /**
@@ -112,26 +107,13 @@ public final class TestCompiler {
   }
 
   /**
-   * Create a new {@code TestCompiler} instance that uses the specified {@link Locale}
-   * to render compiler messages.
-   *
-   * @param locale the locale to use
-   * @return a new {@code TestCompiler} instance
-   */
-  public TestCompiler withLocale(Locale locale) {
-    return new TestCompiler(this.classLoader, this.compiler, locale,
-            this.sourceFiles, this.resourceFiles,
-            this.classFiles, this.processors, this.compilerOptions);
-  }
-
-  /**
    * Create a new {@code TestCompiler} instance with additional source files.
    *
    * @param sourceFiles the additional source files
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withSources(SourceFile... sourceFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
+    return new TestCompiler(this.classLoader, this.compiler,
             this.sourceFiles.and(sourceFiles), this.resourceFiles,
             this.classFiles, this.processors, this.compilerOptions);
   }
@@ -143,7 +125,7 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withSources(Iterable<SourceFile> sourceFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
+    return new TestCompiler(this.classLoader, this.compiler,
             this.sourceFiles.and(sourceFiles), this.resourceFiles,
             this.classFiles, this.processors, this.compilerOptions);
   }
@@ -155,7 +137,7 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withSources(SourceFiles sourceFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
+    return new TestCompiler(this.classLoader, this.compiler,
             this.sourceFiles.and(sourceFiles), this.resourceFiles,
             this.classFiles, this.processors, this.compilerOptions);
   }
@@ -167,9 +149,9 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withResources(ResourceFile... resourceFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles.and(resourceFiles),
-            this.classFiles, this.processors, this.compilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles.and(resourceFiles), this.classFiles, this.processors,
+            this.compilerOptions);
   }
 
   /**
@@ -179,9 +161,9 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withResources(Iterable<ResourceFile> resourceFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles.and(resourceFiles),
-            this.classFiles, this.processors, this.compilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles.and(resourceFiles), this.classFiles, this.processors,
+            this.compilerOptions);
   }
 
   /**
@@ -191,9 +173,9 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withResources(ResourceFiles resourceFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles.and(resourceFiles),
-            this.classFiles, this.processors, this.compilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles.and(resourceFiles), this.classFiles, this.processors,
+            this.compilerOptions);
   }
 
   /**
@@ -203,9 +185,9 @@ public final class TestCompiler {
    * @return a new {@code TestCompiler} instance
    */
   public TestCompiler withClasses(Iterable<ClassFile> classFiles) {
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles, this.classFiles.and(classFiles),
-            this.processors, this.compilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles, this.classFiles.and(classFiles), this.processors,
+            this.compilerOptions);
   }
 
   /**
@@ -217,9 +199,8 @@ public final class TestCompiler {
   public TestCompiler withProcessors(Processor... processors) {
     List<Processor> mergedProcessors = new ArrayList<>(this.processors);
     mergedProcessors.addAll(Arrays.asList(processors));
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles, this.classFiles, mergedProcessors,
-            this.compilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles, this.classFiles, mergedProcessors, this.compilerOptions);
   }
 
   /**
@@ -231,9 +212,8 @@ public final class TestCompiler {
   public TestCompiler withProcessors(Iterable<Processor> processors) {
     List<Processor> mergedProcessors = new ArrayList<>(this.processors);
     processors.forEach(mergedProcessors::add);
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles, this.classFiles,
-            mergedProcessors, this.compilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles, this.classFiles, mergedProcessors, this.compilerOptions);
   }
 
   /**
@@ -245,9 +225,8 @@ public final class TestCompiler {
   public TestCompiler withCompilerOptions(String... options) {
     List<String> mergedCompilerOptions = Stream.concat(this.compilerOptions.stream(),
             Arrays.stream(options)).distinct().toList();
-    return new TestCompiler(this.classLoader, this.compiler, this.locale,
-            this.sourceFiles, this.resourceFiles, this.classFiles,
-            this.processors, mergedCompilerOptions);
+    return new TestCompiler(this.classLoader, this.compiler, this.sourceFiles,
+            this.resourceFiles, this.classFiles, this.processors, mergedCompilerOptions);
   }
 
   /**
@@ -335,18 +314,13 @@ public final class TestCompiler {
   }
 
   private DynamicClassLoader compile() {
-    ClassLoader classLoaderToUse = (this.classLoader != null ? this.classLoader
-                                                             : Thread.currentThread().getContextClassLoader());
-    List<DynamicJavaFileObject> compilationUnits = this.sourceFiles.stream().map(
-            DynamicJavaFileObject::new).toList();
-    StandardJavaFileManager standardFileManager = this.compiler.getStandardFileManager(
-            null, null, null);
-    DynamicJavaFileManager fileManager = new DynamicJavaFileManager(
-            standardFileManager, classLoaderToUse, this.classFiles, this.resourceFiles);
+    ClassLoader classLoaderToUse = (this.classLoader != null ? this.classLoader : Thread.currentThread().getContextClassLoader());
+    List<DynamicJavaFileObject> compilationUnits = this.sourceFiles.stream().map(DynamicJavaFileObject::new).toList();
+    StandardJavaFileManager standardFileManager = this.compiler.getStandardFileManager(null, null, null);
+    DynamicJavaFileManager fileManager = new DynamicJavaFileManager(standardFileManager, classLoaderToUse, this.classFiles, this.resourceFiles);
     if (!this.sourceFiles.isEmpty()) {
-      Errors errors = new Errors(this.locale);
-      CompilationTask task = this.compiler.getTask(null, fileManager, errors,
-              this.compilerOptions, null, compilationUnits);
+      Errors errors = new Errors();
+      var task = compiler.getTask(null, fileManager, errors, compilerOptions, null, compilationUnits);
       task.setProcessors(this.processors);
       boolean result = task.call();
       if (!result || errors.hasReportedErrors()) {
@@ -383,19 +357,13 @@ public final class TestCompiler {
    */
   static class Errors implements DiagnosticListener<JavaFileObject> {
 
-    private final Locale locale;
-
     private final StringBuilder message = new StringBuilder();
-
-    Errors(Locale locale) {
-      this.locale = locale;
-    }
 
     @Override
     public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
       if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
         this.message.append('\n');
-        this.message.append(diagnostic.getMessage(this.locale));
+        this.message.append(diagnostic.getMessage(Locale.getDefault()));
         if (diagnostic.getSource() != null) {
           this.message.append(' ');
           this.message.append(diagnostic.getSource().getName());
