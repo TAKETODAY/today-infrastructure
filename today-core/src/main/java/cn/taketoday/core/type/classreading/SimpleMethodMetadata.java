@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +12,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type.classreading;
 
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.bytecode.Opcodes;
-import cn.taketoday.bytecode.Type;
-import cn.taketoday.bytecode.commons.MethodSignature;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.MethodMetadata;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * {@link MethodMetadata} created from a {@link SimpleMethodMetadataReadingVisitor}.
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class SimpleMethodMetadata implements MethodMetadata {
@@ -47,28 +41,24 @@ final class SimpleMethodMetadata implements MethodMetadata {
 
   private final MergedAnnotations annotations;
 
-  private final MethodSignature methodSignature;
+  private final String methodName;
 
-  @Nullable
-  private volatile String returnTypeName;
+  private final String returnTypeName;
 
-  @Nullable
-  private final ClassLoader classLoader;
+  SimpleMethodMetadata(String methodName, int access, String declaringClassName,
+          String returnTypeName, Object source, MergedAnnotations annotations) {
 
-  SimpleMethodMetadata(int access, String declaringClassName,
-                       Object source, MergedAnnotations annotations,
-                       MethodSignature methodSignature, @Nullable ClassLoader classLoader) {
-    this.methodSignature = methodSignature;
+    this.source = source;
+    this.methodName = methodName;
     this.access = access;
     this.declaringClassName = declaringClassName;
-    this.source = source;
+    this.returnTypeName = returnTypeName;
     this.annotations = annotations;
-    this.classLoader = classLoader;
   }
 
   @Override
   public String getMethodName() {
-    return this.methodSignature.getName();
+    return methodName;
   }
 
   @Override
@@ -78,16 +68,6 @@ final class SimpleMethodMetadata implements MethodMetadata {
 
   @Override
   public String getReturnTypeName() {
-    String returnTypeName = this.returnTypeName;
-    if (returnTypeName == null) {
-      synchronized(this) {
-        returnTypeName = this.returnTypeName;
-        if (returnTypeName == null) {
-          returnTypeName = methodSignature.getReturnType().getClassName();
-          this.returnTypeName = returnTypeName;
-        }
-      }
-    }
     return returnTypeName;
   }
 
@@ -109,11 +89,6 @@ final class SimpleMethodMetadata implements MethodMetadata {
   @Override
   public boolean isOverridable() {
     return !isStatic() && !isFinal() && !isPrivate();
-  }
-
-  @Override
-  public int getParameterCount() {
-    return getArgumentTypes().length;
   }
 
   private boolean isPrivate() {
@@ -139,27 +114,6 @@ final class SimpleMethodMetadata implements MethodMetadata {
   @Override
   public String toString() {
     return this.source.toString();
-  }
-
-  @Override
-  public Type[] getArgumentTypes() {
-    return methodSignature.getArgumentTypes();
-  }
-
-  @Override
-  public Class<?>[] getParameterTypes() {
-    Type[] argumentTypes = getArgumentTypes();
-    int parameterCount = argumentTypes.length;
-    if (parameterCount == 0) {
-      return Constant.EMPTY_CLASSES;
-    }
-    int i = 0;
-    Class<?>[] ret = new Class<?>[parameterCount];
-    for (Type argumentType : argumentTypes) {
-      String className = argumentType.getClassName();
-      ret[i++] = ClassUtils.resolveClassName(className, classLoader);
-    }
-    return ret;
   }
 
 }

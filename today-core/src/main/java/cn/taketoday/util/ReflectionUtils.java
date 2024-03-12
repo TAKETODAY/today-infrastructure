@@ -37,7 +37,6 @@ import cn.taketoday.core.ConstructorNotFoundException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.reflect.ReflectionException;
 
 /**
  * Simple utility class for working with the reflection API and handling
@@ -940,8 +939,8 @@ public abstract class ReflectionUtils {
    */
   public static Method[] toMethodArray(Collection<Method> collection) {
     return CollectionUtils.isEmpty(collection)
-           ? EMPTY_METHOD_ARRAY
-           : collection.toArray(new Method[collection.size()]);
+            ? EMPTY_METHOD_ARRAY
+            : collection.toArray(new Method[collection.size()]);
   }
 
   // Field handling
@@ -1216,8 +1215,8 @@ public abstract class ReflectionUtils {
    */
   public static Field[] toFieldArray(Collection<Field> fields) {
     return CollectionUtils.isEmpty(fields)
-           ? EMPTY_FIELD_ARRAY
-           : fields.toArray(new Field[0]);
+            ? EMPTY_FIELD_ARRAY
+            : fields.toArray(new Field[0]);
   }
 
   // Constructor handling
@@ -1316,24 +1315,6 @@ public abstract class ReflectionUtils {
   public static void clearCache() {
     DECLARED_FIELDS_CACHE.clear();
     DECLARED_METHODS_CACHE.clear();
-  }
-
-  public static Field obtainField(Class<?> clazz, String name) {
-    Field field = findField(clazz, name);
-    if (field == null) {
-      throw new ReflectionException(
-              "No such field named: " + name + " in class: " + clazz.getName());
-    }
-    return field;
-  }
-
-  public static Method obtainMethod(Class<?> targetClass, String methodName, Class<?>... parameterTypes) {
-    Method declaredMethod = findMethod(targetClass, methodName, parameterTypes);
-    if (declaredMethod == null) {
-      throw new ReflectionException(
-              "No such method named: " + methodName + " in class: " + targetClass.getName());
-    }
-    return declaredMethod;
   }
 
   /**

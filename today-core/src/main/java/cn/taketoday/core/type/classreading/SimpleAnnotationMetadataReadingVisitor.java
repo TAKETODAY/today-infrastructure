@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type.classreading;
@@ -23,12 +20,12 @@ package cn.taketoday.core.type.classreading;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.bytecode.AnnotationVisitor;
 import cn.taketoday.bytecode.ClassVisitor;
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -40,6 +37,7 @@ import cn.taketoday.util.ObjectUtils;
  * ASM class visitor that creates {@link SimpleAnnotationMetadata}.
  *
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
@@ -83,7 +81,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 
   @Override
   public void visit(int version, int access, String name, String signature,
-                    @Nullable String supername, String[] interfaces) {
+          @Nullable String supername, String[] interfaces) {
 
     this.className = toClassName(name);
     this.access = access;
@@ -136,8 +134,7 @@ final class SimpleAnnotationMetadataReadingVisitor extends ClassVisitor {
 
   @Override
   @Nullable
-  public MethodVisitor visitMethod(
-          int access, String name, String descriptor, String signature, String[] exceptions) {
+  public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
     // Skip bridge methods and constructors - we're only interested in original user methods.
     if (isBridge(access) || "<init>".equals(name)) {
       return null;
