@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -35,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Stephane Nicoll
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanFactory#getBean(String)
  * @see BeanFactory#getBean(Class)
  * @see NoUniqueBeanDefinitionException
@@ -57,8 +54,8 @@ public class NoSuchBeanDefinitionException extends BeansException {
    *
    * @param name the name of the missing bean
    */
-  public NoSuchBeanDefinitionException(String name) {
-    super("No bean named '" + name + "' available");
+  public NoSuchBeanDefinitionException(@Nullable String name) {
+    super("No bean named '%s' available".formatted(name));
     this.beanName = name;
     this.resolvableType = null;
   }
@@ -69,8 +66,8 @@ public class NoSuchBeanDefinitionException extends BeansException {
     this.resolvableType = null;
   }
 
-  public NoSuchBeanDefinitionException(String name, Class<?> targetClass) {
-    super("No qualifying bean of type '" + targetClass + "' and named '" + name + "' available");
+  public NoSuchBeanDefinitionException(@Nullable String name, Class<?> targetClass) {
+    super("No qualifying bean of type '%s' and named '%s' available".formatted(targetClass, name));
     this.beanName = name;
     this.resolvableType = ResolvableType.forClass(targetClass);
   }
@@ -82,8 +79,8 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @param message detailed message describing the problem
    * @since 4.0
    */
-  public NoSuchBeanDefinitionException(String name, String message) {
-    super("No bean named '" + name + "' available: " + message);
+  public NoSuchBeanDefinitionException(@Nullable String name, String message) {
+    super("No bean named '%s' available: %s".formatted(name, message));
     this.beanName = name;
     this.resolvableType = null;
   }
@@ -116,7 +113,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @since 4.0
    */
   public NoSuchBeanDefinitionException(@NonNull ResolvableType type) {
-    super("No qualifying bean of type '" + type + "' available");
+    super("No qualifying bean of type '%s' available".formatted(type));
     this.beanName = null;
     this.resolvableType = type;
   }
@@ -129,7 +126,7 @@ public class NoSuchBeanDefinitionException extends BeansException {
    * @since 4.0
    */
   public NoSuchBeanDefinitionException(@NonNull ResolvableType type, String message) {
-    super("No qualifying bean of type '" + type + "' available: " + message);
+    super("No qualifying bean of type '%s' available: %s".formatted(type, message));
     this.beanName = null;
     this.resolvableType = type;
   }

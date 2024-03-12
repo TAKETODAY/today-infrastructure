@@ -18,7 +18,6 @@
 package cn.taketoday.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -112,8 +111,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
   @Override
   public void removeAlias(String alias) {
     synchronized(aliasMap) {
-      aliasNames.remove(alias);
       String name = aliasMap.remove(alias);
+      aliasNames.remove(alias);
       if (name == null) {
         throw new IllegalStateException("No alias '%s' registered".formatted(alias));
       }
@@ -167,10 +166,8 @@ public class DefaultAliasRegistry implements AliasRegistry {
   public void resolveAliases(StringValueResolver valueResolver) {
     Assert.notNull(valueResolver, "StringValueResolver is required");
     synchronized(aliasMap) {
-      ArrayList<String> aliasNamesCopy = new ArrayList<>(this.aliasNames);
-      for (final String alias : aliasNamesCopy) {
-        String registeredName = this.aliasMap.get(alias);
-
+      for (final String alias : new ArrayList<>(this.aliasNames)) {
+        String registeredName = aliasMap.get(alias);
         String resolvedAlias = valueResolver.resolveStringValue(alias);
         String resolvedName = valueResolver.resolveStringValue(registeredName);
         if (resolvedAlias == null || resolvedName == null || resolvedAlias.equals(resolvedName)) {
