@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.jcache.interceptor;
@@ -28,6 +28,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.MethodClassKey;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Abstract implementation of {@link JCacheOperationSource} that caches attributes
@@ -45,22 +46,37 @@ import cn.taketoday.util.MethodClassKey;
 public abstract class AbstractFallbackJCacheOperationSource implements JCacheOperationSource {
 
   /**
-   * Canonical value held in cache to indicate no caching attribute was
-   * found for this method and we don't need to look again.
+   * Canonical value held in cache to indicate no cache operation was
+   * found for this method, and we don't need to look again.
    */
-  private static final Object NULL_CACHING_ATTRIBUTE = new Object();
+  private static final Object NULL_CACHING_MARKER = new Object();
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final Map<MethodClassKey, Object> cache = new ConcurrentHashMap<>(1024);
+  private final Map<MethodClassKey, Object> operationCache = new ConcurrentHashMap<>(1024);
 
   @Override
+  public boolean hasCacheOperation(Method method, @Nullable Class<?> targetClass) {
+    return (getCacheOperation(method, targetClass, false) != null);
+  }
+
+  @Override
+  @Nullable
   public JCacheOperation<?> getCacheOperation(Method method, @Nullable Class<?> targetClass) {
+    return getCacheOperation(method, targetClass, true);
+  }
+
+  @Nullable
+  private JCacheOperation<?> getCacheOperation(Method method, @Nullable Class<?> targetClass, boolean cacheNull) {
+    if (ReflectionUtils.isObjectMethod(method)) {
+      return null;
+    }
+
     MethodClassKey cacheKey = new MethodClassKey(method, targetClass);
-    Object cached = this.cache.get(cacheKey);
+    Object cached = this.operationCache.get(cacheKey);
 
     if (cached != null) {
-      return (cached != NULL_CACHING_ATTRIBUTE ? (JCacheOperation<?>) cached : null);
+      return (cached != NULL_CACHING_MARKER ? (JCacheOperation<?>) cached : null);
     }
     else {
       JCacheOperation<?> operation = computeCacheOperation(method, targetClass);
@@ -68,10 +84,10 @@ public abstract class AbstractFallbackJCacheOperationSource implements JCacheOpe
         if (logger.isDebugEnabled()) {
           logger.debug("Adding cacheable method '{}' with operation: {}", method.getName(), operation);
         }
-        this.cache.put(cacheKey, operation);
+        this.operationCache.put(cacheKey, operation);
       }
-      else {
-        this.cache.put(cacheKey, NULL_CACHING_ATTRIBUTE);
+      else if (cacheNull) {
+        this.operationCache.put(cacheKey, NULL_CACHING_MARKER);
       }
       return operation;
     }
@@ -84,7 +100,7 @@ public abstract class AbstractFallbackJCacheOperationSource implements JCacheOpe
       return null;
     }
 
-    // The method may be on an interface, but we need attributes from the target class.
+    // The method may be on an interface, but we need metadata from the target class.
     // If the target class is null, the method will be unchanged.
     Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
 

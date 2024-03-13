@@ -111,7 +111,7 @@ import cn.taketoday.lang.Nullable;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Chris Beams
- * @author TODAY
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanNameAware#setBeanName
  * @see BeanClassLoaderAware#setBeanClassLoader
  * @see BeanFactoryAware#setBeanFactory
@@ -156,6 +156,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @throws BeansException Exception occurred when getting a named bean
    * @throws NoSuchBeanDefinitionException if there is no bean with the specified name
    */
+  @Nullable
   Object getBean(String name) throws BeansException;
 
   /**
@@ -173,6 +174,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @throws NoSuchBeanDefinitionException if there is no such bean definition
    * @since 4.0
    */
+  @Nullable
   Object getBean(String name, Object... args) throws BeansException;
 
   /**
@@ -186,7 +188,11 @@ public interface BeanFactory extends DependencyInjectorProvider {
    *
    * @param name the name of the bean to retrieve
    * @param requiredType type the bean must match; can be an interface or superclass
-   * @return an instance of the bean,returns null if its return from a factory-method
+   * @return an instance of the bean.
+   * Note that the return value will never be {@code null}. In case of a stub for
+   * {@code null} from a factory method having been resolved for the requested bean, a
+   * {@code BeanNotOfRequiredTypeException} against the NullValue stub will be raised.
+   * Consider using {@link #getBeanProvider(Class)} for resolving optional dependencies.
    * @throws BeanNotOfRequiredTypeException if the bean is not of the required type
    * @throws BeansException if the bean could not be created
    * @throws NoSuchBeanDefinitionException if there is no such bean definition

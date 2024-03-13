@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -33,20 +30,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.expression.AccessException;
 import cn.taketoday.expression.EvaluationContext;
-import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TypedValue;
-import cn.taketoday.expression.spel.SpelParserConfiguration;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static cn.taketoday.expression.spel.SpelMessage.INDEXING_NOT_SUPPORTED_FOR_TYPE;
+import static cn.taketoday.expression.spel.SpelMessage.UNABLE_TO_GROW_COLLECTION_UNKNOWN_ELEMENT_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SuppressWarnings("rawtypes")
 class IndexingTests {
+
+  @Test
+  void indexIntoArrays() {
+    SpelExpressionParser parser = new SpelExpressionParser();
+
+    // One-dimensional
+    this.property = new int[] { 1, 2, 3, 4 };
+    Expression expression = parser.parseExpression("property[2]");
+    assertThat(expression.getValue(this)).isEqualTo(3);
+
+    // Multi-dimensional
+    this.property = new int[][] { { 1, 2 }, { 3, 4 } };
+    expression = parser.parseExpression("property[0]");
+    assertThat(expression.getValue(this)).isEqualTo(new int[] { 1, 2 });
+    expression = parser.parseExpression("property[1][1]");
+    assertThat(expression.getValue(this)).isEqualTo(4);
+  }
 
   @Test
   @SuppressWarnings("unchecked")
@@ -56,15 +70,13 @@ class IndexingTests {
     this.property = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.HashMap<?, ?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.HashMap<?, ?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
     assertThat(expression.getValue(this, Map.class)).isEqualTo(property);
     expression = parser.parseExpression("property['foo']");
     assertThat(expression.getValue(this)).isEqualTo("bar");
   }
-
-  @FieldAnnotation
-  public Object property;
 
   @Test
   @SuppressWarnings("unchecked")
@@ -78,42 +90,12 @@ class IndexingTests {
     context.addPropertyAccessor(new MapAccessor());
     context.setRootObject(property);
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(context).toString()).isEqualTo("java.util.HashMap<?, ?>");
+    assertThat(expression.getValueTypeDescriptor(context)).asString()
+            .isEqualTo("java.util.HashMap<?, ?>");
     assertThat(expression.getValue(context)).isEqualTo(map);
     assertThat(expression.getValue(context, Map.class)).isEqualTo(map);
     expression = parser.parseExpression("property['foo']");
     assertThat(expression.getValue(context)).isEqualTo("bar");
-  }
-
-  public static class MapAccessor implements PropertyAccessor {
-
-    @Override
-    public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
-      return (((Map<?, ?>) target).containsKey(name));
-    }
-
-    @Override
-    public TypedValue read(EvaluationContext context, Object target, String name) throws AccessException {
-      return new TypedValue(((Map<?, ?>) target).get(name));
-    }
-
-    @Override
-    public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
-      return true;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void write(EvaluationContext context, Object target, String name, Object newValue)
-            throws AccessException {
-      ((Map) target).put(name, newValue);
-    }
-
-    @Override
-    public Class<?>[] getSpecificTargetClasses() {
-      return new Class<?>[] { Map.class };
-    }
-
   }
 
   @Test
@@ -123,7 +105,8 @@ class IndexingTests {
     this.property = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.HashMap<?, ?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.HashMap<?, ?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("property['foo']");
     assertThat(expression.getValue(this)).isEqualTo("bar");
@@ -138,7 +121,8 @@ class IndexingTests {
     this.parameterizedMap = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("parameterizedMap");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.HashMap<java.lang.Integer, java.lang.Integer>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("java.util.HashMap<java.lang.Integer, java.lang.Integer>");
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("parameterizedMap['9']");
     assertThat(expression.getValue(this)).isEqualTo(3);
@@ -146,14 +130,13 @@ class IndexingTests {
     assertThat(expression.getValue(this)).isEqualTo(37);
   }
 
-  public Map<Integer, Integer> parameterizedMap;
-
   @Test
   void setPropertyContainingMapAutoGrow() {
     SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, false));
     Expression expression = parser.parseExpression("parameterizedMap");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.Map<java.lang.Integer, java.lang.Integer>");
-    assertThat(expression.getValue(this)).isEqualTo(property);
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("java.util.Map<java.lang.Integer, java.lang.Integer>");
+    assertThat(expression.getValue(this)).isNull();
     expression = parser.parseExpression("parameterizedMap['9']");
     assertThat(expression.getValue(this)).isNull();
     expression.setValue(this, "37");
@@ -167,7 +150,8 @@ class IndexingTests {
     this.property = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.ArrayList<?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.ArrayList<?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("property[0]");
     assertThat(expression.getValue(this)).isEqualTo("bar");
@@ -180,7 +164,8 @@ class IndexingTests {
     this.property = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.ArrayList<?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.ArrayList<?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("property[0]");
     assertThat(expression.getValue(this)).isEqualTo(3);
@@ -194,18 +179,15 @@ class IndexingTests {
     this.property = property;
     SpelExpressionParser parser = new SpelExpressionParser(new SpelParserConfiguration(true, true));
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.ArrayList<?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.ArrayList<?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
-    expression = parser.parseExpression("property[0]");
-    try {
-      expression.setValue(this, "4");
-    }
-    catch (EvaluationException ex) {
-      assertThat(ex.getMessage().startsWith("EL1053E")).isTrue();
-    }
-  }
 
-  public List<BigDecimal> decimals;
+    Expression indexExpression = parser.parseExpression("property[0]");
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> indexExpression.getValue(this))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(UNABLE_TO_GROW_COLLECTION_UNKNOWN_ELEMENT_TYPE));
+  }
 
   @Test
   void autoGrowListOfElementsWithoutDefaultConstructor() {
@@ -232,13 +214,12 @@ class IndexingTests {
     this.parameterizedList = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("parameterizedList");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.ArrayList<java.lang.Integer>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("java.util.ArrayList<java.lang.Integer>");
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("parameterizedList[0]");
     assertThat(expression.getValue(this)).isEqualTo(3);
   }
-
-  public List<Integer> parameterizedList;
 
   @Test
   void indexIntoPropertyContainingListOfList() {
@@ -247,13 +228,12 @@ class IndexingTests {
     this.parameterizedListOfList = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("parameterizedListOfList[0]");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.Arrays$ArrayList<java.lang.Integer>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("java.util.Arrays$ArrayList<java.lang.Integer>");
     assertThat(expression.getValue(this)).isEqualTo(property.get(0));
     expression = parser.parseExpression("parameterizedListOfList[0][0]");
     assertThat(expression.getValue(this)).isEqualTo(3);
   }
-
-  public List<List<Integer>> parameterizedListOfList;
 
   @Test
   void setPropertyContainingList() {
@@ -262,7 +242,8 @@ class IndexingTests {
     this.parameterizedList = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("parameterizedList");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.ArrayList<java.lang.Integer>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("java.util.ArrayList<java.lang.Integer>");
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("parameterizedList[0]");
     assertThat(expression.getValue(this)).isEqualTo(3);
@@ -275,15 +256,14 @@ class IndexingTests {
     SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
     SpelExpressionParser parser = new SpelExpressionParser(configuration);
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.lang.Object");
-    assertThat(expression.getValue(this)).isEqualTo(property);
-    expression = parser.parseExpression("property[0]");
-    try {
-      assertThat(expression.getValue(this)).isEqualTo("bar");
-    }
-    catch (EvaluationException ex) {
-      assertThat(ex.getMessage().startsWith("EL1027E")).isTrue();
-    }
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.lang.Object", FieldAnnotation.class.getCanonicalName());
+    assertThat(expression.getValue(this)).isNull();
+
+    Expression indexExpression = parser.parseExpression("property[0]");
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> indexExpression.getValue(this))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(INDEXING_NOT_SUPPORTED_FOR_TYPE));
   }
 
   @Test
@@ -293,15 +273,14 @@ class IndexingTests {
     SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
     SpelExpressionParser parser = new SpelExpressionParser(configuration);
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.ArrayList<?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.ArrayList<?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
-    expression = parser.parseExpression("property[0]");
-    try {
-      assertThat(expression.getValue(this)).isEqualTo("bar");
-    }
-    catch (EvaluationException ex) {
-      assertThat(ex.getMessage().startsWith("EL1053E")).isTrue();
-    }
+
+    Expression indexExpression = parser.parseExpression("property[0]");
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> indexExpression.getValue(this))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(UNABLE_TO_GROW_COLLECTION_UNKNOWN_ELEMENT_TYPE));
   }
 
   @Test
@@ -311,26 +290,23 @@ class IndexingTests {
     SpelParserConfiguration configuration = new SpelParserConfiguration(true, true);
     SpelExpressionParser parser = new SpelExpressionParser(configuration);
     Expression expression = parser.parseExpression("property2");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.ArrayList<?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString().isEqualTo("java.util.ArrayList<?>");
     assertThat(expression.getValue(this)).isEqualTo(property2);
-    expression = parser.parseExpression("property2[0]");
-    try {
-      assertThat(expression.getValue(this)).isEqualTo("bar");
-    }
-    catch (EvaluationException ex) {
-      assertThat(ex.getMessage().startsWith("EL1053E")).isTrue();
-    }
-  }
 
-  public List property2;
+    Expression indexExpression = parser.parseExpression("property2[0]");
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> indexExpression.getValue(this))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(UNABLE_TO_GROW_COLLECTION_UNKNOWN_ELEMENT_TYPE));
+  }
 
   @Test
   void indexIntoGenericPropertyContainingArray() {
-    String[] property = new String[] { "bar" };
+    String[] property = { "bar" };
     this.property = property;
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("property");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.lang.String[]");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.lang.String[]", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this)).isEqualTo(property);
     expression = parser.parseExpression("property[0]");
     assertThat(expression.getValue(this)).isEqualTo("bar");
@@ -341,19 +317,20 @@ class IndexingTests {
     listOfScalarNotGeneric = new ArrayList();
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("listOfScalarNotGeneric");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("java.util.ArrayList<?>");
-    assertThat(expression.getValue(this, String.class)).isEqualTo("");
+    assertThat(expression.getValueTypeDescriptor(this)).asString().isEqualTo("java.util.ArrayList<?>");
+    assertThat(expression.getValue(this, String.class)).isEmpty();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
+  @SuppressWarnings("unchecked")
   void resolveCollectionElementType() {
     listNotGeneric = new ArrayList(2);
     listNotGeneric.add(5);
     listNotGeneric.add(6);
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("listNotGeneric");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.ArrayList<?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.ArrayList<?>", FieldAnnotation.class.getCanonicalName());
     assertThat(expression.getValue(this, String.class)).isEqualTo("5,6");
   }
 
@@ -361,16 +338,8 @@ class IndexingTests {
   void resolveCollectionElementTypeNull() {
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("listNotGeneric");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.List<?>");
-  }
-
-  @FieldAnnotation
-  public List listNotGeneric;
-
-  @Target({ ElementType.FIELD })
-  @Retention(RetentionPolicy.RUNTIME)
-  public @interface FieldAnnotation {
-
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.List<?>", FieldAnnotation.class.getCanonicalName());
   }
 
   @SuppressWarnings("unchecked")
@@ -381,27 +350,23 @@ class IndexingTests {
     mapNotGeneric.put("bonusAmount", 7.17);
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("mapNotGeneric");
-    assertThat(expression.getValueTypeDescriptor(this).toString()).isEqualTo("@cn.taketoday.expression.spel.IndexingTests$FieldAnnotation java.util.HashMap<?, ?>");
+    assertThat(expression.getValueTypeDescriptor(this)).asString()
+            .isEqualTo("@%s java.util.HashMap<?, ?>", FieldAnnotation.class.getCanonicalName());
   }
 
-  @FieldAnnotation
-  public Map mapNotGeneric;
-
-  @SuppressWarnings("unchecked")
   @Test
-  void testListOfScalar() {
+  @SuppressWarnings("unchecked")
+  void listOfScalars() {
     listOfScalarNotGeneric = new ArrayList(1);
     listOfScalarNotGeneric.add("5");
     SpelExpressionParser parser = new SpelExpressionParser();
     Expression expression = parser.parseExpression("listOfScalarNotGeneric[0]");
-    assertThat(expression.getValue(this, Integer.class)).isEqualTo(Integer.valueOf(5));
+    assertThat(expression.getValue(this, Integer.class)).isEqualTo(5);
   }
 
-  public List listOfScalarNotGeneric;
-
-  @SuppressWarnings("unchecked")
   @Test
-  void testListsOfMap() {
+  @SuppressWarnings("unchecked")
+  void listOfMaps() {
     listOfMapsNotGeneric = new ArrayList();
     Map map = new HashMap();
     map.put("fruit", "apple");
@@ -411,6 +376,62 @@ class IndexingTests {
     assertThat(expression.getValue(this, String.class)).isEqualTo("apple");
   }
 
+  @Target({ ElementType.FIELD })
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface FieldAnnotation {
+  }
+
+  @FieldAnnotation
+  public Object property;
+
+  public List property2;
+
+  public Map<Integer, Integer> parameterizedMap;
+
+  public List<BigDecimal> decimals;
+
+  public List<Integer> parameterizedList;
+
+  public List<List<Integer>> parameterizedListOfList;
+
+  @FieldAnnotation
+  public List listNotGeneric;
+
+  @FieldAnnotation
+  public Map mapNotGeneric;
+
+  public List listOfScalarNotGeneric;
+
   public List listOfMapsNotGeneric;
+
+  private static class MapAccessor implements PropertyAccessor {
+
+    @Override
+    public boolean canRead(EvaluationContext context, Object target, String name) {
+      return (((Map<?, ?>) target).containsKey(name));
+    }
+
+    @Override
+    public TypedValue read(EvaluationContext context, Object target, String name) {
+      return new TypedValue(((Map<?, ?>) target).get(name));
+    }
+
+    @Override
+    public boolean canWrite(EvaluationContext context, Object target, String name) {
+      return true;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void write(EvaluationContext context, Object target, String name, Object newValue) {
+      ((Map) target).put(name, newValue);
+    }
+
+    @Override
+    public Class<?>[] getSpecificTargetClasses() {
+      return new Class<?>[] { Map.class };
+    }
+
+  }
 
 }

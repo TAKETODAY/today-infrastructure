@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.core.namedparam;
@@ -44,14 +44,14 @@ import cn.taketoday.lang.Nullable;
 public abstract class NamedParameterUtils {
 
   /**
-   * Set of characters that qualify as comment or quotes starting characters.
+   * Set of characters that qualify as comment or quote starting characters.
    */
-  private static final String[] START_SKIP = new String[] { "'", "\"", "--", "/*" };
+  private static final String[] START_SKIP = { "'", "\"", "--", "/*", "`" };
 
   /**
-   * Set of characters that at are the corresponding comment or quotes ending characters.
+   * Set of characters that are the corresponding comment or quote ending characters.
    */
-  private static final String[] STOP_SKIP = new String[] { "'", "\"", "\n", "*/" };
+  private static final String[] STOP_SKIP = { "'", "\"", "\n", "*/", "`" };
 
   /**
    * Set of characters that qualify as parameter separators,
@@ -375,7 +375,7 @@ public abstract class NamedParameterUtils {
         }
         else {
           paramArray[i] = (param != null ? new SqlParameterValue(param, paramValue) :
-                           SqlParameterSourceUtils.getTypedValue(paramSource, paramName));
+                  SqlParameterSourceUtils.getTypedValue(paramSource, paramName));
         }
       }
       catch (IllegalArgumentException ex) {

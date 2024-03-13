@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -54,6 +54,7 @@ import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -109,6 +110,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
   private static final boolean jackson2SmilePresent = isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory");
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
   private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
+  private static final boolean jackson2YamlPresent = isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory");
 
   private final List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
 
@@ -153,6 +155,9 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
     }
     if (jackson2CborPresent) {
       this.messageConverters.add(new MappingJackson2CborHttpMessageConverter());
+    }
+    if (jackson2YamlPresent) {
+      this.messageConverters.add(new MappingJackson2YamlHttpMessageConverter());
     }
 
     updateErrorHandlerConverters();
@@ -904,7 +909,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       else {
         Class<?> requestBodyClass = requestBody.getClass();
         Type requestBodyType = this.requestEntity instanceof RequestEntity entity
-                               ? entity.getType() : requestBodyClass;
+                ? entity.getType() : requestBodyClass;
         HttpHeaders httpHeaders = httpRequest.getHeaders();
         HttpHeaders requestHeaders = this.requestEntity.getHeaders();
         MediaType requestContentType = requestHeaders.getContentType();

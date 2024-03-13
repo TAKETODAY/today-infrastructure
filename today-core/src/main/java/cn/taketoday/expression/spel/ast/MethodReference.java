@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,9 +56,9 @@ import cn.taketoday.util.ObjectUtils;
  */
 public class MethodReference extends SpelNodeImpl {
 
-  private final String name;
-
   private final boolean nullSafe;
+
+  private final String name;
 
   @Nullable
   private Character originalPrimitiveExitTypeDescriptor;
@@ -166,13 +166,12 @@ public class MethodReference extends SpelNodeImpl {
   }
 
   private Object[] getArguments(ExpressionState state) {
-    int i = 0;
     Object[] arguments = new Object[getChildCount()];
-    for (SpelNodeImpl child : children) {
+    for (int i = 0; i < arguments.length; i++) {
       // Make the root object the active context again for evaluating the parameter expressions
       try {
         state.pushActiveContextObject(state.getScopeRootContextObject());
-        arguments[i++] = child.getValueInternal(state).getValue();
+        arguments[i] = this.children[i].getValueInternal(state).getValue();
       }
       finally {
         state.popActiveContextObject();
@@ -182,7 +181,7 @@ public class MethodReference extends SpelNodeImpl {
   }
 
   private List<TypeDescriptor> getArgumentTypes(Object... arguments) {
-    ArrayList<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
+    List<TypeDescriptor> descriptors = new ArrayList<>(arguments.length);
     for (Object argument : arguments) {
       descriptors.add(TypeDescriptor.forObject(argument));
     }
@@ -207,13 +206,14 @@ public class MethodReference extends SpelNodeImpl {
     return null;
   }
 
-  private MethodExecutor findAccessorForMethod(List<TypeDescriptor> argumentTypes,
-          Object targetObject, EvaluationContext evaluationContext) throws SpelEvaluationException {
+  private MethodExecutor findAccessorForMethod(List<TypeDescriptor> argumentTypes, Object targetObject,
+          EvaluationContext evaluationContext) throws SpelEvaluationException {
 
     AccessException accessException = null;
     for (MethodResolver methodResolver : evaluationContext.getMethodResolvers()) {
       try {
-        MethodExecutor methodExecutor = methodResolver.resolve(evaluationContext, targetObject, this.name, argumentTypes);
+        MethodExecutor methodExecutor = methodResolver.resolve(
+                evaluationContext, targetObject, this.name, argumentTypes);
         if (methodExecutor != null) {
           return methodExecutor;
         }
@@ -254,8 +254,8 @@ public class MethodReference extends SpelNodeImpl {
 
   private void updateExitTypeDescriptor() {
     CachedMethodExecutor executorToCheck = this.cachedExecutor;
-    if (executorToCheck != null && executorToCheck.get() instanceof ReflectiveMethodExecutor executor) {
-      Method method = executor.getMethod();
+    if (executorToCheck != null && executorToCheck.get() instanceof ReflectiveMethodExecutor reflectiveMethodExecutor) {
+      Method method = reflectiveMethodExecutor.getMethod();
       String descriptor = CodeFlow.toDescriptor(method.getReturnType());
       if (this.nullSafe && CodeFlow.isPrimitive(descriptor) && (descriptor.charAt(0) != 'V')) {
         this.originalPrimitiveExitTypeDescriptor = descriptor.charAt(0);
@@ -283,9 +283,8 @@ public class MethodReference extends SpelNodeImpl {
   @Override
   public boolean isCompilable() {
     CachedMethodExecutor executorToCheck = this.cachedExecutor;
-    if (executorToCheck == null
-            || executorToCheck.hasProxyTarget()
-            || !(executorToCheck.get() instanceof ReflectiveMethodExecutor executor)) {
+    if (executorToCheck == null || executorToCheck.hasProxyTarget() ||
+            !(executorToCheck.get() instanceof ReflectiveMethodExecutor executor)) {
       return false;
     }
 
@@ -294,12 +293,14 @@ public class MethodReference extends SpelNodeImpl {
         return false;
       }
     }
-
     if (executor.didArgumentConversionOccur()) {
       return false;
     }
-    Class<?> clazz = executor.getMethod().getDeclaringClass();
-    return Modifier.isPublic(clazz.getModifiers()) || executor.getPublicDeclaringClass() != null;
+
+    Method method = executor.getMethod();
+    return ((Modifier.isPublic(method.getModifiers()) &&
+            (Modifier.isPublic(method.getDeclaringClass().getModifiers()) ||
+                    executor.getPublicDeclaringClass() != null)));
   }
 
   @Override
@@ -308,18 +309,29 @@ public class MethodReference extends SpelNodeImpl {
     if (executorToCheck == null || !(executorToCheck.get() instanceof ReflectiveMethodExecutor methodExecutor)) {
       throw new IllegalStateException("No applicable cached executor found: " + executorToCheck);
     }
-
     Method method = methodExecutor.getMethod();
-    boolean isStaticMethod = Modifier.isStatic(method.getModifiers());
+
+    Class<?> publicDeclaringClass;
+    if (Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+      publicDeclaringClass = method.getDeclaringClass();
+    }
+    else {
+      publicDeclaringClass = methodExecutor.getPublicDeclaringClass();
+    }
+    Assert.state(publicDeclaringClass != null,
+            () -> "Failed to find public declaring class for method: " + method);
+
+    String classDesc = publicDeclaringClass.getName().replace('.', '/');
+    boolean isStatic = Modifier.isStatic(method.getModifiers());
     String descriptor = cf.lastDescriptor();
 
-    if (descriptor == null && !isStaticMethod) {
+    if (descriptor == null && !isStatic) {
       // Nothing on the stack but something is needed
       cf.loadTarget(mv);
     }
 
     Label skipIfNull = null;
-    if (this.nullSafe && (descriptor != null || !isStaticMethod)) {
+    if (this.nullSafe && (descriptor != null || !isStatic)) {
       skipIfNull = new Label();
       Label continueLabel = new Label();
       mv.visitInsn(DUP);
@@ -329,8 +341,9 @@ public class MethodReference extends SpelNodeImpl {
       mv.visitLabel(continueLabel);
     }
 
-    if (descriptor != null && isStaticMethod) {
-      // Something on the stack when nothing is needed
+    if (descriptor != null && isStatic) {
+      // A static method call will not consume what is on the stack, so
+      // it needs to be popped off.
       mv.visitInsn(POP);
     }
 
@@ -338,24 +351,15 @@ public class MethodReference extends SpelNodeImpl {
       CodeFlow.insertBoxIfNecessary(mv, descriptor.charAt(0));
     }
 
-    String classDesc;
-    if (Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
-      classDesc = method.getDeclaringClass().getName().replace('.', '/');
-    }
-    else {
-      Class<?> publicDeclaringClass = methodExecutor.getPublicDeclaringClass();
-      Assert.state(publicDeclaringClass != null, "No public declaring class");
-      classDesc = publicDeclaringClass.getName().replace('.', '/');
-    }
-
-    if (!isStaticMethod && (descriptor == null || !descriptor.substring(1).equals(classDesc))) {
+    if (!isStatic && (descriptor == null || !descriptor.substring(1).equals(classDesc))) {
       CodeFlow.insertCheckCast(mv, "L" + classDesc);
     }
 
     generateCodeForArguments(mv, cf, method, this.children);
-    mv.visitMethodInsn((isStaticMethod ? INVOKESTATIC : (method.isDefault() ? INVOKEINTERFACE : INVOKEVIRTUAL)),
-            classDesc, method.getName(), CodeFlow.createSignatureDescriptor(method),
-            method.getDeclaringClass().isInterface());
+    boolean isInterface = publicDeclaringClass.isInterface();
+    int opcode = (isStatic ? INVOKESTATIC : isInterface ? INVOKEINTERFACE : INVOKEVIRTUAL);
+    mv.visitMethodInsn(opcode, classDesc, method.getName(), CodeFlow.createSignatureDescriptor(method),
+            isInterface);
     cf.pushDescriptor(this.exitTypeDescriptor);
 
     if (this.originalPrimitiveExitTypeDescriptor != null) {

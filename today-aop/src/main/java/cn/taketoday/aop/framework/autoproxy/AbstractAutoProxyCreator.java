@@ -24,7 +24,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -142,9 +141,12 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   /** Default is global AdvisorAdapterRegistry. */
   private AdvisorAdapterRegistry advisorAdapterRegistry = DefaultAdvisorAdapterRegistry.getInstance();
 
-  private final Set<String> targetSourcedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+  private final Set<String> targetSourcedBeans = ConcurrentHashMap.newKeySet(16);
+
   private final ConcurrentHashMap<Object, Object> earlyBeanReferences = new ConcurrentHashMap<>(16);
+
   private final ConcurrentHashMap<Object, Boolean> advisedBeans = new ConcurrentHashMap<>(256);
+
   private final ConcurrentHashMap<Object, Class<?>> proxyTypes = new ConcurrentHashMap<>(16);
 
   /**
@@ -359,7 +361,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport imp
   protected Object getCacheKey(Class<?> beanClass, @Nullable String beanName) {
     if (StringUtils.isNotEmpty(beanName)) {
       return FactoryBean.class.isAssignableFrom(beanClass)
-             ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName;
+              ? BeanFactory.FACTORY_BEAN_PREFIX + beanName : beanName;
     }
     else {
       return beanClass;

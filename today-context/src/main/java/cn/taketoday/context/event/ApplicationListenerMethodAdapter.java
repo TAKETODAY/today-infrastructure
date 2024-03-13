@@ -63,7 +63,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * {@link GenericApplicationListener} adapter that delegates the processing of
  * an event to an {@link EventListener} annotated method.
  *
- * <p>Delegates to {@link #onApplicationEvent(ApplicationEvent)} to give subclasses
+ * <p>Delegates to {@link #processEvent(ApplicationEvent)} to give subclasses
  * a chance to deviate from the default. Unwraps the content of a
  * {@link PayloadApplicationEvent} if necessary to allow a method declaration
  * to define any arbitrary event type. If a condition is defined, it is
@@ -83,11 +83,6 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   private final Method targetMethod;
 
-  private ApplicationContext context;
-
-  @Nullable
-  private EventExpressionEvaluator evaluator;
-
   /**
    * <p>Matches the {@code condition} attribute of the {@link EventListener}
    * annotation or any matching attribute on a composed annotation that
@@ -100,12 +95,25 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   private final int order;
 
-  @Nullable
-  private volatile String listenerId;
+  /**
+   * Whether default execution is applicable for the target listener.
+   *
+   * @see #onApplicationEvent
+   * @see EventListener#defaultExecution()
+   */
+  protected final boolean defaultExecution;
 
   private final List<ResolvableType> declaredEventTypes;
 
   private final AnnotatedElementKey methodKey;
+
+  @Nullable
+  private volatile String listenerId;
+
+  private ApplicationContext context;
+
+  @Nullable
+  private EventExpressionEvaluator evaluator;
 
   /**
    * Construct a new MethodApplicationListener.
@@ -129,6 +137,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
             .filter(StringUtils::hasText)
             .orElse(null);
 
+    this.defaultExecution = annotation.getBoolean("defaultExecution");
     if (annotation.isPresent()) {
       String id = annotation.getString("id");
       this.listenerId = !id.isEmpty() ? id : null;
@@ -199,11 +208,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
         return true;
       }
       if (PayloadApplicationEvent.class.isAssignableFrom(eventType.toClass())) {
-        if (eventType.hasUnresolvableGenerics()) {
-          return true;
-        }
         ResolvableType payloadType = eventType.as(PayloadApplicationEvent.class).getGeneric();
         if (declaredEventType.isAssignableFrom(payloadType)) {
+          return true;
+        }
+        if (payloadType.resolve() == null) {
+          // Always accept such event when the type is erased
           return true;
         }
       }
@@ -222,9 +232,21 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    */
   @Override
   public void onApplicationEvent(ApplicationEvent event) { // any event type
-    Object[] parameter = resolveArguments(event);
-    if (shouldInvoke(event, parameter)) {
-      Object result = doInvoke(parameter);
+    if (defaultExecution) {
+      processEvent(event);
+    }
+  }
+
+  /**
+   * Process the specified {@link ApplicationEvent}, checking if the condition
+   * matches and handling a non-null result, if any.
+   *
+   * @param event the event to process through the listener method
+   */
+  public void processEvent(ApplicationEvent event) {
+    Object[] args = resolveArguments(event);
+    if (shouldInvoke(event, args)) {
+      Object result = doInvoke(args);
       if (result != null) {
         handleResult(result);
       }

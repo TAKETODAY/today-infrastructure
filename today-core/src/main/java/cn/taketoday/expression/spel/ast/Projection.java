@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -37,12 +34,15 @@ import cn.taketoday.util.ObjectUtils;
 
 /**
  * Represents projection, where a given operation is performed on all elements in some
- * input sequence, returning a new sequence of the same size. For example:
- * "{1,2,3,4,5,6,7,8,9,10}.!{#isEven(#this)}" returns "[n, y, n, y, n, y, n, y, n, y]"
+ * input sequence, returning a new sequence of the same size.
+ *
+ * <p>For example: <code>{1,2,3,4,5,6,7,8,9,10}.![#isEven(#this)]</code> evaluates
+ * to {@code [n, y, n, y, n, y, n, y, n, y]}.
  *
  * @author Andy Clement
  * @author Mark Fisher
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class Projection extends SpelNodeImpl {
@@ -90,14 +90,14 @@ public class Projection extends SpelNodeImpl {
 
     if (operand instanceof Iterable || operandIsArray) {
       Iterable<?> data = operand instanceof Iterable ?
-                         (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand));
+              (Iterable<?>) operand : Arrays.asList(ObjectUtils.toObjectArray(operand));
 
       ArrayList<Object> result = new ArrayList<>();
       Class<?> arrayElementType = null;
       for (Object element : data) {
         try {
           state.pushActiveContextObject(new TypedValue(element));
-          state.enterScope("index", result.size());
+          state.enterScope();
           Object value = children[0].getValueInternal(state).getValue();
           if (value != null && operandIsArray) {
             arrayElementType = determineCommonType(arrayElementType, value.getClass());

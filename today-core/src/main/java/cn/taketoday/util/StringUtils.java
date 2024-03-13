@@ -17,9 +17,7 @@
 
 package cn.taketoday.util;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,10 +68,15 @@ import cn.taketoday.lang.Nullable;
 public abstract class StringUtils {
 
   public static final String TOP_PATH = "..";
+
   public static final String CURRENT_PATH = ".";
+
   public static final char FOLDER_SEPARATOR_CHAR = Constant.PATH_SEPARATOR;
+
   public static final String FOLDER_SEPARATOR = "/";
+
   public static final String WINDOWS_FOLDER_SEPARATOR = "\\";
+
   public static final char EXTENSION_SEPARATOR = Constant.PACKAGE_SEPARATOR;
 
   private static final int DEFAULT_TRUNCATION_THRESHOLD = 100;
@@ -209,14 +212,14 @@ public abstract class StringUtils {
           int u = Character.digit(hex1, 16);
           int l = Character.digit(hex2, 16);
           if (u == -1 || l == -1) {
-            throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
+            throw new IllegalArgumentException("Invalid encoded sequence \"%s\"".formatted(source.substring(i)));
           }
           baos.write((char) ((u << 4) + l));
           i += 2;
           changed = true;
         }
         else {
-          throw new IllegalArgumentException("Invalid encoded sequence \"" + source.substring(i) + "\"");
+          throw new IllegalArgumentException("Invalid encoded sequence \"%s\"".formatted(source.substring(i)));
         }
       }
       else {
@@ -326,8 +329,8 @@ public abstract class StringUtils {
    * @see String#trim()
    * @see #delimitedListToStringArray
    */
-  public static String[] tokenizeToStringArray(
-          @Nullable String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
+  public static String[] tokenizeToStringArray(@Nullable String str,
+          String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
     if (str == null) {
       return Constant.EMPTY_STRING_ARRAY;
     }
@@ -371,9 +374,8 @@ public abstract class StringUtils {
    * @since 4.0
    */
   public static String[] toStringArray(@Nullable Enumeration<String> enumeration) {
-    return enumeration == null
-           ? Constant.EMPTY_STRING_ARRAY
-           : toStringArray(Collections.list(enumeration));
+    return enumeration == null ? Constant.EMPTY_STRING_ARRAY
+            : toStringArray(Collections.list(enumeration));
   }
 
   /**
@@ -690,20 +692,6 @@ else */
   }
 
   /**
-   * Append line to {@link StringBuilder}
-   *
-   * @param reader String line read from {@link BufferedReader}
-   * @param builder The {@link StringBuilder} append to
-   * @throws IOException If an I/O error occurs
-   */
-  public static void appendLine(BufferedReader reader, StringBuilder builder) throws IOException {
-    String line;
-    while ((line = reader.readLine()) != null) {
-      builder.append(line);
-    }
-  }
-
-  /**
    * Count the occurrences of the substring {@code sub} in string {@code str}.
    *
    * @param str string to search in
@@ -872,9 +860,8 @@ else */
       return str;
     }
     final char firstChar = str.charAt(0);
-    if (capitalize
-        ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
-        : (firstChar >= 'a' && firstChar <= 'z')) {
+    if (capitalize ? (firstChar >= 'A' && firstChar <= 'Z')// already upper case
+            : (firstChar >= 'a' && firstChar <= 'z')) {
       return str;
     }
     final char[] chars = str.toCharArray();
@@ -1651,7 +1638,7 @@ else */
       final String variant = Arrays.stream(tokens).skip(2).collect(Collectors.joining(delimiter));
       return new Locale(language, country, variant);
     }
-    throw new IllegalArgumentException("Invalid locale format: '" + localeString + "'");
+    throw new IllegalArgumentException("Invalid locale format: '%s'".formatted(localeString));
   }
 
   private static void validateLocalePart(String localePart) {
@@ -1660,7 +1647,7 @@ else */
       char ch = localePart.charAt(i);
       if (ch != ' ' && ch != '_' && ch != '-' && ch != '#' && !Character.isLetterOrDigit(ch)) {
         throw new IllegalArgumentException(
-                "Locale part \"" + localePart + "\" contains invalid characters");
+                "Locale part \"%s\" contains invalid characters".formatted(localePart));
       }
     }
   }
@@ -1677,7 +1664,7 @@ else */
     TimeZone timeZone = TimeZone.getTimeZone(timeZoneString);
     if ("GMT".equals(timeZone.getID()) && !timeZoneString.startsWith("GMT")) {
       // We don't want that GMT fallback...
-      throw new IllegalArgumentException("Invalid time zone specification '" + timeZoneString + "'");
+      throw new IllegalArgumentException("Invalid time zone specification '%s'".formatted(timeZoneString));
     }
     return timeZone;
   }
@@ -1775,8 +1762,9 @@ else */
    * @since 4.0
    */
   public static String truncate(CharSequence charSequence, int threshold) {
-    Assert.isTrue(threshold > 0,
-            () -> "Truncation threshold must be a positive number: " + threshold);
+    if (threshold <= 0) {
+      throw new IllegalArgumentException("Truncation threshold must be a positive number: " + threshold);
+    }
     if (charSequence.length() > threshold) {
       return charSequence.subSequence(0, threshold) + TRUNCATION_SUFFIX;
     }

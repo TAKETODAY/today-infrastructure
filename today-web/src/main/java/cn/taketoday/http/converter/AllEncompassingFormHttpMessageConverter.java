@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -46,6 +47,8 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
 
   private static final boolean jackson2XmlPresent;
 
+  private static final boolean jackson2YamlPresent;
+
   static {
     ClassLoader classLoader = AllEncompassingFormHttpMessageConverter.class.getClassLoader();
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) &&
@@ -54,6 +57,7 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
     gsonPresent = ClassUtils.isPresent("com.google.gson.Gson", classLoader);
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", classLoader);
     jackson2XmlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper", classLoader);
+    jackson2YamlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory", classLoader);
   }
 
   public AllEncompassingFormHttpMessageConverter() {
@@ -74,6 +78,10 @@ public class AllEncompassingFormHttpMessageConverter extends FormHttpMessageConv
 
     if (jackson2SmilePresent) {
       addPartConverter(new MappingJackson2SmileHttpMessageConverter());
+    }
+
+    if (jackson2YamlPresent) {
+      addPartConverter(new MappingJackson2YamlHttpMessageConverter());
     }
   }
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.type.classreading;
@@ -23,12 +20,11 @@ package cn.taketoday.core.type.classreading;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.bytecode.AnnotationVisitor;
 import cn.taketoday.bytecode.MethodVisitor;
 import cn.taketoday.bytecode.Type;
-import cn.taketoday.bytecode.commons.MethodSignature;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -36,6 +32,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Phillip Webb
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
@@ -55,7 +52,9 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
   @Nullable
   private Source source;
 
-  private final MethodSignature methodSignature;
+  private final String methodName;
+
+  private final String descriptor;
 
   SimpleMethodMetadataReadingVisitor(
           @Nullable ClassLoader classLoader, String declaringClassName,
@@ -64,8 +63,9 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
     this.access = access;
     this.consumer = consumer;
     this.classLoader = classLoader;
+    this.methodName = methodName;
+    this.descriptor = descriptor;
     this.declaringClassName = declaringClassName;
-    this.methodSignature = new MethodSignature(methodName, descriptor);
   }
 
   @Override
@@ -80,16 +80,17 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
 
   @Override
   public void visitEnd() {
+    String returnTypeName = Type.forReturnType(descriptor).getClassName();
     MergedAnnotations annotations = MergedAnnotations.valueOf(this.annotations);
-    SimpleMethodMetadata metadata = new SimpleMethodMetadata(
-            access, declaringClassName, getSource(), annotations, methodSignature, classLoader);
+    SimpleMethodMetadata metadata = new SimpleMethodMetadata(methodName, access,
+            declaringClassName, returnTypeName, getSource(), annotations);
     consumer.accept(metadata);
   }
 
   private Object getSource() {
     Source source = this.source;
     if (source == null) {
-      source = new Source(declaringClassName, methodSignature);
+      source = new Source(declaringClassName, methodName, descriptor);
       this.source = source;
     }
     return source;
@@ -101,21 +102,26 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
   static final class Source {
 
     private final String declaringClassName;
-    private final MethodSignature methodSignature;
+
+    private final String methodName;
+
+    private final String descriptor;
 
     @Nullable
     private String toStringValue;
 
-    Source(String declaringClassName, MethodSignature methodSignature) {
+    Source(String declaringClassName, String methodName, String descriptor) {
       this.declaringClassName = declaringClassName;
-      this.methodSignature = methodSignature;
+      this.methodName = methodName;
+      this.descriptor = descriptor;
     }
 
     @Override
     public int hashCode() {
       int result = 1;
       result = 31 * result + this.declaringClassName.hashCode();
-      result = 31 * result + this.methodSignature.hashCode();
+      result = 31 * result + this.methodName.hashCode();
+      result = 31 * result + this.descriptor.hashCode();
       return result;
     }
 
@@ -128,8 +134,9 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
         return false;
       }
       Source otherSource = (Source) other;
-      return this.declaringClassName.equals(otherSource.declaringClassName)
-              && this.methodSignature.equals(otherSource.methodSignature);
+      return (this.declaringClassName.equals(otherSource.declaringClassName)
+              && this.methodName.equals(otherSource.methodName)
+              && this.descriptor.equals(otherSource.descriptor));
     }
 
     @Override
@@ -139,8 +146,8 @@ final class SimpleMethodMetadataReadingVisitor extends MethodVisitor {
         StringBuilder builder = new StringBuilder();
         builder.append(this.declaringClassName);
         builder.append('.');
-        builder.append(this.methodSignature.getName());
-        Type[] argumentTypes = methodSignature.getArgumentTypes();
+        builder.append(this.methodName);
+        Type[] argumentTypes = Type.getArgumentTypes(this.descriptor);
         builder.append('(');
         for (int i = 0; i < argumentTypes.length; i++) {
           if (i != 0) {

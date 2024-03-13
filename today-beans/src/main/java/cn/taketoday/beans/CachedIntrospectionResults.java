@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans;
@@ -23,7 +23,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -108,8 +107,7 @@ public final class CachedIntrospectionResults {
    * Set of ClassLoaders that this CachedIntrospectionResults class will always
    * accept classes from, even if the classes do not qualify as cache-safe.
    */
-  static final Set<ClassLoader> acceptedClassLoaders =
-          Collections.newSetFromMap(new ConcurrentHashMap<>(16));
+  static final Set<ClassLoader> acceptedClassLoaders = ConcurrentHashMap.newKeySet(16);
 
   /**
    * Map keyed by Class containing CachedIntrospectionResults, strongly held.
@@ -194,7 +192,7 @@ public final class CachedIntrospectionResults {
       introspectPlainAccessors(beanClass, readMethodNames);
     }
     catch (IntrospectionException ex) {
-      throw new FatalBeanException("Failed to obtain BeanInfo for class [" + beanClass.getName() + "]", ex);
+      throw new FatalBeanException("Failed to obtain BeanInfo for class [%s]".formatted(beanClass.getName()), ex);
     }
   }
 
@@ -284,7 +282,7 @@ public final class CachedIntrospectionResults {
               pd.getWriteMethod(), pd.getPropertyEditorClass());
     }
     catch (IntrospectionException ex) {
-      throw new FatalBeanException("Failed to re-introspect class [" + beanClass.getName() + "]", ex);
+      throw new FatalBeanException("Failed to re-introspect class [%s]".formatted(beanClass.getName()), ex);
     }
   }
 
@@ -417,8 +415,8 @@ public final class CachedIntrospectionResults {
     }
     // fallback to default
     BeanInfo beanInfo = shouldIntrospectorIgnoreBeanInfoClasses
-                        ? Introspector.getBeanInfo(beanClass, Introspector.IGNORE_ALL_BEANINFO)
-                        : Introspector.getBeanInfo(beanClass);
+            ? Introspector.getBeanInfo(beanClass, Introspector.IGNORE_ALL_BEANINFO)
+            : Introspector.getBeanInfo(beanClass);
 
     // Immediately remove class from Introspector cache to allow for proper garbage
     // collection on class loader shutdown; we cache it in CachedIntrospectionResults

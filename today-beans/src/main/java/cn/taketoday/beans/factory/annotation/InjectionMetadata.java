@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.annotation;
@@ -224,16 +221,16 @@ public class InjectionMetadata {
       if (this.isField) {
         Class<?> fieldType = ((Field) this.member).getType();
         if (!(resourceType.isAssignableFrom(fieldType) || fieldType.isAssignableFrom(resourceType))) {
-          throw new IllegalStateException("Specified field type [" + fieldType +
-                  "] is incompatible with resource type [" + resourceType.getName() + "]");
+          throw new IllegalStateException("Specified field type [%s] is incompatible with resource type [%s]"
+                  .formatted(fieldType, resourceType.getName()));
         }
       }
       else {
         Class<?> paramType =
                 (this.pd != null ? this.pd.getPropertyType() : ((Method) this.member).getParameterTypes()[0]);
         if (!(resourceType.isAssignableFrom(paramType) || paramType.isAssignableFrom(resourceType))) {
-          throw new IllegalStateException("Specified parameter type [" + paramType +
-                  "] is incompatible with resource type [" + resourceType.getName() + "]");
+          throw new IllegalStateException("Specified parameter type [%s] is incompatible with resource type [%s]"
+                  .formatted(paramType, resourceType.getName()));
         }
       }
     }

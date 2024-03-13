@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -607,6 +604,20 @@ class MapBinderTests {
     MapWithWildcardProperties result = this.binder.bind("foo", Bindable.of(MapWithWildcardProperties.class)).get();
     assertThat(result.getAddresses().get("localhost").stream().map(InetAddress::getHostAddress))
             .containsExactly("127.0.0.1", "127.0.0.2");
+  }
+
+  @Test
+  void bindToMapWithPlaceholdersShouldResolve() {
+    DefaultConversionService conversionService = new DefaultConversionService();
+    conversionService.addConverter(new MapConverter());
+    StandardEnvironment environment = new StandardEnvironment();
+    Binder binder = new Binder(this.sources, new PropertySourcesPlaceholdersResolver(environment),
+            conversionService, null, null);
+    TestPropertySourceUtils.addInlinedPropertiesToEnvironment(environment, "bar=bc");
+    this.sources.add(new MockConfigurationPropertySource("foo", "a${bar},${bar}d"));
+    Map<String, String> map = binder.bind("foo", STRING_STRING_MAP).get();
+    assertThat(map).containsKey("abc");
+    assertThat(map).containsKey("bcd");
   }
 
   private <K, V> Bindable<Map<K, V>> getMapBindable(Class<K> keyGeneric, ResolvableType valueType) {

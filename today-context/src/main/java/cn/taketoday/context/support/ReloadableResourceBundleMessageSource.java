@@ -248,30 +248,58 @@ public class ReloadableResourceBundleMessageSource extends AbstractResourceBased
     if (mergedHolder != null) {
       return mergedHolder;
     }
+    mergedHolder = mergeProperties(collectPropertiesToMerge(locale));
+    PropertiesHolder existing = this.cachedMergedProperties.putIfAbsent(locale, mergedHolder);
+    if (existing != null) {
+      mergedHolder = existing;
+    }
+    return mergedHolder;
+  }
 
-    Properties mergedProps = newProperties();
-    long latestTimestamp = -1;
+  /**
+   * Determine the properties to merge based on the specified basenames.
+   *
+   * @param locale the locale
+   * @return the list of properties holders
+   * @see #getBasenameSet()
+   * @see #calculateAllFilenames
+   * @see #mergeProperties
+   */
+  protected List<PropertiesHolder> collectPropertiesToMerge(Locale locale) {
     String[] basenames = StringUtils.toStringArray(getBasenameSet());
+    ArrayList<PropertiesHolder> holders = new ArrayList<>(basenames.length);
     for (int i = basenames.length - 1; i >= 0; i--) {
       List<String> filenames = calculateAllFilenames(basenames[i], locale);
       for (int j = filenames.size() - 1; j >= 0; j--) {
         String filename = filenames.get(j);
         PropertiesHolder propHolder = getProperties(filename);
         if (propHolder.getProperties() != null) {
-          mergedProps.putAll(propHolder.getProperties());
-          if (propHolder.getFileTimestamp() > latestTimestamp) {
-            latestTimestamp = propHolder.getFileTimestamp();
-          }
+          holders.add(propHolder);
         }
       }
     }
+    return holders;
+  }
 
-    mergedHolder = new PropertiesHolder(mergedProps, latestTimestamp);
-    PropertiesHolder existing = this.cachedMergedProperties.putIfAbsent(locale, mergedHolder);
-    if (existing != null) {
-      mergedHolder = existing;
+  /**
+   * Merge the given properties holders into a single holder.
+   *
+   * @param holders the list of properties holders
+   * @return a single merged properties holder
+   * @see #newProperties()
+   * @see #getMergedProperties
+   * @see #collectPropertiesToMerge
+   */
+  protected PropertiesHolder mergeProperties(List<PropertiesHolder> holders) {
+    Properties mergedProps = newProperties();
+    long latestTimestamp = -1;
+    for (PropertiesHolder holder : holders) {
+      mergedProps.putAll(holder.getProperties());
+      if (holder.getFileTimestamp() > latestTimestamp) {
+        latestTimestamp = holder.getFileTimestamp();
+      }
     }
-    return mergedHolder;
+    return new PropertiesHolder(mergedProps, latestTimestamp);
   }
 
   /**

@@ -45,6 +45,7 @@ import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.JsonbHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
+import cn.taketoday.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -82,6 +83,8 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private static final boolean jackson2CborPresent;
 
+  private static final boolean jackson2YamlPresent;
+
   static {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
@@ -95,6 +98,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     jsonbPresent = ClassUtils.isPresent("jakarta.json.bind.Jsonb", loader);
     jackson2SmilePresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.smile.SmileFactory", loader);
     jackson2CborPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory", loader);
+    jackson2YamlPresent = ClassUtils.isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory", loader);
   }
 
   @Nullable
@@ -135,7 +139,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
     this.baseUrl = other.baseUrl;
     this.defaultUriVariables = (other.defaultUriVariables != null ?
-                                new LinkedHashMap<>(other.defaultUriVariables) : null);
+            new LinkedHashMap<>(other.defaultUriVariables) : null);
     this.uriBuilderFactory = other.uriBuilderFactory;
 
     if (other.defaultHeaders != null) {
@@ -150,7 +154,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
     this.requestFactory = other.requestFactory;
     this.messageConverters = (other.messageConverters != null ?
-                              new ArrayList<>(other.messageConverters) : null);
+            new ArrayList<>(other.messageConverters) : null);
 
     this.interceptors = (other.interceptors != null) ? new ArrayList<>(other.interceptors) : null;
     this.initializers = (other.initializers != null) ? new ArrayList<>(other.initializers) : null;
@@ -179,7 +183,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     UriTemplateHandler uriTemplateHandler = restTemplate.getUriTemplateHandler();
     if (uriTemplateHandler instanceof DefaultUriBuilderFactory builderFactory) {
       // only reuse the DefaultUriBuilderFactory if it has been customized
-      if (builderFactory.hasRestTemplateDefaults()) {
+      if (hasRestTemplateDefaults(builderFactory)) {
         return null;
       }
       else {
@@ -192,6 +196,18 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     else {
       return null;
     }
+  }
+
+  /**
+   * Indicate whether this {@code DefaultUriBuilderFactory} uses the default
+   * {@link cn.taketoday.web.client.RestTemplate RestTemplate} settings.
+   */
+  private static boolean hasRestTemplateDefaults(DefaultUriBuilderFactory factory) {
+    // see RestTemplate::initUriTemplateHandler
+    return (!factory.hasBaseUri() &&
+            factory.getEncodingMode() == DefaultUriBuilderFactory.EncodingMode.URI_COMPONENT &&
+            CollectionUtils.isEmpty(factory.getDefaultUriVariables()) &&
+            factory.shouldParsePath());
   }
 
   private static ClientHttpRequestFactory getRequestFactory(RestTemplate restTemplate) {
@@ -244,7 +260,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
   @Override
   public RestClient.Builder defaultRequest(Consumer<RestClient.RequestHeadersSpec<?>> defaultRequest) {
     this.defaultRequest = this.defaultRequest != null ?
-                          this.defaultRequest.andThen(defaultRequest) : defaultRequest;
+            this.defaultRequest.andThen(defaultRequest) : defaultRequest;
     return this;
   }
 
@@ -347,6 +363,9 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
       if (jackson2CborPresent) {
         this.messageConverters.add(new MappingJackson2CborHttpMessageConverter());
       }
+      if (jackson2YamlPresent) {
+        this.messageConverters.add(new MappingJackson2YamlHttpMessageConverter());
+      }
     }
     return this.messageConverters;
   }
@@ -362,10 +381,11 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     UriBuilderFactory uriBuilderFactory = initUriBuilderFactory();
     HttpHeaders defaultHeaders = copyDefaultHeaders();
     List<HttpMessageConverter<?>> messageConverters = (this.messageConverters != null ?
-                                                       this.messageConverters : initMessageConverters());
+            this.messageConverters : initMessageConverters());
     return new DefaultRestClient(requestFactory,
             this.interceptors, this.initializers, uriBuilderFactory,
             defaultHeaders,
+            this.defaultRequest,
             this.statusHandlers,
             messageConverters,
             new DefaultRestClientBuilder(this)
@@ -396,7 +416,7 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
       return this.uriBuilderFactory;
     }
     DefaultUriBuilderFactory factory = (this.baseUrl != null ?
-                                        new DefaultUriBuilderFactory(this.baseUrl) : new DefaultUriBuilderFactory());
+            new DefaultUriBuilderFactory(this.baseUrl) : new DefaultUriBuilderFactory());
     factory.setDefaultUriVariables(this.defaultUriVariables);
     return factory;
   }

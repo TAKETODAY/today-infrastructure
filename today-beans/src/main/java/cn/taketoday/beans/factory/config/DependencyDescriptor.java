@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -304,8 +304,8 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     ResolvableType resolvableType = this.resolvableType;
     if (resolvableType == null) {
       resolvableType = (this.field != null ?
-                        ResolvableType.forField(this.field, this.nestingLevel, this.containingClass) :
-                        ResolvableType.forMethodParameter(obtainMethodParameter()));
+              ResolvableType.forField(this.field, this.nestingLevel, this.containingClass) :
+              ResolvableType.forMethodParameter(obtainMethodParameter()));
       this.resolvableType = resolvableType;
     }
     return resolvableType;
@@ -318,8 +318,8 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
     TypeDescriptor typeDescriptor = this.typeDescriptor;
     if (typeDescriptor == null) {
       typeDescriptor = this.field != null
-                       ? new TypeDescriptor(getResolvableType(), getDependencyType(), field)
-                       : new TypeDescriptor(obtainMethodParameter());
+              ? new TypeDescriptor(getResolvableType(), getDependencyType(), field)
+              : new TypeDescriptor(obtainMethodParameter());
       this.typeDescriptor = typeDescriptor;
     }
     return typeDescriptor;
@@ -346,6 +346,12 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
       public boolean fallbackMatchAllowed() {
         return true;
       }
+
+      @Override
+      public boolean usesStandardBeanLookup() {
+        return true;
+      }
+
     };
   }
 
@@ -399,6 +405,21 @@ public class DependencyDescriptor extends InjectionPoint implements Serializable
    */
   public boolean supportsLazyResolution() {
     return true;
+  }
+
+  /**
+   * Determine whether this descriptor uses a standard bean lookup
+   * in {@link #resolveCandidate(String, Class, BeanFactory)} and
+   * therefore qualifies for factory-level shortcut resolution.
+   * <p>By default, the {@code DependencyDescriptor} class itself
+   * uses a standard bean lookup but subclasses may override this.
+   * If a subclass overrides other methods but preserves a standard
+   * bean lookup, it may override this method to return {@code true}.
+   *
+   * @see #resolveCandidate(String, Class, BeanFactory)
+   */
+  public boolean usesStandardBeanLookup() {
+    return (getClass() == DependencyDescriptor.class);
   }
 
   @Override

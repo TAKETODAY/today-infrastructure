@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -68,12 +65,6 @@ class SimpleCommandLineArgsParserTests {
   }
 
   @Test
-  void withEmptyOptionText() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> SimpleCommandLineArgsParser.parse("--"));
-  }
-
-  @Test
   void withEmptyOptionName() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> SimpleCommandLineArgsParser.parse("--=v1"));
@@ -114,6 +105,15 @@ class SimpleCommandLineArgsParserTests {
     CommandLineArgs args = SimpleCommandLineArgsParser.parse();
     assertThatExceptionOfType(UnsupportedOperationException.class)
             .isThrownBy(() -> args.getNonOptionArgs().add("foo"));
+  }
+
+  @Test
+  void supportsEndOfOptionsDelimiter() {
+    CommandLineArgs args = SimpleCommandLineArgsParser.parse("--o1=v1", "--", "--o2=v2");
+    assertThat(args.containsOption("o1")).isTrue();
+    assertThat(args.containsOption("o2")).isFalse();
+    assertThat(args.getOptionValues("o1")).containsExactly("v1");
+    assertThat(args.getNonOptionArgs()).contains("--o2=v2");
   }
 
 }

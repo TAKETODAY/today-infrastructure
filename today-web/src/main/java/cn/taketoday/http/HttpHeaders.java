@@ -626,10 +626,14 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     if (ranges.isEmpty()) {
       return Collections.emptyList();
     }
-    return ranges.stream()
-            .map(range -> Locale.forLanguageTag(range.getRange()))
-            .filter(locale -> StringUtils.isNotEmpty(locale.getDisplayName()))
-            .collect(Collectors.toList());
+
+    ArrayList<Locale> locales = new ArrayList<>(ranges.size());
+    for (Locale.LanguageRange range : ranges) {
+      if (!range.getRange().startsWith("*")) {
+        locales.add(Locale.forLanguageTag(range.getRange()));
+      }
+    }
+    return locales;
   }
 
   /**

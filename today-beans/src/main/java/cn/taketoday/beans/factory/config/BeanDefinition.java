@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
 
 import java.lang.reflect.Method;
@@ -37,7 +35,8 @@ import cn.taketoday.lang.Nullable;
  * {@link BeanFactoryPostProcessor} to introspect and modify property values
  * and other bean metadata.
  *
- * @author TODAY 2019-02-01 12:23
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-02-01 12:23
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
@@ -152,6 +151,9 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
   /**
    * Set the names of the beans that this bean depends on being initialized.
    * The bean factory will guarantee that these beans get initialized first.
+   * <p>Note that dependencies are normally expressed through bean properties or
+   * constructor arguments. This property should just be necessary for other kinds
+   * of dependencies like statics (*ugh*) or database preparation on startup.
    */
   void setDependsOn(@Nullable String... dependsOn);
 
@@ -188,15 +190,37 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
   boolean isPrimary();
 
   /**
+   * Set whether this bean is a fallback autowire candidate.
+   * <p>If this value is {@code true} for all beans but one among multiple
+   * matching candidates, the remaining bean will be selected.
+   *
+   * @see #setPrimary
+   */
+  void setFallback(boolean fallback);
+
+  /**
+   * Return whether this bean is a fallback autowire candidate.
+   */
+  boolean isFallback();
+
+  /**
    * Specify the factory bean to use, if any.
-   * This the name of the bean to call the specified factory method on.
+   * This is the name of the bean to call the specified factory method on.
+   * <p>A factory bean name is only necessary for instance-based factory methods.
+   * For static factory methods, the method will be derived from the bean class.
    *
    * @see #setFactoryMethodName
+   * @see #setBeanClassName
    */
   void setFactoryBeanName(@Nullable String factoryBeanName);
 
   /**
    * Return the factory bean name, if any.
+   * <p>This will be {@code null} for static factory methods which will
+   * be derived from the bean class instead.
+   *
+   * @see #getFactoryMethodName()
+   * @see #getBeanClassName()
    */
   @Nullable
   String getFactoryBeanName();

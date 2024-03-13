@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -78,7 +78,7 @@ public enum SpelMessage {
           "Cannot compare instances of {0} and {1}"),
 
   INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION(Kind.ERROR, 1014,
-          "Incorrect number of arguments for function, {0} supplied but function takes {1}"),
+          "Incorrect number of arguments for function ''{0}'': {1} supplied but function takes {2}"),
 
   INVALID_TYPE_FOR_SELECTION(Kind.ERROR, 1015,
           "Cannot perform selection on input data of type ''{0}''"),

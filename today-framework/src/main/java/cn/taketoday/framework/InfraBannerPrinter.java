@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -91,9 +88,11 @@ class InfraBannerPrinter {
 
   private String createStringFromBanner(Banner banner,
           Environment environment, @Nullable Class<?> mainApplicationClass) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    banner.printBanner(environment, mainApplicationClass, new PrintStream(baos));
     Charset charset = environment.getProperty(Banner.BANNER_CHARSET, Charset.class, StandardCharsets.UTF_8);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (PrintStream printStream = new PrintStream(baos, false, charset)) {
+      banner.printBanner(environment, mainApplicationClass, printStream);
+    }
     return baos.toString(charset);
   }
 

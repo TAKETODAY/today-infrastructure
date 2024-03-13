@@ -97,6 +97,8 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
 
   private boolean prestartAllCoreThreads = false;
 
+  private boolean strictEarlyShutdown = false;
+
   @Nullable
   private TaskDecorator taskDecorator;
 
@@ -212,12 +214,36 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
 
   /**
    * Specify whether to start all core threads, causing them to idly wait for work.
-   * <p>Default is "false".
+   * <p>Default is "false", starting threads and adding them to the pool on demand.
    *
    * @see ThreadPoolExecutor#prestartAllCoreThreads
    */
   public void setPrestartAllCoreThreads(boolean prestartAllCoreThreads) {
     this.prestartAllCoreThreads = prestartAllCoreThreads;
+  }
+
+  /**
+   * Specify whether to initiate an early shutdown signal on context close,
+   * disposing all idle threads and rejecting further task submissions.
+   * <p>By default, existing tasks will be allowed to complete within the
+   * coordinated lifecycle stop phase in any case. This setting just controls
+   * whether an explicit {@link ThreadPoolExecutor#shutdown()} call will be
+   * triggered on context close, rejecting task submissions after that point.
+   * <p>the default is "false", leniently allowing for late tasks
+   * to arrive after context close, still participating in the lifecycle stop
+   * phase. Note that this differs from {@link #setAcceptTasksAfterContextClose}
+   * which completely bypasses the coordinated lifecycle stop phase, with no
+   * explicit waiting for the completion of existing tasks at all.
+   * <p>Switch this to "true" for a strict early shutdown signal analogous to
+   * the 4.0-established default behavior of {@link ThreadPoolTaskScheduler}.
+   * Note that the related flags {@link #setAcceptTasksAfterContextClose} and
+   * {@link #setWaitForTasksToCompleteOnShutdown} will override this setting,
+   * leading to a late shutdown without a coordinated lifecycle stop phase.
+   *
+   * @see #initiateShutdown()
+   */
+  public void setStrictEarlyShutdown(boolean defaultEarlyShutdown) {
+    this.strictEarlyShutdown = defaultEarlyShutdown;
   }
 
   /**
@@ -425,4 +451,10 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
     }
   }
 
+  @Override
+  protected void initiateEarlyShutdown() {
+    if (this.strictEarlyShutdown) {
+      super.initiateEarlyShutdown();
+    }
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.io;
@@ -34,6 +34,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.PlaceholderResolutionException;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -75,9 +76,8 @@ public class PropertySourceProcessor {
     List<String> locations = descriptor.locations();
     Assert.isTrue(!locations.isEmpty(), "At least one @PropertySource(value) location is required");
     boolean ignoreResourceNotFound = descriptor.ignoreResourceNotFound();
-    PropertySourceFactory factory =
-            descriptor.propertySourceFactory() != null ?
-            instantiateClass(descriptor.propertySourceFactory()) : new DefaultPropertySourceFactory();
+    PropertySourceFactory factory = descriptor.propertySourceFactory() != null
+            ? instantiateClass(descriptor.propertySourceFactory()) : new DefaultPropertySourceFactory();
 
     for (String location : locations) {
       try {
@@ -87,9 +87,9 @@ public class PropertySourceProcessor {
         }
       }
       catch (RuntimeException | IOException ex) {
-        // Placeholders not resolvable (IllegalArgumentException) or resource not found when trying to open it
-        if (ignoreResourceNotFound && (ex instanceof IllegalArgumentException
-                || isIgnorableException(ex) || isIgnorableException(ex.getCause()))) {
+        // Placeholders not resolvable or resource not found when trying to open it
+        if (ignoreResourceNotFound && (ex instanceof PlaceholderResolutionException || isIgnorableException(ex) ||
+                isIgnorableException(ex.getCause()))) {
           if (logger.isInfoEnabled()) {
             logger.info("Properties location [{}] not resolvable: {}", location, ex.getMessage());
           }
@@ -110,7 +110,7 @@ public class PropertySourceProcessor {
       cn.taketoday.core.env.PropertySource<?> existing = propertySources.get(name);
       if (existing != null) {
         PropertySource<?> newSource = (propertySource instanceof ResourcePropertySource rps ?
-                                       rps.withResourceName() : propertySource);
+                rps.withResourceName() : propertySource);
         if (existing instanceof CompositePropertySource cps) {
           cps.addFirstPropertySource(newSource);
         }

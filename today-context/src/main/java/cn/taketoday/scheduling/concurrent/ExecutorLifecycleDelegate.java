@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -43,6 +43,8 @@ final class ExecutorLifecycleDelegate implements SmartLifecycle {
   private final Condition unpaused = this.pauseLock.newCondition();
 
   private volatile boolean paused;
+
+  private volatile boolean shutdown;
 
   private int executingTaskCount = 0;
 
@@ -100,10 +102,14 @@ final class ExecutorLifecycleDelegate implements SmartLifecycle {
     return (!this.paused && !this.executor.isTerminated());
   }
 
+  void markShutdown() {
+    this.shutdown = true;
+  }
+
   void beforeExecute(Thread thread) {
     this.pauseLock.lock();
     try {
-      while (this.paused && !this.executor.isShutdown()) {
+      while (this.paused && !this.shutdown && !this.executor.isShutdown()) {
         this.unpaused.await();
       }
     }

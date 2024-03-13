@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,11 +93,14 @@ final class DefaultRestClient implements RestClient {
 
   private final List<HttpMessageConverter<?>> messageConverters;
 
+  @Nullable
+  private final Consumer<RequestHeadersSpec<?>> defaultRequest;
+
   DefaultRestClient(ClientHttpRequestFactory clientRequestFactory,
           @Nullable List<ClientHttpRequestInterceptor> interceptors,
           @Nullable List<ClientHttpRequestInitializer> initializers,
           UriBuilderFactory uriBuilderFactory, @Nullable HttpHeaders defaultHeaders,
-          @Nullable List<StatusHandler> statusHandlers,
+          @Nullable Consumer<RequestHeadersSpec<?>> defaultRequest, @Nullable List<StatusHandler> statusHandlers,
           List<HttpMessageConverter<?>> messageConverters, DefaultRestClientBuilder builder) {
 
     this.clientRequestFactory = clientRequestFactory;
@@ -105,6 +108,7 @@ final class DefaultRestClient implements RestClient {
     this.interceptors = interceptors;
     this.uriBuilderFactory = uriBuilderFactory;
     this.defaultHeaders = defaultHeaders;
+    this.defaultRequest = defaultRequest;
     this.defaultStatusHandlers = (statusHandlers != null) ? new ArrayList<>(statusHandlers) : new ArrayList<>();
     this.messageConverters = messageConverters;
     this.builder = builder;
@@ -152,7 +156,11 @@ final class DefaultRestClient implements RestClient {
   }
 
   private RequestBodyUriSpec methodInternal(HttpMethod httpMethod) {
-    return new DefaultRequestBodyUriSpec(httpMethod);
+    DefaultRequestBodyUriSpec spec = new DefaultRequestBodyUriSpec(httpMethod);
+    if (this.defaultRequest != null) {
+      this.defaultRequest.accept(spec);
+    }
+    return spec;
   }
 
   @Override
@@ -333,7 +341,7 @@ final class DefaultRestClient implements RestClient {
     @Override
     public RequestBodySpec httpRequest(Consumer<ClientHttpRequest> requestConsumer) {
       this.httpRequestConsumer = (this.httpRequestConsumer != null ?
-                                  this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
+              this.httpRequestConsumer.andThen(requestConsumer) : requestConsumer);
       return this;
     }
 

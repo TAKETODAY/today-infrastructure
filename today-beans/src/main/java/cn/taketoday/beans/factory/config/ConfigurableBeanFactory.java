@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.config;
 
 import java.beans.PropertyEditor;
 import java.util.Iterator;
+import java.util.concurrent.Executor;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.PropertyEditorRegistrar;
@@ -30,6 +31,7 @@ import cn.taketoday.beans.factory.BeanFactoryAware;
 import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.HierarchicalBeanFactory;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.lang.Nullable;
@@ -547,4 +549,22 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
    * @since 4.0
    */
   boolean isCacheBeanMetadata();
+
+  /**
+   * Set the {@link Executor} (possibly a {@link cn.taketoday.core.task.TaskExecutor})
+   * for background bootstrapping.
+   *
+   * @see AbstractBeanDefinition#setBackgroundInit
+   * @since 4.0
+   */
+  void setBootstrapExecutor(@Nullable Executor executor);
+
+  /**
+   * Return the {@link Executor} (possibly a {@link cn.taketoday.core.task.TaskExecutor})
+   * for background bootstrapping, if any.
+   *
+   * @since 4.0
+   */
+  @Nullable
+  Executor getBootstrapExecutor();
 }

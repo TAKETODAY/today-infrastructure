@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -187,6 +187,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Nullable
   private Boolean lazyInit;
 
+  private boolean backgroundInit = false;
+
   private int autowireMode = AUTOWIRE_NO;
 
   private int dependencyCheck = DEPENDENCY_CHECK_NONE;
@@ -196,7 +198,11 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
   private boolean autowireCandidate = true;
 
+  private boolean defaultCandidate = true;
+
   private boolean primary = false;
+
+  private boolean fallback = false;
 
   @Nullable
   private LinkedHashMap<String, AutowireCandidateQualifier> qualifiers;
@@ -298,11 +304,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       if (lazyInit != null) {
         setLazyInit(lazyInit);
       }
+      setBackgroundInit(originalAbd.isBackgroundInit());
       setAutowireMode(originalAbd.getAutowireMode());
       setDependencyCheck(originalAbd.getDependencyCheck());
       setDependsOn(originalAbd.getDependsOn());
       setAutowireCandidate(originalAbd.isAutowireCandidate());
+      setDefaultCandidate(originalAbd.isDefaultCandidate());
       setPrimary(originalAbd.isPrimary());
+      setFallback(originalAbd.isFallback());
       copyQualifiersFrom(originalAbd);
       setInstanceSupplier(originalAbd.getInstanceSupplier());
       setNonPublicAccessAllowed(originalAbd.isNonPublicAccessAllowed());
@@ -375,11 +384,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       if (lazyInit != null) {
         setLazyInit(lazyInit);
       }
+      setBackgroundInit(otherAbd.isBackgroundInit());
       setAutowireMode(otherAbd.getAutowireMode());
       setDependencyCheck(otherAbd.getDependencyCheck());
       setDependsOn(otherAbd.getDependsOn());
       setAutowireCandidate(otherAbd.isAutowireCandidate());
+      setDefaultCandidate(otherAbd.isDefaultCandidate());
       setPrimary(otherAbd.isPrimary());
+      setFallback(otherAbd.isFallback());
       copyQualifiersFrom(otherAbd);
       setInstanceSupplier(otherAbd.getInstanceSupplier());
       setNonPublicAccessAllowed(otherAbd.isNonPublicAccessAllowed());
@@ -486,8 +498,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
       throw new IllegalStateException("No bean class specified on bean definition");
     }
     if (!(beanClassObject instanceof Class<?> clazz)) {
-      throw new IllegalStateException(
-              "Bean class name [" + beanClassObject + "] has not been resolved into an actual Class");
+      throw new IllegalStateException("Bean class name [%s] has not been resolved into an actual Class"
+              .formatted(beanClassObject));
     }
     return clazz;
   }
@@ -724,11 +736,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   }
 
   /**
-   * Set whether this bean is a candidate for getting autowired into some other bean.
-   * <p>Note that this flag is designed to only affect type-based autowiring.
-   * It does not affect explicit references by name, which will get resolved even
-   * if the specified bean is not marked as an autowire candidate. As a consequence,
-   * autowiring by name will nevertheless inject a bean if the name matches.
+   * {@inheritDoc}
+   * <p>The default is {@code true}, allowing injection by type at any injection point.
+   * Switch this to {@code false} in order to disable autowiring by type for this bean.
    *
    * @see #AUTOWIRE_BY_TYPE
    * @see #AUTOWIRE_BY_NAME
@@ -739,11 +749,34 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   }
 
   /**
-   * Return whether this bean is a candidate for getting autowired into some other bean.
+   * {@inheritDoc}
+   * <p>The default is {@code true}.
    */
   @Override
   public boolean isAutowireCandidate() {
     return this.autowireCandidate;
+  }
+
+  /**
+   * Set whether this bean is a candidate for getting autowired into some other
+   * bean based on the plain type, without any further indications such as a
+   * qualifier match.
+   * <p>The default is {@code true}, allowing injection by type at any injection point.
+   * Switch this to {@code false} in order to restrict injection by default,
+   * effectively enforcing an additional indication such as a qualifier match.
+   */
+  public void setDefaultCandidate(boolean defaultCandidate) {
+    this.defaultCandidate = defaultCandidate;
+  }
+
+  /**
+   * Return whether this bean is a candidate for getting autowired into some other
+   * bean based on the plain type, without any further indications such as a
+   * qualifier match?
+   * <p>The default is {@code true}.
+   */
+  public boolean isDefaultCandidate() {
+    return this.defaultCandidate;
   }
 
   /**
@@ -762,6 +795,24 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   @Override
   public boolean isPrimary() {
     return this.primary;
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>The default is {@code false}.
+   */
+  @Override
+  public void setFallback(boolean fallback) {
+    this.fallback = fallback;
+  }
+
+  /**
+   * {@inheritDoc}
+   * <p>The default is {@code false}.
+   */
+  @Override
+  public boolean isFallback() {
+    return this.fallback;
   }
 
   /**
@@ -1224,6 +1275,39 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   }
 
   /**
+   * Specify the bootstrap mode for this bean: default is {@code false} for using
+   * the main pre-instantiation thread for non-lazy singleton beans and the caller
+   * thread for prototype beans.
+   * <p>Set this flag to {@code true} to allow for instantiating this bean on a
+   * background thread. For a non-lazy singleton, a background pre-instantiation
+   * thread can be used then, while still enforcing the completion at the end of
+   * {@link StandardBeanFactory#preInstantiateSingletons()}.
+   * For a lazy singleton, a background pre-instantiation thread can be used as well
+   * - with completion allowed at a later point, enforcing it when actually accessed.
+   * <p>Note that this flag may be ignored by bean factories not set up for
+   * background bootstrapping, always applying single-threaded bootstrapping
+   * for non-lazy singleton beans.
+   *
+   * @see #setLazyInit
+   * @see StandardBeanFactory#setBootstrapExecutor
+   * @since 4.0
+   */
+  public void setBackgroundInit(boolean backgroundInit) {
+    this.backgroundInit = backgroundInit;
+  }
+
+  /**
+   * Return the bootstrap mode for this bean: default is {@code false} for using
+   * the main pre-instantiation thread for non-lazy singleton beans and the caller
+   * thread for prototype beans.
+   *
+   * @since 4.0
+   */
+  public boolean isBackgroundInit() {
+    return this.backgroundInit;
+  }
+
+  /**
    * Return the originating BeanDefinition, or {@code null} if none.
    * Allows for retrieving the decorated bean definition, if any.
    * <p>Note that this method returns the immediate originator. Iterate through the
@@ -1278,9 +1362,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
   protected void prepareMethodOverride(MethodOverride mo) throws BeanDefinitionValidationException {
     int count = ReflectionUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
     if (count == 0) {
-      throw new BeanDefinitionValidationException(
-              "Invalid method override: no method with name '" + mo.getMethodName() +
-                      "' on class [" + getBeanClassName() + "]");
+      throw new BeanDefinitionValidationException("Invalid method override: no method with name '%s' on class [%s]"
+              .formatted(mo.getMethodName(), getBeanClassName()));
     }
     else if (count == 1) {
       // Mark override as not overloaded, to avoid the overhead of arg type checking.

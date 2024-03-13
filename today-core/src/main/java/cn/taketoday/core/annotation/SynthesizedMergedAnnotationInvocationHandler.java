@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.annotation;
@@ -140,7 +140,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
       synchronized(this) {
         string = this.string;
         if (string == null) {
-          StringBuilder builder = new StringBuilder("@").append(getName(type)).append('(');
+          StringBuilder builder = new StringBuilder("@").append(AttributeMethods.getName(type)).append('(');
           Method[] attributes = attributeMethods.attributes;
           for (int i = 0; i < attributes.length; i++) {
             Method attribute = attributes[i];
@@ -194,7 +194,7 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
       return e.name();
     }
     if (value instanceof Class<?> clazz) {
-      return getName(clazz) + ".class";
+      return AttributeMethods.getName(clazz) + ".class";
     }
     if (value.getClass().isArray()) {
       StringBuilder builder = new StringBuilder("[");
@@ -220,9 +220,8 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
           Class<?> type = ClassUtils.resolvePrimitiveIfNecessary(method.getReturnType());
           value = annotation.getAttributeValue(method.getName(), type);
           if (value == null) {
-            throw new NoSuchElementException(
-                    "No value found for attribute named '" + method.getName() +
-                            "' in merged annotation " + annotation.getType().getName());
+            throw new NoSuchElementException("No value found for attribute named '%s' in merged annotation %s"
+                    .formatted(method.getName(), AttributeMethods.getName(this.annotation.getType())));
           }
           valueCache.put(method.getName(), value);
         }
@@ -278,8 +277,4 @@ final class SynthesizedMergedAnnotationInvocationHandler<A extends Annotation> i
     return (A) Proxy.newProxyInstance(classLoader, new Class<?>[] { type }, handler);
   }
 
-  private static String getName(Class<?> clazz) {
-    String canonicalName = clazz.getCanonicalName();
-    return (canonicalName != null ? canonicalName : clazz.getName());
-  }
 }

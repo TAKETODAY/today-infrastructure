@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -43,13 +43,13 @@ import cn.taketoday.stereotype.Component;
  * similar to those of the {@code <bean/>} element in the  XML schema. For
  * example:
  *
- * <pre class="code">
- *     &#064;Bean
+ * <pre>{@code
+ *     @Bean
  *     public MyBean myBean() {
  *         // instantiate and configure MyBean obj
  *         return obj;
  *     }
- * </pre>
+ * }</pre>
  *
  * <h3>Bean Names</h3>
  *
@@ -60,13 +60,14 @@ import cn.taketoday.stereotype.Component;
  * that {@code name} accepts an array of Strings, allowing for multiple names
  * (i.e. a primary bean name plus one or more aliases) for a single bean.
  *
- * <pre class="code">
- *     &#064;Bean({"b1", "b2"}) // bean available as 'b1' and 'b2', but not 'myBean'
+ * <pre>{@code
+ *     // bean available as 'b1' and 'b2', but not 'myBean'
+ *     @Bean({"b1", "b2"})
  *     public MyBean myBean() {
  *         // instantiate and configure MyBean obj
  *         return obj;
  *     }
- * </pre>
+ * }</pre>
  *
  * <h3>Profile, Scope, Lazy, DependsOn, Primary, Order</h3>
  *
@@ -75,15 +76,15 @@ import cn.taketoday.stereotype.Component;
  * {@link Scope @Scope}, {@link Lazy @Lazy}, {@link DependsOn @DependsOn} and
  * {@link Primary @Primary} annotations to declare those semantics. For example:
  *
- * <pre class="code">
- *     &#064;Bean
- *     &#064;Profile("production")
- *     &#064;Scope("prototype")
+ * <pre>{@code
+ *     @Bean
+ *     @Profile("production")
+ *     @Scope("prototype")
  *     public MyBean myBean() {
  *         // instantiate and configure MyBean obj
  *         return obj;
  *     }
- * </pre>
+ * }</pre>
  *
  * The semantics of the above-mentioned annotations match their use at the component
  * class level: {@code @Profile} allows for selective inclusion of certain beans.
@@ -124,22 +125,22 @@ import cn.taketoday.stereotype.Component;
  * consequence, {@code @Configuration} classes and their factory methods must not be
  * marked as final or private in this mode. For example:
  *
- * <pre class="code">
- * &#064;Configuration
+ * <pre>{@code
+ * @Configuration
  * public class AppConfig {
  *
- *     &#064;Bean
+ *     @Bean
  *     public FooService fooService() {
  *         return new FooService(fooRepository());
  *     }
  *
- *     &#064;Bean
+ *     @Bean
  *     public FooRepository fooRepository() {
  *         return new JdbcFooRepository(dataSource());
  *     }
  *
  *     // ...
- * }</pre>
+ * }}</pre>
  *
  * <h3>{@code @Bean} <em>Lite</em> Mode</h3>
  *
@@ -164,18 +165,18 @@ import cn.taketoday.stereotype.Component;
  *
  * <p>For example:
  *
- * <pre class="code">
- * &#064;Component
+ * <pre>{@code
+ * @Component
  * public class Calculator {
  *     public int sum(int a, int b) {
  *         return a+b;
  *     }
  *
- *     &#064;Bean
+ *     @Bean
  *     public MyBean myBean() {
  *         return new MyBean();
  *     }
- * }</pre>
+ * }}</pre>
  *
  * <h3>Bootstrapping</h3>
  *
@@ -191,12 +192,12 @@ import cn.taketoday.stereotype.Component;
  * {@code @Value}, and {@code @PostConstruct} within {@code @Configuration} classes. To avoid these
  * lifecycle issues, mark {@code BFPP}-returning {@code @Bean} methods as {@code static}. For example:
  *
- * <pre class="code">
- *     &#064;Bean
+ * <pre>{@code
+ *     @Bean
  *     public static PropertySourcesPlaceholderConfigurer pspc() {
  *         // instantiate, configure and return pspc ...
  *     }
- * </pre>
+ * }</pre>
  *
  * By marking this method as {@code static}, it can be invoked without causing instantiation of its
  * declaring {@code @Configuration} class, thus avoiding the above-mentioned lifecycle conflicts.
@@ -211,6 +212,7 @@ import cn.taketoday.stereotype.Component;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Configuration
  * @see Scope
  * @see DependsOn
@@ -301,4 +303,36 @@ public @interface Bean {
    */
   @AliasFor(annotation = Component.class)
   boolean autowireCandidate() default true;
+
+  /**
+   * Is this bean a candidate for getting autowired into some other bean based on
+   * the plain type, without any further indications such as a qualifier match?
+   * <p>Default is {@code true}; set this to {@code false} for restricted delegates
+   * that are supposed to be injectable in certain areas but are not meant to get
+   * in the way of beans of the same type in other places.
+   * <p>This is a variation of {@link #autowireCandidate()} which does not disable
+   * injection in general, just enforces an additional indication such as a qualifier.
+   *
+   * @see #autowireCandidate()
+   * @since 4.0
+   */
+  @AliasFor(annotation = Component.class)
+  boolean defaultCandidate() default true;
+
+  /**
+   * The bootstrap mode for this bean: default is the main pre-instantiation thread
+   * for non-lazy singleton beans and the caller thread for prototype beans.
+   * <p>Set {@link Component.Bootstrap#BACKGROUND} to allow for instantiating this bean on a
+   * background thread. For a non-lazy singleton, a background pre-instantiation
+   * thread can be used then, while still enforcing the completion at the end of
+   * {@link cn.taketoday.context.ConfigurableApplicationContext#refresh()}.
+   * For a lazy singleton, a background pre-instantiation thread can be used as well
+   * - with completion allowed at a later point, enforcing it when actually accessed.
+   *
+   * @see Lazy
+   * @since 4.0
+   */
+  @AliasFor(annotation = Component.class)
+  Component.Bootstrap bootstrap() default Component.Bootstrap.DEFAULT;
+
 }

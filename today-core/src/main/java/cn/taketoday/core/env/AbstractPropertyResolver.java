@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -57,6 +57,9 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
 
   @Nullable
   private String valueSeparator = PropertyPlaceholderHandler.VALUE_SEPARATOR;
+
+  @Nullable
+  private Character escapeCharacter = PropertyPlaceholderHandler.ESCAPE_CHARACTER;
 
   @Nullable
   private LinkedHashSet<String> requiredProperties;
@@ -119,6 +122,19 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
   @Override
   public void setValueSeparator(@Nullable String valueSeparator) {
     this.valueSeparator = valueSeparator;
+  }
+
+  /**
+   * Specify the escape character to use to ignore placeholder prefix
+   * or value separator, or {@code null} if no escaping should take
+   * place.
+   * <p>The default is "\".
+   *
+   * @see PropertyPlaceholderHandler#ESCAPE_CHARACTER
+   */
+  @Override
+  public void setEscapeCharacter(@Nullable Character escapeCharacter) {
+    this.escapeCharacter = escapeCharacter;
   }
 
   /**
@@ -246,12 +262,12 @@ public abstract class AbstractPropertyResolver implements ConfigurablePropertyRe
       return value;
     }
     return ignoreUnresolvableNestedPlaceholders
-           ? resolvePlaceholders(value)
-           : resolveRequiredPlaceholders(value);
+            ? resolvePlaceholders(value) : resolveRequiredPlaceholders(value);
   }
 
   private PropertyPlaceholderHandler createPlaceholderHelper(boolean ignoreUnresolvablePlaceholders) {
-    return new PropertyPlaceholderHandler(placeholderPrefix, placeholderSuffix, valueSeparator, ignoreUnresolvablePlaceholders);
+    return new PropertyPlaceholderHandler(placeholderPrefix, placeholderSuffix,
+            valueSeparator, escapeCharacter, ignoreUnresolvablePlaceholders);
   }
 
   @Nullable

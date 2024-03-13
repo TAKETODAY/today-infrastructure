@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -25,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 
+import static cn.taketoday.expression.spel.SpelMessage.FUNCTION_MUST_BE_STATIC;
+import static cn.taketoday.expression.spel.SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -37,32 +36,43 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class VariableAndFunctionTests extends AbstractExpressionTests {
 
   @Test
-  public void testVariableAccess01() {
+  void variableAccess() {
     evaluate("#answer", "42", Integer.class, SHOULD_BE_WRITABLE);
     evaluate("#answer / 2", 21, Integer.class, SHOULD_NOT_BE_WRITABLE);
   }
 
   @Test
-  public void testVariableAccess_WellKnownVariables() {
+  void variableAccessWithWellKnownVariables() {
     evaluate("#this.getName()", "Nikola Tesla", String.class);
     evaluate("#root.getName()", "Nikola Tesla", String.class);
   }
 
   @Test
-  public void testFunctionAccess01() {
-    evaluate("#reverseInt(1,2,3)", "int[3]{3,2,1}", int[].class);
-    evaluate("#reverseInt('1',2,3)", "int[3]{3,2,1}", int[].class); // requires type conversion of '1' to 1
-    evaluateAndCheckError("#reverseInt(1)", SpelMessage.INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION, 0, 1, 3);
+  void functionInvocationWithIncorrectNumberOfArguments() {
+    // Method: #reverseInt(int, int, int)
+    evaluateAndCheckError("#reverseInt()", INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION, 0, "reverseInt", 0, 3);
+    evaluateAndCheckError("#reverseInt(1,2)", INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION, 0, "reverseInt", 2, 3);
+    evaluateAndCheckError("#reverseInt(1,2,3,4)", INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION, 0, "reverseInt", 4, 3);
+
+    // MethodHandle: #message(template, args...)
+    evaluateAndCheckError("#message()", INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION, 0, "message", 0, 2);
+    evaluateAndCheckError("#message('%s')", INCORRECT_NUMBER_OF_ARGUMENTS_TO_FUNCTION, 0, "message", 1, 2);
   }
 
   @Test
-  public void testFunctionAccess02() {
+  void functionInvocationWithPrimitiveArguments() {
+    evaluate("#reverseInt(1,2,3)", "int[3]{3,2,1}", int[].class);
+    evaluate("#reverseInt('1',2,3)", "int[3]{3,2,1}", int[].class); // requires type conversion of '1' to 1
+  }
+
+  @Test
+  void functionInvocationWithStringArgument() {
     evaluate("#reverseString('hello')", "olleh", String.class);
     evaluate("#reverseString(37)", "73", String.class); // requires type conversion of 37 to '37'
   }
 
   @Test
-  public void testCallVarargsFunction() {
+  void functionWithVarargs() {
     evaluate("#varargsFunction()", "[]", String.class);
     evaluate("#varargsFunction(new String[0])", "[]", String.class);
     evaluate("#varargsFunction('a')", "[a]", String.class);
@@ -93,13 +103,13 @@ public class VariableAndFunctionTests extends AbstractExpressionTests {
   }
 
   @Test
-  public void testCallingIllegalFunctions() throws Exception {
+  void functionMethodMustBeStatic() throws Exception {
     SpelExpressionParser parser = new SpelExpressionParser();
     StandardEvaluationContext ctx = new StandardEvaluationContext();
     ctx.setVariable("notStatic", this.getClass().getMethod("nonStatic"));
-    assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() ->
-                    parser.parseRaw("#notStatic()").getValue(ctx)).
-            satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(SpelMessage.FUNCTION_MUST_BE_STATIC));
+    assertThatExceptionOfType(SpelEvaluationException.class)
+            .isThrownBy(() -> parser.parseRaw("#notStatic()").getValue(ctx))
+            .satisfies(ex -> assertThat(ex.getMessageCode()).isEqualTo(FUNCTION_MUST_BE_STATIC));
   }
 
   // this method is used by the test above

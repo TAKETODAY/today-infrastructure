@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory;
@@ -30,9 +30,9 @@ import cn.taketoday.util.StringUtils;
  * Exception thrown when a {@code BeanFactory} is asked for a bean instance for which
  * multiple matching candidates have been found when only one matching bean was expected.
  *
- * @author TODAY 2021/10/1 20:06
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see BeanFactory#getBean(Class)
- * @since 4.0
+ * @since 4.0 2021/10/1 20:06
  */
 public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionException {
 
@@ -64,8 +64,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
    * @param beanNamesFound the names of all matching beans (as a Collection)
    */
   public NoUniqueBeanDefinitionException(Class<?> type, Collection<String> beanNamesFound) {
-    super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
-            StringUtils.collectionToCommaDelimitedString(beanNamesFound));
+    super(type, buildMessage(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
     this.beanNamesFound = new ArrayList<>(beanNamesFound);
   }
@@ -87,8 +86,7 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
    * @param beanNamesFound the names of all matching beans (as a Collection)
    */
   public NoUniqueBeanDefinitionException(ResolvableType type, Collection<String> beanNamesFound) {
-    super(type, "expected single matching bean but found " + beanNamesFound.size() + ": " +
-            StringUtils.collectionToCommaDelimitedString(beanNamesFound));
+    super(type, buildMessage(beanNamesFound));
     this.numberOfBeansFound = beanNamesFound.size();
     this.beanNamesFound = new ArrayList<>(beanNamesFound);
   }
@@ -123,6 +121,11 @@ public class NoUniqueBeanDefinitionException extends NoSuchBeanDefinitionExcepti
   @Nullable
   public Collection<String> getBeanNamesFound() {
     return this.beanNamesFound;
+  }
+
+  private static String buildMessage(Collection<String> beanNamesFound) {
+    return "expected single matching bean but found %s: %s"
+            .formatted(beanNamesFound.size(), StringUtils.collectionToCommaDelimitedString(beanNamesFound));
   }
 
 }

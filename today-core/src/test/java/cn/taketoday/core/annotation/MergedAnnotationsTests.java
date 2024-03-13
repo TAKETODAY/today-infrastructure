@@ -2019,7 +2019,7 @@ class MergedAnnotationsTests {
     assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() ->
                     MergedAnnotation.valueOf(AnnotationWithoutDefaults.class, attributes).synthesize().text())
             .withMessage("No value found for attribute named 'text' in merged annotation " +
-                    AnnotationWithoutDefaults.class.getName());
+                    AnnotationWithoutDefaults.class.getCanonicalName());
   }
 
   @Test

@@ -31,6 +31,7 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.ApplicationListener;
+import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.lang.Nullable;
@@ -58,6 +59,18 @@ import cn.taketoday.logging.LoggerFactory;
 public abstract class ExecutorConfigurationSupport extends CustomizableThreadFactory
         implements BeanNameAware, ApplicationContextAware, InitializingBean, DisposableBean,
         SmartLifecycle, ApplicationListener<ContextClosedEvent> {
+  /**
+   * The default phase for an executor {@link SmartLifecycle}: {@code Integer.MAX_VALUE / 2}.
+   * <p>This is different from the default phase {@code Integer.MAX_VALUE} associated with
+   * other {@link SmartLifecycle} implementations, putting the typically auto-started
+   * executor/scheduler beans into an earlier startup phase and a later shutdown phase while
+   * still leaving room for regular {@link Lifecycle} components with the common phase 0.
+   *
+   * @see #getPhase()
+   * @see SmartLifecycle#DEFAULT_PHASE
+   * @see cn.taketoday.context.support.DefaultLifecycleProcessor#setTimeoutPerShutdownPhase
+   */
+  public static final int DEFAULT_PHASE = Integer.MAX_VALUE / 2;
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -140,12 +153,17 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    * shutdown in the concurrent managed stop phase with a serial soft shutdown in
    * the executor's destruction step, with individual awaiting according to the
    * {@link #setAwaitTerminationSeconds "awaitTerminationSeconds"} property.
-   * <p>This flag will only have effect when the executor is running in an Infra
-   * application context and able to receive the {@link ContextClosedEvent}.
+   * <p>This flag will only have effect when the executor is running in a Infra
+   * application context and able to receive the {@link ContextClosedEvent}. Also,
+   * note that {@link ThreadPoolTaskExecutor} effectively accepts tasks after context
+   * close by default, in combination with a coordinated lifecycle stop, unless
+   * {@link ThreadPoolTaskExecutor#setStrictEarlyShutdown "strictEarlyShutdown"}
+   * has been specified.
    *
    * @see cn.taketoday.context.ConfigurableApplicationContext#close()
    * @see DisposableBean#destroy()
    * @see #shutdown()
+   * @see #setAwaitTerminationSeconds
    */
   public void setAcceptTasksAfterContextClose(boolean acceptTasksAfterContextClose) {
     this.acceptTasksAfterContextClose = acceptTasksAfterContextClose;
@@ -299,6 +317,9 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    * scheduling of periodic tasks, letting existing tasks complete still.
    * This step is non-blocking and can be applied as an early shutdown signal
    * before following up with a full {@link #shutdown()} call later on.
+   * <p>Automatically called for early shutdown signals on
+   * {@link #onApplicationEvent(ContextClosedEvent) context close}.
+   * Can be manually called as well, in particular outside a container.
    *
    * @see #shutdown()
    * @see java.util.concurrent.ExecutorService#shutdown()
@@ -465,11 +486,29 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
         this.lateShutdown = true;
       }
       else {
-        // Early shutdown signal: accept no further tasks, let existing tasks complete
-        // before hitting the actual destruction step in the shutdown() method above.
-        initiateShutdown();
+        if (this.lifecycleDelegate != null) {
+          this.lifecycleDelegate.markShutdown();
+        }
+        initiateEarlyShutdown();
       }
     }
+  }
+
+  /**
+   * Early shutdown signal: do not trigger further tasks, let existing tasks complete
+   * before hitting the actual destruction step in the {@link #shutdown()} method.
+   * This goes along with a {@link #stop(Runnable) coordinated lifecycle stop phase}.
+   * <p>Called from {@link #onApplicationEvent(ContextClosedEvent)} if no
+   * indications for a late shutdown have been determined, that is, if the
+   * {@link #setAcceptTasksAfterContextClose "acceptTasksAfterContextClose} and
+   * {@link #setWaitForTasksToCompleteOnShutdown "waitForTasksToCompleteOnShutdown"}
+   * flags have not been set.
+   * <p>The default implementation calls {@link #initiateShutdown()}.
+   *
+   * @see #initiateShutdown()
+   */
+  protected void initiateEarlyShutdown() {
+    initiateShutdown();
   }
 
 }

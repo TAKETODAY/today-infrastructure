@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc.datasource.embedded;
@@ -51,6 +48,7 @@ import cn.taketoday.lang.Assert;
  * @author Juergen Hoeller
  * @author Dave Syer
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ScriptUtils
  * @see cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator
  * @see cn.taketoday.jdbc.datasource.init.DatabasePopulator
@@ -58,9 +56,11 @@ import cn.taketoday.lang.Assert;
  */
 public class EmbeddedDatabaseBuilder {
 
-  private final ResourceLoader resourceLoader;
   private final EmbeddedDatabaseFactory databaseFactory;
+
   private final ResourceDatabasePopulator databasePopulator;
+
+  private final ResourceLoader resourceLoader;
 
   /**
    * Create a new embedded database builder with a {@link DefaultResourceLoader}.
@@ -115,7 +115,8 @@ public class EmbeddedDatabaseBuilder {
   }
 
   /**
-   * Set the type of embedded database.
+   * Set the type of embedded database. Consider using {@link #setDatabaseConfigurer}
+   * if customization of the connections properties is necessary.
    * <p>Defaults to HSQL if not called.
    *
    * @param databaseType the type of embedded database to build
@@ -123,6 +124,19 @@ public class EmbeddedDatabaseBuilder {
    */
   public EmbeddedDatabaseBuilder setType(EmbeddedDatabaseType databaseType) {
     this.databaseFactory.setDatabaseType(databaseType);
+    return this;
+  }
+
+  /**
+   * Set the {@linkplain EmbeddedDatabaseConfigurer configurer} to use to
+   * configure the embedded database, as an alternative to {@link #setType}.
+   *
+   * @param configurer the configurer of the embedded database
+   * @return {@code this}, to facilitate method chaining
+   * @see EmbeddedDatabaseConfigurer
+   */
+  public EmbeddedDatabaseBuilder setDatabaseConfigurer(EmbeddedDatabaseConfigurer configurer) {
+    this.databaseFactory.setDatabaseConfigurer(configurer);
     return this;
   }
 

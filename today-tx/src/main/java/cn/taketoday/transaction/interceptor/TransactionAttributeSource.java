@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.interceptor;
@@ -32,6 +29,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionInterceptor#setTransactionAttributeSource
  * @see TransactionProxyFactoryBean#setTransactionAttributeSource
  * @see cn.taketoday.transaction.annotation.AnnotationTransactionAttributeSource
@@ -52,9 +50,22 @@ public interface TransactionAttributeSource {
    * @return {@code false} if the class is known to have no transaction
    * attributes at class or method level; {@code true} otherwise. The default
    * implementation returns {@code true}, leading to regular introspection.
+   * @see #hasTransactionAttribute
    */
   default boolean isCandidateClass(Class<?> targetClass) {
     return true;
+  }
+
+  /**
+   * Determine whether there is a transaction attribute for the given method.
+   *
+   * @param method the method to introspect
+   * @param targetClass the target class (can be {@code null},
+   * in which case the declaring class of the method must be used)
+   * @see #getTransactionAttribute
+   */
+  default boolean hasTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
+    return getTransactionAttribute(method, targetClass) != null;
   }
 
   /**
@@ -62,7 +73,7 @@ public interface TransactionAttributeSource {
    * or {@code null} if the method is non-transactional.
    *
    * @param method the method to introspect
-   * @param targetClass the target class (may be {@code null},
+   * @param targetClass the target class (can be {@code null},
    * in which case the declaring class of the method must be used)
    * @return the matching transaction attribute, or {@code null} if none found
    */

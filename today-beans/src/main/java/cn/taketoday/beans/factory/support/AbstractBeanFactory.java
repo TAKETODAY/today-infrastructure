@@ -20,7 +20,6 @@ package cn.taketoday.beans.factory.support;
 import java.beans.PropertyEditor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -116,9 +115,6 @@ import cn.taketoday.util.StringUtils;
  */
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
-  /** object factories */
-  protected final ConcurrentHashMap<Class<?>, Object> objectFactories = new ConcurrentHashMap<>(16);
-
   private final HashMap<String, Scope> scopes = new HashMap<>();
 
   /** @since 4.0 */
@@ -154,7 +150,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
   private final ConcurrentHashMap<String, Object> objectFromFactoryBeanCache = new ConcurrentHashMap<>(16);
 
   /** Names of beans that have already been created at least once. */
-  private final Set<String> alreadyCreated = Collections.newSetFromMap(new ConcurrentHashMap<>(256));
+  private final Set<String> alreadyCreated = ConcurrentHashMap.newKeySet(256);
 
   /** Names of beans that are currently in creation. */
   private final ThreadLocal<Object> prototypesCurrentlyInCreation =
@@ -175,6 +171,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
   /** Map from bean name to merged BeanDefinition. @since 4.0 */
   private final ConcurrentHashMap<String, RootBeanDefinition> mergedBeanDefinitions = new ConcurrentHashMap<>(256);
+
+  /** object factories */
+  protected final ConcurrentHashMap<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
   /** Whether to cache bean metadata or rather reobtain it for every access. @since 4.0 */
   private boolean cacheBeanMetadata = true;
@@ -211,8 +210,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @throws BeansException if the bean could not be created
    */
   @SuppressWarnings("unchecked")
-  protected final <T> T doGetBean(
-          String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
+  protected final <T> T doGetBean(String name, Class<?> requiredType, Object[] args, boolean typeCheckOnly) throws BeansException {
     // delete $
     String beanName = transformedBeanName(name);
     // 1. check singleton cache
@@ -279,9 +277,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         if (merged.isSingleton()) {
           beanInstance = getSingleton(beanName, () -> {
             try {
-              Object bean = createBean(beanName, merged, args);
               // cache value
-              return Objects.requireNonNullElse(bean, NullValue.INSTANCE);
+              return createBean(beanName, merged, args);
             }
             catch (BeansException ex) {
               // Explicitly remove instance from singleton cache: It might have been put there
@@ -291,10 +288,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
               throw ex;
             }
           });
-          // unwrap cache value (represent a null bean)
-          if (beanInstance == NullValue.INSTANCE) {
-            return null;
-          }
         }
         else if (merged.isPrototype()) {
           // It's a prototype -> just create a new instance.
@@ -333,11 +326,11 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             throw new ScopeNotActiveException(beanName, scopeName, ex);
           }
         }
-        // null (a null bean)
-        if (beanInstance == null) {
-          return null;
+
+        // unwrap cache value (represent a null bean)
+        if (beanInstance != NullValue.INSTANCE) {
+          beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
         }
-        beanInstance = handleFactoryBean(name, beanName, merged, beanInstance);
       }
       catch (BeansException e) {
         cleanupAfterBeanCreationFailure(beanName);
@@ -349,11 +342,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         }
       }
     }
-    else if (beanInstance == NullValue.INSTANCE) {
-      // unwrap cache value (represent a null bean)
-      return null;
-    }
-    else {
+    else if (beanInstance != NullValue.INSTANCE) {
       // is a singleton bean
       if (log.isDebugEnabled()) {
         if (isSingletonCurrentlyInCreation(beanName)) {
@@ -378,18 +367,24 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @param beanName the name of the bean
    * @param merged the merged bean definition for the bean
    * @param args explicit arguments to use for constructor or factory method invocation
-   * @return a new instance of the bean
+   * @return a new instance of the bean or may be a {@code NullValue.INSTANCE}
    * @throws BeanCreationException if the bean could not be created
+   * @see NullValue#INSTANCE
    */
-  @Nullable
   protected abstract Object createBean(String beanName, RootBeanDefinition merged, @Nullable Object[] args)
           throws BeanCreationException;
 
   @Nullable
   @SuppressWarnings("unchecked")
-  protected final <T> T adaptBeanInstance(String name, @Nullable Object bean, @Nullable Class<?> requiredType) {
+  protected final <T> T adaptBeanInstance(String name, Object bean, @Nullable Class<?> requiredType) {
+    if (bean == NullValue.INSTANCE) {
+      if (requiredType != null) {
+        throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
+      }
+      return null;
+    }
     // Check if required type matches the type of the actual bean instance.
-    if (bean != null && requiredType != null && !requiredType.isInstance(bean)) {
+    if (requiredType != null && !requiredType.isInstance(bean)) {
       try {
         Object convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
         if (convertedBean == null) {
@@ -718,7 +713,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         throw new IllegalArgumentException("Value [%s] does not implement specified dependency type [%s]"
                 .formatted(autowiredValue, dependencyType.getName()));
       }
-      objectFactories.put(dependencyType, autowiredValue);
+      resolvableDependencies.put(dependencyType, autowiredValue);
     }
   }
 
@@ -1227,7 +1222,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     if (otherFactory instanceof AbstractBeanFactory beanFactory) {
       this.scopes.putAll(beanFactory.scopes);
-      this.objectFactories.putAll(beanFactory.objectFactories);
+      this.resolvableDependencies.putAll(beanFactory.resolvableDependencies);
       this.dependencyInjector = beanFactory.dependencyInjector;
       this.postProcessors.addAll(beanFactory.postProcessors);
 
@@ -1551,41 +1546,39 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
     if (factory.isSingleton() && containsSingleton(beanName)) {
-      synchronized(getSingletonMutex()) {
-        Object object = this.objectFromFactoryBeanCache.get(beanName);
-        if (object == null) {
-          object = doGetObjectFromFactoryBean(factory, beanName);
-          // Only post-process and store if not put there already during getObject() call above
-          // (e.g. because of circular reference processing triggered by custom getBean calls)
-          Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
-          if (alreadyThere != null) {
-            object = alreadyThere;
+      Object object = this.objectFromFactoryBeanCache.get(beanName);
+      if (object == null) {
+        object = doGetObjectFromFactoryBean(factory, beanName);
+        // Only post-process and store if not put there already during getObject() call above
+        // (e.g. because of circular reference processing triggered by custom getBean calls)
+        Object alreadyThere = objectFromFactoryBeanCache.get(beanName);
+        if (alreadyThere != null) {
+          object = alreadyThere;
+        }
+        else {
+          if (shouldPostProcess) {
+            if (isSingletonCurrentlyInCreation(beanName)) {
+              // Temporarily return non-post-processed object, not storing it yet..
+              return object;
+            }
+            beforeSingletonCreation(beanName);
+            try {
+              object = postProcessObjectFromFactoryBean(object, beanName);
+            }
+            catch (Throwable ex) {
+              throw new BeanCreationException(beanName,
+                      "Post-processing of FactoryBean's singleton object failed", ex);
+            }
+            finally {
+              afterSingletonCreation(beanName);
+            }
           }
-          else {
-            if (shouldPostProcess) {
-              if (isSingletonCurrentlyInCreation(beanName)) {
-                // Temporarily return non-post-processed object, not storing it yet..
-                return object;
-              }
-              beforeSingletonCreation(beanName);
-              try {
-                object = postProcessObjectFromFactoryBean(object, beanName);
-              }
-              catch (Throwable ex) {
-                throw new BeanCreationException(beanName,
-                        "Post-processing of FactoryBean's singleton object failed", ex);
-              }
-              finally {
-                afterSingletonCreation(beanName);
-              }
-            }
-            if (containsSingleton(beanName)) {
-              objectFromFactoryBeanCache.put(beanName, object);
-            }
+          if (containsSingleton(beanName)) {
+            objectFromFactoryBeanCache.put(beanName, object);
           }
         }
-        return object;
       }
+      return object;
     }
     else {
       Object object = doGetObjectFromFactoryBean(factory, beanName);
@@ -1651,10 +1644,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   @Override
   public void removeSingleton(String beanName) {
-    synchronized(getSingletonMutex()) {
-      super.removeSingleton(beanName);
-      this.objectFromFactoryBeanCache.remove(beanName);
-    }
+    super.removeSingleton(beanName);
+    this.objectFromFactoryBeanCache.remove(beanName);
   }
 
   /**
@@ -1662,10 +1653,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    */
   @Override
   protected void clearSingletonCache() {
-    synchronized(getSingletonMutex()) {
-      super.clearSingletonCache();
-      this.objectFromFactoryBeanCache.clear();
-    }
+    super.clearSingletonCache();
+    this.objectFromFactoryBeanCache.clear();
   }
 
   @Override
@@ -2001,11 +1990,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
    * @param mbd the merged bean definition to check
    * @param beanName the name of the bean
    * @param args the arguments for bean creation, if any
-   * @throws BeanDefinitionStoreException in case of validation failure
    */
-  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args)
-          throws BeanDefinitionStoreException {
-
+  protected void checkMergedBeanDefinition(RootBeanDefinition mbd, String beanName, @Nullable Object[] args) {
     if (mbd.isAbstract()) {
       throw new BeanIsAbstractException(beanName);
     }

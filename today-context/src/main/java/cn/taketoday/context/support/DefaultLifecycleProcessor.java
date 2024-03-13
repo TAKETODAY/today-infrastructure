@@ -105,7 +105,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private static final boolean exitOnRefresh =
           ON_REFRESH_VALUE.equalsIgnoreCase(TodayStrategies.getProperty(EXIT_PROPERTY_NAME));
 
-  private volatile long timeoutPerShutdownPhase = 30000;
+  private volatile long timeoutPerShutdownPhase = 10000;
 
   private volatile boolean running;
 
@@ -223,7 +223,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
 
   void stopForRestart() {
     if (this.running) {
-      this.stoppedBeans = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      this.stoppedBeans = ConcurrentHashMap.newKeySet();
       stopBeans();
       this.running = false;
     }
@@ -264,7 +264,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private boolean isAutoStartupCandidate(String beanName, Lifecycle bean) {
     Set<String> stoppedBeans = this.stoppedBeans;
     return stoppedBeans != null ? stoppedBeans.contains(beanName) :
-           (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup());
+            (bean instanceof SmartLifecycle smartLifecycle && smartLifecycle.isAutoStartup());
   }
 
   /**
@@ -300,7 +300,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
   private boolean toBeStarted(String beanName, Lifecycle bean) {
     Set<String> stoppedBeans = this.stoppedBeans;
     return stoppedBeans != null ? stoppedBeans.contains(beanName) :
-           (!(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup());
+            (!(bean instanceof SmartLifecycle smartLifecycle) || smartLifecycle.isAutoStartup());
   }
 
   private void stopBeans() {

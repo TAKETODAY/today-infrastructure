@@ -17,6 +17,8 @@
 
 package cn.taketoday.context;
 
+import java.util.concurrent.Executor;
+
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.conversion.ConversionService;
@@ -74,6 +76,17 @@ public interface ConfigurableApplicationContext extends ApplicationContext, Life
    * @since 4.0
    */
   String SHUTDOWN_HOOK_THREAD_NAME = "ContextShutdownHook";
+
+  /**
+   * The name of the {@link Executor bootstrap executor} bean in the context.
+   * If none is supplied, no background bootstrapping will be active.
+   *
+   * @see java.util.concurrent.Executor
+   * @see cn.taketoday.core.task.TaskExecutor
+   * @see cn.taketoday.beans.factory.config.ConfigurableBeanFactory#setBootstrapExecutor
+   * @since 4.0
+   */
+  String BOOTSTRAP_EXECUTOR_BEAN_NAME = "bootstrapExecutor";
 
   /**
    * Get configurable environment

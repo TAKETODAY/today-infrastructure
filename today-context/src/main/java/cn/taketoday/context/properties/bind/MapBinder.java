@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,9 @@ class MapBinder extends AggregateBinder<Map<Object, Object>> {
         ConfigurationProperty property = source.getConfigurationProperty(name);
         if (property != null && !hasDescendants) {
           context.setConfigurationProperty(property);
-          return context.getConverter().convert(property.getValue(), target);
+          Object result = property.getValue();
+          result = context.getPlaceholdersResolver().resolvePlaceholders(result);
+          return context.getConverter().convert(result, target);
         }
         source = source.filter(name::isAncestorOf);
       }

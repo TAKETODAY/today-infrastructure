@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -30,6 +30,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.type.AnnotationMetadata;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.core.type.classreading.MetadataReader;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ClassUtils;
@@ -55,6 +56,11 @@ final class ConfigurationClass {
 
   @Nullable
   public String beanName;
+
+  /**
+   * whether this configuration class has been registered through a scan.
+   */
+  public boolean scanned = false;
 
   /**
    * Return the configuration classes that imported this class,
@@ -93,7 +99,7 @@ final class ConfigurationClass {
    * @param metadataReader reader used to parse the underlying {@link Class}
    * @param importedBy the configuration class importing this one or {@code null}
    */
-  ConfigurationClass(MetadataReader metadataReader, @Nullable ConfigurationClass importedBy) {
+  ConfigurationClass(MetadataReader metadataReader, ConfigurationClass importedBy) {
     this.metadata = metadataReader.getAnnotationMetadata();
     this.resource = metadataReader.getResource();
     this.importedBy.add(importedBy);
@@ -120,7 +126,7 @@ final class ConfigurationClass {
    * @param clazz the underlying {@link Class} to represent
    * @param importedBy the configuration class importing this one (or {@code null})
    */
-  ConfigurationClass(Class<?> clazz, @Nullable ConfigurationClass importedBy) {
+  ConfigurationClass(Class<?> clazz, ConfigurationClass importedBy) {
     this.metadata = AnnotationMetadata.introspect(clazz);
     this.resource = new DescriptiveResource(clazz.getName());
     this.importedBy.add(importedBy);
@@ -133,10 +139,26 @@ final class ConfigurationClass {
    * @param beanName name of the {@code @Configuration} class bean
    * @see ConfigurationClass#ConfigurationClass(Class, ConfigurationClass)
    */
+  @Deprecated
   ConfigurationClass(AnnotationMetadata metadata, @Nullable String beanName) {
     this.metadata = metadata;
     this.resource = new DescriptiveResource(metadata.getClassName());
     this.beanName = beanName;
+  }
+
+  /**
+   * Create a new {@link ConfigurationClass} with the given name.
+   *
+   * @param metadata the metadata for the underlying class to represent
+   * @param beanName name of the {@code @Configuration} class bean
+   * @param scanned whether the underlying class has been registered through a scan
+   */
+  ConfigurationClass(AnnotationMetadata metadata, String beanName, boolean scanned) {
+    Assert.notNull(beanName, "Bean name is required");
+    this.metadata = metadata;
+    this.resource = new DescriptiveResource(metadata.getClassName());
+    this.beanName = beanName;
+    this.scanned = scanned;
   }
 
   String getSimpleName() {
@@ -179,14 +201,12 @@ final class ConfigurationClass {
   void validate(ProblemReporter problemReporter) {
     // A configuration class may not be final (CGLIB limitation) unless it declares proxyBeanMethods=false
     var annotation = metadata.getAnnotation(Configuration.class);
-    if (annotation.isPresent()
-            && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true)) {
-      if (metadata.isFinal()) {
-        problemReporter.error(new FinalConfigurationProblem());
-      }
-      for (ComponentMethod componentMethod : componentMethods) {
-        componentMethod.validate(problemReporter);
-      }
+    if (annotation.isPresent() && annotation.getValue("proxyBeanMethods", boolean.class).orElse(true) && metadata.isFinal()) {
+      problemReporter.error(new FinalConfigurationProblem());
+    }
+
+    for (ComponentMethod componentMethod : componentMethods) {
+      componentMethod.validate(problemReporter);
     }
 
     // A configuration class may not contain overloaded bean methods unless it declares enforceUniqueMethods=false

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +12,26 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.client.standalone;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.function.Consumer;
+
+import cn.taketoday.core.ParameterizedTypeReference;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RestController;
 import jakarta.validation.constraints.NotNull;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -41,54 +44,57 @@ class ResponseBodyTests {
 
   @Test
   void json() {
-    MockMvcWebTestClient.bindToController(new PersonController()).build()
+    execute("/persons/Lee", body -> body.jsonPath("$.name").isEqualTo("Lee")
+            .jsonPath("$.age").isEqualTo(42)
+            .jsonPath("$.age").value(equalTo(42))
+            .jsonPath("$.age").value(Float.class, equalTo(42.0f)));
+  }
+
+  @Test
+  void jsonPathWithCustomType() {
+    execute("/persons/Lee", body -> body.jsonPath("$").isEqualTo(new Person("Lee", 42)));
+  }
+
+  @Test
+  void jsonPathWithResolvedValue() {
+    execute("/persons/Lee", body -> body.jsonPath("$").value(Person.class,
+            candidate -> assertThat(candidate).isEqualTo(new Person("Lee", 42))));
+  }
+
+  @Test
+  void jsonPathWithResolvedGenericValue() {
+    execute("/persons", body -> body.jsonPath("$").value(new ParameterizedTypeReference<List<Person>>() { },
+            candidate -> assertThat(candidate).hasSize(3).extracting(Person::name)
+                    .containsExactly("Rossen", "Juergen", "Arjen")));
+  }
+
+  private void execute(String uri, Consumer<WebTestClient.BodyContentSpec> assertions) {
+    assertions.accept(MockMvcWebTestClient.bindToController(new PersonController()).build()
             .get()
-            .uri("/person/Lee")
+            .uri(uri)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk()
             .expectHeader().contentType(MediaType.APPLICATION_JSON)
-            .expectBody()
-            .jsonPath("$.name").isEqualTo("Lee")
-            .jsonPath("$.age").isEqualTo(42)
-            .jsonPath("$.age").value(equalTo(42))
-            .jsonPath("$.age").value(equalTo(42.0f), Float.class);
+            .expectBody());
   }
 
   @RestController
+  @SuppressWarnings("unused")
   private static class PersonController {
 
-    @GetMapping("/person/{name}")
+    @GetMapping("/persons")
+    List<Person> getAll() {
+      return List.of(new Person("Rossen", 42), new Person("Juergen", 42),
+              new Person("Arjen", 42));
+    }
+
+    @GetMapping("/persons/{name}")
     Person get(@PathVariable String name) {
-      Person person = new Person(name);
-      person.setAge(42);
-      return person;
+      return new Person(name, 42);
     }
   }
 
-  @SuppressWarnings("unused")
-  private static class Person {
-
-    @NotNull
-    private final String name;
-
-    private int age;
-
-    public Person(String name) {
-      this.name = name;
-    }
-
-    public String getName() {
-      return this.name;
-    }
-
-    public int getAge() {
-      return this.age;
-    }
-
-    public void setAge(int age) {
-      this.age = age;
-    }
-  }
+  private record Person(@NotNull String name, int age) { }
 
 }

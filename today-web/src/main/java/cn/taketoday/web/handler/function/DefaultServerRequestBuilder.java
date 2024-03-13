@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -79,7 +79,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
 
   private final MultiValueMap<String, HttpCookie> cookies = new LinkedMultiValueMap<>();
 
-  private final Map<String, Object> attributes = new LinkedHashMap<>();
+  private final LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
 
   private final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
@@ -94,11 +94,12 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     this.messageConverters = new ArrayList<>(other.messageConverters());
     this.method = other.method();
     this.uri = other.uri();
-    params(params -> params.addAll(other.params()));
-    cookies(cookies -> cookies.addAll(other.cookies()));
-    headers(headers -> headers.addAll(other.headers().asHttpHeaders()));
-    attributes(attributes -> attributes.putAll(other.attributes()));
     this.remoteAddress = other.remoteAddress().orElse(null);
+
+    params.addAll(other.params());
+    cookies.addAll(other.cookies());
+    headers.addAll(other.headers().asHttpHeaders());
+    attributes.putAll(other.attributes());
   }
 
   @Override
@@ -360,8 +361,7 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
         }
       }
 
-      if (attributes.get(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
-              instanceof Map pathVariables) {
+      if (attributes.get(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE) instanceof Map pathVariables) {
         return pathVariables;
       }
       return Collections.emptyMap();

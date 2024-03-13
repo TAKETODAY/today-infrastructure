@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.support;
@@ -28,7 +25,6 @@ import java.io.Serial;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.BeanFactoryAware;
-import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
@@ -47,8 +43,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2021/12/10 21:20
  */
 @SuppressWarnings("serial")
-public abstract class AbstractBeanFactoryPointcutAdvisor
-        extends AbstractPointcutAdvisor implements BeanFactoryAware {
+public abstract class AbstractBeanFactoryPointcutAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
 
   @Nullable
   private String adviceBeanName;
@@ -59,7 +54,7 @@ public abstract class AbstractBeanFactoryPointcutAdvisor
   @Nullable
   private transient volatile Advice advice;
 
-  private transient volatile Object adviceMonitor = new Object();
+  private transient Object adviceMonitor = new Object();
 
   /**
    * Specify the name of the advice bean that this advisor should refer to.
@@ -83,18 +78,8 @@ public abstract class AbstractBeanFactoryPointcutAdvisor
   }
 
   @Override
-  public void setBeanFactory(BeanFactory beanFactory) {
+  public void setBeanFactory(@Nullable BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
-    resetAdviceMonitor();
-  }
-
-  private void resetAdviceMonitor() {
-    if (this.beanFactory instanceof ConfigurableBeanFactory) {
-      this.adviceMonitor = ((ConfigurableBeanFactory) this.beanFactory).getSingletonMutex();
-    }
-    else {
-      this.adviceMonitor = new Object();
-    }
   }
 
   /**
@@ -124,9 +109,7 @@ public abstract class AbstractBeanFactoryPointcutAdvisor
       return advice;
     }
     else {
-      // No singleton guarantees from the factory -> let's lock locally but
-      // reuse the factory's singleton lock, just in case a lazy dependency
-      // of our advice bean happens to trigger the singleton lock implicitly...
+      // No singleton guarantees from the factory -> let's lock locally.
       synchronized(this.adviceMonitor) {
         advice = this.advice;
         if (advice == null) {
@@ -161,7 +144,7 @@ public abstract class AbstractBeanFactoryPointcutAdvisor
     ois.defaultReadObject();
 
     // Initialize transient fields.
-    resetAdviceMonitor();
+    this.adviceMonitor = new Object();
   }
 
 }

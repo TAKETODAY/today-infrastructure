@@ -29,7 +29,6 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -56,11 +55,11 @@ import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.Multipart;
@@ -79,10 +78,15 @@ import cn.taketoday.web.util.UriComponentsBuilder;
 class DefaultServerRequest implements ServerRequest {
 
   private final Headers headers;
+
   private final RequestPath requestPath;
+
   private final RequestContext requestContext;
+
   private final Map<String, Object> attributes;
+
   private final MultiValueMap<String, String> params;
+
   private final List<HttpMessageConverter<?>> messageConverters;
 
   @Nullable
@@ -90,11 +94,11 @@ class DefaultServerRequest implements ServerRequest {
 
   DefaultServerRequest(RequestContext requestContext, List<HttpMessageConverter<?>> messageConverters) {
     this.requestContext = requestContext;
+    this.params = requestContext.getParameters();
     this.requestPath = requestContext.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
-    this.attributes = new ServletAttributesMap(requestContext);
+    this.attributes = AttributesMap.create(requestContext);
     this.headers = new DefaultRequestHeaders(requestContext.getHeaders());
-    this.params = MultiValueMap.forAdaption(new ServletParametersMap(requestContext));
   }
 
   @Override
@@ -234,12 +238,14 @@ class DefaultServerRequest implements ServerRequest {
   }
 
   @Override
-  public Optional<Object> attribute(String name) {
-    return Optional.ofNullable(requestContext.getAttribute(name));
+  @Nullable
+  public Object attribute(String name) {
+    return requestContext.getAttribute(name);
   }
 
   @Override
   public Map<String, Object> attributes() {
+    // TODO requestContext.getAttributes()
     return this.attributes;
   }
 
@@ -275,8 +281,7 @@ class DefaultServerRequest implements ServerRequest {
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public Map<String, String> pathVariables() {
-    if (requestContext.getAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
-            instanceof Map pathVariables) {
+    if (requestContext.getAttribute(RouterFunctions.URI_TEMPLATE_VARIABLES_ATTRIBUTE) instanceof Map pathVariables) {
       return pathVariables;
     }
     return Collections.emptyMap();
@@ -371,56 +376,11 @@ class DefaultServerRequest implements ServerRequest {
     }
   }
 
-  private static final class ServletParametersMap extends AbstractMap<String, List<String>> {
+  private static final class AttributesMap extends AbstractMap<String, Object> {
 
     private final RequestContext requestContext;
 
-    private ServletParametersMap(RequestContext requestContext) {
-      this.requestContext = requestContext;
-    }
-
-    @Override
-    public Set<Entry<String, List<String>>> entrySet() {
-      return this.requestContext.getParameters().entrySet();
-    }
-
-    @Override
-    public int size() {
-      return this.requestContext.getParameters().size();
-    }
-
-    @Override
-    public List<String> get(Object key) {
-      String[] parameterValues = requestContext.getParameters((String) key);
-      if (ObjectUtils.isEmpty(parameterValues)) {
-        return Collections.emptyList();
-      }
-      else {
-        return Arrays.asList(parameterValues);
-      }
-    }
-
-    @Override
-    public List<String> put(String key, List<String> value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<String> remove(Object key) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void clear() {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  private static final class ServletAttributesMap extends AbstractMap<String, Object> {
-
-    private final RequestContext requestContext;
-
-    private ServletAttributesMap(RequestContext requestContext) {
+    private AttributesMap(RequestContext requestContext) {
       this.requestContext = requestContext;
     }
 
@@ -467,6 +427,14 @@ class DefaultServerRequest implements ServerRequest {
       String name = (String) key;
       return this.requestContext.removeAttribute(name);
     }
+
+    static Map<String, Object> create(RequestContext request) {
+      if (ServletDetector.runningInServlet(request)) {
+        return new AttributesMap(request);
+      }
+      return request.getAttributes();
+    }
+
   }
 
   static class CheckNotModifiedResponse extends RequestContext {

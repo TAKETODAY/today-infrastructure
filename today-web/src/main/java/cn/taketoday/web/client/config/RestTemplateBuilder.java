@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client.config;
@@ -162,10 +162,8 @@ public class RestTemplateBuilder {
 
   /**
    * Set a root URL that should be applied to each request that starts with {@code '/'}.
-   * Since this works by adding a {@link UriTemplateHandler} to the
-   * {@link RestTemplate}, the root URL will only apply when {@code String} variants of
-   * the {@link RestTemplate} methods are used for specifying the request URL. See
-   * {@link RootUriTemplateHandler} for details.
+   * The root URL will only apply when {@code String} variants of the
+   * {@link RestTemplate} methods are used for specifying the request URL.
    *
    * @param rootUri the root URI or {@code null}
    * @return a new builder instance
@@ -644,7 +642,7 @@ public class RestTemplateBuilder {
       restTemplate.setErrorHandler(errorHandler);
     }
     if (rootUri != null) {
-      RootUriTemplateHandler.addTo(restTemplate, rootUri);
+      RootUriBuilderFactory.applyTo(restTemplate, rootUri);
     }
     restTemplate.getInterceptors().addAll(interceptors);
     if (CollectionUtils.isNotEmpty(customizers)) {

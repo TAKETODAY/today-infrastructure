@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.lang;
@@ -27,12 +24,14 @@ import java.io.Serializable;
  * Simple serializable class that serves as a {@code null} replacement
  * for cache stores which otherwise do not support {@code null} values.
  *
- * @author TODAY 2021/9/25 10:42
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2021/9/25 10:42
  */
 public final class NullValue implements Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
+
   public static final NullValue INSTANCE = new NullValue();
 
   private NullValue() { }
@@ -49,7 +48,7 @@ public final class NullValue implements Serializable {
 
   @Override
   public String toString() {
-    return "null";
+    return "NullValue";
   }
 
 }

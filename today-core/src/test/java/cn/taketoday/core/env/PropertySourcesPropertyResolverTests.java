@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -29,6 +26,7 @@ import java.util.Properties;
 
 import cn.taketoday.core.conversion.ConverterNotFoundException;
 import cn.taketoday.core.testfixture.env.MockPropertySource;
+import cn.taketoday.util.PlaceholderResolutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -228,7 +226,7 @@ class PropertySourcesPropertyResolverTests {
     PropertySources propertySources = new PropertySources();
     propertySources.addFirst(new MockPropertySource().withProperty("key", "value"));
     PropertyResolver resolver = new PropertySourcesPropertyResolver(propertySources);
-    assertThatIllegalArgumentException().isThrownBy(() ->
+    assertThatExceptionOfType(PlaceholderResolutionException.class).isThrownBy(() ->
             resolver.resolveRequiredPlaceholders("Replace this ${key} plus ${unknown}"));
   }
 
@@ -291,12 +289,12 @@ class PropertySourcesPropertyResolverTests {
     assertThat(pr.getProperty("p2")).isEqualTo("v2");
     assertThat(pr.getProperty("p3")).isEqualTo("v1:v2");
     assertThat(pr.getProperty("p4")).isEqualTo("v1:v2");
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    pr.getProperty("p5"))
+    assertThatExceptionOfType(PlaceholderResolutionException.class)
+            .isThrownBy(() -> pr.getProperty("p5"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
     assertThat(pr.getProperty("p6")).isEqualTo("v1:v2:def");
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    pr.getProperty("pL"))
+    assertThatExceptionOfType(PlaceholderResolutionException.class)
+            .isThrownBy(() -> pr.getProperty("pL"))
             .withMessageContaining("Circular");
   }
 
@@ -316,7 +314,7 @@ class PropertySourcesPropertyResolverTests {
 
     // placeholders nested within the value of "p4" are unresolvable and cause an
     // exception by default
-    assertThatIllegalArgumentException().isThrownBy(() ->
+    assertThatExceptionOfType(PlaceholderResolutionException.class).isThrownBy(() ->
                     pr.getProperty("p4"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
 
@@ -328,7 +326,7 @@ class PropertySourcesPropertyResolverTests {
     // resolve[Nested]Placeholders methods behave as usual regardless the value of
     // ignoreUnresolvableNestedPlaceholders
     assertThat(pr.resolvePlaceholders("${p1}:${p2}:${bogus}")).isEqualTo("v1:v2:${bogus}");
-    assertThatIllegalArgumentException().isThrownBy(() ->
+    assertThatExceptionOfType(PlaceholderResolutionException.class).isThrownBy(() ->
                     pr.resolveRequiredPlaceholders("${p1}:${p2}:${bogus}"))
             .withMessageContaining("Could not resolve placeholder 'bogus' in value \"${p1}:${p2}:${bogus}\"");
   }

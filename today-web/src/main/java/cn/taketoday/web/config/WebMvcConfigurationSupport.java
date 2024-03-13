@@ -59,6 +59,7 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
@@ -196,6 +197,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   private static final boolean jackson2CborPresent = isPresent("com.fasterxml.jackson.dataformat.cbor.CBORFactory");
   private static final boolean jackson2XmlPresent = isPresent("com.fasterxml.jackson.dataformat.xml.XmlMapper");
   private static final boolean jaxb2Present = isPresent("jakarta.xml.bind.Binder");
+  private static final boolean jackson2YamlPresent = isPresent("com.fasterxml.jackson.dataformat.yaml.YAMLFactory");
 
   private final List<Object> requestResponseBodyAdvice = new ArrayList<>();
 
@@ -343,6 +345,14 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       }
       messageConverters.add(new MappingJackson2CborHttpMessageConverter(builder.build()));
     }
+
+    if (jackson2YamlPresent) {
+      Jackson2ObjectMapperBuilder builder = Jackson2ObjectMapperBuilder.yaml();
+      if (this.applicationContext != null) {
+        builder.applicationContext(this.applicationContext);
+      }
+      messageConverters.add(new MappingJackson2YamlHttpMessageConverter(builder.build()));
+    }
   }
 
   // Async
@@ -414,6 +424,9 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
     }
     if (jackson2CborPresent) {
       map.put("cbor", MediaType.APPLICATION_CBOR);
+    }
+    if (jackson2YamlPresent) {
+      map.put("yaml", MediaType.APPLICATION_YAML);
     }
     return map;
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.beans.factory.config;
+
+import java.util.function.Consumer;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.DisposableBean;
@@ -31,8 +31,8 @@ import cn.taketoday.lang.Nullable;
  * Can be implemented by {@link BeanFactory} implementations in
  * order to expose their singleton management facility in a uniform manner.
  *
- * @author TODAY 2018-11-14 19:47
- * @since 2.0.1
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.0.1 2018-11-14 19:47
  */
 public interface SingletonBeanRegistry {
 
@@ -74,6 +74,18 @@ public interface SingletonBeanRegistry {
   void registerSingleton(Object bean);
 
   /**
+   * Add a callback to be triggered when the specified singleton becomes available
+   * in the bean registry.
+   *
+   * @param beanName the name of the bean
+   * @param singletonConsumer a callback for reacting to the availability of the freshly
+   * registered/created singleton instance (intended for follow-up steps before the bean is
+   * actively used by other callers, not for modifying the given singleton instance itself)
+   * @since 4.0
+   */
+  void addSingletonCallback(String beanName, Consumer<Object> singletonConsumer);
+
+  /**
    * Return the (raw) singleton object registered under the given name.
    * <p>Only checks already instantiated singletons; does not return an Object
    * for singleton bean definitions which have not been instantiated yet.
@@ -86,34 +98,6 @@ public interface SingletonBeanRegistry {
    */
   @Nullable
   Object getSingleton(String name);
-
-  /**
-   * Return the (raw) singleton object registered under the given name.
-   * <p>
-   * singleton must be instance of required type
-   * </p>
-   *
-   * @param name the name of the bean to look for
-   * @param requiredType required type
-   * @param <T> required type
-   * @return the registered singleton object, or {@code null} if none found
-   */
-  default <T> T getSingleton(String name, Class<T> requiredType) {
-    Object singleton = getSingleton(name);
-    if (requiredType.isInstance(singleton)) {
-      return requiredType.cast(singleton);
-    }
-    return null;
-  }
-
-  /**
-   * Get singleton objects
-   *
-   * @param requiredType required type
-   * @param <T> required type
-   * @return singleton object
-   */
-  <T> T getSingleton(Class<T> requiredType);
 
   /**
    * remove a singleton with given name
@@ -154,20 +138,12 @@ public interface SingletonBeanRegistry {
    * (see {@link #registerSingleton}). Can also be used to check which singletons
    * defined by a bean definition have already been created.
    *
-   * @return the list of names as a String array (never {@code null})
+   * @return the array of names as a String array (never {@code null})
    * @see #registerSingleton
    * @see BeanDefinitionRegistry#getBeanDefinitionNames
    * @see cn.taketoday.beans.factory.BeanFactory#getBeanDefinitionNames
    * @since 4.0
    */
   String[] getSingletonNames();
-
-  /**
-   * Return the singleton mutex used by this registry (for external collaborators).
-   *
-   * @return the mutex object (never {@code null})
-   * @since 4.0
-   */
-  Object getSingletonMutex();
 
 }

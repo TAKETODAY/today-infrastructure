@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,9 +85,9 @@ public class DefaultDataBuffer implements DataBuffer {
    * @return the wrapped byte buffer
    */
   public ByteBuffer getNativeBuffer() {
-    this.byteBuffer.position(this.readPosition);
-    this.byteBuffer.limit(readableByteCount());
-    return this.byteBuffer;
+    return this.byteBuffer.duplicate()
+            .position(this.readPosition)
+            .limit(this.writePosition);
   }
 
   private void setNativeBuffer(ByteBuffer byteBuffer) {

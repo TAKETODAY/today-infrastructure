@@ -123,14 +123,13 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       }
 
       // HttpServletResponse exposes some headers as properties: we should include those if not already present
-      MediaType contentType = headers.getContentType();
-      if (servletResponse.getContentType() == null && contentType != null) {
-        servletResponse.setContentType(contentType.toString());
+      MediaType contentTypeHeader = this.headers.getContentType();
+      if (servletResponse.getContentType() == null && contentTypeHeader != null) {
+        servletResponse.setContentType(contentTypeHeader.toString());
       }
       if (servletResponse.getCharacterEncoding() == null
-              && contentType != null
-              && contentType.getCharset() != null) {
-        servletResponse.setCharacterEncoding(contentType.getCharset().name());
+              && contentTypeHeader != null && contentTypeHeader.getCharset() != null) {
+        servletResponse.setCharacterEncoding(contentTypeHeader.getCharset().name());
       }
       long contentLength = headers.getContentLength();
       if (contentLength != -1) {
@@ -164,7 +163,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so check super first
         String value = super.getFirst(headerName);
-        return (value != null ? value : servletResponse.getHeader(headerName));
+        return (value != null ? value : servletResponse.getContentType());
       }
       else {
         String value = servletResponse.getHeader(headerName);
@@ -179,7 +178,8 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
       String headerName = (String) key;
       if (headerName.equalsIgnoreCase(CONTENT_TYPE)) {
         // Content-Type is written as an override so don't merge
-        return Collections.singletonList(getFirst(headerName));
+        String value = getFirst(headerName);
+        return (value != null ? Collections.singletonList(value) : null);
       }
 
       Collection<String> values1 = servletResponse.getHeaders(headerName);

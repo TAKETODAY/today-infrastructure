@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers;
 
 import java.io.Closeable;
 import java.io.Serializable;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
@@ -88,7 +87,6 @@ import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.ParameterNameDiscoverer;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.StringValueResolver;
 import cn.taketoday.core.annotation.AnnotationAwareOrderComparator;
@@ -119,18 +117,6 @@ import static org.mockito.Mockito.verify;
 class StandardBeanFactoryTests {
 
   private final StandardBeanFactory lbf = new StandardBeanFactory();
-
-  {
-    // No parameter name discovery expected unless named arguments are used
-    lbf.setParameterNameDiscoverer(new ParameterNameDiscoverer() {
-
-      @Nullable
-      @Override
-      public String[] getParameterNames(@Nullable Executable executable) {
-        throw new UnsupportedOperationException();
-      }
-    });
-  }
 
   @Test
   void unreferencedSingletonWasInstantiated() {
@@ -1323,6 +1309,11 @@ class StandardBeanFactoryTests {
     rbd.getPropertyValues().add("value", Duration.ofSeconds(1000));
     lbf.registerBeanDefinition("overloaded", rbd);
     assertThat(lbf.getBean(SetterOverload.class).getObject()).isEqualTo("1000s");
+
+    rbd = new RootBeanDefinition(SetterOverload.class);
+    rbd.getPropertyValues().add("value", "1000");
+    lbf.registerBeanDefinition("overloaded", rbd);
+    assertThat(lbf.getBean(SetterOverload.class).getObject()).isEqualTo("1000i");
   }
 
   @Test
@@ -2132,8 +2123,39 @@ class StandardBeanFactoryTests {
     bd2.setPrimary(true);
     lbf.registerBeanDefinition("test", bd);
     lbf.registerBeanDefinition("spouse", bd2);
-    assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(() ->
-                    lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
+
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
+            .withCauseExactlyInstanceOf(NoUniqueBeanDefinitionException.class);
+  }
+
+  @Test
+  void autowireBeanByTypeWithTwoPrimaryCandidatesInOneAncestor() {
+    StandardBeanFactory parent = new StandardBeanFactory();
+    RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
+    bd.setPrimary(true);
+    RootBeanDefinition bd2 = new RootBeanDefinition(TestBean.class);
+    bd2.setPrimary(true);
+    parent.registerBeanDefinition("test", bd);
+    parent.registerBeanDefinition("spouse", bd2);
+    StandardBeanFactory lbf = new StandardBeanFactory(parent);
+
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> lbf.autowire(DependenciesBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
+            .withCauseExactlyInstanceOf(NoUniqueBeanDefinitionException.class);
+  }
+
+  @Test
+  void autowireBeanByTypeWithTwoPrimaryFactoryBeans() {
+    StandardBeanFactory lbf = new StandardBeanFactory();
+    RootBeanDefinition bd1 = new RootBeanDefinition(LazyInitFactory.class);
+    RootBeanDefinition bd2 = new RootBeanDefinition(LazyInitFactory.class);
+    bd1.setPrimary(true);
+    bd2.setPrimary(true);
+    lbf.registerBeanDefinition("bd1", bd1);
+    lbf.registerBeanDefinition("bd2", bd2);
+    assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+            .isThrownBy(() -> lbf.autowire(FactoryBeanDependentBean.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true))
             .withCauseExactlyInstanceOf(NoUniqueBeanDefinitionException.class);
   }
 

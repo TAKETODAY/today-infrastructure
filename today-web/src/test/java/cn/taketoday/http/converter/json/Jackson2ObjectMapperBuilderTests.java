@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter.json;
@@ -61,6 +61,7 @@ import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.junit.jupiter.api.Test;
@@ -562,11 +563,17 @@ class Jackson2ObjectMapperBuilderTests {
   }
 
   @Test
-    // SPR-14435
   void factory() {
     ObjectMapper objectMapper = new Jackson2ObjectMapperBuilder().factory(new SmileFactory()).build();
     assertThat(objectMapper).isNotNull();
     assertThat(objectMapper.getFactory().getClass()).isEqualTo(SmileFactory.class);
+  }
+
+  @Test
+  void yaml() {
+    ObjectMapper objectMapper = Jackson2ObjectMapperBuilder.yaml().build();
+    assertThat(objectMapper).isNotNull();
+    assertThat(objectMapper.getFactory().getClass()).isEqualTo(YAMLFactory.class);
   }
 
   @Test

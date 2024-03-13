@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -30,17 +30,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class Spr16179Tests {
 
   @Test
-  public void repro() {
-    AnnotationConfigApplicationContext bf =
-            new AnnotationConfigApplicationContext(AssemblerConfig.class, AssemblerInjection.class);
-
-    assertThat(bf.getBean(AssemblerInjection.class).assembler0).isSameAs(bf.getBean("someAssembler"));
-    // assertNull(bf.getBean(AssemblerInjection.class).assembler1);  TODO: accidental match
-    // assertNull(bf.getBean(AssemblerInjection.class).assembler2);
-    assertThat(bf.getBean(AssemblerInjection.class).assembler3).isSameAs(bf.getBean("pageAssembler"));
-    assertThat(bf.getBean(AssemblerInjection.class).assembler4).isSameAs(bf.getBean("pageAssembler"));
-    assertThat(bf.getBean(AssemblerInjection.class).assembler5).isSameAs(bf.getBean("pageAssembler"));
-    assertThat(bf.getBean(AssemblerInjection.class).assembler6).isSameAs(bf.getBean("pageAssembler"));
+  void repro() {
+    try (AnnotationConfigApplicationContext bf = new AnnotationConfigApplicationContext(AssemblerConfig.class, AssemblerInjection.class)) {
+      assertThat(bf.getBean(AssemblerInjection.class).assembler0).isSameAs(bf.getBean("someAssembler"));
+      assertThat(bf.getBean(AssemblerInjection.class).assembler1).isNull();
+      assertThat(bf.getBean(AssemblerInjection.class).assembler2).isSameAs(bf.getBean("pageAssembler"));
+      assertThat(bf.getBean(AssemblerInjection.class).assembler3).isSameAs(bf.getBean("pageAssembler"));
+      assertThat(bf.getBean(AssemblerInjection.class).assembler4).isSameAs(bf.getBean("pageAssembler"));
+      assertThat(bf.getBean(AssemblerInjection.class).assembler5).isSameAs(bf.getBean("pageAssembler"));
+      assertThat(bf.getBean(AssemblerInjection.class).assembler6).isSameAs(bf.getBean("pageAssembler"));
+    }
   }
 
   @Configuration
@@ -53,7 +52,7 @@ public class Spr16179Tests {
 
     @Bean
     Assembler<SomeType> someAssembler() {
-      return new Assembler<SomeType>() { };
+      return new Assembler<>() { };
     }
   }
 

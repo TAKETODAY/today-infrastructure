@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.MultiValueMap;
@@ -60,9 +61,6 @@ import reactor.core.publisher.Mono;
  * @since 4.0
  */
 public class FormHttpMessageWriter extends LoggingCodecSupport implements HttpMessageWriter<MultiValueMap<String, String>> {
-
-  private static final MediaType DEFAULT_FORM_DATA_MEDIA_TYPE =
-          MediaType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8);
 
   private static final List<MediaType> MEDIA_TYPES =
           Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED);
@@ -132,21 +130,23 @@ public class FormHttpMessageWriter extends LoggingCodecSupport implements HttpMe
 
   protected MediaType getMediaType(@Nullable MediaType mediaType) {
     if (mediaType == null) {
-      return DEFAULT_FORM_DATA_MEDIA_TYPE;
+      return MediaType.APPLICATION_FORM_URLENCODED;
     }
-    else if (mediaType.getCharset() == null) {
-      return mediaType.withCharset(getDefaultCharset());
+    // Some servers don't handle charset parameter and spec is unclear,
+    // Add it only if it is not DEFAULT_CHARSET.
+    if (mediaType.getCharset() == null) {
+      Charset defaultCharset = getDefaultCharset();
+      if (defaultCharset != Constant.DEFAULT_CHARSET) {
+        return mediaType.withCharset(defaultCharset);
+      }
     }
-    else {
-      return mediaType;
-    }
+    return mediaType;
   }
 
   private void logFormData(MultiValueMap<String, String> form, Map<String, Object> hints) {
     LogFormatUtils.traceDebug(logger, traceOn -> Hints.getLogPrefix(hints) + "Writing " +
-            (isEnableLoggingRequestDetails() ?
-             LogFormatUtils.formatValue(form, !traceOn) :
-             "form fields " + form.keySet() + " (content masked)"));
+            (isEnableLoggingRequestDetails() ? LogFormatUtils.formatValue(form, !traceOn)
+                    : "form fields " + form.keySet() + " (content masked)"));
   }
 
   protected String serializeForm(MultiValueMap<String, String> formData, Charset charset) {

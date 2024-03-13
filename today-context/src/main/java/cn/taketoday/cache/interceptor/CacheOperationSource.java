@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
@@ -24,6 +21,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * Interface used by {@link CacheInterceptor}. Implementations know how to source
@@ -32,6 +30,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Costin Leau
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface CacheOperationSource {
@@ -49,9 +48,22 @@ public interface CacheOperationSource {
    * @return {@code false} if the class is known to have no cache operation
    * metadata at class or method level; {@code true} otherwise. The default
    * implementation returns {@code true}, leading to regular introspection.
+   * @see #hasCacheOperations
    */
   default boolean isCandidateClass(Class<?> targetClass) {
     return true;
+  }
+
+  /**
+   * Determine whether there are cache operations for the given method.
+   *
+   * @param method the method to introspect
+   * @param targetClass the target class (can be {@code null},
+   * in which case the declaring class of the method must be used)
+   * @see #getCacheOperations
+   */
+  default boolean hasCacheOperations(Method method, @Nullable Class<?> targetClass) {
+    return CollectionUtils.isNotEmpty(getCacheOperations(method, targetClass));
   }
 
   /**
@@ -59,7 +71,7 @@ public interface CacheOperationSource {
    * or {@code null} if the method contains no <em>cacheable</em> annotations.
    *
    * @param method the method to introspect
-   * @param targetClass the target class (may be {@code null}, in which case
+   * @param targetClass the target class (can be {@code null}, in which case
    * the declaring class of the method must be used)
    * @return all cache operations for this method, or {@code null} if none found
    */

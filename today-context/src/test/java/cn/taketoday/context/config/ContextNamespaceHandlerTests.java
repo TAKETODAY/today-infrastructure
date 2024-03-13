@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.config;
@@ -32,6 +29,7 @@ import cn.taketoday.context.support.ClassPathXmlApplicationContext;
 import cn.taketoday.context.support.GenericXmlApplicationContext;
 import cn.taketoday.context.support.MockEnvironment;
 import cn.taketoday.core.io.ClassPathResource;
+import cn.taketoday.util.PlaceholderResolutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -136,7 +134,7 @@ public class ContextNamespaceHandlerTests {
     assertThatExceptionOfType(FatalBeanException.class)
             .isThrownBy(() -> new ClassPathXmlApplicationContext("contextNamespaceHandlerTests-location-placeholder.xml", getClass()))
             .havingRootCause()
-            .isInstanceOf(IllegalArgumentException.class)
+            .isInstanceOf(PlaceholderResolutionException.class)
             .withMessage("Could not resolve placeholder 'foo' in value \"${foo}\"");
   }
 

@@ -28,6 +28,7 @@ import cn.taketoday.beans.SimpleTypeConverter;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.config.DependencyDescriptor;
+import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.AutowireCandidateQualifier;
 import cn.taketoday.beans.factory.support.AutowireCandidateResolver;
 import cn.taketoday.beans.factory.support.GenericTypeAwareAutowireCandidateResolver;
@@ -177,42 +178,44 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
    * Match the given qualifier annotations against the candidate bean holder.
    */
   protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
-    if (ObjectUtils.isEmpty(annotationsToSearch)) {
-      return true;
-    }
-    SimpleTypeConverter typeConverter = new SimpleTypeConverter();
-    for (Annotation annotation : annotationsToSearch) {
-      Class<? extends Annotation> type = annotation.annotationType();
-      boolean checkMeta = true;
-      boolean fallbackToMeta = false;
-      if (isQualifier(type)) {
-        if (!checkQualifier(bdHolder, annotation, typeConverter)) {
-          fallbackToMeta = true;
-        }
-        else {
-          checkMeta = false;
-        }
-      }
-      if (checkMeta) {
-        boolean foundMeta = false;
-        for (Annotation metaAnn : type.getAnnotations()) {
-          Class<? extends Annotation> metaType = metaAnn.annotationType();
-          if (isQualifier(metaType)) {
-            foundMeta = true;
-            // Only accept fallback match if @Qualifier annotation has a value...
-            // Otherwise it is just a marker for a custom qualifier annotation.
-            if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn))) ||
-                    !checkQualifier(bdHolder, metaAnn, typeConverter)) {
-              return false;
-            }
+    boolean qualifierFound = false;
+    if (ObjectUtils.isNotEmpty(annotationsToSearch)) {
+      SimpleTypeConverter typeConverter = new SimpleTypeConverter();
+      for (Annotation annotation : annotationsToSearch) {
+        Class<? extends Annotation> type = annotation.annotationType();
+        boolean checkMeta = true;
+        boolean fallbackToMeta = false;
+        if (isQualifier(type)) {
+          qualifierFound = true;
+          if (!checkQualifier(bdHolder, annotation, typeConverter)) {
+            fallbackToMeta = true;
+          }
+          else {
+            checkMeta = false;
           }
         }
-        if (fallbackToMeta && !foundMeta) {
-          return false;
+        if (checkMeta) {
+          boolean foundMeta = false;
+          for (Annotation metaAnn : type.getAnnotations()) {
+            Class<? extends Annotation> metaType = metaAnn.annotationType();
+            if (isQualifier(metaType)) {
+              qualifierFound = true;
+              foundMeta = true;
+              // Only accept fallback match if @Qualifier annotation has a value...
+              // Otherwise, it is just a marker for a custom qualifier annotation.
+              if ((fallbackToMeta && ObjectUtils.isEmpty(AnnotationUtils.getValue(metaAnn)))
+                      || !checkQualifier(bdHolder, metaAnn, typeConverter)) {
+                return false;
+              }
+            }
+          }
+          if (fallbackToMeta && !foundMeta) {
+            return false;
+          }
         }
       }
     }
-    return true;
+    return qualifierFound || ((AbstractBeanDefinition) bdHolder.getBeanDefinition()).isDefaultCandidate();
   }
 
   /**
@@ -335,6 +338,20 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
       }
     }
     return false;
+  }
+
+  @Override
+  @Nullable
+  public String getSuggestedName(DependencyDescriptor descriptor) {
+    for (Annotation annotation : descriptor.getAnnotations()) {
+      if (isQualifier(annotation.annotationType())) {
+        Object value = AnnotationUtils.getValue(annotation);
+        if (value instanceof String str) {
+          return str;
+        }
+      }
+    }
+    return null;
   }
 
   /**

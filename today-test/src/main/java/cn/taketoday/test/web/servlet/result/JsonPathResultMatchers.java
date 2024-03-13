@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.result;
@@ -29,6 +26,7 @@ import org.hamcrest.core.StringStartsWith;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.util.JsonPathExpectationsHelper;
 import cn.taketoday.test.web.servlet.MvcResult;
@@ -46,6 +44,7 @@ import cn.taketoday.util.StringUtils;
  * @author Craig Andrews
  * @author Sam Brannen
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class JsonPathResultMatchers {
@@ -65,7 +64,8 @@ public class JsonPathResultMatchers {
    * using formatting specifiers defined in {@link String#format(String, Object...)}
    */
   protected JsonPathResultMatchers(String expression, Object... args) {
-    this.jsonPathHelper = new JsonPathExpectationsHelper(expression, args);
+    Assert.hasText(expression, "expression must not be null or empty");
+    this.jsonPathHelper = new JsonPathExpectationsHelper(expression.formatted(args));
   }
 
   /**

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.support;
@@ -41,6 +38,7 @@ import cn.taketoday.core.Ordered;
  * late execution; return a lower value for earlier execution.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionSynchronizationManager
  * @see AbstractPlatformTransactionManager
  * @see cn.taketoday.jdbc.datasource.DataSourceUtils#CONNECTION_SYNCHRONIZATION_ORDER
@@ -160,5 +158,33 @@ public interface TransactionSynchronization extends Ordered, Flushable {
    * @see #beforeCompletion
    */
   default void afterCompletion(int status) { }
+
+  /**
+   * Invoked on creation of a new savepoint, either when a nested transaction
+   * is started against an existing transaction or on a programmatic savepoint
+   * via {@link cn.taketoday.transaction.TransactionStatus}.
+   * <p>This synchronization callback is invoked right <i>after</i> the creation
+   * of the resource savepoint, with the given savepoint object already active.
+   *
+   * @param savepoint the associated savepoint object (primarily as a key for
+   * identifying the savepoint but also castable to the resource savepoint type)
+   * @see cn.taketoday.transaction.SavepointManager#createSavepoint
+   * @see cn.taketoday.transaction.TransactionDefinition#PROPAGATION_NESTED
+   */
+  default void savepoint(Object savepoint) {
+  }
+
+  /**
+   * Invoked in case of a rollback to the previously created savepoint.
+   * <p>This synchronization callback is invoked right <i>before</i> the rollback
+   * of the resource savepoint, with the given savepoint object still active.
+   *
+   * @param savepoint the associated savepoint object (primarily as a key for
+   * identifying the savepoint but also castable to the resource savepoint type)
+   * @see #savepoint
+   * @see cn.taketoday.transaction.SavepointManager#rollbackToSavepoint
+   */
+  default void savepointRollback(Object savepoint) {
+  }
 
 }

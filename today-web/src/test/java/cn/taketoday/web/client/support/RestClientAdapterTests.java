@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client.support;
@@ -166,7 +166,7 @@ class RestClientAdapterTests {
     service.postForm(map);
 
     RecordedRequest request = server.takeRequest();
-    assertThat(request.getHeaders().get("Content-Type")).isEqualTo("application/x-www-form-urlencoded;charset=UTF-8");
+    assertThat(request.getHeaders().get("Content-Type")).isEqualTo("application/x-www-form-urlencoded");
     assertThat(request.getBody().readUtf8()).isEqualTo("param1=value+1&param2=value+2");
   }
 

@@ -47,7 +47,7 @@ final class LoadedPemSslStore implements PemSslStore {
   private final Supplier<PrivateKey> privateKeySupplier;
 
   LoadedPemSslStore(PemSslStoreDetails details) {
-    Assert.notNull(details, "Details must not be null");
+    Assert.notNull(details, "Details is required");
     this.details = details;
     this.certificatesSupplier = supplier(() -> loadCertificates(details));
     this.privateKeySupplier = supplier(() -> loadPrivateKey(details));

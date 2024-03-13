@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.context.annotation;
 
 import java.lang.annotation.Documented;
@@ -32,6 +30,10 @@ import cn.taketoday.stereotype.Component;
  * are qualified to autowire a single-valued dependency. If exactly one
  * 'primary' bean exists among the candidates, it will be the autowired value.
  *
+ * <p>Primary beans only have an effect when finding multiple candidates
+ * for single injection points. All type-matching beans are included when
+ * autowiring arrays, collections, maps, or ObjectProvider streams.
+ *
  * <p>This annotation is semantically equivalent to the {@code <bean>} element's
  * {@code primary} attribute in Infra XML.
  *
@@ -39,19 +41,19 @@ import cn.taketoday.stereotype.Component;
  * {@code @Component} or on methods annotated with @{@link Bean}.
  *
  * <h2>Example</h2>
- * <pre class="code">
- * &#064;Component
+ * <pre>{@code
+ * @Component
  * public class FooService {
  *
  *     private FooRepository fooRepository;
  *
- *     &#064;Autowired
+ *     @Autowired
  *     public FooService(FooRepository fooRepository) {
  *         this.fooRepository = fooRepository;
  *     }
  * }
  *
- * &#064;Component
+ * @Component
  * public class JdbcFooRepository extends FooRepository {
  *
  *     public JdbcFooRepository(DataSource dataSource) {
@@ -59,15 +61,15 @@ import cn.taketoday.stereotype.Component;
  *     }
  * }
  *
- * &#064;Primary
- * &#064;Component
+ * @Primary
+ * @Component
  * public class HibernateFooRepository extends FooRepository {
  *
  *     public HibernateFooRepository(SessionFactory sessionFactory) {
  *         // ...
  *     }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>Because {@code HibernateFooRepository} is marked with {@code @Primary},
  * it will be injected preferentially over the jdbc-based variant assuming both
@@ -81,13 +83,13 @@ import cn.taketoday.stereotype.Component;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
- * @author TODAY<br>
- * 2019-08-31 13:50
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Lazy
  * @see Bean
+ * @see Fallback
  * @see ComponentScan
  * @see Component
- * @since 3.0
+ * @since 3.0 2019-08-31 13:50
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

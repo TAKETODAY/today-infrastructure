@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -129,6 +129,40 @@ public abstract class RouterFunctions {
           RequestPredicate predicate, RouterFunction<T> routerFunction) {
 
     return new DefaultNestedRouterFunction<>(predicate, routerFunction);
+  }
+
+  /**
+   * Route requests that match the given predicate to the given resource.
+   * For instance
+   * <pre>{@code
+   * Resource resource = new ClassPathResource("static/index.html")
+   * RouterFunction<ServerResponse> resources = RouterFunctions.resource(path("/api/**").negate(), resource);
+   * }</pre>
+   *
+   * @param predicate predicate to match
+   * @param resource the resources to serve
+   * @return a router function that routes to a resource
+   */
+  public static RouterFunction<ServerResponse> resource(RequestPredicate predicate, Resource resource) {
+    return resources(new PredicateResourceLookupFunction(predicate, resource), (consumerResource, httpHeaders) -> { });
+  }
+
+  /**
+   * Route requests that match the given predicate to the given resource.
+   * For instance
+   * <pre>{@code
+   * Resource resource = new ClassPathResource("static/index.html")
+   * RouterFunction<ServerResponse> resources = RouterFunctions.resource(path("/api/**").negate(), resource);
+   * }</pre>
+   *
+   * @param predicate predicate to match
+   * @param resource the resources to serve
+   * @param headersConsumer provides access to the HTTP headers for served resources
+   * @return a router function that routes to a resource
+   */
+  public static RouterFunction<ServerResponse> resource(RequestPredicate predicate, Resource resource,
+          BiConsumer<Resource, HttpHeaders> headersConsumer) {
+    return resources(new PredicateResourceLookupFunction(predicate, resource), headersConsumer);
   }
 
   /**
@@ -608,6 +642,35 @@ public abstract class RouterFunctions {
     Builder add(RouterFunction<ServerResponse> routerFunction);
 
     /**
+     * Route requests that match the given predicate to the given resource.
+     * For instance
+     * <pre>{@code
+     * Resource resource = new ClassPathResource("static/index.html")
+     * RouterFunction<ServerResponse> resources = RouterFunctions.resource(path("/api/**").negate(), resource);
+     * }</pre>
+     *
+     * @param predicate predicate to match
+     * @param resource the resources to serve
+     * @return a router function that routes to a resource
+     */
+    Builder resource(RequestPredicate predicate, Resource resource);
+
+    /**
+     * Route requests that match the given predicate to the given resource.
+     * For instance
+     * <pre>{@code
+     * Resource resource = new ClassPathResource("static/index.html")
+     * RouterFunction<ServerResponse> resources = RouterFunctions.resource(path("/api/**").negate(), resource);
+     * }</pre>
+     *
+     * @param predicate predicate to match
+     * @param resource the resources to serve
+     * @param headersConsumer provides access to the HTTP headers for served resources
+     * @return a router function that routes to a resource
+     */
+    Builder resource(RequestPredicate predicate, Resource resource, BiConsumer<Resource, HttpHeaders> headersConsumer);
+
+    /**
      * Route requests that match the given pattern to resources relative to the given root location.
      * For instance
      * <pre>{@code
@@ -1002,26 +1065,26 @@ public abstract class RouterFunctions {
    * another function (of a different response type) if this route had
    * {@linkplain Optional#empty() no result}.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   static final class DifferentComposedRouterFunction extends AbstractRouterFunction<ServerResponse> {
 
-    private final RouterFunction<?> first;
-    private final RouterFunction<?> second;
+    private final RouterFunction first;
 
-    public DifferentComposedRouterFunction(RouterFunction<?> first, RouterFunction<?> second) {
+    private final RouterFunction second;
+
+    public DifferentComposedRouterFunction(RouterFunction first, RouterFunction second) {
       this.first = first;
       this.second = second;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Optional<HandlerFunction<ServerResponse>> route(ServerRequest request) {
-      Optional<? extends HandlerFunction<?>> firstRoute = this.first.route(request);
+      Optional<HandlerFunction<ServerResponse>> firstRoute = this.first.route(request);
       if (firstRoute.isPresent()) {
-        return (Optional<HandlerFunction<ServerResponse>>) firstRoute;
+        return firstRoute;
       }
       else {
-        Optional<? extends HandlerFunction<?>> secondRoute = this.second.route(request);
-        return (Optional<HandlerFunction<ServerResponse>>) secondRoute;
+        return this.second.route(request);
       }
     }
 
@@ -1043,11 +1106,10 @@ public abstract class RouterFunctions {
           implements RouterFunction<S> {
 
     private final RouterFunction<T> routerFunction;
+
     private final HandlerFilterFunction<T, S> filterFunction;
 
-    public FilteredRouterFunction(
-            RouterFunction<T> routerFunction,
-            HandlerFilterFunction<T, S> filterFunction) {
+    public FilteredRouterFunction(RouterFunction<T> routerFunction, HandlerFilterFunction<T, S> filterFunction) {
       this.routerFunction = routerFunction;
       this.filterFunction = filterFunction;
     }
@@ -1071,6 +1133,7 @@ public abstract class RouterFunctions {
   private static final class DefaultRouterFunction<T extends ServerResponse> extends AbstractRouterFunction<T> {
 
     private final RequestPredicate predicate;
+
     private final HandlerFunction<T> handlerFunction;
 
     public DefaultRouterFunction(RequestPredicate predicate, HandlerFunction<T> handlerFunction) {
@@ -1103,6 +1166,7 @@ public abstract class RouterFunctions {
   private static final class DefaultNestedRouterFunction<T extends ServerResponse> extends AbstractRouterFunction<T> {
 
     private final RequestPredicate predicate;
+
     private final RouterFunction<T> routerFunction;
 
     public DefaultNestedRouterFunction(RequestPredicate predicate, RouterFunction<T> routerFunction) {
@@ -1116,18 +1180,16 @@ public abstract class RouterFunctions {
     public Optional<HandlerFunction<T>> route(ServerRequest serverRequest) {
       return predicate.nest(serverRequest)
               .map(nestedRequest -> {
-                        if (log.isTraceEnabled()) {
-                          log.trace("Nested predicate \"{}\" matches against \"{}\"",
-                                  predicate, serverRequest);
-                        }
-                        var result = routerFunction.route(nestedRequest);
-                        if (result.isPresent() && nestedRequest != serverRequest) {
-                          serverRequest.attributes().clear();
-                          serverRequest.attributes().putAll(nestedRequest.attributes());
-                        }
-                        return result;
-                      }
-              )
+                if (log.isTraceEnabled()) {
+                  log.trace("Nested predicate \"{}\" matches against \"{}\"", predicate, serverRequest);
+                }
+                var result = routerFunction.route(nestedRequest);
+                if (result.isPresent() && nestedRequest != serverRequest) {
+                  serverRequest.exchange().clearAttributes();
+                  serverRequest.exchange().copyAttributesFrom(nestedRequest.exchange());
+                }
+                return result;
+              })
               .orElse(Optional.empty());
     }
 

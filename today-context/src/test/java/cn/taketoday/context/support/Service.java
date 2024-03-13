@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -80,21 +80,17 @@ public class Service implements ApplicationContextAware, MessageSourceAware, Dis
   @Override
   public void destroy() {
     this.properlyDestroyed = true;
-    Thread thread = new Thread() {
-      @Override
-      public void run() {
-        Assert.state(applicationContext.getBean("messageSource") instanceof StaticMessageSource,
-                "Invalid MessageSource bean");
-        try {
-          applicationContext.getBean("service2");
-          // Should have thrown BeanCreationNotAllowedException
-          properlyDestroyed = false;
-        }
-        catch (BeanCreationNotAllowedException ex) {
-          // expected
-        }
+    Thread thread = new Thread(() -> {
+      Assert.state(applicationContext.getBean("messageSource") instanceof StaticMessageSource,
+              "Invalid MessageSource bean");
+      try {
+        // Should not throw BeanCreationNotAllowedException on 6.2 anymore
+        applicationContext.getBean("service2");
       }
-    };
+      catch (BeanCreationNotAllowedException ex) {
+        properlyDestroyed = false;
+      }
+    });
     thread.start();
     try {
       thread.join();

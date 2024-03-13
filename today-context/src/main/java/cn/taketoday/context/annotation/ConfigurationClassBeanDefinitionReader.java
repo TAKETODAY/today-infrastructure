@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -54,6 +54,7 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -70,11 +71,15 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0
  */
 class ConfigurationClassBeanDefinitionReader {
+
   private static final Logger logger = LoggerFactory.getLogger(ConfigurationClassBeanDefinitionReader.class);
+
   private static final ScopeMetadataResolver scopeMetadataResolver = new AnnotationScopeMetadataResolver();
 
   private final ImportRegistry importRegistry;
+
   private final BootstrapContext bootstrapContext;
+
   private final BeanNameGenerator importBeanNameGenerator;
 
   /**
@@ -195,7 +200,7 @@ class ConfigurationClassBeanDefinitionReader {
       return;
     }
 
-    ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, methodMetadata, beanName);
+    var beanDef = new ConfigurationClassBeanDefinition(configClass, methodMetadata, beanName);
     beanDef.setSource(configClass.resource);
     beanDef.setResource(configClass.resource);
 
@@ -218,8 +223,13 @@ class ConfigurationClassBeanDefinitionReader {
       beanDef.setFactoryBeanName(configClass.beanName);
       beanDef.setUniqueFactoryMethodName(methodName);
     }
-    if (methodMetadata instanceof StandardMethodMetadata sam) {
-      beanDef.setResolvedFactoryMethod(sam.getIntrospectedMethod());
+
+    if (methodMetadata instanceof StandardMethodMetadata smm &&
+            configClass.metadata instanceof StandardAnnotationMetadata sam) {
+      Method method = ReflectionUtils.getMostSpecificMethod(smm.getIntrospectedMethod(), sam.getIntrospectedClass());
+      if (method == smm.getIntrospectedMethod()) {
+        beanDef.setResolvedFactoryMethod(method);
+      }
     }
 
     beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_CONSTRUCTOR);
@@ -227,6 +237,15 @@ class ConfigurationClassBeanDefinitionReader {
 
     if (!component.getBoolean("autowireCandidate")) {
       beanDef.setAutowireCandidate(false);
+    }
+
+    if (!component.getBoolean("defaultCandidate")) {
+      beanDef.setDefaultCandidate(false);
+    }
+
+    Component.Bootstrap instantiation = component.getEnum("bootstrap", Component.Bootstrap.class);
+    if (instantiation == Component.Bootstrap.BACKGROUND) {
+      beanDef.setBackgroundInit(true);
     }
 
     String[] initMethodName = component.getStringArray("initMethods");
@@ -352,9 +371,7 @@ class ConfigurationClassBeanDefinitionReader {
     return true;
   }
 
-  private void loadBeanDefinitionsFromImportedResources(
-          Map<String, Class<? extends BeanDefinitionReader>> importedResources) {
-
+  private void loadBeanDefinitionsFromImportedResources(Map<String, Class<? extends BeanDefinitionReader>> importedResources) {
     HashMap<Class<?>, BeanDefinitionReader> readerInstanceCache = new HashMap<>();
 
     for (Map.Entry<String, Class<? extends BeanDefinitionReader>> entry : importedResources.entrySet()) {
@@ -379,8 +396,8 @@ class ConfigurationClassBeanDefinitionReader {
           readerInstanceCache.put(readerClass, reader);
         }
         catch (Throwable ex) {
-          throw new IllegalStateException(
-                  "Could not instantiate BeanDefinitionReader class [" + readerClass.getName() + "]");
+          throw new IllegalStateException("Could not instantiate BeanDefinitionReader class [%s]"
+                  .formatted(readerClass.getName()));
         }
       }
 
@@ -446,8 +463,8 @@ class ConfigurationClassBeanDefinitionReader {
 
     private final String derivedBeanName;
 
-    public ConfigurationClassBeanDefinition(
-            ConfigurationClass configClass, MethodMetadata beanMethodMetadata, String derivedBeanName) {
+    public ConfigurationClassBeanDefinition(ConfigurationClass configClass,
+            MethodMetadata beanMethodMetadata, String derivedBeanName) {
 
       this.annotationMetadata = configClass.metadata;
       this.factoryMethodMetadata = beanMethodMetadata;

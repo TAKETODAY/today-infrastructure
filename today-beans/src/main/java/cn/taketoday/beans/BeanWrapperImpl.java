@@ -196,7 +196,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     BeanProperty beanProperty = getMetadata().getBeanProperty(propertyName);
     if (beanProperty == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
-              "No property '" + propertyName + "' found");
+              "No property '%s' found".formatted(propertyName));
     }
     TypeDescriptor typeDescriptor = beanProperty.getTypeDescriptor();
     return convertForProperty(propertyName, null, value, typeDescriptor);
@@ -233,7 +233,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
     BeanProperty property = nestedBw.getMetadata().getBeanProperty(finalPath);
     if (property == null) {
       throw new InvalidPropertyException(getRootClass(), getNestedPath() + propertyName,
-              "No property '" + propertyName + "' found");
+              "No property '%s' found".formatted(propertyName));
     }
     return property;
   }

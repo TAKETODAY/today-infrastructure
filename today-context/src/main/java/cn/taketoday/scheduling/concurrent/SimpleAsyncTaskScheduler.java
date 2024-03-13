@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
@@ -81,6 +82,7 @@ import cn.taketoday.util.ErrorHandler;
  * a dynamic core/max pool size range, participating in a shared concurrency limit.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setVirtualThreads
  * @see #setTaskTerminationTimeout
  * @see #setConcurrencyLimit
@@ -91,6 +93,14 @@ import cn.taketoday.util.ErrorHandler;
 @SuppressWarnings("serial")
 public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements TaskScheduler,
         ApplicationContextAware, SmartLifecycle, ApplicationListener<ContextClosedEvent> {
+
+  /**
+   * The default phase for an executor {@link SmartLifecycle}: {@code Integer.MAX_VALUE / 2}.
+   *
+   * @see #getPhase()
+   * @see ExecutorConfigurationSupport#DEFAULT_PHASE
+   */
+  public static final int DEFAULT_PHASE = ExecutorConfigurationSupport.DEFAULT_PHASE;
 
   private static final TimeUnit NANO = TimeUnit.NANOSECONDS;
 
@@ -185,7 +195,16 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   }
 
   private Runnable scheduledTask(Runnable task) {
-    return () -> execute(task);
+    return () -> execute(new DelegatingErrorHandlingRunnable(task, this::shutdownAwareErrorHandler));
+  }
+
+  private void shutdownAwareErrorHandler(Throwable ex) {
+    if (this.scheduledExecutor.isTerminated()) {
+      LoggerFactory.getLogger(getClass()).debug("Ignoring scheduled task exception after shutdown", ex);
+    }
+    else {
+      TaskUtils.getDefaultErrorHandler(true).handleError(ex);
+    }
   }
 
   private Runnable taskOnSchedulerThread(Runnable task) {

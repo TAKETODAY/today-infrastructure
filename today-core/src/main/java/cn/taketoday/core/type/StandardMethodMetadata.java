@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Map;
 
-import cn.taketoday.bytecode.Type;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
@@ -164,18 +163,4 @@ public class StandardMethodMetadata implements MethodMetadata {
     return this.introspectedMethod.toString();
   }
 
-  @Override
-  public int getParameterCount() {
-    return introspectedMethod.getParameterCount();
-  }
-
-  @Override
-  public Type[] getArgumentTypes() {
-    return Type.getArgumentTypes(introspectedMethod);
-  }
-
-  @Override
-  public Class<?>[] getParameterTypes() {
-    return introspectedMethod.getParameterTypes();
-  }
 }

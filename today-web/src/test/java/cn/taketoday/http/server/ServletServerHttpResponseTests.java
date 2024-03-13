@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server;
@@ -75,6 +72,19 @@ public class ServletServerHttpResponseTests {
     assertThat(mockResponse.getHeader("Content-Type")).as("Invalid Content-Type").isEqualTo("text/plain;charset=UTF-8");
     assertThat(mockResponse.getContentType()).as("Invalid Content-Type").isEqualTo("text/plain;charset=UTF-8");
     assertThat(mockResponse.getCharacterEncoding()).as("Invalid Content-Type").isEqualTo("UTF-8");
+  }
+
+  @Test
+  void getHeadersWithNoContentType() {
+    this.response = new ServletServerHttpResponse(this.mockResponse);
+    assertThat(this.response.getHeaders().get(HttpHeaders.CONTENT_TYPE)).isNull();
+  }
+
+  @Test
+  void getHeadersWithContentType() {
+    this.mockResponse.setContentType(MediaType.TEXT_PLAIN_VALUE);
+    this.response = new ServletServerHttpResponse(this.mockResponse);
+    assertThat(this.response.getHeaders().get(HttpHeaders.CONTENT_TYPE)).containsExactly(MediaType.TEXT_PLAIN_VALUE);
   }
 
   @Test

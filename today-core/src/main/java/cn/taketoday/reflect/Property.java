@@ -52,6 +52,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2022/7/23 01:01
  */
 public class Property implements Member, AnnotatedElement, Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -77,8 +78,10 @@ public class Property implements Member, AnnotatedElement, Serializable {
 
   /** @since 4.0 */
   private Class<?> propertyType;
+
   /** @since 4.0 */
   private Class<?> declaringClass;
+
   /** @since 4.0 */
   private boolean fieldIsNull;
 
@@ -106,15 +109,15 @@ public class Property implements Member, AnnotatedElement, Serializable {
     this(field.getName(), field);
   }
 
-  public Property(@Nullable Method readMethod, @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
-    this(null, readMethod, writeMethod, declaringClass);
+  public Property(Class<?> objectType, @Nullable Method readMethod, @Nullable Method writeMethod) {
+    this(null, readMethod, writeMethod, objectType);
   }
 
   public Property(@Nullable String name, @Nullable Method readMethod,
           @Nullable Method writeMethod, @Nullable Class<?> declaringClass) {
     if (readMethod == null && writeMethod == null) {
-      throw new IllegalArgumentException(
-              "Property '" + name + "' in '" + declaringClass + "' is neither readable nor writeable");
+      throw new IllegalArgumentException("Property '%s' in '%s' is neither readable nor writeable"
+              .formatted(name, declaringClass));
     }
     this.readMethod = readMethod;
     this.writeMethod = writeMethod;

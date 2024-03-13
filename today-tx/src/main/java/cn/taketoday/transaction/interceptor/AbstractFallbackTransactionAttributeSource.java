@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.interceptor;
@@ -33,6 +30,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.MethodClassKey;
+import cn.taketoday.util.ReflectionUtils;
 
 /**
  * Abstract implementation of {@link TransactionAttributeSource} that caches
@@ -52,11 +50,11 @@ import cn.taketoday.util.MethodClassKey;
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractFallbackTransactionAttributeSource
         implements TransactionAttributeSource, EmbeddedValueResolverAware {
-  private final static Logger logger = LoggerFactory.getLogger(AbstractFallbackTransactionAttributeSource.class);
 
   /**
    * Canonical value held in cache to indicate no transaction attribute was
@@ -69,6 +67,13 @@ public abstract class AbstractFallbackTransactionAttributeSource
       return "null";
     }
   };
+
+  /**
+   * Logger available to subclasses.
+   * <p>As this base class is not marked Serializable, the logger will be recreated
+   * after serialization - provided that the concrete subclass is Serializable.
+   */
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Nullable
   private transient StringValueResolver embeddedValueResolver;
@@ -85,43 +90,44 @@ public abstract class AbstractFallbackTransactionAttributeSource
     this.embeddedValueResolver = resolver;
   }
 
+  @Override
+  public boolean hasTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
+    return (getTransactionAttribute(method, targetClass, false) != null);
+  }
+
+  @Override
+  @Nullable
+  public TransactionAttribute getTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
+    return getTransactionAttribute(method, targetClass, true);
+  }
+
   /**
    * Determine the transaction attribute for this method invocation.
    * <p>Defaults to the class's transaction attribute if no method attribute is found.
    *
    * @param method the method for the current invocation (never {@code null})
-   * @param targetClass the target class for this invocation (may be {@code null})
+   * @param targetClass the target class for this invocation (can be {@code null})
+   * @param cacheNull whether {@code null} results should be cached as well
    * @return a TransactionAttribute for this method, or {@code null} if the method
    * is not transactional
    */
-  @Override
   @Nullable
-  public TransactionAttribute getTransactionAttribute(Method method, @Nullable Class<?> targetClass) {
-    if (method.getDeclaringClass() == Object.class) {
+  private TransactionAttribute getTransactionAttribute(
+          Method method, @Nullable Class<?> targetClass, boolean cacheNull) {
+
+    if (ReflectionUtils.isObjectMethod(method)) {
       return null;
     }
 
-    // First, see if we have a cached value.
     Object cacheKey = getCacheKey(method, targetClass);
     TransactionAttribute cached = this.attributeCache.get(cacheKey);
+
     if (cached != null) {
-      // Value will either be canonical value indicating there is no transaction attribute,
-      // or an actual transaction attribute.
-      if (cached == NULL_TRANSACTION_ATTRIBUTE) {
-        return null;
-      }
-      else {
-        return cached;
-      }
+      return (cached != NULL_TRANSACTION_ATTRIBUTE ? cached : null);
     }
     else {
-      // We need to work it out.
       TransactionAttribute txAttr = computeTransactionAttribute(method, targetClass);
-      // Put it in the cache.
-      if (txAttr == null) {
-        this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
-      }
-      else {
+      if (txAttr != null) {
         String methodIdentification = ClassUtils.getQualifiedMethodName(method, targetClass);
         if (txAttr instanceof DefaultTransactionAttribute dta) {
           dta.setDescriptor(methodIdentification);
@@ -131,6 +137,9 @@ public abstract class AbstractFallbackTransactionAttributeSource
           logger.trace("Adding transactional method '{}' with attribute: {}", methodIdentification, txAttr);
         }
         this.attributeCache.put(cacheKey, txAttr);
+      }
+      else if (cacheNull) {
+        this.attributeCache.put(cacheKey, NULL_TRANSACTION_ATTRIBUTE);
       }
       return txAttr;
     }
@@ -152,9 +161,10 @@ public abstract class AbstractFallbackTransactionAttributeSource
   /**
    * Same signature as {@link #getTransactionAttribute}, but doesn't cache the result.
    * {@link #getTransactionAttribute} is effectively a caching decorator for this method.
-   * <p>this method can be overridden.
+   * <p>As of 4.1.8, this method can be overridden.
    *
    * @see #getTransactionAttribute
+   * @since 4.1.8
    */
   @Nullable
   protected TransactionAttribute computeTransactionAttribute(Method method, @Nullable Class<?> targetClass) {

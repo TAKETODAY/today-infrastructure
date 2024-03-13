@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.support;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.TypeDescriptor;
@@ -37,12 +33,17 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author Andy Clement
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ReflectiveMethodExecutor implements MethodExecutor {
 
   private final Method originalMethod;
 
+  /**
+   * The method to invoke via reflection, which is not necessarily the method
+   * to invoke in a compiled expression.
+   */
   private final Method methodToInvoke;
 
   @Nullable
@@ -89,38 +90,21 @@ public class ReflectiveMethodExecutor implements MethodExecutor {
   }
 
   /**
-   * Find the first public class in the methods declaring class hierarchy that declares this method.
-   * Sometimes the reflective method discovery logic finds a suitable method that can easily be
-   * called via reflection but cannot be called from generated code when compiling the expression
-   * because of visibility restrictions. For example if a non-public class overrides toString(),
-   * this helper method will walk up the type hierarchy to find the first public type that declares
-   * the method (if there is one!). For toString() it may walk as far as Object.
+   * Find a public class or interface in the method's class hierarchy that
+   * declares the {@linkplain #getMethod() original method}.
+   * <p>See {@link ReflectionHelper#findPublicDeclaringClass(Method)} for
+   * details.
+   *
+   * @return the public class or interface that declares the method, or
+   * {@code null} if no such public type could be found
    */
   @Nullable
   public Class<?> getPublicDeclaringClass() {
     if (!this.computedPublicDeclaringClass) {
-      this.publicDeclaringClass =
-              discoverPublicDeclaringClass(this.originalMethod, this.originalMethod.getDeclaringClass());
+      this.publicDeclaringClass = ReflectionHelper.findPublicDeclaringClass(this.originalMethod);
       this.computedPublicDeclaringClass = true;
     }
     return this.publicDeclaringClass;
-  }
-
-  @Nullable
-  private Class<?> discoverPublicDeclaringClass(Method method, Class<?> clazz) {
-    if (Modifier.isPublic(clazz.getModifiers())) {
-      try {
-        clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
-        return clazz;
-      }
-      catch (NoSuchMethodException ex) {
-        // Continue below...
-      }
-    }
-    if (clazz.getSuperclass() != null) {
-      return discoverPublicDeclaringClass(method, clazz.getSuperclass());
-    }
-    return null;
   }
 
   public boolean didArgumentConversionOccur() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -857,6 +857,73 @@ class RestClientIntegrationTests {
             this.restClient.get().uri(url).retrieve().toBodilessEntity()
     );
 
+  }
+
+  @ParameterizedRestClientTest
+  void defaultHeaders(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response.setHeader("Content-Type", "text/plain")
+            .setBody("Hello Spring!"));
+
+    RestClient headersClient = this.restClient.mutate()
+            .defaultHeaders(headers -> headers.add("foo", "bar"))
+            .build();
+
+    String result = headersClient.get()
+            .uri("/greeting")
+            .retrieve()
+            .body(String.class);
+
+    assertThat(result).isEqualTo("Hello Spring!");
+
+    expectRequestCount(1);
+    expectRequest(request -> assertThat(request.getHeader("foo")).isEqualTo("bar"));
+  }
+
+  @ParameterizedRestClientTest
+  void defaultRequest(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response.setHeader("Content-Type", "text/plain")
+            .setBody("Hello Spring!"));
+
+    RestClient headersClient = this.restClient.mutate()
+            .defaultRequest(request -> request.header("foo", "bar"))
+            .build();
+
+    String result = headersClient.get()
+            .uri("/greeting")
+            .retrieve()
+            .body(String.class);
+
+    assertThat(result).isEqualTo("Hello Spring!");
+
+    expectRequestCount(1);
+    expectRequest(request -> assertThat(request.getHeader("foo")).isEqualTo("bar"));
+  }
+
+  @ParameterizedRestClientTest
+  void defaultRequestOverride(ClientHttpRequestFactory requestFactory) {
+    startServer(requestFactory);
+
+    prepareResponse(response -> response.setHeader("Content-Type", "text/plain")
+            .setBody("Hello Spring!"));
+
+    RestClient headersClient = this.restClient.mutate()
+            .defaultRequest(request -> request.accept(MediaType.APPLICATION_JSON))
+            .build();
+
+    String result = headersClient.get()
+            .uri("/greeting")
+            .accept(MediaType.TEXT_PLAIN)
+            .retrieve()
+            .body(String.class);
+
+    assertThat(result).isEqualTo("Hello Spring!");
+
+    expectRequestCount(1);
+    expectRequest(request -> assertThat(request.getHeader("Accept")).isEqualTo(MediaType.TEXT_PLAIN_VALUE));
   }
 
   private void prepareResponse(Consumer<MockResponse> consumer) {

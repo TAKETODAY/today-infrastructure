@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
@@ -24,7 +25,6 @@ import cn.taketoday.aop.ClassFilter;
 import cn.taketoday.aop.support.StaticMethodMatcherPointcut;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -36,11 +36,13 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implements Serializable {
 
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   @Nullable
-  public CacheOperationSource cacheOperationSource;
+  private CacheOperationSource cacheOperationSource;
 
   public CacheOperationSourcePointcut() {
     setClassFilter(new CacheOperationSourceClassFilter());
@@ -52,14 +54,14 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
 
   @Override
   public boolean matches(Method method, Class<?> targetClass) {
-    return cacheOperationSource == null
-            || CollectionUtils.isNotEmpty(cacheOperationSource.getCacheOperations(method, targetClass));
+    return (this.cacheOperationSource == null ||
+            this.cacheOperationSource.hasCacheOperations(method, targetClass));
   }
 
   @Override
   public boolean equals(@Nullable Object other) {
-    return (this == other || (other instanceof CacheOperationSourcePointcut otherPc &&
-            ObjectUtils.nullSafeEquals(this.cacheOperationSource, otherPc.cacheOperationSource)));
+    return (this == other || (other instanceof CacheOperationSourcePointcut that &&
+            ObjectUtils.nullSafeEquals(this.cacheOperationSource, that.cacheOperationSource)));
   }
 
   @Override
@@ -76,7 +78,7 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
    * {@link ClassFilter} that delegates to {@link CacheOperationSource#isCandidateClass}
    * for filtering classes whose methods are not worth searching to begin with.
    */
-  private class CacheOperationSourceClassFilter implements ClassFilter {
+  private final class CacheOperationSourceClassFilter implements ClassFilter {
 
     @Override
     public boolean matches(Class<?> clazz) {
@@ -87,14 +89,14 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
     }
 
     @Nullable
-    public CacheOperationSource getCacheOperationSource() {
+    private CacheOperationSource getCacheOperationSource() {
       return cacheOperationSource;
     }
 
     @Override
     public boolean equals(@Nullable Object other) {
       return (this == other || (other instanceof CacheOperationSourceClassFilter that &&
-              ObjectUtils.nullSafeEquals(cacheOperationSource, that.getCacheOperationSource())));
+              ObjectUtils.nullSafeEquals(getCacheOperationSource(), that.getCacheOperationSource())));
     }
 
     @Override
@@ -104,7 +106,7 @@ class CacheOperationSourcePointcut extends StaticMethodMatcherPointcut implement
 
     @Override
     public String toString() {
-      return CacheOperationSourceClassFilter.class.getName() + ": " + cacheOperationSource;
+      return CacheOperationSourceClassFilter.class.getName() + ": " + getCacheOperationSource();
     }
   }
 

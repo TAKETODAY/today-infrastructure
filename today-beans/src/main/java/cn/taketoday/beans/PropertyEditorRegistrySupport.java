@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -331,13 +331,13 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
       LinkedHashMap<String, CustomEditorHolder> editors = this.customEditorsForPath;
       if (editors != null) {
         // Check property-specific editor first.
-        PropertyEditor editor = getCustomEditor(editors, propertyPath, requiredType);
+        PropertyEditor editor = getCustomEditor(propertyPath, requiredType, editors);
         if (editor == null) {
           ArrayList<String> strippedPaths = new ArrayList<>();
           addStrippedPropertyPaths(strippedPaths, "", propertyPath);
           Iterator<String> it = strippedPaths.iterator();
           while (editor == null && it.hasNext()) {
-            editor = getCustomEditor(editors, /*String strippedPath =*/ it.next(), requiredType);
+            editor = getCustomEditor( /*String strippedPath =*/ it.next(), requiredType, editors);
           }
         }
         if (editor != null) {
@@ -402,8 +402,8 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry {
    * @return the custom editor, or {@code null} if none specific for this property
    */
   @Nullable
-  private static PropertyEditor getCustomEditor(
-          LinkedHashMap<String, CustomEditorHolder> customEditorsForPath, String propertyName, @Nullable Class<?> requiredType) {
+  private static PropertyEditor getCustomEditor(String propertyName,
+          @Nullable Class<?> requiredType, LinkedHashMap<String, CustomEditorHolder> customEditorsForPath) {
     CustomEditorHolder holder = customEditorsForPath != null ? customEditorsForPath.get(propertyName) : null;
     return holder != null ? holder.getPropertyEditor(requiredType) : null;
   }

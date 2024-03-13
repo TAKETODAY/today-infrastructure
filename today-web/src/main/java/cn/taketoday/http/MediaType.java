@@ -89,6 +89,20 @@ public class MediaType extends MimeType implements Serializable {
   public static final MediaType APPLICATION_JSON = new MediaType("application", "json");
 
   /**
+   * Public constant media type for {@code application/yaml}.
+   *
+   * @since 4.0
+   */
+  public static final MediaType APPLICATION_YAML = new MediaType("application", "yaml");
+
+  /**
+   * A String equivalent of {@link MediaType#APPLICATION_YAML}.
+   *
+   * @since 4.0
+   */
+  public static final String APPLICATION_YAML_VALUE = "application/yaml";
+
+  /**
    * A String equivalent of {@link MediaType#APPLICATION_JSON}.
    *
    * @see #APPLICATION_JSON_UTF8_VALUE
@@ -550,8 +564,8 @@ public class MediaType extends MimeType implements Serializable {
    */
   public static MediaType asMediaType(MimeType mimeType) {
     return mimeType instanceof MediaType
-           ? (MediaType) mimeType
-           : new MediaType(mimeType);
+            ? (MediaType) mimeType
+            : new MediaType(mimeType);
   }
 
   /**

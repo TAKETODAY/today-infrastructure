@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,18 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -40,13 +41,13 @@ import cn.taketoday.logging.LoggerFactory;
  * check the javadoc of the concrete class that you're using.
  *
  * @author Juergen Hoeller
- * @author TODAY 2021/9/11 15:45
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setConcurrencyLimit
  * @see #beforeAccess()
  * @see #afterAccess()
  * @see cn.taketoday.aop.interceptor.ConcurrencyThrottleInterceptor
  * @see java.io.Serializable
- * @since 4.0
+ * @since 4.0 2021/9/11 15:45
  */
 @SuppressWarnings("serial")
 public abstract class ConcurrencyThrottleSupport implements Serializable {
@@ -64,7 +65,9 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
   /** Transient to optimize serialization. */
   protected transient Logger logger = LoggerFactory.getLogger(getClass());
 
-  private transient Object monitor = new Object();
+  private final Lock concurrencyLock = new ReentrantLock();
+
+  private final Condition concurrencyCondition = this.concurrencyLock.newCondition();
 
   private int concurrencyLimit = UNBOUNDED_CONCURRENCY;
 
@@ -113,20 +116,20 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
     }
     if (this.concurrencyLimit > 0) {
       boolean debug = logger.isDebugEnabled();
-      synchronized(this.monitor) {
+      this.concurrencyLock.lock();
+      try {
         boolean interrupted = false;
         while (this.concurrencyCount >= this.concurrencyLimit) {
           if (interrupted) {
-            throw new IllegalStateException(
-                    "Thread was interrupted while waiting for invocation access, " +
-                            "but concurrency limit still does not allow for entering");
+            throw new IllegalStateException("Thread was interrupted while waiting for invocation access, " +
+                    "but concurrency limit still does not allow for entering");
           }
           if (debug) {
             logger.debug("Concurrency count {} has reached limit {} - blocking",
-                         this.concurrencyCount, this.concurrencyLimit);
+                    this.concurrencyCount, this.concurrencyLimit);
           }
           try {
-            this.monitor.wait();
+            this.concurrencyCondition.await();
           }
           catch (InterruptedException ex) {
             // Re-interrupt current thread, to allow other threads to react.
@@ -139,6 +142,9 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
         }
         this.concurrencyCount++;
       }
+      finally {
+        this.concurrencyLock.unlock();
+      }
     }
   }
 
@@ -149,12 +155,17 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
    */
   protected void afterAccess() {
     if (this.concurrencyLimit >= 0) {
-      synchronized(this.monitor) {
+      boolean debug = logger.isDebugEnabled();
+      this.concurrencyLock.lock();
+      try {
         this.concurrencyCount--;
-        if (logger.isDebugEnabled()) {
+        if (debug) {
           logger.debug("Returning from throttle at concurrency count {}", this.concurrencyCount);
         }
-        this.monitor.notify();
+        this.concurrencyCondition.signal();
+      }
+      finally {
+        this.concurrencyLock.unlock();
       }
     }
   }
@@ -163,13 +174,13 @@ public abstract class ConcurrencyThrottleSupport implements Serializable {
   // Serialization support
   //---------------------------------------------------------------------
 
+  @Serial
   private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     // Rely on default serialization, just initialize state after deserialization.
     ois.defaultReadObject();
 
     // Initialize transient fields.
     this.logger = LoggerFactory.getLogger(getClass());
-    this.monitor = new Object();
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -73,11 +73,13 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
 
   private int keepAliveSeconds = 60;
 
+  private int queueCapacity = Integer.MAX_VALUE;
+
   private boolean allowCoreThreadTimeOut = false;
 
   private boolean prestartAllCoreThreads = false;
 
-  private int queueCapacity = Integer.MAX_VALUE;
+  private boolean strictEarlyShutdown = false;
 
   private boolean exposeUnconfigurableExecutor = false;
 
@@ -109,12 +111,25 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
   }
 
   /**
+   * Set the capacity for the ThreadPoolExecutor's BlockingQueue.
+   * Default is {@code Integer.MAX_VALUE}.
+   * <p>Any positive value will lead to a LinkedBlockingQueue instance;
+   * any other value will lead to a SynchronousQueue instance.
+   *
+   * @see java.util.concurrent.LinkedBlockingQueue
+   * @see java.util.concurrent.SynchronousQueue
+   */
+  public void setQueueCapacity(int queueCapacity) {
+    this.queueCapacity = queueCapacity;
+  }
+
+  /**
    * Specify whether to allow core threads to time out. This enables dynamic
    * growing and shrinking even in combination with a non-zero queue (since
    * the max pool size will only grow once the queue is full).
    * <p>Default is "false".
    *
-   * @see ThreadPoolExecutor#allowCoreThreadTimeOut(boolean)
+   * @see java.util.concurrent.ThreadPoolExecutor#allowCoreThreadTimeOut(boolean)
    */
   public void setAllowCoreThreadTimeOut(boolean allowCoreThreadTimeOut) {
     this.allowCoreThreadTimeOut = allowCoreThreadTimeOut;
@@ -124,23 +139,22 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
    * Specify whether to start all core threads, causing them to idly wait for work.
    * <p>Default is "false".
    *
-   * @see ThreadPoolExecutor#prestartAllCoreThreads
+   * @see java.util.concurrent.ThreadPoolExecutor#prestartAllCoreThreads
    */
   public void setPrestartAllCoreThreads(boolean prestartAllCoreThreads) {
     this.prestartAllCoreThreads = prestartAllCoreThreads;
   }
 
   /**
-   * Set the capacity for the ThreadPoolExecutor's BlockingQueue.
-   * Default is {@code Integer.MAX_VALUE}.
-   * <p>Any positive value will lead to a LinkedBlockingQueue instance;
-   * any other value will lead to a SynchronousQueue instance.
+   * Specify whether to initiate an early shutdown signal on context close,
+   * disposing all idle threads and rejecting further task submissions.
+   * <p>Default is "false".
+   * See {@link ThreadPoolTaskExecutor#setStrictEarlyShutdown} for details.
    *
-   * @see LinkedBlockingQueue
-   * @see SynchronousQueue
+   * @see #initiateShutdown()
    */
-  public void setQueueCapacity(int queueCapacity) {
-    this.queueCapacity = queueCapacity;
+  public void setStrictEarlyShutdown(boolean defaultEarlyShutdown) {
+    this.strictEarlyShutdown = defaultEarlyShutdown;
   }
 
   /**
@@ -150,7 +164,7 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
    * Switch this flag to "true" to strictly prevent clients from
    * modifying the executor's configuration.
    *
-   * @see Executors#unconfigurableExecutorService
+   * @see java.util.concurrent.Executors#unconfigurableExecutorService
    */
   public void setExposeUnconfigurableExecutor(boolean exposeUnconfigurableExecutor) {
     this.exposeUnconfigurableExecutor = exposeUnconfigurableExecutor;
@@ -172,7 +186,7 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
 
     // Wrap executor with an unconfigurable decorator.
     this.exposedExecutor = (this.exposeUnconfigurableExecutor ?
-                            Executors.unconfigurableExecutorService(executor) : executor);
+            Executors.unconfigurableExecutorService(executor) : executor);
 
     return executor;
   }
@@ -216,8 +230,8 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
    *
    * @param queueCapacity the specified queue capacity
    * @return the BlockingQueue instance
-   * @see LinkedBlockingQueue
-   * @see SynchronousQueue
+   * @see java.util.concurrent.LinkedBlockingQueue
+   * @see java.util.concurrent.SynchronousQueue
    */
   protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
     if (queueCapacity > 0) {
@@ -225,6 +239,13 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
     }
     else {
       return new SynchronousQueue<>();
+    }
+  }
+
+  @Override
+  protected void initiateEarlyShutdown() {
+    if (this.strictEarlyShutdown) {
+      super.initiateEarlyShutdown();
     }
   }
 

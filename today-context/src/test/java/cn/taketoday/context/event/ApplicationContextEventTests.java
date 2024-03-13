@@ -579,11 +579,26 @@ public class ApplicationContextEventTests extends AbstractApplicationEventListen
   }
 
   @Test
-  public void initMethodPublishesAsyncEvent() {
+  void initMethodPublishesAsyncEvent() {  // gh-25799
     GenericApplicationContext context = new GenericApplicationContext();
     context.registerBeanDefinition("listener", new RootBeanDefinition(BeanThatListens.class));
     context.registerBeanDefinition("messageSource", new RootBeanDefinition(StaticMessageSource.class));
     context.registerBeanDefinition("initMethod", new RootBeanDefinition(AsyncEventPublishingInitMethod.class));
+    context.refresh();
+
+    context.publishEvent(new MyEvent(this));
+    BeanThatListens listener = context.getBean(BeanThatListens.class);
+    assertThat(listener.getEventCount()).isEqualTo(3);
+
+    context.close();
+  }
+
+  @Test
+  void initMethodPublishesAsyncEventBeforeListenerInitialized() {  // gh-20904
+    GenericApplicationContext context = new GenericApplicationContext();
+    context.registerBeanDefinition("messageSource", new RootBeanDefinition(StaticMessageSource.class));
+    context.registerBeanDefinition("initMethod", new RootBeanDefinition(AsyncEventPublishingInitMethod.class));
+    context.registerBeanDefinition("listener", new RootBeanDefinition(BeanThatListens.class));
     context.refresh();
 
     context.publishEvent(new MyEvent(this));

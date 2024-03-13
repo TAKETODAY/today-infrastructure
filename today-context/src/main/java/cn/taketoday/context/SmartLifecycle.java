@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.context;
 
@@ -76,9 +73,12 @@ public interface SmartLifecycle extends Lifecycle, Phased {
    * {@link Lifecycle} implementations, putting the typically auto-started
    * {@code SmartLifecycle} beans into a later startup phase and an earlier
    * shutdown phase.
+   * <p>Note that certain {@code SmartLifecycle} components come with a different
+   * default phase: e.g. executors/schedulers with {@code Integer.MAX_VALUE / 2}.
    *
    * @see #getPhase()
-   * @see cn.taketoday.context.support.DefaultLifecycleProcessor#getPhase(Lifecycle)
+   * @see cn.taketoday.scheduling.concurrent.ExecutorConfigurationSupport#DEFAULT_PHASE
+   * @see cn.taketoday.context.support.DefaultLifecycleProcessor#setTimeoutPerShutdownPhase
    */
   int DEFAULT_PHASE = Integer.MAX_VALUE;
 
