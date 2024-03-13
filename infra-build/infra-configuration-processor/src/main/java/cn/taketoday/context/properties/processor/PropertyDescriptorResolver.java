@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.processor;
@@ -118,6 +118,11 @@ class PropertyDescriptorResolver {
       ExecutableElement setter = members.getPublicSetter(name, propertyType);
       register(candidates,
               new LombokPropertyDescriptor(type, factoryMethod, field, name, propertyType, getter, setter));
+
+      if (field.getModifiers().contains(Modifier.PUBLIC) && getter == null && setter == null) {
+        // public field
+        register(candidates, new PublicFieldPropertyDescriptor(type, factoryMethod, name, propertyType, field));
+      }
     });
     return candidates.values().stream();
   }
