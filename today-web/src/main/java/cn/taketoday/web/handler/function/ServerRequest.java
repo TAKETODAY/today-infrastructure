@@ -167,19 +167,14 @@ public interface ServerRequest extends ServerResponse.Context {
   <T> T bind(Class<T> bindType, Consumer<WebDataBinder> dataBinderCustomizer) throws BindException;
 
   /**
-   * Get the request attribute value if present.
+   * Get the request attribute value.
    *
    * @param name the attribute name
    * @return the attribute value
    */
-  default Optional<Object> attribute(String name) {
-    Map<String, Object> attributes = attributes();
-    if (attributes.containsKey(name)) {
-      return Optional.of(attributes.get(name));
-    }
-    else {
-      return Optional.empty();
-    }
+  @Nullable
+  default Object attribute(String name) {
+    return attributes().get(name);
   }
 
   /**

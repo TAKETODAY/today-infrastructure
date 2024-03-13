@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet.filter;
@@ -131,7 +131,7 @@ public class ShallowEtagHeaderFilter extends OncePerRequestFilter {
 
   /**
    * Whether an ETag should be calculated for the given request and response
-   * exchange. By default this is {@code true} if all of the following match:
+   * exchange. By default, this is {@code true} if all the following match:
    * <ul>
    * <li>Response is not committed.</li>
    * <li>Response status codes is in the {@code 2xx} series.</li>
@@ -226,13 +226,13 @@ public class ShallowEtagHeaderFilter extends OncePerRequestFilter {
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
       return isContentCachingDisabled(request) || hasETag()
-             ? getResponse().getOutputStream() : super.getOutputStream();
+              ? getResponse().getOutputStream() : super.getOutputStream();
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
       return isContentCachingDisabled(this.request) || hasETag()
-             ? getResponse().getWriter() : super.getWriter();
+              ? getResponse().getWriter() : super.getWriter();
     }
 
     private boolean hasETag() {

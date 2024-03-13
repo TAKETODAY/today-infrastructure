@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.config;
@@ -41,6 +38,7 @@ import cn.taketoday.http.converter.json.GsonHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.smile.MappingJackson2SmileHttpMessageConverter;
 import cn.taketoday.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import cn.taketoday.http.converter.yaml.MappingJackson2YamlHttpMessageConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -68,7 +66,9 @@ class HttpMessageConvertersTests {
             MappingJackson2HttpMessageConverter.class,
             MappingJackson2SmileHttpMessageConverter.class,
             MappingJackson2CborHttpMessageConverter.class,
-            MappingJackson2XmlHttpMessageConverter.class);
+            MappingJackson2YamlHttpMessageConverter.class,
+            MappingJackson2XmlHttpMessageConverter.class
+    );
   }
 
   @Test
@@ -143,6 +143,7 @@ class HttpMessageConvertersTests {
             MappingJackson2HttpMessageConverter.class,
             MappingJackson2SmileHttpMessageConverter.class,
             MappingJackson2CborHttpMessageConverter.class,
+            MappingJackson2YamlHttpMessageConverter.class,
             MappingJackson2XmlHttpMessageConverter.class);
   }
 
@@ -168,7 +169,8 @@ class HttpMessageConvertersTests {
                     ResourceHttpMessageConverter.class,
                     MappingJackson2HttpMessageConverter.class,
                     MappingJackson2XmlHttpMessageConverter.class,
-                    MappingJackson2SmileHttpMessageConverter.class
+                    MappingJackson2SmileHttpMessageConverter.class,
+                    MappingJackson2YamlHttpMessageConverter.class
             );
   }
 

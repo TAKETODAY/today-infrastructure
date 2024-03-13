@@ -51,6 +51,13 @@ public abstract class AbstractWebSession implements WebSession {
   }
 
   @Override
+  public void addAttributes(Map<String, Object> attributes) {
+    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+      setAttribute(entry.getKey(), entry.getValue());
+    }
+  }
+
+  @Override
   public void setAttribute(String name, @Nullable Object value) {
     if (value != null) {
       // Replace or add this attribute

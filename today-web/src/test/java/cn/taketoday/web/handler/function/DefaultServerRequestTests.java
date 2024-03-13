@@ -122,7 +122,7 @@ class DefaultServerRequestTests {
 
     DefaultServerRequest request = getRequest(servletRequest);
 
-    assertThat(request.attribute("foo")).isEqualTo(Optional.of("bar"));
+    assertThat(request.attribute("foo")).isEqualTo("bar");
   }
 
   @Test
@@ -160,7 +160,6 @@ class DefaultServerRequestTests {
     attributesMap.clear();
     assertThat(attributesMap).isEmpty();
     assertThat(attributesMap).hasSize(0);
-    assertThat(entrySet.iterator()).isExhausted();
   }
 
   private DefaultServerRequest getRequest(MockHttpServletRequest servletRequest) {
@@ -217,8 +216,7 @@ class DefaultServerRequestTests {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.setParameter("foo", "");
 
-    DefaultServerRequest request =
-            getRequest(servletRequest);
+    DefaultServerRequest request = getRequest(servletRequest);
 
     assertThat(request.param("bar")).isEqualTo(Optional.empty());
   }

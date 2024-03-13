@@ -409,8 +409,8 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
    * Return the content type used to write forms, given the preferred content type.
    * By default, this method returns the given content type, but adds the
    * {@linkplain #setCharset(Charset) charset} if it does not have one.
-   * If {@code contentType} is {@code null},
-   * {@code application/x-www-form-urlencoded; charset=UTF-8} is returned.
+   * If {@code contentType} is {@code null}, {@code application/x-www-form-urlencoded}
+   * is returned.
    * <p>Subclasses can override this method to change this behavior.
    *
    * @param contentType the preferred content type (can be {@code null})
@@ -420,12 +420,12 @@ public class FormHttpMessageConverter implements HttpMessageConverter<MultiValue
     if (contentType == null) {
       return MediaType.APPLICATION_FORM_URLENCODED;
     }
-    else if (contentType.getCharset() == null) {
-      return contentType.withCharset(this.charset);
+    // Some servers don't handle charset parameter and spec is unclear,
+    // Add it only if it is not DEFAULT_CHARSET.
+    if (contentType.getCharset() == null && charset != Constant.DEFAULT_CHARSET) {
+      return contentType.withCharset(charset);
     }
-    else {
-      return contentType;
-    }
+    return contentType;
   }
 
   protected String serializeForm(MultiValueMap<String, Object> formData, Charset charset) {

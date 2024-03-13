@@ -50,6 +50,13 @@ public interface AttributeAccessor {
   void setAttribute(String name, @Nullable Object value);
 
   /**
+   * Add the attributes from map
+   *
+   * @param attributes The attributes
+   */
+  void addAttributes(Map<String, Object> attributes);
+
+  /**
    * Get the value of the attribute identified by {@code name}. Return
    * {@code null} if the attribute doesn't exist.
    *

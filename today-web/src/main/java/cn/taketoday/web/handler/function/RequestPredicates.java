@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -322,9 +322,7 @@ public abstract class RequestPredicates {
     }
   }
 
-  private static Map<String, String> mergePathVariables(Map<String, String> oldVariables,
-          Map<String, String> newVariables) {
-
+  private static Map<String, String> mergePathVariables(Map<String, String> oldVariables, Map<String, String> newVariables) {
     if (!newVariables.isEmpty()) {
       Map<String, String> mergedVariables = new LinkedHashMap<>(oldVariables);
       mergedVariables.putAll(newVariables);
@@ -600,7 +598,9 @@ public abstract class RequestPredicates {
     protected Result testInternal(ServerRequest request) {
       PathContainer pathContainer = request.requestPath().pathWithinApplication();
       PathMatchInfo info = pattern.matchAndExtract(pathContainer);
-      traceMatch("Pattern", pattern.getPatternString(), request.path(), info != null);
+      if (logger.isTraceEnabled()) {
+        traceMatch("Pattern", pattern.getPatternString(), request.path(), info != null);
+      }
       if (info != null) {
         return Result.of(true, serverRequest -> mergeAttributes(serverRequest, info.getUriVariables()));
       }
@@ -692,16 +692,16 @@ public abstract class RequestPredicates {
     public void accept(Visitor visitor) {
       visitor.header(HttpHeaders.CONTENT_TYPE,
               mediaTypes.size() == 1 ?
-              mediaTypes.iterator().next().toString() :
-              mediaTypes.toString());
+                      mediaTypes.iterator().next().toString() :
+                      mediaTypes.toString());
     }
 
     @Override
     public String toString() {
       return String.format("Content-Type: %s",
               (mediaTypes.size() == 1) ?
-              mediaTypes.iterator().next().toString() :
-              mediaTypes.toString());
+                      mediaTypes.iterator().next().toString() :
+                      mediaTypes.toString());
     }
   }
 
@@ -739,16 +739,14 @@ public abstract class RequestPredicates {
 
     @Override
     public void accept(Visitor visitor) {
-      visitor.header(HttpHeaders.ACCEPT,
-              (mediaTypes.size() == 1) ?
+      visitor.header(HttpHeaders.ACCEPT, (mediaTypes.size() == 1) ?
               mediaTypes.iterator().next().toString() :
               mediaTypes.toString());
     }
 
     @Override
     public String toString() {
-      return String.format("Accept: %s",
-              (mediaTypes.size() == 1) ?
+      return String.format("Accept: %s", (mediaTypes.size() == 1) ?
               mediaTypes.iterator().next().toString() :
               mediaTypes.toString());
     }
@@ -1054,7 +1052,7 @@ public abstract class RequestPredicates {
               mergePathVariables(request.pathVariables(), pathVariables));
 
       pattern = mergePatterns(
-              (PathPattern) request.attributes().get(RouterFunctions.MATCHING_PATTERN_ATTRIBUTE), pattern);
+              (PathPattern) request.attribute(RouterFunctions.MATCHING_PATTERN_ATTRIBUTE), pattern);
       result.put(RouterFunctions.MATCHING_PATTERN_ATTRIBUTE, pattern);
       return result;
     }
@@ -1124,8 +1122,9 @@ public abstract class RequestPredicates {
       return request.bind(bindType, dataBinderCustomizer);
     }
 
+    @Nullable
     @Override
-    public Optional<Object> attribute(String name) {
+    public Object attribute(String name) {
       return request.attribute(name);
     }
 
