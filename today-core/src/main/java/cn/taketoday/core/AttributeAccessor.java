@@ -54,7 +54,11 @@ public interface AttributeAccessor {
    *
    * @param attributes The attributes
    */
-  void addAttributes(Map<String, Object> attributes);
+  default void addAttributes(Map<String, Object> attributes) {
+    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+      setAttribute(entry.getKey(), entry.getValue());
+    }
+  }
 
   /**
    * Get the value of the attribute identified by {@code name}. Return
