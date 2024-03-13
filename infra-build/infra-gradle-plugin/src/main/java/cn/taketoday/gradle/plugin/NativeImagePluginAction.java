@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,14 +19,12 @@ package cn.taketoday.gradle.plugin;
 
 import org.graalvm.buildtools.gradle.NativeImagePlugin;
 import org.graalvm.buildtools.gradle.dsl.GraalVMExtension;
-import org.graalvm.buildtools.gradle.dsl.GraalVMReachabilityMetadataRepositoryExtension;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.java.archives.Manifest;
-import org.gradle.api.plugins.ExtensionAware;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -67,7 +65,6 @@ class NativeImagePluginAction implements PluginApplicationAction {
       GraalVMExtension graalVmExtension = configureGraalVmExtension(project);
       configureMainNativeBinaryClasspath(project, sourceSets, graalVmExtension);
       configureTestNativeBinaryClasspath(sourceSets, graalVmExtension);
-      configureGraalVmReachabilityExtension(graalVmExtension);
       copyReachabilityMetadataToInfraJar(project);
       configureInfraBuildImageToProduceANativeImage(project);
       configureJarManifestNativeAttribute(project);
@@ -104,12 +101,6 @@ class NativeImagePluginAction implements PluginApplicationAction {
     GraalVMExtension extension = project.getExtensions().getByType(GraalVMExtension.class);
     extension.getToolchainDetection().set(false);
     return extension;
-  }
-
-  private void configureGraalVmReachabilityExtension(GraalVMExtension graalVmExtension) {
-    GraalVMReachabilityMetadataRepositoryExtension extension = ((ExtensionAware) graalVmExtension).getExtensions()
-            .getByType(GraalVMReachabilityMetadataRepositoryExtension.class);
-    extension.getEnabled().set(true);
   }
 
   private void copyReachabilityMetadataToInfraJar(Project project) {
