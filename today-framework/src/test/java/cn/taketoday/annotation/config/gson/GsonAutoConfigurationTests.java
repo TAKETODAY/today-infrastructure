@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.gson;
@@ -61,7 +58,7 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void generateNonExecutableJson() {
+  void generateNonExecutableJsonTrue() {
     this.contextRunner.withPropertyValues("gson.generate-non-executable-json:true").run((context) -> {
       Gson gson = context.getBean(Gson.class);
       assertThat(gson.toJson(new DataObject())).isNotEqualTo("{\"data\":1}");
@@ -70,11 +67,28 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void excludeFieldsWithoutExposeAnnotation() {
+  void generateNonExecutableJsonFalse() {
+    this.contextRunner.withPropertyValues("gson.generate-non-executable-json:false").run((context) -> {
+      Gson gson = context.getBean(Gson.class);
+      assertThat(gson.toJson(new DataObject())).isEqualTo("{\"data\":1}");
+    });
+  }
+
+  @Test
+  void excludeFieldsWithoutExposeAnnotationTrue() {
     this.contextRunner.withPropertyValues("gson.exclude-fields-without-expose-annotation:true")
             .run((context) -> {
               Gson gson = context.getBean(Gson.class);
               assertThat(gson.toJson(new DataObject())).isEqualTo("{}");
+            });
+  }
+
+  @Test
+  void excludeFieldsWithoutExposeAnnotationFalse() {
+    this.contextRunner.withPropertyValues("gson.exclude-fields-without-expose-annotation:false")
+            .run((context) -> {
+              Gson gson = context.getBean(Gson.class);
+              assertThat(gson.toJson(new DataObject())).isEqualTo("{\"data\":1}");
             });
   }
 
@@ -95,13 +109,24 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void enableComplexMapKeySerialization() {
+  void enableComplexMapKeySerializationTrue() {
     this.contextRunner.withPropertyValues("gson.enable-complex-map-key-serialization:true")
             .run((context) -> {
               Gson gson = context.getBean(Gson.class);
               Map<DataObject, String> original = new LinkedHashMap<>();
               original.put(new DataObject(), "a");
               assertThat(gson.toJson(original)).isEqualTo("[[{\"data\":1},\"a\"]]");
+            });
+  }
+
+  @Test
+  void enableComplexMapKeySerializationFalse() {
+    this.contextRunner.withPropertyValues("gson.enable-complex-map-key-serialization:false")
+            .run((context) -> {
+              Gson gson = context.getBean(Gson.class);
+              Map<DataObject, String> original = new LinkedHashMap<>();
+              original.put(new DataObject(), "a");
+              assertThat(gson.toJson(original)).contains(DataObject.class.getName()).doesNotContain("\"data\":");
             });
   }
 
@@ -115,11 +140,20 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void disableInnerClassSerialization() {
+  void disableInnerClassSerializationTrue() {
     this.contextRunner.withPropertyValues("gson.disable-inner-class-serialization:true").run((context) -> {
       Gson gson = context.getBean(Gson.class);
       WrapperObject wrapperObject = new WrapperObject();
       assertThat(gson.toJson(wrapperObject.new NestedObject())).isEqualTo("null");
+    });
+  }
+
+  @Test
+  void disableInnerClassSerializationFalse() {
+    this.contextRunner.withPropertyValues("gson.disable-inner-class-serialization:false").run((context) -> {
+      Gson gson = context.getBean(Gson.class);
+      WrapperObject wrapperObject = new WrapperObject();
+      assertThat(gson.toJson(wrapperObject.new NestedObject())).isEqualTo("{\"data\":\"nested\"}");
     });
   }
 
@@ -158,10 +192,18 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void withPrettyPrinting() {
+  void withPrettyPrintingTrue() {
     this.contextRunner.withPropertyValues("gson.pretty-printing:true").run((context) -> {
       Gson gson = context.getBean(Gson.class);
       assertThat(gson.toJson(new DataObject())).isEqualTo("{\n  \"data\": 1\n}");
+    });
+  }
+
+  @Test
+  void withPrettyPrintingFalse() {
+    this.contextRunner.withPropertyValues("gson.pretty-printing:false").run((context) -> {
+      Gson gson = context.getBean(Gson.class);
+      assertThat(gson.toJson(new DataObject())).isEqualTo("{\"data\":1}");
     });
   }
 
@@ -174,7 +216,7 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void withLenient() {
+  void withLenientTrue() {
     this.contextRunner.withPropertyValues("gson.lenient:true").run((context) -> {
       Gson gson = context.getBean(Gson.class);
       assertThat(gson).hasFieldOrPropertyWithValue("lenient", true);
@@ -182,7 +224,15 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void withHtmlEscaping() {
+  void withLenientFalse() {
+    this.contextRunner.withPropertyValues("gson.lenient:false").run((context) -> {
+      Gson gson = context.getBean(Gson.class);
+      assertThat(gson).hasFieldOrPropertyWithValue("lenient", false);
+    });
+  }
+
+  @Test
+  void withoutDisableHtmlEscaping() {
     this.contextRunner.run((context) -> {
       Gson gson = context.getBean(Gson.class);
       assertThat(gson.htmlSafe()).isTrue();
@@ -190,12 +240,19 @@ class GsonAutoConfigurationTests {
   }
 
   @Test
-  void withoutHtmlEscaping() {
+  void withDisableHtmlEscapingTrue() {
     this.contextRunner.withPropertyValues("gson.disable-html-escaping:true").run((context) -> {
       Gson gson = context.getBean(Gson.class);
       assertThat(gson.htmlSafe()).isFalse();
     });
+  }
 
+  @Test
+  void withDisableHtmlEscapingFalse() {
+    this.contextRunner.withPropertyValues("gson.disable-html-escaping:false").run((context) -> {
+      Gson gson = context.getBean(Gson.class);
+      assertThat(gson.htmlSafe()).isTrue();
+    });
   }
 
   @Test
@@ -243,7 +300,7 @@ class GsonAutoConfigurationTests {
     private Long data = 1L;
 
     @SuppressWarnings("unused")
-    private String owner = null;
+    private final String owner = null;
 
     public void setData(Long data) {
       this.data = data;
@@ -256,7 +313,7 @@ class GsonAutoConfigurationTests {
     @SuppressWarnings("unused")
     class NestedObject {
 
-      private String data = "nested";
+      private final String data = "nested";
 
     }
 
