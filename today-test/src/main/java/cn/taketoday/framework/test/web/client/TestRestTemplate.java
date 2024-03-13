@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.web.client;
@@ -178,8 +175,8 @@ public class TestRestTemplate {
   }
 
   /**
-   * Returns the root URI applied by a {@link RootUriTemplateHandler} or {@code ""} if
-   * the root URI is not available.
+   * Returns the root URI applied by {@link RestTemplateBuilder#rootUri(String)} or
+   * {@code ""} if the root URI has not been applied.
    *
    * @return the root URI
    */
@@ -1060,8 +1057,8 @@ public class TestRestTemplate {
             HttpClientOption[] httpClientOptions, ClientHttpRequestFactorySettings settings) {
       Set<HttpClientOption> options = new HashSet<>(Arrays.asList(httpClientOptions));
       this.cookieSpec = options.contains(HttpClientOption.ENABLE_COOKIES)
-                        ? StandardCookieSpec.STRICT
-                        : StandardCookieSpec.IGNORE;
+              ? StandardCookieSpec.STRICT
+              : StandardCookieSpec.IGNORE;
       this.enableRedirects = options.contains(HttpClientOption.ENABLE_REDIRECTS);
       boolean ssl = options.contains(HttpClientOption.SSL);
       if (settings.readTimeout() != null || ssl) {
