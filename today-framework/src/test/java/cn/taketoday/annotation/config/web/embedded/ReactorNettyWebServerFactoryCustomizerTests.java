@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.embedded;
@@ -107,7 +107,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void setConnectionTimeout() {
-    this.serverProperties.getReactorNetty().setConnectionTimeout(Duration.ofSeconds(1));
+    this.serverProperties.reactorNetty.setConnectionTimeout(Duration.ofSeconds(1));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyConnectionTimeout(factory, 1000);
@@ -115,7 +115,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void setIdleTimeout() {
-    this.serverProperties.getReactorNetty().setIdleTimeout(Duration.ofSeconds(1));
+    this.serverProperties.reactorNetty.setIdleTimeout(Duration.ofSeconds(1));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyIdleTimeout(factory, Duration.ofSeconds(1));
@@ -123,7 +123,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void setMaxKeepAliveRequests() {
-    this.serverProperties.getReactorNetty().setMaxKeepAliveRequests(100);
+    this.serverProperties.reactorNetty.setMaxKeepAliveRequests(100);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyMaxKeepAliveRequests(factory, 100);
@@ -142,7 +142,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void configureHttpRequestDecoder() {
-    ServerProperties.ReactorNetty nettyProperties = this.serverProperties.getReactorNetty();
+    ServerProperties.ReactorNetty nettyProperties = this.serverProperties.reactorNetty;
     this.serverProperties.setMaxHttpRequestHeaderSize(DataSize.ofKilobytes(24));
     nettyProperties.setValidateHeaders(false);
     nettyProperties.setInitialBufferSize(DataSize.ofBytes(512));

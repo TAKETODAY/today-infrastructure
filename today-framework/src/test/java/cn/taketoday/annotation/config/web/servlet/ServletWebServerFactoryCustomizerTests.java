@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.servlet;
@@ -67,7 +67,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeDisplayName() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
-    this.properties.getServlet().setApplicationDisplayName("TestName");
+    this.properties.servlet.setApplicationDisplayName("TestName");
     this.customizer.customize(factory);
     then(factory).should().setDisplayName("TestName");
   }
@@ -75,7 +75,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeDefaultServlet() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
-    this.properties.getServlet().setRegisterDefaultServlet(false);
+    this.properties.servlet.setRegisterDefaultServlet(false);
     this.customizer.customize(factory);
     then(factory).should().setRegisterDefaultServlet(false);
   }
@@ -138,7 +138,7 @@ class ServletWebServerFactoryCustomizerTests {
     Map<String, String> map = new HashMap<>();
     map.put("server.tomcat.threads.min-spare", "10");
     bindProperties(map);
-    assertThat(this.properties.getTomcat().getThreads().getMinSpare()).isEqualTo(10);
+    assertThat(this.properties.tomcat.getThreads().getMinSpare()).isEqualTo(10);
   }
 
   @Test

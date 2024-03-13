@@ -88,7 +88,7 @@ class TomcatWebServerFactoryCustomizerTests {
     customizeAndRunServer((server) -> assertThat(
             ((AbstractHttp11Protocol<?>) server.getTomcat().getConnector().getProtocolHandler())
                     .getMaxSwallowSize())
-            .isEqualTo(this.serverProperties.getTomcat().getMaxSwallowSize().toBytes()));
+            .isEqualTo(this.serverProperties.tomcat.getMaxSwallowSize().toBytes()));
   }
 
   @Test
@@ -451,7 +451,7 @@ class TomcatWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeMinSpareThreads() {
     bind("server.tomcat.threads.min-spare=10");
-    assertThat(this.serverProperties.getTomcat().getThreads().getMinSpare()).isEqualTo(10);
+    assertThat(this.serverProperties.tomcat.getThreads().getMinSpare()).isEqualTo(10);
   }
 
   @Test
@@ -511,7 +511,7 @@ class TomcatWebServerFactoryCustomizerTests {
     bind("server.tomcat.accesslog.enabled=true");
     TomcatServletWebServerFactory factory = customizeAndGetFactory();
     assertThat(((AccessLogValve) factory.getEngineValves().iterator().next()).getMaxDays())
-            .isEqualTo(this.serverProperties.getTomcat().getAccesslog().getMaxDays());
+            .isEqualTo(this.serverProperties.tomcat.getAccesslog().getMaxDays());
   }
 
   @Test

@@ -96,7 +96,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
   static BasicErrorController basicErrorController(ErrorAttributes errorAttributes, ServerProperties serverProperties,
           List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     return new BasicErrorController(errorAttributes,
-            serverProperties.getError(), errorViewResolvers, returnValueHandler);
+            serverProperties.error, errorViewResolvers, returnValueHandler);
   }
 
   @Component
@@ -242,8 +242,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void registerErrorPages(ErrorPageRegistry errorPageRegistry) {
-      ErrorPage errorPage = new ErrorPage(
-              dispatcherServletPath.getRelativePath(properties.getError().getPath()));
+      ErrorPage errorPage = new ErrorPage(dispatcherServletPath.getRelativePath(properties.error.getPath()));
       errorPageRegistry.addErrorPages(errorPage);
     }
 

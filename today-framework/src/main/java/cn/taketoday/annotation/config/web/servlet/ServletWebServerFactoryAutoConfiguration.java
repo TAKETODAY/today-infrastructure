@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.servlet;
@@ -102,7 +102,7 @@ public class ServletWebServerFactoryAutoConfiguration {
       ForwardedHeaderFilter filter = new ForwardedHeaderFilter();
 
       if (ClassUtils.isPresent("org.apache.catalina.startup.Tomcat", ForwardedHeaderFilterConfiguration.class.getClassLoader())) {
-        filter.setRelativeRedirects(properties.getTomcat().isUseRelativeRedirects());
+        filter.setRelativeRedirects(properties.tomcat.isUseRelativeRedirects());
       }
 
       var registration = new FilterRegistrationBean<>(filter);
@@ -112,7 +112,7 @@ public class ServletWebServerFactoryAutoConfiguration {
     }
 
   }
- 
+
   /**
    * Registers a {@link WebServerFactoryCustomizerBeanPostProcessor}. Registered via
    * {@link ImportBeanDefinitionRegistrar} for early registration.

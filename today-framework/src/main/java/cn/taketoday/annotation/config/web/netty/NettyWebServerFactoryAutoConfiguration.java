@@ -96,7 +96,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
     serverProperties.applyTo(factory, sslBundles, applicationTemp);
 
-    factory.applyFrom(serverProperties.getNetty());
+    factory.applyFrom(serverProperties.netty);
     factory.setBootstrapCustomizers(customizers);
     return factory;
   }
@@ -110,7 +110,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static NettyChannelInitializer nettyChannelInitializer(ServerProperties properties,
           NettyChannelHandler channelHandler, ResourceLoader resourceLoader) {
-    var netty = properties.getNetty();
+    var netty = properties.netty;
     var initializer = createChannelInitializer(resourceLoader, channelHandler, netty);
     initializer.setCloseOnExpectationFailed(netty.isCloseOnExpectationFailed());
     initializer.setMaxContentLength(netty.getMaxContentLength().toBytesInt());
@@ -126,7 +126,7 @@ public class NettyWebServerFactoryAutoConfiguration {
 
   private static NettyChannelInitializer createChannelInitializer(ResourceLoader resourceLoader,
           NettyChannelHandler channelHandler, ServerProperties.Netty netty) {
-    var nettySSL = netty.getSsl();
+    var nettySSL = netty.ssl;
     if (nettySSL.isEnabled()) {
       Resource privateKeyResource = resourceLoader.getResource(nettySSL.getPrivateKey());
       Resource publicKeyResource = resourceLoader.getResource(nettySSL.getPublicKey());
@@ -163,7 +163,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     return NettyRequestConfig.forBuilder()
             .httpDataFactory(factory)
             .sendErrorHandler(sendErrorHandler)
-            .secure(properties.getNetty().getSsl().isEnabled())
+            .secure(properties.netty.ssl.isEnabled())
             .build();
   }
 

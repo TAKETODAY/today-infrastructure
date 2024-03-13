@@ -366,7 +366,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       setMaxConnection(netty.getMaxConnection());
     }
 
-    shutdownConfig = netty.getShutdown();
+    shutdownConfig = netty.shutdown;
   }
 
   static class EpollDelegate {

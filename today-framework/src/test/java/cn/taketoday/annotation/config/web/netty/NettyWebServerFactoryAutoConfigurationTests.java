@@ -25,6 +25,7 @@ import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
+import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.framework.web.netty.NettyChannelInitializer;
@@ -84,32 +85,37 @@ class NettyWebServerFactoryAutoConfigurationTests {
             "server.netty.acceptor-threads=1").run(context -> {
       ServerProperties properties = context.getBean(ServerProperties.class);
 
-      var netty = properties.getNetty();
-
-      assertThat(netty.getAcceptorThreads()).isEqualTo(1);
-      assertThat(netty.getWorkerThreads()).isEqualTo(8);
-      assertThat(netty.getMaxConnection()).isEqualTo(1024);
-      assertThat(netty.getLoggingLevel()).isEqualTo(LogLevel.DEBUG);
-      assertThat(netty.getMaxContentLength()).isEqualTo(DataSize.ofMegabytes(10));
-      assertThat(netty.isCloseOnExpectationFailed()).isEqualTo(true);
-      assertThat(netty.getMaxChunkSize()).isEqualTo(DataSize.ofKilobytes(1));
-      assertThat(netty.getMaxHeaderSize()).isEqualTo(120);
-      assertThat(netty.getMaxInitialLineLength()).isEqualTo(100);
-      assertThat(netty.isValidateHeaders()).isEqualTo(false);
-      assertThat(netty.getSocketChannel()).isEqualTo(EpollServerSocketChannel.class);
-
-      var shutdown = netty.getShutdown();
-
-      assertThat(shutdown.getQuietPeriod()).isEqualTo(2);
-      assertThat(shutdown.getTimeout()).isEqualTo(20);
-      assertThat(shutdown.getUnit()).isEqualTo(TimeUnit.MINUTES);
-
-      var nettySSL = netty.getSsl();
-      assertThat(nettySSL.isEnabled()).isFalse();
-      assertThat(nettySSL.getPublicKey()).isNull();
-      assertThat(nettySSL.getPrivateKey()).isNull();
-      assertThat(nettySSL.getKeyPassword()).isNull();
+      var result = Binder.get(context.getEnvironment()).bind("server", ServerProperties.class);
+      assertThat(result.isBound()).isTrue();
+      assertNetty(result.get().netty);
+      assertNetty(properties.netty);
     });
+  }
+
+  private static void assertNetty(ServerProperties.Netty netty) {
+    assertThat(netty.getAcceptorThreads()).isEqualTo(1);
+    assertThat(netty.getWorkerThreads()).isEqualTo(8);
+    assertThat(netty.getMaxConnection()).isEqualTo(1024);
+    assertThat(netty.getLoggingLevel()).isEqualTo(LogLevel.DEBUG);
+    assertThat(netty.getMaxContentLength()).isEqualTo(DataSize.ofMegabytes(10));
+    assertThat(netty.isCloseOnExpectationFailed()).isEqualTo(true);
+    assertThat(netty.getMaxChunkSize()).isEqualTo(DataSize.ofKilobytes(1));
+    assertThat(netty.getMaxHeaderSize()).isEqualTo(120);
+    assertThat(netty.getMaxInitialLineLength()).isEqualTo(100);
+    assertThat(netty.isValidateHeaders()).isEqualTo(false);
+    assertThat(netty.getSocketChannel()).isEqualTo(EpollServerSocketChannel.class);
+
+    var shutdown = netty.shutdown;
+
+    assertThat(shutdown.getQuietPeriod()).isEqualTo(2);
+    assertThat(shutdown.getTimeout()).isEqualTo(20);
+    assertThat(shutdown.getUnit()).isEqualTo(TimeUnit.MINUTES);
+
+    var nettySSL = netty.ssl;
+    assertThat(nettySSL.isEnabled()).isFalse();
+    assertThat(nettySSL.getPublicKey()).isNull();
+    assertThat(nettySSL.getPrivateKey()).isNull();
+    assertThat(nettySSL.getKeyPassword()).isNull();
   }
 
   @Test
@@ -119,7 +125,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
             "server.netty.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
       ServerProperties properties = context.getBean(ServerProperties.class);
 
-      var nettySSL = properties.getNetty().getSsl();
+      var nettySSL = properties.netty.ssl;
       assertThat(nettySSL.isEnabled()).isTrue();
       assertThat(nettySSL.getPublicKey()).isEqualTo("classpath:/cn/taketoday/annotation/config/ssl/key1.crt");
       assertThat(nettySSL.getPrivateKey()).isEqualTo("classpath:/cn/taketoday/annotation/config/ssl/key1.pem");

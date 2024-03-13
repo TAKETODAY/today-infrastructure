@@ -93,13 +93,13 @@ public class ServerProperties {
   private InetAddress address;
 
   @NestedConfigurationProperty
-  private final EncodingProperties encoding = new EncodingProperties();
+  public final EncodingProperties encoding = new EncodingProperties();
 
   //  @NestedConfigurationProperty
-  private final SessionProperties session = new SessionProperties();
+  public final SessionProperties session = new SessionProperties();
 
   @NestedConfigurationProperty
-  private final ErrorProperties error = new ErrorProperties();
+  public final ErrorProperties error = new ErrorProperties();
 
   /**
    * Strategy for handling X-Forwarded-* headers.
@@ -136,19 +136,19 @@ public class ServerProperties {
   @NestedConfigurationProperty
   private Http2 http2;
 
-  private final Servlet servlet = new Servlet();
+  public final Servlet servlet = new Servlet();
 
-  private final Reactive reactive = new Reactive();
+  public final Reactive reactive = new Reactive();
 
-  private final Tomcat tomcat = new Tomcat();
+  public final Tomcat tomcat = new Tomcat();
 
-  private final Jetty jetty = new Jetty();
+  public final Jetty jetty = new Jetty();
 
-  private final Netty netty = new Netty();
+  public final Netty netty = new Netty();
 
-  private final ReactorNetty reactorNetty = new ReactorNetty();
+  public final ReactorNetty reactorNetty = new ReactorNetty();
 
-  private final Undertow undertow = new Undertow();
+  public final Undertow undertow = new Undertow();
 
   @Nullable
   public Integer getPort() {
@@ -194,10 +194,6 @@ public class ServerProperties {
     this.shutdown = shutdown;
   }
 
-  public ErrorProperties getError() {
-    return this.error;
-  }
-
   @Nullable
   public Ssl getSsl() {
     return this.ssl;
@@ -225,34 +221,6 @@ public class ServerProperties {
     return this.http2;
   }
 
-  public Servlet getServlet() {
-    return this.servlet;
-  }
-
-  public Reactive getReactive() {
-    return this.reactive;
-  }
-
-  public Tomcat getTomcat() {
-    return this.tomcat;
-  }
-
-  public Jetty getJetty() {
-    return this.jetty;
-  }
-
-  public Netty getNetty() {
-    return netty;
-  }
-
-  public ReactorNetty getReactorNetty() {
-    return this.reactorNetty;
-  }
-
-  public Undertow getUndertow() {
-    return this.undertow;
-  }
-
   @Nullable
   public ForwardHeadersStrategy getForwardHeadersStrategy() {
     return this.forwardHeadersStrategy;
@@ -260,14 +228,6 @@ public class ServerProperties {
 
   public void setForwardHeadersStrategy(@Nullable ForwardHeadersStrategy forwardHeadersStrategy) {
     this.forwardHeadersStrategy = forwardHeadersStrategy;
-  }
-
-  public EncodingProperties getEncoding() {
-    return this.encoding;
-  }
-
-  public SessionProperties getSession() {
-    return this.session;
   }
 
   public void applyTo(ConfigurableWebServerFactory factory,
@@ -1042,6 +1002,7 @@ public class ServerProperties {
       /**
        * Time-to-live of the static resource cache.
        */
+      @Nullable
       private Duration cacheTtl;
 
       public boolean isAllowCaching() {
@@ -1052,11 +1013,12 @@ public class ServerProperties {
         this.allowCaching = allowCaching;
       }
 
+      @Nullable
       public Duration getCacheTtl() {
         return this.cacheTtl;
       }
 
-      public void setCacheTtl(Duration cacheTtl) {
+      public void setCacheTtl(@Nullable Duration cacheTtl) {
         this.cacheTtl = cacheTtl;
       }
 
@@ -1585,9 +1547,9 @@ public class ServerProperties {
      */
     private boolean validateHeaders = true;
 
-    private final Shutdown shutdown = new Shutdown();
+    public final Shutdown shutdown = new Shutdown();
 
-    private final NettySSL ssl = new NettySSL();
+    public final NettySSL ssl = new NettySSL();
 
     public void setLoggingLevel(@Nullable LogLevel loggingLevel) {
       this.loggingLevel = loggingLevel;
@@ -1732,14 +1694,6 @@ public class ServerProperties {
 
     public boolean isValidateHeaders() {
       return validateHeaders;
-    }
-
-    public Shutdown getShutdown() {
-      return shutdown;
-    }
-
-    public NettySSL getSsl() {
-      return ssl;
     }
 
     public static class NettySSL {

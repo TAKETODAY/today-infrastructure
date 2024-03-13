@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web;
@@ -125,7 +125,7 @@ class ServerPropertiesTests {
     map.put("server.tomcat.relaxed-query-chars", "^  ,  | ");
     map.put("server.tomcat.use-relative-redirects", "true");
     bind(map);
-    ServerProperties.Tomcat tomcat = this.properties.getTomcat();
+    ServerProperties.Tomcat tomcat = this.properties.tomcat;
     Accesslog accesslog = tomcat.getAccesslog();
     assertThat(accesslog.getConditionIf()).isEqualTo("foo");
     assertThat(accesslog.getConditionUnless()).isEqualTo("bar");
@@ -153,43 +153,43 @@ class ServerPropertiesTests {
   @Test
   void testTrailingSlashOfContextPathIsRemoved() {
     bind("server.servlet.context-path", "/foo/");
-    assertThat(this.properties.getServlet().getContextPath()).isEqualTo("/foo");
+    assertThat(this.properties.servlet.getContextPath()).isEqualTo("/foo");
   }
 
   @Test
   void testSlashOfContextPathIsDefaultValue() {
     bind("server.servlet.context-path", "/");
-    assertThat(this.properties.getServlet().getContextPath()).isEqualTo("");
+    assertThat(this.properties.servlet.getContextPath()).isEqualTo("");
   }
 
   @Test
   void testContextPathWithLeadingWhitespace() {
     bind("server.servlet.context-path", " /assets");
-    assertThat(this.properties.getServlet().getContextPath()).isEqualTo("/assets");
+    assertThat(this.properties.servlet.getContextPath()).isEqualTo("/assets");
   }
 
   @Test
   void testContextPathWithTrailingWhitespace() {
     bind("server.servlet.context-path", "/assets/copy/ ");
-    assertThat(this.properties.getServlet().getContextPath()).isEqualTo("/assets/copy");
+    assertThat(this.properties.servlet.getContextPath()).isEqualTo("/assets/copy");
   }
 
   @Test
   void testContextPathWithLeadingAndTrailingWhitespace() {
     bind("server.servlet.context-path", " /assets ");
-    assertThat(this.properties.getServlet().getContextPath()).isEqualTo("/assets");
+    assertThat(this.properties.servlet.getContextPath()).isEqualTo("/assets");
   }
 
   @Test
   void testContextPathWithLeadingAndTrailingWhitespaceAndContextWithSpace() {
     bind("server.servlet.context-path", "  /assets /copy/    ");
-    assertThat(this.properties.getServlet().getContextPath()).isEqualTo("/assets /copy");
+    assertThat(this.properties.servlet.getContextPath()).isEqualTo("/assets /copy");
   }
 
   @Test
   void testCustomizeUriEncoding() {
     bind("server.tomcat.uri-encoding", "US-ASCII");
-    assertThat(this.properties.getTomcat().getUriEncoding()).isEqualTo(StandardCharsets.US_ASCII);
+    assertThat(this.properties.tomcat.getUriEncoding()).isEqualTo(StandardCharsets.US_ASCII);
   }
 
   @Test
@@ -219,99 +219,99 @@ class ServerPropertiesTests {
   @Test
   void testCustomizeTomcatMaxThreads() {
     bind("server.tomcat.threads.max", "10");
-    assertThat(this.properties.getTomcat().getThreads().getMax()).isEqualTo(10);
+    assertThat(this.properties.tomcat.getThreads().getMax()).isEqualTo(10);
   }
 
   @Test
   void testCustomizeTomcatKeepAliveTimeout() {
     bind("server.tomcat.keep-alive-timeout", "30s");
-    assertThat(this.properties.getTomcat().getKeepAliveTimeout()).hasSeconds(30);
+    assertThat(this.properties.tomcat.getKeepAliveTimeout()).hasSeconds(30);
   }
 
   @Test
   void testCustomizeTomcatKeepAliveTimeoutWithInfinite() {
     bind("server.tomcat.keep-alive-timeout", "-1");
-    assertThat(this.properties.getTomcat().getKeepAliveTimeout()).hasMillis(-1);
+    assertThat(this.properties.tomcat.getKeepAliveTimeout()).hasMillis(-1);
   }
 
   @Test
   void customizeMaxKeepAliveRequests() {
     bind("server.tomcat.max-keep-alive-requests", "200");
-    assertThat(this.properties.getTomcat().getMaxKeepAliveRequests()).isEqualTo(200);
+    assertThat(this.properties.tomcat.getMaxKeepAliveRequests()).isEqualTo(200);
   }
 
   @Test
   void customizeMaxKeepAliveRequestsWithInfinite() {
     bind("server.tomcat.max-keep-alive-requests", "-1");
-    assertThat(this.properties.getTomcat().getMaxKeepAliveRequests()).isEqualTo(-1);
+    assertThat(this.properties.tomcat.getMaxKeepAliveRequests()).isEqualTo(-1);
   }
 
   @Test
   void testCustomizeTomcatMinSpareThreads() {
     bind("server.tomcat.threads.min-spare", "10");
-    assertThat(this.properties.getTomcat().getThreads().getMinSpare()).isEqualTo(10);
+    assertThat(this.properties.tomcat.getThreads().getMinSpare()).isEqualTo(10);
   }
 
   @Test
   void testCustomizeJettyAcceptors() {
     bind("server.jetty.threads.acceptors", "10");
-    assertThat(this.properties.getJetty().getThreads().getAcceptors()).isEqualTo(10);
+    assertThat(this.properties.jetty.getThreads().getAcceptors()).isEqualTo(10);
   }
 
   @Test
   void testCustomizeJettySelectors() {
     bind("server.jetty.threads.selectors", "10");
-    assertThat(this.properties.getJetty().getThreads().getSelectors()).isEqualTo(10);
+    assertThat(this.properties.jetty.getThreads().getSelectors()).isEqualTo(10);
   }
 
   @Test
   void testCustomizeJettyMaxThreads() {
     bind("server.jetty.threads.max", "10");
-    assertThat(this.properties.getJetty().getThreads().getMax()).isEqualTo(10);
+    assertThat(this.properties.jetty.getThreads().getMax()).isEqualTo(10);
   }
 
   @Test
   void testCustomizeJettyMinThreads() {
     bind("server.jetty.threads.min", "10");
-    assertThat(this.properties.getJetty().getThreads().getMin()).isEqualTo(10);
+    assertThat(this.properties.jetty.getThreads().getMin()).isEqualTo(10);
   }
 
   @Test
   void testCustomizeJettyIdleTimeout() {
     bind("server.jetty.threads.idle-timeout", "10s");
-    assertThat(this.properties.getJetty().getThreads().getIdleTimeout()).isEqualTo(Duration.ofSeconds(10));
+    assertThat(this.properties.jetty.getThreads().getIdleTimeout()).isEqualTo(Duration.ofSeconds(10));
   }
 
   @Test
   void testCustomizeJettyMaxQueueCapacity() {
     bind("server.jetty.threads.max-queue-capacity", "5150");
-    assertThat(this.properties.getJetty().getThreads().getMaxQueueCapacity()).isEqualTo(5150);
+    assertThat(this.properties.jetty.getThreads().getMaxQueueCapacity()).isEqualTo(5150);
   }
 
   @Test
   void testCustomizeUndertowServerOption() {
     bind("server.undertow.options.server.ALWAYS_SET_KEEP_ALIVE", "true");
-    assertThat(this.properties.getUndertow().getOptions().getServer()).containsEntry("ALWAYS_SET_KEEP_ALIVE",
+    assertThat(this.properties.undertow.getOptions().getServer()).containsEntry("ALWAYS_SET_KEEP_ALIVE",
             "true");
   }
 
   @Test
   void testCustomizeUndertowSocketOption() {
     bind("server.undertow.options.socket.ALWAYS_SET_KEEP_ALIVE", "true");
-    assertThat(this.properties.getUndertow().getOptions().getSocket()).containsEntry("ALWAYS_SET_KEEP_ALIVE",
+    assertThat(this.properties.undertow.getOptions().getSocket()).containsEntry("ALWAYS_SET_KEEP_ALIVE",
             "true");
   }
 
   @Test
   void testCustomizeUndertowIoThreads() {
     bind("server.undertow.threads.io", "4");
-    assertThat(this.properties.getUndertow().getThreads().getIo()).isEqualTo(4);
+    assertThat(this.properties.undertow.getThreads().getIo()).isEqualTo(4);
   }
 
   @Test
   void testCustomizeUndertowWorkerThreads() {
     bind("server.undertow.threads.worker", "10");
-    assertThat(this.properties.getUndertow().getThreads().getWorker()).isEqualTo(10);
+    assertThat(this.properties.undertow.getThreads().getWorker()).isEqualTo(10);
   }
 
   @Test
@@ -325,7 +325,7 @@ class ServerPropertiesTests {
     map.put("server.jetty.accesslog.custom-format", "{client}a - %u %t \"%r\" %s %O");
     map.put("server.jetty.accesslog.ignore-paths", "/a/path,/b/path");
     bind(map);
-    ServerProperties.Jetty jetty = this.properties.getJetty();
+    ServerProperties.Jetty jetty = this.properties.jetty;
     assertThat(jetty.getAccesslog().isEnabled()).isTrue();
     assertThat(jetty.getAccesslog().getFilename()).isEqualTo("foo.txt");
     assertThat(jetty.getAccesslog().getFileDateFormat()).isEqualTo("yyyymmdd");
@@ -338,98 +338,98 @@ class ServerPropertiesTests {
   @Test
   void testCustomizeNettyIdleTimeout() {
     bind("server.reactor-netty.idle-timeout", "10s");
-    assertThat(this.properties.getReactorNetty().getIdleTimeout()).isEqualTo(Duration.ofSeconds(10));
+    assertThat(this.properties.reactorNetty.getIdleTimeout()).isEqualTo(Duration.ofSeconds(10));
   }
 
   @Test
   void testCustomizeNettyMaxKeepAliveRequests() {
     bind("server.reactor-netty.max-keep-alive-requests", "100");
-    assertThat(this.properties.getReactorNetty().getMaxKeepAliveRequests()).isEqualTo(100);
+    assertThat(this.properties.reactorNetty.getMaxKeepAliveRequests()).isEqualTo(100);
   }
 
   @Test
   void tomcatAcceptCountMatchesProtocolDefault() throws Exception {
-    assertThat(this.properties.getTomcat().getAcceptCount()).isEqualTo(getDefaultProtocol().getAcceptCount());
+    assertThat(this.properties.tomcat.getAcceptCount()).isEqualTo(getDefaultProtocol().getAcceptCount());
   }
 
   @Test
   void tomcatProcessorCacheMatchesProtocolDefault() throws Exception {
-    assertThat(this.properties.getTomcat().getProcessorCache()).isEqualTo(getDefaultProtocol().getProcessorCache());
+    assertThat(this.properties.tomcat.getProcessorCache()).isEqualTo(getDefaultProtocol().getProcessorCache());
   }
 
   @Test
   void tomcatMaxConnectionsMatchesProtocolDefault() throws Exception {
-    assertThat(this.properties.getTomcat().getMaxConnections()).isEqualTo(getDefaultProtocol().getMaxConnections());
+    assertThat(this.properties.tomcat.getMaxConnections()).isEqualTo(getDefaultProtocol().getMaxConnections());
   }
 
   @Test
   void tomcatMaxThreadsMatchesProtocolDefault() throws Exception {
-    assertThat(this.properties.getTomcat().getThreads().getMax()).isEqualTo(getDefaultProtocol().getMaxThreads());
+    assertThat(this.properties.tomcat.getThreads().getMax()).isEqualTo(getDefaultProtocol().getMaxThreads());
   }
 
   @Test
   void tomcatMinSpareThreadsMatchesProtocolDefault() throws Exception {
-    assertThat(this.properties.getTomcat().getThreads().getMinSpare())
+    assertThat(this.properties.tomcat.getThreads().getMinSpare())
             .isEqualTo(getDefaultProtocol().getMinSpareThreads());
   }
 
   @Test
   void tomcatMaxHttpPostSizeMatchesConnectorDefault() {
-    assertThat(this.properties.getTomcat().getMaxHttpFormPostSize().toBytes())
+    assertThat(this.properties.tomcat.getMaxHttpFormPostSize().toBytes())
             .isEqualTo(getDefaultConnector().getMaxPostSize());
   }
 
   @Test
   void tomcatBackgroundProcessorDelayMatchesEngineDefault() {
-    assertThat(this.properties.getTomcat().getBackgroundProcessorDelay())
+    assertThat(this.properties.tomcat.getBackgroundProcessorDelay())
             .hasSeconds((new StandardEngine().getBackgroundProcessorDelay()));
   }
 
   @Test
   void tomcatMaxHttpFormPostSizeMatchesConnectorDefault() {
-    assertThat(this.properties.getTomcat().getMaxHttpFormPostSize().toBytes())
+    assertThat(this.properties.tomcat.getMaxHttpFormPostSize().toBytes())
             .isEqualTo(getDefaultConnector().getMaxPostSize());
   }
 
   @Test
   void tomcatUriEncodingMatchesConnectorDefault() {
-    assertThat(this.properties.getTomcat().getUriEncoding().name())
+    assertThat(this.properties.tomcat.getUriEncoding().name())
             .isEqualTo(getDefaultConnector().getURIEncoding());
   }
 
   @Test
   void tomcatRedirectContextRootMatchesDefault() {
-    assertThat(this.properties.getTomcat().getRedirectContextRoot())
+    assertThat(this.properties.tomcat.getRedirectContextRoot())
             .isEqualTo(new StandardContext().getMapperContextRootRedirectEnabled());
   }
 
   @Test
   void tomcatAccessLogRenameOnRotateMatchesDefault() {
-    assertThat(this.properties.getTomcat().getAccesslog().isRenameOnRotate())
+    assertThat(this.properties.tomcat.getAccesslog().isRenameOnRotate())
             .isEqualTo(new AccessLogValve().isRenameOnRotate());
   }
 
   @Test
   void tomcatAccessLogRequestAttributesEnabledMatchesDefault() {
-    assertThat(this.properties.getTomcat().getAccesslog().isRequestAttributesEnabled())
+    assertThat(this.properties.tomcat.getAccesslog().isRequestAttributesEnabled())
             .isEqualTo(new AccessLogValve().getRequestAttributesEnabled());
   }
 
   @Test
   void tomcatInternalProxiesMatchesDefault() {
-    assertThat(this.properties.getTomcat().getRemoteip().getInternalProxies())
+    assertThat(this.properties.tomcat.getRemoteip().getInternalProxies())
             .isEqualTo(new RemoteIpValve().getInternalProxies());
   }
 
   @Test
   void tomcatRejectIllegalHeaderMatchesProtocolDefault() throws Exception {
     assertThat(getDefaultProtocol()).hasFieldOrPropertyWithValue("rejectIllegalHeader",
-            this.properties.getTomcat().isRejectIllegalHeader());
+            this.properties.tomcat.isRejectIllegalHeader());
   }
 
   @Test
   void tomcatUseRelativeRedirectsDefaultsToFalse() {
-    assertThat(this.properties.getTomcat().isUseRelativeRedirects()).isFalse();
+    assertThat(this.properties.tomcat.isUseRelativeRedirects()).isFalse();
   }
 
   @Test
@@ -437,7 +437,7 @@ class ServerPropertiesTests {
     AbstractEndpoint<?, ?> endpoint = (AbstractEndpoint<?, ?>) ReflectionTestUtils.getField(getDefaultProtocol(),
             "endpoint");
     int defaultMaxKeepAliveRequests = (int) ReflectionTestUtils.getField(endpoint, "maxKeepAliveRequests");
-    assertThat(this.properties.getTomcat().getMaxKeepAliveRequests()).isEqualTo(defaultMaxKeepAliveRequests);
+    assertThat(this.properties.tomcat.getMaxKeepAliveRequests()).isEqualTo(defaultMaxKeepAliveRequests);
   }
 
   @Test
@@ -449,9 +449,9 @@ class ServerPropertiesTests {
     int idleTimeout = threadPool.getIdleTimeout();
     int maxThreads = threadPool.getMaxThreads();
     int minThreads = threadPool.getMinThreads();
-    assertThat(this.properties.getJetty().getThreads().getIdleTimeout().toMillis()).isEqualTo(idleTimeout);
-    assertThat(this.properties.getJetty().getThreads().getMax()).isEqualTo(maxThreads);
-    assertThat(this.properties.getJetty().getThreads().getMin()).isEqualTo(minThreads);
+    assertThat(this.properties.jetty.getThreads().getIdleTimeout().toMillis()).isEqualTo(idleTimeout);
+    assertThat(this.properties.jetty.getThreads().getMax()).isEqualTo(maxThreads);
+    assertThat(this.properties.jetty.getThreads().getMin()).isEqualTo(minThreads);
   }
 
   @Test
@@ -459,95 +459,95 @@ class ServerPropertiesTests {
     JettyServletWebServerFactory jettyFactory = new JettyServletWebServerFactory(0);
     JettyWebServer jetty = (JettyWebServer) jettyFactory.getWebServer();
     Server server = jetty.getServer();
-    assertThat(this.properties.getJetty().getMaxHttpFormPostSize().toBytes())
+    assertThat(this.properties.jetty.getMaxHttpFormPostSize().toBytes())
             .isEqualTo(((ServletContextHandler) server.getHandler()).getMaxFormContentSize());
   }
 
   @Test
   void undertowMaxHttpPostSizeMatchesDefault() {
-    assertThat(this.properties.getUndertow().getMaxHttpPostSize().toBytes())
+    assertThat(this.properties.undertow.getMaxHttpPostSize().toBytes())
             .isEqualTo(UndertowOptions.DEFAULT_MAX_ENTITY_SIZE);
   }
 
   @Test
   void nettyMaxChunkSizeMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getReactorNetty().getMaxChunkSize().toBytes())
+    assertThat(this.properties.reactorNetty.getMaxChunkSize().toBytes())
             .isEqualTo(HttpDecoderSpec.DEFAULT_MAX_CHUNK_SIZE);
   }
 
   @Test
   void nettyMaxInitialLineLengthMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getReactorNetty().getMaxInitialLineLength().toBytes())
+    assertThat(this.properties.reactorNetty.getMaxInitialLineLength().toBytes())
             .isEqualTo(HttpDecoderSpec.DEFAULT_MAX_INITIAL_LINE_LENGTH);
   }
 
   @Test
   void nettyValidateHeadersMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getReactorNetty().isValidateHeaders()).isEqualTo(HttpDecoderSpec.DEFAULT_VALIDATE_HEADERS);
+    assertThat(this.properties.reactorNetty.isValidateHeaders()).isEqualTo(HttpDecoderSpec.DEFAULT_VALIDATE_HEADERS);
   }
 
   @Test
   void nettyH2cMaxContentLengthMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getReactorNetty().getH2cMaxContentLength().toBytes())
+    assertThat(this.properties.reactorNetty.getH2cMaxContentLength().toBytes())
             .isEqualTo(HttpRequestDecoderSpec.DEFAULT_H2C_MAX_CONTENT_LENGTH);
   }
 
   @Test
   void nettyInitialBufferSizeMatchesHttpDecoderSpecDefault() {
-    assertThat(this.properties.getReactorNetty().getInitialBufferSize().toBytes())
+    assertThat(this.properties.reactorNetty.getInitialBufferSize().toBytes())
             .isEqualTo(HttpDecoderSpec.DEFAULT_INITIAL_BUFFER_SIZE);
   }
 
   @Test
   void nettyWorkThreadCount() {
-    assertThat(this.properties.getNetty().getWorkerThreads()).isNull();
+    assertThat(this.properties.netty.getWorkerThreads()).isNull();
 
     bind("server.netty.workerThreads", "10");
-    assertThat(this.properties.getNetty().getWorkerThreads()).isEqualTo(10);
+    assertThat(this.properties.netty.getWorkerThreads()).isEqualTo(10);
 
     bind("server.netty.worker-threads", "100");
-    assertThat(this.properties.getNetty().getWorkerThreads()).isEqualTo(100);
+    assertThat(this.properties.netty.getWorkerThreads()).isEqualTo(100);
   }
 
   @Test
   void nettyBossThreadCount() {
-    assertThat(this.properties.getNetty().getAcceptorThreads()).isNull();
+    assertThat(this.properties.netty.getAcceptorThreads()).isNull();
     bind("server.netty.acceptorThreads", "10");
-    assertThat(this.properties.getNetty().getAcceptorThreads()).isEqualTo(10);
+    assertThat(this.properties.netty.getAcceptorThreads()).isEqualTo(10);
 
     bind("server.netty.acceptor-threads", "100");
-    assertThat(this.properties.getNetty().getAcceptorThreads()).isEqualTo(100);
+    assertThat(this.properties.netty.getAcceptorThreads()).isEqualTo(100);
   }
 
   @Test
   void nettyLoggingLevel() {
-    assertThat(this.properties.getNetty().getLoggingLevel()).isNull();
+    assertThat(this.properties.netty.getLoggingLevel()).isNull();
 
     bind("server.netty.loggingLevel", "INFO");
-    assertThat(this.properties.getNetty().getLoggingLevel()).isEqualTo(LogLevel.INFO);
+    assertThat(this.properties.netty.getLoggingLevel()).isEqualTo(LogLevel.INFO);
 
     bind("server.netty.logging-level", "DEBUG");
-    assertThat(this.properties.getNetty().getLoggingLevel()).isEqualTo(LogLevel.DEBUG);
+    assertThat(this.properties.netty.getLoggingLevel()).isEqualTo(LogLevel.DEBUG);
   }
 
   @Test
   void nettySocketChannel() {
-    assertThat(this.properties.getNetty().getSocketChannel()).isNull();
+    assertThat(this.properties.netty.getSocketChannel()).isNull();
 
     bind("server.netty.socketChannel", "io.netty.channel.socket.nio.NioServerSocketChannel");
-    assertThat(this.properties.getNetty().getSocketChannel()).isEqualTo(NioServerSocketChannel.class);
+    assertThat(this.properties.netty.getSocketChannel()).isEqualTo(NioServerSocketChannel.class);
 
     bind("server.netty.socket-channel", "io.netty.channel.socket.nio.NioServerSocketChannel");
-    assertThat(this.properties.getNetty().getSocketChannel()).isEqualTo(NioServerSocketChannel.class);
+    assertThat(this.properties.netty.getSocketChannel()).isEqualTo(NioServerSocketChannel.class);
   }
 
   @Test
   void maxConnection() {
     bind("server.netty.maxConnection", "100");
-    assertThat(this.properties.getNetty().getMaxConnection()).isEqualTo(100);
+    assertThat(this.properties.netty.getMaxConnection()).isEqualTo(100);
 
     bind("server.netty.max-connection", "1000");
-    assertThat(this.properties.getNetty().getMaxConnection()).isEqualTo(1000);
+    assertThat(this.properties.netty.getMaxConnection()).isEqualTo(1000);
   }
 
   private Connector getDefaultConnector() {

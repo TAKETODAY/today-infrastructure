@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -157,6 +157,7 @@ class JavaBeanBinder implements DataObjectBinder {
     }
 
     protected void addProperties(Method[] declaredMethods, Field[] declaredFields) {
+      // todo 减少时间复杂度
       for (int i = 0; i < declaredMethods.length; i++) {
         if (!isCandidate(declaredMethods[i])) {
           declaredMethods[i] = null;
@@ -188,25 +189,33 @@ class JavaBeanBinder implements DataObjectBinder {
               && method.getName().indexOf('$') == -1;
     }
 
-    private void addMethodIfPossible(Method method, String prefix, int parameterCount,
+    private void addMethodIfPossible(@Nullable Method method, String prefix, int parameterCount,
             BiConsumer<BeanProperty, Method> consumer) {
       if (method != null
               && method.getParameterCount() == parameterCount
               && method.getName().startsWith(prefix)
               && method.getName().length() > prefix.length()) {
         String propertyName = Introspector.decapitalize(method.getName().substring(prefix.length()));
-        consumer.accept(this.properties.computeIfAbsent(propertyName, this::getBeanProperty), method);
+        consumer.accept(this.properties.computeIfAbsent(propertyName, this::createBeanProperty), method);
       }
     }
 
-    private BeanProperty getBeanProperty(String name) {
+    private BeanProperty createBeanProperty(String name) {
       return new BeanProperty(name, this.type);
     }
 
     private void addField(Field field) {
-      BeanProperty property = this.properties.get(field.getName());
+      String propertyName = field.getName();
+      BeanProperty property = properties.get(propertyName);
       if (property != null) {
-        property.addField(field);
+        ReflectionUtils.makeAccessible(field);
+        property.field = field;
+      }
+      else if (Modifier.isPublic(field.getModifiers())) {
+        // add public field
+        property = createBeanProperty(propertyName);
+        property.field = field;
+        properties.put(propertyName, property);
       }
     }
 
@@ -363,19 +372,18 @@ class JavaBeanBinder implements DataObjectBinder {
       return this.getter != null && this.getter.getReturnType().equals(setter.getParameterTypes()[0]);
     }
 
-    void addField(Field field) {
-      if (this.field == null) {
-        this.field = field;
-      }
-    }
-
-    ResolvableType getType() {
+    public ResolvableType getType() {
       if (this.setter != null) {
         MethodParameter methodParameter = new MethodParameter(this.setter, 0);
         return ResolvableType.forMethodParameter(methodParameter, this.declaringClassType);
       }
-      MethodParameter methodParameter = new MethodParameter(this.getter, -1);
-      return ResolvableType.forMethodParameter(methodParameter, this.declaringClassType);
+      if (getter != null) {
+        MethodParameter methodParameter = new MethodParameter(this.getter, -1);
+        return ResolvableType.forMethodParameter(methodParameter, this.declaringClassType);
+      }
+      else {
+        return ResolvableType.forField(field);
+      }
     }
 
     @Nullable
@@ -390,31 +398,42 @@ class JavaBeanBinder implements DataObjectBinder {
 
     @Nullable
     Supplier<Object> getValue(Supplier<?> instance) {
-      if (this.getter == null) {
-        return null;
+      if (getter != null) {
+        return () -> {
+          try {
+            ReflectionUtils.makeAccessible(getter);
+            return getter.invoke(instance.get());
+          }
+          catch (Exception ex) {
+            throw new IllegalStateException("Unable to get value for property " + this.name, ex);
+          }
+        };
       }
-      return () -> {
-        try {
-          ReflectionUtils.makeAccessible(getter);
-          return getter.invoke(instance.get());
-        }
-        catch (Exception ex) {
-          throw new IllegalStateException("Unable to get value for property " + this.name, ex);
-        }
-      };
+      else if (field != null) {
+        return () -> ReflectionUtils.getField(field, instance.get());
+      }
+      return null;
     }
 
     boolean isSettable() {
-      return this.setter != null;
+      return this.setter != null || (
+              field != null && Modifier.isPublic(field.getModifiers())
+                      && !Modifier.isFinal(field.getModifiers())
+      );
     }
 
     void setValue(Supplier<?> instance, Object value) {
-      try {
-        ReflectionUtils.makeAccessible(setter);
-        setter.invoke(instance.get(), value);
+      if (setter != null) {
+        try {
+          ReflectionUtils.makeAccessible(setter);
+          setter.invoke(instance.get(), value);
+        }
+        catch (Exception ex) {
+          throw new IllegalStateException("Unable to set value for property " + this.name, ex);
+        }
       }
-      catch (Exception ex) {
-        throw new IllegalStateException("Unable to set value for property " + this.name, ex);
+      else if (field != null) {
+        ReflectionUtils.setField(field, instance.get(), value);
       }
     }
 

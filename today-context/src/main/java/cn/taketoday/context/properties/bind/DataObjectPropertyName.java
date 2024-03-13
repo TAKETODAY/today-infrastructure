@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.bind;
@@ -25,6 +22,7 @@ package cn.taketoday.context.properties.bind;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see DataObjectBinder
  * @since 4.0
  */
@@ -57,7 +55,7 @@ public abstract class DataObjectPropertyName {
         }
         else {
           ch = (ch != '_') ? ch : '-';
-          if (Character.isUpperCase(ch) && result.length() > 0 && result.charAt(result.length() - 1) != '-') {
+          if (Character.isUpperCase(ch) && !result.isEmpty() && result.charAt(result.length() - 1) != '-') {
             result.append('-');
           }
           result.append(Character.toLowerCase(ch));

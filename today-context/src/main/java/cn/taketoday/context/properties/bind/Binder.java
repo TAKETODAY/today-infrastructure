@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -403,8 +403,9 @@ public class Binder {
   }
 
   @Nullable
-  private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
-          Context context, boolean allowRecursiveBinding) {
+  private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target,
+          BindHandler handler, Context context, boolean allowRecursiveBinding) {
+
     ConfigurationProperty property = findProperty(name, target, context);
     if (property == null && context.depth != 0 && containsNoDescendantOf(context.getSources(), name)) {
       return null;

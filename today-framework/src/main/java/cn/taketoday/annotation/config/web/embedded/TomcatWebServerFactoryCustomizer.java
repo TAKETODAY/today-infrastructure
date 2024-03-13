@@ -87,7 +87,7 @@ public class TomcatWebServerFactoryCustomizer
   @Override
   public void customize(ConfigurableTomcatWebServerFactory factory) {
     ServerProperties properties = this.serverProperties;
-    ServerProperties.Tomcat tomcatProperties = properties.getTomcat();
+    ServerProperties.Tomcat tomcatProperties = properties.tomcat;
     PropertyMapper propertyMapper = PropertyMapper.get();
     propertyMapper.from(tomcatProperties::getBasedir).whenNonNull().to(factory::setBaseDirectory);
     propertyMapper.from(tomcatProperties::getBackgroundProcessorDelay)
@@ -126,7 +126,7 @@ public class TomcatWebServerFactoryCustomizer
     propertyMapper.from(tomcatProperties::getRelaxedQueryChars).as(this::joinCharacters).whenHasText().to(relaxedChars -> customizeRelaxedQueryChars(factory, relaxedChars));
     propertyMapper.from(tomcatProperties::isRejectIllegalHeader).to((rejectIllegalHeader) -> customizeRejectIllegalHeader(factory, rejectIllegalHeader));
     customizeStaticResources(factory);
-    customizeErrorReportValve(properties.getError(), factory);
+    customizeErrorReportValve(properties.error, factory);
   }
 
   private void configureExecutor(ConfigurableTomcatWebServerFactory factory, ServerProperties.Tomcat.Threads threadProperties) {
@@ -204,7 +204,7 @@ public class TomcatWebServerFactoryCustomizer
   }
 
   private void customizeRemoteIpValve(ConfigurableTomcatWebServerFactory factory) {
-    ServerProperties.Tomcat.Remoteip remoteIpProperties = serverProperties.getTomcat().getRemoteip();
+    ServerProperties.Tomcat.Remoteip remoteIpProperties = serverProperties.tomcat.getRemoteip();
     String protocolHeader = remoteIpProperties.getProtocolHeader();
     String remoteIpHeader = remoteIpProperties.getRemoteIpHeader();
     // For back compatibility the valve is also enabled if protocol-header is set
@@ -273,7 +273,7 @@ public class TomcatWebServerFactoryCustomizer
   }
 
   private void customizeAccessLog(ConfigurableTomcatWebServerFactory factory) {
-    ServerProperties.Tomcat tomcatProperties = this.serverProperties.getTomcat();
+    ServerProperties.Tomcat tomcatProperties = this.serverProperties.tomcat;
     AccessLogValve valve = new AccessLogValve();
     PropertyMapper map = PropertyMapper.get();
     ServerProperties.Tomcat.Accesslog accessLogConfig = tomcatProperties.getAccesslog();
@@ -297,7 +297,7 @@ public class TomcatWebServerFactoryCustomizer
   }
 
   private void customizeStaticResources(ConfigurableTomcatWebServerFactory factory) {
-    ServerProperties.Tomcat.Resource resource = this.serverProperties.getTomcat().getResource();
+    ServerProperties.Tomcat.Resource resource = this.serverProperties.tomcat.getResource();
     factory.addContextCustomizers(context -> context.addLifecycleListener(event -> {
       if (event.getType().equals(Lifecycle.CONFIGURE_START_EVENT)) {
         context.getResources().setCachingAllowed(resource.isAllowCaching());

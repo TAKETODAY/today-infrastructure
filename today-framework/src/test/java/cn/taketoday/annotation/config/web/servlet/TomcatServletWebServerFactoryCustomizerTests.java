@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.servlet;
@@ -77,7 +77,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
   @Test
   void redirectContextRootCanBeConfigured() {
     bind("server.tomcat.redirect-context-root=false");
-    ServerProperties.Tomcat tomcat = this.serverProperties.getTomcat();
+    ServerProperties.Tomcat tomcat = this.serverProperties.tomcat;
     assertThat(tomcat.getRedirectContextRoot()).isFalse();
     TomcatWebServer server = customizeAndGetServer();
     Context context = (Context) server.getTomcat().getHost().findChildren()[0];
@@ -87,7 +87,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
   @Test
   void useRelativeRedirectsCanBeConfigured() {
     bind("server.tomcat.use-relative-redirects=true");
-    assertThat(this.serverProperties.getTomcat().isUseRelativeRedirects()).isTrue();
+    assertThat(this.serverProperties.tomcat.isUseRelativeRedirects()).isTrue();
     TomcatWebServer server = customizeAndGetServer();
     Context context = (Context) server.getTomcat().getHost().findChildren()[0];
     assertThat(context.getUseRelativeRedirects()).isTrue();
