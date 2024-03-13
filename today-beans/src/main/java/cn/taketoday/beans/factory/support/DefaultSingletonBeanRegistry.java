@@ -18,7 +18,6 @@
 package cn.taketoday.beans.factory.support;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -97,8 +96,8 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   /** Names of beans currently excluded from in creation checks. */
   private final Set<String> inCreationCheckExclusions = ConcurrentHashMap.newKeySet(16);
 
-  /** Cache of singleton factories: bean name to ObjectFactory. */
-  private final HashMap<String, Supplier<?>> singletonFactories = new HashMap<>(16);
+  /** Set of registered singletons, containing the bean names in registration order. */
+  private final Set<String> registeredSingletons = Collections.synchronizedSet(new LinkedHashSet<>(256));
 
   /** Disposable bean instances: bean name to disposable instance. */
   private final LinkedHashMap<String, DisposableBean> disposableBeans = new LinkedHashMap<>();
@@ -118,11 +117,11 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   /** Cache of early singleton objects: bean name to bean instance. */
   private final ConcurrentHashMap<String, Object> earlySingletonObjects = new ConcurrentHashMap<>(16);
 
+  /** Cache of singleton factories: bean name to ObjectFactory. */
+  private final ConcurrentHashMap<String, Supplier<?>> singletonFactories = new ConcurrentHashMap<>(16);
+
   /** Custom callbacks for singleton creation/registration. */
   private final ConcurrentHashMap<String, Consumer<Object>> singletonCallbacks = new ConcurrentHashMap<>(16);
-
-  /** Set of registered singletons, containing the bean names in registration order. */
-  private final Set<String> registeredSingletons = Collections.synchronizedSet(new LinkedHashSet<>(256));
 
   @Override
   public void registerSingleton(String beanName, Object singletonObject) throws IllegalStateException {
@@ -265,8 +264,8 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
               // Thread-safe exposure is still guaranteed, there is just a risk of collisions
               // when triggering creation of other beans as dependencies of the current bean.
               if (log.isInfoEnabled()) {
-                log.info("Creating singleton bean '%s' in thread \"%s\" while thread \"%s\" holds singleton lock for other beans %s"
-                        .formatted(beanName, Thread.currentThread().getName(), threadWithLock.getName(), singletonsCurrentlyInCreation));
+                log.info("Creating singleton bean '{}' in thread \"{}\" while thread \"{}\" holds singleton lock for other beans {}",
+                        beanName, Thread.currentThread().getName(), threadWithLock.getName(), singletonsCurrentlyInCreation);
               }
             }
             else {
@@ -288,7 +287,7 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
                           "(Do not request a bean from a BeanFactory in a destroy method implementation!)");
         }
         if (log.isDebugEnabled()) {
-          log.debug("Creating shared instance of singleton bean '%s'".formatted(beanName));
+          log.debug("Creating shared instance of singleton bean '{}'", beanName);
         }
         beforeSingletonCreation(beanName);
         boolean newSingleton = false;
@@ -492,16 +491,16 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
     String canonicalName = canonicalName(beanName);
 
     synchronized(dependentBeanMap) {
-      Set<String> dependentBeans =
-              dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
+      Set<String> dependentBeans = dependentBeanMap.computeIfAbsent(canonicalName,
+              k -> new LinkedHashSet<>(8));
       if (!dependentBeans.add(dependentBeanName)) {
         return;
       }
     }
 
     synchronized(dependenciesForBeanMap) {
-      Set<String> dependenciesForBean =
-              dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));
+      Set<String> dependenciesForBean = dependenciesForBeanMap.computeIfAbsent(dependentBeanName,
+              k -> new LinkedHashSet<>(8));
       dependenciesForBean.add(canonicalName);
     }
   }
@@ -512,7 +511,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
    *
    * @param beanName the name of the bean to check
    * @param dependentBeanName the name of the dependent bean
-   * @since 4.0
    */
   protected boolean isDependent(String beanName, String dependentBeanName) {
     synchronized(dependentBeanMap) {
@@ -616,8 +614,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
 
   /**
    * Clear all cached singleton instances in this registry.
-   *
-   * @since 4.0
    */
   protected void clearSingletonCache() {
     this.singletonObjects.clear();
@@ -724,17 +720,6 @@ public class DefaultSingletonBeanRegistry extends DefaultAliasRegistry implement
   @Override
   public void registerSingleton(Object bean) {
     registerSingleton(BeanDefinitionBuilder.defaultBeanName(bean.getClass()), bean);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public <T> T getSingleton(Class<T> requiredType) {
-    for (Object value : singletonObjects.values()) {
-      if (requiredType.isInstance(value)) {
-        return (T) value;
-      }
-    }
-    return null;
   }
 
 }
