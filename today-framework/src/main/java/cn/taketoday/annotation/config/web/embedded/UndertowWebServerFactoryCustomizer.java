@@ -76,7 +76,7 @@ public class UndertowWebServerFactoryCustomizer
   public void customize(ConfigurableUndertowWebServerFactory factory) {
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
     ServerOptions options = new ServerOptions(factory);
-    map.from(serverProperties::getMaxHttpRequestHeaderSize).asInt(DataSize::toBytes).when(this::isPositive).to(options.option(UndertowOptions.MAX_HEADER_SIZE));
+    map.from(serverProperties.maxHttpRequestHeaderSize).asInt(DataSize::toBytes).when(this::isPositive).to(options.option(UndertowOptions.MAX_HEADER_SIZE));
     mapUndertowProperties(factory, options);
     mapAccessLogProperties(factory);
     map.from(this::getOrDeduceUseForwardHeaders).to(factory::setUseForwardHeaders);
@@ -85,32 +85,32 @@ public class UndertowWebServerFactoryCustomizer
   private void mapUndertowProperties(ConfigurableUndertowWebServerFactory factory, ServerOptions serverOptions) {
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
     ServerProperties.Undertow properties = serverProperties.undertow;
-    map.from(properties::getBufferSize).whenNonNull().asInt(DataSize::toBytes).to(factory::setBufferSize);
-    ServerProperties.Undertow.Threads threadProperties = properties.getThreads();
+    map.from(properties.bufferSize).whenNonNull().asInt(DataSize::toBytes).to(factory::setBufferSize);
+    ServerProperties.Undertow.Threads threadProperties = properties.threads;
 
-    map.from(threadProperties::getIo).to(factory::setIoThreads);
-    map.from(threadProperties::getWorker).to(factory::setWorkerThreads);
-    map.from(properties::getDirectBuffers).to(factory::setUseDirectBuffers);
-    map.from(properties::getMaxHttpPostSize).as(DataSize::toBytes).when(this::isPositive).to(serverOptions.option(UndertowOptions.MAX_ENTITY_SIZE));
-    map.from(properties::getMaxParameters).to(serverOptions.option(UndertowOptions.MAX_PARAMETERS));
-    map.from(properties::getMaxHeaders).to(serverOptions.option(UndertowOptions.MAX_HEADERS));
-    map.from(properties::getMaxCookies).to(serverOptions.option(UndertowOptions.MAX_COOKIES));
+    map.from(threadProperties.io).to(factory::setIoThreads);
+    map.from(threadProperties.worker).to(factory::setWorkerThreads);
+    map.from(properties.directBuffers).to(factory::setUseDirectBuffers);
+    map.from(properties.maxHttpPostSize).as(DataSize::toBytes).when(this::isPositive).to(serverOptions.option(UndertowOptions.MAX_ENTITY_SIZE));
+    map.from(properties.maxParameters).to(serverOptions.option(UndertowOptions.MAX_PARAMETERS));
+    map.from(properties.maxHeaders).to(serverOptions.option(UndertowOptions.MAX_HEADERS));
+    map.from(properties.maxCookies).to(serverOptions.option(UndertowOptions.MAX_COOKIES));
 
     mapSlashProperties(properties, serverOptions);
 
-    map.from(properties::isDecodeUrl).to(serverOptions.option(UndertowOptions.DECODE_URL));
-    map.from(properties::getUrlCharset).as(Charset::name).to(serverOptions.option(UndertowOptions.URL_CHARSET));
-    map.from(properties::isAlwaysSetKeepAlive).to(serverOptions.option(UndertowOptions.ALWAYS_SET_KEEP_ALIVE));
-    map.from(properties::getNoRequestTimeout).asInt(Duration::toMillis).to(serverOptions.option(UndertowOptions.NO_REQUEST_TIMEOUT));
-    map.from(properties.getOptions()::getServer).to(serverOptions.forEach(serverOptions::option));
+    map.from(properties.decodeUrl).to(serverOptions.option(UndertowOptions.DECODE_URL));
+    map.from(properties.urlCharset).as(Charset::name).to(serverOptions.option(UndertowOptions.URL_CHARSET));
+    map.from(properties.alwaysSetKeepAlive).to(serverOptions.option(UndertowOptions.ALWAYS_SET_KEEP_ALIVE));
+    map.from(properties.noRequestTimeout).asInt(Duration::toMillis).to(serverOptions.option(UndertowOptions.NO_REQUEST_TIMEOUT));
+    map.from(properties.options.server).to(serverOptions.forEach(serverOptions::option));
 
     SocketOptions socketOptions = new SocketOptions(factory);
-    map.from(properties.getOptions()::getSocket).to(socketOptions.forEach(socketOptions::option));
+    map.from(properties.options.socket).to(socketOptions.forEach(socketOptions::option));
   }
 
   private void mapSlashProperties(ServerProperties.Undertow properties, ServerOptions serverOptions) {
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(properties::getDecodeSlash).to(serverOptions.option(UndertowOptions.DECODE_SLASH));
+    map.from(properties.decodeSlash).to(serverOptions.option(UndertowOptions.DECODE_SLASH));
   }
 
   private boolean isPositive(Number value) {
@@ -118,22 +118,22 @@ public class UndertowWebServerFactoryCustomizer
   }
 
   private void mapAccessLogProperties(ConfigurableUndertowWebServerFactory factory) {
-    ServerProperties.Undertow.Accesslog properties = this.serverProperties.undertow.getAccesslog();
+    ServerProperties.Undertow.Accesslog properties = this.serverProperties.undertow.accesslog;
     PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-    map.from(properties::isEnabled).to(factory::setAccessLogEnabled);
-    map.from(properties::getDir).to(factory::setAccessLogDirectory);
-    map.from(properties::getPattern).to(factory::setAccessLogPattern);
-    map.from(properties::getPrefix).to(factory::setAccessLogPrefix);
-    map.from(properties::getSuffix).to(factory::setAccessLogSuffix);
-    map.from(properties::isRotate).to(factory::setAccessLogRotate);
+    map.from(properties.enabled).to(factory::setAccessLogEnabled);
+    map.from(properties.dir).to(factory::setAccessLogDirectory);
+    map.from(properties.pattern).to(factory::setAccessLogPattern);
+    map.from(properties.prefix).to(factory::setAccessLogPrefix);
+    map.from(properties.suffix).to(factory::setAccessLogSuffix);
+    map.from(properties.rotate).to(factory::setAccessLogRotate);
   }
 
   private boolean getOrDeduceUseForwardHeaders() {
-    if (this.serverProperties.getForwardHeadersStrategy() == null) {
+    if (this.serverProperties.forwardHeadersStrategy == null) {
       CloudPlatform platform = CloudPlatform.getActive(this.environment);
       return platform != null && platform.isUsingForwardHeaders();
     }
-    return this.serverProperties.getForwardHeadersStrategy().equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
+    return this.serverProperties.forwardHeadersStrategy.equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
   }
 
   private abstract static class AbstractOptions {

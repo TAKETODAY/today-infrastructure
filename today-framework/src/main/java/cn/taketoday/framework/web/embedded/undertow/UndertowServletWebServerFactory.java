@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.embedded.undertow;
@@ -397,8 +397,8 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
     List<URL> resourceJarUrls = new ArrayList<>();
     List<ResourceManager> managers = new ArrayList<>();
     ResourceManager rootManager = docBase.isDirectory()
-                                  ? new FileResourceManager(docBase, 0)
-                                  : new JarResourceManager(docBase);
+            ? new FileResourceManager(docBase, 0)
+            : new JarResourceManager(docBase);
     managers.add(rootManager);
     for (URL url : metaInfResourceUrls) {
       if ("file".equals(url.getProtocol())) {
@@ -490,7 +490,7 @@ public class UndertowServletWebServerFactory extends AbstractServletWebServerFac
 
   @Nullable
   private HttpHandlerFactory getCookieHandlerFactory(Deployment deployment) {
-    SameSite sessionSameSite = getSession().getCookie().getSameSite();
+    SameSite sessionSameSite = getSession().cookie.getSameSite();
     var suppliers = new ArrayList<CookieSameSiteSupplier>();
     if (sessionSameSite != null) {
       String sessionCookieName = deployment.getServletContext().getSessionCookieConfig().getName();

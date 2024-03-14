@@ -167,7 +167,7 @@ public abstract class AbstractErrorController implements ErrorController {
 
   protected ErrorAttributeOptions getErrorAttributeOptions(RequestContext request, MediaType mediaType) {
     ErrorAttributeOptions options = ErrorAttributeOptions.defaults();
-    if (errorProperties.isIncludeException()) {
+    if (errorProperties.includeException) {
       options = options.including(Include.EXCEPTION);
     }
     if (isIncludeStackTrace(request, mediaType)) {
@@ -193,7 +193,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the stacktrace attribute should be included
    */
   protected boolean isIncludeStackTrace(RequestContext request, MediaType produces) {
-    return switch (errorProperties.getIncludeStacktrace()) {
+    return switch (errorProperties.includeStacktrace) {
       case ALWAYS -> true;
       case ON_PARAM -> getTraceParameter(request);
       default -> false;
@@ -208,7 +208,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the message attribute should be included
    */
   protected boolean isIncludeMessage(RequestContext request, MediaType produces) {
-    return switch (errorProperties.getIncludeMessage()) {
+    return switch (errorProperties.includeMessage) {
       case ALWAYS -> true;
       case ON_PARAM -> getMessageParameter(request);
       default -> false;
@@ -223,7 +223,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the errors attribute should be included
    */
   protected boolean isIncludeBindingErrors(RequestContext request, MediaType produces) {
-    return switch (errorProperties.getIncludeBindingErrors()) {
+    return switch (errorProperties.includeBindingErrors) {
       case ALWAYS -> true;
       case ON_PARAM -> getErrorsParameter(request);
       default -> false;
@@ -238,7 +238,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return if the path attribute should be included
    */
   protected boolean isIncludePath(RequestContext request, MediaType produces) {
-    return switch (errorProperties.getIncludePath()) {
+    return switch (errorProperties.includePath) {
       case ALWAYS -> true;
       case ON_PARAM -> getPathParameter(request);
       case NEVER -> false;

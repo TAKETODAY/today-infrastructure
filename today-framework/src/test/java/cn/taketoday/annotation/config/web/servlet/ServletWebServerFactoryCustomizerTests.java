@@ -67,7 +67,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeDisplayName() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
-    this.properties.servlet.setApplicationDisplayName("TestName");
+    this.properties.servlet.applicationDisplayName = ("TestName");
     this.customizer.customize(factory);
     then(factory).should().setDisplayName("TestName");
   }
@@ -75,7 +75,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeDefaultServlet() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
-    this.properties.servlet.setRegisterDefaultServlet(false);
+    this.properties.servlet.registerDefaultServlet = (false);
     this.customizer.customize(factory);
     then(factory).should().setRegisterDefaultServlet(false);
   }
@@ -84,7 +84,7 @@ class ServletWebServerFactoryCustomizerTests {
   void testCustomizeSsl() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
     Ssl ssl = mock(Ssl.class);
-    this.properties.setSsl(ssl);
+    this.properties.ssl = (ssl);
     this.customizer.customize(factory);
     then(factory).should().setSsl(ssl);
   }
@@ -107,7 +107,7 @@ class ServletWebServerFactoryCustomizerTests {
     ArgumentCaptor<SessionProperties> sessionCaptor = ArgumentCaptor.forClass(SessionProperties.class);
     then(factory).should().setSession(sessionCaptor.capture());
     assertThat(sessionCaptor.getValue().getTimeout()).hasSeconds(123);
-    CookieProperties cookie = sessionCaptor.getValue().getCookie();
+    CookieProperties cookie = sessionCaptor.getValue().cookie;
     assertThat(cookie.getName()).isEqualTo("testname");
     assertThat(cookie.getDomain()).isEqualTo("testdomain");
     assertThat(cookie.getPath()).isEqualTo("/testpath");
@@ -118,7 +118,7 @@ class ServletWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeTomcatPort() {
     ConfigurableServletWebServerFactory factory = mock(ConfigurableServletWebServerFactory.class);
-    this.properties.setPort(8080);
+    this.properties.port = (8080);
     this.customizer.customize(factory);
     then(factory).should().setPort(8080);
   }
@@ -138,7 +138,7 @@ class ServletWebServerFactoryCustomizerTests {
     Map<String, String> map = new HashMap<>();
     map.put("server.tomcat.threads.min-spare", "10");
     bindProperties(map);
-    assertThat(this.properties.tomcat.getThreads().getMinSpare()).isEqualTo(10);
+    assertThat(this.properties.tomcat.threads.minSpare).isEqualTo(10);
   }
 
   @Test

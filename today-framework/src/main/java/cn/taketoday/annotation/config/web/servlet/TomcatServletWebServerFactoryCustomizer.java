@@ -22,7 +22,7 @@ import cn.taketoday.framework.web.embedded.tomcat.ConfigurableTomcatWebServerFac
 import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
-import cn.taketoday.util.ObjectUtils;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * {@link WebServerFactoryCustomizer} to apply {@link ServerProperties} to Tomcat web
@@ -50,14 +50,14 @@ public class TomcatServletWebServerFactoryCustomizer
   @Override
   public void customize(TomcatServletWebServerFactory factory) {
     ServerProperties.Tomcat tomcatProperties = this.serverProperties.tomcat;
-    if (ObjectUtils.isNotEmpty(tomcatProperties.getAdditionalTldSkipPatterns())) {
-      factory.getTldSkipPatterns().addAll(tomcatProperties.getAdditionalTldSkipPatterns());
+    if (CollectionUtils.isNotEmpty(tomcatProperties.additionalTldSkipPatterns)) {
+      factory.getTldSkipPatterns().addAll(tomcatProperties.additionalTldSkipPatterns);
     }
-    if (tomcatProperties.getRedirectContextRoot() != null) {
-      customizeRedirectContextRoot(factory, tomcatProperties.getRedirectContextRoot());
+    if (tomcatProperties.redirectContextRoot != null) {
+      customizeRedirectContextRoot(factory, tomcatProperties.redirectContextRoot);
     }
-    customizeUseRelativeRedirects(factory, tomcatProperties.isUseRelativeRedirects());
-    factory.setDisableMBeanRegistry(!tomcatProperties.getMbeanregistry().isEnabled());
+    customizeUseRelativeRedirects(factory, tomcatProperties.useRelativeRedirects);
+    factory.setDisableMBeanRegistry(!tomcatProperties.mbeanregistry.enabled);
   }
 
   private void customizeRedirectContextRoot(

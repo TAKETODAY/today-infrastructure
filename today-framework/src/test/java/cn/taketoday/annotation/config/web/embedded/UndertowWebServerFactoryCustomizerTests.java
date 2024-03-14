@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.embedded;
@@ -218,7 +215,7 @@ class UndertowWebServerFactoryCustomizerTests {
 
   @Test
   void forwardHeadersWhenStrategyIsNativeShouldConfigureValve() {
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NATIVE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NATIVE);
     ConfigurableUndertowWebServerFactory factory = mock(ConfigurableUndertowWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(true);
@@ -227,7 +224,7 @@ class UndertowWebServerFactoryCustomizerTests {
   @Test
   void forwardHeadersWhenStrategyIsNoneShouldNotConfigureValve() {
     this.environment.setProperty("DYNO", "-");
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NONE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NONE);
     ConfigurableUndertowWebServerFactory factory = mock(ConfigurableUndertowWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(false);

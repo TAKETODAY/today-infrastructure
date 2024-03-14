@@ -112,14 +112,14 @@ public class NettyWebServerFactoryAutoConfiguration {
           NettyChannelHandler channelHandler, ResourceLoader resourceLoader) {
     var netty = properties.netty;
     var initializer = createChannelInitializer(resourceLoader, channelHandler, netty);
-    initializer.setCloseOnExpectationFailed(netty.isCloseOnExpectationFailed());
-    initializer.setMaxContentLength(netty.getMaxContentLength().toBytesInt());
+    initializer.setCloseOnExpectationFailed(netty.closeOnExpectationFailed);
+    initializer.setMaxContentLength(netty.maxContentLength.toBytesInt());
 
     HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
-            .setMaxInitialLineLength(netty.getMaxInitialLineLength())
-            .setMaxHeaderSize(netty.getMaxHeaderSize())
-            .setMaxChunkSize(netty.getMaxChunkSize().toBytesInt())
-            .setValidateHeaders(netty.isValidateHeaders());
+            .setMaxInitialLineLength(netty.maxInitialLineLength)
+            .setMaxHeaderSize(netty.maxHeaderSize)
+            .setMaxChunkSize(netty.maxChunkSize.toBytesInt())
+            .setValidateHeaders(netty.validateHeaders);
     initializer.setHttpDecoderConfig(httpDecoderConfig);
     return initializer;
   }
@@ -127,9 +127,9 @@ public class NettyWebServerFactoryAutoConfiguration {
   private static NettyChannelInitializer createChannelInitializer(ResourceLoader resourceLoader,
           NettyChannelHandler channelHandler, ServerProperties.Netty netty) {
     var nettySSL = netty.ssl;
-    if (nettySSL.isEnabled()) {
-      Resource privateKeyResource = resourceLoader.getResource(nettySSL.getPrivateKey());
-      Resource publicKeyResource = resourceLoader.getResource(nettySSL.getPublicKey());
+    if (nettySSL.enabled) {
+      Resource privateKeyResource = resourceLoader.getResource(nettySSL.privateKey);
+      Resource publicKeyResource = resourceLoader.getResource(nettySSL.publicKey);
 
       Assert.state(publicKeyResource.exists(), "publicKey not found");
       Assert.state(privateKeyResource.exists(), "privateKey not found");
@@ -137,7 +137,7 @@ public class NettyWebServerFactoryAutoConfiguration {
       try (InputStream publicKeyStream = publicKeyResource.getInputStream();
               InputStream privateKeyStream = privateKeyResource.getInputStream()) {
         return new SSLNettyChannelInitializer(channelHandler,
-                SslContextBuilder.forServer(publicKeyStream, privateKeyStream, nettySSL.getKeyPassword()).build());
+                SslContextBuilder.forServer(publicKeyStream, privateKeyStream, nettySSL.keyPassword).build());
       }
       catch (IOException e) {
         throw new IllegalStateException("publicKey or publicKey resource I/O error", e);
@@ -163,7 +163,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     return NettyRequestConfig.forBuilder()
             .httpDataFactory(factory)
             .sendErrorHandler(sendErrorHandler)
-            .secure(properties.netty.ssl.isEnabled())
+            .secure(properties.netty.ssl.enabled)
             .build();
   }
 

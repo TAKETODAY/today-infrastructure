@@ -90,7 +90,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void forwardHeadersWhenStrategyIsNativeShouldConfigureValve() {
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NATIVE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NATIVE);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(true);
@@ -99,7 +99,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void forwardHeadersWhenStrategyIsNoneShouldNotConfigureValve() {
     this.environment.setProperty("DYNO", "-");
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NONE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NONE);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(false);
@@ -107,7 +107,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void setConnectionTimeout() {
-    this.serverProperties.reactorNetty.setConnectionTimeout(Duration.ofSeconds(1));
+    this.serverProperties.reactorNetty.connectionTimeout = (Duration.ofSeconds(1));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyConnectionTimeout(factory, 1000);
@@ -115,7 +115,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void setIdleTimeout() {
-    this.serverProperties.reactorNetty.setIdleTimeout(Duration.ofSeconds(1));
+    this.serverProperties.reactorNetty.idleTimeout = (Duration.ofSeconds(1));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyIdleTimeout(factory, Duration.ofSeconds(1));
@@ -123,7 +123,7 @@ class ReactorNettyWebServerFactoryCustomizerTests {
 
   @Test
   void setMaxKeepAliveRequests() {
-    this.serverProperties.reactorNetty.setMaxKeepAliveRequests(100);
+    this.serverProperties.reactorNetty.maxKeepAliveRequests = (100);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyMaxKeepAliveRequests(factory, 100);
@@ -132,9 +132,9 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void setHttp2MaxRequestHeaderSize() {
     DataSize headerSize = DataSize.ofKilobytes(24);
-    serverProperties.setHttp2(new Http2());
-    this.serverProperties.getHttp2().setEnabled(true);
-    this.serverProperties.setMaxHttpRequestHeaderSize(headerSize);
+    serverProperties.http2 = new Http2();
+    this.serverProperties.http2.setEnabled(true);
+    this.serverProperties.maxHttpRequestHeaderSize = (headerSize);
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     verifyHttp2MaxHeaderSize(factory, headerSize.toBytes());
@@ -143,11 +143,11 @@ class ReactorNettyWebServerFactoryCustomizerTests {
   @Test
   void configureHttpRequestDecoder() {
     ServerProperties.ReactorNetty nettyProperties = this.serverProperties.reactorNetty;
-    this.serverProperties.setMaxHttpRequestHeaderSize(DataSize.ofKilobytes(24));
-    nettyProperties.setValidateHeaders(false);
-    nettyProperties.setInitialBufferSize(DataSize.ofBytes(512));
-    nettyProperties.setH2cMaxContentLength(DataSize.ofKilobytes(1));
-    nettyProperties.setMaxInitialLineLength(DataSize.ofKilobytes(32));
+    this.serverProperties.maxHttpRequestHeaderSize = (DataSize.ofKilobytes(24));
+    nettyProperties.validateHeaders = (false);
+    nettyProperties.initialBufferSize = (DataSize.ofBytes(512));
+    nettyProperties.h2cMaxContentLength = (DataSize.ofKilobytes(1));
+    nettyProperties.maxInitialLineLength = (DataSize.ofKilobytes(32));
     ReactorNettyReactiveWebServerFactory factory = mock(ReactorNettyReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().addServerCustomizers(this.customizerCaptor.capture());
@@ -155,10 +155,10 @@ class ReactorNettyWebServerFactoryCustomizerTests {
     HttpServer httpServer = serverCustomizer.apply(HttpServer.create());
     HttpRequestDecoderSpec decoder = httpServer.configuration().decoder();
     assertThat(decoder.validateHeaders()).isFalse();
-    assertThat(decoder.maxHeaderSize()).isEqualTo(this.serverProperties.getMaxHttpRequestHeaderSize().toBytes());
-    assertThat(decoder.initialBufferSize()).isEqualTo(nettyProperties.getInitialBufferSize().toBytes());
-    assertThat(decoder.h2cMaxContentLength()).isEqualTo(nettyProperties.getH2cMaxContentLength().toBytes());
-    assertThat(decoder.maxInitialLineLength()).isEqualTo(nettyProperties.getMaxInitialLineLength().toBytes());
+    assertThat(decoder.maxHeaderSize()).isEqualTo(this.serverProperties.maxHttpRequestHeaderSize.toBytes());
+    assertThat(decoder.initialBufferSize()).isEqualTo(nettyProperties.initialBufferSize.toBytes());
+    assertThat(decoder.h2cMaxContentLength()).isEqualTo(nettyProperties.h2cMaxContentLength.toBytes());
+    assertThat(decoder.maxInitialLineLength()).isEqualTo(nettyProperties.maxInitialLineLength.toBytes());
   }
 
   private void verifyConnectionTimeout(ReactorNettyReactiveWebServerFactory factory, Integer expected) {

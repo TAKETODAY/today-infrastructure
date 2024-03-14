@@ -39,8 +39,8 @@ public class UndertowServletWebServerFactoryCustomizer implements WebServerFacto
 
   @Override
   public void customize(UndertowServletWebServerFactory factory) {
-    factory.setEagerFilterInit(this.serverProperties.undertow.isEagerFilterInit());
-    factory.setPreservePathOnForward(this.serverProperties.undertow.isPreservePathOnForward());
+    factory.setEagerFilterInit(this.serverProperties.undertow.eagerFilterInit);
+    factory.setPreservePathOnForward(this.serverProperties.undertow.preservePathOnForward);
   }
 
 }

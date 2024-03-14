@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.reactive;
@@ -59,7 +56,7 @@ class ReactiveWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeServerPort() {
     ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
-    this.properties.setPort(9000);
+    this.properties.port = (9000);
     this.customizer.customize(factory);
     then(factory).should().setPort(9000);
   }
@@ -68,7 +65,7 @@ class ReactiveWebServerFactoryCustomizerTests {
   void testCustomizeServerAddress() {
     ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
     InetAddress address = InetAddress.getLoopbackAddress();
-    this.properties.setAddress(address);
+    this.properties.address = (address);
     this.customizer.customize(factory);
     then(factory).should().setAddress(address);
   }
@@ -77,7 +74,7 @@ class ReactiveWebServerFactoryCustomizerTests {
   void testCustomizeServerSsl() {
     ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
     Ssl ssl = mock(Ssl.class);
-    this.properties.setSsl(ssl);
+    this.properties.ssl = (ssl);
     this.customizer.customize(factory);
     then(factory).should().setSsl(ssl);
     then(factory).should().setSslBundles(this.sslBundles);
@@ -85,7 +82,7 @@ class ReactiveWebServerFactoryCustomizerTests {
 
   @Test
   void whenShutdownPropertyIsSetThenShutdownIsCustomized() {
-    this.properties.setShutdown(Shutdown.GRACEFUL);
+    this.properties.shutdown = (Shutdown.GRACEFUL);
     ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setShutdown(assertArg(shutdown -> assertThat(shutdown).isEqualTo(Shutdown.GRACEFUL)));

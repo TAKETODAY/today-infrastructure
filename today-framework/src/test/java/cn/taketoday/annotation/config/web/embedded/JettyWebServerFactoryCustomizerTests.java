@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.embedded;
@@ -100,7 +100,7 @@ class JettyWebServerFactoryCustomizerTests {
 
   @Test
   void forwardHeadersWhenStrategyIsNativeShouldConfigureValve() {
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NATIVE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NATIVE);
     ConfigurableJettyWebServerFactory factory = mock(ConfigurableJettyWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(true);
@@ -109,7 +109,7 @@ class JettyWebServerFactoryCustomizerTests {
   @Test
   void forwardHeadersWhenStrategyIsNoneShouldNotConfigureValve() {
     this.environment.setProperty("DYNO", "-");
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NONE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NONE);
     ConfigurableJettyWebServerFactory factory = mock(ConfigurableJettyWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(false);
@@ -237,10 +237,10 @@ class JettyWebServerFactoryCustomizerTests {
     assertThat(threadPool).isInstanceOf(QueuedThreadPool.class);
     QueuedThreadPool queuedThreadPool = (QueuedThreadPool) threadPool;
     Jetty defaultProperties = new Jetty();
-    assertThat(queuedThreadPool.getMinThreads()).isEqualTo(defaultProperties.getThreads().getMin());
-    assertThat(queuedThreadPool.getMaxThreads()).isEqualTo(defaultProperties.getThreads().getMax());
+    assertThat(queuedThreadPool.getMinThreads()).isEqualTo(defaultProperties.threads.min);
+    assertThat(queuedThreadPool.getMaxThreads()).isEqualTo(defaultProperties.threads.max);
     assertThat(queuedThreadPool.getIdleTimeout())
-            .isEqualTo(defaultProperties.getThreads().getIdleTimeout().toMillis());
+            .isEqualTo(defaultProperties.threads.idleTimeout.toMillis());
   }
 
   private CustomRequestLog getRequestLog(JettyWebServer server) {
@@ -257,7 +257,7 @@ class JettyWebServerFactoryCustomizerTests {
 
   @Test
   void setUseForwardHeaders() {
-    this.serverProperties.setForwardHeadersStrategy(ServerProperties.ForwardHeadersStrategy.NATIVE);
+    this.serverProperties.forwardHeadersStrategy = (ServerProperties.ForwardHeadersStrategy.NATIVE);
     ConfigurableJettyWebServerFactory factory = mock(ConfigurableJettyWebServerFactory.class);
     this.customizer.customize(factory);
     then(factory).should().setUseForwardHeaders(true);

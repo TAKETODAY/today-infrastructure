@@ -26,6 +26,7 @@ import cn.taketoday.beans.factory.annotation.Value;
  * @author Stephane Nicoll
  * @author Vedran Pavic
  * @author Scott Frederick
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ErrorProperties {
@@ -34,86 +35,34 @@ public class ErrorProperties {
    * Path of the error controller.
    */
   @Value("${error.path:/error}")
-  private String path = "/error";
+  public String path = "/error";
 
   /**
    * Include the "exception" attribute.
    */
-  private boolean includeException;
+  public boolean includeException;
 
   /**
    * When to include the "trace" attribute.
    */
-  private IncludeAttribute includeStacktrace = IncludeAttribute.NEVER;
+  public IncludeAttribute includeStacktrace = IncludeAttribute.NEVER;
 
   /**
    * When to include "message" attribute.
    */
-  private IncludeAttribute includeMessage = IncludeAttribute.NEVER;
+  public IncludeAttribute includeMessage = IncludeAttribute.NEVER;
 
   /**
    * When to include "errors" attribute.
    */
-  private IncludeAttribute includeBindingErrors = IncludeAttribute.NEVER;
+  public IncludeAttribute includeBindingErrors = IncludeAttribute.NEVER;
 
   /**
    * When to include "path" attribute.
    */
-  private IncludeAttribute includePath = IncludeAttribute.ALWAYS;
+  public IncludeAttribute includePath = IncludeAttribute.ALWAYS;
 
-  private final Whitelabel whitelabel = new Whitelabel();
-
-  public String getPath() {
-    return this.path;
-  }
-
-  public void setPath(String path) {
-    this.path = path;
-  }
-
-  public boolean isIncludeException() {
-    return this.includeException;
-  }
-
-  public void setIncludeException(boolean includeException) {
-    this.includeException = includeException;
-  }
-
-  public IncludeAttribute getIncludeStacktrace() {
-    return this.includeStacktrace;
-  }
-
-  public void setIncludeStacktrace(IncludeAttribute includeStacktrace) {
-    this.includeStacktrace = includeStacktrace;
-  }
-
-  public IncludeAttribute getIncludeMessage() {
-    return this.includeMessage;
-  }
-
-  public void setIncludeMessage(IncludeAttribute includeMessage) {
-    this.includeMessage = includeMessage;
-  }
-
-  public IncludeAttribute getIncludeBindingErrors() {
-    return this.includeBindingErrors;
-  }
-
-  public void setIncludeBindingErrors(IncludeAttribute includeBindingErrors) {
-    this.includeBindingErrors = includeBindingErrors;
-  }
-
-  public IncludeAttribute getIncludePath() {
-    return this.includePath;
-  }
-
-  public void setIncludePath(IncludeAttribute includePath) {
-    this.includePath = includePath;
-  }
-
-  public Whitelabel getWhitelabel() {
-    return this.whitelabel;
-  }
+  public final Whitelabel whitelabel = new Whitelabel();
 
   public static class Whitelabel {
 
@@ -121,15 +70,7 @@ public class ErrorProperties {
      * Whether to enable the default error page displayed in browsers in case of a
      * server error.
      */
-    private boolean enabled = true;
-
-    public boolean isEnabled() {
-      return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-      this.enabled = enabled;
-    }
+    public boolean enabled = true;
 
   }
 

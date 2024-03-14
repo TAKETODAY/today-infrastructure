@@ -728,7 +728,8 @@ class ConfigurationPropertyNameTests {
     ConfigurationPropertyName name = ConfigurationPropertyName.of("hash.code");
     int hashCode = name.hashCode();
     // hasFieldOrPropertyWithValue would lookup for hashCode()
-    assertThat((Object) ReflectionTestUtils.getField(name, "hashCode")).isEqualTo(hashCode);
+    Object hashCode1 = ReflectionTestUtils.getField(name, "hashCode");
+    assertThat(hashCode1).isEqualTo(hashCode);
   }
 
   @Test

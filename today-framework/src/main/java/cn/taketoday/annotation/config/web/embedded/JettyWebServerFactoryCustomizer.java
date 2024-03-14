@@ -41,6 +41,7 @@ import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.DataSize;
 import cn.taketoday.util.PropertyMapper;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Customization for Jetty-specific features common for both Servlet and Reactive servers.
@@ -79,38 +80,39 @@ public class JettyWebServerFactoryCustomizer
     ServerProperties.Jetty jettyProperties = properties.jetty;
     factory.setUseForwardHeaders(getOrDeduceUseForwardHeaders());
 
-    ServerProperties.Jetty.Threads threadProperties = jettyProperties.getThreads();
+    ServerProperties.Jetty.Threads threadProperties = jettyProperties.threads;
 
     factory.setThreadPool(JettyThreadPool.create(threadProperties));
 
     PropertyMapper map = PropertyMapper.get();
-    map.from(threadProperties::getAcceptors).whenNonNull().to(factory::setAcceptors);
-    map.from(threadProperties::getSelectors).whenNonNull().to(factory::setSelectors);
+    map.from(threadProperties.acceptors).whenNonNull().to(factory::setAcceptors);
+    map.from(threadProperties.selectors).whenNonNull().to(factory::setSelectors);
 
-    map.from(properties::getMaxHttpRequestHeaderSize)
+    map.from(properties.maxHttpRequestHeaderSize)
             .whenNonNull()
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to(size -> factory.addServerCustomizers(new MaxHttpRequestHeaderSizeCustomizer(size)));
 
-    map.from(jettyProperties::getMaxConnections).to(factory::setMaxConnections);
-    map.from(jettyProperties::getMaxHttpResponseHeaderSize)
+    map.from(jettyProperties.maxConnections).to(factory::setMaxConnections);
+    map.from(jettyProperties.maxHttpResponseHeaderSize)
             .whenNonNull()
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to(size -> factory.addServerCustomizers(new MaxHttpResponseHeaderSizeCustomizer(size)));
 
-    map.from(jettyProperties::getMaxHttpFormPostSize)
+    map.from(jettyProperties.maxHttpFormPostSize)
             .asInt(DataSize::toBytes)
             .when(this::isPositive)
             .to(maxHttpFormPostSize -> customizeMaxHttpFormPostSize(factory, maxHttpFormPostSize));
 
-    map.from(jettyProperties::getConnectionIdleTimeout)
+    map.from(jettyProperties.connectionIdleTimeout)
             .whenNonNull()
             .to(idleTimeout -> customizeIdleTimeout(factory, idleTimeout));
-    map.from(jettyProperties::getAccesslog)
-            .when(Accesslog::isEnabled)
-            .to(accesslog -> customizeAccessLog(factory, accesslog));
+
+    if (jettyProperties.accesslog.enabled) {
+      customizeAccessLog(factory, jettyProperties.accesslog);
+    }
   }
 
   private boolean isPositive(Integer value) {
@@ -118,11 +120,11 @@ public class JettyWebServerFactoryCustomizer
   }
 
   private boolean getOrDeduceUseForwardHeaders() {
-    if (this.serverProperties.getForwardHeadersStrategy() == null) {
+    if (this.serverProperties.forwardHeadersStrategy == null) {
       CloudPlatform platform = CloudPlatform.getActive(this.environment);
       return platform != null && platform.isUsingForwardHeaders();
     }
-    return this.serverProperties.getForwardHeadersStrategy().equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
+    return this.serverProperties.forwardHeadersStrategy.equals(ServerProperties.ForwardHeadersStrategy.NATIVE);
   }
 
   private void customizeIdleTimeout(ConfigurableJettyWebServerFactory factory, Duration connectionTimeout) {
@@ -169,26 +171,26 @@ public class JettyWebServerFactoryCustomizer
       RequestLogWriter logWriter = new RequestLogWriter();
       String format = getLogFormat(properties);
       CustomRequestLog log = new CustomRequestLog(logWriter, format);
-      if (CollectionUtils.isNotEmpty(properties.getIgnorePaths())) {
-        log.setIgnorePaths(properties.getIgnorePaths().toArray(new String[0]));
+      if (CollectionUtils.isNotEmpty(properties.ignorePaths)) {
+        log.setIgnorePaths(StringUtils.toStringArray(properties.ignorePaths));
       }
-      if (properties.getFilename() != null) {
-        logWriter.setFilename(properties.getFilename());
+      if (properties.filename != null) {
+        logWriter.setFilename(properties.filename);
       }
-      if (properties.getFileDateFormat() != null) {
-        logWriter.setFilenameDateFormat(properties.getFileDateFormat());
+      if (properties.fileDateFormat != null) {
+        logWriter.setFilenameDateFormat(properties.fileDateFormat);
       }
-      logWriter.setRetainDays(properties.getRetentionPeriod());
-      logWriter.setAppend(properties.isAppend());
+      logWriter.setRetainDays(properties.retentionPeriod);
+      logWriter.setAppend(properties.append);
       server.setRequestLog(log);
     });
   }
 
   private String getLogFormat(Accesslog properties) {
-    if (properties.getCustomFormat() != null) {
-      return properties.getCustomFormat();
+    if (properties.customFormat != null) {
+      return properties.customFormat;
     }
-    else if (Accesslog.FORMAT.EXTENDED_NCSA.equals(properties.getFormat())) {
+    else if (Accesslog.FORMAT.EXTENDED_NCSA.equals(properties.format)) {
       return CustomRequestLog.EXTENDED_NCSA_FORMAT;
     }
     return CustomRequestLog.NCSA_FORMAT;
