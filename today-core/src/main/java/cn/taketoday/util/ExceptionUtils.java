@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util;
 
 import java.io.ByteArrayOutputStream;
@@ -23,9 +24,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.Callable;
 
+import cn.taketoday.core.NestedException;
+import cn.taketoday.lang.Nullable;
+
 /**
- * @author TODAY <br>
- * 2018-11-13 21:25
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-11-13 21:25
  */
 public abstract class ExceptionUtils {
 
@@ -58,7 +62,8 @@ public abstract class ExceptionUtils {
    * @return the full exception message
    * @since 3.0
    */
-  public static String buildMessage(String message, Throwable cause) {
+  @Nullable
+  public static String getNestedMessage(@Nullable Throwable cause, @Nullable String message) {
     if (cause == null) {
       return message;
     }
@@ -72,7 +77,7 @@ public abstract class ExceptionUtils {
       sb.append(cause);
     }
     else {
-      sb.append(buildMessage(cause.getMessage(), cause.getCause()));
+      sb.append(getNestedMessage(cause.getCause(), cause.getMessage()));
     }
     return sb.toString();
   }
@@ -84,7 +89,8 @@ public abstract class ExceptionUtils {
    * @return the innermost exception, or {@code null} if none
    * @since 3.0
    */
-  public static Throwable getRootCause(Throwable original) {
+  @Nullable
+  public static Throwable getRootCause(@Nullable Throwable original) {
     if (original == null) {
       return null;
     }
@@ -113,6 +119,42 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * Check whether this exception contains an exception of the given type:
+   * either it is of the given class itself or it contains a nested cause
+   * of the given type.
+   *
+   * @param exType the exception type to look for
+   * @return whether there is a nested exception of the specified type
+   */
+  public static boolean contains(Throwable ex, @Nullable Class<?> exType) {
+    if (exType == null) {
+      return false;
+    }
+    if (exType.isInstance(ex)) {
+      return true;
+    }
+    Throwable cause = ex.getCause();
+    if (cause == ex) {
+      return false;
+    }
+    if (cause instanceof NestedException nested) {
+      return nested.contains(exType);
+    }
+    else {
+      while (cause != null) {
+        if (exType.isInstance(cause)) {
+          return true;
+        }
+        if (cause.getCause() == cause) {
+          break;
+        }
+        cause = cause.getCause();
+      }
+      return false;
+    }
+  }
+
+  /**
    * Throws any throwable 'sneakily' - you don't need to catch it, nor declare that you throw it onwards.
    * The exception is still thrown - javac will just stop whining about it.
    * <p>
@@ -136,7 +178,7 @@ public abstract class ExceptionUtils {
    * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws an exception!
    * @since 4.0
    */
-  public static RuntimeException sneakyThrow(Throwable t) {
+  public static RuntimeException sneakyThrow(@Nullable Throwable t) {
     if (t == null)
       throw new NullPointerException("t");
     return sneakyThrow0(t);
