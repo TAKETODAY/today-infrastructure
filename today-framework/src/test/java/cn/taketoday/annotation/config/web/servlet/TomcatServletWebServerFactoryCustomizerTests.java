@@ -78,7 +78,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
   void redirectContextRootCanBeConfigured() {
     bind("server.tomcat.redirect-context-root=false");
     ServerProperties.Tomcat tomcat = this.serverProperties.tomcat;
-    assertThat(tomcat.getRedirectContextRoot()).isFalse();
+    assertThat(tomcat.redirectContextRoot).isFalse();
     TomcatWebServer server = customizeAndGetServer();
     Context context = (Context) server.getTomcat().getHost().findChildren()[0];
     assertThat(context.getMapperContextRootRedirectEnabled()).isFalse();
@@ -87,7 +87,7 @@ class TomcatServletWebServerFactoryCustomizerTests {
   @Test
   void useRelativeRedirectsCanBeConfigured() {
     bind("server.tomcat.use-relative-redirects=true");
-    assertThat(this.serverProperties.tomcat.isUseRelativeRedirects()).isTrue();
+    assertThat(this.serverProperties.tomcat.useRelativeRedirects).isTrue();
     TomcatWebServer server = customizeAndGetServer();
     Context context = (Context) server.getTomcat().getHost().findChildren()[0];
     assertThat(context.getUseRelativeRedirects()).isTrue();

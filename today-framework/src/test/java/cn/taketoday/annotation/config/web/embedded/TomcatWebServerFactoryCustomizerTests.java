@@ -88,7 +88,7 @@ class TomcatWebServerFactoryCustomizerTests {
     customizeAndRunServer((server) -> assertThat(
             ((AbstractHttp11Protocol<?>) server.getTomcat().getConnector().getProtocolHandler())
                     .getMaxSwallowSize())
-            .isEqualTo(this.serverProperties.tomcat.getMaxSwallowSize().toBytes()));
+            .isEqualTo(this.serverProperties.tomcat.maxSwallowSize.toBytes()));
   }
 
   @Test
@@ -362,14 +362,14 @@ class TomcatWebServerFactoryCustomizerTests {
 
   @Test
   void forwardHeadersWhenStrategyIsNativeShouldConfigureValve() {
-    this.serverProperties.setForwardHeadersStrategy(ForwardHeadersStrategy.NATIVE);
+    this.serverProperties.forwardHeadersStrategy = (ForwardHeadersStrategy.NATIVE);
     testRemoteIpValveConfigured();
   }
 
   @Test
   void forwardHeadersWhenStrategyIsNoneShouldNotConfigureValve() {
     this.environment.setProperty("DYNO", "-");
-    this.serverProperties.setForwardHeadersStrategy(ForwardHeadersStrategy.NONE);
+    this.serverProperties.forwardHeadersStrategy = (ForwardHeadersStrategy.NONE);
     TomcatServletWebServerFactory factory = customizeAndGetFactory();
     assertThat(factory.getEngineValves()).hasSize(0);
   }
@@ -384,7 +384,7 @@ class TomcatWebServerFactoryCustomizerTests {
 
   @Test
   void setUseNativeForwardHeadersStrategy() {
-    this.serverProperties.setForwardHeadersStrategy(ForwardHeadersStrategy.NATIVE);
+    this.serverProperties.forwardHeadersStrategy = (ForwardHeadersStrategy.NATIVE);
     testRemoteIpValveConfigured();
   }
 
@@ -451,7 +451,7 @@ class TomcatWebServerFactoryCustomizerTests {
   @Test
   void testCustomizeMinSpareThreads() {
     bind("server.tomcat.threads.min-spare=10");
-    assertThat(this.serverProperties.tomcat.getThreads().getMinSpare()).isEqualTo(10);
+    assertThat(this.serverProperties.tomcat.threads.minSpare).isEqualTo(10);
   }
 
   @Test
@@ -511,7 +511,7 @@ class TomcatWebServerFactoryCustomizerTests {
     bind("server.tomcat.accesslog.enabled=true");
     TomcatServletWebServerFactory factory = customizeAndGetFactory();
     assertThat(((AccessLogValve) factory.getEngineValves().iterator().next()).getMaxDays())
-            .isEqualTo(this.serverProperties.tomcat.getAccesslog().getMaxDays());
+            .isEqualTo(this.serverProperties.tomcat.accesslog.maxDays);
   }
 
   @Test
@@ -642,7 +642,7 @@ class TomcatWebServerFactoryCustomizerTests {
 
   private TomcatServletWebServerFactory customizeAndGetFactory() {
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory(0);
-    factory.setHttp2(this.serverProperties.getHttp2());
+    factory.setHttp2(this.serverProperties.http2);
     this.customizer.customize(factory);
     return factory;
   }

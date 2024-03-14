@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -483,7 +483,7 @@ class TomcatServletWebServerFactoryTests extends AbstractServletWebServerFactory
   @Test
   void customTomcatHttpOnlyCookie() {
     TomcatServletWebServerFactory factory = getFactory();
-    factory.getSession().getCookie().setHttpOnly(false);
+    factory.getSession().cookie.setHttpOnly(false);
     this.webServer = factory.getWebServer();
     this.webServer.start();
     Tomcat tomcat = ((TomcatWebServer) this.webServer).getTomcat();

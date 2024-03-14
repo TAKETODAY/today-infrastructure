@@ -242,7 +242,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void registerErrorPages(ErrorPageRegistry errorPageRegistry) {
-      ErrorPage errorPage = new ErrorPage(dispatcherServletPath.getRelativePath(properties.error.getPath()));
+      ErrorPage errorPage = new ErrorPage(dispatcherServletPath.getRelativePath(properties.error.path));
       errorPageRegistry.addErrorPages(errorPage);
     }
 

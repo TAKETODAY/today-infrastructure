@@ -846,12 +846,12 @@ public abstract class AbstractServletWebServerFactoryTests {
   @Test
   void sessionCookieConfiguration() {
     AbstractServletWebServerFactory factory = getFactory();
-    factory.getSession().getCookie().setName("testname");
-    factory.getSession().getCookie().setDomain("testdomain");
-    factory.getSession().getCookie().setPath("/testpath");
-    factory.getSession().getCookie().setHttpOnly(true);
-    factory.getSession().getCookie().setSecure(true);
-    factory.getSession().getCookie().setMaxAge(Duration.ofSeconds(60));
+    factory.getSession().cookie.setName("testname");
+    factory.getSession().cookie.setDomain("testdomain");
+    factory.getSession().cookie.setPath("/testpath");
+    factory.getSession().cookie.setHttpOnly(true);
+    factory.getSession().cookie.setSecure(true);
+    factory.getSession().cookie.setMaxAge(Duration.ofSeconds(60));
     final AtomicReference<SessionCookieConfig> configReference = new AtomicReference<>();
     this.webServer = factory.getWebServer((context) -> configReference.set(context.getSessionCookieConfig()));
     SessionCookieConfig sessionCookieConfig = configReference.get();
@@ -867,7 +867,7 @@ public abstract class AbstractServletWebServerFactoryTests {
   @EnumSource(SameSite.class)
   void sessionCookieSameSiteAttributeCanBeConfiguredAndOnlyAffectsSessionCookies(SameSite sameSite) throws Exception {
     AbstractServletWebServerFactory factory = getFactory();
-    factory.getSession().getCookie().setSameSite(sameSite);
+    factory.getSession().cookie.setSameSite(sameSite);
     factory.addInitializers(new ServletRegistrationBean<>(new CookieServlet(false), "/"));
     this.webServer = factory.getWebServer();
     this.webServer.start();
@@ -883,8 +883,8 @@ public abstract class AbstractServletWebServerFactoryTests {
   void sessionCookieSameSiteAttributeCanBeConfiguredAndOnlyAffectsSessionCookiesWhenUsingCustomName(SameSite sameSite)
           throws Exception {
     AbstractServletWebServerFactory factory = getFactory();
-    factory.getSession().getCookie().setName("THESESSION");
-    factory.getSession().getCookie().setSameSite(sameSite);
+    factory.getSession().cookie.setName("THESESSION");
+    factory.getSession().cookie.setSameSite(sameSite);
     factory.addInitializers(new ServletRegistrationBean<>(new CookieServlet(false), "/"));
     this.webServer = factory.getWebServer();
     this.webServer.start();
@@ -1094,12 +1094,12 @@ public abstract class AbstractServletWebServerFactoryTests {
     AbstractServletWebServerFactory factory = getFactory();
     factory.getSession().setTimeout(Duration.ofSeconds(123));
     factory.getSession().setTrackingModes(EnumSet.of(SessionTrackingMode.COOKIE, SessionTrackingMode.URL));
-    factory.getSession().getCookie().setName("testname");
-    factory.getSession().getCookie().setDomain("testdomain");
-    factory.getSession().getCookie().setPath("/testpath");
-    factory.getSession().getCookie().setHttpOnly(true);
-    factory.getSession().getCookie().setSecure(true);
-    factory.getSession().getCookie().setMaxAge(Duration.ofMinutes(1));
+    factory.getSession().cookie.setName("testname");
+    factory.getSession().cookie.setDomain("testdomain");
+    factory.getSession().cookie.setPath("/testpath");
+    factory.getSession().cookie.setHttpOnly(true);
+    factory.getSession().cookie.setSecure(true);
+    factory.getSession().cookie.setMaxAge(Duration.ofMinutes(1));
     AtomicReference<ServletContext> contextReference = new AtomicReference<>();
     factory.getWebServer(contextReference::set).start();
     ServletContext servletContext = contextReference.get();

@@ -346,24 +346,24 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   public void applyFrom(Netty netty) {
-    if (netty.getLoggingLevel() != null) {
-      setLoggingLevel(netty.getLoggingLevel());
+    if (netty.loggingLevel != null) {
+      setLoggingLevel(netty.loggingLevel);
     }
 
-    if (netty.getSocketChannel() != null) {
-      setSocketChannel(netty.getSocketChannel());
+    if (netty.socketChannel != null) {
+      setSocketChannel(netty.socketChannel);
     }
 
-    if (netty.getAcceptorThreads() != null) {
-      setAcceptorThreadCount(netty.getAcceptorThreads());
+    if (netty.acceptorThreads != null) {
+      setAcceptorThreadCount(netty.acceptorThreads);
     }
 
-    if (netty.getWorkerThreads() != null) {
-      setWorkerThreadCount(netty.getWorkerThreads());
+    if (netty.workerThreads != null) {
+      setWorkerThreadCount(netty.workerThreads);
     }
 
-    if (netty.getMaxConnection() != null) {
-      setMaxConnection(netty.getMaxConnection());
+    if (netty.maxConnection != null) {
+      setMaxConnection(netty.maxConnection);
     }
 
     shutdownConfig = netty.shutdown;

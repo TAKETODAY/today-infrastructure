@@ -102,7 +102,7 @@ public class ServletWebServerFactoryAutoConfiguration {
       ForwardedHeaderFilter filter = new ForwardedHeaderFilter();
 
       if (ClassUtils.isPresent("org.apache.catalina.startup.Tomcat", ForwardedHeaderFilterConfiguration.class.getClassLoader())) {
-        filter.setRelativeRedirects(properties.tomcat.isUseRelativeRedirects());
+        filter.setRelativeRedirects(properties.tomcat.useRelativeRedirects);
       }
 
       var registration = new FilterRegistrationBean<>(filter);

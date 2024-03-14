@@ -236,7 +236,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
     context.setDocBase(docBase.getAbsolutePath());
     context.addLifecycleListener(new FixContextListener());
     context.setParentClassLoader((this.resourceLoader != null) ? this.resourceLoader.getClassLoader()
-                                                               : ClassUtils.getDefaultClassLoader());
+            : ClassUtils.getDefaultClassLoader());
     resetDefaultLocaleMapping(context);
     addLocaleMappings(context);
     try {
@@ -405,7 +405,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   private void configureSession(Context context) {
     long sessionTimeout = getSessionTimeoutInMinutes();
     context.setSessionTimeout((int) sessionTimeout);
-    Boolean httpOnly = getSession().getCookie().getHttpOnly();
+    Boolean httpOnly = getSession().cookie.getHttpOnly();
     if (httpOnly != null) {
       context.setUseHttpOnly(httpOnly);
     }
@@ -423,7 +423,7 @@ public class TomcatServletWebServerFactory extends AbstractServletWebServerFacto
   }
 
   private void configureCookieProcessor(Context context) {
-    SameSite sessionSameSite = getSession().getCookie().getSameSite();
+    SameSite sessionSameSite = getSession().cookie.getSameSite();
     List<CookieSameSiteSupplier> suppliers = new ArrayList<>();
     if (sessionSameSite != null) {
       suppliers.add(CookieSameSiteSupplier.of(sessionSameSite)

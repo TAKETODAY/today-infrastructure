@@ -45,7 +45,7 @@ public class JettyVirtualThreadsWebServerFactoryCustomizer
   @Override
   public void customize(ConfigurableJettyWebServerFactory factory) {
     Assert.state(VirtualThreads.areSupported(), "Virtual threads are not supported");
-    QueuedThreadPool threadPool = JettyThreadPool.create(this.serverProperties.jetty.getThreads());
+    QueuedThreadPool threadPool = JettyThreadPool.create(this.serverProperties.jetty.threads);
     threadPool.setVirtualThreadsExecutor(VirtualThreads.getDefaultVirtualThreadsExecutor());
     factory.setThreadPool(threadPool);
   }

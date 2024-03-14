@@ -75,8 +75,8 @@ public class NettyWebServer implements WebServer {
   }
 
   private void shutdown() {
-    parentGroup.shutdownGracefully(shutdownConfig.getQuietPeriod(), shutdownConfig.getTimeout(), shutdownConfig.getUnit());
-    childGroup.shutdownGracefully(shutdownConfig.getQuietPeriod(), shutdownConfig.getTimeout(), shutdownConfig.getUnit());
+    parentGroup.shutdownGracefully(shutdownConfig.quietPeriod, shutdownConfig.timeout, shutdownConfig.unit);
+    childGroup.shutdownGracefully(shutdownConfig.quietPeriod, shutdownConfig.timeout, shutdownConfig.unit);
   }
 
   @Override
