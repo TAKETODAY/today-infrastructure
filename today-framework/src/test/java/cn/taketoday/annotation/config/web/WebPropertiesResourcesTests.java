@@ -99,7 +99,7 @@ class WebPropertiesResourcesTests {
   void invalidCacheControlCombination() {
     Resources.Cache.Cachecontrol properties = this.properties.cache.cachecontrol;
     properties.maxAge = (Duration.ofSeconds(4));
-    properties.noCache = (true);
+    properties.noStore = (true);
     CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
     assertThat(cacheControl.getHeaderValue()).isEqualTo("no-store");
   }
