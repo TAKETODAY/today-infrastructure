@@ -221,7 +221,7 @@ public class ServerProperties {
     /**
      * Servlet context init parameters.
      */
-    private final Map<String, String> contextParameters = new HashMap<>();
+    public final Map<String, String> contextParameters = new HashMap<>();
 
     /**
      * Context path of the application.
