@@ -18,6 +18,7 @@
 package cn.taketoday.context.properties.processor;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
@@ -36,7 +37,7 @@ class PublicFieldPropertyDescriptor extends PropertyDescriptor<VariableElement> 
 
   @Override
   protected boolean isProperty(MetadataGenerationEnvironment env) {
-    return !env.isExcluded(getType());
+    return !env.isExcluded(getType()) && !getField().getModifiers().contains(Modifier.STATIC);
   }
 
   @Override
