@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.converter.xml;
@@ -165,13 +165,12 @@ public class SourceHttpMessageConverter<T extends Source> extends AbstractHttpMe
 
   private DOMSource readDOMSource(InputStream body, HttpInputMessage inputMessage) throws IOException {
     try {
-      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-      documentBuilderFactory.setNamespaceAware(true);
-      documentBuilderFactory.setFeature(
-              "http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
-      documentBuilderFactory.setFeature(
-              "http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
-      DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      factory.setExpandEntityReferences(false);
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !isSupportDtd());
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", isProcessExternalEntities());
+      DocumentBuilder documentBuilder = factory.newDocumentBuilder();
       if (!isProcessExternalEntities()) {
         documentBuilder.setEntityResolver(NO_OP_ENTITY_RESOLVER);
       }
