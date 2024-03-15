@@ -118,7 +118,7 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnMissingBean(ErrorViewResolver.class)
     DefaultErrorViewResolver conventionErrorViewResolver(
             ApplicationContext applicationContext, WebProperties webProperties) {
-      return new DefaultErrorViewResolver(applicationContext, webProperties.getResources());
+      return new DefaultErrorViewResolver(applicationContext, webProperties.resources);
     }
 
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.i18n;
@@ -37,6 +34,7 @@ import cn.taketoday.web.RequestContext;
  * locale and time zone cannot be changed.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setDefaultLocale
  * @see #setDefaultTimeZone
  * @since 4.0
@@ -59,7 +57,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
    *
    * @param locale the locale to expose
    */
-  public FixedLocaleResolver(Locale locale) {
+  public FixedLocaleResolver(@Nullable Locale locale) {
     setDefaultLocale(locale);
   }
 
@@ -69,7 +67,7 @@ public class FixedLocaleResolver extends AbstractLocaleContextResolver {
    * @param locale the locale to expose
    * @param timeZone the time zone to expose
    */
-  public FixedLocaleResolver(Locale locale, TimeZone timeZone) {
+  public FixedLocaleResolver(@Nullable Locale locale, @Nullable TimeZone timeZone) {
     setDefaultLocale(locale);
     setDefaultTimeZone(timeZone);
   }

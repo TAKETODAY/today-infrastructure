@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web;
@@ -37,62 +34,62 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class WebPropertiesResourcesTests {
 
-  private final Resources properties = new WebProperties().getResources();
+  private final Resources properties = new WebProperties().resources;
 
   @Test
   void resourceChainNoCustomization() {
-    assertThat(this.properties.getChain().getEnabled()).isNull();
+    assertThat(this.properties.chain.getEnabled()).isNull();
   }
 
   @Test
   void resourceChainStrategyEnabled() {
-    this.properties.getChain().getStrategy().getFixed().setEnabled(true);
-    assertThat(this.properties.getChain().getEnabled()).isTrue();
+    this.properties.chain.strategy.fixed.enabled = (true);
+    assertThat(this.properties.chain.getEnabled()).isTrue();
   }
 
   @Test
   void resourceChainEnabled() {
-    this.properties.getChain().setEnabled(true);
-    assertThat(this.properties.getChain().getEnabled()).isTrue();
+    this.properties.chain.setEnabled(true);
+    assertThat(this.properties.chain.getEnabled()).isTrue();
   }
 
   @Test
   void resourceChainDisabled() {
-    this.properties.getChain().setEnabled(false);
-    assertThat(this.properties.getChain().getEnabled()).isFalse();
+    this.properties.chain.setEnabled(false);
+    assertThat(this.properties.chain.getEnabled()).isFalse();
   }
 
   @Test
   void defaultStaticLocationsAllEndWithTrailingSlash() {
-    assertThat(this.properties.getStaticLocations()).allMatch((location) -> location.endsWith("/"));
+    assertThat(this.properties.staticLocations).allMatch((location) -> location.endsWith("/"));
   }
 
   @Test
   void customStaticLocationsAreNormalizedToEndWithTrailingSlash() {
     this.properties.setStaticLocations(new String[] { "/foo", "/bar", "/baz/" });
-    String[] actual = this.properties.getStaticLocations();
+    String[] actual = this.properties.staticLocations;
     assertThat(actual).containsExactly("/foo/", "/bar/", "/baz/");
   }
 
   @Test
   void emptyCacheControl() {
-    CacheControl cacheControl = this.properties.getCache().getHttpCacheControl();
+    CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
     assertThat(cacheControl).isNull();
   }
 
   @Test
   void cacheControlAllPropertiesSet() {
-    Resources.Cache.Cachecontrol properties = this.properties.getCache().getCachecontrol();
-    properties.setMaxAge(Duration.ofSeconds(4));
-    properties.setCachePrivate(true);
-    properties.setCachePublic(true);
-    properties.setMustRevalidate(true);
-    properties.setNoTransform(true);
-    properties.setProxyRevalidate(true);
-    properties.setSMaxAge(Duration.ofSeconds(5));
-    properties.setStaleIfError(Duration.ofSeconds(6));
-    properties.setStaleWhileRevalidate(Duration.ofSeconds(7));
-    CacheControl cacheControl = this.properties.getCache().getHttpCacheControl();
+    Resources.Cache.Cachecontrol properties = this.properties.cache.cachecontrol;
+    properties.maxAge = (Duration.ofSeconds(4));
+    properties.cachePrivate = (true);
+    properties.cachePublic = (true);
+    properties.mustRevalidate = (true);
+    properties.noTransform = (true);
+    properties.proxyRevalidate = (true);
+    properties.sMaxAge = (Duration.ofSeconds(5));
+    properties.staleIfError = (Duration.ofSeconds(6));
+    properties.staleWhileRevalidate = (Duration.ofSeconds(7));
+    CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
     assertThat(cacheControl.getHeaderValue())
             .isEqualTo("max-age=4, must-revalidate, no-transform, public, private, proxy-revalidate,"
                     + " s-maxage=5, stale-if-error=6, stale-while-revalidate=7");
@@ -100,10 +97,10 @@ class WebPropertiesResourcesTests {
 
   @Test
   void invalidCacheControlCombination() {
-    Resources.Cache.Cachecontrol properties = this.properties.getCache().getCachecontrol();
-    properties.setMaxAge(Duration.ofSeconds(4));
-    properties.setNoStore(true);
-    CacheControl cacheControl = this.properties.getCache().getHttpCacheControl();
+    Resources.Cache.Cachecontrol properties = this.properties.cache.cachecontrol;
+    properties.maxAge = (Duration.ofSeconds(4));
+    properties.noCache = (true);
+    CacheControl cacheControl = this.properties.cache.getHttpCacheControl();
     assertThat(cacheControl.getHeaderValue()).isEqualTo("no-store");
   }
 

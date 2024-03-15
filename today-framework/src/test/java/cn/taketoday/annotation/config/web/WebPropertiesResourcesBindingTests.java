@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web;
@@ -52,7 +49,7 @@ class WebPropertiesResourcesBindingTests {
                     "web.resources.static-locations[3]=classpath:/four",
                     "web.resources.static-locations[4]=classpath:/five/",
                     "web.resources.static-locations[5]=classpath:/six")
-            .run(assertResourceProperties((properties) -> assertThat(properties.getStaticLocations()).contains(
+            .run(assertResourceProperties((properties) -> assertThat(properties.staticLocations).contains(
                     "classpath:/one/", "classpath:/two/", "classpath:/three/", "classpath:/four/",
                     "classpath:/five/", "classpath:/six/")));
   }
@@ -60,7 +57,7 @@ class WebPropertiesResourcesBindingTests {
   private ContextConsumer<AssertableApplicationContext> assertResourceProperties(Consumer<Resources> consumer) {
     return (context) -> {
       assertThat(context).hasSingleBean(WebProperties.class);
-      consumer.accept(context.getBean(WebProperties.class).getResources());
+      consumer.accept(context.getBean(WebProperties.class).resources);
     };
   }
 

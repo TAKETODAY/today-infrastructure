@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.servlet;
@@ -82,16 +82,16 @@ public class DispatcherServletAutoConfiguration {
   @Component(name = DEFAULT_DISPATCHER_SERVLET_BEAN_NAME)
   static DispatcherServlet dispatcherServlet(WebMvcProperties webMvcProperties) {
     DispatcherServlet dispatcherServlet = new DispatcherServlet();
-    dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
-    dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
+    dispatcherServlet.setThrowExceptionIfNoHandlerFound(webMvcProperties.throwExceptionIfNoHandlerFound);
+    dispatcherServlet.setEnableLoggingRequestDetails(webMvcProperties.logRequestDetails);
     return dispatcherServlet;
   }
 
   @Component
   static CharacterEncodingServletInitializer characterEncodingInitializer(WebMvcProperties webMvcProperties) {
     var initializer = new CharacterEncodingServletInitializer();
-    initializer.setRequestCharacterEncoding(webMvcProperties.getServlet().getRequestEncoding());
-    initializer.setResponseCharacterEncoding(webMvcProperties.getServlet().getResponseEncoding());
+    initializer.setRequestCharacterEncoding(webMvcProperties.servlet.requestEncoding);
+    initializer.setResponseCharacterEncoding(webMvcProperties.servlet.responseEncoding);
     return initializer;
   }
 
@@ -109,10 +109,9 @@ public class DispatcherServletAutoConfiguration {
           @Nullable MultipartConfigFactory multipartConfigFactory,
           DispatcherServlet dispatcherServlet, WebMvcProperties webMvcProperties) {
 
-    var servlet = webMvcProperties.getServlet();
-    var registration = new DispatcherServletRegistrationBean(dispatcherServlet, servlet.getPath());
+    var registration = new DispatcherServletRegistrationBean(dispatcherServlet, webMvcProperties.servlet.path);
     registration.setName(DEFAULT_DISPATCHER_SERVLET_BEAN_NAME);
-    registration.setLoadOnStartup(servlet.getLoadOnStartup());
+    registration.setLoadOnStartup(webMvcProperties.servlet.loadOnStartup);
 
     if (multipartConfigFactory != null) {
       registration.setMultipartConfig(multipartConfigFactory.createMultipartConfig());

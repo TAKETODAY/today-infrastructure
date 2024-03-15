@@ -77,8 +77,8 @@ public class NettyWebServerFactoryAutoConfiguration {
   static NettyChannelHandler nettyChannelHandler(ApplicationContext context,
           WebMvcProperties webMvcProperties, NettyRequestConfig contextConfig) {
     NettyChannelHandler handler = new NettyChannelHandler(contextConfig, context);
-    handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.isThrowExceptionIfNoHandlerFound());
-    handler.setEnableLoggingRequestDetails(webMvcProperties.isLogRequestDetails());
+    handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.throwExceptionIfNoHandlerFound);
+    handler.setEnableLoggingRequestDetails(webMvcProperties.logRequestDetails);
     return handler;
   }
 

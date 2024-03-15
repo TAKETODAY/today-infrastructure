@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web;
@@ -20,7 +20,6 @@ package cn.taketoday.annotation.config.web;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
@@ -49,7 +48,6 @@ import cn.taketoday.format.FormatterRegistry;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
@@ -179,12 +177,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   public FormattingConversionService mvcConversionService() {
-    Format format = mvcProperties.getFormat();
+    Format format = mvcProperties.format;
     WebConversionService conversionService = new WebConversionService(
             new DateTimeFormatters()
-                    .dateFormat(format.getDate())
-                    .timeFormat(format.getTime())
-                    .dateTimeFormat(format.getDateTime())
+                    .dateFormat(format.date)
+                    .timeFormat(format.time)
+                    .dateTimeFormat(format.dateTime)
     );
     addFormatters(conversionService);
     return conversionService;
@@ -195,7 +193,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @ConditionalOnMissingBean
   static RequestHandledEventPublisher requestHandledEventPublisher(
           WebMvcProperties webMvcProperties, ApplicationEventPublisher eventPublisher) {
-    if (webMvcProperties.isPublishRequestHandledEvents()) {
+    if (webMvcProperties.publishRequestHandledEvents) {
       return new RequestHandledEventPublisher(eventPublisher);
     }
     return null;
@@ -214,11 +212,11 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Component
   @ConditionalOnMissingBean(name = LocaleResolver.BEAN_NAME)
   public LocaleResolver webLocaleResolver() {
-    if (this.webProperties.getLocaleResolver() == WebProperties.LocaleResolver.FIXED) {
-      return new FixedLocaleResolver(this.webProperties.getLocale());
+    if (this.webProperties.localeResolver == WebProperties.LocaleResolver.FIXED) {
+      return new FixedLocaleResolver(this.webProperties.locale);
     }
     AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
-    localeResolver.setDefaultLocale(this.webProperties.getLocale());
+    localeResolver.setDefaultLocale(this.webProperties.locale);
     return localeResolver;
   }
 
@@ -267,7 +265,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void extendExceptionHandlers(List<HandlerExceptionHandler> handlers) {
-    if (mvcProperties.isLogResolvedException()) {
+    if (mvcProperties.logResolvedException) {
       for (HandlerExceptionHandler handler : handlers) {
         if (handler instanceof AbstractHandlerExceptionHandler abstractHandler) {
           abstractHandler.setWarnLogCategory(handler.getClass().getName());
@@ -287,9 +285,9 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Nullable
   @Override
   protected MessageCodesResolver getMessageCodesResolver() {
-    if (mvcProperties.getMessageCodesResolverFormat() != null) {
+    if (mvcProperties.messageCodesResolverFormat != null) {
       DefaultMessageCodesResolver resolver = new DefaultMessageCodesResolver();
-      resolver.setMessageCodeFormatter(mvcProperties.getMessageCodesResolverFormat());
+      resolver.setMessageCodeFormatter(mvcProperties.messageCodesResolverFormat);
       return resolver;
     }
     return null;
@@ -317,7 +315,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
         configurer.setTaskExecutor(asyncTaskExecutor);
       }
     }
-    Duration timeout = mvcProperties.getAsync().getRequestTimeout();
+    Duration timeout = mvcProperties.async.requestTimeout;
     if (timeout != null) {
       configurer.setDefaultTimeout(timeout.toMillis());
     }
@@ -328,13 +326,12 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   protected void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-    WebMvcProperties.Contentnegotiation contentnegotiation = mvcProperties.getContentnegotiation();
-    configurer.favorParameter(contentnegotiation.isFavorParameter());
-    if (contentnegotiation.getParameterName() != null) {
-      configurer.parameterName(contentnegotiation.getParameterName());
+    WebMvcProperties.Contentnegotiation contentnegotiation = mvcProperties.contentnegotiation;
+    configurer.favorParameter(contentnegotiation.favorParameter);
+    if (contentnegotiation.parameterName != null) {
+      configurer.parameterName(contentnegotiation.parameterName);
     }
-    Map<String, MediaType> mediaTypes = mvcProperties.getContentnegotiation().getMediaTypes();
-    configurer.mediaTypes(mediaTypes);
+    configurer.mediaTypes(mvcProperties.contentnegotiation.mediaTypes);
 
     webMvcConfigurers.configureContentNegotiation(configurer);
   }
@@ -361,10 +358,10 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
 
   @Override
   public void addResourceHandlers(ResourceHandlerRegistry registry) {
-    Resources resourceProperties = webProperties.getResources();
-    if (resourceProperties.isAddDefaultMappings()) {
-      addResourceHandler(registry, mvcProperties.getWebjarsPathPattern(), "classpath:/META-INF/resources/webjars/");
-      addResourceHandler(registry, mvcProperties.getStaticPathPattern(), resourceProperties.getStaticLocations());
+    Resources resourceProperties = webProperties.resources;
+    if (resourceProperties.addDefaultMappings) {
+      addResourceHandler(registry, mvcProperties.webjarsPathPattern, "classpath:/META-INF/resources/webjars/");
+      addResourceHandler(registry, mvcProperties.staticPathPattern, resourceProperties.staticLocations);
     }
     else {
       logger.debug("Default resource handling disabled");
@@ -377,17 +374,17 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     if (registry.hasMappingForPattern(pattern)) {
       return;
     }
-    Resources resourceProperties = webProperties.getResources();
+    Resources resourceProperties = webProperties.resources;
 
     ResourceHandlerRegistration registration = registry.addResourceHandler(pattern);
     registration.addResourceLocations(locations);
-    registration.setCachePeriod(getSeconds(resourceProperties.getCache().getPeriod()));
-    registration.setCacheControl(resourceProperties.getCache().getHttpCacheControl());
-    registration.setUseLastModified(resourceProperties.getCache().isUseLastModified());
+    registration.setCachePeriod(getSeconds(resourceProperties.cache.period));
+    registration.setCacheControl(resourceProperties.cache.getHttpCacheControl());
+    registration.setUseLastModified(resourceProperties.cache.useLastModified);
     customizeResourceHandlerRegistration(registration);
   }
 
-  private Integer getSeconds(Duration cachePeriod) {
+  private Integer getSeconds(@Nullable Duration cachePeriod) {
     return cachePeriod != null ? (int) cachePeriod.getSeconds() : null;
   }
 
@@ -400,7 +397,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @ConditionalOnEnabledResourceChain
   static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
           WebProperties webProperties) {
-    return new ResourceHandlerRegistrationCustomizer(webProperties.getResources());
+    return new ResourceHandlerRegistrationCustomizer(webProperties.resources);
   }
 
   @ConditionalOnClass(name = ServletDetector.SERVLET_CLASS)
@@ -412,7 +409,7 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     static InternalResourceViewResolver internalResourceViewResolver(WebMvcProperties mvcProperties) {
       InternalResourceViewResolver resolver = new InternalResourceViewResolver();
       resolver.setOrder(Ordered.LOWEST_PRECEDENCE);
-      mvcProperties.getView().applyTo(resolver);
+      mvcProperties.view.applyTo(resolver);
       return resolver;
     }
 
@@ -440,30 +437,29 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
     }
 
     public void customize(ResourceHandlerRegistration registration) {
-      Resources.Chain properties = resources.getChain();
-      configureResourceChain(properties, registration.resourceChain(properties.isCache()));
+      Resources.Chain properties = resources.chain;
+      configureResourceChain(properties, registration.resourceChain(properties.cache));
     }
 
     private void configureResourceChain(Resources.Chain properties, ResourceChainRegistration chain) {
-      Strategy strategy = properties.getStrategy();
-      if (properties.isCompressed()) {
+      Strategy strategy = properties.strategy;
+      if (properties.compressed) {
         chain.addResolver(new EncodedResourceResolver());
       }
-      if (strategy.getFixed().isEnabled() || strategy.getContent().isEnabled()) {
+      if (strategy.fixed.enabled || strategy.content.enabled) {
         chain.addResolver(getVersionResourceResolver(strategy));
       }
     }
 
     private ResourceResolver getVersionResourceResolver(Strategy properties) {
       VersionResourceResolver resolver = new VersionResourceResolver();
-      if (properties.getFixed().isEnabled()) {
-        String version = properties.getFixed().getVersion();
-        String[] paths = properties.getFixed().getPaths();
+      if (properties.fixed.enabled) {
+        String version = properties.fixed.version;
+        String[] paths = properties.fixed.paths;
         resolver.addFixedVersionStrategy(version, paths);
       }
-      if (properties.getContent().isEnabled()) {
-        String[] paths = properties.getContent().getPaths();
-        resolver.addContentVersionStrategy(paths);
+      if (properties.content.enabled) {
+        resolver.addContentVersionStrategy(properties.content.paths);
       }
       return resolver;
     }
