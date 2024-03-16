@@ -68,7 +68,15 @@ public class DefaultHttpHeaders extends HttpHeaders {
    */
   public DefaultHttpHeaders(MultiValueMap<String, String> headers) {
     Assert.notNull(headers, "MultiValueMap is required");
-    this.headers = headers;
+    if (headers == EMPTY) {
+      this.headers = MultiValueMap.forSmartListAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
+    }
+    else if (headers instanceof ReadOnlyHttpHeaders readOnly) {
+      this.headers = readOnly.headers;
+    }
+    else {
+      this.headers = headers;
+    }
   }
 
   @Override
