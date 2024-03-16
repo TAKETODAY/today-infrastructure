@@ -105,18 +105,7 @@ public class ConditionEvaluator {
       return shouldSkip(metadata, ConfigurationPhase.REGISTER_BEAN);
     }
 
-    ArrayList<Condition> conditions = new ArrayList<>();
-    ClassLoader classLoader = this.evaluationContext.getClassLoader();
-    for (String[] conditionClasses : getConditionClasses(metadata)) {
-      for (String conditionClass : conditionClasses) {
-        Condition condition = getCondition(conditionClass, classLoader);
-        conditions.add(condition);
-      }
-    }
-
-    AnnotationAwareOrderComparator.sort(conditions);
-
-    for (Condition condition : conditions) {
+    for (Condition condition : collectConditions(metadata)) {
       ConfigurationPhase requiredPhase = null;
       if (condition instanceof ConfigurationCondition cc) {
         requiredPhase = cc.getConfigurationPhase();
@@ -135,6 +124,31 @@ public class ConditionEvaluator {
    */
   public void clearCache() {
     evaluationContext.close();
+  }
+
+  /**
+   * Return the {@linkplain Condition conditions} that should be applied when
+   * considering the given annotated type.
+   *
+   * @param metadata the metadata of the annotated type
+   * @return the ordered list of conditions for that type
+   */
+  List<Condition> collectConditions(@Nullable AnnotatedTypeMetadata metadata) {
+    if (metadata == null || !metadata.isAnnotated(Conditional.class)) {
+      return Collections.emptyList();
+    }
+
+    ArrayList<Condition> conditions = new ArrayList<>();
+    ClassLoader classLoader = evaluationContext.getClassLoader();
+    for (String[] conditionClasses : getConditionClasses(metadata)) {
+      for (String conditionClass : conditionClasses) {
+        Condition condition = getCondition(conditionClass, classLoader);
+        conditions.add(condition);
+      }
+    }
+
+    AnnotationAwareOrderComparator.sort(conditions);
+    return conditions;
   }
 
   @SuppressWarnings("unchecked")

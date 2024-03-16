@@ -43,6 +43,7 @@ import cn.taketoday.beans.factory.parsing.Problem;
 import cn.taketoday.beans.factory.parsing.ProblemReporter;
 import cn.taketoday.beans.factory.support.AbstractBeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionReader;
+import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.annotation.ConfigurationCondition.ConfigurationPhase;
 import cn.taketoday.context.annotation.DeferredImportSelector.Group;
@@ -99,6 +100,10 @@ class ConfigurationClassParser {
   private static final Predicate<String> DEFAULT_EXCLUSION_FILTER = className ->
           className.startsWith("java.lang.annotation.")
                   || className.startsWith("cn.taketoday.lang.");
+
+  private static final Predicate<Condition> REGISTER_BEAN_CONDITION_FILTER = condition ->
+          condition instanceof ConfigurationCondition configCondition
+                  && ConfigurationPhase.REGISTER_BEAN.equals(configCondition.getConfigurationPhase());
 
   private static final Comparator<DeferredImportSelectorHolder> DEFERRED_IMPORT_COMPARATOR =
           (o1, o2) -> AnnotationAwareOrderComparator.INSTANCE.compare(o1.importSelector, o2.importSelector);
@@ -285,6 +290,11 @@ class ConfigurationClassParser {
     }
 
     if (!componentScans.isEmpty()) {
+      List<Condition> registerBeanConditions = collectRegisterBeanConditions(configClass);
+      if (!registerBeanConditions.isEmpty()) {
+        throw new ApplicationContextException(
+                "Component scan could not be used with conditions in REGISTER_BEAN phase: " + registerBeanConditions);
+      }
       for (MergedAnnotation<ComponentScan> componentScan : componentScans) {
         // The config class is annotated with @ComponentScan -> perform the scan immediately
         Set<BeanDefinitionHolder> scannedBeanDefinitions =
@@ -646,6 +656,29 @@ class ConfigurationClassParser {
       }
     }
     return new SourceClass(bootstrapContext.getMetadataReader(className));
+  }
+
+  private List<Condition> collectRegisterBeanConditions(ConfigurationClass configurationClass) {
+    AnnotationMetadata metadata = configurationClass.metadata;
+    ConditionEvaluator conditionEvaluator = bootstrapContext.getConditionEvaluator();
+    ArrayList<Condition> allConditions = new ArrayList<>(conditionEvaluator.collectConditions(metadata));
+    ConfigurationClass enclosingConfigurationClass = getEnclosingConfigurationClass(configurationClass);
+    if (enclosingConfigurationClass != null) {
+      allConditions.addAll(conditionEvaluator.collectConditions(enclosingConfigurationClass.metadata));
+    }
+    return allConditions.stream().filter(REGISTER_BEAN_CONDITION_FILTER).toList();
+  }
+
+  @Nullable
+  private ConfigurationClass getEnclosingConfigurationClass(ConfigurationClass configurationClass) {
+    String enclosingClassName = configurationClass.metadata.getEnclosingClassName();
+    if (enclosingClassName != null) {
+      return configurationClass.importedBy.stream()
+              .filter(candidate -> enclosingClassName.equals(candidate.metadata.getClassName()))
+              .findFirst()
+              .orElse(null);
+    }
+    return null;
   }
 
   private class DeferredImportSelectorHandler {
