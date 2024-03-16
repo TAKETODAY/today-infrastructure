@@ -32,6 +32,7 @@ import cn.taketoday.scheduling.SchedulingAwareRunnable;
 import cn.taketoday.scheduling.SchedulingTaskExecutor;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.concurrent.ListenableFuture;
+import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedExecutors;
 import jakarta.enterprise.concurrent.ManagedTask;
 
@@ -41,7 +42,7 @@ import jakarta.enterprise.concurrent.ManagedTask;
  * Also detects an extended {@code java.util.concurrent.ExecutorService}, adapting
  * the {@link cn.taketoday.core.task.AsyncTaskExecutor} interface accordingly.
  *
- * <p>Autodetects a JSR-236 {@link jakarta.enterprise.concurrent.ManagedExecutorService}
+ * <p>Autodetects a JSR-236 {@link ManagedExecutorService}
  * in order to expose {@link jakarta.enterprise.concurrent.ManagedTask} adapters for it,
  * exposing a long-running hint based on {@link SchedulingAwareRunnable} and an identity
  * name based on the given Runnable/Callable's {@code toString()}. For JSR-236 style
@@ -65,19 +66,26 @@ import jakarta.enterprise.concurrent.ManagedTask;
  */
 public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
 
+  private static final Executor STUB_EXECUTOR = task -> {
+    throw new IllegalStateException("Executor not configured");
+  };
+
   @Nullable
   private static final Class<?> managedExecutorServiceClass = ClassUtils.load(
           "jakarta.enterprise.concurrent.ManagedExecutorService", ConcurrentTaskScheduler.class.getClassLoader()
   );
 
-  private Executor concurrentExecutor;
+  private Executor concurrentExecutor = STUB_EXECUTOR;
 
-  private TaskExecutorAdapter adaptedExecutor;
+  private TaskExecutorAdapter adaptedExecutor = new TaskExecutorAdapter(STUB_EXECUTOR);
+
+  @Nullable
+  private TaskDecorator taskDecorator;
 
   /**
    * Create a new ConcurrentTaskExecutor, using a single thread executor as default.
    *
-   * @see Executors#newSingleThreadExecutor()
+   * @see java.util.concurrent.Executors#newSingleThreadExecutor()
    */
   public ConcurrentTaskExecutor() {
     this.concurrentExecutor = Executors.newSingleThreadExecutor();
@@ -86,23 +94,24 @@ public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, Sche
 
   /**
    * Create a new ConcurrentTaskExecutor, using the given {@link Executor}.
-   * <p>Autodetects a JSR-236 {@link jakarta.enterprise.concurrent.ManagedExecutorService}
+   * <p>Autodetects a JSR-236 {@link ManagedExecutorService}
    * in order to expose {@link jakarta.enterprise.concurrent.ManagedTask} adapters for it.
    *
    * @param executor the {@link Executor} to delegate to
    */
   public ConcurrentTaskExecutor(@Nullable Executor executor) {
-    this.concurrentExecutor = (executor != null ? executor : Executors.newSingleThreadExecutor());
-    this.adaptedExecutor = getAdaptedExecutor(this.concurrentExecutor);
+    if (executor != null) {
+      setConcurrentExecutor(executor);
+    }
   }
 
   /**
    * Specify the {@link Executor} to delegate to.
-   * <p>Autodetects a JSR-236 {@link jakarta.enterprise.concurrent.ManagedExecutorService}
+   * <p>Autodetects a JSR-236 {@link ManagedExecutorService}
    * in order to expose {@link jakarta.enterprise.concurrent.ManagedTask} adapters for it.
    */
-  public final void setConcurrentExecutor(@Nullable Executor executor) {
-    this.concurrentExecutor = (executor != null ? executor : Executors.newSingleThreadExecutor());
+  public final void setConcurrentExecutor(Executor executor) {
+    this.concurrentExecutor = executor;
     this.adaptedExecutor = getAdaptedExecutor(this.concurrentExecutor);
   }
 
@@ -121,13 +130,9 @@ public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, Sche
    * execution callback (which may be a wrapper around the user-supplied task).
    * <p>The primary use case is to set some execution context around the task's
    * invocation, or to provide some monitoring/statistics for task execution.
-   * <p><b>NOTE:</b> Exception handling in {@code TaskDecorator} implementations
-   * is limited to plain {@code Runnable} execution via {@code execute} calls.
-   * In case of {@code #submit} calls, the exposed {@code Runnable} will be a
-   * {@code FutureTask} which does not propagate any exceptions; you might
-   * have to cast it and call {@code Future#get} to evaluate exceptions.
    */
   public final void setTaskDecorator(TaskDecorator taskDecorator) {
+    this.taskDecorator = taskDecorator;
     this.adaptedExecutor.setTaskDecorator(taskDecorator);
   }
 
@@ -161,11 +166,17 @@ public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, Sche
     return this.adaptedExecutor.submitListenable(task);
   }
 
-  private static TaskExecutorAdapter getAdaptedExecutor(Executor concurrentExecutor) {
-    if (managedExecutorServiceClass != null && managedExecutorServiceClass.isInstance(concurrentExecutor)) {
-      return new ManagedTaskExecutorAdapter(concurrentExecutor);
+  private TaskExecutorAdapter getAdaptedExecutor(Executor originalExecutor) {
+    TaskExecutorAdapter adapter = managedExecutorServiceClass != null && managedExecutorServiceClass.isInstance(originalExecutor) ?
+            new ManagedTaskExecutorAdapter(originalExecutor) : new TaskExecutorAdapter(originalExecutor);
+    if (this.taskDecorator != null) {
+      adapter.setTaskDecorator(this.taskDecorator);
     }
-    return new TaskExecutorAdapter(concurrentExecutor);
+    return adapter;
+  }
+
+  Runnable decorateTaskIfNecessary(Runnable task) {
+    return this.taskDecorator != null ? this.taskDecorator.decorate(task) : task;
   }
 
   /**
@@ -215,10 +226,9 @@ public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, Sche
 
     public static Runnable buildManagedTask(Runnable task, String identityName) {
       Map<String, String> properties;
-      if (task instanceof SchedulingAwareRunnable) {
+      if (task instanceof SchedulingAwareRunnable sar) {
         properties = new HashMap<>(4);
-        properties.put(ManagedTask.LONGRUNNING_HINT,
-                Boolean.toString(((SchedulingAwareRunnable) task).isLongLived()));
+        properties.put(ManagedTask.LONGRUNNING_HINT, Boolean.toString(sar.isLongLived()));
       }
       else {
         properties = new HashMap<>(2);

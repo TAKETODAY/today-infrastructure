@@ -20,6 +20,7 @@ package cn.taketoday.scheduling.concurrent;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
@@ -35,6 +36,7 @@ import cn.taketoday.context.SmartLifecycle;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskRejectedException;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.scheduling.TaskScheduler;
@@ -42,6 +44,7 @@ import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
 import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ErrorHandler;
+import cn.taketoday.util.concurrent.ListenableFuture;
 
 /**
  * A simple implementation of Infra {@link TaskScheduler} interface, using
@@ -108,6 +111,9 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
 
   private final ExecutorLifecycleDelegate lifecycleDelegate = new ExecutorLifecycleDelegate(this.scheduledExecutor);
 
+  @Nullable
+  private ErrorHandler errorHandler;
+
   private Clock clock = Clock.systemDefaultZone();
 
   private int phase = DEFAULT_PHASE;
@@ -119,12 +125,21 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   private ApplicationContext applicationContext;
 
   /**
+   * Provide an {@link ErrorHandler} strategy.
+   */
+  public void setErrorHandler(ErrorHandler errorHandler) {
+    Assert.notNull(errorHandler, "ErrorHandler is required");
+    this.errorHandler = errorHandler;
+  }
+
+  /**
    * Set the clock to use for scheduling purposes.
    * <p>The default clock is the system clock for the default time zone.
    *
    * @see Clock#systemDefaultZone()
    */
   public void setClock(Clock clock) {
+    Assert.notNull(clock, "Clock is required");
     this.clock = clock;
   }
 
@@ -194,12 +209,20 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
     }
   }
 
+  private Runnable taskOnSchedulerThread(Runnable task) {
+    return new DelegatingErrorHandlingRunnable(task,
+            (this.errorHandler != null ? this.errorHandler : TaskUtils.getDefaultErrorHandler(true)));
+  }
+
   private Runnable scheduledTask(Runnable task) {
     return () -> execute(new DelegatingErrorHandlingRunnable(task, this::shutdownAwareErrorHandler));
   }
 
   private void shutdownAwareErrorHandler(Throwable ex) {
-    if (this.scheduledExecutor.isTerminated()) {
+    if (this.errorHandler != null) {
+      this.errorHandler.handleError(ex);
+    }
+    else if (this.scheduledExecutor.isTerminated()) {
       LoggerFactory.getLogger(getClass()).debug("Ignoring scheduled task exception after shutdown", ex);
     }
     else {
@@ -207,8 +230,29 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
     }
   }
 
-  private Runnable taskOnSchedulerThread(Runnable task) {
-    return new DelegatingErrorHandlingRunnable(task, TaskUtils.getDefaultErrorHandler(true));
+  @Override
+  public void execute(Runnable task) {
+    super.execute(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
+  }
+
+  @Override
+  public Future<?> submit(Runnable task) {
+    return super.submit(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
+  }
+
+  @Override
+  public <T> Future<T> submit(Callable<T> task) {
+    return super.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
+  }
+
+  @Override
+  public ListenableFuture<?> submitListenable(Runnable task) {
+    return super.submitListenable(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
+  }
+
+  @Override
+  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+    return super.submitListenable(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 
   @Override
@@ -216,7 +260,8 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
     try {
       Runnable delegate = scheduledTask(task);
-      ErrorHandler errorHandler = TaskUtils.getDefaultErrorHandler(true);
+      ErrorHandler errorHandler =
+              (this.errorHandler != null ? this.errorHandler : TaskUtils.getDefaultErrorHandler(true));
       return new ReschedulingRunnable(
               delegate, trigger, this.clock, this.scheduledExecutor, errorHandler).schedule();
     }

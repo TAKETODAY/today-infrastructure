@@ -25,15 +25,19 @@ import org.junit.jupiter.api.TestInfo;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.ListenableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +59,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   private volatile Object outcome;
 
   @BeforeEach
-  void setUp(TestInfo testInfo) {
+  void setup(TestInfo testInfo) {
     this.testName = testInfo.getTestMethod().get().getName();
     this.threadNamePrefix = this.testName + "-";
     this.executor = buildExecutor();
@@ -100,7 +104,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
-  void submitFailingRunnable() throws Exception {
+  void submitFailingRunnable() {
     TestTask task = new TestTask(this.testName, 0);
     Future<?> future = executor.submit(task);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(() ->
@@ -120,7 +124,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
-  void submitListenableRunnable() throws Exception {
+  void submitListenableRunnable() {
     TestTask task = new TestTask(this.testName, 1);
     // Act
     ListenableFuture<?> future = executor.submitListenable(task);
@@ -135,7 +139,22 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
-  void submitFailingListenableRunnable() throws Exception {
+  void submitCompletableRunnable() {
+    TestTask task = new TestTask(this.testName, 1);
+    // Act
+    CompletableFuture<Void> future = executor.submitCompletable(task);
+    future.whenComplete(this::storeOutcome);
+    // Assert
+    Awaitility.await()
+            .atMost(1, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(future::isDone);
+    assertThat(outcome).isNull();
+    assertThreadNamePrefix(task);
+  }
+
+  @Test
+  void submitFailingListenableRunnable() {
     TestTask task = new TestTask(this.testName, 0);
     ListenableFuture<?> future = executor.submitListenable(task);
     future.addListener(result -> outcome = result, ex -> outcome = ex);
@@ -149,6 +168,20 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
+  void submitFailingCompletableRunnable() {
+    TestTask task = new TestTask(this.testName, 0);
+    CompletableFuture<?> future = executor.submitCompletable(task);
+    future.whenComplete(this::storeOutcome);
+
+    Awaitility.await()
+            .dontCatchUncaughtExceptions()
+            .atMost(1, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> future.isDone() && outcome != null);
+    assertThat(outcome.getClass()).isSameAs(CompletionException.class);
+  }
+
+  @Test
   void submitListenableRunnableWithGetAfterShutdown() throws Exception {
     ListenableFuture<?> future1 = executor.submitListenable(new TestTask(this.testName, -1));
     ListenableFuture<?> future2 = executor.submitListenable(new TestTask(this.testName, -1));
@@ -158,15 +191,32 @@ abstract class AbstractSchedulingTaskExecutorTests {
       future1.get(1000, TimeUnit.MILLISECONDS);
     }
     catch (Exception ex) {
-      /* ignore */
+      // ignore
     }
     Awaitility.await()
             .atMost(4, TimeUnit.SECONDS)
             .pollInterval(10, TimeUnit.MILLISECONDS)
-            .untilAsserted(() -> {
-              assertThatExceptionOfType(CancellationException.class)
-                      .isThrownBy(() -> future2.get(1000, TimeUnit.MILLISECONDS));
-            });
+            .untilAsserted(() -> assertThatExceptionOfType(CancellationException.class)
+                    .isThrownBy(() -> future2.get(1000, TimeUnit.MILLISECONDS)));
+  }
+
+  @Test
+  void submitCompletableRunnableWithGetAfterShutdown() throws Exception {
+    CompletableFuture<?> future1 = executor.submitCompletable(new TestTask(this.testName, -1));
+    CompletableFuture<?> future2 = executor.submitCompletable(new TestTask(this.testName, -1));
+    shutdownExecutor();
+
+    try {
+      future1.get(1000, TimeUnit.MILLISECONDS);
+    }
+    catch (Exception ex) {
+      // ignore
+    }
+    Awaitility.await()
+            .atMost(4, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .untilAsserted(() -> assertThatExceptionOfType(TimeoutException.class)
+                    .isThrownBy(() -> future2.get(1000, TimeUnit.MILLISECONDS)));
   }
 
   @Test
@@ -178,11 +228,11 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
-  void submitFailingCallable() throws Exception {
+  void submitFailingCallable() {
     TestCallable task = new TestCallable(this.testName, 0);
     Future<String> future = executor.submit(task);
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(() ->
-            future.get(1000, TimeUnit.MILLISECONDS));
+    assertThatExceptionOfType(ExecutionException.class)
+            .isThrownBy(() -> future.get(1000, TimeUnit.MILLISECONDS));
     assertThat(future.isDone()).isTrue();
   }
 
@@ -196,18 +246,17 @@ abstract class AbstractSchedulingTaskExecutorTests {
       future1.get(1000, TimeUnit.MILLISECONDS);
     }
     catch (Exception ex) {
-      /* ignore */
+      // ignore
     }
     Awaitility.await()
             .atMost(4, TimeUnit.SECONDS)
             .pollInterval(10, TimeUnit.MILLISECONDS)
-            .untilAsserted(() ->
-                    assertThatExceptionOfType(CancellationException.class).isThrownBy(() ->
-                            future2.get(1000, TimeUnit.MILLISECONDS)));
+            .untilAsserted(() -> assertThatExceptionOfType(CancellationException.class)
+                    .isThrownBy(() -> future2.get(1000, TimeUnit.MILLISECONDS)));
   }
 
   @Test
-  void submitListenableCallable() throws Exception {
+  void submitListenableCallable() {
     TestCallable task = new TestCallable(this.testName, 1);
     // Act
     ListenableFuture<String> future = executor.submitListenable(task);
@@ -221,7 +270,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   }
 
   @Test
-  void submitFailingListenableCallable() throws Exception {
+  void submitFailingListenableCallable() {
     TestCallable task = new TestCallable(this.testName, 0);
     // Act
     ListenableFuture<String> future = executor.submitListenable(task);
@@ -244,6 +293,55 @@ abstract class AbstractSchedulingTaskExecutorTests {
       future1.get(1000, TimeUnit.MILLISECONDS);
       future2.get(1000, TimeUnit.MILLISECONDS);
     });
+  }
+
+  @Test
+  void submitCompletableCallable() {
+    TestCallable task = new TestCallable(this.testName, 1);
+    // Act
+    CompletableFuture<String> future = this.executor.submitCompletable(task);
+    future.whenComplete(this::storeOutcome);
+    // Assert
+    Awaitility.await()
+            .atMost(1, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> future.isDone() && outcome != null);
+    assertThat(outcome.toString().substring(0, this.threadNamePrefix.length())).isEqualTo(this.threadNamePrefix);
+  }
+
+  @Test
+  void submitFailingCompletableCallable() {
+    TestCallable task = new TestCallable(this.testName, 0);
+    // Act
+    CompletableFuture<String> future = this.executor.submitCompletable(task);
+    future.whenComplete(this::storeOutcome);
+    // Assert
+    Awaitility.await()
+            .dontCatchUncaughtExceptions()
+            .atMost(1, TimeUnit.SECONDS)
+            .pollInterval(10, TimeUnit.MILLISECONDS)
+            .until(() -> future.isDone() && outcome != null);
+    assertThat(outcome.getClass()).isSameAs(CompletionException.class);
+  }
+
+  @Test
+  void submitCompletableCallableWithGetAfterShutdown() throws Exception {
+    CompletableFuture<?> future1 = executor.submitCompletable(new TestCallable(this.testName, -1));
+    CompletableFuture<?> future2 = executor.submitCompletable(new TestCallable(this.testName, -1));
+    shutdownExecutor();
+    assertThatExceptionOfType(TimeoutException.class).isThrownBy(() -> {
+      future1.get(1000, TimeUnit.MILLISECONDS);
+      future2.get(1000, TimeUnit.MILLISECONDS);
+    });
+  }
+
+  private void storeOutcome(@Nullable Object o, @Nullable Throwable t) {
+    if (o != null) {
+      this.outcome = o;
+    }
+    else if (t != null) {
+      this.outcome = t;
+    }
   }
 
   protected void assertThreadNamePrefix(TestTask task) {
@@ -294,7 +392,8 @@ abstract class AbstractSchedulingTaskExecutorTests {
       }
       if (expectedRunCount >= 0) {
         if (actualRunCount.incrementAndGet() > expectedRunCount) {
-          RuntimeException exception = new RuntimeException(String.format("%s failure for test '%s': expectedRunCount:<%d>, actualRunCount:<%d>",
+          RuntimeException exception = new RuntimeException(String.format(
+                  "%s failure for test '%s': expectedRunCount:<%d>, actualRunCount:<%d>",
                   getClass().getSimpleName(), this.testName, expectedRunCount, actualRunCount.get()));
           this.exception.set(exception);
           throw exception;
@@ -318,7 +417,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     }
 
     @Override
-    public String call() throws Exception {
+    public String call() {
       try {
         Thread.sleep(10);
       }
@@ -326,7 +425,8 @@ abstract class AbstractSchedulingTaskExecutorTests {
       }
       if (expectedRunCount >= 0) {
         if (actualRunCount.incrementAndGet() > expectedRunCount) {
-          throw new RuntimeException(String.format("%s failure for test '%s': expectedRunCount:<%d>, actualRunCount:<%d>",
+          throw new RuntimeException(String.format(
+                  "%s failure for test '%s': expectedRunCount:<%d>, actualRunCount:<%d>",
                   getClass().getSimpleName(), this.testName, expectedRunCount, actualRunCount.get()));
         }
       }

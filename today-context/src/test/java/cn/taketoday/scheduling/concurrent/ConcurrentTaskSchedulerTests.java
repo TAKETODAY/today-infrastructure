@@ -17,6 +17,7 @@
 
 package cn.taketoday.scheduling.concurrent;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +25,8 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,26 +41,59 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * @author Mark Fisher
  * @author Juergen Hoeller
- * @author Sam Brannen
- * @since 3.0
  */
-public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests {
+class ConcurrentTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests {
 
-  private final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+  private final CustomizableThreadFactory threadFactory = new CustomizableThreadFactory();
+
+  private final ConcurrentTaskScheduler scheduler = new ConcurrentTaskScheduler(
+          Executors.newScheduledThreadPool(1, threadFactory));
 
   private final AtomicBoolean taskRun = new AtomicBoolean();
 
   @Override
   protected AsyncListenableTaskExecutor buildExecutor() {
+    threadFactory.setThreadNamePrefix(this.threadNamePrefix);
     scheduler.setTaskDecorator(runnable -> () -> {
       taskRun.set(true);
       runnable.run();
     });
-    scheduler.setThreadNamePrefix(this.threadNamePrefix);
-    scheduler.afterPropertiesSet();
     return scheduler;
+  }
+
+  @Override
+  @AfterEach
+  void shutdownExecutor() {
+    for (Runnable task : ((ExecutorService) scheduler.getConcurrentExecutor()).shutdownNow()) {
+      if (task instanceof Future) {
+        ((Future<?>) task).cancel(true);
+      }
+    }
+  }
+
+  @Test
+  @Override
+  void submitRunnableWithGetAfterShutdown() {
+    // decorated Future cannot be cancelled on shutdown with ConcurrentTaskScheduler (see above)
+  }
+
+  @Test
+  @Override
+  void submitListenableRunnableWithGetAfterShutdown() {
+    // decorated Future cannot be cancelled on shutdown with ConcurrentTaskScheduler (see above)
+  }
+
+  @Test
+  @Override
+  void submitCallableWithGetAfterShutdown() {
+    // decorated Future cannot be cancelled on shutdown with ConcurrentTaskScheduler (see above)
+  }
+
+  @Test
+  @Override
+  void submitListenableCallableWithGetAfterShutdown() {
+    // decorated Future cannot be cancelled on shutdown with ConcurrentTaskScheduler (see above)
   }
 
   @Test

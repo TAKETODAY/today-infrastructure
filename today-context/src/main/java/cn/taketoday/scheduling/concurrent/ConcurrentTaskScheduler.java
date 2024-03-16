@@ -21,8 +21,10 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -31,12 +33,14 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.scheduling.SchedulingTaskExecutor;
 import cn.taketoday.scheduling.TaskScheduler;
 import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.TriggerContext;
 import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ErrorHandler;
+import cn.taketoday.util.concurrent.ListenableFuture;
 import jakarta.enterprise.concurrent.LastExecution;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 
@@ -108,7 +112,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * instead of Infra local trigger management.
    *
    * @param scheduledExecutor the {@link java.util.concurrent.ScheduledExecutorService}
-   * to delegate to for {@link cn.taketoday.scheduling.SchedulingTaskExecutor}
+   * to delegate to for {@link SchedulingTaskExecutor}
    * as well as {@link TaskScheduler} invocations
    */
   public ConcurrentTaskScheduler(@Nullable ScheduledExecutorService scheduledExecutor) {
@@ -126,7 +130,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * instead of Infra local trigger management.
    *
    * @param concurrentExecutor the {@link java.util.concurrent.Executor} to delegate to
-   * for {@link cn.taketoday.scheduling.SchedulingTaskExecutor} invocations
+   * for {@link SchedulingTaskExecutor} invocations
    * @param scheduledExecutor the {@link java.util.concurrent.ScheduledExecutorService}
    * to delegate to for {@link TaskScheduler} invocations
    */
@@ -179,12 +183,38 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
    * @see Clock#systemDefaultZone()
    */
   public void setClock(Clock clock) {
+    Assert.notNull(clock, "Clock is required");
     this.clock = clock;
   }
 
   @Override
   public Clock getClock() {
     return this.clock;
+  }
+
+  @Override
+  public void execute(Runnable task) {
+    super.execute(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
+  }
+
+  @Override
+  public Future<?> submit(Runnable task) {
+    return super.submit(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
+  }
+
+  @Override
+  public <T> Future<T> submit(Callable<T> task) {
+    return super.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
+  }
+
+  @Override
+  public ListenableFuture<?> submitListenable(Runnable task) {
+    return super.submitListenable(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
+  }
+
+  @Override
+  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+    return super.submitListenable(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 
   @Override
@@ -198,7 +228,9 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
       else {
         ErrorHandler errorHandler =
                 (this.errorHandler != null ? this.errorHandler : TaskUtils.getDefaultErrorHandler(true));
-        return new ReschedulingRunnable(task, trigger, this.clock, scheduleExecutorToUse, errorHandler).schedule();
+        return new ReschedulingRunnable(
+                decorateTaskIfNecessary(task), trigger, this.clock, scheduleExecutorToUse, errorHandler)
+                .schedule();
       }
     }
     catch (RejectedExecutionException ex) {
@@ -270,6 +302,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
 
   private Runnable decorateTask(Runnable task, boolean isRepeatingTask) {
     Runnable result = TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, isRepeatingTask);
+    result = decorateTaskIfNecessary(result);
     if (this.enterpriseConcurrentScheduler) {
       result = ManagedTaskBuilder.buildManagedTask(result, task.toString());
     }
@@ -277,7 +310,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   /**
-   * Delegate that adapts a Spring Trigger to a JSR-236 Trigger.
+   * Delegate that adapts an Infra Trigger to a JSR-236 Trigger.
    * Separated into an inner class in order to avoid a hard dependency on the JSR-236 API.
    */
   private class EnterpriseConcurrentTriggerScheduler {
