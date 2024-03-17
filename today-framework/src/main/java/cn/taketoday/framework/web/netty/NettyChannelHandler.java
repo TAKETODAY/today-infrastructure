@@ -90,7 +90,7 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
       var nettyContext = createContext(ctx, httpRequest);
       RequestContextHolder.set(nettyContext);
       try {
-        dispatch(nettyContext); // handling HTTP request
+        handleRequest(nettyContext); // handling HTTP request
       }
       catch (Throwable e) {
         exceptionCaught(ctx, e);

@@ -231,34 +231,6 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Find a {@link HandlerAdapter} for input handler
-   *
-   * @param handler HTTP handler
-   * @return A {@link HandlerAdapter}
-   * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
-   */
-  public HandlerAdapter lookupHandlerAdapter(@Nullable Object handler) {
-    if (handler instanceof HandlerAdapter) {
-      return (HandlerAdapter) handler;
-    }
-    if (handler instanceof HandlerAdapterProvider) {
-      return ((HandlerAdapterProvider) handler).getHandlerAdapter();
-    }
-    return handlerAdapter;
-  }
-
-  /**
-   * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
-   * This exception can then be caught with a HandlerExceptionHandler or an
-   * {@code @ExceptionHandler} controller method.
-   *
-   * @since 4.0
-   */
-  public void setThrowExceptionIfNoHandlerFound(boolean throwExceptionIfNoHandlerFound) {
-    this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
-  }
-
-  /**
    * handle async results
    *
    * @param context async request
@@ -292,13 +264,21 @@ public class DispatcherHandler extends InfraHandler {
   }
 
   /**
-   * Process the actual dispatching to the handler.
+   * Handling HTTP request.
+   * <p>
+   * This method will throw un-handling exception to up stream
    *
    * @param context current HTTP request and HTTP response
-   * @throws Exception in case of any kind of processing failure
+   * @throws Throwable in case of any kind of un-handling failure
+   * @see HandlerAdapter
+   * @see HandlerMapping
+   * @see HandlerExceptionHandler
+   * @see ReturnValueHandler
+   * @see NotFoundHandler
+   * @see HttpRequestHandler
    * @since 4.0
    */
-  public void dispatch(RequestContext context) throws Throwable {
+  public void handleRequest(RequestContext context) throws Throwable {
     logRequest(context);
     Object handler = null;
     Object returnValue = null;
@@ -340,6 +320,23 @@ public class DispatcherHandler extends InfraHandler {
         requestCompleted(context, throwable);
       }
     }
+  }
+
+  /**
+   * Find a {@link HandlerAdapter} for input handler
+   *
+   * @param handler HTTP handler
+   * @return A {@link HandlerAdapter}
+   * @throws HandlerAdapterNotFoundException If there isn't a {@link HandlerAdapter} for target handler
+   */
+  private HandlerAdapter lookupHandlerAdapter(@Nullable Object handler) {
+    if (handler instanceof HandlerAdapter) {
+      return (HandlerAdapter) handler;
+    }
+    if (handler instanceof HandlerAdapterProvider) {
+      return ((HandlerAdapterProvider) handler).getHandlerAdapter();
+    }
+    return handlerAdapter;
   }
 
   /**
@@ -515,6 +512,17 @@ public class DispatcherHandler extends InfraHandler {
    */
   public void setDetectAllHandlerExceptionHandlers(boolean detectAllHandlerExceptionHandlers) {
     this.detectAllHandlerExceptionHandlers = detectAllHandlerExceptionHandlers;
+  }
+
+  /**
+   * Set whether to throw a HandlerNotFoundException when no Handler was found for this request.
+   * This exception can then be caught with a HandlerExceptionHandler or an
+   * {@code @ExceptionHandler} controller method.
+   *
+   * @since 4.0
+   */
+  public void setThrowExceptionIfNoHandlerFound(boolean throwExceptionIfNoHandlerFound) {
+    this.throwExceptionIfNoHandlerFound = throwExceptionIfNoHandlerFound;
   }
 
   /**

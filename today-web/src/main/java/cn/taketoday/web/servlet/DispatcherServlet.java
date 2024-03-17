@@ -293,7 +293,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     }
 
     try {
-      dispatch(context);
+      handleRequest(context);
     }
     catch (final Throwable e) {
       throw new ServletException("Handler processing failed: " + e, e);
