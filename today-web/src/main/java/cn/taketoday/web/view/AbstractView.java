@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -34,7 +34,9 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LogMessage;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
@@ -334,10 +336,9 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   @Override
   public void render(@Nullable Map<String, ?> model, RequestContext context) throws Exception {
     if (logger.isDebugEnabled()) {
-      logger.debug("View {}, model {} {}",
-              formatViewName(),
-              model != null ? model : Collections.emptyMap(),
-              CollectionUtils.isEmpty(staticAttributes) ? "" : ", static attributes " + staticAttributes);
+      LogFormatUtils.traceDebug(logger, traceOn -> LogFormatUtils.formatValue(LogMessage.format("View {}, model {} {}",
+              formatViewName(), model != null ? model : Collections.emptyMap(),
+              CollectionUtils.isEmpty(staticAttributes) ? "" : ", static attributes " + staticAttributes), !traceOn));
     }
 
     Map<String, Object> mergedModel = createMergedOutputModel(model, context);
@@ -481,9 +482,7 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
    * @param model a Map of model objects to expose
    * @param request current HTTP request
    */
-  protected void exposeModelAsRequestAttributes(
-          Map<String, Object> model, RequestContext request) throws Exception {
-
+  protected void exposeModelAsRequestAttributes(Map<String, Object> model, RequestContext request) throws Exception {
     for (Map.Entry<String, Object> entry : model.entrySet()) {
       String name = entry.getKey();
       Object value = entry.getValue();
@@ -544,9 +543,8 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   }
 
   protected String formatViewName() {
-    return getBeanName() != null
-           ? "name '" + getBeanName() + "'"
-           : "[" + getClass().getSimpleName() + "]";
+    return getBeanName() != null ? "name '" + getBeanName() + "'"
+            : "[" + getClass().getSimpleName() + "]";
   }
 
 }

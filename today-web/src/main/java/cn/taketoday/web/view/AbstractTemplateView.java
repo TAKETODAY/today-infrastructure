@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -38,8 +38,10 @@ import cn.taketoday.web.RequestContextUtils;
  *
  * @author Juergen Hoeller
  * @author Darren Davison
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AbstractTemplateViewResolver
  * @see cn.taketoday.web.view.freemarker.FreeMarkerView
+ * @since 4.0
  */
 public abstract class AbstractTemplateView extends AbstractUrlBasedView {
 
@@ -90,17 +92,15 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
   }
 
   @Override
-  protected final void renderMergedOutputModel(
-          Map<String, Object> model, RequestContext request) throws Exception {
-
+  protected final void renderMergedOutputModel(Map<String, Object> model, RequestContext request) throws Exception {
     if (exposeRequestAttributes) {
       Map<String, Object> exposed = null;
       Iterator<String> en = request.attributeNames();
       while (en.hasNext()) {
         String attribute = en.next();
         if (model.containsKey(attribute) && !allowRequestOverride) {
-          throw new ViewRenderingException("Cannot expose request attribute '" + attribute +
-                  "' because of an existing model object of the same name");
+          throw new ViewRenderingException("Cannot expose request attribute '%s' because of an existing model object of the same name"
+                  .formatted(attribute));
         }
         Object attributeValue = request.getAttribute(attribute);
         if (logger.isDebugEnabled()) {
@@ -136,8 +136,8 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
         String[] attributeNames = session.getAttributeNames();
         for (String attribute : attributeNames) {
           if (model.containsKey(attribute) && !allowSessionOverride) {
-            throw new ViewRenderingException("Cannot expose session attribute '" + attribute +
-                    "' because of an existing model object of the same name");
+            throw new ViewRenderingException("Cannot expose session attribute '%s' because of an existing model object of the same name"
+                    .formatted(attribute));
           }
           Object attributeValue = session.getAttribute(attribute);
           if (logger.isDebugEnabled()) {
@@ -177,7 +177,6 @@ public abstract class AbstractTemplateView extends AbstractUrlBasedView {
    * @param context current HTTP request
    * @throws Exception if rendering failed
    */
-  protected abstract void renderMergedTemplateModel(
-          Map<String, Object> model, RequestContext context) throws Exception;
+  protected abstract void renderMergedTemplateModel(Map<String, Object> model, RequestContext context) throws Exception;
 
 }

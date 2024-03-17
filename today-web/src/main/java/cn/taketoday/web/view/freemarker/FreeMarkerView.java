@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view.freemarker;
@@ -179,7 +176,7 @@ public class FreeMarkerView extends AbstractTemplateView {
   protected ObjectWrapper getObjectWrapper() {
     ObjectWrapper ow = obtainConfiguration().getObjectWrapper();
     return ow != null ? ow :
-           new DefaultObjectWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS).build();
+            new DefaultObjectWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS).build();
   }
 
   /**
@@ -202,10 +199,10 @@ public class FreeMarkerView extends AbstractTemplateView {
       return false;
     }
     catch (ParseException ex) {
-      throw new ApplicationContextException("Failed to parse [" + url + "]", ex);
+      throw new ApplicationContextException("Failed to parse [%s]".formatted(url), ex);
     }
     catch (IOException ex) {
-      throw new ApplicationContextException("Failed to load [" + url + "]", ex);
+      throw new ApplicationContextException("Failed to load [%s]".formatted(url), ex);
     }
   }
 
@@ -215,9 +212,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * <p>This method can be overridden if custom behavior is needed.
    */
   @Override
-  protected void renderMergedTemplateModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
-
+  protected void renderMergedTemplateModel(Map<String, Object> model, RequestContext context) throws Exception {
     exposeHelpers(model, context);
     doRender(model, context);
   }
@@ -317,8 +312,8 @@ public class FreeMarkerView extends AbstractTemplateView {
   protected Template getTemplate(String name, Locale locale) throws IOException {
     String encoding = getEncoding();
     return encoding != null
-           ? obtainConfiguration().getTemplate(name, locale, encoding)
-           : obtainConfiguration().getTemplate(name, locale);
+            ? obtainConfiguration().getTemplate(name, locale, encoding)
+            : obtainConfiguration().getTemplate(name, locale);
   }
 
   /**
