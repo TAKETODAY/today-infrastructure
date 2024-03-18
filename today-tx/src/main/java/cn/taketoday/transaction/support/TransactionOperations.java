@@ -84,7 +84,9 @@ public interface TransactionOperations {
    * @see TransactionCallbackWithoutResult
    * @since 4.0
    */
-  void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException;
+  default void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException {
+    execute(action);
+  }
 
   /**
    * Execute the action specified by the given {@link Runnable} within a transaction.
@@ -102,8 +104,10 @@ public interface TransactionOperations {
    * @see TransactionCallbackWithoutResult
    * @since 4.0
    */
-  void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config)
-          throws TransactionException;
+  default void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config)
+          throws TransactionException {
+    execute(action, config);
+  }
 
   /**
    * Return an implementation of the {@code TransactionOperations} interface which
