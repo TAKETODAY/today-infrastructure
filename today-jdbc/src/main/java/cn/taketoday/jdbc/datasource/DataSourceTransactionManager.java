@@ -122,6 +122,7 @@ import cn.taketoday.transaction.support.TransactionSynchronizationUtils;
  */
 public class DataSourceTransactionManager extends AbstractPlatformTransactionManager
         implements ResourceTransactionManager, InitializingBean {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -195,7 +196,6 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    *
    * @return the DataSource (never {@code null})
    * @throws IllegalStateException in case of no DataSource set
-   * @since 4.0
    */
   protected DataSource obtainDataSource() {
     DataSource dataSource = getDataSource();
@@ -220,7 +220,6 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    * this strong enforcement needs to be applied explicitly, e.g. through this flag.
    *
    * @see #prepareTransactionalConnection
-   * @since 4.0
    */
   public void setEnforceReadOnly(boolean enforceReadOnly) {
     this.enforceReadOnly = enforceReadOnly;
@@ -231,7 +230,6 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    * through an explicit statement on the transactional connection.
    *
    * @see #setEnforceReadOnly
-   * @since 4.0
    */
   public boolean isEnforceReadOnly() {
     return this.enforceReadOnly;
@@ -306,12 +304,12 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
       }
 
       // Bind the connection holder to the thread.
-      if (txObject.isNewConnectionHolder()) {
+      if (txObject.newConnectionHolder) {
         TransactionSynchronizationManager.bindResource(obtainDataSource(), connectionHolder);
       }
     }
     catch (Throwable ex) {
-      if (txObject.isNewConnectionHolder()) {
+      if (txObject.newConnectionHolder) {
         DataSourceUtils.releaseConnection(con, obtainDataSource());
         txObject.setConnectionHolder(null, false);
       }
@@ -375,14 +373,14 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
     DataSourceTransactionObject txObject = (DataSourceTransactionObject) transaction;
 
     // Remove the connection holder from the thread, if exposed.
-    if (txObject.isNewConnectionHolder()) {
+    if (txObject.newConnectionHolder) {
       TransactionSynchronizationManager.unbindResource(obtainDataSource());
     }
 
     // Reset connection.
     Connection con = txObject.getConnectionHolder().getConnection();
     try {
-      if (txObject.isMustRestoreAutoCommit()) {
+      if (txObject.mustRestoreAutoCommit) {
         con.setAutoCommit(true);
       }
       DataSourceUtils.resetConnectionAfterTransaction(
@@ -392,7 +390,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
       logger.debug("Could not reset JDBC Connection after transaction", ex);
     }
 
-    if (txObject.isNewConnectionHolder()) {
+    if (txObject.newConnectionHolder) {
       if (logger.isDebugEnabled()) {
         logger.debug("Releasing JDBC Connection [{}] after transaction", con);
       }
@@ -415,7 +413,6 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    * @param definition the current transaction definition
    * @throws SQLException if thrown by JDBC API
    * @see #setEnforceReadOnly
-   * @since 4.0
    */
   protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition)
           throws SQLException {
@@ -449,25 +446,17 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
    */
   private static class DataSourceTransactionObject extends JdbcTransactionObjectSupport {
 
-    private boolean newConnectionHolder;
+    public boolean newConnectionHolder;
 
-    private boolean mustRestoreAutoCommit;
+    public boolean mustRestoreAutoCommit;
 
     public void setConnectionHolder(@Nullable ConnectionHolder connectionHolder, boolean newConnectionHolder) {
       super.setConnectionHolder(connectionHolder);
       this.newConnectionHolder = newConnectionHolder;
     }
 
-    public boolean isNewConnectionHolder() {
-      return this.newConnectionHolder;
-    }
-
     public void setMustRestoreAutoCommit(boolean mustRestoreAutoCommit) {
       this.mustRestoreAutoCommit = mustRestoreAutoCommit;
-    }
-
-    public boolean isMustRestoreAutoCommit() {
-      return this.mustRestoreAutoCommit;
     }
 
     public void setRollbackOnly() {

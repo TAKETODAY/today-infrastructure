@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.transaction;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.annotation.Isolation;
+import cn.taketoday.transaction.support.AbstractPlatformTransactionManager;
 import cn.taketoday.transaction.support.DefaultTransactionDefinition;
 import cn.taketoday.transaction.support.SynchronizationInfo;
 import cn.taketoday.transaction.support.TransactionSynchronization;
@@ -41,8 +43,9 @@ import cn.taketoday.transaction.support.TransactionSynchronizationManager;
  * resources within the application, such as a Hibernate {@code Session}.
  *
  * @author Juergen Hoeller
- * @author TODAY 2018-10-09 11:51
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PlatformTransactionManager#getTransaction(TransactionDefinition)
+ * @since 2018-10-09 11:51
  */
 public interface TransactionDefinition {
 
@@ -71,8 +74,8 @@ public interface TransactionDefinition {
    * to configure your transaction manager appropriately (typically switching to
    * "synchronization on actual transaction").
    *
-   * @see cn.taketoday.transaction.support.AbstractPlatformTransactionManager#setTransactionSynchronization
-   * @see cn.taketoday.transaction.support.AbstractPlatformTransactionManager#SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
+   * @see AbstractPlatformTransactionManager#setTransactionSynchronization
+   * @see AbstractPlatformTransactionManager#SYNCHRONIZATION_ON_ACTUAL_TRANSACTION
    */
   int PROPAGATION_SUPPORTS = 1;
 
@@ -217,7 +220,7 @@ public interface TransactionDefinition {
    *
    * @return the isolation level
    * @see #ISOLATION_DEFAULT
-   * @see cn.taketoday.transaction.support.AbstractPlatformTransactionManager#setValidateExistingTransaction
+   * @see AbstractPlatformTransactionManager#setValidateExistingTransaction
    */
   default int getIsolationLevel() {
     return ISOLATION_DEFAULT;

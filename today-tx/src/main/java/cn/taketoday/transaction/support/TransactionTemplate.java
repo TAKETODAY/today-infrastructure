@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.support;
@@ -56,14 +56,15 @@ import cn.taketoday.transaction.TransactionSystemException;
  * for convenient configuration in context definitions.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #executeWithoutResult
  * @see #setTransactionManager
  * @see PlatformTransactionManager
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class TransactionTemplate
-        extends DefaultTransactionDefinition implements TransactionOperations, InitializingBean {
+public class TransactionTemplate extends DefaultTransactionDefinition implements TransactionOperations, InitializingBean {
+
   private static final Logger log = LoggerFactory.getLogger(TransactionTemplate.class);
 
   @Nullable
@@ -123,16 +124,37 @@ public class TransactionTemplate
   }
 
   @Override
+  public void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException {
+    execute(action, this);
+  }
+
+  @Override
+  public void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config) throws TransactionException {
+    execute(action, config);
+  }
+
+  @Override
   @Nullable
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+    return execute(action, this);
+  }
+
+  @Override
+  @Nullable
+  public <T> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
     PlatformTransactionManager transactionManager = getTransactionManager();
     Assert.state(transactionManager != null, "No PlatformTransactionManager set");
 
-    if (transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
-      return ((CallbackPreferringPlatformTransactionManager) transactionManager).execute(this, action);
+    if (definition == null) {
+      // fallback to defaults
+      definition = this;
+    }
+
+    if (transactionManager instanceof CallbackPreferringPlatformTransactionManager cpptm) {
+      return cpptm.execute(definition, action);
     }
     else {
-      TransactionStatus status = transactionManager.getTransaction(this);
+      TransactionStatus status = transactionManager.getTransaction(definition);
       T result;
       try {
         result = action.doInTransaction(status);

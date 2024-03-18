@@ -17,7 +17,6 @@
 
 package cn.taketoday.jdbc;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -29,7 +28,6 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.format.support.ApplicationConversionService;
-import cn.taketoday.jdbc.datasource.DataSourceTransactionManager;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.datasource.DriverManagerDataSource;
 import cn.taketoday.jdbc.datasource.SingleConnectionDataSource;
@@ -39,6 +37,7 @@ import cn.taketoday.jdbc.persistence.DefaultEntityManager;
 import cn.taketoday.jdbc.persistence.EntityManager;
 import cn.taketoday.jdbc.support.ClobToStringConverter;
 import cn.taketoday.jdbc.support.JdbcAccessor;
+import cn.taketoday.jdbc.support.JdbcTransactionManager;
 import cn.taketoday.jdbc.support.OffsetTimeToSQLTimeConverter;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.jdbc.type.TypeHandlerManager;
@@ -47,10 +46,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
-import cn.taketoday.transaction.TransactionStatus;
-import cn.taketoday.transaction.TransactionSystemException;
 import cn.taketoday.transaction.annotation.Isolation;
 import cn.taketoday.transaction.support.TransactionCallback;
+import cn.taketoday.transaction.support.TransactionCallbackWithoutResult;
+import cn.taketoday.transaction.support.TransactionOperations;
+import cn.taketoday.transaction.support.TransactionTemplate;
 
 /**
  * RepositoryManager is the main class for the today-jdbc library.
@@ -71,7 +71,7 @@ import cn.taketoday.transaction.support.TransactionCallback;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class RepositoryManager extends JdbcAccessor implements QueryProducer {
+public class RepositoryManager extends JdbcAccessor implements QueryProducer, TransactionOperations {
 
   private TypeHandlerManager typeHandlerManager = TypeHandlerManager.sharedInstance;
 
@@ -82,6 +82,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   private boolean catchResourceCloseErrors = false;
 
   private Map<String, String> defaultColumnMappings;
+
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
 
   private ConversionService conversionService = DefaultConversionService.getSharedInstance();
@@ -92,7 +93,9 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   @Nullable
   private EntityManager entityManager;
 
-  private DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+  private final PlatformTransactionManager transactionManager;
+
+  private final TransactionTemplate txOperations;
 
   static {
     DefaultConversionService sharedInstance = DefaultConversionService.getSharedInstance();
@@ -124,12 +127,21 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * @param dataSource The DataSource RepositoryManager uses to acquire connections to the database.
    */
   public RepositoryManager(DataSource dataSource) {
-    setDataSource(dataSource);
+    this(dataSource, new JdbcTransactionManager(dataSource));
   }
 
-  public RepositoryManager(DataSource dataSource, boolean generatedKeys) {
+  /**
+   * Creates a new instance of the RepositoryManager class, which uses the given DataSource to
+   * acquire connections to the database.
+   *
+   * @param dataSource The DataSource RepositoryManager uses to
+   * acquire connections to the database.
+   */
+  public RepositoryManager(DataSource dataSource, PlatformTransactionManager transactionManager) {
+    Assert.notNull(transactionManager, "transactionManager is required");
     setDataSource(dataSource);
-    this.generatedKeys = generatedKeys;
+    this.transactionManager = transactionManager;
+    this.txOperations = new TransactionTemplate(transactionManager);
   }
 
   /**
@@ -137,7 +149,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * always available when RepositoryManager attempts to map between result sets and object
    * instances.
    *
-   * @return The {@link Map<String,String>} instance, which RepositoryManager internally uses
+   * @return The {@code Map<String,String>} instance, which RepositoryManager internally uses
    * to map column names with property names.
    */
   public Map<String, String> getDefaultColumnMappings() {
@@ -147,8 +159,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   /**
    * Sets the default column mappings Map.
    *
-   * @param defaultColumnMappings A {@link Map} instance RepositoryManager uses internally to map between column
-   * names and property names.
+   * @param defaultColumnMappings A {@link Map} instance RepositoryManager uses
+   * internally to map between column names and property names.
    */
   public void setDefaultColumnMappings(Map<String, String> defaultColumnMappings) {
     this.defaultColumnMappings = defaultColumnMappings;
@@ -208,7 +220,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    */
   public void setConversionService(@Nullable ConversionService conversionService) {
     this.conversionService = conversionService == null
-                             ? ApplicationConversionService.getSharedInstance() : conversionService;
+            ? ApplicationConversionService.getSharedInstance() : conversionService;
   }
 
   public ConversionService getConversionService() {
@@ -253,23 +265,9 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
   }
 
   /**
-   * Set the transaction management strategy to be used.
-   */
-  public void setTransactionManager(DataSourceTransactionManager transactionManager) {
-    Assert.notNull(transactionManager, "transactionManager is required");
-    this.transactionManager = transactionManager;
-  }
-
-  @Override
-  public void setDataSource(@Nullable DataSource dataSource) {
-    super.setDataSource(dataSource);
-    transactionManager.setDataSource(dataSource);
-  }
-
-  /**
    * Return the transaction management strategy to be used.
    */
-  public DataSourceTransactionManager getTransactionManager() {
+  public PlatformTransactionManager getTransactionManager() {
     return this.transactionManager;
   }
 
@@ -279,7 +277,9 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     return sqlParameterParser.parse(sql, paramNameToIdxMap);
   }
 
-  // Query
+  // ---------------------------------------------------------------------
+  // Implementation of QueryProducer methods
+  // ---------------------------------------------------------------------
 
   /**
    * Creates a {@link Query}
@@ -287,12 +287,12 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
-   * <pre>
+   * <pre> {@code
    * try (Connection con = repositoryManager.open()) {
    *    return repositoryManager.createQuery(query, name, returnGeneratedKeys)
    *                .fetch(Pojo.class);
    * }
-   * </pre>
+   * }</pre>
    * </p>
    *
    * @param query the sql query string
@@ -311,12 +311,12 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
-   * <pre>
+   * <pre>{@code
    *     try (Connection con = repositoryManager.open()) {
    *         return repositoryManager.createQuery(query, name)
    *                      .fetch(Pojo.class);
    *     }
-   *  </pre>
+   *  }</pre>
    *
    * @param query the sql query string
    * @return the {@link NamedQuery} instance
@@ -332,12 +332,12 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
-   * <pre>
+   * <pre>{@code
    * try (Connection con = repositoryManager.open()) {
    *    return repositoryManager.createNamedQuery(query, name, returnGeneratedKeys)
    *                .fetch(Pojo.class);
    * }
-   * </pre>
+   * }</pre>
    * </p>
    *
    * @param query the sql query string
@@ -356,12 +356,12 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
    * better to use :
    * create queries with {@link JdbcConnection} class instead,
    * using try-with-resource blocks
-   * <pre>
+   * <pre>{@code
    *     try (Connection con = repositoryManager.open()) {
    *         return repositoryManager.createNamedQuery(query, name)
    *                      .fetch(Pojo.class);
    *     }
-   *  </pre>
+   *  }</pre>
    *
    * @param query the sql query string
    * @return the {@link NamedQuery} instance
@@ -738,61 +738,30 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer {
     return result;
   }
 
-  public <T> T runInTransaction(TransactionCallback<T> action) throws TransactionException {
-    return runInTransaction(action, (TransactionDefinition) null);
+  // ---------------------------------------------------------------------
+  // Implementation of TransactionOperations methods
+  // ---------------------------------------------------------------------
+
+  @Nullable
+  @Override
+  public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+    return txOperations.execute(action);
   }
 
-  public <T> T runInTransaction(TransactionCallback<T> action, @Nullable Isolation isolation) throws TransactionException {
-    if (isolation != null) {
-      return runInTransaction(action, TransactionDefinition.forIsolationLevel(isolation));
-    }
-    return runInTransaction(action, (TransactionDefinition) null);
+  @Nullable
+  @Override
+  public <T> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
+    return txOperations.execute(action, definition);
   }
 
-  public <T> T runInTransaction(TransactionCallback<T> action, @Nullable TransactionDefinition definition) throws TransactionException {
-    PlatformTransactionManager transactionManager = this.transactionManager;
-    TransactionStatus status = transactionManager.getTransaction(definition);
-    T result;
-    try {
-      result = action.doInTransaction(status);
-    }
-    catch (RuntimeException | Error ex) {
-      // Transactional code threw application exception -> rollback
-      rollbackOnException(transactionManager, status, ex);
-      throw ex;
-    }
-    catch (Throwable ex) {
-      // Transactional code threw unexpected exception -> rollback
-      rollbackOnException(transactionManager, status, ex);
-      throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
-    }
-    transactionManager.commit(status);
-    return result;
+  @Override
+  public void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException {
+    txOperations.executeWithoutResult(action);
   }
 
-  /**
-   * Perform a rollback, handling rollback exceptions properly.
-   *
-   * @param transactionManager PlatformTransactionManager
-   * @param status object representing the transaction
-   * @param ex the thrown application exception or error
-   * @throws TransactionException in case of a rollback error
-   */
-  private void rollbackOnException(PlatformTransactionManager transactionManager,
-          TransactionStatus status, Throwable ex) throws TransactionException {
-    logger.debug("Initiating transaction rollback on application exception", ex);
-    try {
-      transactionManager.rollback(status);
-    }
-    catch (TransactionSystemException ex2) {
-      logger.error("Application exception overridden by rollback exception", ex);
-      ex2.initApplicationException(ex);
-      throw ex2;
-    }
-    catch (RuntimeException | Error ex2) {
-      logger.error("Application exception overridden by rollback exception", ex);
-      throw ex2;
-    }
+  @Override
+  public void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config) throws TransactionException {
+    txOperations.executeWithoutResult(action, config);
   }
 
   //

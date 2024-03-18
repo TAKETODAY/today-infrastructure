@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.support;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.PlatformTransactionManager;
+import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
 
 /**
@@ -50,6 +51,24 @@ public interface TransactionOperations {
   <T> T execute(TransactionCallback<T> action) throws TransactionException;
 
   /**
+   * Execute the action specified by the given callback object within a transaction.
+   * <p>Allows for returning a result object created within the transaction, that is,
+   * a domain object or a collection of domain objects. A RuntimeException thrown
+   * by the callback is treated as a fatal exception that enforces a rollback.
+   * Such an exception gets propagated to the caller of the template.
+   *
+   * @param action the callback object that specifies the transactional action
+   * @return a result object returned by the callback, or {@code null} if none
+   * @throws TransactionException in case of initialization, rollback, or system errors
+   * @throws RuntimeException if thrown by the TransactionCallback
+   * @see #executeWithoutResult(TransactionCallbackWithoutResult)
+   * @since 4.0
+   */
+  @Nullable
+  <T> T execute(TransactionCallback<T> action, @Nullable TransactionDefinition config)
+          throws TransactionException;
+
+  /**
    * Execute the action specified by the given {@link Runnable} within a transaction.
    * <p>If you need to return an object from the callback or access the
    * {@link cn.taketoday.transaction.TransactionStatus} from within the callback,
@@ -65,9 +84,26 @@ public interface TransactionOperations {
    * @see TransactionCallbackWithoutResult
    * @since 4.0
    */
-  default void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException {
-    execute(action);
-  }
+  void executeWithoutResult(TransactionCallbackWithoutResult action) throws TransactionException;
+
+  /**
+   * Execute the action specified by the given {@link Runnable} within a transaction.
+   * <p>If you need to return an object from the callback or access the
+   * {@link cn.taketoday.transaction.TransactionStatus} from within the callback,
+   * use {@link #execute(TransactionCallback)} instead.
+   * <p>This variant is analogous to using a {@link TransactionCallbackWithoutResult}
+   * but with a simplified signature for common cases - and conveniently usable with
+   * Java 8 lambda expressions.
+   *
+   * @param action the Runnable that specifies the transactional action
+   * @throws TransactionException in case of initialization, rollback, or system errors
+   * @throws RuntimeException if thrown by the Runnable
+   * @see #execute(TransactionCallback)
+   * @see TransactionCallbackWithoutResult
+   * @since 4.0
+   */
+  void executeWithoutResult(TransactionCallbackWithoutResult action, @Nullable TransactionDefinition config)
+          throws TransactionException;
 
   /**
    * Return an implementation of the {@code TransactionOperations} interface which

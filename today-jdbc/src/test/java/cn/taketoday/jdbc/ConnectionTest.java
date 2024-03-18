@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.jdbc;
@@ -79,8 +76,9 @@ public class ConnectionTest {
     doThrow(MyException.class).when(ps).setInt(ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
     when(jdbcConnection.prepareStatement(ArgumentMatchers.anyString())).thenReturn(ps);
 
-    RepositoryManager sql2o = new RepositoryManager(dataSource, false);
-    try (JdbcConnection cn = sql2o.open()) {
+    RepositoryManager manager = new RepositoryManager(dataSource);
+    manager.setGeneratedKeys(false);
+    try (JdbcConnection cn = manager.open()) {
       cn.createNamedQueryWithParams("select :p1 name, :p2 age", "Dmitry Alexandrov", 35).buildStatement();
       fail("exception not thrown");
     }

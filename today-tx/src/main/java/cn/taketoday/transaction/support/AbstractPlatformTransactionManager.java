@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.support;
@@ -466,9 +466,8 @@ public abstract class AbstractPlatformTransactionManager
 
     if (definition.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
       if (!isNestedTransactionAllowed()) {
-        throw new NestedTransactionNotSupportedException(
-                "Transaction manager does not allow nested transactions by default - " +
-                        "specify 'nestedTransactionAllowed' property with value 'true'");
+        throw new NestedTransactionNotSupportedException("Transaction manager does not allow nested transactions by default - " +
+                "specify 'nestedTransactionAllowed' property with value 'true'");
       }
       if (debugEnabled) {
         logger.debug("Creating nested transaction with name [{}]", definition.getName());
@@ -506,17 +505,16 @@ public abstract class AbstractPlatformTransactionManager
       if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
         Integer currentIsolationLevel = TransactionSynchronizationManager.getCurrentTransactionIsolationLevel();
         if (currentIsolationLevel == null || currentIsolationLevel != definition.getIsolationLevel()) {
-          throw new IllegalTransactionStateException("Participating transaction with definition [" +
-                  definition + "] specifies isolation level which is incompatible with existing transaction: " +
-                  (currentIsolationLevel != null ?
-                   DefaultTransactionDefinition.getIsolationLevelName(currentIsolationLevel) :
-                   "(unknown)"));
+          throw new IllegalTransactionStateException(
+                  "Participating transaction with definition [%s] specifies isolation level which is incompatible with existing transaction: ".formatted(definition)
+                          + (currentIsolationLevel != null ? DefaultTransactionDefinition.getIsolationLevelName(currentIsolationLevel) : "(unknown)"));
         }
       }
       if (!definition.isReadOnly()) {
         if (TransactionSynchronizationManager.isCurrentTransactionReadOnly()) {
-          throw new IllegalTransactionStateException("Participating transaction with definition [" +
-                  definition + "] is not marked as read-only but existing transaction is");
+          throw new IllegalTransactionStateException(
+                  "Participating transaction with definition [%s] is not marked as read-only but existing transaction is"
+                          .formatted(definition));
         }
       }
     }
@@ -584,9 +582,8 @@ public abstract class AbstractPlatformTransactionManager
       SynchronizationInfo info = TransactionSynchronizationManager.getSynchronizationInfo();
 
       info.setActualTransactionActive(status.hasTransaction());
-      info.setCurrentTransactionIsolationLevel(
-              definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
-              definition.getIsolationLevel() : null);
+      info.setCurrentTransactionIsolationLevel(definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT
+              ? definition.getIsolationLevel() : null);
       info.setCurrentTransactionReadOnly(definition.isReadOnly());
       info.setCurrentTransactionName(definition.getName());
       info.initSynchronization();
@@ -1203,7 +1200,7 @@ public abstract class AbstractPlatformTransactionManager
    */
   protected Object doSuspend(Object transaction) throws TransactionException {
     throw new TransactionSuspensionNotSupportedException(
-            "Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
+            "Transaction manager [%s] does not support transaction suspension".formatted(getClass().getName()));
   }
 
   /**
@@ -1221,7 +1218,7 @@ public abstract class AbstractPlatformTransactionManager
    */
   protected void doResume(@Nullable Object transaction, Object suspendedResources) throws TransactionException {
     throw new TransactionSuspensionNotSupportedException(
-            "Transaction manager [" + getClass().getName() + "] does not support transaction suspension");
+            "Transaction manager [%s] does not support transaction suspension".formatted(getClass().getName()));
   }
 
   /**
@@ -1386,8 +1383,7 @@ public abstract class AbstractPlatformTransactionManager
       this.suspendedResources = suspendedResources;
     }
 
-    private SuspendedResourcesHolder(
-            @Nullable Object suspendedResources, List<TransactionSynchronization> suspendedSynchronizations,
+    private SuspendedResourcesHolder(@Nullable Object suspendedResources, List<TransactionSynchronization> suspendedSynchronizations,
             @Nullable String name, boolean readOnly, @Nullable Integer isolationLevel, boolean wasActive) {
 
       this.suspendedResources = suspendedResources;
