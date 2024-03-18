@@ -31,7 +31,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
 
       - name: Checkout project sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.2
 
       - name: Setup JDK 21
         uses: oracle-actions/setup-java@v1
@@ -43,7 +43,7 @@ jobs:
         run: java -version
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2.7.1
+        uses: gradle/gradle-build-action@v3.1.0
 
       - name: Build with Gradle
         run: ./gradlew -DCI=true --no-daemon --max-workers=4 build --scan --stacktrace
