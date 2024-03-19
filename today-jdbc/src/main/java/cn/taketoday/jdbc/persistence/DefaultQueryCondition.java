@@ -19,6 +19,7 @@ package cn.taketoday.jdbc.persistence;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Objects;
 
 import cn.taketoday.core.style.ToStringBuilder;
@@ -26,6 +27,7 @@ import cn.taketoday.jdbc.type.ObjectTypeHandler;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.CollectionUtils;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -106,6 +108,13 @@ public class DefaultQueryCondition extends QueryCondition {
       return idx + valueLength;
     }
     else {
+      Object parameterValue = this.parameterValue;
+      if (parameterValue instanceof Collection<?> coll) {
+        parameterValue = CollectionUtils.firstElement(coll);
+      }
+      else if (parameterValue instanceof Object[] array) {
+        parameterValue = array[0];
+      }
       typeHandler.setParameter(ps, idx, parameterValue);
       return idx + 1;
     }
