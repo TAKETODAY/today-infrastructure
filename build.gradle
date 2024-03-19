@@ -80,6 +80,7 @@ configure([rootProject] + javaProjects) {
   apply plugin: "java"
   apply plugin: 'jacoco'
   apply plugin: 'cn.taketoday.build.conventions'
+  apply plugin: 'cn.taketoday.build.optional-dependencies'
   apply from: "${rootDir}/gradle/toolchains.gradle"
 
   if (testFixturesProjects.contains(it)) {
