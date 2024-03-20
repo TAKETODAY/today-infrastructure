@@ -1,6 +1,6 @@
 plugins {
-  id "java-gradle-plugin"
-//  id "com.gradle.plugin-publish" version "1.2.1"
+//  id "java-gradle-plugin"
+  id "com.gradle.plugin-publish" version "1.2.1"
 }
 
 description = "TODAY Infrastructure Applications Gradle Plugins"
@@ -41,7 +41,7 @@ dependencies {
 }
 
 gradlePlugin {
-  automatedPublishing = false
+  automatedPublishing = true
   website = "https://github.com/TAKETODAY/today-infrastructure"
   vcsUrl = "https://github.com/TAKETODAY/today-infrastructure"
   plugins {
