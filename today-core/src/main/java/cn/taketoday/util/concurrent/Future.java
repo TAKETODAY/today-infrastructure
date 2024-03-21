@@ -27,7 +27,6 @@ import java.util.function.Function;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
-import io.netty5.util.concurrent.Promise;
 
 /**
  * The result of an asynchronous operation.
@@ -200,17 +199,6 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   }
 
   /**
-   * Adds the specified listener to this future.
-   * <p>
-   * The specified listener is notified when this future is
-   * {@linkplain #isDone() done}. If this future is already
-   * completed, the specified listener is notified immediately.
-   *
-   * @return this future object.
-   */
-  Future<V> addListener(FutureListener<? extends Future<V>> listener);
-
-  /**
    * Adds the specified listener to this future. The specified listener
    * is notified when this future is {@link #isDone() done}. If this
    * future is already completed, the specified listener is notified immediately.
@@ -221,7 +209,20 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * when this future completes.
    * @return this future object.
    */
-  <C> Future<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context);
+  default <C> Future<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
+    return addListener(FutureListener.forAdaption(listener, context));
+  }
+
+  /**
+   * Adds the specified listener to this future.
+   * <p>
+   * The specified listener is notified when this future is
+   * {@linkplain #isDone() done}. If this future is already
+   * completed, the specified listener is notified immediately.
+   *
+   * @return this future object.
+   */
+  Future<V> addListener(FutureListener<? extends Future<V>> listener);
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
@@ -388,24 +389,29 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * R result = y.sync().getNow();
    * }</pre>
    * <p>
-   * If the given future fails, then the returned future will fail as well, with the same exception. Cancellation of
-   * either future will cancel the other. If the mapper function throws, the returned future will fail, but this
-   * future will be unaffected.
+   * If the given future fails, then the returned future will fail as well,
+   * with the same exception. Cancellation of either future will cancel the
+   * other. If the mapper function throws, the returned future will fail,
+   * but this future will be unaffected.
    *
-   * @param mapper The function that will convert the result of this future into the result of the returned future.
+   * @param mapper The function that will convert the result of this future
+   * into the result of the returned future.
    * @param <R> The result type of the mapper function, and of the returned future.
-   * @return A new future instance that will complete with the mapped result of this future.
+   * @return A new future instance that will complete with the mapped result
+   * of this future.
    */
   default <R> Future<R> flatMap(Function<V, Future<R>> mapper) {
     return Futures.flatMap(this, mapper);
   }
 
   /**
-   * Link the {@link io.netty5.util.concurrent.Future} and {@link Promise} such that if the {@link io.netty5.util.concurrent.Future} completes the {@link Promise}
-   * will be notified. Cancellation is propagated both ways such that if the {@link io.netty5.util.concurrent.Future} is cancelled
-   * the {@link Promise} is cancelled and vice-versa.
+   * Link the {@link Future} and {@link SettableFuture} such that if the
+   * {@link Future} completes the {@link SettableFuture}
+   * will be notified. Cancellation is propagated both ways such that if
+   * the {@link Future} is cancelled the {@link SettableFuture} is cancelled
+   * and vice-versa.
    *
-   * @param promise the {@link Promise} which will be notified
+   * @param promise the {@link SettableFuture} which will be notified
    * @return itself
    */
   default Future<V> cascadeTo(final SettableFuture<? super V> promise) {
@@ -417,10 +423,17 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * Expose this {@link Future} as a JDK {@link CompletableFuture}.
    */
   default CompletableFuture<V> completable() {
-    final CompletableFuture<V> future = new CompletableFuture<>();
-    onSuccess(future::complete);
-    onFailure(future::completeExceptionally);
-    return future;
+    final CompletableFuture<V> ret = new CompletableFuture<>();
+    addListener((future, context) -> {
+      Throwable cause = future.getCause();
+      if (cause != null) {
+        context.completeExceptionally(cause);
+      }
+      else {
+        context.complete(future.getNow());
+      }
+    }, ret);
+    return ret;
   }
 
   /**

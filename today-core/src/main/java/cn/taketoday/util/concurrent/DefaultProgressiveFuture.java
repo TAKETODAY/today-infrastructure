@@ -89,6 +89,12 @@ public class DefaultProgressiveFuture<V> extends DefaultFuture<V> implements Pro
   }
 
   @Override
+  public <C> DefaultProgressiveFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
+    super.addListener(listener, context);
+    return this;
+  }
+
+  @Override
   public DefaultProgressiveFuture<V> sync() throws InterruptedException {
     super.sync();
     return this;

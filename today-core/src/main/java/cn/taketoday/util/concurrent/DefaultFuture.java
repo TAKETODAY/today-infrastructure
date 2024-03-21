@@ -121,8 +121,8 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public <C> SettableFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
-    return addListener(new ContextListener<>(listener, context));
+  public <C> DefaultFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
+    return addListener(FutureListener.forAdaption(listener, context));
   }
 
   @Override

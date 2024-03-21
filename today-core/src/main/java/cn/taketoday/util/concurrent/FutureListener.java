@@ -46,6 +46,11 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
 
   // Static Factory Methods
 
+  static <V, F extends Future<V>, C> FutureListener<F> forAdaption(FutureContextListener<C, F> listener, @Nullable C context) {
+    Assert.notNull(listener, "listener is required");
+    return future -> listener.operationComplete(future, context);
+  }
+
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
    *

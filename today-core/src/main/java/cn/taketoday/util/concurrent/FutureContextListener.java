@@ -19,8 +19,6 @@ package cn.taketoday.util.concurrent;
 
 import java.util.EventListener;
 
-import cn.taketoday.lang.Nullable;
-
 /**
  * Listens to the result of a {@link Future}.
  * The result of the asynchronous operation is notified once this listener
@@ -41,6 +39,6 @@ public interface FutureContextListener<C, F extends Future<?>> extends EventList
    *
    * @param future the source {@link Future} which called this callback
    */
-  void operationComplete(F future, @Nullable C context) throws Exception;
+  void operationComplete(F future, C context) throws Throwable;
 
 }

@@ -58,6 +58,9 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
   }
 
   @Override
+  <C> ProgressiveFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context);
+
+  @Override
   ProgressiveFuture<V> addListener(FutureListener<? extends Future<V>> listener);
 
   @Override
@@ -71,5 +74,5 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
 
   @Override
   ProgressiveFuture<V> awaitUninterruptibly();
-  
+
 }
