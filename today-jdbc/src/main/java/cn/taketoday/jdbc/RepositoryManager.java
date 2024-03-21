@@ -81,6 +81,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
 
   private boolean catchResourceCloseErrors = false;
 
+  @Nullable
   private Map<String, String> defaultColumnMappings;
 
   private SqlParameterParser sqlParameterParser = new SqlParameterParser();
@@ -152,6 +153,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @return The {@code Map<String,String>} instance, which RepositoryManager internally uses
    * to map column names with property names.
    */
+  @Nullable
   public Map<String, String> getDefaultColumnMappings() {
     return defaultColumnMappings;
   }
@@ -162,7 +164,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @param defaultColumnMappings A {@link Map} instance RepositoryManager uses
    * internally to map between column names and property names.
    */
-  public void setDefaultColumnMappings(Map<String, String> defaultColumnMappings) {
+  public void setDefaultColumnMappings(@Nullable Map<String, String> defaultColumnMappings) {
     this.defaultColumnMappings = defaultColumnMappings;
   }
 
@@ -389,7 +391,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection open(boolean autoClose) {
-    return new JdbcConnection(this, obtainDataSource(), autoClose);
+    return new JdbcConnection(this, getDataSource(), autoClose);
   }
 
   /**
@@ -495,7 +497,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(int isolationLevel) {
-    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -512,7 +514,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(Isolation isolationLevel) {
-    return beginTransaction(obtainDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
+    return beginTransaction(getDataSource(), TransactionDefinition.forIsolationLevel(isolationLevel));
   }
 
   /**
@@ -529,7 +531,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
    */
   public JdbcConnection beginTransaction(@Nullable TransactionDefinition definition) {
-    return beginTransaction(obtainDataSource(), definition);
+    return beginTransaction(getDataSource(), definition);
   }
 
   /**

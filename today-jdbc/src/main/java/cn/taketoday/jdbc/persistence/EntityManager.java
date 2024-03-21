@@ -181,7 +181,10 @@ public interface EntityManager {
   int updateById(Object entity) throws DataAccessException;
 
   /**
-   * Merge the state of the given entity into underlying repository
+   * Merge the state of the given entity including ID into underlying repository
+   *
+   * <p>
+   * ID can be updated
    *
    * @param entity entity instance
    * @param id entity id
@@ -201,7 +204,9 @@ public interface EntityManager {
           throws DataAccessException;
 
   /**
-   * Merge the state of the given entity into underlying repository
+   * Merge the state of the given entity including ID into underlying repository
+   * <p>
+   * ID can be updated
    *
    * @param entity entity instance
    * @param id entity id
@@ -331,7 +336,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
+   * E.g. Return an of Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
@@ -345,7 +350,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
+   * E.g. Return a Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
@@ -360,7 +365,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
-   * Eg. Return a of Map[Integer,Author] for find(Author.class, example, "id")
+   * E.g. Return a Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
    * @param <T> the returned Map values type
