@@ -20,7 +20,7 @@ package cn.taketoday.util.concurrent;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Success callback for a {@link ListenableFuture}.
+ * Success callback for a {@link Future}.
  *
  * @param <T> the result type
  * @author Sebastien Deleuze
@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
 public interface SuccessCallback<T> {
 
   /**
-   * Called when the {@link ListenableFuture} completes with success.
+   * Called when the {@link Future} completes with success.
    * <p>Note that Exceptions raised by this method are ignored.
    *
    * @param result the result

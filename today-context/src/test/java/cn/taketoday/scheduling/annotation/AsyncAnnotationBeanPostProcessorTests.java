@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -27,7 +24,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.aop.framework.ProxyFactory;
@@ -44,7 +40,7 @@ import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -201,7 +197,7 @@ public class AsyncAnnotationBeanPostProcessorTests {
     TestableAsyncUncaughtExceptionHandler exceptionHandler =
             context.getBean("exceptionHandler", TestableAsyncUncaughtExceptionHandler.class);
     assertThat(exceptionHandler.isCalled()).as("handler should not have been called yet").isFalse();
-    Future<Object> result = testBean.failWithFuture();
+    java.util.concurrent.Future<Object> result = testBean.failWithFuture();
     assertFutureWithException(result, exceptionHandler);
   }
 
@@ -215,11 +211,11 @@ public class AsyncAnnotationBeanPostProcessorTests {
     TestableAsyncUncaughtExceptionHandler exceptionHandler =
             context.getBean("exceptionHandler", TestableAsyncUncaughtExceptionHandler.class);
     assertThat(exceptionHandler.isCalled()).as("handler should not have been called yet").isFalse();
-    Future<Object> result = testBean.failWithListenableFuture();
+    java.util.concurrent.Future<Object> result = testBean.failWithListenableFuture();
     assertFutureWithException(result, exceptionHandler);
   }
 
-  private void assertFutureWithException(Future<Object> result,
+  private void assertFutureWithException(java.util.concurrent.Future<Object> result,
           TestableAsyncUncaughtExceptionHandler exceptionHandler) {
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     result::get)
@@ -277,9 +273,9 @@ public class AsyncAnnotationBeanPostProcessorTests {
     @Async
     void test();
 
-    Future<Object> failWithFuture();
+    java.util.concurrent.Future<Object> failWithFuture();
 
-    ListenableFuture<Object> failWithListenableFuture();
+    Future<Object> failWithListenableFuture();
 
     void failWithVoid();
 
@@ -306,13 +302,13 @@ public class AsyncAnnotationBeanPostProcessorTests {
 
     @Async
     @Override
-    public Future<Object> failWithFuture() {
+    public java.util.concurrent.Future<Object> failWithFuture() {
       throw new UnsupportedOperationException("failWithFuture");
     }
 
     @Async
     @Override
-    public ListenableFuture<Object> failWithListenableFuture() {
+    public Future<Object> failWithListenableFuture() {
       throw new UnsupportedOperationException("failWithListenableFuture");
     }
 

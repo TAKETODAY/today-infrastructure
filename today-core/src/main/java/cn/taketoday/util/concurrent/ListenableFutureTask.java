@@ -31,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * @see FutureTask
  * @since 4.0
  */
-public class ListenableFutureTask<T> extends SettableFutureTask<T> implements ListenableFuture<T> {
+public class ListenableFutureTask<T> extends SettableFutureTask<T> implements Future<T> {
 
   /**
    * Create a new {@code ListenableFutureTask} that will, upon running,

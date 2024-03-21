@@ -23,9 +23,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Listens to the result of a {@link ListenableFuture}.
+ * Listens to the result of a {@link Future}.
  * The result of the asynchronous operation is notified once this listener
- * is added by calling {@link ListenableFuture#addListener(FutureListener)}.
+ * is added by calling {@link Future#addListener(FutureListener)}.
  *
  * @param <F> the future type
  * @author Arjen Poutsma
@@ -34,13 +34,13 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 @FunctionalInterface
-public interface FutureListener<F extends ListenableFuture<?>> extends EventListener {
+public interface FutureListener<F extends Future<?>> extends EventListener {
 
   /**
    * Invoked when the operation associated with
-   * the {@link ListenableFuture} has been completed.
+   * the {@link Future} has been completed.
    *
-   * @param future the source {@link ListenableFuture} which called this callback
+   * @param future the source {@link Future} which called this callback
    */
   void operationComplete(F future) throws Throwable;
 
@@ -53,7 +53,7 @@ public interface FutureListener<F extends ListenableFuture<?>> extends EventList
    * @param onFailure failure callback
    * @param <F> ListenableFuture sub-type
    */
-  static <V, F extends ListenableFuture<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
+  static <V, F extends Future<V>> FutureListener<F> forAdaption(SuccessCallback<V> onSuccess, @Nullable FailureCallback onFailure) {
     Assert.notNull(onSuccess, "successCallback is required");
     return future -> {
       if (future.isSuccess()) {
@@ -70,7 +70,7 @@ public interface FutureListener<F extends ListenableFuture<?>> extends EventList
    *
    * @param failureCallback the failure callback
    */
-  static <V, F extends ListenableFuture<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
+  static <V, F extends Future<V>> FutureListener<F> forFailure(FailureCallback failureCallback) {
     Assert.notNull(failureCallback, "failureCallback is required");
     return future -> FailureCallback.onFailure(future, failureCallback);
   }

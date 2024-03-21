@@ -45,11 +45,11 @@ class SettableFutureNotifierTests {
     @SuppressWarnings("unchecked")
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
-    SettableFutureNotifier<Void, ListenableFuture<Void>> notifier =
-            new SettableFutureNotifier<Void, ListenableFuture<Void>>(p1, p2);
+    SettableFutureNotifier<Void, Future<Void>> notifier =
+            new SettableFutureNotifier<Void, Future<Void>>(p1, p2);
 
     @SuppressWarnings("unchecked")
-    ListenableFuture<Void> future = mock(ListenableFuture.class);
+    Future<Void> future = mock(Future.class);
     when(future.isSuccess()).thenReturn(true);
     when(future.get()).thenReturn(null);
     when(p1.trySuccess(null)).thenReturn(true);
@@ -67,11 +67,11 @@ class SettableFutureNotifierTests {
     @SuppressWarnings("unchecked")
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
-    SettableFutureNotifier<Void, ListenableFuture<Void>> notifier =
-            new SettableFutureNotifier<Void, ListenableFuture<Void>>(p1, p2);
+    SettableFutureNotifier<Void, Future<Void>> notifier =
+            new SettableFutureNotifier<Void, Future<Void>>(p1, p2);
 
     @SuppressWarnings("unchecked")
-    ListenableFuture<Void> future = mock(ListenableFuture.class);
+    Future<Void> future = mock(Future.class);
     Throwable t = mock(Throwable.class);
     when(future.isSuccess()).thenReturn(false);
     when(future.isCancelled()).thenReturn(false);

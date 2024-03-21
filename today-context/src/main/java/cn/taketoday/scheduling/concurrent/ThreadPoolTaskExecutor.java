@@ -21,7 +21,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -37,7 +36,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.SchedulingTaskExecutor;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
@@ -394,7 +393,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       return executor.submit(task);
@@ -405,7 +404,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       return executor.submit(task);
@@ -416,7 +415,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       ListenableFutureTask<Object> future = new ListenableFutureTask<>(task, null);
@@ -429,7 +428,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       ListenableFutureTask<T> future = new ListenableFutureTask<>(task);
@@ -446,7 +445,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
     super.cancelRemainingTask(task);
     // Cancel associated user-level Future handle as well
     Object original = this.decoratedTaskMap.get(task);
-    if (original instanceof Future<?> future) {
+    if (original instanceof java.util.concurrent.Future<?> future) {
       future.cancel(true);
     }
   }

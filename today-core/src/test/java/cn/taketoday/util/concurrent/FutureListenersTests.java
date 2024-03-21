@@ -62,68 +62,10 @@ class FutureListenersTests {
 
   }
 
-  @Test
-  void remove() {
-    ProgressiveListener second = new ProgressiveListener();
-    Listener first = new Listener();
-    FutureListeners futureListeners = new FutureListeners(first, second);
-    assertThat(futureListeners.listeners).hasSize(2);
-    assertThat(futureListeners.progressiveListeners).isEqualTo(second);
-    assertThat(futureListeners.size).isEqualTo(2);
-
-    futureListeners.remove(first);
-
-    assertThat(futureListeners.listeners).hasSize(2);
-    assertThat(futureListeners.progressiveListeners).isEqualTo(second);
-    assertThat(futureListeners.size).isEqualTo(1);
-
-    futureListeners.remove(second);
-
-    assertThat(futureListeners.listeners).hasSize(2);
-    assertThat(futureListeners.progressiveListeners).isNull();
-    assertThat(futureListeners.size).isEqualTo(0);
-
-    ProgressiveListener progressiveListener = new ProgressiveListener();
-    ProgressiveListener progressiveListener1 = new ProgressiveListener();
-
-    futureListeners.add(first);
-    futureListeners.add(second);
-    futureListeners.add(new Listener());
-    futureListeners.add(new Listener());
-
-    futureListeners.add(progressiveListener);
-    futureListeners.add(progressiveListener1);
-
-    assertThat(futureListeners.listeners).hasSize(8);
-    assertThat(futureListeners.progressiveListeners).isInstanceOf(ProgressiveFutureListener[].class);
-    assertThat(futureListeners.size).isEqualTo(6);
-
-    assertThat((ProgressiveFutureListener<?>[]) futureListeners.progressiveListeners).hasSize(3)
-            .containsExactly(second, progressiveListener, progressiveListener1);
-
-    futureListeners.remove(progressiveListener);
-
-    assertThat(futureListeners.listeners).hasSize(8);
-    assertThat(futureListeners.size).isEqualTo(5);
-    assertThat((ProgressiveFutureListener<?>[]) futureListeners.progressiveListeners).hasSize(2)
-            .containsExactly(second, progressiveListener1);
-
-    futureListeners.remove(progressiveListener1);
-    assertThat(futureListeners.listeners).hasSize(8);
-    assertThat(futureListeners.size).isEqualTo(4);
-    assertThat(futureListeners.progressiveListeners).isEqualTo(second);
-
-    futureListeners.remove(new Listener());
-
-    assertThat(futureListeners.listeners).hasSize(8);
-    assertThat(futureListeners.size).isEqualTo(4);
-    assertThat(futureListeners.progressiveListeners).isEqualTo(second);
-  }
-
-  static class Listener implements FutureListener<ListenableFuture<String>> {
+  static class Listener implements FutureListener<Future<String>> {
 
     @Override
-    public void operationComplete(ListenableFuture<String> future) throws Exception {
+    public void operationComplete(Future<String> future) throws Exception {
 
     }
   }

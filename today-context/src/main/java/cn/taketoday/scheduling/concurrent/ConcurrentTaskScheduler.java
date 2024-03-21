@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -40,7 +39,7 @@ import cn.taketoday.scheduling.TriggerContext;
 import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ErrorHandler;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import jakarta.enterprise.concurrent.LastExecution;
 import jakarta.enterprise.concurrent.ManagedScheduledExecutorService;
 
@@ -198,22 +197,22 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     return super.submit(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     return super.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     return super.submitListenable(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     return super.submitListenable(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 

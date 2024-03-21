@@ -26,7 +26,9 @@ import cn.taketoday.lang.Nullable;
 class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V> {
 
   private static final Runnable COMPLETED = new SentinelRunnable("COMPLETED");
+
   private static final Runnable CANCELLED = new SentinelRunnable("CANCELLED");
+
   private static final Runnable FAILED = new SentinelRunnable("FAILED");
 
   // Strictly of type Callable<V> or Runnable
@@ -88,14 +90,13 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
   }
 
   @Override
-  public final SettableFuture<V> setFailure(Throwable cause) {
+  public final SettableFutureTask<V> setFailure(Throwable cause) {
     throw new IllegalStateException();
   }
 
-  protected final SettableFuture<V> setFailureInternal(Throwable cause) {
+  protected final void setFailureInternal(Throwable cause) {
     super.setFailure(cause);
     clearTaskAfterCompletion(true, FAILED);
-    return this;
   }
 
   @Override
@@ -104,11 +105,11 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
   }
 
   @Override
-  public final SettableFuture<V> setSuccess(@Nullable V result) {
+  public final SettableFutureTask<V> setSuccess(@Nullable V result) {
     throw new IllegalStateException();
   }
 
-  protected final SettableFuture<V> setSuccessInternal(@Nullable V result) {
+  protected final SettableFutureTask<V> setSuccessInternal(@Nullable V result) {
     super.setSuccess(result);
     clearTaskAfterCompletion(true, COMPLETED);
     return this;
@@ -176,8 +177,9 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
 
     @Override
     public String toString() {
-      return "Callable(task: " + task + ", result: " + result + ')';
+      return "Callable(task: %s, result: %s)".formatted(task, result);
     }
+
   }
 
 }

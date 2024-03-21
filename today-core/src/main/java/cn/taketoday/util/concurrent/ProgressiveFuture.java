@@ -58,16 +58,7 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
   }
 
   @Override
-  ProgressiveFuture<V> addListener(FutureListener<? extends ListenableFuture<V>> listener);
-
-  @Override
-  ProgressiveFuture<V> addListeners(FutureListener<? extends ListenableFuture<V>>... listeners);
-
-  @Override
-  ProgressiveFuture<V> removeListener(FutureListener<? extends ListenableFuture<V>> listener);
-
-  @Override
-  ProgressiveFuture<V> removeListeners(FutureListener<? extends ListenableFuture<V>>... listeners);
+  ProgressiveFuture<V> addListener(FutureListener<? extends Future<V>> listener);
 
   @Override
   ProgressiveFuture<V> sync() throws InterruptedException;
@@ -80,4 +71,5 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
 
   @Override
   ProgressiveFuture<V> awaitUninterruptibly();
+  
 }

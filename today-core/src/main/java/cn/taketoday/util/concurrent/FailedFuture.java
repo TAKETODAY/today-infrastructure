@@ -65,12 +65,17 @@ public final class FailedFuture<V> extends CompleteFuture<V> {
   }
 
   @Override
-  public ListenableFuture<V> sync() {
+  public boolean isFailed() {
+    return true;
+  }
+
+  @Override
+  public FailedFuture<V> sync() {
     throw ExceptionUtils.sneakyThrow(cause);
   }
 
   @Override
-  public ListenableFuture<V> syncUninterruptibly() {
+  public FailedFuture<V> syncUninterruptibly() {
     throw ExceptionUtils.sneakyThrow(cause);
   }
 

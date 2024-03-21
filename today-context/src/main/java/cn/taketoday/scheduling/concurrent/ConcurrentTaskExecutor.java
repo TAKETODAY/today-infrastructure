@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.TaskDecorator;
@@ -31,7 +30,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.SchedulingAwareRunnable;
 import cn.taketoday.scheduling.SchedulingTaskExecutor;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.concurrent.ManagedExecutors;
 import jakarta.enterprise.concurrent.ManagedTask;
@@ -147,22 +146,22 @@ public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, Sche
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     return this.adaptedExecutor.submit(task);
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     return this.adaptedExecutor.submit(task);
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     return this.adaptedExecutor.submitListenable(task);
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     return this.adaptedExecutor.submitListenable(task);
   }
 
@@ -197,22 +196,22 @@ public class ConcurrentTaskExecutor implements AsyncListenableTaskExecutor, Sche
     }
 
     @Override
-    public Future<?> submit(Runnable task) {
+    public java.util.concurrent.Future<?> submit(Runnable task) {
       return super.submit(ManagedTaskBuilder.buildManagedTask(task, task.toString()));
     }
 
     @Override
-    public <T> Future<T> submit(Callable<T> task) {
+    public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
       return super.submit(ManagedTaskBuilder.buildManagedTask(task, task.toString()));
     }
 
     @Override
-    public ListenableFuture<?> submitListenable(Runnable task) {
+    public Future<?> submitListenable(Runnable task) {
       return super.submitListenable(ManagedTaskBuilder.buildManagedTask(task, task.toString()));
     }
 
     @Override
-    public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+    public <T> Future<T> submitListenable(Callable<T> task) {
       return super.submitListenable(ManagedTaskBuilder.buildManagedTask(task, task.toString()));
     }
   }

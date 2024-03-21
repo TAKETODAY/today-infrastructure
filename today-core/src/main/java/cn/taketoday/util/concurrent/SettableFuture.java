@@ -20,12 +20,12 @@ package cn.taketoday.util.concurrent;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Special {@link ListenableFuture} which is writable.
+ * Special {@link Future} which is writable.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 15:57
  */
-public interface SettableFuture<V> extends ListenableFuture<V> {
+public interface SettableFuture<V> extends Future<V> {
 
   /**
    * Marks this future as a success and notifies all
@@ -89,16 +89,10 @@ public interface SettableFuture<V> extends ListenableFuture<V> {
   }
 
   @Override
-  SettableFuture<V> addListener(FutureListener<? extends ListenableFuture<V>> listener);
+  SettableFuture<V> addListener(FutureListener<? extends Future<V>> listener);
 
   @Override
-  SettableFuture<V> addListeners(FutureListener<? extends ListenableFuture<V>>... listeners);
-
-  @Override
-  SettableFuture<V> removeListener(FutureListener<? extends ListenableFuture<V>> listener);
-
-  @Override
-  SettableFuture<V> removeListeners(FutureListener<? extends ListenableFuture<V>>... listeners);
+  <C> SettableFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context);
 
   @Override
   SettableFuture<V> await() throws InterruptedException;

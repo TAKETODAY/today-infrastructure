@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -28,6 +25,7 @@ import java.lang.annotation.Target;
 
 import cn.taketoday.aot.hint.annotation.Reflective;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * Annotation that marks a method as a candidate for <i>asynchronous</i> execution.
@@ -39,7 +37,7 @@ import cn.taketoday.context.annotation.Configuration;
  * <p>In terms of target method signatures, any parameter types are supported.
  * However, the return type is constrained to either {@code void} or
  * {@link java.util.concurrent.Future}. In the latter case, you may declare the
- * more specific {@link cn.taketoday.util.concurrent.ListenableFuture} or
+ * more specific {@link Future} or
  * {@link java.util.concurrent.CompletableFuture} types which allow for richer
  * interaction with the asynchronous task and for immediate composition with
  * further processing steps.

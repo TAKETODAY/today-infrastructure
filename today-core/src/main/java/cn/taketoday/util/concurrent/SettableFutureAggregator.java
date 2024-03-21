@@ -34,8 +34,8 @@ import cn.taketoday.lang.Nullable;
  * the aggregate SettableFuture is undefined.</p>
  *
  * <p>Callers may populate a SettableFuture combiner with any number of futures
- * to be combined via the {@link SettableFutureAggregator#add(ListenableFuture)}
- * and {@link SettableFutureAggregator#addAll(ListenableFuture[])} methods.
+ * to be combined via the {@link SettableFutureAggregator#add(Future)}
+ * and {@link SettableFutureAggregator#addAll(Future[])} methods.
  * When all futures to be combined have been added, callers must provide
  * an aggregate SettableFuture to be notified when all combined SettableFutures have
  * finished via the {@link SettableFutureAggregator#finish(SettableFuture)} method.
@@ -46,7 +46,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class SettableFutureAggregator implements FutureListener<ListenableFuture<?>> {
+public final class SettableFutureAggregator implements FutureListener<Future<?>> {
 
   private int expectedCount;
 
@@ -67,7 +67,7 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
 
   /**
    * The {@link Executor} to use for notifications. You must call
-   * {@link #add(ListenableFuture)}, {@link #addAll(ListenableFuture[])}
+   * {@link #add(Future)}, {@link #addAll(Future[])}
    * and {@link #finish(SettableFuture)} from within the {@link Executor} thread.
    *
    * @param executor the {@link Executor} to use for notifications.
@@ -84,7 +84,7 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
    * @param future the future to add to this SettableFuture combiner
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void add(ListenableFuture future) {
+  public void add(Future future) {
     checkAddAllowed();
     ++expectedCount;
     future.addListener(this);
@@ -97,8 +97,8 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
    * @param futures the futures to add to this SettableFuture combiner
    */
   @SuppressWarnings({ "rawtypes" })
-  public void addAll(ListenableFuture... futures) {
-    for (ListenableFuture future : futures) {
+  public void addAll(Future... futures) {
+    for (Future future : futures) {
       add(future);
     }
   }
@@ -112,8 +112,8 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
    * failure will be assigned to the aggregate SettableFuture is undefined.
    *
    * <p>After this method is called, no more futures may be added via
-   * the {@link #add(ListenableFuture)} or
-   * {@link #addAll(ListenableFuture[])} methods.</p>
+   * the {@link #add(Future)} or
+   * {@link #addAll(Future[])} methods.</p>
    *
    * @param aggregateFuture the SettableFuture to notify when all combined
    * futures have finished
@@ -140,7 +140,7 @@ public final class SettableFutureAggregator implements FutureListener<Listenable
   }
 
   @Override
-  public void operationComplete(final ListenableFuture<?> future) {
+  public void operationComplete(final Future<?> future) {
     Executor executor = this.executor;
     if (executor == null) {
       executor = DefaultFuture.defaultExecutor;

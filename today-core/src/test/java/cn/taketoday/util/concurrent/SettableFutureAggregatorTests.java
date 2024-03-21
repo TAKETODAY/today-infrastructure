@@ -39,20 +39,20 @@ class SettableFutureAggregatorTests {
   @Mock
   private SettableFuture<Void> p1;
 
-  private FutureListener<ListenableFuture<Void>> l1;
+  private FutureListener<Future<Void>> l1;
 
   private final GenericFutureListenerConsumer l1Consumer = new GenericFutureListenerConsumer() {
     @Override
-    public void accept(FutureListener<ListenableFuture<Void>> listener) {
+    public void accept(FutureListener<Future<Void>> listener) {
       l1 = listener;
     }
   };
   @Mock
   private SettableFuture<Void> p2;
-  private FutureListener<ListenableFuture<Void>> l2;
+  private FutureListener<Future<Void>> l2;
   private final GenericFutureListenerConsumer l2Consumer = new GenericFutureListenerConsumer() {
     @Override
-    public void accept(FutureListener<ListenableFuture<Void>> listener) {
+    public void accept(FutureListener<Future<Void>> listener) {
       l2 = listener;
     }
   };
@@ -101,7 +101,7 @@ class SettableFutureAggregatorTests {
     assertThrows(NullPointerException.class, new Executable() {
       @Override
       public void execute() {
-        combiner.addAll((ListenableFuture<?>[]) null);
+        combiner.addAll((Future<?>[]) null);
       }
     });
   }
@@ -235,6 +235,6 @@ class SettableFutureAggregatorTests {
 
   interface GenericFutureListenerConsumer {
 
-    void accept(FutureListener<ListenableFuture<Void>> listener);
+    void accept(FutureListener<Future<Void>> listener);
   }
 }

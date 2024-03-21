@@ -17,57 +17,44 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.concurrent.Executor;
+import java.util.Objects;
 
 import cn.taketoday.lang.Nullable;
 
 /**
- * The {@link CompleteFuture} which is succeeded already.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/26 21:33
+ * @since 4.0 2024/3/21 21:27
  */
-public final class SucceededFuture<V> extends CompleteFuture<V> {
+public final class ContextListener<F extends Future<?>, C> implements FutureListener<F> {
+
+  private final FutureContextListener<C, F> listener;
 
   @Nullable
-  private final V result;
+  private final C context;
 
-  /**
-   * Creates a new instance.
-   */
-  public SucceededFuture(@Nullable V result) {
-    super();
-    this.result = result;
-  }
-
-  /**
-   * Creates a new instance.
-   *
-   * @param executor the {@link Executor} associated with this future
-   */
-  public SucceededFuture(@Nullable Executor executor, @Nullable V result) {
-    super(executor);
-    this.result = result;
+  public ContextListener(FutureContextListener<C, F> listener, @Nullable C context) {
+    this.listener = listener;
+    this.context = context;
   }
 
   @Override
-  public Throwable getCause() {
-    return null;
+  public void operationComplete(F future) throws Throwable {
+    listener.operationComplete(future, context);
   }
 
   @Override
-  public boolean isSuccess() {
-    return true;
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (!(o instanceof ContextListener<?, ?> that))
+      return false;
+    return Objects.equals(listener, that.listener)
+            && Objects.equals(context, that.context);
   }
 
   @Override
-  public boolean isFailed() {
-    return false;
+  public int hashCode() {
+    return Objects.hash(listener, context);
   }
 
-  @Override
-  public V getNow() {
-    return result;
-  }
 }
-

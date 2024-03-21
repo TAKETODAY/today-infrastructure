@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
@@ -59,12 +58,8 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   private static final StackTraceElement[] CANCELLATION_STACK = CANCELLATION_CAUSE_HOLDER.cause.getStackTrace();
 
-  static final Executor defaultExecutor = TodayStrategies.findFirst(DefaultExecutorFactory.class)
-          .map(DefaultExecutorFactory::createExecutor)
-          .orElse(new DirectExecutor());
-
   @Nullable
-  private final Executor executor;
+  protected final Executor executor;
 
   @Nullable
   private volatile Object result;
@@ -76,7 +71,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * Threading - synchronized(this). We must support adding listeners when there is no Executor.
    */
   @Nullable
-  private FutureListener<? extends ListenableFuture<?>> listener;
+  private FutureListener<? extends Future<?>> listener;
 
   @Nullable
   private FutureListeners listeners;
@@ -111,7 +106,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public SettableFuture<V> addListener(FutureListener<? extends ListenableFuture<V>> listener) {
+  public DefaultFuture<V> addListener(FutureListener<? extends Future<V>> listener) {
     Assert.notNull(listener, "listener is required");
 
     synchronized(this) {
@@ -126,51 +121,12 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public SettableFuture<V> addListeners(FutureListener<? extends ListenableFuture<V>>... listeners) {
-    Assert.notNull(listeners, "listeners is required");
-
-    synchronized(this) {
-      for (var listener : listeners) {
-        if (listener == null) {
-          break;
-        }
-        doAddListener(listener);
-      }
-    }
-
-    if (isDone()) {
-      notifyListeners();
-    }
-
-    return this;
+  public <C> SettableFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
+    return addListener(new ContextListener<>(listener, context));
   }
 
   @Override
-  public SettableFuture<V> removeListener(final FutureListener<? extends ListenableFuture<V>> listener) {
-    Assert.notNull(listener, "listener is required");
-
-    synchronized(this) {
-      doRemoveListener(listener);
-    }
-
-    return this;
-  }
-
-  @Override
-  public SettableFuture<V> removeListeners(final FutureListener<? extends ListenableFuture<V>>... listeners) {
-    Assert.notNull(listeners, "listeners is required");
-    synchronized(this) {
-      for (var listener : listeners) {
-        if (listener != null) {
-          doRemoveListener(listener);
-        }
-      }
-    }
-    return this;
-  }
-
-  @Override
-  public SettableFuture<V> setSuccess(@Nullable V result) {
+  public DefaultFuture<V> setSuccess(@Nullable V result) {
     if (doSetSuccess(result)) {
       return this;
     }
@@ -208,6 +164,11 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   public boolean isSuccess() {
     Object result = this.result;
     return result != null && result != UNCANCELLABLE && !(result instanceof CauseHolder);
+  }
+
+  @Override
+  public boolean isFailed() {
+    return result instanceof CauseHolder;
   }
 
   @Override
@@ -402,6 +363,11 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     throw new ExecutionException(cause);
   }
 
+  @Override
+  public boolean cancel() {
+    return cancel(true);
+  }
+
   /**
    * {@inheritDoc}
    *
@@ -419,6 +385,11 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
       return true;
     }
     return false;
+  }
+
+  @Override
+  public Executor executor() {
+    return executor;
   }
 
   /**
@@ -471,7 +442,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * @param future the future that is complete.
    * @param listener the listener to notify.
    */
-  protected static void notifyListener(@Nullable Executor executor, final ListenableFuture<?> future, final FutureListener<?> listener) {
+  protected static void notifyListener(@Nullable Executor executor, final Future<?> future, final FutureListener<?> listener) {
     safeExecute(executor, () -> notifyListener(future, listener));
   }
 
@@ -532,16 +503,26 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static void notifyListener(ListenableFuture future, FutureListener l) {
+  private static void notifyListener(Future future, FutureListener l) {
     try {
       l.operationComplete(future);
     }
     catch (Throwable t) {
-      logger.warn("An exception was thrown by {}.operationComplete()", l.getClass().getName(), t);
+      logger.warn("An exception was thrown by {}.operationComplete(Future)", l.getClass().getName(), t);
     }
   }
 
-  private void doAddListener(FutureListener<? extends ListenableFuture<V>> listener) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  static void notifyListener(Future future, FutureContextListener l, @Nullable Object context) {
+    try {
+      l.operationComplete(future, context);
+    }
+    catch (Throwable t) {
+      logger.warn("An exception was thrown by {}.operationComplete(Future, Context)", l.getClass().getName(), t);
+    }
+  }
+
+  private void doAddListener(FutureListener<? extends Future<V>> listener) {
     if (this.listener == null) {
       if (listeners == null) {
         this.listener = listener;
@@ -553,19 +534,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     else {
       this.listeners = new FutureListeners(this.listener, listener);
       this.listener = null;
-    }
-  }
-
-  private void doRemoveListener(FutureListener<? extends ListenableFuture<V>> toRemove) {
-    if (listener == toRemove) {
-      this.listener = null;
-    }
-    else if (listeners != null) {
-      listeners.remove(toRemove);
-      // Removal is rare, no need for compaction
-      if (listeners.size == 0) {
-        this.listeners = null;
-      }
     }
   }
 
@@ -764,7 +732,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
   }
 
-  private static void safeExecute(@Nullable Executor executor, Runnable task) {
+  static void safeExecute(@Nullable Executor executor, Runnable task) {
     if (executor == null) {
       executor = defaultExecutor;
     }

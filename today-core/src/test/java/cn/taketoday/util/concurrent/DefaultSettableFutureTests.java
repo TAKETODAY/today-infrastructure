@@ -88,7 +88,7 @@ class DefaultSettableFutureTests {
   @Test
   public void testCancelDoesNotScheduleWhenNoListeners() {
     Executor executor = new RejectingExecutor();
-    SettableFuture<Void> future = ListenableFuture.forSettable(executor);
+    SettableFuture<Void> future = Future.forSettable(executor);
     assertTrue(future.cancel(false));
     assertTrue(future.isCancelled());
   }
@@ -115,7 +115,7 @@ class DefaultSettableFutureTests {
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGet() {
-    final SettableFuture<Void> future = ListenableFuture.forSettable();
+    final SettableFuture<Void> future = Future.forSettable();
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
@@ -189,32 +189,32 @@ class DefaultSettableFutureTests {
   @Test
   public void testListenerNotifyOrder() throws Exception {
     Executor executor = new TestExecutor();
-    final BlockingQueue<FutureListener<ListenableFuture<Void>>> listeners = new LinkedBlockingQueue<>();
+    final BlockingQueue<FutureListener<Future<Void>>> listeners = new LinkedBlockingQueue<>();
     int runs = 100000;
 
     for (int i = 0; i < runs; i++) {
       final SettableFuture<Void> future = new DefaultFuture<Void>(executor);
-      final FutureListener<ListenableFuture<Void>> listener1 = new FutureListener<>() {
+      final FutureListener<Future<Void>> listener1 = new FutureListener<>() {
         @Override
-        public void operationComplete(ListenableFuture<Void> future) throws Exception {
+        public void operationComplete(Future<Void> future) throws Exception {
           listeners.add(this);
         }
       };
-      final FutureListener<ListenableFuture<Void>> listener2 = new FutureListener<>() {
+      final FutureListener<Future<Void>> listener2 = new FutureListener<>() {
         @Override
-        public void operationComplete(ListenableFuture<Void> future) throws Exception {
+        public void operationComplete(Future<Void> future) throws Exception {
           listeners.add(this);
         }
       };
-      final FutureListener<ListenableFuture<Void>> listener4 = new FutureListener<>() {
+      final FutureListener<Future<Void>> listener4 = new FutureListener<>() {
         @Override
-        public void operationComplete(ListenableFuture<Void> future) throws Exception {
+        public void operationComplete(Future<Void> future) throws Exception {
           listeners.add(this);
         }
       };
-      final FutureListener<ListenableFuture<Void>> listener3 = new FutureListener<>() {
+      final FutureListener<Future<Void>> listener3 = new FutureListener<>() {
         @Override
-        public void operationComplete(ListenableFuture<Void> future) throws Exception {
+        public void operationComplete(Future<Void> future) throws Exception {
           listeners.add(this);
           future.addListener(listener4);
         }
@@ -410,7 +410,7 @@ class DefaultSettableFutureTests {
    * <ol>
    * <li>A write is done</li>
    * <li>The write operation completes, and the future state is changed to done</li>
-   * <li>A listener is added to the return from the write. The {@link FutureListener#operationComplete(ListenableFuture)}
+   * <li>A listener is added to the return from the write. The {@link FutureListener#operationComplete(Future)}
    * updates state which must be invoked before the response to the previous write is read.</li>
    * <li>The write operation</li>
    * </ol>
@@ -477,7 +477,7 @@ class DefaultSettableFutureTests {
     Executor executor = new TestExecutor();
     int expectedCount = numListenersBefore + 2;
     final CountDownLatch latch = new CountDownLatch(expectedCount);
-    final FutureListener<ListenableFuture<Void>> listener = future -> latch.countDown();
+    final FutureListener<Future<Void>> listener = future -> latch.countDown();
     final SettableFuture<Void> future = new DefaultFuture<Void>(executor);
     executor.execute(() -> {
       for (int i = 0; i < numListenersBefore; i++) {

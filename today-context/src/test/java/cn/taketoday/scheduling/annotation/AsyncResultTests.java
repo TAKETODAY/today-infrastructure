@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -38,7 +38,7 @@ public class AsyncResultTests {
   public void asyncResultWithCallbackAndValue() throws Exception {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
-    ListenableFuture<String> future = AsyncResult.forValue(value);
+    Future<String> future = AsyncResult.forValue(value);
 
     future.addListener(values::add, ex -> {
       throw new AssertionError("Failure callback not expected: " + ex, ex);
@@ -54,7 +54,7 @@ public class AsyncResultTests {
   public void asyncResultWithCallbackAndException() throws Exception {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
-    ListenableFuture<String> future = AsyncResult.forExecutionException(ex);
+    Future<String> future = AsyncResult.forExecutionException(ex);
 
     future.addListener(result -> {
       throw new AssertionError("Success callback not expected: " + result);
@@ -73,7 +73,7 @@ public class AsyncResultTests {
   public void asyncResultWithSeparateCallbacksAndValue() throws Exception {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
-    ListenableFuture<String> future = AsyncResult.forValue(value);
+    Future<String> future = AsyncResult.forValue(value);
     future.addListener(values::add, ex -> new AssertionError("Failure callback not expected: " + ex));
     assertThat(values.iterator().next()).isSameAs(value);
     assertThat(future.get()).isSameAs(value);
@@ -85,7 +85,7 @@ public class AsyncResultTests {
   public void asyncResultWithSeparateCallbacksAndException() throws Exception {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
-    ListenableFuture<String> future = AsyncResult.forExecutionException(ex);
+    Future<String> future = AsyncResult.forExecutionException(ex);
     future.addListener(result -> new AssertionError("Success callback not expected: " + result), values::add);
     assertThat(values.iterator().next()).isSameAs(ex);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(

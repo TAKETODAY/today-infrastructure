@@ -55,7 +55,7 @@ public class DefaultProgressiveFuture<V> extends DefaultFuture<V> implements Pro
     }
     else if (progress < 0 || progress > total) {
       throw new IllegalArgumentException(
-              "progress: " + progress + " (expected: 0 <= progress <= total (" + total + "))");
+              "progress: %s (expected: 0 <= progress <= total (%s))".formatted(progress, total));
     }
 
     if (isDone()) {
@@ -83,62 +83,45 @@ public class DefaultProgressiveFuture<V> extends DefaultFuture<V> implements Pro
   }
 
   @Override
-  public ProgressiveFuture<V> addListener(FutureListener<? extends ListenableFuture<V>> listener) {
+  public DefaultProgressiveFuture<V> addListener(FutureListener<? extends Future<V>> listener) {
     super.addListener(listener);
     return this;
   }
 
   @Override
-  public ProgressiveFuture<V> addListeners(FutureListener<? extends ListenableFuture<V>>... listeners) {
-    super.addListeners(listeners);
-    return this;
-  }
-
-  @Override
-  public ProgressiveFuture<V> removeListener(FutureListener<? extends ListenableFuture<V>> listener) {
-    super.removeListener(listener);
-    return this;
-  }
-
-  @Override
-  public ProgressiveFuture<V> removeListeners(FutureListener<? extends ListenableFuture<V>>... listeners) {
-    super.removeListeners(listeners);
-    return this;
-  }
-
-  @Override
-  public ProgressiveFuture<V> sync() throws InterruptedException {
+  public DefaultProgressiveFuture<V> sync() throws InterruptedException {
     super.sync();
     return this;
   }
 
   @Override
-  public ProgressiveFuture<V> syncUninterruptibly() {
+  public DefaultProgressiveFuture<V> syncUninterruptibly() {
     super.syncUninterruptibly();
     return this;
   }
 
   @Override
-  public ProgressiveFuture<V> await() throws InterruptedException {
+  public DefaultProgressiveFuture<V> await() throws InterruptedException {
     super.await();
     return this;
   }
 
   @Override
-  public ProgressiveFuture<V> awaitUninterruptibly() {
+  public DefaultProgressiveFuture<V> awaitUninterruptibly() {
     super.awaitUninterruptibly();
     return this;
   }
 
   @Override
-  public ProgressiveFuture<V> setSuccess(@Nullable V result) {
+  public DefaultProgressiveFuture<V> setSuccess(@Nullable V result) {
     super.setSuccess(result);
     return this;
   }
 
   @Override
-  public ProgressiveFuture<V> setFailure(Throwable cause) {
+  public DefaultProgressiveFuture<V> setFailure(Throwable cause) {
     super.setFailure(cause);
     return this;
   }
+
 }

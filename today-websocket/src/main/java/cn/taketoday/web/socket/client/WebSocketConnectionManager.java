@@ -24,7 +24,7 @@ import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.FutureListener;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -41,7 +41,7 @@ import cn.taketoday.web.socket.handler.LoggingWebSocketHandlerDecorator;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/12 15:58
  */
-public class WebSocketConnectionManager extends ConnectionManagerSupport implements FutureListener<ListenableFuture<WebSocketSession>> {
+public class WebSocketConnectionManager extends ConnectionManagerSupport implements FutureListener<Future<WebSocketSession>> {
 
   private final WebSocketClient client;
 
@@ -162,7 +162,7 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport impleme
   }
 
   @Override
-  public void operationComplete(ListenableFuture<WebSocketSession> future) {
+  public void operationComplete(Future<WebSocketSession> future) {
     if (future.isSuccess()) {
       webSocketSession = future.getNow();
       logger.info("Successfully connected");

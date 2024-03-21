@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.task.support;
@@ -20,7 +20,6 @@ package cn.taketoday.core.task.support;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -29,7 +28,7 @@ import cn.taketoday.core.task.TaskDecorator;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
@@ -97,7 +96,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     try {
       if (this.taskDecorator == null &&
               this.concurrentExecutor instanceof ExecutorService executorService) {
@@ -115,7 +114,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     try {
       if (this.taskDecorator == null &&
               this.concurrentExecutor instanceof ExecutorService executorService) {
@@ -133,7 +132,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     try {
       ListenableFutureTask<Object> future = new ListenableFutureTask<>(task, null);
       doExecute(this.concurrentExecutor, this.taskDecorator, future);
@@ -145,7 +144,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     try {
       ListenableFutureTask<T> future = new ListenableFutureTask<>(task);
       doExecute(this.concurrentExecutor, this.taskDecorator, future);

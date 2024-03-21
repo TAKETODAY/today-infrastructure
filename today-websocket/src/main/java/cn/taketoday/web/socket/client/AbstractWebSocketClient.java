@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.client;
@@ -32,7 +29,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
@@ -102,7 +99,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   }
 
   @Override
-  public ListenableFuture<WebSocketSession> doHandshake(
+  public Future<WebSocketSession> doHandshake(
           WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
 
     Assert.notNull(uriTemplate, "'uriTemplate' is required");
@@ -111,7 +108,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   }
 
   @Override
-  public final ListenableFuture<WebSocketSession> doHandshake(
+  public final Future<WebSocketSession> doHandshake(
           WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri) {
 
     Assert.notNull(webSocketHandler, "WebSocketHandler is required");
@@ -157,7 +154,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
    * @param extensions requested WebSocket extensions, or an empty list
    * @return the established WebSocket session wrapped in a ListenableFuture.
    */
-  protected abstract ListenableFuture<WebSocketSession> doHandshakeInternal(
+  protected abstract Future<WebSocketSession> doHandshakeInternal(
           WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions);
 

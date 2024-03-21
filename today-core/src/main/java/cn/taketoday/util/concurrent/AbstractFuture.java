@@ -26,13 +26,13 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Abstract {@link ListenableFuture} implementation which does not allow for cancellation.
+ * Abstract {@link Future} implementation which does not allow for cancellation.
  *
  * @param <V>
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AbstractFuture<V> implements ListenableFuture<V> {
+public abstract class AbstractFuture<V> implements Future<V> {
   @Nullable
   @Override
   public V get() throws InterruptedException, ExecutionException {

@@ -18,7 +18,7 @@
 package cn.taketoday.util.concurrent;
 
 /**
- * Failure callback for a {@link ListenableFuture}.
+ * Failure callback for a {@link Future}.
  *
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -28,7 +28,7 @@ package cn.taketoday.util.concurrent;
 public interface FailureCallback {
 
   /**
-   * Called when the {@link ListenableFuture} completes with failure.
+   * Called when the {@link Future} completes with failure.
    * <p>Note that Exceptions raised by this method are ignored.
    *
    * @param ex the failure
@@ -41,10 +41,11 @@ public interface FailureCallback {
    * @param future target future
    * @param failureCallback failure callback
    * @param <V> value type
+   * @throws NullPointerException failureCallback is null
    */
-  static <V> void onFailure(ListenableFuture<V> future, FailureCallback failureCallback) throws Throwable {
+  static <V> void onFailure(Future<V> future, FailureCallback failureCallback) throws Throwable {
     Throwable cause = future.getCause();
-    if (cause != null && !future.isCancelled()) {
+    if (cause != null) {
       failureCallback.onFailure(cause);
     }
   }

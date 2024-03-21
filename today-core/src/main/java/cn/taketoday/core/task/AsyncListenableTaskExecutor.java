@@ -19,15 +19,15 @@ package cn.taketoday.core.task;
 
 import java.util.concurrent.Callable;
 
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * Extension of the {@link AsyncTaskExecutor} interface, adding the capability to submit
- * tasks for {@link ListenableFuture ListenableFutures}.
+ * tasks for {@link Future ListenableFutures}.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ListenableFuture
+ * @see Future
  * @since 4.0
  */
 public interface AsyncListenableTaskExecutor extends AsyncTaskExecutor {
@@ -42,7 +42,7 @@ public interface AsyncListenableTaskExecutor extends AsyncTaskExecutor {
    * @return a {@code ListenableFuture} representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  ListenableFuture<?> submitListenable(Runnable task);
+  Future<?> submitListenable(Runnable task);
 
   /**
    * Submit a {@code Callable} task for execution, receiving a {@code ListenableFuture}
@@ -55,6 +55,6 @@ public interface AsyncListenableTaskExecutor extends AsyncTaskExecutor {
    * @return a {@code ListenableFuture} representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  <T> ListenableFuture<T> submitListenable(Callable<T> task);
+  <T> Future<T> submitListenable(Callable<T> task);
 
 }

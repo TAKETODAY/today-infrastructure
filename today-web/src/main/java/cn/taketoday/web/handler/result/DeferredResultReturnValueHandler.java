@@ -21,13 +21,13 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
- * ReturnValueHandler for {@link DeferredResult} and {@link ListenableFuture}
+ * ReturnValueHandler for {@link DeferredResult} and {@link Future}
  * and {@link CompletionStage}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -38,14 +38,14 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
   @Override
   public boolean supportsHandlerMethod(HandlerMethod handler) {
     return handler.isReturnTypeAssignableTo(DeferredResult.class)
-            || handler.isReturnTypeAssignableTo(ListenableFuture.class)
+            || handler.isReturnTypeAssignableTo(Future.class)
             || handler.isReturnTypeAssignableTo(CompletionStage.class);
   }
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
     return returnValue instanceof DeferredResult
-            || returnValue instanceof ListenableFuture
+            || returnValue instanceof Future
             || returnValue instanceof CompletionStage;
   }
 
@@ -60,8 +60,8 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
     if (returnValue instanceof DeferredResult) {
       result = (DeferredResult<?>) returnValue;
     }
-    else if (returnValue instanceof ListenableFuture<?>) {
-      result = adaptListenableFuture((ListenableFuture<Object>) returnValue);
+    else if (returnValue instanceof Future<?>) {
+      result = adaptListenableFuture((Future<Object>) returnValue);
     }
     else if (returnValue instanceof CompletionStage) {
       result = adaptCompletionStage((CompletionStage<?>) returnValue);
@@ -75,7 +75,7 @@ public class DeferredResultReturnValueHandler implements HandlerMethodReturnValu
             .startDeferredResultProcessing(result, handler);
   }
 
-  private DeferredResult<Object> adaptListenableFuture(ListenableFuture<Object> future) {
+  private DeferredResult<Object> adaptListenableFuture(Future<Object> future) {
     DeferredResult<Object> result = new DeferredResult<>();
     future.addListener(result);
     return result;

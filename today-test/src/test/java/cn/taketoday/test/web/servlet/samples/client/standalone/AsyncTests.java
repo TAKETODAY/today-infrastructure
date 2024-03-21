@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.client.standalone;
@@ -33,6 +30,7 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -197,7 +195,7 @@ class AsyncTests {
     }
 
     @GetMapping(params = "listenableFuture")
-    cn.taketoday.util.concurrent.ListenableFuture<Person> getListenableFuture() {
+    Future<Person> getListenableFuture() {
       cn.taketoday.util.concurrent.ListenableFutureTask<Person> futureTask =
               new cn.taketoday.util.concurrent.ListenableFutureTask<>(() -> new Person("Joe"));
       delay(100, futureTask);

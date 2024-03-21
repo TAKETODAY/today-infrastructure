@@ -17,7 +17,6 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import cn.taketoday.lang.Nullable;
@@ -28,7 +27,7 @@ import cn.taketoday.lang.Nullable;
  */
 final class FutureListeners {
 
-  public FutureListener<? extends ListenableFuture<?>>[] listeners;
+  public FutureListener<? extends Future<?>>[] listeners;
 
   @Nullable
   public Object progressiveListeners;
@@ -36,7 +35,7 @@ final class FutureListeners {
   public int size;
 
   @SuppressWarnings("unchecked")
-  FutureListeners(FutureListener<? extends ListenableFuture<?>> first, FutureListener<? extends ListenableFuture<?>> second) {
+  FutureListeners(FutureListener<? extends Future<?>> first, FutureListener<? extends Future<?>> second) {
     listeners = new FutureListener[2];
     listeners[0] = first;
     listeners[1] = second;
@@ -56,7 +55,7 @@ final class FutureListeners {
     }
   }
 
-  public void add(FutureListener<? extends ListenableFuture<?>> l) {
+  public void add(FutureListener<? extends Future<?>> l) {
     var listeners = this.listeners;
     final int size = this.size;
     if (size == listeners.length) {
@@ -80,43 +79,6 @@ final class FutureListeners {
       }
       else {
         this.progressiveListeners = pfl;
-      }
-    }
-  }
-
-  public void remove(FutureListener<? extends ListenableFuture<?>> l) {
-    final var listeners = this.listeners;
-    int size = this.size;
-    for (int i = 0; i < size; i++) {
-      if (listeners[i] == l) {
-        int listenersToMove = size - i - 1;
-        if (listenersToMove > 0) {
-          System.arraycopy(listeners, i + 1, listeners, i, listenersToMove);
-        }
-        listeners[--size] = null;
-        this.size = size;
-
-        if (l instanceof ProgressiveFutureListener) {
-          Object progressive = this.progressiveListeners;
-          if (l == progressive) {
-            this.progressiveListeners = null;
-          }
-          else if (progressive instanceof ProgressiveFutureListener<?>[] array) {
-            ArrayList<ProgressiveFutureListener<?>> list = new ArrayList<>(array.length);
-            for (ProgressiveFutureListener<?> listener : array) {
-              if (listener != l) {
-                list.add(listener);
-              }
-            }
-            if (list.size() == 1) {
-              this.progressiveListeners = list.get(0);
-            }
-            else {
-              this.progressiveListeners = list.toArray(new ProgressiveFutureListener<?>[list.size()]);
-            }
-          }
-        }
-        return;
       }
     }
   }

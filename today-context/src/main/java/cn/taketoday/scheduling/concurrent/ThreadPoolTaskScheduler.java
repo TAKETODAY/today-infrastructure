@@ -25,7 +25,6 @@ import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.RunnableScheduledFuture;
@@ -47,7 +46,7 @@ import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.ErrorHandler;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
@@ -92,7 +91,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   private ScheduledExecutorService scheduledExecutor;
 
   // Underlying ScheduledFutureTask to user-level ListenableFuture handle, if any
-  private final ConcurrentReferenceHashMap<Object, ListenableFuture<?>> listenableFutureMap =
+  private final ConcurrentReferenceHashMap<Object, Future<?>> listenableFutureMap =
           new ConcurrentReferenceHashMap<>(16, ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
   /**
@@ -327,7 +326,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
       return executor.submit(errorHandlingTask(task, false));
@@ -338,7 +337,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     ExecutorService executor = getScheduledExecutor();
     try {
       return executor.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
@@ -349,7 +348,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
       ListenableFutureTask<Object> listenableFuture = new ListenableFutureTask<>(task, null);
@@ -362,7 +361,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getScheduledExecutor();
     try {
       ListenableFutureTask<T> listenableFuture = new ListenableFutureTask<>(task);
@@ -375,7 +374,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> listenableFuture) {
-    Future<?> scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
+    java.util.concurrent.Future<?> scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
     listenableFutureMap.put(scheduledFuture, listenableFuture);
     listenableFuture.addListener(future -> listenableFutureMap.remove(scheduledFuture));
   }
@@ -384,9 +383,9 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   protected void cancelRemainingTask(Runnable task) {
     super.cancelRemainingTask(task);
     // Cancel associated user-level ListenableFuture handle as well
-    ListenableFuture<?> listenableFuture = this.listenableFutureMap.get(task);
-    if (listenableFuture != null) {
-      listenableFuture.cancel(true);
+    Future<?> future = this.listenableFutureMap.get(task);
+    if (future != null) {
+      future.cancel(true);
     }
   }
 

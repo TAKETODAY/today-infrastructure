@@ -57,7 +57,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.FutureListener;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * {@link GenericApplicationListener} adapter that delegates the processing of
@@ -75,7 +75,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2021/11/5 11:51
  */
-public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered, FutureListener<ListenableFuture<?>> {
+public class ApplicationListenerMethodAdapter implements GenericApplicationListener, Ordered, FutureListener<Future<?>> {
 
   private static final Logger log = LoggerFactory.getLogger(ApplicationListenerMethodAdapter.class);
 
@@ -394,7 +394,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
         }
       });
     }
-    else if (result instanceof ListenableFuture d) {
+    else if (result instanceof Future d) {
       d.addListener(this);
     }
     else {
@@ -403,7 +403,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
   }
 
   @Override
-  public void operationComplete(ListenableFuture<?> future) {
+  public void operationComplete(Future<?> future) {
     if (future.isSuccess()) {
       publishEvents(future.obtain());
     }

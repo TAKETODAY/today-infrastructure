@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.aspectj;
@@ -27,7 +24,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import cn.taketoday.aop.interceptor.AsyncUncaughtExceptionHandler;
 import cn.taketoday.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
@@ -38,7 +34,7 @@ import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.AsyncResult;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -76,7 +72,7 @@ public class AnnotationAsyncExecutionAspectTests {
   @Test
   public void asyncMethodReturningFutureGetsRoutedAsynchronouslyAndReturnsAFuture() throws InterruptedException, ExecutionException {
     ClassWithoutAsyncAnnotation obj = new ClassWithoutAsyncAnnotation();
-    Future<Integer> future = obj.incrementReturningAFuture();
+    java.util.concurrent.Future<Integer> future = obj.incrementReturningAFuture();
     // No need to executor.waitForCompletion() as future.get() will have the same effect
     assertThat(future.get().intValue()).isEqualTo(5);
     assertThat(obj.counter).isEqualTo(1);
@@ -106,7 +102,7 @@ public class AnnotationAsyncExecutionAspectTests {
   @Test
   public void methodReturningFutureInAsyncClassGetsRoutedAsynchronouslyAndReturnsAFuture() throws InterruptedException, ExecutionException {
     ClassWithAsyncAnnotation obj = new ClassWithAsyncAnnotation();
-    Future<Integer> future = obj.incrementReturningAFuture();
+    java.util.concurrent.Future<Integer> future = obj.incrementReturningAFuture();
     assertThat(future.get().intValue()).isEqualTo(5);
     assertThat(obj.counter).isEqualTo(1);
     assertThat(executor.submitStartCounter).isEqualTo(1);
@@ -132,11 +128,11 @@ public class AnnotationAsyncExecutionAspectTests {
 
     ClassWithQualifiedAsyncMethods obj = new ClassWithQualifiedAsyncMethods();
 
-    Future<Thread> defaultThread = obj.defaultWork();
+    java.util.concurrent.Future<Thread> defaultThread = obj.defaultWork();
     assertThat(defaultThread.get()).isNotEqualTo(Thread.currentThread());
     assertThat(defaultThread.get().getName()).doesNotStartWith("e1-");
 
-    ListenableFuture<Thread> e1Thread = obj.e1Work();
+    Future<Thread> e1Thread = obj.e1Work();
     assertThat(e1Thread.get().getName()).startsWith("e1-");
 
     CompletableFuture<Thread> e1OtherThread = obj.e1OtherWork();
@@ -185,9 +181,9 @@ public class AnnotationAsyncExecutionAspectTests {
     int submitCompleteCounter;
 
     @Override
-    public <T> Future<T> submit(Callable<T> task) {
+    public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
       submitStartCounter++;
-      Future<T> future = super.submit(task);
+      java.util.concurrent.Future<T> future = super.submit(task);
       submitCompleteCounter++;
       synchronized(this) {
         notifyAll();
@@ -219,7 +215,7 @@ public class AnnotationAsyncExecutionAspectTests {
     }
 
     @Async
-    public Future<Integer> incrementReturningAFuture() {
+    public java.util.concurrent.Future<Integer> incrementReturningAFuture() {
       counter++;
       return new AsyncResult<Integer>(5);
     }
@@ -253,7 +249,7 @@ public class AnnotationAsyncExecutionAspectTests {
 		}
 		*/
 
-    public Future<Integer> incrementReturningAFuture() {
+    public java.util.concurrent.Future<Integer> incrementReturningAFuture() {
       counter++;
       return new AsyncResult<Integer>(5);
     }
@@ -262,12 +258,12 @@ public class AnnotationAsyncExecutionAspectTests {
   static class ClassWithQualifiedAsyncMethods {
 
     @Async
-    public Future<Thread> defaultWork() {
+    public java.util.concurrent.Future<Thread> defaultWork() {
       return new AsyncResult<Thread>(Thread.currentThread());
     }
 
     @Async("e1")
-    public ListenableFuture<Thread> e1Work() {
+    public Future<Thread> e1Work() {
       return new AsyncResult<Thread>(Thread.currentThread());
     }
 

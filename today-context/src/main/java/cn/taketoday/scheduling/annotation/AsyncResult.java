@@ -19,20 +19,19 @@ package cn.taketoday.scheduling.annotation;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.concurrent.CompleteFuture;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * A pass-through {@code Future} handle that can be used for method signatures
  * which are declared with a {@code Future} return type for asynchronous execution.
  *
- * <p>this class implements {@link ListenableFuture}, not just
- * plain {@link Future}, along with the corresponding support
+ * <p>this class implements {@link Future}, not just
+ * plain {@link java.util.concurrent.Future}, along with the corresponding support
  * in {@code @Async} processing.
  *
  * <p>this class also supports passing execution exceptions back
@@ -47,7 +46,7 @@ import cn.taketoday.util.concurrent.ListenableFuture;
  * @see #forExecutionException(Throwable)
  * @since 4.0
  */
-public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFuture<V> {
+public class AsyncResult<V> extends CompleteFuture<V> implements Future<V> {
 
   @Nullable
   private final V value;
@@ -75,18 +74,8 @@ public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFutur
   }
 
   @Override
-  public boolean cancel(boolean mayInterruptIfRunning) {
-    return false;
-  }
-
-  @Override
-  public boolean isCancelled() {
-    return false;
-  }
-
-  @Override
-  public boolean isDone() {
-    return true;
+  public boolean isFailed() {
+    return executionException != null;
   }
 
   @Override
@@ -124,7 +113,7 @@ public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFutur
   }
 
   @Override
-  public ListenableFuture<V> sync() {
+  public AsyncResult<V> sync() {
     if (executionException != null) {
       throw ExceptionUtils.sneakyThrow(executionException);
     }
@@ -132,7 +121,7 @@ public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFutur
   }
 
   @Override
-  public ListenableFuture<V> syncUninterruptibly() {
+  public AsyncResult<V> syncUninterruptibly() {
     if (executionException != null) {
       throw ExceptionUtils.sneakyThrow(executionException);
     }
@@ -152,24 +141,24 @@ public class AsyncResult<V> extends CompleteFuture<V> implements ListenableFutur
   }
 
   /**
-   * Create a new async result which exposes the given value from {@link Future#get()}.
+   * Create a new async result which exposes the given value from {@link java.util.concurrent.Future#get()}.
    *
    * @param value the value to expose
-   * @see Future#get()
+   * @see java.util.concurrent.Future#get()
    */
-  public static <V> ListenableFuture<V> forValue(V value) {
+  public static <V> Future<V> forValue(V value) {
     return new AsyncResult<>(value, null);
   }
 
   /**
    * Create a new async result which exposes the given exception as an
-   * {@link ExecutionException} from {@link Future#get()}.
+   * {@link ExecutionException} from {@link java.util.concurrent.Future#get()}.
    *
    * @param ex the exception to expose (either an pre-built {@link ExecutionException}
    * or a cause to be wrapped in an {@link ExecutionException})
    * @see ExecutionException
    */
-  public static <V> ListenableFuture<V> forExecutionException(Throwable ex) {
+  public static <V> Future<V> forExecutionException(Throwable ex) {
     return new AsyncResult<>(null, ex);
   }
 

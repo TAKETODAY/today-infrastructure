@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.concurrent.FutureListener;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -54,7 +54,7 @@ import cn.taketoday.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class DeferredResult<T> implements FutureListener<ListenableFuture<T>> {
+public class DeferredResult<T> implements FutureListener<Future<T>> {
 
   private static final Object RESULT_NONE = new Object();
 
@@ -287,7 +287,7 @@ public class DeferredResult<T> implements FutureListener<ListenableFuture<T>> {
   // FutureListener
 
   @Override
-  public void operationComplete(ListenableFuture<T> future) {
+  public void operationComplete(Future<T> future) {
     if (future.isSuccess()) {
       setResult(future.getNow());
     }

@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
@@ -29,7 +28,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrencyThrottleSupport;
 import cn.taketoday.util.CustomizableThreadCreator;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
@@ -261,28 +260,28 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     FutureTask<Object> future = new FutureTask<>(task, null);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     FutureTask<T> future = new FutureTask<>(task);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     ListenableFutureTask<Object> future = new ListenableFutureTask<>(task, null);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     ListenableFutureTask<T> future = new ListenableFutureTask<>(task);
     execute(future, TIMEOUT_INDEFINITE);
     return future;

@@ -39,7 +39,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.FutureUtils;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketExtension;
@@ -166,7 +166,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
   }
 
   @Override
-  protected ListenableFuture<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
+  protected Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> protocols, List<WebSocketExtension> extensions) {
 
     int port = getPort(uri);

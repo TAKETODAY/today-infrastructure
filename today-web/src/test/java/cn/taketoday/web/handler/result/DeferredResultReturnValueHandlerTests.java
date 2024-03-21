@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.util.concurrent.DefaultFuture;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -62,7 +62,7 @@ class DeferredResultReturnValueHandlerTests {
             on(TestController.class).resolveHandlerMethod(DeferredResult.class, String.class))).isTrue();
 
     assertThat(this.handler.supportsHandlerMethod(
-            on(TestController.class).resolveHandlerMethod(ListenableFuture.class, String.class))).isTrue();
+            on(TestController.class).resolveHandlerMethod(Future.class, String.class))).isTrue();
 
     assertThat(this.handler.supportsHandlerMethod(
             on(TestController.class).resolveHandlerMethod(CompletableFuture.class, String.class))).isTrue();
@@ -83,7 +83,7 @@ class DeferredResultReturnValueHandlerTests {
   @Test
   public void listenableFuture() throws Exception {
     DefaultFuture<String> future = new DefaultFuture<>();
-    testHandle(future, ListenableFuture.class,
+    testHandle(future, Future.class,
             () -> future.trySuccess("foo"), "foo");
   }
 
@@ -103,7 +103,7 @@ class DeferredResultReturnValueHandlerTests {
   public void listenableFutureWithError() throws Exception {
     DefaultFuture<String> future = new DefaultFuture<>();
     IllegalStateException ex = new IllegalStateException();
-    testHandle(future, ListenableFuture.class,
+    testHandle(future, Future.class,
             () -> future.tryFailure(ex), ex);
   }
 
@@ -138,7 +138,7 @@ class DeferredResultReturnValueHandlerTests {
 
     DeferredResult<String> handleDeferredResult() { return null; }
 
-    ListenableFuture<String> handleListenableFuture() { return null; }
+    Future<String> handleListenableFuture() { return null; }
 
     CompletableFuture<String> handleCompletableFuture() { return null; }
   }

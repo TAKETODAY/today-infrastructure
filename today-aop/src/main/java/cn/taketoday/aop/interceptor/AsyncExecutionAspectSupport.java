@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.interceptor;
@@ -23,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -43,7 +42,7 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.function.SingletonSupplier;
 
 /**
@@ -283,8 +282,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    *
    * @param task the task to execute
    * @param executor the chosen executor
-   * @param returnType the declared return type (potentially a {@link Future} variant)
-   * @return the execution result (potentially a corresponding {@link Future} handle)
+   * @param returnType the declared return type (potentially a {@link java.util.concurrent.Future} variant)
+   * @return the execution result (potentially a corresponding {@link java.util.concurrent.Future} handle)
    */
   @Nullable
   protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
@@ -298,10 +297,10 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
         }
       }, executor);
     }
-    else if (ListenableFuture.class.isAssignableFrom(returnType)) {
+    else if (Future.class.isAssignableFrom(returnType)) {
       return ((AsyncListenableTaskExecutor) executor).submitListenable(task);
     }
-    else if (Future.class.isAssignableFrom(returnType)) {
+    else if (java.util.concurrent.Future.class.isAssignableFrom(returnType)) {
       return executor.submit(task);
     }
     else {
@@ -313,7 +312,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   /**
    * Handles a fatal error thrown while asynchronously invoking the specified
    * {@link Method}.
-   * <p>If the return type of the method is a {@link Future} object, the original
+   * <p>If the return type of the method is a {@link java.util.concurrent.Future} object, the original
    * exception can be propagated by just throwing it at the higher level. However,
    * for all other cases, the exception will not be transmitted back to the client.
    * In that later case, the current {@link AsyncUncaughtExceptionHandler} will be
@@ -324,7 +323,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @param params the parameters used to invoke the method
    */
   public void handleError(Throwable ex, Method method, Object... params) throws Exception {
-    if (Future.class.isAssignableFrom(method.getReturnType())) {
+    if (java.util.concurrent.Future.class.isAssignableFrom(method.getReturnType())) {
       ReflectionUtils.rethrowException(ex);
     }
     else {

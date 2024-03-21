@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.client;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
@@ -110,7 +110,7 @@ public class WebSocketConnectionManagerTests {
     }
 
     @Override
-    public ListenableFuture<WebSocketSession> doHandshake(
+    public Future<WebSocketSession> doHandshake(
             WebSocketHandler handler, String uriTemplate, Object... uriVars) {
 
       URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
@@ -118,7 +118,7 @@ public class WebSocketConnectionManagerTests {
     }
 
     @Override
-    public ListenableFuture<WebSocketSession> doHandshake(
+    public Future<WebSocketSession> doHandshake(
             WebSocketHandler handler, WebSocketHttpHeaders headers, URI uri) {
 
       this.webSocketHandler = handler;

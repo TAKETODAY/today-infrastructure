@@ -22,7 +22,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,7 +43,7 @@ import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
 import cn.taketoday.scheduling.support.TaskUtils;
 import cn.taketoday.util.ErrorHandler;
-import cn.taketoday.util.concurrent.ListenableFuture;
+import cn.taketoday.util.concurrent.Future;
 
 /**
  * A simple implementation of Infra {@link TaskScheduler} interface, using
@@ -236,22 +235,22 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   }
 
   @Override
-  public Future<?> submit(Runnable task) {
+  public java.util.concurrent.Future<?> submit(Runnable task) {
     return super.submit(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
   }
 
   @Override
-  public <T> Future<T> submit(Callable<T> task) {
+  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
     return super.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 
   @Override
-  public ListenableFuture<?> submitListenable(Runnable task) {
+  public Future<?> submitListenable(Runnable task) {
     return super.submitListenable(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
   }
 
   @Override
-  public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submitListenable(Callable<T> task) {
     return super.submitListenable(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 
@@ -359,7 +358,7 @@ public class SimpleAsyncTaskScheduler extends SimpleAsyncTaskExecutor implements
   @Override
   public void close() {
     for (Runnable remainingTask : this.scheduledExecutor.shutdownNow()) {
-      if (remainingTask instanceof Future<?> future) {
+      if (remainingTask instanceof java.util.concurrent.Future<?> future) {
         future.cancel(true);
       }
     }

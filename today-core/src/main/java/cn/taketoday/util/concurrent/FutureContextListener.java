@@ -17,17 +17,30 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.concurrent.Executor;
+import java.util.EventListener;
+
+import cn.taketoday.lang.Nullable;
 
 /**
+ * Listens to the result of a {@link Future}.
+ * The result of the asynchronous operation is notified once this listener
+ * is added by calling {@link Future#addListener(FutureContextListener, Object)}.
+ * <pre>
+ * Future f = Future.forSettable(..);
+ * f.addListener((future, context) -> { .. }, context);
+ * </pre>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/28 14:03
+ * @since 4.0 2024/3/21 16:36
  */
-public class DirectExecutor implements Executor {
+@FunctionalInterface
+public interface FutureContextListener<C, F extends Future<?>> extends EventListener {
 
-  @Override
-  public void execute(Runnable command) {
-    command.run();
-  }
+  /**
+   * Invoked when the operation associated with the {@link Future} has been completed.
+   *
+   * @param future the source {@link Future} which called this callback
+   */
+  void operationComplete(F future, @Nullable C context) throws Exception;
 
 }
