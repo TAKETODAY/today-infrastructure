@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -651,6 +652,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param <T> Type of the computation result.
    * @return A new Future instance.
    * @throws IllegalArgumentException if computation is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
    */
   static <T> Future<T> run(Callable<T> computation) {
     return run(computation, defaultExecutor);
@@ -665,13 +668,15 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param <V> Type of the computation result.
    * @return A new Future instance.
    * @throws IllegalArgumentException computation is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
    */
   static <V> Future<V> run(Callable<V> computation, @Nullable Executor executor) {
     Assert.notNull(computation, "computation is required");
     if (executor == null) {
       executor = defaultExecutor;
     }
-    ListenableFutureTask<V> futureTask = new ListenableFutureTask<>(executor, computation);
+    var futureTask = new ListenableFutureTask<>(executor, computation);
     executor.execute(futureTask);
     return futureTask;
   }
@@ -682,6 +687,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param unit A unit of work.
    * @return A new Future instance which results in nothing.
    * @throws IllegalArgumentException if unit is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
    */
   static Future<Void> run(Runnable unit) {
     return run(unit, defaultExecutor);
@@ -691,16 +698,20 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * Starts an asynchronous computation, backed by the given {@link Executor}.
    *
    * @param executor An {@link Executor}.
-   * @param unit A unit of work.
+   * @param task A unit of work.
    * @return A new Future instance which results in nothing.
    * @throws IllegalArgumentException unit is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
    */
-  static Future<Void> run(Runnable unit, Executor executor) {
-    Assert.notNull(unit, "unit is required");
-    return run(() -> {
-      unit.run();
-      return null;
-    }, executor);
+  static Future<Void> run(Runnable task, @Nullable Executor executor) {
+    Assert.notNull(task, "unit is required");
+    if (executor == null) {
+      executor = defaultExecutor;
+    }
+    var futureTask = new ListenableFutureTask<Void>(executor, task, null);
+    executor.execute(futureTask);
+    return futureTask;
   }
 
 }

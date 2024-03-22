@@ -209,8 +209,8 @@ final class Futures {
           }
           else {
             try {
-              V first = completed.obtain();
-              U second = t.obtain();
+              V first = completed.getNow();
+              U second = t.getNow();
               recipient.trySuccess(combinator.applyWithException(first, second));
             }
             catch (Throwable e) {

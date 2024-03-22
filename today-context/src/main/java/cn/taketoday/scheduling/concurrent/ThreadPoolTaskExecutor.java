@@ -37,7 +37,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.SchedulingTaskExecutor;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
  * JavaBean that allows for configuring a {@link ThreadPoolExecutor}
@@ -418,9 +417,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
-      var future = new ListenableFutureTask<>(executor, task, null);
-      executor.execute(future);
-      return future;
+      return Future.run(task, executor);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);
@@ -431,9 +428,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
-      var future = new ListenableFutureTask<>(executor, task);
-      executor.execute(future);
-      return future;
+      return Future.run(task, executor);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);

@@ -374,7 +374,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> listenableFuture) {
-    java.util.concurrent.Future<?> scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
+    var scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
     listenableFutureMap.put(scheduledFuture, listenableFuture);
     listenableFuture.addListener(future -> listenableFutureMap.remove(scheduledFuture));
   }
