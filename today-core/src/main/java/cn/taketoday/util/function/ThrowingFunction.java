@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.function;
@@ -31,6 +28,7 @@ import java.util.function.Function;
  * @param <R> the type of the result of the function
  * @author Stephane Nicoll
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
@@ -44,7 +42,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * @return the function result
    * @throws Exception on error
    */
-  R applyWithException(T t) throws Exception;
+  R applyWithException(T t) throws Throwable;
 
   /**
    * Default {@link Function#apply(Object)} that wraps any thrown checked
@@ -65,14 +63,14 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * and checked exception into a runtime exception
    * @return a result
    */
-  default R apply(T t, BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default R apply(T t, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     try {
       return applyWithException(t);
     }
     catch (RuntimeException ex) {
       throw ex;
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       throw exceptionWrapper.apply(ex.getMessage(), ex);
     }
   }
@@ -86,11 +84,11 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * and checked exception into a runtime exception
    * @return the replacement {@link ThrowingFunction} instance
    */
-  default ThrowingFunction<T, R> throwing(BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default ThrowingFunction<T, R> throwing(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     return new ThrowingFunction<>() {
 
       @Override
-      public R applyWithException(T t) throws Exception {
+      public R applyWithException(T t) throws Throwable {
         return ThrowingFunction.this.applyWithException(t);
       }
 
@@ -143,7 +141,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    * @return a new {@link ThrowingFunction} instance
    */
   static <T, R> ThrowingFunction<T, R> of(ThrowingFunction<T, R> function,
-          BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+          BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
 
     return function.throwing(exceptionWrapper);
   }

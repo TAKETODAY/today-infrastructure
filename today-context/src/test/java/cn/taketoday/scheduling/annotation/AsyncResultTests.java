@@ -40,7 +40,7 @@ public class AsyncResultTests {
     final Set<String> values = new HashSet<>(1);
     Future<String> future = AsyncResult.forValue(value);
 
-    future.addListener(values::add, ex -> {
+    future.onCompleted(values::add, ex -> {
       throw new AssertionError("Failure callback not expected: " + ex, ex);
     });
 
@@ -56,7 +56,7 @@ public class AsyncResultTests {
     final Set<Throwable> values = new HashSet<>(1);
     Future<String> future = AsyncResult.forExecutionException(ex);
 
-    future.addListener(result -> {
+    future.onCompleted(result -> {
       throw new AssertionError("Success callback not expected: " + result);
     }, values::add);
 
@@ -64,8 +64,8 @@ public class AsyncResultTests {
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     future::get)
             .withCause(ex);
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    future.completable()::get)
+    assertThatExceptionOfType(ExecutionException.class)
+            .isThrownBy(future.completable()::get)
             .withCause(ex);
   }
 
@@ -74,7 +74,7 @@ public class AsyncResultTests {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
     Future<String> future = AsyncResult.forValue(value);
-    future.addListener(values::add, ex -> new AssertionError("Failure callback not expected: " + ex));
+    future.onCompleted(values::add, ex -> new AssertionError("Failure callback not expected: " + ex));
     assertThat(values.iterator().next()).isSameAs(value);
     assertThat(future.get()).isSameAs(value);
     assertThat(future.completable().get()).isSameAs(value);
@@ -86,7 +86,7 @@ public class AsyncResultTests {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
     Future<String> future = AsyncResult.forExecutionException(ex);
-    future.addListener(result -> new AssertionError("Success callback not expected: " + result), values::add);
+    future.onCompleted(result -> new AssertionError("Success callback not expected: " + result), values::add);
     assertThat(values.iterator().next()).isSameAs(ex);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     future::get)

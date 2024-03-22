@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.function;
@@ -31,6 +28,7 @@ import java.util.function.BiFunction;
  * @param <R> the type of the result of the function
  * @author Stephane Nicoll
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
@@ -44,7 +42,7 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return the function result
    * @throws Exception on error
    */
-  R applyWithException(T t, U u) throws Exception;
+  R applyWithException(T t, U u) throws Throwable;
 
   /**
    * Default {@link BiFunction#apply(Object, Object)} that wraps any thrown
@@ -70,14 +68,14 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * and checked exception into a runtime exception
    * @return a result
    */
-  default R apply(T t, U u, BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default R apply(T t, U u, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     try {
       return applyWithException(t, u);
     }
     catch (RuntimeException ex) {
       throw ex;
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       throw exceptionWrapper.apply(ex.getMessage(), ex);
     }
   }
@@ -91,11 +89,11 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * and checked exception into a runtime exception
    * @return the replacement {@link ThrowingBiFunction} instance
    */
-  default ThrowingBiFunction<T, U, R> throwing(BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default ThrowingBiFunction<T, U, R> throwing(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     return new ThrowingBiFunction<>() {
 
       @Override
-      public R applyWithException(T t, U u) throws Exception {
+      public R applyWithException(T t, U u) throws Throwable {
         return ThrowingBiFunction.this.applyWithException(t, u);
       }
 
@@ -151,7 +149,7 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @return a new {@link ThrowingFunction} instance
    */
   static <T, U, R> ThrowingBiFunction<T, U, R> of(ThrowingBiFunction<T, U, R> function,
-          BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+          BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
 
     return function.throwing(exceptionWrapper);
   }

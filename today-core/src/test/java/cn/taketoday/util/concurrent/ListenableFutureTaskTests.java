@@ -97,7 +97,7 @@ class ListenableFutureTaskTests {
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(successCallback, failureCallback);
+    task.onCompleted(successCallback, failureCallback);
     task.run();
     verify(successCallback).onSuccess(s);
     verifyNoInteractions(failureCallback);
@@ -118,7 +118,7 @@ class ListenableFutureTaskTests {
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(successCallback, failureCallback);
+    task.onCompleted(successCallback, failureCallback);
     task.run();
     verify(failureCallback).onFailure(ex);
     verifyNoInteractions(successCallback);

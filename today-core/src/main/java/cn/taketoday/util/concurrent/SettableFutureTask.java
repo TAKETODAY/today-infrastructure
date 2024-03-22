@@ -56,7 +56,7 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
 
   @Nullable
   @SuppressWarnings("unchecked")
-  V runTask() throws Throwable {
+  private V runTask() throws Throwable {
     final Object task = this.task;
     if (task instanceof Callable) {
       return ((Callable<V>) task).call();
@@ -109,10 +109,9 @@ class SettableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V
     throw new IllegalStateException();
   }
 
-  protected final SettableFutureTask<V> setSuccessInternal(@Nullable V result) {
+  protected final void setSuccessInternal(@Nullable V result) {
     super.setSuccess(result);
     clearTaskAfterCompletion(true, COMPLETED);
-    return this;
   }
 
   @Override

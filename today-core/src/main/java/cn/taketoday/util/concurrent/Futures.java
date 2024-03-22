@@ -18,11 +18,14 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.function.ThrowingBiFunction;
 
 import static cn.taketoday.util.concurrent.SettableFutureNotifier.tryFailure;
 
@@ -45,6 +48,16 @@ final class Futures {
 
   private static final PropagateCancel PROPAGATE_CANCEL = new PropagateCancel();
 
+  public static final FutureContextListener<Future<Object>, CompletableFuture<Object>> completableAdapter = (completed, context) -> {
+    Throwable cause = completed.getCause();
+    if (cause != null) {
+      context.completeExceptionally(cause);
+    }
+    else {
+      context.complete(completed.getNow());
+    }
+  };
+
   /**
    * Creates a new {@link Future} that will complete with the result of the given
    * {@link Future} mapped through the given mapper function.
@@ -62,73 +75,168 @@ final class Futures {
    * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped result of the given future.
    */
+  @SuppressWarnings("unchecked")
   public static <V, R> Future<R> map(Future<V> future, Function<V, R> mapper) {
-    Assert.notNull(future, "future");
-    Assert.notNull(mapper, "mapper");
+    Assert.notNull(mapper, "mapper is required");
     if (future.isFailed()) {
-      @SuppressWarnings("unchecked") // Cast is safe because the result type is not used in failed futures.
-      Future<R> failed = (Future<R>) future;
-      return failed;
+      // Cast is safe because the result type is not used in failed futures.
+      return (Future<R>) future;
     }
+    Executor executor = future.executor();
     if (future.isSuccess()) {
-      var futureTask = new ListenableFutureTask<>(new CallableMapper<>(future, mapper));
-      future.executor().execute(futureTask);
+      var futureTask = new ListenableFutureTask<>(executor, new CallableMapper<>(future, mapper));
+      executor.execute(futureTask);
       return futureTask;
     }
-    SettableFuture<R> promise = Future.forSettable(future.executor());
-    future.addListener(new Mapper<>(promise, mapper));
-    promise.addListener(propagateCancel(), future);
-    return promise;
+    SettableFuture<R> settable = Future.forSettable(executor);
+    future.addListener(new Mapper<>(settable, mapper));
+    settable.addListener(propagateCancel(), future);
+    return settable;
   }
 
   /**
-   * Creates a new {@link Future} that will complete with the result of the given {@link Future} flat-mapped through
-   * the given mapper function.
+   * Creates a new {@link Future} that will complete with the result of the given
+   * {@link Future} flat-mapped through the given mapper function.
    * <p>
-   * The "flat" in "flat-map" means the given mapper function produces a result that itself is a future-of-R, yet this
-   * method also returns a future-of-R, rather than a future-of-future-of-R. In other words, if the same mapper
-   * function was used with the {@link #map(Future, Function)} method, you would get back a {@code Future<Future<R>>}.
-   * These nested futures are "flattened" into a {@code Future<R>} by this method.
+   * The "flat" in "flat-map" means the given mapper function produces a result
+   * that itself is a future-of-R, yet this method also returns a future-of-R,
+   * rather than a future-of-future-of-R. In other words, if the same mapper
+   * function was used with the {@link #map(Future, Function)} method, you would
+   * get back a {@code Future<Future<R>>}. These nested futures are "flattened"
+   * into a {@code Future<R>} by this method.
    * <p>
-   * Effectively, this method behaves similar to this serial code, except asynchronously and with proper exception and
-   * cancellation handling:
+   * Effectively, this method behaves similar to this serial code, except
+   * asynchronously and with proper exception and cancellation handling:
    * <pre>{@code
    * V x = future.sync().getNow();
    * Future<R> y = mapper.apply(x);
    * R result = y.sync().getNow();
    * }</pre>
    * <p>
-   * If the given future fails, then the returned future will fail as well, with the same exception. Cancellation of
-   * either future will cancel the other. If the mapper function throws, the returned future will fail, but the given
+   * If the given future fails, then the returned future will fail as well, with
+   * the same exception. Cancellation of either future will cancel the other. If
+   * the mapper function throws, the returned future will fail, but the given
    * future will be unaffected.
    *
-   * @param mapper The function that will convert the result of the given future into the result of the returned
-   * future.
+   * @param mapper The function that will convert the result of the given future
+   * into the result of the returned future.
    * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped result of the given future.
    */
-  public static <V, R> Future<R> flatMap(Future<V> future, Function<V, Future<R>> mapper) {
-    Assert.notNull(future, "future");
-    Assert.notNull(mapper, "mapper");
+  public static <V, R> SettableFuture<R> flatMap(Future<V> future, Function<V, Future<R>> mapper) {
+    Assert.notNull(mapper, "mapper is required");
 
-    SettableFuture<R> promise = Future.forSettable(future.executor());
-    future.addListener(new FlatMapper<>(promise, mapper));
+    SettableFuture<R> settable = Future.forSettable(future.executor());
+    future.addListener(new FlatMapper<>(settable, mapper));
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      promise.addListener(propagateCancel(), future);
+      settable.addListener(propagateCancel(), future);
     }
-    return promise;
+    return settable;
+  }
+
+  /**
+   * Handles a failure of this Future by returning another result.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * // = "oh!"
+   * Future.run(() -> new Error("oh!")).recover(Throwable::getMessage);
+   * }</pre>
+   *
+   * @param recoverFunc A function which takes the exception of a failure and returns a new value.
+   * @return A new Future.
+   */
+  public static <V> Future<V> errorHandling(Future<V> future, Function<Throwable, V> recoverFunc) {
+    Executor executor = future.executor();
+    Throwable cause = future.getCause();
+    if (cause != null) {
+      // already failed
+      var futureTask = new ListenableFutureTask<>(executor, () -> recoverFunc.apply(cause));
+      executor.execute(futureTask);
+      return futureTask;
+    }
+
+    SettableFuture<V> settable = Future.forSettable(executor);
+    future.addListener(completed -> {
+      if (completed.isSuccess()) {
+        settable.setSuccess(completed.getNow());
+      }
+      else if (future.isCancelled()) {
+        settable.cancel();
+      }
+      else {
+        V result = recoverFunc.apply(completed.getCause());
+        settable.setSuccess(result);
+      }
+    });
+
+    if (!future.isSuccess()) {
+      // Propagate cancellation if future is either incomplete or failed.
+      // Failed means it could be cancelled, so that needs to be propagated.
+      settable.addListener(propagateCancel(), future);
+    }
+    return settable;
+  }
+
+  /**
+   * Returns this and that Future result combined using a given combinator function.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a combination of both successful Future results.
+   *
+   * @param that Another Future
+   * @param combinator The combinator function
+   * @param <U> Result type of {@code that}
+   * @param <R> Result type of {@code f}
+   * @return A new Future that returns both Future results.
+   */
+  public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
+    SettableFuture<R> recipient = Future.forSettable(future.executor());
+    future.addListener(completed -> {
+      Throwable cause = completed.getCause();
+      if (cause != null) {
+        // failed
+        recipient.tryFailure(cause);
+      }
+      else {
+        // succeed
+        that.addListener(t -> {
+          Throwable c = t.getCause();
+          if (c != null) {
+            recipient.setFailure(c);
+          }
+          else {
+            try {
+              V first = completed.obtain();
+              U second = t.obtain();
+              recipient.trySuccess(combinator.applyWithException(first, second));
+            }
+            catch (Throwable e) {
+              tryFailure(recipient, e, logger);
+            }
+          }
+        });
+      }
+    });
+
+    if (!future.isSuccess()) {
+      // Propagate cancellation if future is either incomplete or failed.
+      // Failed means it could be cancelled, so that needs to be propagated.
+      recipient.addListener(propagateCancel(), future);
+    }
+    return recipient;
   }
 
   @SuppressWarnings("unchecked")
-  static <V, R> FutureContextListener<Future<R>, SettableFuture<V>> propagateCancel() {
-    return (FutureContextListener<Future<R>, SettableFuture<V>>) (FutureContextListener<?, ?>) PROPAGATE_CANCEL;
+  static <V, R> FutureContextListener<SettableFuture<V>, Future<R>> propagateCancel() {
+    return (FutureContextListener<SettableFuture<V>, Future<R>>) (FutureContextListener<?, ?>) PROPAGATE_CANCEL;
   }
 
   @SuppressWarnings("unchecked")
-  static <R, V> FutureContextListener<SettableFuture<R>, Future<V>> passThrough() {
-    return (FutureContextListener<SettableFuture<R>, Future<V>>) (FutureContextListener<?, ?>) PASS_THROUGH;
+  static <R, V> FutureContextListener<Future<V>, SettableFuture<R>> passThrough() {
+    return (FutureContextListener<Future<V>, SettableFuture<R>>) (FutureContextListener<?, ?>) PASS_THROUGH;
   }
 
   static <A, B> void propagateUncommonCompletion(Future<? extends A> completed, SettableFuture<B> recipient) {
@@ -143,27 +251,23 @@ final class Futures {
     }
   }
 
-  private Futures() {
-  }
-
   private static final class PropagateCancel implements FutureContextListener<Future<Object>, Future<Object>> {
 
     @Override
-    public void operationComplete(Future<Object> future, Future<Object> context) throws Exception {
-      if (future.isCancelled()) {
+    public void operationComplete(Future<Object> completed, Future<Object> context) {
+      if (completed.isCancelled()) {
         context.cancel();
       }
     }
   }
 
-  private static final class PassThrough<R> implements FutureContextListener<SettableFuture<R>, Future<Object>> {
+  private static final class PassThrough<R> implements FutureContextListener<Future<R>, SettableFuture<R>> {
 
     @Override
-    public void operationComplete(Future<Object> completed, SettableFuture<R> recipient) throws Exception {
+    public void operationComplete(Future<R> completed, SettableFuture<R> recipient) {
       if (completed.isSuccess()) {
         try {
-          @SuppressWarnings("unchecked")
-          R result = (R) completed.getNow();
+          R result = completed.getNow();
           recipient.trySuccess(result);
         }
         catch (Throwable e) {
@@ -177,7 +281,9 @@ final class Futures {
   }
 
   private static final class CallableMapper<R, T> implements Callable<R> {
+
     private final Future<T> future;
+
     private final Function<T, R> mapper;
 
     CallableMapper(Future<T> future, Function<T, R> mapper) {
@@ -186,13 +292,15 @@ final class Futures {
     }
 
     @Override
-    public R call() throws Exception {
+    public R call() {
       return mapper.apply(future.getNow());
     }
   }
 
   private static final class Mapper<R, T> implements FutureListener<Future<T>> {
+
     private final SettableFuture<R> recipient;
+
     private final Function<T, R> mapper;
 
     Mapper(SettableFuture<R> recipient, Function<T, R> mapper) {
@@ -201,7 +309,7 @@ final class Futures {
     }
 
     @Override
-    public void operationComplete(Future<T> completed) throws Exception {
+    public void operationComplete(Future<T> completed) {
       if (completed.isSuccess()) {
         try {
           T result = completed.getNow();
@@ -230,20 +338,19 @@ final class Futures {
     }
 
     @Override
-    public void operationComplete(Future<T> completed) throws Exception {
+    public void operationComplete(Future<T> completed) {
       if (completed.isSuccess()) {
         try {
-          T result = completed.getNow();
-          Future<R> future = mapper.apply(result);
-          if (future.isSuccess()) {
-            recipient.trySuccess(future.getNow());
+          Future<R> mapped = mapper.apply(completed.getNow());
+          if (mapped.isSuccess()) {
+            recipient.trySuccess(mapped.getNow());
           }
-          else if (future.isFailed()) {
-            propagateUncommonCompletion(future, recipient);
+          else if (mapped.isFailed()) {
+            propagateUncommonCompletion(mapped, recipient);
           }
           else {
-            future.addListener(passThrough(), recipient);
-            recipient.addListener(propagateCancel(), future);
+            mapped.addListener(passThrough(), recipient);
+            recipient.addListener(propagateCancel(), mapped);
           }
         }
         catch (Throwable e) {
@@ -262,18 +369,17 @@ final class Futures {
    * the {@link SettableFuture} is cancelled and vice-versa.
    *
    * @param future the {@link Future} which will be used to listen to for notifying the {@link SettableFuture}.
-   * @param promise the {@link SettableFuture} which will be notified
+   * @param settable the {@link SettableFuture} which will be notified
    * @param <V> the type of the value.
    */
-  static <V> void cascade(final Future<V> future, final SettableFuture<? super V> promise) {
-    Assert.notNull(future, "future");
-    Assert.notNull(promise, "promise");
+  static <V> void cascade(final Future<V> future, final SettableFuture<? super V> settable) {
+    Assert.notNull(settable, "SettableFuture is required");
 
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      promise.addListener(propagateCancel(), future);
+      settable.addListener(propagateCancel(), future);
     }
-    future.addListener(passThrough(), promise);
+    future.addListener(passThrough(), settable);
   }
 }

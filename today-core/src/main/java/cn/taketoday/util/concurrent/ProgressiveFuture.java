@@ -42,13 +42,13 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
   boolean tryProgress(long progress, long total);
 
   @Override
-  default ProgressiveFuture<V> addListener(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
+  default ProgressiveFuture<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
     return addListener(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
   @Override
   default ProgressiveFuture<V> onSuccess(SuccessCallback<V> successCallback) {
-    return addListener(successCallback, null);
+    return this.onCompleted(successCallback, null);
   }
 
   @Override
@@ -58,7 +58,7 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
   }
 
   @Override
-  <C> ProgressiveFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context);
+  <C> ProgressiveFuture<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
 
   @Override
   ProgressiveFuture<V> addListener(FutureListener<? extends Future<V>> listener);

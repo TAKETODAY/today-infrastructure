@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -36,6 +33,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
  *
  * @param <T> the type of instance supplied by this supplier
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RegisteredBean
  * @since 4.0
  */
@@ -54,7 +52,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
    * @return the supplied instance
    * @throws Exception on error
    */
-  T get(RegisteredBean registeredBean) throws Exception;
+  T get(RegisteredBean registeredBean) throws Throwable;
 
   /**
    * Return the factory method that this supplier uses to create the
@@ -84,7 +82,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
     Assert.notNull(after, "'after' function is required");
     return new InstanceSupplier<>() {
       @Override
-      public V get(RegisteredBean registeredBean) throws Exception {
+      public V get(RegisteredBean registeredBean) throws Throwable {
         return after.applyWithException(registeredBean, InstanceSupplier.this.get(registeredBean));
       }
 
@@ -130,7 +128,7 @@ public interface InstanceSupplier<T> extends ThrowingSupplier<T> {
 
     return new InstanceSupplier<>() {
       @Override
-      public T get(RegisteredBean registeredBean) throws Exception {
+      public T get(RegisteredBean registeredBean) throws Throwable {
         return supplier.getWithException();
       }
 

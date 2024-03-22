@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.function;
@@ -42,7 +39,7 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * @param t the input argument
    * @throws Exception on error
    */
-  void acceptWithException(T t) throws Exception;
+  void acceptWithException(T t) throws Throwable;
 
   /**
    * Default {@link Consumer#accept(Object)} that wraps any thrown checked
@@ -62,14 +59,14 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * @param exceptionWrapper {@link BiFunction} that wraps the given message
    * and checked exception into a runtime exception
    */
-  default void accept(T t, BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default void accept(T t, BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     try {
       acceptWithException(t);
     }
     catch (RuntimeException ex) {
       throw ex;
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       throw exceptionWrapper.apply(ex.getMessage(), ex);
     }
   }
@@ -83,11 +80,11 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * and checked exception into a runtime exception
    * @return the replacement {@link ThrowingConsumer} instance
    */
-  default ThrowingConsumer<T> throwing(BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default ThrowingConsumer<T> throwing(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     return new ThrowingConsumer<>() {
 
       @Override
-      public void acceptWithException(T t) throws Exception {
+      public void acceptWithException(T t) throws Throwable {
         ThrowingConsumer.this.acceptWithException(t);
       }
 
@@ -138,7 +135,7 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * @return a new {@link ThrowingConsumer} instance
    */
   static <T> ThrowingConsumer<T> of(ThrowingConsumer<T> consumer,
-          BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+          BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
 
     return consumer.throwing(exceptionWrapper);
   }

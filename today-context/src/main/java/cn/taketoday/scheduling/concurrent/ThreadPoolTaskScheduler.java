@@ -351,9 +351,9 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      ListenableFutureTask<Object> listenableFuture = new ListenableFutureTask<>(task, null);
-      executeAndTrack(executor, listenableFuture);
-      return listenableFuture;
+      var future = new ListenableFutureTask<>(executor, task, null);
+      executeAndTrack(executor, future);
+      return future;
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);
@@ -364,9 +364,9 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      ListenableFutureTask<T> listenableFuture = new ListenableFutureTask<>(task);
-      executeAndTrack(executor, listenableFuture);
-      return listenableFuture;
+      var future = new ListenableFutureTask<>(executor, task);
+      executeAndTrack(executor, future);
+      return future;
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);

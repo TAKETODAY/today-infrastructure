@@ -146,8 +146,8 @@ class DefaultSettableFutureTests {
 
   @Test
   public void testStackOverflowWithImmediateEventExecutorA() throws Exception {
-    testStackOverFlowChainedFuturesA(stackOverflowTestDepth(), GlobalEventExecutor.INSTANCE, true);
-    testStackOverFlowChainedFuturesA(stackOverflowTestDepth(), GlobalEventExecutor.INSTANCE, false);
+    testStackOverFlowChainedFuturesA(stackOverflowTestDepth(), GlobalExecutor.INSTANCE, true);
+    testStackOverFlowChainedFuturesA(stackOverflowTestDepth(), GlobalExecutor.INSTANCE, false);
   }
 
   @Test
@@ -220,7 +220,7 @@ class DefaultSettableFutureTests {
         }
       };
 
-      GlobalEventExecutor.INSTANCE.execute(new Runnable() {
+      GlobalExecutor.INSTANCE.execute(new Runnable() {
         @Override
         public void run() {
           future.setSuccess(null);
@@ -485,7 +485,7 @@ class DefaultSettableFutureTests {
       }
       future.setSuccess(null);
 
-      GlobalEventExecutor.INSTANCE.execute(() -> future.addListener(listener));
+      GlobalExecutor.INSTANCE.execute(() -> future.addListener(listener));
       future.addListener(listener);
     });
 

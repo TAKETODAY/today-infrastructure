@@ -18,6 +18,7 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 
 import cn.taketoday.lang.Nullable;
@@ -40,7 +41,7 @@ public class ListenableFutureTask<T> extends SettableFutureTask<T> implements Fu
    * @param callable the callable task
    */
   public ListenableFutureTask(Callable<T> callable) {
-    super(null, callable);
+    super(defaultExecutor, callable);
   }
 
   /**
@@ -52,7 +53,29 @@ public class ListenableFutureTask<T> extends SettableFutureTask<T> implements Fu
    * @param result the result to return on successful completion
    */
   public ListenableFutureTask(Runnable runnable, @Nullable T result) {
-    super(null, runnable, result);
+    super(defaultExecutor, runnable, result);
+  }
+
+  /**
+   * Create a new {@code ListenableFutureTask} that will, upon running,
+   * execute the given {@link Callable}.
+   *
+   * @param callable the callable task
+   */
+  public ListenableFutureTask(Executor executor, Callable<T> callable) {
+    super(executor, callable);
+  }
+
+  /**
+   * Create a {@code ListenableFutureTask} that will, upon running,
+   * execute the given {@link Runnable}, and arrange that {@link #get()}
+   * will return the given result on successful completion.
+   *
+   * @param runnable the runnable task
+   * @param result the result to return on successful completion
+   */
+  public ListenableFutureTask(Executor executor, Runnable runnable, @Nullable T result) {
+    super(executor, runnable, result);
   }
 
 }

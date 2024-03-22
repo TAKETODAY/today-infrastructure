@@ -41,6 +41,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @since 4.0 2024/2/26 17:27
  */
 public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFuture<V> {
+
   private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
 
   private static final Logger rejectedExecutionLogger =
@@ -58,7 +59,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   private static final StackTraceElement[] CANCELLATION_STACK = CANCELLATION_CAUSE_HOLDER.cause.getStackTrace();
 
-  @Nullable
   protected final Executor executor;
 
   @Nullable
@@ -92,7 +92,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * Creates a new instance.
    */
   public DefaultFuture() {
-    this(null);
+    this(defaultExecutor);
   }
 
   /**
@@ -102,7 +102,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * the SettableFuture once it is complete.
    */
   public DefaultFuture(@Nullable Executor executor) {
-    this.executor = executor;
+    this.executor = executor == null ? defaultExecutor : executor;
   }
 
   @Override
@@ -121,7 +121,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public <C> DefaultFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
+  public <C> DefaultFuture<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
     return addListener(FutureListener.forAdaption(listener, context));
   }
 
@@ -388,6 +388,12 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
+  public DefaultFuture<V> cascadeTo(final SettableFuture<? super V> settable) {
+    Futures.cascade(this, settable);
+    return this;
+  }
+
+  @Override
   public Executor executor() {
     return executor;
   }
@@ -442,7 +448,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * @param future the future that is complete.
    * @param listener the listener to notify.
    */
-  protected static void notifyListener(@Nullable Executor executor, final Future<?> future, final FutureListener<?> listener) {
+  protected static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
     safeExecute(executor, () -> notifyListener(future, listener));
   }
 
@@ -509,16 +515,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
     catch (Throwable t) {
       logger.warn("An exception was thrown by {}.operationComplete(Future)", l.getClass().getName(), t);
-    }
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  static void notifyListener(Future future, FutureContextListener l, @Nullable Object context) {
-    try {
-      l.operationComplete(future, context);
-    }
-    catch (Throwable t) {
-      logger.warn("An exception was thrown by {}.operationComplete(Future, Context)", l.getClass().getName(), t);
     }
   }
 
@@ -732,10 +728,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
   }
 
-  static void safeExecute(@Nullable Executor executor, Runnable task) {
-    if (executor == null) {
-      executor = defaultExecutor;
-    }
+  private static void safeExecute(Executor executor, Runnable task) {
     try {
       executor.execute(task);
     }
@@ -746,6 +739,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   private static final class LeanCancellationException extends CancellationException {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
