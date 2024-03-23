@@ -87,7 +87,7 @@ public final class SettableFutureAggregator implements FutureListener<Future<?>>
   public void add(Future future) {
     checkAddAllowed();
     ++expectedCount;
-    future.addListener(this);
+    future.onCompleted(this);
   }
 
   /**

@@ -40,7 +40,7 @@ public interface ThrowingBiFunction<T, U, R> extends BiFunction<T, U, R> {
    * @param t the first function argument
    * @param u the second function argument
    * @return the function result
-   * @throws Exception on error
+   * @throws Throwable on error
    */
   R applyWithException(T t, U u) throws Throwable;
 

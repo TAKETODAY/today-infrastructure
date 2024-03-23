@@ -131,7 +131,7 @@ class SettableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableFuture.addListener(future -> {
+    settableFuture.onCompleted(future -> {
       if (future.isSuccess()) {
         callbackHolder[0] = future.getNow();
         fail("Expected onFailure() to be called");
@@ -152,7 +152,7 @@ class SettableFutureTests {
     String string = "hello";
     final String[] callbackHolder = new String[1];
 
-    settableFuture.addListener(future -> {
+    settableFuture.onCompleted(future -> {
       if (future.isSuccess()) {
         callbackHolder[0] = future.getNow();
         fail("Expected onFailure() to be called");
@@ -174,7 +174,7 @@ class SettableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableFuture.addListener(future -> {
+    settableFuture.onCompleted(future -> {
       if (future.isSuccess()) {
         fail("Expected onFailure() to be called");
       }
@@ -194,7 +194,7 @@ class SettableFutureTests {
     Throwable exception = new RuntimeException();
     final Throwable[] callbackHolder = new Throwable[1];
 
-    settableFuture.addListener(future -> {
+    settableFuture.onCompleted(future -> {
       if (future.isSuccess()) {
         fail("Expected onFailure() to be called");
       }
@@ -354,7 +354,7 @@ class SettableFutureTests {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void cancelDoesNotNotifyCallbacksOnSet() throws Throwable {
     FutureListener callback = mock(FutureListener.class);
-    settableFuture.addListener(callback);
+    settableFuture.onCompleted(callback);
     settableFuture.cancel(true);
 
     verify(callback).operationComplete(settableFuture);
@@ -371,7 +371,7 @@ class SettableFutureTests {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public void cancelDoesNotNotifyCallbacksOnSetException() throws Throwable {
     FutureListener callback = mock(FutureListener.class);
-    settableFuture.addListener(callback);
+    settableFuture.onCompleted(callback);
     settableFuture.cancel(true);
 
     verify(callback).operationComplete(settableFuture);

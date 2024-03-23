@@ -230,7 +230,7 @@ class SettableFutureAggregatorTests {
         consumer.accept(invocation.getArgument(0));
         return p;
       }
-    }).when(p).addListener(any(FutureListener.class));
+    }).when(p).onCompleted(any(FutureListener.class));
   }
 
   interface GenericFutureListenerConsumer {

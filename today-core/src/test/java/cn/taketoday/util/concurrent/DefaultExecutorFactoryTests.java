@@ -17,33 +17,43 @@
 
 package cn.taketoday.util.concurrent;
 
+import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 
-import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.lang.NonNull;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * for {@link DefaultFuture#defaultExecutor}
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/28 13:24
+ * @since 4.0 2024/3/23 14:04
  */
-public interface DefaultExecutorFactory {
+class DefaultExecutorFactoryTests {
 
-  /**
-   * create Executor
-   */
-  Executor createExecutor();
+  @Test
+  void lookup() {
+    assertThat(DefaultExecutorFactory.lookup()).isInstanceOf(MyExecutor.class);
+    assertThat(Future.defaultExecutor).isInstanceOf(MyExecutor.class);
+  }
 
-  /**
-   * create default Executor
-   */
-  static Executor lookup() {
-    var factory = TodayStrategies.findFirst(DefaultExecutorFactory.class, null);
-    if (factory == null) {
-      return ForkJoinPool.commonPool();
+  static class ExecutorFactory implements DefaultExecutorFactory {
+
+    @Override
+    public Executor createExecutor() {
+      return new MyExecutor();
     }
-    return factory.createExecutor();
+
+  }
+
+  static class MyExecutor implements Executor {
+    final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+
+    @Override
+    public void execute(@NonNull Runnable command) {
+      forkJoinPool.execute(command);
+    }
   }
 
 }

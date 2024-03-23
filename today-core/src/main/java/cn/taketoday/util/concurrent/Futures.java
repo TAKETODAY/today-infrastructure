@@ -89,8 +89,8 @@ final class Futures {
       return futureTask;
     }
     SettableFuture<R> settable = Future.forSettable(executor);
-    future.addListener(new Mapper<>(settable, mapper));
-    settable.addListener(propagateCancel(), future);
+    future.onCompleted(new Mapper<>(settable, mapper));
+    settable.onCompleted(propagateCancel(), future);
     return settable;
   }
 
@@ -127,11 +127,11 @@ final class Futures {
     Assert.notNull(mapper, "mapper is required");
 
     SettableFuture<R> settable = Future.forSettable(future.executor());
-    future.addListener(new FlatMapper<>(settable, mapper));
+    future.onCompleted(new FlatMapper<>(settable, mapper));
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.addListener(propagateCancel(), future);
+      settable.onCompleted(propagateCancel(), future);
     }
     return settable;
   }
@@ -159,7 +159,7 @@ final class Futures {
     }
 
     SettableFuture<V> settable = Future.forSettable(executor);
-    future.addListener(completed -> {
+    future.onCompleted(completed -> {
       if (completed.isSuccess()) {
         settable.setSuccess(completed.getNow());
       }
@@ -175,7 +175,7 @@ final class Futures {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.addListener(propagateCancel(), future);
+      settable.onCompleted(propagateCancel(), future);
     }
     return settable;
   }
@@ -194,7 +194,7 @@ final class Futures {
    */
   public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
     SettableFuture<R> recipient = Future.forSettable(future.executor());
-    future.addListener(completed -> {
+    future.onCompleted(completed -> {
       Throwable cause = completed.getCause();
       if (cause != null) {
         // failed
@@ -202,7 +202,7 @@ final class Futures {
       }
       else {
         // succeed
-        that.addListener(t -> {
+        that.onCompleted(t -> {
           Throwable c = t.getCause();
           if (c != null) {
             recipient.setFailure(c);
@@ -224,7 +224,7 @@ final class Futures {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      recipient.addListener(propagateCancel(), future);
+      recipient.onCompleted(propagateCancel(), future);
     }
     return recipient;
   }
@@ -349,8 +349,8 @@ final class Futures {
             propagateUncommonCompletion(mapped, recipient);
           }
           else {
-            mapped.addListener(passThrough(), recipient);
-            recipient.addListener(propagateCancel(), mapped);
+            mapped.onCompleted(passThrough(), recipient);
+            recipient.onCompleted(propagateCancel(), mapped);
           }
         }
         catch (Throwable e) {
@@ -378,8 +378,8 @@ final class Futures {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.addListener(propagateCancel(), future);
+      settable.onCompleted(propagateCancel(), future);
     }
-    future.addListener(passThrough(), settable);
+    future.onCompleted(passThrough(), settable);
   }
 }

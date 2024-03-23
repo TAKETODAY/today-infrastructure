@@ -37,7 +37,7 @@ public interface ThrowingConsumer<T> extends Consumer<T> {
    * checked exception.
    *
    * @param t the input argument
-   * @throws Exception on error
+   * @throws Throwable on error
    */
   void acceptWithException(T t) throws Throwable;
 

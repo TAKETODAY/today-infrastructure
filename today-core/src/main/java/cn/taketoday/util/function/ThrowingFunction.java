@@ -40,7 +40,7 @@ public interface ThrowingFunction<T, R> extends Function<T, R> {
    *
    * @param t the function argument
    * @return the function result
-   * @throws Exception on error
+   * @throws Throwable on error
    */
   R applyWithException(T t) throws Throwable;
 

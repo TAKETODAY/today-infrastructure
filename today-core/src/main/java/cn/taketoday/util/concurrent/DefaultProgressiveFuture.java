@@ -83,14 +83,14 @@ public class DefaultProgressiveFuture<V> extends DefaultFuture<V> implements Pro
   }
 
   @Override
-  public DefaultProgressiveFuture<V> addListener(FutureListener<? extends Future<V>> listener) {
-    super.addListener(listener);
+  public DefaultProgressiveFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
+    super.onCompleted(listener);
     return this;
   }
 
   @Override
-  public <C> DefaultProgressiveFuture<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    super.addListener(listener, context);
+  public <C> DefaultProgressiveFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    super.onCompleted(listener, context);
     return this;
   }
 

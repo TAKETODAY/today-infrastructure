@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Listens to the result of a {@link Future}.
  * The result of the asynchronous operation is notified once this listener
- * is added by calling {@link Future#addListener(FutureListener)}.
+ * is added by calling {@link Future#onCompleted(FutureListener)}.
  *
  * @param <F> the future type
  * @author Arjen Poutsma

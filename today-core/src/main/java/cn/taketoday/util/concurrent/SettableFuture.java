@@ -74,7 +74,7 @@ public interface SettableFuture<V> extends Future<V> {
 
   @Override
   default SettableFuture<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
   @Override
@@ -84,15 +84,15 @@ public interface SettableFuture<V> extends Future<V> {
 
   @Override
   default SettableFuture<V> onFailure(FailureCallback failureCallback) {
-    addListener(FutureListener.forFailure(failureCallback));
+    onCompleted(FutureListener.forFailure(failureCallback));
     return this;
   }
 
   @Override
-  SettableFuture<V> addListener(FutureListener<? extends Future<V>> listener);
+  SettableFuture<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   @Override
-  <C> SettableFuture<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
+  <C> SettableFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
 
   @Override
   SettableFuture<V> await() throws InterruptedException;

@@ -78,8 +78,7 @@ import cn.taketoday.util.concurrent.Future;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
-        implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
+public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
 
   private final Object poolSizeMonitor = new Object();
 
@@ -271,12 +270,12 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
    * decorating its {@code ExecutorService} handle or storing custom state.
    */
   @Override
-  protected ExecutorService initializeExecutor(ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+  protected ExecutorService initializeExecutor(ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
     BlockingQueue<Runnable> queue = createQueue(this.queueCapacity);
 
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            this.corePoolSize, this.maxPoolSize, this.keepAliveSeconds, TimeUnit.SECONDS,
-            queue, threadFactory, rejectedExecutionHandler) {
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(this.corePoolSize, this.maxPoolSize,
+            this.keepAliveSeconds, TimeUnit.SECONDS, queue, threadFactory, rejectedHandler) {
+
       @Override
       public void execute(Runnable command) {
         Runnable decorated = command;

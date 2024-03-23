@@ -43,7 +43,7 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
 
   @Override
   default ProgressiveFuture<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
   @Override
@@ -53,15 +53,15 @@ public interface ProgressiveFuture<V> extends SettableFuture<V> {
 
   @Override
   default ProgressiveFuture<V> onFailure(FailureCallback failureCallback) {
-    addListener(FutureListener.forFailure(failureCallback));
+    onCompleted(FutureListener.forFailure(failureCallback));
     return this;
   }
 
   @Override
-  <C> ProgressiveFuture<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
+  <C> ProgressiveFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
 
   @Override
-  ProgressiveFuture<V> addListener(FutureListener<? extends Future<V>> listener);
+  ProgressiveFuture<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   @Override
   ProgressiveFuture<V> sync() throws InterruptedException;

@@ -31,7 +31,6 @@ import java.util.function.Function;
 import cn.taketoday.core.Pair;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.function.ThrowingBiFunction;
 
 /**
@@ -74,7 +73,7 @@ import cn.taketoday.util.function.ThrowingBiFunction;
  * when the operation is completed.
  *
  * <p>
- * The {@link #addListener(FutureListener)} method is non-blocking. It simply
+ * The {@link #onCompleted(FutureListener)} method is non-blocking. It simply
  * adds the specified {@link FutureListener} to the {@link Future}, and the
  * thread will notify the listeners when the operation associated with the future
  * is done. The {@link FutureListener} and {@link FutureContextListener}
@@ -160,9 +159,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
    */
-  Executor defaultExecutor = TodayStrategies.findFirst(DefaultExecutorFactory.class)
-          .map(DefaultExecutorFactory::createExecutor)
-          .orElse(ForkJoinPool.commonPool());
+  Executor defaultExecutor = DefaultExecutorFactory.lookup();
 
   /**
    * Returns {@code true} if and only if the operation was completed
@@ -208,7 +205,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return this future object.
    */
   default Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
   /**
@@ -228,7 +225,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return this future object.
    */
   default Future<V> onFailure(FailureCallback failureCallback) {
-    return addListener(FutureListener.forFailure(failureCallback));
+    return onCompleted(FutureListener.forFailure(failureCallback));
   }
 
   /**
@@ -242,8 +239,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * when this future completes.
    * @return this future object.
    */
-  default <C> Future<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    return addListener(FutureListener.forAdaption(listener, context));
+  default <C> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    return onCompleted(FutureListener.forAdaption(listener, context));
   }
 
   /**
@@ -255,7 +252,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return this future object.
    */
-  Future<V> addListener(FutureListener<? extends Future<V>> listener);
+  Future<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
@@ -546,7 +543,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   default CompletableFuture<V> completable() {
     final CompletableFuture<V> ret = new CompletableFuture<>();
-    addListener((FutureContextListener) Futures.completableAdapter, ret);
+    onCompleted((FutureContextListener) Futures.completableAdapter, ret);
     return ret;
   }
 

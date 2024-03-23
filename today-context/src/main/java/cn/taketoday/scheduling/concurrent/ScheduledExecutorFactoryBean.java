@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -73,8 +73,7 @@ import cn.taketoday.util.ObjectUtils;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport
-        implements FactoryBean<ScheduledExecutorService> {
+public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport implements FactoryBean<ScheduledExecutorService> {
 
   private int poolSize = 1;
 
@@ -150,10 +149,10 @@ public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport
 
   @Override
   protected ExecutorService initializeExecutor(
-          ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+          ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
 
     ScheduledExecutorService executor =
-            createExecutor(this.poolSize, threadFactory, rejectedExecutionHandler);
+            createExecutor(this.poolSize, threadFactory, rejectedHandler);
 
     if (this.removeOnCancelPolicy) {
       if (executor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
@@ -171,7 +170,7 @@ public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport
 
     // Wrap executor with an unconfigurable decorator.
     this.exposedExecutor = this.exposeUnconfigurableExecutor
-                           ? Executors.unconfigurableScheduledExecutorService(executor) : executor;
+            ? Executors.unconfigurableScheduledExecutorService(executor) : executor;
 
     return executor;
   }
@@ -183,15 +182,15 @@ public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport
    *
    * @param poolSize the specified pool size
    * @param threadFactory the ThreadFactory to use
-   * @param rejectedExecutionHandler the RejectedExecutionHandler to use
+   * @param rejectedHandler the RejectedExecutionHandler to use
    * @return a new ScheduledExecutorService instance
    * @see #afterPropertiesSet()
    * @see ScheduledThreadPoolExecutor
    */
-  protected ScheduledExecutorService createExecutor(
-          int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+  protected ScheduledExecutorService createExecutor(int poolSize,
+          ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
 
-    return new ScheduledThreadPoolExecutor(poolSize, threadFactory, rejectedExecutionHandler) {
+    return new ScheduledThreadPoolExecutor(poolSize, threadFactory, rejectedHandler) {
       @Override
       protected void beforeExecute(Thread thread, Runnable task) {
         ScheduledExecutorFactoryBean.this.beforeExecute(thread, task);
@@ -242,8 +241,8 @@ public class ScheduledExecutorFactoryBean extends ExecutorConfigurationSupport
    */
   protected Runnable getRunnableToSchedule(ScheduledExecutorTask task) {
     return this.continueScheduledExecutionAfterException
-           ? new DelegatingErrorHandlingRunnable(task.getRunnable(), TaskUtils.LOG_AND_SUPPRESS_ERROR_HANDLER)
-           : new DelegatingErrorHandlingRunnable(task.getRunnable(), TaskUtils.LOG_AND_PROPAGATE_ERROR_HANDLER);
+            ? new DelegatingErrorHandlingRunnable(task.getRunnable(), TaskUtils.LOG_AND_SUPPRESS_ERROR_HANDLER)
+            : new DelegatingErrorHandlingRunnable(task.getRunnable(), TaskUtils.LOG_AND_PROPAGATE_ERROR_HANDLER);
   }
 
   @Override

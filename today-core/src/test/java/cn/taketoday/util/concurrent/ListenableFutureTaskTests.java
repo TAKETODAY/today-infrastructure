@@ -43,7 +43,7 @@ class ListenableFutureTaskTests {
     Callable<String> callable = () -> s;
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(future -> {
+    task.onCompleted(future -> {
       if (future.isSuccess()) {
         assertThat(future.getNow()).isEqualTo(s);
       }
@@ -68,7 +68,7 @@ class ListenableFutureTaskTests {
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
 
-    task.addListener(future -> {
+    task.onCompleted(future -> {
       if (future.isSuccess()) {
         fail("onSuccess not expected");
       }

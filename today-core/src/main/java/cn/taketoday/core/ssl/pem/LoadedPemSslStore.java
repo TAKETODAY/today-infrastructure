@@ -53,11 +53,11 @@ final class LoadedPemSslStore implements PemSslStore {
     this.privateKeySupplier = supplier(() -> loadPrivateKey(details));
   }
 
-  private static <T> Supplier<T> supplier(@Nullable ThrowingSupplier<T> supplier) {
+  private static <T> Supplier<T> supplier(ThrowingSupplier<T> supplier) {
     return SingletonSupplier.from(supplier.throwing(LoadedPemSslStore::asUncheckedIOException));
   }
 
-  private static UncheckedIOException asUncheckedIOException(String message, Exception cause) {
+  private static UncheckedIOException asUncheckedIOException(String message, Throwable cause) {
     return new UncheckedIOException(message, (IOException) cause);
   }
 
@@ -72,9 +72,10 @@ final class LoadedPemSslStore implements PemSslStore {
     return certificates;
   }
 
+  @Nullable
   private static PrivateKey loadPrivateKey(PemSslStoreDetails details) throws IOException {
     PemContent pemContent = PemContent.load(details.privateKey());
-    return (pemContent != null) ? pemContent.getPrivateKey(details.privateKeyPassword()) : null;
+    return pemContent != null ? pemContent.getPrivateKey(details.privateKeyPassword()) : null;
   }
 
   @Nullable

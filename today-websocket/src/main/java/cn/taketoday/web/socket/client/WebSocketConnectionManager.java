@@ -146,7 +146,7 @@ public class WebSocketConnectionManager extends ConnectionManagerSupport impleme
   protected void openConnection() {
     logger.info("Connecting to WebSocket at {}", getUri());
     client.doHandshake(this.webSocketHandler, this.headers, getUri())
-            .addListener(this);
+            .onCompleted(this);
   }
 
   @Override

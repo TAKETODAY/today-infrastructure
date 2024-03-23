@@ -106,7 +106,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public DefaultFuture<V> addListener(FutureListener<? extends Future<V>> listener) {
+  public DefaultFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
     Assert.notNull(listener, "listener is required");
 
     synchronized(this) {
@@ -121,8 +121,8 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public <C> DefaultFuture<V> addListener(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    return addListener(FutureListener.forAdaption(listener, context));
+  public <C> DefaultFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    return onCompleted(FutureListener.forAdaption(listener, context));
   }
 
   @Override

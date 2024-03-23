@@ -36,7 +36,7 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * Gets a result, possibly throwing a checked exception.
    *
    * @return a result
-   * @throws Exception on error
+   * @throws Throwable on error
    */
   T getWithException() throws Throwable;
 

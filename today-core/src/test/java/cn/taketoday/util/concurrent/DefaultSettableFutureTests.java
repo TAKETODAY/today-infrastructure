@@ -216,7 +216,7 @@ class DefaultSettableFutureTests {
         @Override
         public void operationComplete(Future<Void> future) throws Exception {
           listeners.add(this);
-          future.addListener(listener4);
+          future.onCompleted(listener4);
         }
       };
 
@@ -227,7 +227,7 @@ class DefaultSettableFutureTests {
         }
       });
 
-      future.addListener(listener1).addListener(listener2).addListener(listener3);
+      future.onCompleted(listener1).onCompleted(listener2).onCompleted(listener3);
 
       assertSame(listener1, listeners.take(), "Fail 1 during run " + i + " / " + runs);
       assertSame(listener2, listeners.take(), "Fail 2 during run " + i + " / " + runs);
@@ -355,7 +355,7 @@ class DefaultSettableFutureTests {
           final CountDownLatch latch) {
     for (int i = 0; i < p.length; i++) {
       final int finalI = i;
-      p[i] = new DefaultFuture<Void>(executor).addListener(future -> {
+      p[i] = new DefaultFuture<Void>(executor).onCompleted(future -> {
         if (finalI + 1 < p.length) {
           p[finalI + 1].setSuccess(null);
         }
@@ -394,7 +394,7 @@ class DefaultSettableFutureTests {
     for (int i = 0; i < p.length; i++) {
       final int finalI = i;
       p[i] = new DefaultFuture<Void>(executor);
-      p[i].addListener(future -> future.addListener(future1 -> {
+      p[i].onCompleted(future -> future.onCompleted(future1 -> {
         if (finalI + 1 < p.length) {
           p[finalI + 1].setSuccess(null);
         }
@@ -423,7 +423,7 @@ class DefaultSettableFutureTests {
     final SettableFuture<Void> future = new DefaultFuture<Void>(executor);
 
     // Add a listener before completion so "lateListener" is used next time we add a listener.
-    future.addListener(future1 -> assertTrue(state.compareAndSet(0, 1)));
+    future.onCompleted(future1 -> assertTrue(state.compareAndSet(0, 1)));
 
     // Simulate write operation completing, which will execute listeners in another thread.
     if (cause == null) {
@@ -434,7 +434,7 @@ class DefaultSettableFutureTests {
     }
 
     // Add a "late listener"
-    future.addListener(future1 -> {
+    future.onCompleted(future1 -> {
       assertTrue(state.compareAndSet(1, 2));
       latch1.countDown();
     });
@@ -445,7 +445,7 @@ class DefaultSettableFutureTests {
 
     // This is the important listener. A late listener that is added after all late listeners
     // have completed, and needs to update state before a read operation (on the same executor).
-    executor.execute(() -> future.addListener(future1 -> {
+    executor.execute(() -> future.onCompleted(future1 -> {
       assertTrue(state.compareAndSet(2, 3));
       latch2.countDown();
     }));
@@ -463,7 +463,7 @@ class DefaultSettableFutureTests {
   private static void testSettableFutureListenerAddWhenComplete(Throwable cause) throws InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
     final SettableFuture<Void> settableFuture = new DefaultFuture<>();
-    settableFuture.addListener(future -> settableFuture.addListener(future1 -> latch.countDown()));
+    settableFuture.onCompleted(future -> settableFuture.onCompleted(future1 -> latch.countDown()));
     if (cause == null) {
       settableFuture.setSuccess(null);
     }
@@ -481,12 +481,12 @@ class DefaultSettableFutureTests {
     final SettableFuture<Void> future = new DefaultFuture<Void>(executor);
     executor.execute(() -> {
       for (int i = 0; i < numListenersBefore; i++) {
-        future.addListener(listener);
+        future.onCompleted(listener);
       }
       future.setSuccess(null);
 
-      GlobalExecutor.INSTANCE.execute(() -> future.addListener(listener));
-      future.addListener(listener);
+      GlobalExecutor.INSTANCE.execute(() -> future.onCompleted(listener));
+      future.onCompleted(listener);
     });
 
     assertTrue(latch.await(5, TimeUnit.SECONDS),

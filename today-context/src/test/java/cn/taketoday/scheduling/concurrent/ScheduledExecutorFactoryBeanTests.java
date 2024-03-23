@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.concurrent;
@@ -53,7 +50,7 @@ class ScheduledExecutorFactoryBeanTests {
 
     ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean() {
       @Override
-      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
         return executor;
       }
     };
@@ -70,7 +67,7 @@ class ScheduledExecutorFactoryBeanTests {
 
     ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean() {
       @Override
-      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
         return executor;
       }
     };
@@ -180,9 +177,9 @@ class ScheduledExecutorFactoryBeanTests {
   void settingThreadFactoryToNullForcesUseOfDefaultButIsOtherwiseCool() {
     ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean() {
       @Override
-      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
         assertThat("Bah; the setThreadFactory(..) method must use a default ThreadFactory if a null arg is passed in.").isNotNull();
-        return super.createExecutor(poolSize, threadFactory, rejectedExecutionHandler);
+        return super.createExecutor(poolSize, threadFactory, rejectedHandler);
       }
     };
     factory.setScheduledExecutorTasks(new NoOpScheduledExecutorTask());
@@ -195,9 +192,9 @@ class ScheduledExecutorFactoryBeanTests {
   void settingRejectedExecutionHandlerToNullForcesUseOfDefaultButIsOtherwiseCool() {
     ScheduledExecutorFactoryBean factory = new ScheduledExecutorFactoryBean() {
       @Override
-      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+      protected ScheduledExecutorService createExecutor(int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
         assertThat("Bah; the setRejectedExecutionHandler(..) method must use a default RejectedExecutionHandler if a null arg is passed in.").isNotNull();
-        return super.createExecutor(poolSize, threadFactory, rejectedExecutionHandler);
+        return super.createExecutor(poolSize, threadFactory, rejectedHandler);
       }
     };
     factory.setScheduledExecutorTasks(new NoOpScheduledExecutorTask());

@@ -100,12 +100,12 @@ public class SettableFutureNotifier<V, F extends Future<V>> implements FutureLis
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static <V, F extends Future<V>> F cascade(
           boolean logNotifyFailure, final F future, final SettableFuture<? super V> settableFuture) {
-    settableFuture.addListener(f -> {
+    settableFuture.onCompleted(f -> {
       if (f.isCancelled()) {
         future.cancel(false);
       }
     });
-    future.addListener(new SettableFutureNotifier(logNotifyFailure, settableFuture) {
+    future.onCompleted(new SettableFutureNotifier(logNotifyFailure, settableFuture) {
       @Override
       public void operationComplete(Future f) throws Exception {
         if (settableFuture.isCancelled() && f.isCancelled()) {
