@@ -36,7 +36,7 @@ public final class SucceededFuture<V> extends CompleteFuture<V> {
    * Creates a new instance.
    */
   public SucceededFuture(@Nullable V result) {
-    super();
+    super(null);
     this.result = result;
   }
 

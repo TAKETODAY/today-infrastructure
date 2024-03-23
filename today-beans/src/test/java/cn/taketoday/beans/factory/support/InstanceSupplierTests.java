@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -54,7 +51,7 @@ class InstanceSupplierTests {
   }
 
   @Test
-  void getReturnsResult() throws Exception {
+  void getReturnsResult() throws Throwable {
     InstanceSupplier<String> supplier = registeredBean -> "test";
     assertThat(supplier.get(this.registeredBean)).isEqualTo("test");
   }
@@ -68,7 +65,7 @@ class InstanceSupplierTests {
   }
 
   @Test
-  void andThenAppliesFunctionToObtainResult() throws Exception {
+  void andThenAppliesFunctionToObtainResult() throws Throwable {
     InstanceSupplier<String> supplier = registeredBean -> "bean";
     supplier = supplier.andThen(
             (registeredBean, string) -> registeredBean.getBeanName() + "-" + string);
@@ -76,7 +73,7 @@ class InstanceSupplierTests {
   }
 
   @Test
-  void andThenWhenInstanceSupplierHasFactoryMethod() throws Exception {
+  void andThenWhenInstanceSupplierHasFactoryMethod() throws Throwable {
     Method factoryMethod = getClass().getDeclaredMethod("andThenWhenInstanceSupplierHasFactoryMethod");
     InstanceSupplier<String> supplier = InstanceSupplier.using(factoryMethod, () -> "bean");
     supplier = supplier.andThen(
@@ -92,13 +89,13 @@ class InstanceSupplierTests {
   }
 
   @Test
-  void usingSupplierAdaptsToInstanceSupplier() throws Exception {
+  void usingSupplierAdaptsToInstanceSupplier() throws Throwable {
     InstanceSupplier<String> instanceSupplier = InstanceSupplier.using(() -> "test");
     assertThat(instanceSupplier.get(this.registeredBean)).isEqualTo("test");
   }
 
   @Test
-  void ofInstanceSupplierAdaptsToInstanceSupplier() throws Exception {
+  void ofInstanceSupplierAdaptsToInstanceSupplier() throws Throwable {
     InstanceSupplier<String> instanceSupplier = InstanceSupplier
             .of(registeredBean -> "test");
     assertThat(instanceSupplier.get(this.registeredBean)).isEqualTo("test");

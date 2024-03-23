@@ -19,6 +19,7 @@ package cn.taketoday.scheduling.annotation;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import cn.taketoday.lang.Nullable;
@@ -60,7 +61,7 @@ public class AsyncResult<V> extends CompleteFuture<V> implements Future<V> {
    * @param value the value to pass through
    */
   public AsyncResult(@Nullable V value) {
-    this(value, null);
+    this(null, value, null);
   }
 
   /**
@@ -68,7 +69,8 @@ public class AsyncResult<V> extends CompleteFuture<V> implements Future<V> {
    *
    * @param value the value to pass through
    */
-  private AsyncResult(@Nullable V value, @Nullable Throwable ex) {
+  private AsyncResult(@Nullable Executor executor, @Nullable V value, @Nullable Throwable ex) {
+    super(executor);
     this.value = value;
     this.executionException = ex;
   }
@@ -147,7 +149,17 @@ public class AsyncResult<V> extends CompleteFuture<V> implements Future<V> {
    * @see java.util.concurrent.Future#get()
    */
   public static <V> Future<V> forValue(V value) {
-    return new AsyncResult<>(value, null);
+    return new AsyncResult<>(defaultExecutor, value, null);
+  }
+
+  /**
+   * Create a new async result which exposes the given value from {@link java.util.concurrent.Future#get()}.
+   *
+   * @param value the value to expose
+   * @see java.util.concurrent.Future#get()
+   */
+  public static <V> Future<V> forValue(V value, @Nullable Executor executor) {
+    return new AsyncResult<>(executor, value, null);
   }
 
   /**
@@ -159,7 +171,19 @@ public class AsyncResult<V> extends CompleteFuture<V> implements Future<V> {
    * @see ExecutionException
    */
   public static <V> Future<V> forExecutionException(Throwable ex) {
-    return new AsyncResult<>(null, ex);
+    return new AsyncResult<>(defaultExecutor, null, ex);
+  }
+
+  /**
+   * Create a new async result which exposes the given exception as an
+   * {@link ExecutionException} from {@link java.util.concurrent.Future#get()}.
+   *
+   * @param ex the exception to expose (either an pre-built {@link ExecutionException}
+   * or a cause to be wrapped in an {@link ExecutionException})
+   * @see ExecutionException
+   */
+  public static <V> Future<V> forExecutionException(Throwable ex, @Nullable Executor executor) {
+    return new AsyncResult<>(executor, null, ex);
   }
 
   /**

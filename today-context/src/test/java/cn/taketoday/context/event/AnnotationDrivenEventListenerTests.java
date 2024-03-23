@@ -283,13 +283,15 @@ class AnnotationDrivenEventListenerTests {
   }
 
   @Test
-  void listenableFutureReply() {
+  void listenableFutureReply() throws InterruptedException {
     load(TestEventListener.class, ReplyEventListener.class);
     SettableFuture<String> future = new DefaultFuture<>();
     future.setSuccess("dummy");
     AnotherTestEvent event = new AnotherTestEvent(this, future);
     ReplyEventListener replyEventListener = this.context.getBean(ReplyEventListener.class);
     TestEventListener listener = this.context.getBean(TestEventListener.class);
+
+    future.await();
 
     this.eventCollector.assertNoEventReceived(listener);
     this.eventCollector.assertNoEventReceived(replyEventListener);

@@ -34,10 +34,6 @@ public abstract class CompleteFuture<V> extends AbstractFuture<V> {
 
   private final Executor executor;
 
-  protected CompleteFuture() {
-    executor = defaultExecutor;
-  }
-
   /**
    * Creates a new instance.
    *
