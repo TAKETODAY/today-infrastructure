@@ -274,14 +274,14 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 
   @Override
   public Future<?> submitListenable(Runnable task) {
-    ListenableFutureTask<Object> future = new ListenableFutureTask<>(this, task, null);
+    var future = new ListenableFutureTask<>(this, task, null);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
   public <T> Future<T> submitListenable(Callable<T> task) {
-    ListenableFutureTask<T> future = new ListenableFutureTask<>(this, task);
+    var future = new ListenableFutureTask<>(this, task);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }

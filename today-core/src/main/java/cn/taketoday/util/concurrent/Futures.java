@@ -84,9 +84,9 @@ final class Futures {
     }
     Executor executor = future.executor();
     if (future.isSuccess()) {
-      var futureTask = new ListenableFutureTask<>(executor, new CallableMapper<>(future, mapper));
-      executor.execute(futureTask);
-      return futureTask;
+      var task = new ListenableFutureTask<>(executor, new CallableMapper<>(future, mapper));
+      executor.execute(task);
+      return task;
     }
     SettableFuture<R> settable = Future.forSettable(executor);
     future.onCompleted(new Mapper<>(settable, mapper));
@@ -153,9 +153,9 @@ final class Futures {
     Throwable cause = future.getCause();
     if (cause != null) {
       // already failed
-      var futureTask = new ListenableFutureTask<>(executor, () -> recoverFunc.apply(cause));
-      executor.execute(futureTask);
-      return futureTask;
+      var task = new ListenableFutureTask<>(executor, () -> recoverFunc.apply(cause));
+      executor.execute(task);
+      return task;
     }
 
     SettableFuture<V> settable = Future.forSettable(executor);

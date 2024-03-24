@@ -122,7 +122,7 @@ public class SettableFutureNotifier<V, F extends Future<V>> implements FutureLis
   public void operationComplete(F future) throws Exception {
     Logger logger = logNotifyFailure ? SettableFutureNotifier.logger : null;
     if (future.isSuccess()) {
-      V result = future.get();
+      V result = future.getNow();
       for (SettableFuture<? super V> p : futures) {
         trySuccess(p, result, logger);
       }
@@ -159,7 +159,7 @@ public class SettableFutureNotifier<V, F extends Future<V>> implements FutureLis
   /**
    * Try to mark the {@link SettableFuture} as success and log if {@code logger} is not {@code null} in case this fails.
    */
-  static <V> void trySuccess(SettableFuture<? super V> p, V result, @Nullable Logger logger) {
+  static <V> void trySuccess(SettableFuture<? super V> p, @Nullable V result, @Nullable Logger logger) {
     if (!p.trySuccess(result) && logger != null) {
       Throwable err = p.getCause();
       if (err == null) {

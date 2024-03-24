@@ -54,7 +54,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   private static final Object SUCCESS = new Object();
   private static final Object UNCANCELLABLE = new Object();
 
-  private static final CauseHolder CANCELLATION_CAUSE_HOLDER = new CauseHolder(
+  private static final Failure CANCELLATION_CAUSE_HOLDER = new Failure(
           StacklessCancellationException.newInstance(DefaultFuture.class, "cancel(...)"));
 
   private static final StackTraceElement[] CANCELLATION_STACK = CANCELLATION_CAUSE_HOLDER.cause.getStackTrace();
@@ -65,28 +65,16 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   private volatile Object result;
 
   /**
-   * One or more listeners. Can be a {@link FutureListener} or a {@link FutureListeners}.
-   * If {@code null}, it means either 1) no listeners were added yet or 2) all listeners were notified.
-   *
-   * Threading - synchronized(this). We must support adding listeners when there is no Executor.
+   * One or more listeners.
    */
   @Nullable
-  private FutureListener<? extends Future<?>> listener;
-
-  @Nullable
-  private FutureListeners listeners;
+  private Object listeners;
 
   /**
    * Threading - synchronized(this). We are required to hold the monitor
    * to use Java's underlying wait()/notifyAll().
    */
   private short waiters;
-
-  /**
-   * Threading - synchronized(this). We must prevent concurrent
-   * notification and FIFO listener notification if the executor changes.
-   */
-  private boolean notifyingListeners;
 
   /**
    * Creates a new instance.
@@ -110,7 +98,16 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     Assert.notNull(listener, "listener is required");
 
     synchronized(this) {
-      doAddListener(listener);
+      Object local = this.listeners;
+      if (local instanceof FutureListeners ls) {
+        ls.add(listener);
+      }
+      else if (local instanceof FutureListener<?> l) {
+        this.listeners = new FutureListeners(l, listener);
+      }
+      else {
+        this.listeners = listener;
+      }
     }
 
     if (isDone()) {
@@ -163,12 +160,12 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   @Override
   public boolean isSuccess() {
     Object result = this.result;
-    return result != null && result != UNCANCELLABLE && !(result instanceof CauseHolder);
+    return result != null && result != UNCANCELLABLE && !(result instanceof Failure);
   }
 
   @Override
   public boolean isFailed() {
-    return result instanceof CauseHolder;
+    return result instanceof Failure;
   }
 
   @Override
@@ -193,15 +190,15 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   @Nullable
   private Throwable getCause(@Nullable Object result) {
-    if (result instanceof CauseHolder) {
+    if (result instanceof Failure) {
       if (result == CANCELLATION_CAUSE_HOLDER) {
         var ce = new LeanCancellationException();
-        if (RESULT_UPDATER.compareAndSet(this, CANCELLATION_CAUSE_HOLDER, new CauseHolder(ce))) {
+        if (RESULT_UPDATER.compareAndSet(this, CANCELLATION_CAUSE_HOLDER, new Failure(ce))) {
           return ce;
         }
         result = this.result;
       }
-      if (result instanceof CauseHolder holder) {
+      if (result instanceof Failure holder) {
         return holder.cause;
       }
     }
@@ -312,7 +309,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   @Override
   public V getNow() {
     Object result = this.result;
-    if (result instanceof CauseHolder || result == SUCCESS || result == UNCANCELLABLE) {
+    if (result instanceof Failure || result == SUCCESS || result == UNCANCELLABLE) {
       return null;
     }
     return (V) result;
@@ -404,7 +401,9 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * {@link #cancel(boolean) cancel(true)}.
    * <p>The default implementation is empty.
    */
-  protected void interruptTask() { }
+  protected void interruptTask() {
+    // noop
+  }
 
   @Override
   public String toString() {
@@ -424,9 +423,9 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     else if (result == UNCANCELLABLE) {
       buf.append("(uncancellable)");
     }
-    else if (result instanceof CauseHolder) {
+    else if (result instanceof Failure) {
       buf.append("(failure: ")
-              .append(((CauseHolder) result).cause)
+              .append(((Failure) result).cause)
               .append(')');
     }
     else if (result != null) {
@@ -457,54 +456,30 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   private void notifyListenersNow() {
-    FutureListener<?> listener;
-    FutureListeners listeners;
+    Object listeners;
     synchronized(this) {
-      listener = this.listener;
-      listeners = this.listeners;
-      // Only proceed if there are listeners to notify and we are not already notifying listeners.
-      if (notifyingListeners || (listener == null && listeners == null)) {
+      if (this.listeners == null) {
         return;
       }
-      notifyingListeners = true;
-      if (listener != null) {
-        this.listener = null;
-      }
-      else {
-        this.listeners = null;
-      }
+      listeners = this.listeners;
+      this.listeners = null;
     }
     for (; ; ) {
-      if (listener != null) {
-        notifyListener(this, listener);
+      if (listeners instanceof FutureListener<?> fl) {
+        notifyListener(this, fl);
       }
-      else {
-        notifyListeners(listeners);
+      else if (listeners instanceof FutureListeners holder) {
+        for (FutureListener<?> listener : holder.listeners) {
+          notifyListener(this, listener);
+        }
       }
       synchronized(this) {
-        if (this.listener == null && this.listeners == null) {
-          // Nothing can throw from within this method, so setting notifyingListeners back to false does not
-          // need to be in a finally block.
-          notifyingListeners = false;
+        if (this.listeners == null) {
           return;
         }
-        listener = this.listener;
         listeners = this.listeners;
-        if (listener != null) {
-          this.listener = null;
-        }
-        else {
-          this.listeners = null;
-        }
+        this.listeners = null;
       }
-    }
-  }
-
-  private void notifyListeners(FutureListeners listeners) {
-    final var a = listeners.listeners;
-    final int size = listeners.size;
-    for (int i = 0; i < size; i++) {
-      notifyListener(this, a[i]);
     }
   }
 
@@ -518,28 +493,13 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
   }
 
-  private void doAddListener(FutureListener<? extends Future<V>> listener) {
-    if (this.listener == null) {
-      if (listeners == null) {
-        this.listener = listener;
-      }
-      else {
-        listeners.add(listener);
-      }
-    }
-    else {
-      this.listeners = new FutureListeners(this.listener, listener);
-      this.listener = null;
-    }
-  }
-
   private boolean doSetSuccess(@Nullable V result) {
     return doSetValue(result == null ? SUCCESS : result);
   }
 
   private boolean doSetFailure(Throwable cause) {
     Assert.notNull(cause, "Throwable cause is required");
-    return doSetValue(new CauseHolder(cause));
+    return doSetValue(new Failure(cause));
   }
 
   private boolean doSetValue(Object objResult) {
@@ -562,7 +522,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     if (waiters > 0) {
       notifyAll();
     }
-    return listener != null || listeners != null;
+    return listeners != null;
   }
 
   private void incWaiters() {
@@ -639,91 +599,18 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
   }
 
-  /**
-   * Notify all progressive listeners.
-   * <p>
-   * No attempt is made to ensure notification order if multiple
-   * calls are made to this method before the original invocation completes.
-   * <p>
-   * This will do an iteration over all listeners to get all of type
-   * {@link ProgressiveFutureListener}s.
-   *
-   * @param progress the new progress.
-   * @param total the total progress.
-   */
-  @SuppressWarnings("unchecked")
-  void notifyProgressiveListeners(final long progress, final long total) {
-    final Object listeners = progressiveListeners();
-    if (listeners == null) {
-      return;
-    }
-
-    final ProgressiveFuture<V> self = (ProgressiveFuture<V>) this;
-
-    if (listeners instanceof ProgressiveFutureListener<?>[] array) {
-      safeExecute(executor, () -> notifyProgressiveListeners(self, array, progress, total));
-    }
-    else {
-      final var l = (ProgressiveFutureListener<ProgressiveFuture<V>>) listeners;
-      safeExecute(executor, () -> notifyProgressiveListener(self, l, progress, total));
-    }
-  }
-
-  /**
-   * Returns a {@link ProgressiveFutureListener}, an array of {@link ProgressiveFutureListener}, or
-   * {@code null}.
-   */
-  @Nullable
-  private synchronized Object progressiveListeners() {
-    final FutureListener<?> listener = this.listener;
-    final FutureListeners listeners = this.listeners;
-    if (listener == null && listeners == null) {
-      // No listeners added
-      return null;
-    }
-
-    if (listeners != null) {
-      return listeners.progressiveListeners;
-    }
-    else if (listener instanceof ProgressiveFutureListener) {
-      return listener;
-    }
-    else {
-      // Only one listener was added and it's not a progressive listener.
-      return null;
-    }
-  }
-
-  private static void notifyProgressiveListeners(ProgressiveFuture<?> future,
-          ProgressiveFutureListener<?>[] listeners, long progress, long total) {
-    for (var l : listeners) {
-      notifyProgressiveListener(future, l, progress, total);
-    }
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static void notifyProgressiveListener(ProgressiveFuture future, ProgressiveFutureListener l, long progress, long total) {
-    try {
-      l.operationProgressed(future, progress, total);
-    }
-    catch (Throwable t) {
-      logger.warn("An exception was thrown by {}.operationProgressed()", l.getClass().getName(), t);
-    }
-  }
-
   private static boolean isCancelled(@Nullable Object result) {
-    return result instanceof CauseHolder
-            && ((CauseHolder) result).cause instanceof CancellationException;
+    return result instanceof Failure && ((Failure) result).cause instanceof CancellationException;
   }
 
   private static boolean isDone(@Nullable Object result) {
     return result != null && result != UNCANCELLABLE;
   }
 
-  private static final class CauseHolder {
+  private static final class Failure {
     public final Throwable cause;
 
-    CauseHolder(Throwable cause) {
+    Failure(Throwable cause) {
       this.cause = cause;
     }
   }

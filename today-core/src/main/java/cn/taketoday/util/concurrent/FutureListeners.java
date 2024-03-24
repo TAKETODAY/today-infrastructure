@@ -17,9 +17,7 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.Arrays;
-
-import cn.taketoday.lang.Nullable;
+import java.util.ArrayList;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -27,60 +25,17 @@ import cn.taketoday.lang.Nullable;
  */
 final class FutureListeners {
 
-  public FutureListener<? extends Future<?>>[] listeners;
+  public final ArrayList<FutureListener<?>> listeners;
 
-  @Nullable
-  public Object progressiveListeners;
-
-  public int size;
-
-  @SuppressWarnings("unchecked")
   FutureListeners(FutureListener<? extends Future<?>> first, FutureListener<? extends Future<?>> second) {
-    listeners = new FutureListener[2];
-    listeners[0] = first;
-    listeners[1] = second;
-    size = 2;
-    if (first instanceof ProgressiveFutureListener) {
-      if (second instanceof ProgressiveFutureListener) {
-        progressiveListeners = new ProgressiveFutureListener[] {
-                (ProgressiveFutureListener<?>) first, (ProgressiveFutureListener<?>) second
-        };
-      }
-      else {
-        progressiveListeners = first;
-      }
-    }
-    else if (second instanceof ProgressiveFutureListener) {
-      progressiveListeners = second;
-    }
+    ArrayList<FutureListener<?>> listeners = new ArrayList<>(4);
+    listeners.add(first);
+    listeners.add(second);
+    this.listeners = listeners;
   }
 
   public void add(FutureListener<? extends Future<?>> l) {
-    var listeners = this.listeners;
-    final int size = this.size;
-    if (size == listeners.length) {
-      this.listeners = listeners = Arrays.copyOf(listeners, size << 1);
-    }
-    listeners[size] = l;
-    this.size = size + 1;
-
-    if (l instanceof ProgressiveFutureListener<?> pfl) {
-      Object progressive = this.progressiveListeners;
-      if (progressive instanceof ProgressiveFutureListener) {
-        this.progressiveListeners = new ProgressiveFutureListener[] {
-                (ProgressiveFutureListener<?>) progressive, pfl
-        };
-      }
-      else if (progressive instanceof ProgressiveFutureListener<?>[] array) {
-        var newArr = new ProgressiveFutureListener<?>[array.length + 1];
-        System.arraycopy(array, 0, newArr, 0, array.length);
-        newArr[array.length] = pfl;
-        this.progressiveListeners = newArr;
-      }
-      else {
-        this.progressiveListeners = pfl;
-      }
-    }
+    listeners.add(l);
   }
 
 }

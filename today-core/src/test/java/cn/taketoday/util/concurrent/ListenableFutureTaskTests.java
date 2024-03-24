@@ -123,11 +123,10 @@ class ListenableFutureTaskTests {
     verify(failureCallback).onFailure(ex);
     verifyNoInteractions(successCallback);
 
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    task::get)
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(task::get)
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    task.completable()::get)
+
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(task.completable()::get)
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
   }
 
