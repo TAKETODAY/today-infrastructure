@@ -29,7 +29,6 @@ import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
  * Adapter that takes a JDK {@code java.util.concurrent.Executor} and
@@ -134,7 +133,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   @Override
   public Future<?> submitListenable(Runnable task) {
     try {
-      var future = new ListenableFutureTask<>(this, task, null);
+      var future = Future.forFutureTask(task, this);
       doExecute(this.concurrentExecutor, this.taskDecorator, future);
       return future;
     }
@@ -146,7 +145,7 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   @Override
   public <T> Future<T> submitListenable(Callable<T> task) {
     try {
-      var future = new ListenableFutureTask<>(this, task);
+      var future = Future.forFutureTask(task, this);
       doExecute(this.concurrentExecutor, this.taskDecorator, future);
       return future;
     }

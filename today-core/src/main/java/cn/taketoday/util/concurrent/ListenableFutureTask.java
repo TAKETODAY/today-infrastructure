@@ -41,31 +41,9 @@ public class ListenableFutureTask<V> extends DefaultFuture<V> implements Runnabl
    * execute the given {@link Callable}.
    *
    * @param callable the callable task
-   */
-  public ListenableFutureTask(Callable<V> callable) {
-    this(defaultExecutor, callable);
-  }
-
-  /**
-   * Create a {@code ListenableFutureTask} that will, upon running,
-   * execute the given {@link Runnable}, and arrange that {@link #get()}
-   * will return the given result on successful completion.
-   *
-   * @param runnable the runnable task
-   * @param result the result to return on successful completion
-   */
-  public ListenableFutureTask(Runnable runnable, @Nullable V result) {
-    this(defaultExecutor, runnable, result);
-  }
-
-  /**
-   * Create a new {@code ListenableFutureTask} that will, upon running,
-   * execute the given {@link Callable}.
-   *
-   * @param callable the callable task
    * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
    */
-  public ListenableFutureTask(@Nullable Executor executor, Callable<V> callable) {
+  ListenableFutureTask(@Nullable Executor executor, Callable<V> callable) {
     super(executor);
     this.futureTask = new FutureTaskAdapter(callable);
   }
@@ -79,7 +57,7 @@ public class ListenableFutureTask<V> extends DefaultFuture<V> implements Runnabl
    * @param result the result to return on successful completion
    * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
    */
-  public ListenableFutureTask(@Nullable Executor executor, Runnable runnable, @Nullable V result) {
+  ListenableFutureTask(@Nullable Executor executor, Runnable runnable, @Nullable V result) {
     super(executor);
     this.futureTask = new FutureTaskAdapter(runnable, result);
   }

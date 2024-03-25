@@ -31,6 +31,7 @@ import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -196,8 +197,7 @@ class AsyncTests {
 
     @GetMapping(params = "listenableFuture")
     Future<Person> getListenableFuture() {
-      cn.taketoday.util.concurrent.ListenableFutureTask<Person> futureTask =
-              new cn.taketoday.util.concurrent.ListenableFutureTask<>(() -> new Person("Joe"));
+      ListenableFutureTask<Person> futureTask = Future.forFutureTask(() -> new Person("Joe"));
       delay(100, futureTask);
       return futureTask;
     }

@@ -29,7 +29,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrencyThrottleSupport;
 import cn.taketoday.util.CustomizableThreadCreator;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
  * {@link TaskExecutor} implementation that fires up a new Thread for each task,
@@ -274,14 +273,14 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 
   @Override
   public Future<?> submitListenable(Runnable task) {
-    var future = new ListenableFutureTask<>(this, task, null);
+    var future = Future.forFutureTask(task, this);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
   public <T> Future<T> submitListenable(Callable<T> task) {
-    var future = new ListenableFutureTask<>(this, task);
+    var future = Future.forFutureTask(task, this);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }

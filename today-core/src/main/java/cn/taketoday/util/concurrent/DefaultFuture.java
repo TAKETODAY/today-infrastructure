@@ -78,9 +78,11 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   /**
    * Creates a new instance.
+   *
+   * @see #defaultExecutor
    */
   public DefaultFuture() {
-    this(defaultExecutor);
+    this.executor = defaultExecutor;
   }
 
   /**
@@ -385,7 +387,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public DefaultFuture<V> cascadeTo(final SettableFuture<? super V> settable) {
+  public DefaultFuture<V> cascadeTo(final SettableFuture<V> settable) {
     Futures.cascade(this, settable);
     return this;
   }

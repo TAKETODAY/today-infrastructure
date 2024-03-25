@@ -107,7 +107,7 @@ public interface SettableFuture<V> extends Future<V> {
   SettableFuture<V> syncUninterruptibly();
 
   @Override
-  default SettableFuture<V> cascadeTo(final SettableFuture<? super V> settable) {
+  default SettableFuture<V> cascadeTo(final SettableFuture<V> settable) {
     Futures.cascade(this, settable);
     return this;
   }

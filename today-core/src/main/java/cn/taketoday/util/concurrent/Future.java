@@ -27,13 +27,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import cn.taketoday.core.Pair;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.function.ThrowingBiFunction;
+import cn.taketoday.util.function.ThrowingFunction;
 
 /**
  * The result of an asynchronous operation.
@@ -401,7 +401,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new future instance that will complete with the mapped
    * result of this future.
    */
-  default <R> Future<R> map(Function<V, R> mapper) {
+  default <R> Future<R> map(ThrowingFunction<V, R> mapper) {
+    Assert.notNull(mapper, "mapper is required");
     return Futures.map(this, mapper);
   }
 
@@ -413,7 +414,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * The "flat" in "flat-map" means the given mapper function produces
    * a result that itself is a future-of-R, yet this method also returns
    * a future-of-R, rather than a future-of-future-of-R. In other words,
-   * if the same mapper function was used with the {@link #map(Function)}
+   * if the same mapper function was used with the {@link #map(ThrowingFunction)}
    * method, you would get back a {@code Future<Future<R>>}. These nested
    * futures are "flattened" into a {@code Future<R>} by this method.
    * <p>
@@ -436,7 +437,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new future instance that will complete with the mapped result
    * of this future.
    */
-  default <R> Future<R> flatMap(Function<V, Future<R>> mapper) {
+  default <R> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
+    Assert.notNull(mapper, "mapper is required");
     return Futures.flatMap(this, mapper);
   }
 
@@ -451,7 +453,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return itself
    * @throws IllegalArgumentException SettableFuture is null.
    */
-  default Future<V> cascadeTo(final SettableFuture<? super V> settable) {
+  default Future<V> cascadeTo(final SettableFuture<V> settable) {
     Futures.cascade(this, settable);
     return this;
   }
@@ -533,14 +535,14 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws InterruptedException if the thread is interrupted while waiting for
    * the future to complete.
    */
-  default <T> T join(BiFunction<V, Throwable, T> resultHandler) throws InterruptedException {
+  default <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
     Assert.notNull(resultHandler, "resultHandler is required");
     await();
     if (isSuccess()) {
-      return resultHandler.apply(getNow(), null);
+      return resultHandler.applyWithException(getNow(), null);
     }
     else {
-      return resultHandler.apply(null, getCause());
+      return resultHandler.applyWithException(null, getCause());
     }
   }
 
@@ -566,42 +568,20 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   // Static Factory Methods
 
   /**
-   * Adapts {@code CompletionStage} to a new SettableFuture instance.
+   * Creates a new SucceededFuture instance.
    */
-  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage) {
-    return forAdaption(stage, defaultExecutor);
+  static <V> SucceededFuture<V> ok(@Nullable V result) {
+    return new SucceededFuture<>(result);
   }
 
   /**
-   * Adapts {@code CompletionStage} to a new SettableFuture instance.
-   *
-   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
-   */
-  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
-    SettableFuture<V> settable = forSettable(executor);
-    stage.thenAcceptAsync(settable::trySuccess)
-            .exceptionally(failure -> {
-              settable.setFailure(failure);
-              return null;
-            });
-    return settable;
-  }
-
-  /**
-   * Creates a new SettableFuture instance.
-   */
-  static <V> SettableFuture<V> forSettable() {
-    return forSettable(defaultExecutor);
-  }
-
-  /**
-   * Creates a new SettableFuture instance.
+   * Creates a new SucceededFuture instance.
    *
    * @param executor the {@link Executor} which is used to notify
-   * the SettableFuture once it is complete.
+   * the Future once it is complete.
    */
-  static <V> SettableFuture<V> forSettable(@Nullable Executor executor) {
-    return new DefaultFuture<>(executor);
+  static <V> SucceededFuture<V> ok(@Nullable V result, @Nullable Executor executor) {
+    return new SucceededFuture<>(executor, result);
   }
 
   /**
@@ -633,34 +613,130 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   }
 
   /**
-   * Creates a new SucceededFuture instance.
+   * Adapts {@code CompletionStage} to a new SettableFuture instance.
    */
-  static <V> SucceededFuture<V> ok(@Nullable V result) {
-    return new SucceededFuture<>(result);
+  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage) {
+    return forAdaption(stage, defaultExecutor);
   }
 
   /**
-   * Creates a new SucceededFuture instance.
+   * Adapts {@code CompletionStage} to a new SettableFuture instance.
+   *
+   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
+   */
+  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
+    SettableFuture<V> settable = forSettable(executor);
+    stage.thenAcceptAsync(settable::trySuccess)
+            .exceptionally(failure -> {
+              settable.setFailure(failure);
+              return null;
+            });
+    return settable;
+  }
+
+  /**
+   * Creates a new SettableFuture instance.
+   */
+  static <V> SettableFuture<V> forSettable() {
+    return new DefaultFuture<>();
+  }
+
+  /**
+   * Creates a new SettableFuture instance.
    *
    * @param executor the {@link Executor} which is used to notify
-   * the Future once it is complete.
+   * the SettableFuture once it is complete.
    */
-  static <V> SucceededFuture<V> ok(@Nullable V result, @Nullable Executor executor) {
-    return new SucceededFuture<>(executor, result);
+  static <V> SettableFuture<V> forSettable(@Nullable Executor executor) {
+    return new DefaultFuture<>(executor);
+  }
+
+  /**
+   * Creates a new ListenableFutureTask instance.
+   * like JDK {@link java.util.concurrent.FutureTask}
+   *
+   * @param task the callable task
+   * @throws NullPointerException if computation Callable is null
+   * @see java.util.concurrent.FutureTask
+   */
+  static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task) {
+    return new ListenableFutureTask<>(defaultExecutor, task);
+  }
+
+  /**
+   * Creates a new ListenableFutureTask instance.
+   * like JDK {@link java.util.concurrent.FutureTask}
+   *
+   * @param task the callable task
+   * @param executor the {@link Executor} which is used to notify
+   * the ListenableFutureTask once it is complete.
+   * @throws NullPointerException if computation Callable is null
+   * @see java.util.concurrent.FutureTask
+   */
+  static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task, @Nullable Executor executor) {
+    return new ListenableFutureTask<>(executor, task);
+  }
+
+  /**
+   * Creates a new ListenableFutureTask instance.
+   * like JDK {@link java.util.concurrent.FutureTask}
+   *
+   * @throws NullPointerException if task Runnable is null
+   * @see java.util.concurrent.FutureTask
+   */
+  static <V> ListenableFutureTask<V> forFutureTask(Runnable task) {
+    return new ListenableFutureTask<>(defaultExecutor, task, null);
+  }
+
+  /**
+   * Creates a new ListenableFutureTask instance.
+   * like JDK {@link java.util.concurrent.FutureTask}
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the ListenableFutureTask once it is complete.
+   * @throws NullPointerException if task Runnable is null
+   * @see java.util.concurrent.FutureTask
+   */
+  static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable Executor executor) {
+    return new ListenableFutureTask<>(executor, task, null);
+  }
+
+  /**
+   * Creates a new ListenableFutureTask instance.
+   * like JDK {@link java.util.concurrent.FutureTask}
+   *
+   * @throws NullPointerException if task Runnable is null
+   * @see java.util.concurrent.FutureTask
+   */
+  static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
+    return new ListenableFutureTask<>(defaultExecutor, task, result);
+  }
+
+  /**
+   * Creates a new ListenableFutureTask instance.
+   * like JDK {@link java.util.concurrent.FutureTask}
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the ListenableFutureTask once it is complete.
+   * @throws NullPointerException if task Runnable is null
+   * @see java.util.concurrent.FutureTask
+   */
+  static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result, @Nullable Executor executor) {
+    return new ListenableFutureTask<>(executor, task, result);
   }
 
   /**
    * Starts an asynchronous computation, backed by the {@link #defaultExecutor}.
    *
-   * @param computation A computation.
+   * @param task A computation task.
    * @param <T> Type of the computation result.
    * @return A new Future instance.
    * @throws IllegalArgumentException if computation is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static <T> Future<T> run(Callable<T> computation) {
-    return run(computation, defaultExecutor);
+  static <T> ListenableFutureTask<T> run(Callable<T> task) {
+    return run(task, defaultExecutor);
   }
 
   /**
@@ -668,14 +744,14 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
-   * @param computation A computation.
+   * @param computation A computation task.
    * @param <V> Type of the computation result.
    * @return A new Future instance.
    * @throws IllegalArgumentException computation is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static <V> Future<V> run(Callable<V> computation, @Nullable Executor executor) {
+  static <V> ListenableFutureTask<V> run(Callable<V> computation, @Nullable Executor executor) {
     Assert.notNull(computation, "computation is required");
     if (executor == null) {
       executor = defaultExecutor;
@@ -688,14 +764,14 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   /**
    * Runs an asynchronous computation, backed by the {@link #defaultExecutor}.
    *
-   * @param unit A unit of work.
+   * @param task A unit of work.
    * @return A new Future instance which results in nothing.
    * @throws IllegalArgumentException if unit is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static Future<Void> run(Runnable unit) {
-    return run(unit, defaultExecutor);
+  static ListenableFutureTask<Void> run(Runnable task) {
+    return run(task, defaultExecutor);
   }
 
   /**
@@ -708,7 +784,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static Future<Void> run(Runnable task, @Nullable Executor executor) {
+  static ListenableFutureTask<Void> run(Runnable task, @Nullable Executor executor) {
     Assert.notNull(task, "unit is required");
     if (executor == null) {
       executor = defaultExecutor;

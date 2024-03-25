@@ -27,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketHttpHeaders;
 import cn.taketoday.web.socket.WebSocketSession;
@@ -124,7 +123,7 @@ public class WebSocketConnectionManagerTests {
       this.webSocketHandler = handler;
       this.headers = headers;
       this.uri = uri;
-      return new ListenableFutureTask<>(() -> null);
+      return Future.forFutureTask(() -> null);
     }
 
     @Override

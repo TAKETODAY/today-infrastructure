@@ -350,7 +350,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      var future = new ListenableFutureTask<>(executor, task, null);
+      var future = Future.forFutureTask(task, executor);
       executeAndTrack(executor, future);
       return future;
     }
@@ -363,7 +363,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      var future = new ListenableFutureTask<>(executor, task);
+      var future = Future.forFutureTask(task, executor);
       executeAndTrack(executor, future);
       return future;
     }

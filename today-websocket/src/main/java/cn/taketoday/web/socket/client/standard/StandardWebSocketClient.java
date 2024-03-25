@@ -40,7 +40,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.FutureUtils;
-import cn.taketoday.util.concurrent.ListenableFutureTask;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketExtension;
 import cn.taketoday.web.socket.StandardWebSocketSession;
@@ -195,7 +194,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
       return this.taskExecutor.submitListenable(connectTask);
     }
     else {
-      var task = new ListenableFutureTask<>(connectTask);
+      var task = Future.forFutureTask(connectTask);
       task.run();
       return task;
     }

@@ -25,15 +25,17 @@ import java.util.function.Function;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
+import cn.taketoday.util.function.ThrowingFunction;
 
 import static cn.taketoday.util.concurrent.SettableFutureNotifier.tryFailure;
 
 /**
  * Combinator operations on {@linkplain Future futures}.
  * <p>
- * Used for implementing {@link Future#map(Function)}
- * and {@link Future#flatMap(Function)}
+ * Used for implementing {@link Future#map(ThrowingFunction)}
+ * and {@link Future#flatMap(ThrowingFunction)}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @implNote The operations themselves are implemented
@@ -76,8 +78,8 @@ final class Futures {
    * @return A new future instance that will complete with the mapped result of the given future.
    */
   @SuppressWarnings("unchecked")
-  public static <V, R> Future<R> map(Future<V> future, Function<V, R> mapper) {
-    Assert.notNull(mapper, "mapper is required");
+  public static <V, R> Future<R> map(Future<V> future, ThrowingFunction<V, R> mapper) {
+
     if (future.isFailed()) {
       // Cast is safe because the result type is not used in failed futures.
       return (Future<R>) future;
@@ -101,7 +103,7 @@ final class Futures {
    * The "flat" in "flat-map" means the given mapper function produces a result
    * that itself is a future-of-R, yet this method also returns a future-of-R,
    * rather than a future-of-future-of-R. In other words, if the same mapper
-   * function was used with the {@link #map(Future, Function)} method, you would
+   * function was used with the {@link #map(Future, ThrowingFunction)} method, you would
    * get back a {@code Future<Future<R>>}. These nested futures are "flattened"
    * into a {@code Future<R>} by this method.
    * <p>
@@ -123,9 +125,7 @@ final class Futures {
    * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped result of the given future.
    */
-  public static <V, R> SettableFuture<R> flatMap(Future<V> future, Function<V, Future<R>> mapper) {
-    Assert.notNull(mapper, "mapper is required");
-
+  public static <V, R> SettableFuture<R> flatMap(Future<V> future, ThrowingFunction<V, Future<R>> mapper) {
     SettableFuture<R> settable = Future.forSettable(future.executor());
     future.onCompleted(new FlatMapper<>(settable, mapper));
     if (!future.isSuccess()) {
@@ -284,16 +284,21 @@ final class Futures {
 
     private final Future<T> future;
 
-    private final Function<T, R> mapper;
+    private final ThrowingFunction<T, R> mapper;
 
-    CallableMapper(Future<T> future, Function<T, R> mapper) {
+    CallableMapper(Future<T> future, ThrowingFunction<T, R> mapper) {
       this.future = future;
       this.mapper = mapper;
     }
 
     @Override
     public R call() {
-      return mapper.apply(future.getNow());
+      try {
+        return mapper.applyWithException(future.getNow());
+      }
+      catch (Throwable e) {
+        throw ExceptionUtils.sneakyThrow(e);
+      }
     }
   }
 
@@ -301,9 +306,9 @@ final class Futures {
 
     private final SettableFuture<R> recipient;
 
-    private final Function<T, R> mapper;
+    private final ThrowingFunction<T, R> mapper;
 
-    Mapper(SettableFuture<R> recipient, Function<T, R> mapper) {
+    Mapper(SettableFuture<R> recipient, ThrowingFunction<T, R> mapper) {
       this.recipient = recipient;
       this.mapper = mapper;
     }
@@ -312,8 +317,7 @@ final class Futures {
     public void operationComplete(Future<T> completed) {
       if (completed.isSuccess()) {
         try {
-          T result = completed.getNow();
-          R mapped = mapper.apply(result);
+          R mapped = mapper.applyWithException(completed.getNow());
           recipient.trySuccess(mapped);
         }
         catch (Throwable e) {
@@ -330,9 +334,9 @@ final class Futures {
 
     private final SettableFuture<R> recipient;
 
-    private final Function<T, Future<R>> mapper;
+    private final ThrowingFunction<T, Future<R>> mapper;
 
-    FlatMapper(SettableFuture<R> recipient, Function<T, Future<R>> mapper) {
+    FlatMapper(SettableFuture<R> recipient, ThrowingFunction<T, Future<R>> mapper) {
       this.recipient = recipient;
       this.mapper = mapper;
     }
@@ -341,7 +345,7 @@ final class Futures {
     public void operationComplete(Future<T> completed) {
       if (completed.isSuccess()) {
         try {
-          Future<R> mapped = mapper.apply(completed.getNow());
+          Future<R> mapped = mapper.applyWithException(completed.getNow());
           if (mapped.isSuccess()) {
             recipient.trySuccess(mapped.getNow());
           }
@@ -372,7 +376,7 @@ final class Futures {
    * @param settable the {@link SettableFuture} which will be notified
    * @param <V> the type of the value.
    */
-  static <V> void cascade(final Future<V> future, final SettableFuture<? super V> settable) {
+  static <V> void cascade(final Future<V> future, final SettableFuture<V> settable) {
     Assert.notNull(settable, "SettableFuture is required");
 
     if (!future.isSuccess()) {

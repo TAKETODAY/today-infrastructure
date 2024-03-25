@@ -42,7 +42,7 @@ class ListenableFutureTaskTests {
     final String s = "Hello World";
     Callable<String> callable = () -> s;
 
-    ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
+    ListenableFutureTask<String> task = Future.forFutureTask(callable);
     task.onCompleted(future -> {
       if (future.isSuccess()) {
         assertThat(future.getNow()).isEqualTo(s);
@@ -66,7 +66,7 @@ class ListenableFutureTaskTests {
       throw new IOException(s);
     };
 
-    ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
+    ListenableFutureTask<String> task = Future.forFutureTask(callable);
 
     task.onCompleted(future -> {
       if (future.isSuccess()) {
@@ -96,7 +96,7 @@ class ListenableFutureTaskTests {
 
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
-    ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
+    ListenableFutureTask<String> task = Future.forFutureTask(callable);
     task.onCompleted(successCallback, failureCallback);
     task.run();
     verify(successCallback).onSuccess(s);
@@ -117,7 +117,7 @@ class ListenableFutureTaskTests {
 
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
-    ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
+    ListenableFutureTask<String> task = Future.forFutureTask(callable);
     task.onCompleted(successCallback, failureCallback);
     task.run();
     verify(failureCallback).onFailure(ex);
