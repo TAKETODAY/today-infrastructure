@@ -371,7 +371,7 @@ class FutureTests {
     PartialResultException partialResultException = new PartialResultException();
     futureInteger.setFailure(partialResultException);
     Boolean booleanPartial = true;
-    futureBoolean.setSuccess(booleanPartial);
+    futureBoolean.trySuccess(booleanPartial);
     try {
       futureResult.get();
       Assertions.fail();

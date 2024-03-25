@@ -183,7 +183,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
       task.cancel(true);
     }
     else {
-      task.setFailure(cause);
+      task.setException(cause);
     }
 
     // cancel all tasks

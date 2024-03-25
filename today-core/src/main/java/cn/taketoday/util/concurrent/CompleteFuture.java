@@ -32,23 +32,13 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class CompleteFuture<V> extends AbstractFuture<V> {
 
-  private final Executor executor;
-
   /**
    * Creates a new instance.
    *
    * @param executor the {@link Executor} associated with this future
    */
   protected CompleteFuture(@Nullable Executor executor) {
-    this.executor = executor == null ? defaultExecutor : executor;
-  }
-
-  /**
-   * Return the {@link Executor} which is used by this {@link CompleteFuture}.
-   */
-  @Override
-  public Executor executor() {
-    return executor;
+    super(executor);
   }
 
   @Override

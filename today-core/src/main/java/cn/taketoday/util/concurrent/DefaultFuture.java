@@ -27,10 +27,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ExceptionUtils;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -41,11 +38,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * @since 4.0 2024/2/26 17:27
  */
 public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFuture<V> {
-
-  private static final Logger logger = LoggerFactory.getLogger(DefaultFuture.class);
-
-  private static final Logger rejectedExecutionLogger =
-          LoggerFactory.getLogger(DefaultFuture.class.getName() + ".rejectedExecution");
 
   @SuppressWarnings("rawtypes")
   private static final AtomicReferenceFieldUpdater<DefaultFuture, Object> RESULT_UPDATER =
@@ -59,16 +51,8 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   private static final StackTraceElement[] CANCELLATION_STACK = CANCELLATION_CAUSE_HOLDER.cause.getStackTrace();
 
-  protected final Executor executor;
-
   @Nullable
   private volatile Object result;
-
-  /**
-   * One or more listeners.
-   */
-  @Nullable
-  private Object listeners;
 
   /**
    * Threading - synchronized(this). We are required to hold the monitor
@@ -82,7 +66,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * @see #defaultExecutor
    */
   public DefaultFuture() {
-    this.executor = defaultExecutor;
+    super(defaultExecutor);
   }
 
   /**
@@ -92,30 +76,12 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * the SettableFuture once it is complete.
    */
   public DefaultFuture(@Nullable Executor executor) {
-    this.executor = executor == null ? defaultExecutor : executor;
+    super(executor);
   }
 
   @Override
   public DefaultFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
-    Assert.notNull(listener, "listener is required");
-
-    synchronized(this) {
-      Object local = this.listeners;
-      if (local instanceof FutureListeners ls) {
-        ls.add(listener);
-      }
-      else if (local instanceof FutureListener<?> l) {
-        this.listeners = new FutureListeners(l, listener);
-      }
-      else {
-        this.listeners = listener;
-      }
-    }
-
-    if (isDone()) {
-      notifyListeners();
-    }
-
+    super.onCompleted(listener);
     return this;
   }
 
@@ -392,11 +358,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     return this;
   }
 
-  @Override
-  public Executor executor() {
-    return executor;
-  }
-
   /**
    * Subclasses can override this method to implement interruption of the future's
    * computation. The method is invoked automatically by a successful call to
@@ -442,59 +403,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     return buf;
   }
 
-  /**
-   * Notify a listener that a future has completed.
-   *
-   * @param executor the executor to use to notify the listener {@code listener}.
-   * @param future the future that is complete.
-   * @param listener the listener to notify.
-   */
-  protected static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
-    safeExecute(executor, () -> notifyListener(future, listener));
-  }
-
-  private void notifyListeners() {
-    safeExecute(executor, this::notifyListenersNow);
-  }
-
-  private void notifyListenersNow() {
-    Object listeners;
-    synchronized(this) {
-      if (this.listeners == null) {
-        return;
-      }
-      listeners = this.listeners;
-      this.listeners = null;
-    }
-    for (; ; ) {
-      if (listeners instanceof FutureListener<?> fl) {
-        notifyListener(this, fl);
-      }
-      else if (listeners instanceof FutureListeners holder) {
-        for (FutureListener<?> listener : holder.listeners) {
-          notifyListener(this, listener);
-        }
-      }
-      synchronized(this) {
-        if (this.listeners == null) {
-          return;
-        }
-        listeners = this.listeners;
-        this.listeners = null;
-      }
-    }
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static void notifyListener(Future future, FutureListener l) {
-    try {
-      l.operationComplete(future);
-    }
-    catch (Throwable t) {
-      logger.warn("An exception was thrown by {}.operationComplete(Future)", l.getClass().getName(), t);
-    }
-  }
-
   private boolean doSetSuccess(@Nullable V result) {
     return doSetValue(result == null ? SUCCESS : result);
   }
@@ -536,15 +444,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   private void decWaiters() {
     --waiters;
-  }
-
-  private void rethrowIfFailed() {
-    Throwable cause = getCause();
-    if (cause == null) {
-      return;
-    }
-
-    throw ExceptionUtils.sneakyThrow(cause);
   }
 
   private boolean doAwait(long timeoutNanos, boolean interruptable) throws InterruptedException {
@@ -617,17 +516,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
   }
 
-  private static void safeExecute(Executor executor, Runnable task) {
-    try {
-      executor.execute(task);
-    }
-    catch (Throwable t) {
-      rejectedExecutionLogger.error(
-              "Failed to submit a listener notification task. Executor shutting-down?", t);
-    }
-  }
-
-  private static final class LeanCancellationException extends CancellationException {
+  static final class LeanCancellationException extends CancellationException {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -645,7 +534,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     }
   }
 
-  private static final class StacklessCancellationException extends CancellationException {
+  static final class StacklessCancellationException extends CancellationException {
 
     @Serial
     private static final long serialVersionUID = 1L;
