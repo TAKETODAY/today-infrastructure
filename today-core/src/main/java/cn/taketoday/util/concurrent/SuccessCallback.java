@@ -17,8 +17,6 @@
 
 package cn.taketoday.util.concurrent;
 
-import cn.taketoday.lang.Nullable;
-
 /**
  * Success callback for a {@link Future}.
  *
@@ -36,6 +34,6 @@ public interface SuccessCallback<T> {
    *
    * @param result the result
    */
-  void onSuccess(@Nullable T result) throws Throwable;
+  void onSuccess(T result) throws Throwable;
 
 }
