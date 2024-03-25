@@ -18,6 +18,7 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -69,10 +70,7 @@ public class ListenableFutureTask<V> extends DefaultFuture<V> implements Runnabl
 
   @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
-    if (futureTask.cancel(mayInterruptIfRunning)) {
-      return super.cancel(mayInterruptIfRunning);
-    }
-    return false;
+    return futureTask.cancel(mayInterruptIfRunning);
   }
 
   final class FutureTaskAdapter extends FutureTask<V> {
@@ -86,15 +84,27 @@ public class ListenableFutureTask<V> extends DefaultFuture<V> implements Runnabl
     }
 
     @Override
-    protected void set(V v) {
-      super.set(v);
-      trySuccess(v);
-    }
-
-    @Override
-    protected void setException(Throwable t) {
-      super.setException(t);
-      tryFailure(t);
+    protected void done() {
+      Throwable cause;
+      try {
+        V result = get();
+        trySuccess(result);
+        return;
+      }
+      catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+        return;
+      }
+      catch (ExecutionException ex) {
+        cause = ex.getCause();
+        if (cause == null) {
+          cause = ex;
+        }
+      }
+      catch (Throwable ex) {
+        cause = ex;
+      }
+      tryFailure(cause);
     }
 
   }
