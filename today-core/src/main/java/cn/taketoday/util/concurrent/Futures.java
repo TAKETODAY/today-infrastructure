@@ -23,13 +23,12 @@ import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingFunction;
-
-import static cn.taketoday.util.concurrent.SettableFutureNotifier.tryFailure;
 
 /**
  * Combinator operations on {@linkplain Future futures}.
@@ -385,5 +384,21 @@ final class Futures {
       settable.onCompleted(propagateCancel(), future);
     }
     future.onCompleted(passThrough(), settable);
+  }
+
+  /**
+   * Try to mark the {@link SettableFuture} as failure and log if {@code logger} is not {@code null} in case this fails.
+   */
+  static void tryFailure(SettableFuture<?> p, Throwable cause, @Nullable Logger logger) {
+    if (!p.tryFailure(cause) && logger != null) {
+      Throwable err = p.getCause();
+      if (err == null) {
+        logger.warn("Failed to mark a SettableFuture as failure because it has succeeded already: {}", p, cause);
+      }
+      else if (logger.isWarnEnabled()) {
+        logger.warn("Failed to mark a SettableFuture as failure because it has failed already: {}, unnotified cause: {}",
+                p, ExceptionUtils.stackTraceToString(err), cause);
+      }
+    }
   }
 }

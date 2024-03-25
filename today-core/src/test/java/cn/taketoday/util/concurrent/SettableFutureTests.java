@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 class SettableFutureTests {
 
-  private final SettableFuture<String> settableFuture = new DefaultFuture<>();
+  private final SettableFuture<String> settableFuture = new DefaultFuture<>(Runnable::run);
 
   @Test
   void validateInitialValues() {
