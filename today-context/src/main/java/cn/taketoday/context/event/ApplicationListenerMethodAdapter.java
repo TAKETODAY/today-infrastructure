@@ -56,8 +56,8 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.util.concurrent.FutureListener;
 
 /**
  * {@link GenericApplicationListener} adapter that delegates the processing of
@@ -384,8 +384,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
         log.trace("Adapted to reactive result: {}", result);
       }
     }
-    else if (result instanceof CompletionStage) {
-      ((CompletionStage<?>) result).whenComplete((event, ex) -> {
+    else if (result instanceof CompletionStage<?> stage) {
+      stage.whenComplete((event, ex) -> {
         if (ex != null) {
           handleAsyncError(ex);
         }
@@ -404,11 +404,12 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
 
   @Override
   public void operationComplete(Future<?> future) {
-    if (future.isSuccess()) {
-      publishEvents(future.obtain());
+    Throwable cause = future.getCause();
+    if (cause != null) {
+      handleAsyncError(cause);
     }
     else {
-      handleAsyncError(future.getCause());
+      publishEvents(future.obtain());
     }
   }
 

@@ -64,6 +64,7 @@ import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.concurrent.DefaultFuture;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.validation.annotation.Validated;
 import cn.taketoday.validation.beanvalidation.MethodValidationPostProcessor;
@@ -197,8 +198,8 @@ class AnnotationDrivenEventListenerTests {
     failingContext.register(BasicConfiguration.class,
             InvalidMethodSignatureEventListener.class);
 
-    assertThatExceptionOfType(BeanInitializationException.class).isThrownBy(() ->
-                    failingContext.refresh())
+    assertThatExceptionOfType(BeanInitializationException.class)
+            .isThrownBy(failingContext::refresh)
             .withMessageContaining(InvalidMethodSignatureEventListener.class.getName())
             .withMessageContaining("cannotBeCalled");
   }
@@ -285,7 +286,7 @@ class AnnotationDrivenEventListenerTests {
   @Test
   void listenableFutureReply() throws InterruptedException {
     load(TestEventListener.class, ReplyEventListener.class);
-    SettableFuture<String> future = new DefaultFuture<>();
+    SettableFuture<String> future = Future.forSettable(Runnable::run);
     future.setSuccess("dummy");
     AnotherTestEvent event = new AnotherTestEvent(this, future);
     ReplyEventListener replyEventListener = this.context.getBean(ReplyEventListener.class);
