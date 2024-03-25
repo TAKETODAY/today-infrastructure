@@ -205,8 +205,9 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   }
 
   @Override
-  public @Nullable V getNow() {
-    return null;
+  @SuppressWarnings("unchecked")
+  public V getNow() {
+    return state == NORMAL ? (V) outcome : null;
   }
 
   /**
@@ -290,7 +291,7 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
    * has been cancelled.
    */
   protected void done() {
-    // noop
+    notifyListeners();
   }
 
   /**
