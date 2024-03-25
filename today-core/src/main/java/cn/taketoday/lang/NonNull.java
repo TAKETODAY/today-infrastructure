@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.lang;
@@ -38,15 +35,16 @@ import javax.annotation.meta.TypeQualifierNickname;
  * <p>Should be used at parameter, return value, and field level. Method overrides should
  * repeat parent {@code @NonNull} annotations unless they behave differently.
  *
- * @author TODAY 2021/8/15 17:17
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Nullable
- * @since 4.0
+ * @since 4.0 2021/8/15 17:17
  */
 @Nonnull
 @Documented
 @TypeQualifierNickname
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
+@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD,
+        ElementType.LOCAL_VARIABLE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE })
 public @interface NonNull {
 
 }
