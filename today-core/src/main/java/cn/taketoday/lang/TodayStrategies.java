@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -58,6 +57,7 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/9/5 13:57
  */
 public class TodayStrategies {
+
   private static final Logger log = LoggerFactory.getLogger(TodayStrategies.class);
 
   public static final String STRATEGIES_LOCATION = "META-INF/today.strategies";
@@ -155,7 +155,7 @@ public class TodayStrategies {
         value = System.getProperty(key);
       }
       catch (Throwable ex) {
-        System.err.println("Could not retrieve system property '" + key + "': " + ex);
+        System.err.printf("Could not retrieve system property '%s': %s%n", key, ex);
       }
     }
 
@@ -457,6 +457,7 @@ public class TodayStrategies {
   //---------------------------------------------------------------------
 
   private final ClassLoader classLoader;
+
   private final Map<String, List<String>> strategies;
 
   /**
@@ -683,11 +684,6 @@ public class TodayStrategies {
       return defaultValue.get();
     }
     return first;
-  }
-
-  public static <T> Optional<T> findFirst(Class<T> strategyClass) {
-    T first = CollectionUtils.firstElement(find(strategyClass, (ClassLoader) null));
-    return Optional.ofNullable(first);
   }
 
   /**
@@ -935,7 +931,7 @@ public class TodayStrategies {
     }
     catch (IOException ex) {
       throw new IllegalArgumentException(
-              "Unable to load strategies from location [" + resourceLocation + "]", ex);
+              "Unable to load strategies from location [%s]".formatted(resourceLocation), ex);
     }
     return Collections.unmodifiableMap(strategies);
   }

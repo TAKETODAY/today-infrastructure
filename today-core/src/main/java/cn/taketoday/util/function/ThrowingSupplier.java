@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util.function;
@@ -30,6 +27,7 @@ import java.util.function.Supplier;
  * @param <T> the type of results supplied by this supplier
  * @author Stephane Nicoll
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface ThrowingSupplier<T> extends Supplier<T> {
@@ -38,9 +36,9 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * Gets a result, possibly throwing a checked exception.
    *
    * @return a result
-   * @throws Exception on error
+   * @throws Throwable on error
    */
-  T getWithException() throws Exception;
+  T getWithException() throws Throwable;
 
   /**
    * Default {@link Supplier#get()} that wraps any thrown checked exceptions
@@ -61,14 +59,14 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * and checked exception into a runtime exception
    * @return a result
    */
-  default T get(BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default T get(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     try {
       return getWithException();
     }
     catch (RuntimeException ex) {
       throw ex;
     }
-    catch (Exception ex) {
+    catch (Throwable ex) {
       throw exceptionWrapper.apply(ex.getMessage(), ex);
     }
   }
@@ -82,11 +80,11 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * and checked exception into a runtime exception
    * @return the replacement {@link ThrowingSupplier} instance
    */
-  default ThrowingSupplier<T> throwing(BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+  default ThrowingSupplier<T> throwing(BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
     return new ThrowingSupplier<>() {
 
       @Override
-      public T getWithException() throws Exception {
+      public T getWithException() throws Throwable {
         return ThrowingSupplier.this.getWithException();
       }
 
@@ -136,7 +134,7 @@ public interface ThrowingSupplier<T> extends Supplier<T> {
    * @return a new {@link ThrowingSupplier} instance
    */
   static <T> ThrowingSupplier<T> of(ThrowingSupplier<T> supplier,
-          BiFunction<String, Exception, RuntimeException> exceptionWrapper) {
+          BiFunction<String, Throwable, RuntimeException> exceptionWrapper) {
 
     return supplier.throwing(exceptionWrapper);
   }

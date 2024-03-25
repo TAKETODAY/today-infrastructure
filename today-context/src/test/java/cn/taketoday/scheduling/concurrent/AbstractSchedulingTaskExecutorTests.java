@@ -55,6 +55,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
 
   protected String threadNamePrefix;
 
+  @Nullable
   private volatile Object outcome;
 
   @BeforeEach
@@ -127,7 +128,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     TestTask task = new TestTask(this.testName, 1);
     // Act
     Future<?> future = executor.submitListenable(task);
-    future.addListener(result -> outcome = result, ex -> outcome = ex);
+    future.onCompleted(result -> outcome = result, ex -> outcome = ex);
     // Assert
     Awaitility.await()
             .atMost(1, TimeUnit.SECONDS)
@@ -156,7 +157,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   void submitFailingListenableRunnable() {
     TestTask task = new TestTask(this.testName, 0);
     Future<?> future = executor.submitListenable(task);
-    future.addListener(result -> outcome = result, ex -> outcome = ex);
+    future.onCompleted(result -> outcome = result, ex -> outcome = ex);
 
     Awaitility.await()
             .dontCatchUncaughtExceptions()
@@ -259,7 +260,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     TestCallable task = new TestCallable(this.testName, 1);
     // Act
     Future<String> future = executor.submitListenable(task);
-    future.addListener(result -> outcome = result, ex -> outcome = ex);
+    future.onCompleted(result -> outcome = result, ex -> outcome = ex);
     // Assert
     Awaitility.await()
             .atMost(1, TimeUnit.SECONDS)
@@ -273,7 +274,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
     TestCallable task = new TestCallable(this.testName, 0);
     // Act
     Future<String> future = executor.submitListenable(task);
-    future.addListener(result -> outcome = result, ex -> outcome = ex);
+    future.onCompleted(result -> outcome = result, ex -> outcome = ex);
     // Assert
     Awaitility.await()
             .dontCatchUncaughtExceptions()

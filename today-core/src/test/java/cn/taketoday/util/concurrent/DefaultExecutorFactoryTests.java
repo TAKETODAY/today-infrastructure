@@ -17,57 +17,43 @@
 
 package cn.taketoday.util.concurrent;
 
-import java.util.concurrent.Executor;
+import org.junit.jupiter.api.Test;
 
-import cn.taketoday.lang.Nullable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+
+import cn.taketoday.lang.NonNull;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The {@link CompleteFuture} which is succeeded already.
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/2/26 21:33
+ * @since 4.0 2024/3/23 14:04
  */
-public final class SucceededFuture<V> extends CompleteFuture<V> {
+class DefaultExecutorFactoryTests {
 
-  @Nullable
-  private final V result;
-
-  /**
-   * Creates a new instance.
-   */
-  public SucceededFuture(@Nullable V result) {
-    super(null);
-    this.result = result;
+  @Test
+  void lookup() {
+    assertThat(DefaultExecutorFactory.lookup()).isInstanceOf(MyExecutor.class);
+    assertThat(Future.defaultExecutor).isInstanceOf(MyExecutor.class);
   }
 
-  /**
-   * Creates a new instance.
-   *
-   * @param executor the {@link Executor} associated with this future
-   */
-  public SucceededFuture(@Nullable Executor executor, @Nullable V result) {
-    super(executor);
-    this.result = result;
+  static class ExecutorFactory implements DefaultExecutorFactory {
+
+    @Override
+    public Executor createExecutor() {
+      return new MyExecutor();
+    }
+
   }
 
-  @Override
-  public Throwable getCause() {
-    return null;
+  static class MyExecutor implements Executor {
+    final ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+
+    @Override
+    public void execute(@NonNull Runnable command) {
+      forkJoinPool.execute(command);
+    }
   }
 
-  @Override
-  public boolean isSuccess() {
-    return true;
-  }
-
-  @Override
-  public boolean isFailed() {
-    return false;
-  }
-
-  @Override
-  public V getNow() {
-    return result;
-  }
 }
-

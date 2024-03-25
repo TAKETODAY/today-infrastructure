@@ -37,7 +37,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.scheduling.SchedulingTaskExecutor;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.concurrent.Future;
-import cn.taketoday.util.concurrent.ListenableFutureTask;
 
 /**
  * JavaBean that allows for configuring a {@link ThreadPoolExecutor}
@@ -79,8 +78,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
-        implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
+public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
 
   private final Object poolSizeMonitor = new Object();
 
@@ -272,12 +270,12 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
    * decorating its {@code ExecutorService} handle or storing custom state.
    */
   @Override
-  protected ExecutorService initializeExecutor(ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+  protected ExecutorService initializeExecutor(ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
     BlockingQueue<Runnable> queue = createQueue(this.queueCapacity);
 
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(
-            this.corePoolSize, this.maxPoolSize, this.keepAliveSeconds, TimeUnit.SECONDS,
-            queue, threadFactory, rejectedExecutionHandler) {
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(this.corePoolSize, this.maxPoolSize,
+            this.keepAliveSeconds, TimeUnit.SECONDS, queue, threadFactory, rejectedHandler) {
+
       @Override
       public void execute(Runnable command) {
         Runnable decorated = command;
@@ -418,9 +416,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
-      ListenableFutureTask<Object> future = new ListenableFutureTask<>(task, null);
-      executor.execute(future);
-      return future;
+      return Future.run(task, executor);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);
@@ -431,9 +427,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport
   public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
-      ListenableFutureTask<T> future = new ListenableFutureTask<>(task);
-      executor.execute(future);
-      return future;
+      return Future.run(task, executor);
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);

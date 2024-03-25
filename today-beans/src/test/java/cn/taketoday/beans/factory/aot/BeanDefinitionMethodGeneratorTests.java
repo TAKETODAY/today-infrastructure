@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -368,7 +368,7 @@ class BeanDefinitionMethodGeneratorTests {
         TestBean instance = (TestBean) supplier.get(registeredBean);
         assertThat(instance.getName()).isEqualTo("postprocessed");
       }
-      catch (Exception ex) {
+      catch (Throwable ex) {
         throw new IllegalStateException(ex);
       }
       SourceFile sourceFile = compiled.getSourceFile(".*BeanDefinitions");
@@ -407,7 +407,7 @@ class BeanDefinitionMethodGeneratorTests {
         TestBean instance = (TestBean) supplier.get(registeredBean);
         assertThat(instance.getName()).isEqualTo("postprocessed");
       }
-      catch (Exception ex) {
+      catch (Throwable ex) {
         throw new IllegalStateException(ex);
       }
       SourceFile sourceFile = compiled.getSourceFile(".*BeanDefinitions");

@@ -172,11 +172,11 @@ public class ThreadPoolExecutorFactoryBean extends ExecutorConfigurationSupport
 
   @Override
   protected ExecutorService initializeExecutor(
-          ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+          ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
 
     BlockingQueue<Runnable> queue = createQueue(this.queueCapacity);
     ThreadPoolExecutor executor = createExecutor(this.corePoolSize, this.maxPoolSize,
-            this.keepAliveSeconds, queue, threadFactory, rejectedExecutionHandler);
+            this.keepAliveSeconds, queue, threadFactory, rejectedHandler);
     if (this.allowCoreThreadTimeOut) {
       executor.allowCoreThreadTimeOut(true);
     }

@@ -18,6 +18,9 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ForkJoinPool;
+
+import cn.taketoday.lang.TodayStrategies;
 
 /**
  * for {@link DefaultFuture#defaultExecutor}
@@ -27,5 +30,20 @@ import java.util.concurrent.Executor;
  */
 public interface DefaultExecutorFactory {
 
+  /**
+   * create Executor
+   */
   Executor createExecutor();
+
+  /**
+   * create default Executor
+   */
+  static Executor lookup() {
+    var factory = TodayStrategies.findFirst(DefaultExecutorFactory.class, null);
+    if (factory == null) {
+      return ForkJoinPool.commonPool();
+    }
+    return factory.createExecutor();
+  }
+
 }

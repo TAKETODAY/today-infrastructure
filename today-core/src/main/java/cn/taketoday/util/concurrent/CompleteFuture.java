@@ -32,12 +32,7 @@ import cn.taketoday.lang.Nullable;
  */
 public abstract class CompleteFuture<V> extends AbstractFuture<V> {
 
-  @Nullable
   private final Executor executor;
-
-  protected CompleteFuture() {
-    executor = null;
-  }
 
   /**
    * Creates a new instance.
@@ -45,27 +40,27 @@ public abstract class CompleteFuture<V> extends AbstractFuture<V> {
    * @param executor the {@link Executor} associated with this future
    */
   protected CompleteFuture(@Nullable Executor executor) {
-    this.executor = executor;
+    this.executor = executor == null ? defaultExecutor : executor;
   }
 
   /**
    * Return the {@link Executor} which is used by this {@link CompleteFuture}.
    */
-  @Nullable
+  @Override
   public Executor executor() {
     return executor;
   }
 
   @Override
-  public CompleteFuture<V> addListener(FutureListener<? extends Future<V>> listener) {
+  public CompleteFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
     Assert.notNull(listener, "listener is required");
-    DefaultFuture.notifyListener(executor(), this, listener);
+    DefaultFuture.notifyListener(executor, this, listener);
     return this;
   }
 
   @Override
-  public <C> CompleteFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
-    DefaultFuture.safeExecute(executor(), () -> DefaultFuture.notifyListener(this, listener, context));
+  public <C> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    DefaultFuture.notifyListener(executor, this, FutureListener.forAdaption(listener, context));
     return this;
   }
 

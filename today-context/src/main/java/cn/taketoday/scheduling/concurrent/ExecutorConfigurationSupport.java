@@ -56,9 +56,9 @@ import cn.taketoday.logging.LoggerFactory;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public abstract class ExecutorConfigurationSupport extends CustomizableThreadFactory
-        implements BeanNameAware, ApplicationContextAware, InitializingBean, DisposableBean,
-        SmartLifecycle, ApplicationListener<ContextClosedEvent> {
+public abstract class ExecutorConfigurationSupport extends CustomizableThreadFactory implements BeanNameAware,
+        ApplicationContextAware, InitializingBean, DisposableBean, SmartLifecycle, ApplicationListener<ContextClosedEvent> {
+
   /**
    * The default phase for an executor {@link SmartLifecycle}: {@code Integer.MAX_VALUE / 2}.
    * <p>This is different from the default phase {@code Integer.MAX_VALUE} associated with
@@ -278,8 +278,7 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    */
   public void initialize() {
     if (logger.isDebugEnabled()) {
-      logger.debug("Initializing ExecutorService{}",
-              (this.beanName != null ? " '" + this.beanName + "'" : ""));
+      logger.debug("Initializing ExecutorService{}", (this.beanName != null ? " '" + this.beanName + "'" : ""));
     }
     if (!this.threadNamePrefixSet && this.beanName != null) {
       setThreadNamePrefix(this.beanName + "-");
@@ -293,12 +292,12 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
    * Called by {@code afterPropertiesSet}.
    *
    * @param threadFactory the ThreadFactory to use
-   * @param rejectedExecutionHandler the RejectedExecutionHandler to use
+   * @param rejectedHandler the RejectedExecutionHandler to use
    * @return a new ExecutorService instance
    * @see #afterPropertiesSet()
    */
   protected abstract ExecutorService initializeExecutor(
-          ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler);
+          ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler);
 
   /**
    * Calls {@code shutdown} when the BeanFactory destroys the executor instance.
@@ -383,15 +382,15 @@ public abstract class ExecutorConfigurationSupport extends CustomizableThreadFac
       try {
         if (!executor.awaitTermination(this.awaitTerminationMillis, TimeUnit.MILLISECONDS)) {
           if (logger.isWarnEnabled()) {
-            logger.warn("Timed out while waiting for executor" +
-                    (this.beanName != null ? " '" + this.beanName + "'" : "") + " to terminate");
+            logger.warn("Timed out while waiting for executor{} to terminate",
+                    this.beanName != null ? " '" + this.beanName + "'" : "");
           }
         }
       }
       catch (InterruptedException ex) {
         if (logger.isWarnEnabled()) {
-          logger.warn("Interrupted while waiting for executor" +
-                  (this.beanName != null ? " '" + this.beanName + "'" : "") + " to terminate");
+          logger.warn("Interrupted while waiting for executor{} to terminate",
+                  this.beanName != null ? " '" + this.beanName + "'" : "");
         }
         Thread.currentThread().interrupt();
       }

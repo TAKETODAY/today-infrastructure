@@ -17,16 +17,23 @@
 
 package cn.taketoday.util.concurrent;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import cn.taketoday.core.Pair;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.util.function.ThrowingBiFunction;
 
 /**
  * The result of an asynchronous operation.
@@ -54,10 +61,10 @@ import cn.taketoday.lang.TodayStrategies;
  * |      isDone() = false    |    |    +---------------------------+
  * |   isSuccess() = false    |----+---->      isDone() = true      |
  * | isCancelled() = false    |    |    |    getCause() = non-null  |
- * |       cause() = throws   |    |    +===========================+
- * |      getNow() = throws   |    |    | Completed by cancellation |
- * +--------------------------+    |    +---------------------------+
- *                                 +---->      isDone() = true      |
+ * |    getCause() = throws   |    |    +===========================+
+ * |      getNow() = null     |    |    | Completed by cancellation |
+ * |    isFailed() = false    |    |    +---------------------------+
+ * +--------------------------+    +---->      isDone() = true      |
  *                                      | isCancelled() = true      |
  *                                      +---------------------------+
  * </pre>
@@ -68,7 +75,7 @@ import cn.taketoday.lang.TodayStrategies;
  * when the operation is completed.
  *
  * <p>
- * The {@link #addListener(FutureListener)} method is non-blocking. It simply
+ * The {@link #onCompleted(FutureListener)} method is non-blocking. It simply
  * adds the specified {@link FutureListener} to the {@link Future}, and the
  * thread will notify the listeners when the operation associated with the future
  * is done. The {@link FutureListener} and {@link FutureContextListener}
@@ -127,9 +134,34 @@ import cn.taketoday.lang.TodayStrategies;
  */
 public interface Future<V> extends java.util.concurrent.Future<V> {
 
-  Executor defaultExecutor = TodayStrategies.findFirst(DefaultExecutorFactory.class)
-          .map(DefaultExecutorFactory::createExecutor)
-          .orElse(ForkJoinPool.commonPool());
+  /**
+   * The default executor is {@link ForkJoinPool#commonPool()}.
+   * <p>
+   * Facts about ForkJoinPool:
+   *
+   * <ul>
+   * <li>It is work-stealing, i.e. all threads in the pool attempt to find work
+   * submitted to the pool. Especially this is efficient under heavy load
+   * (many small tasks), e.g. when tasks create subtasks (recursive threads).
+   * </li>
+   * <li>The ForkJoinPool is dynamic, it has a maximum of 32767 running threads.
+   * Compared to fixed-size pools, this reduces the risk of dead-locks.
+   * </li>
+   * <li>The commonPool() is shared across the entire VM. Keep this in mind when also using
+   * {@link java.util.stream.Stream#parallel()} and {@link java.util.concurrent.CompletableFuture}}
+   * </li>
+   * </ul>
+   *
+   * The ForkJoinPool creates daemon threads but its run state is unaffected
+   * by attempts to shutdown() or shutdownNow(). However, all running tasks are
+   * immediately terminated upon program System.exit(int).
+   * <p>
+   * IMPORTANT: Invoke {@code ForkJoinPool.commonPool().awaitQuiescence(long, TimeUnit)}
+   * before exit in order to ensure that all running async tasks complete before program termination.
+   *
+   * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
+   */
+  Executor defaultExecutor = DefaultExecutorFactory.lookup();
 
   /**
    * Returns {@code true} if and only if the operation was completed
@@ -146,8 +178,10 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
 
   /**
    * Return {@code true} if this operation has been {@linkplain #cancel() cancelled}.
+   * And {@link #getCause()} will returns {@link CancellationException}
    *
    * @return {@code true} if this operation has been cancelled, otherwise {@code false}.
+   * @see CancellationException
    */
   boolean isCancelled();
 
@@ -163,6 +197,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return the cause of the failure. {@code null} if succeeded or
    * this future is not completed yet.
    * @see #isFailed()
+   * @see #isCancelled()
+   * @see CancellationException
    */
   @Nullable
   Throwable getCause();
@@ -174,8 +210,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param failureCallback the failure callback
    * @return this future object.
    */
-  default Future<V> addListener(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+  default Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
+    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
   /**
@@ -185,7 +221,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return this future object.
    */
   default Future<V> onSuccess(SuccessCallback<V> successCallback) {
-    return addListener(successCallback, null);
+    return onCompleted(successCallback, null);
   }
 
   /**
@@ -195,7 +231,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return this future object.
    */
   default Future<V> onFailure(FailureCallback failureCallback) {
-    return addListener(FutureListener.forFailure(failureCallback));
+    return onCompleted(FutureListener.forFailure(failureCallback));
   }
 
   /**
@@ -209,8 +245,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * when this future completes.
    * @return this future object.
    */
-  default <C> Future<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context) {
-    return addListener(FutureListener.forAdaption(listener, context));
+  default <C> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    return onCompleted(FutureListener.forAdaption(listener, context));
   }
 
   /**
@@ -222,7 +258,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return this future object.
    */
-  Future<V> addListener(FutureListener<? extends Future<V>> listener);
+  Future<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
@@ -411,33 +447,117 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * the {@link Future} is cancelled the {@link SettableFuture} is cancelled
    * and vice-versa.
    *
-   * @param promise the {@link SettableFuture} which will be notified
+   * @param settable the {@link SettableFuture} which will be notified
    * @return itself
+   * @throws IllegalArgumentException SettableFuture is null.
    */
-  default Future<V> cascadeTo(final SettableFuture<? super V> promise) {
-    Futures.cascade(this, promise);
+  default Future<V> cascadeTo(final SettableFuture<? super V> settable) {
+    Futures.cascade(this, settable);
     return this;
+  }
+
+  /**
+   * Handles a failure of this Future by returning another result.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * // = "oh!"
+   * Future.run(() -> new Error("oh!"))
+   *       .errorHandling(Throwable::getMessage);
+   * }</pre>
+   *
+   * @param errorHandler A function which takes the exception of a failure and returns a new value.
+   * @return A new Future.
+   * @throws IllegalArgumentException recoverFunc is null.
+   */
+  default Future<V> errorHandling(Function<Throwable, V> errorHandler) {
+    Assert.notNull(errorHandler, "errorHandler is required");
+    return Futures.errorHandling(this, errorHandler);
+  }
+
+  /**
+   * Returns a tuple of this and that Future result.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a tuple of both successful Future results.
+   *
+   * @param that Another Future
+   * @param <U> Result type of {@code that}
+   * @return A new Future that returns both Future results.
+   * @throws IllegalArgumentException if {@code that} is null
+   */
+  default <U> Future<Pair<V, U>> zip(Future<U> that) {
+    Assert.notNull(that, "Future is is required");
+    return zipWith(that, Pair::of);
+  }
+
+  /**
+   * Returns this and that Future result combined using a given combinator function.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a combination of both successful Future results.
+   *
+   * @param that Another Future
+   * @param combinator The combinator function
+   * @param <U> Result type of {@code that}
+   * @param <R> Result type of {@code f}
+   * @return A new Future that returns both Future results.
+   * @throws IllegalArgumentException if {@code that} is null
+   */
+  default <U, R> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
+    Assert.notNull(that, "Future is required");
+    Assert.notNull(combinator, "combinator is required");
+    return Futures.zipWith(this, that, combinator);
+  }
+
+  /**
+   * Waits for the future to complete, then calls the given result handler
+   * with the outcome.
+   * <p>
+   * If the future completes successfully, then the result handler is called
+   * with the result of the future - which may be {@code null} - and a
+   * {@code null} exception.
+   * <p>
+   * If the future fails, then the result handler is called with a {@code null}
+   * result, and a non-{@code null} exception.
+   * <p>
+   * Success or failure of the future can be determined on whether the exception
+   * is {@code null} or not.
+   * <p>
+   * The result handler may compute a new result, which will be the return value
+   * of the {@code join} call.
+   *
+   * @param resultHandler The function that will process the result of the completed future.
+   * @param <T> The return type of the {@code resultHandler}.
+   * @return The result of the {@code resultHandler} computation.
+   * @throws InterruptedException if the thread is interrupted while waiting for
+   * the future to complete.
+   */
+  default <T> T join(BiFunction<V, Throwable, T> resultHandler) throws InterruptedException {
+    Assert.notNull(resultHandler, "resultHandler is required");
+    await();
+    if (isSuccess()) {
+      return resultHandler.apply(getNow(), null);
+    }
+    else {
+      return resultHandler.apply(null, getCause());
+    }
   }
 
   /**
    * Expose this {@link Future} as a JDK {@link CompletableFuture}.
    */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   default CompletableFuture<V> completable() {
     final CompletableFuture<V> ret = new CompletableFuture<>();
-    addListener((future, context) -> {
-      Throwable cause = future.getCause();
-      if (cause != null) {
-        context.completeExceptionally(cause);
-      }
-      else {
-        context.complete(future.getNow());
-      }
-    }, ret);
+    onCompleted((FutureContextListener) Futures.completableAdapter, ret);
     return ret;
   }
 
   /**
    * Returns the {@link Executor} used by this {@code Future}.
+   * <p>
+   * The {@link Executor} which is used to notify the {@code Future} once it is complete.
    *
    * @return The underlying {@code Executor}.
    */
@@ -445,17 +565,19 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
 
   // Static Factory Methods
 
+  /**
+   * Adapts {@code CompletionStage} to a new SettableFuture instance.
+   */
   static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage) {
-    SettableFuture<V> settable = forSettable();
-    stage.thenAcceptAsync(settable::trySuccess)
-            .exceptionally(failure -> {
-              settable.setFailure(failure);
-              return null;
-            });
-    return settable;
+    return forAdaption(stage, defaultExecutor);
   }
 
-  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, Executor executor) {
+  /**
+   * Adapts {@code CompletionStage} to a new SettableFuture instance.
+   *
+   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
+   */
+  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
     SettableFuture<V> settable = forSettable(executor);
     stage.thenAcceptAsync(settable::trySuccess)
             .exceptionally(failure -> {
@@ -469,7 +591,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * Creates a new SettableFuture instance.
    */
   static <V> SettableFuture<V> forSettable() {
-    return new DefaultFuture<>();
+    return forSettable(defaultExecutor);
   }
 
   /**
@@ -483,26 +605,37 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   }
 
   /**
-   * Creates a new FailedFuture instance.
+   * Creates a failed {@code Future} with the given {@code exception},
+   * backed by the {@link #defaultExecutor}.
+   *
+   * @param cause The reason why it failed.
+   * @param <V> The value type of successful result.
+   * @return A failed {@code Future}.
+   * @throws IllegalArgumentException if exception is null
    */
-  static <V> FailedFuture<V> forFailed(Throwable cause) {
-    return new FailedFuture<>(cause);
+  static <V> FailedFuture<V> failed(Throwable cause) {
+    return failed(cause, defaultExecutor);
   }
 
   /**
-   * Creates a new FailedFuture instance.
+   * Creates a failed {@code Future} with the given {@code exception},
+   * backed by the given {@link Executor}.
    *
-   * @param executor the {@link Executor} which is used to notify
-   * the Future once it is complete.
+   * @param executor The {@link Executor} which is used to notify the
+   * {@code Future} once it is complete.
+   * @param cause The reason why it failed.
+   * @param <V> The value type of successful result.
+   * @return A failed {@code Future}.
+   * @throws NullPointerException if cause is null
    */
-  static <V> FailedFuture<V> forFailed(@Nullable Executor executor, Throwable cause) {
+  static <V> FailedFuture<V> failed(Throwable cause, @Nullable Executor executor) {
     return new FailedFuture<>(executor, cause);
   }
 
   /**
    * Creates a new SucceededFuture instance.
    */
-  static <V> SucceededFuture<V> forSucceeded(@Nullable V result) {
+  static <V> SucceededFuture<V> ok(@Nullable V result) {
     return new SucceededFuture<>(result);
   }
 
@@ -512,8 +645,119 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param executor the {@link Executor} which is used to notify
    * the Future once it is complete.
    */
-  static <V> SucceededFuture<V> forSucceeded(@Nullable Executor executor, @Nullable V result) {
+  static <V> SucceededFuture<V> ok(@Nullable V result, @Nullable Executor executor) {
     return new SucceededFuture<>(executor, result);
+  }
+
+  /**
+   * Starts an asynchronous computation, backed by the {@link #defaultExecutor}.
+   *
+   * @param computation A computation.
+   * @param <T> Type of the computation result.
+   * @return A new Future instance.
+   * @throws IllegalArgumentException if computation is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
+   */
+  static <T> Future<T> run(Callable<T> computation) {
+    return run(computation, defaultExecutor);
+  }
+
+  /**
+   * Starts an asynchronous computation, backed by the given {@link Executor}.
+   *
+   * @param executor The {@link Executor} which is used to notify the
+   * {@code Future} once it is complete.
+   * @param computation A computation.
+   * @param <V> Type of the computation result.
+   * @return A new Future instance.
+   * @throws IllegalArgumentException computation is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
+   */
+  static <V> Future<V> run(Callable<V> computation, @Nullable Executor executor) {
+    Assert.notNull(computation, "computation is required");
+    if (executor == null) {
+      executor = defaultExecutor;
+    }
+    var task = new ListenableFutureTask<>(executor, computation);
+    executor.execute(task);
+    return task;
+  }
+
+  /**
+   * Runs an asynchronous computation, backed by the {@link #defaultExecutor}.
+   *
+   * @param unit A unit of work.
+   * @return A new Future instance which results in nothing.
+   * @throws IllegalArgumentException if unit is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
+   */
+  static Future<Void> run(Runnable unit) {
+    return run(unit, defaultExecutor);
+  }
+
+  /**
+   * Starts an asynchronous computation, backed by the given {@link Executor}.
+   *
+   * @param executor An {@link Executor}.
+   * @param task A unit of work.
+   * @return A new Future instance which results in nothing.
+   * @throws IllegalArgumentException unit is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
+   */
+  static Future<Void> run(Runnable task, @Nullable Executor executor) {
+    Assert.notNull(task, "unit is required");
+    if (executor == null) {
+      executor = defaultExecutor;
+    }
+    var futureTask = new ListenableFutureTask<Void>(executor, task, null);
+    executor.execute(futureTask);
+    return futureTask;
+  }
+
+  /**
+   * Creates a {@link FutureCombiner} that processes the completed futures whether or not they're
+   * successful.
+   *
+   * <p>Any failures from the input futures will not be propagated to the returned future.
+   */
+  @SuppressWarnings("rawtypes")
+  static FutureCombiner whenAllComplete(Future... futures) {
+    return new FutureCombiner(false, List.of(futures));
+  }
+
+  /**
+   * Creates a {@link FutureCombiner} that processes the completed futures whether or not they're
+   * successful.
+   *
+   * <p>Any failures from the input futures will not be propagated to the returned future.
+   */
+  @SuppressWarnings("rawtypes")
+  static FutureCombiner whenAllComplete(Collection<Future> futures) {
+    return new FutureCombiner(false, futures);
+  }
+
+  /**
+   * Creates a {@link FutureCombiner} requiring that all passed in futures are successful.
+   *
+   * <p>If any input fails, the returned future fails immediately.
+   */
+  @SuppressWarnings("rawtypes")
+  static FutureCombiner whenAllSucceed(Future... futures) {
+    return new FutureCombiner(true, List.of(futures));
+  }
+
+  /**
+   * Creates a {@link FutureCombiner} requiring that all passed in futures are successful.
+   *
+   * <p>If any input fails, the returned future fails immediately.
+   */
+  @SuppressWarnings("rawtypes")
+  static FutureCombiner whenAllSucceed(Collection<Future> futures) {
+    return new FutureCombiner(true, futures);
   }
 
 }

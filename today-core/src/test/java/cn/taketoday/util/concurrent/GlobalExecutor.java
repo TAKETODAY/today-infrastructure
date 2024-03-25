@@ -35,11 +35,11 @@ import cn.taketoday.logging.LoggerFactory;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/27 14:02
  */
-public class GlobalEventExecutor implements Executor {
+public class GlobalExecutor implements Executor {
 
-  private static final Logger logger = LoggerFactory.getLogger(GlobalEventExecutor.class);
+  private static final Logger logger = LoggerFactory.getLogger(GlobalExecutor.class);
 
-  public static final GlobalEventExecutor INSTANCE = new GlobalEventExecutor();
+  public static final GlobalExecutor INSTANCE = new GlobalExecutor();
   final BlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<Runnable>();
 
   // because the GlobalEventExecutor is a singleton, tasks submitted to it can come from arbitrary threads and this
@@ -47,13 +47,13 @@ public class GlobalEventExecutor implements Executor {
   // be sticky about its thread group
   // visible for testing
   final ThreadFactory threadFactory;
-  private final GlobalEventExecutor.TaskRunner taskRunner = new GlobalEventExecutor.TaskRunner();
+  private final GlobalExecutor.TaskRunner taskRunner = new GlobalExecutor.TaskRunner();
   private final AtomicBoolean started = new AtomicBoolean();
   volatile Thread thread;
 
   private final Future<?> terminationFuture = new FailedFuture<Object>(this, new UnsupportedOperationException());
 
-  private GlobalEventExecutor() {
+  private GlobalExecutor() {
     threadFactory = Executors.defaultThreadFactory();
   }
 

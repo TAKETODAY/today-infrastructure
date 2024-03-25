@@ -101,8 +101,8 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
    */
   public void setPoolSize(int poolSize) {
     Assert.isTrue(poolSize > 0, "'poolSize' must be 1 or higher");
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
-      threadPoolExecutor.setCorePoolSize(poolSize);
+    if (scheduledExecutor instanceof ScheduledThreadPoolExecutor tpe) {
+      tpe.setCorePoolSize(poolSize);
     }
     this.poolSize = poolSize;
   }
@@ -116,8 +116,8 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
    * @see ScheduledThreadPoolExecutor#setRemoveOnCancelPolicy
    */
   public void setRemoveOnCancelPolicy(boolean flag) {
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
-      threadPoolExecutor.setRemoveOnCancelPolicy(flag);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor stpe) {
+      stpe.setRemoveOnCancelPolicy(flag);
     }
     this.removeOnCancelPolicy = flag;
   }
@@ -131,8 +131,8 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
    * @see ScheduledThreadPoolExecutor#setContinueExistingPeriodicTasksAfterShutdownPolicy
    */
   public void setContinueExistingPeriodicTasksAfterShutdownPolicy(boolean flag) {
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
-      threadPoolExecutor.setContinueExistingPeriodicTasksAfterShutdownPolicy(flag);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor tpe) {
+      tpe.setContinueExistingPeriodicTasksAfterShutdownPolicy(flag);
     }
     this.continueExistingPeriodicTasksAfterShutdownPolicy = flag;
   }
@@ -146,8 +146,8 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
    * @see ScheduledThreadPoolExecutor#setExecuteExistingDelayedTasksAfterShutdownPolicy
    */
   public void setExecuteExistingDelayedTasksAfterShutdownPolicy(boolean flag) {
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor threadPoolExecutor) {
-      threadPoolExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(flag);
+    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor tpe) {
+      tpe.setExecuteExistingDelayedTasksAfterShutdownPolicy(flag);
     }
     this.executeExistingDelayedTasksAfterShutdownPolicy = flag;
   }
@@ -189,10 +189,9 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  protected ExecutorService initializeExecutor(ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
-    this.scheduledExecutor = createExecutor(this.poolSize, threadFactory, rejectedExecutionHandler);
-
-    if (this.scheduledExecutor instanceof ScheduledThreadPoolExecutor tpExecutor) {
+  protected ExecutorService initializeExecutor(ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
+    ScheduledExecutorService executor = createExecutor(this.poolSize, threadFactory, rejectedHandler);
+    if (executor instanceof ScheduledThreadPoolExecutor tpExecutor) {
       if (this.removeOnCancelPolicy) {
         tpExecutor.setRemoveOnCancelPolicy(true);
       }
@@ -203,8 +202,8 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
         tpExecutor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
       }
     }
-
-    return this.scheduledExecutor;
+    this.scheduledExecutor = executor;
+    return executor;
   }
 
   /**
@@ -214,15 +213,15 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
    *
    * @param poolSize the specified pool size
    * @param threadFactory the ThreadFactory to use
-   * @param rejectedExecutionHandler the RejectedExecutionHandler to use
+   * @param rejectedHandler the RejectedExecutionHandler to use
    * @return a new ScheduledExecutorService instance
    * @see #afterPropertiesSet()
    * @see java.util.concurrent.ScheduledThreadPoolExecutor
    */
-  protected ScheduledExecutorService createExecutor(
-          int poolSize, ThreadFactory threadFactory, RejectedExecutionHandler rejectedExecutionHandler) {
+  protected ScheduledExecutorService createExecutor(int poolSize,
+          ThreadFactory threadFactory, RejectedExecutionHandler rejectedHandler) {
 
-    return new ScheduledThreadPoolExecutor(poolSize, threadFactory, rejectedExecutionHandler) {
+    return new ScheduledThreadPoolExecutor(poolSize, threadFactory, rejectedHandler) {
       @Override
       protected void beforeExecute(Thread thread, Runnable task) {
         ThreadPoolTaskScheduler.this.beforeExecute(thread, task);
@@ -351,9 +350,9 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   public Future<?> submitListenable(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      ListenableFutureTask<Object> listenableFuture = new ListenableFutureTask<>(task, null);
-      executeAndTrack(executor, listenableFuture);
-      return listenableFuture;
+      var future = new ListenableFutureTask<>(executor, task, null);
+      executeAndTrack(executor, future);
+      return future;
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);
@@ -364,19 +363,19 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   public <T> Future<T> submitListenable(Callable<T> task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      ListenableFutureTask<T> listenableFuture = new ListenableFutureTask<>(task);
-      executeAndTrack(executor, listenableFuture);
-      return listenableFuture;
+      var future = new ListenableFutureTask<>(executor, task);
+      executeAndTrack(executor, future);
+      return future;
     }
     catch (RejectedExecutionException ex) {
       throw new TaskRejectedException(executor, task, ex);
     }
   }
 
-  private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> listenableFuture) {
-    java.util.concurrent.Future<?> scheduledFuture = executor.submit(errorHandlingTask(listenableFuture, false));
-    listenableFutureMap.put(scheduledFuture, listenableFuture);
-    listenableFuture.addListener(future -> listenableFutureMap.remove(scheduledFuture));
+  private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> task) {
+    var scheduledFuture = executor.submit(errorHandlingTask(task, false));
+    listenableFutureMap.put(scheduledFuture, task);
+    task.onCompleted(f -> listenableFutureMap.remove(scheduledFuture));
   }
 
   @Override

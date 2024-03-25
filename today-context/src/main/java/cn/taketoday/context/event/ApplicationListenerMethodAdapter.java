@@ -395,7 +395,7 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
       });
     }
     else if (result instanceof Future d) {
-      d.addListener(this);
+      d.onCompleted(this);
     }
     else {
       publishEvents(result);

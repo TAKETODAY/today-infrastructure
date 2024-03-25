@@ -46,7 +46,7 @@ class SettableFutureNotifierTests {
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
     SettableFutureNotifier<Void, Future<Void>> notifier =
-            new SettableFutureNotifier<Void, Future<Void>>(p1, p2);
+            new SettableFutureNotifier<>(p1, p2);
 
     @SuppressWarnings("unchecked")
     Future<Void> future = mock(Future.class);
@@ -68,7 +68,7 @@ class SettableFutureNotifierTests {
     SettableFuture<Void> p2 = mock(SettableFuture.class);
 
     SettableFutureNotifier<Void, Future<Void>> notifier =
-            new SettableFutureNotifier<Void, Future<Void>>(p1, p2);
+            new SettableFutureNotifier<>(p1, p2);
 
     @SuppressWarnings("unchecked")
     Future<Void> future = mock(Future.class);

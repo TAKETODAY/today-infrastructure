@@ -25,7 +25,7 @@ import cn.taketoday.lang.Nullable;
 /**
  * Listens to the result of a {@link Future}.
  * The result of the asynchronous operation is notified once this listener
- * is added by calling {@link Future#addListener(FutureListener)}.
+ * is added by calling {@link Future#onCompleted(FutureListener)}.
  *
  * @param <F> the future type
  * @author Arjen Poutsma
@@ -40,13 +40,13 @@ public interface FutureListener<F extends Future<?>> extends EventListener {
    * Invoked when the operation associated with
    * the {@link Future} has been completed.
    *
-   * @param future the source {@link Future} which called this callback
+   * @param completed the source {@link Future} which called this callback
    */
-  void operationComplete(F future) throws Throwable;
+  void operationComplete(F completed) throws Throwable;
 
   // Static Factory Methods
 
-  static <V, F extends Future<V>, C> FutureListener<F> forAdaption(FutureContextListener<C, F> listener, @Nullable C context) {
+  static <V, F extends Future<V>, C> FutureListener<F> forAdaption(FutureContextListener<F, C> listener, @Nullable C context) {
     Assert.notNull(listener, "listener is required");
     return future -> listener.operationComplete(future, context);
   }

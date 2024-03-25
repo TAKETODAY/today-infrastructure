@@ -18,20 +18,23 @@
 package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
 
 import cn.taketoday.lang.Nullable;
 
 /**
- * RunnableFuture
+ * Listenable {@link FutureTask}
  *
- * @param <T> the result type returned by this Future's {@code get} method
- * @author Arjen Poutsma
+ * @param <V> the result type returned by this Future's {@code get} method
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FutureTask
  * @since 4.0
  */
-public class ListenableFutureTask<T> extends SettableFutureTask<T> implements Future<T> {
+public class ListenableFutureTask<V> extends DefaultFuture<V> implements RunnableFuture<V> {
+
+  private final FutureTask<V> futureTask;
 
   /**
    * Create a new {@code ListenableFutureTask} that will, upon running,
@@ -39,8 +42,8 @@ public class ListenableFutureTask<T> extends SettableFutureTask<T> implements Fu
    *
    * @param callable the callable task
    */
-  public ListenableFutureTask(Callable<T> callable) {
-    super(null, callable);
+  public ListenableFutureTask(Callable<V> callable) {
+    this(defaultExecutor, callable);
   }
 
   /**
@@ -51,8 +54,71 @@ public class ListenableFutureTask<T> extends SettableFutureTask<T> implements Fu
    * @param runnable the runnable task
    * @param result the result to return on successful completion
    */
-  public ListenableFutureTask(Runnable runnable, @Nullable T result) {
-    super(null, runnable, result);
+  public ListenableFutureTask(Runnable runnable, @Nullable V result) {
+    this(defaultExecutor, runnable, result);
+  }
+
+  /**
+   * Create a new {@code ListenableFutureTask} that will, upon running,
+   * execute the given {@link Callable}.
+   *
+   * @param callable the callable task
+   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
+   */
+  public ListenableFutureTask(@Nullable Executor executor, Callable<V> callable) {
+    super(executor);
+    this.futureTask = new FutureTaskAdapter(callable);
+  }
+
+  /**
+   * Create a {@code ListenableFutureTask} that will, upon running,
+   * execute the given {@link Runnable}, and arrange that {@link #get()}
+   * will return the given result on successful completion.
+   *
+   * @param runnable the runnable task
+   * @param result the result to return on successful completion
+   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
+   */
+  public ListenableFutureTask(@Nullable Executor executor, Runnable runnable, @Nullable V result) {
+    super(executor);
+    this.futureTask = new FutureTaskAdapter(runnable, result);
+  }
+
+  @Override
+  public void run() {
+    futureTask.run();
+  }
+
+  @Override
+  public boolean cancel(boolean mayInterruptIfRunning) {
+    if (futureTask.cancel(mayInterruptIfRunning)) {
+      return super.cancel(mayInterruptIfRunning);
+    }
+    return false;
+  }
+
+  final class FutureTaskAdapter extends FutureTask<V> {
+
+    public FutureTaskAdapter(Callable<V> callable) {
+      super(callable);
+    }
+
+    public FutureTaskAdapter(Runnable runnable, @Nullable V result) {
+      super(runnable, result);
+    }
+
+    @Override
+    protected void set(V v) {
+      super.set(v);
+      trySuccess(v);
+    }
+
+    @Override
+    protected void setException(Throwable t) {
+      super.setException(t);
+      tryFailure(t);
+    }
+
   }
 
 }

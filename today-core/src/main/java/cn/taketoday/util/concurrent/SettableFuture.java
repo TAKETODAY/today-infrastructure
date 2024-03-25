@@ -73,26 +73,26 @@ public interface SettableFuture<V> extends Future<V> {
   boolean setUncancellable();
 
   @Override
-  default SettableFuture<V> addListener(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return addListener(FutureListener.forAdaption(successCallback, failureCallback));
+  default SettableFuture<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
+    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
   @Override
   default SettableFuture<V> onSuccess(SuccessCallback<V> successCallback) {
-    return addListener(successCallback, null);
+    return onCompleted(successCallback, null);
   }
 
   @Override
   default SettableFuture<V> onFailure(FailureCallback failureCallback) {
-    addListener(FutureListener.forFailure(failureCallback));
+    onCompleted(FutureListener.forFailure(failureCallback));
     return this;
   }
 
   @Override
-  SettableFuture<V> addListener(FutureListener<? extends Future<V>> listener);
+  SettableFuture<V> onCompleted(FutureListener<? extends Future<V>> listener);
 
   @Override
-  <C> SettableFuture<V> addListener(FutureContextListener<C, ? extends Future<V>> listener, @Nullable C context);
+  <C> SettableFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
 
   @Override
   SettableFuture<V> await() throws InterruptedException;
@@ -105,4 +105,11 @@ public interface SettableFuture<V> extends Future<V> {
 
   @Override
   SettableFuture<V> syncUninterruptibly();
+
+  @Override
+  default SettableFuture<V> cascadeTo(final SettableFuture<? super V> settable) {
+    Futures.cascade(this, settable);
+    return this;
+  }
+
 }

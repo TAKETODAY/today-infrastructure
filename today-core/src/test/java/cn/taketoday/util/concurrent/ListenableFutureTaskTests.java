@@ -43,7 +43,7 @@ class ListenableFutureTaskTests {
     Callable<String> callable = () -> s;
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(future -> {
+    task.onCompleted(future -> {
       if (future.isSuccess()) {
         assertThat(future.getNow()).isEqualTo(s);
       }
@@ -68,7 +68,7 @@ class ListenableFutureTaskTests {
 
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
 
-    task.addListener(future -> {
+    task.onCompleted(future -> {
       if (future.isSuccess()) {
         fail("onSuccess not expected");
       }
@@ -97,7 +97,7 @@ class ListenableFutureTaskTests {
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(successCallback, failureCallback);
+    task.onCompleted(successCallback, failureCallback);
     task.run();
     verify(successCallback).onSuccess(s);
     verifyNoInteractions(failureCallback);
@@ -118,16 +118,15 @@ class ListenableFutureTaskTests {
     SuccessCallback<String> successCallback = mock(SuccessCallback.class);
     FailureCallback failureCallback = mock(FailureCallback.class);
     ListenableFutureTask<String> task = new ListenableFutureTask<>(callable);
-    task.addListener(successCallback, failureCallback);
+    task.onCompleted(successCallback, failureCallback);
     task.run();
     verify(failureCallback).onFailure(ex);
     verifyNoInteractions(successCallback);
 
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    task::get)
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(task::get)
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
-    assertThatExceptionOfType(ExecutionException.class).isThrownBy(
-                    task.completable()::get)
+
+    assertThatExceptionOfType(ExecutionException.class).isThrownBy(task.completable()::get)
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
   }
 

@@ -189,7 +189,6 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
    * <p>This is the equivalent of a maximum pool size in a thread pool,
    * preventing temporary overload of the thread management system.
    *
-   * @see #UNBOUNDED_CONCURRENCY
    * @see cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor#setMaxPoolSize
    */
   public void setConcurrencyLimit(int concurrencyLimit) {
@@ -275,14 +274,14 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
 
   @Override
   public Future<?> submitListenable(Runnable task) {
-    ListenableFutureTask<Object> future = new ListenableFutureTask<>(task, null);
+    var future = new ListenableFutureTask<>(this, task, null);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
   public <T> Future<T> submitListenable(Callable<T> task) {
-    ListenableFutureTask<T> future = new ListenableFutureTask<>(task);
+    var future = new ListenableFutureTask<>(this, task);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
