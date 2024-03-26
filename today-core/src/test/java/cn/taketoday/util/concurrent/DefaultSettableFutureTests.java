@@ -193,7 +193,7 @@ class DefaultSettableFutureTests {
     int runs = 100000;
 
     for (int i = 0; i < runs; i++) {
-      final SettableFuture<Void> future = new DefaultFuture<Void>(executor);
+      final SettableFuture<Void> future = new DefaultFuture<>(executor);
       final FutureListener<Future<Void>> listener1 = new FutureListener<>() {
         @Override
         public void operationComplete(Future<Void> future) throws Exception {

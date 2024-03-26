@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.util.concurrent.DefaultFuture;
 import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -82,7 +82,7 @@ class DeferredResultReturnValueHandlerTests {
 
   @Test
   public void listenableFuture() throws Exception {
-    DefaultFuture<String> future = new DefaultFuture<>();
+    SettableFuture<String> future = Future.forSettable(Runnable::run);
     testHandle(future, Future.class,
             () -> future.trySuccess("foo"), "foo");
   }
@@ -101,7 +101,7 @@ class DeferredResultReturnValueHandlerTests {
 
   @Test
   public void listenableFutureWithError() throws Exception {
-    DefaultFuture<String> future = new DefaultFuture<>();
+    SettableFuture<String> future = Future.forSettable(Runnable::run);
     IllegalStateException ex = new IllegalStateException();
     testHandle(future, Future.class,
             () -> future.tryFailure(ex), ex);
