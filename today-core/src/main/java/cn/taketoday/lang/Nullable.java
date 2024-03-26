@@ -45,8 +45,7 @@ import javax.annotation.meta.When;
 @TypeQualifierNickname
 @Nonnull(when = When.MAYBE)
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD,
-        ElementType.LOCAL_VARIABLE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE })
+@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
 public @interface Nullable {
 
 }

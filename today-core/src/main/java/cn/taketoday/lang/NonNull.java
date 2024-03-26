@@ -43,8 +43,7 @@ import javax.annotation.meta.TypeQualifierNickname;
 @Documented
 @TypeQualifierNickname
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD,
-        ElementType.LOCAL_VARIABLE, ElementType.TYPE_PARAMETER, ElementType.TYPE_USE })
+@Target({ ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD })
 public @interface NonNull {
 
 }
