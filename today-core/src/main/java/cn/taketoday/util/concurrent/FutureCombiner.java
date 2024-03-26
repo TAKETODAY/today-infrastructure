@@ -52,11 +52,11 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
 
   private final boolean allMustSucceed;
 
-  private final Collection<Future> futures;
+  private final Collection<Future<?>> futures;
 
   private final AtomicInteger done = new AtomicInteger();
 
-  FutureCombiner(boolean allMustSucceed, Collection<Future> futures) {
+  FutureCombiner(boolean allMustSucceed, Collection<Future<?>> futures) {
     Assert.notNull(futures, "futures is required");
     this.futures = futures;
     this.allMustSucceed = allMustSucceed;
@@ -130,7 +130,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
    * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
    * FutureCombiner}).
    */
-  public Future<?> run(final Runnable combiner) {
+  public Future<Void> run(final Runnable combiner) {
     return run(combiner, null);
   }
 
@@ -147,11 +147,25 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
    * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
    * FutureCombiner}).
    */
-  public Future<?> run(final Runnable combiner, @Nullable Executor executor) {
+  public Future<Void> run(final Runnable combiner, @Nullable Executor executor) {
     return call(() -> {
       combiner.run();
       return null;
     }, executor);
+  }
+
+  /**
+   * Creates the {@link Future} which will return the result of running {@code combiner}
+   * when all Futures complete. {@code combiner} will run using {@code executor}.
+   *
+   * <p>Canceling this Future will attempt to cancel all the component futures.
+   *
+   * @return a future whose result is Void (or based on the input futures
+   * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
+   * FutureCombiner}).
+   */
+  public Future<Void> combine() {
+    return call(() -> null, null);
   }
 
   @Override
@@ -161,19 +175,13 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
       Throwable cause = completed.getCause();
       if (cause != null) {
         propagateFailure(completed, task, cause);
-      }
-      else {
-        if (doneCount == expectedCount) {
-          // all success
-          safeExecute(task.executor(), task);
-        }
+        return;
       }
     }
-    else {
-      if (doneCount == expectedCount) {
-        // all done
-        safeExecute(task.executor(), task);
-      }
+    
+    if (doneCount == expectedCount) {
+      // all done
+      safeExecute(task.executor(), task);
     }
   }
 

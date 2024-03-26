@@ -24,6 +24,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
@@ -33,23 +34,33 @@ import java.util.concurrent.locks.LockSupport;
 import cn.taketoday.lang.Nullable;
 
 /**
- * Listenable {@link FutureTask}
+ * A cancellable asynchronous computation.
+ * <p>
+ * This class provides a base
+ * implementation of {@link Future}, with methods to start and cancel
+ * a computation, query to see if the computation is complete, and
+ * retrieve the result of the computation.  The result can only be
+ * retrieved when the computation has completed; the {@code get}
+ * methods will block if the computation has not yet completed.  Once
+ * the computation has completed, the computation cannot be restarted
+ * or cancelled.
+ *
+ * <p>A {@code FutureTask} can be used to wrap a {@link Callable} or
+ * {@link Runnable} object. Because {@code FutureTask} implements
+ * {@code Runnable}, a {@code FutureTask} can be submitted to an
+ * {@link Executor} for execution.
+ *
+ * <p>In addition to serving as a standalone class, this class provides
+ * {@code protected} functionality that may be useful when creating
+ * customized task classes.
  *
  * @param <V> the result type returned by this Future's {@code get} method
+ * @author Doug Lea
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see FutureTask
  * @since 4.0
  */
 public class ListenableFutureTask<V> extends AbstractFuture<V> implements RunnableFuture<V> {
-
-  /*
-   * Revision notes: This differs from previous versions of this
-   * class that relied on AbstractQueuedSynchronizer, mainly to
-   * avoid surprising users about retaining interrupt status during
-   * cancellation races. Sync control in the current design relies
-   * on a "state" field updated via CAS to track completion, along
-   * with a simple Treiber stack to hold waiting threads.
-   */
 
   /**
    * The run state of this task, initially NEW.  The run state

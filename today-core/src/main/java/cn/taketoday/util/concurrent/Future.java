@@ -800,8 +800,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>Any failures from the input futures will not be propagated to the returned future.
    */
-  @SuppressWarnings("rawtypes")
-  static FutureCombiner whenAllComplete(Future... futures) {
+  static FutureCombiner whenAllComplete(Future<?>... futures) {
     return new FutureCombiner(false, List.of(futures));
   }
 
@@ -811,8 +810,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>Any failures from the input futures will not be propagated to the returned future.
    */
-  @SuppressWarnings("rawtypes")
-  static FutureCombiner whenAllComplete(Collection<Future> futures) {
+  static FutureCombiner whenAllComplete(Collection<Future<?>> futures) {
     return new FutureCombiner(false, futures);
   }
 
@@ -821,8 +819,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>If any input fails, the returned future fails immediately.
    */
-  @SuppressWarnings("rawtypes")
-  static FutureCombiner whenAllSucceed(Future... futures) {
+  static FutureCombiner whenAllSucceed(Future<?>... futures) {
     return new FutureCombiner(true, List.of(futures));
   }
 
@@ -831,8 +828,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>If any input fails, the returned future fails immediately.
    */
-  @SuppressWarnings("rawtypes")
-  static FutureCombiner whenAllSucceed(Collection<Future> futures) {
+  static FutureCombiner whenAllSucceed(Collection<Future<?>> futures) {
     return new FutureCombiner(true, futures);
   }
 
