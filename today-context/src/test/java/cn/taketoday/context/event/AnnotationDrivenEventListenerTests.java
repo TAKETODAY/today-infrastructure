@@ -63,7 +63,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.scheduling.annotation.Async;
 import cn.taketoday.scheduling.annotation.EnableAsync;
 import cn.taketoday.stereotype.Component;
-import cn.taketoday.util.concurrent.DefaultFuture;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.validation.annotation.Validated;
