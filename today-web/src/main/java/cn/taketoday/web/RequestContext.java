@@ -169,7 +169,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   protected boolean notModified = false;
 
   @Nullable
-  private HandlerMatchingMetadata matchingMetadata;
+  protected HandlerMatchingMetadata matchingMetadata;
 
   @Nullable
   protected BindingContext bindingContext;
@@ -185,10 +185,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
   protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
 
-  private long requestCompletedTimeMillis;
+  protected long requestCompletedTimeMillis;
 
   @Nullable
-  private String id;
+  protected String id;
 
   protected final DispatcherHandler dispatcherHandler;
 
@@ -522,7 +522,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return removed cookie
    */
   public List<HttpCookie> removeCookie(String name) {
-    if (responseCookies != null) {
+    if (hasResponseCookie()) {
       ArrayList<HttpCookie> toRemove = new ArrayList<>(2);
       for (HttpCookie responseCookie : responseCookies) {
         if (Objects.equals(name, responseCookie.getName())) {
@@ -536,7 +536,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   public boolean hasResponseCookie() {
-    return responseCookies != null;
+    return CollectionUtils.isNotEmpty(responseCookies);
   }
 
   public ArrayList<HttpCookie> responseCookies() {

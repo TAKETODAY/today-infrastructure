@@ -41,7 +41,7 @@ import cn.taketoday.util.CollectionUtils;
  */
 final class NettyHttpHeaders extends HttpHeaders {
 
-  final io.netty.handler.codec.http.HttpHeaders headers;
+  public final io.netty.handler.codec.http.HttpHeaders headers;
 
   NettyHttpHeaders(io.netty.handler.codec.http.HttpHeaders headers) {
     this.headers = headers;
@@ -86,12 +86,6 @@ final class NettyHttpHeaders extends HttpHeaders {
       singleValueMap.put(entry.getKey(), entry.getValue());
     }
     return singleValueMap;
-  }
-
-  //
-
-  io.netty.handler.codec.http.HttpHeaders getOriginal() {
-    return headers;
   }
 
   @Override
@@ -151,7 +145,7 @@ final class NettyHttpHeaders extends HttpHeaders {
   @Override
   public Set<Entry<String, List<String>>> entrySet() {
     final HashSet<Entry<String, List<String>>> ret = new HashSet<>();
-    final io.netty.handler.codec.http.HttpHeaders headers = getOriginal();
+    final io.netty.handler.codec.http.HttpHeaders headers = this.headers;
     for (final String name : headers.names()) {
       ret.add(new AbstractMap.SimpleEntry<>(name, headers.getAll(name)));
     }
@@ -169,7 +163,7 @@ final class NettyHttpHeaders extends HttpHeaders {
   public void copyToArrayMap(final Map<String, String[]> newMap, final IntFunction<String[]> mappingFunction) {
     Assert.notNull(newMap, "newMap is required");
     Assert.notNull(mappingFunction, "mappingFunction is required");
-    final io.netty.handler.codec.http.HttpHeaders headers = getOriginal();
+    final io.netty.handler.codec.http.HttpHeaders headers = this.headers;
     final Set<String> names = headers.names();
     for (final String name : names) {
       final List<String> values = headers.getAll(name);

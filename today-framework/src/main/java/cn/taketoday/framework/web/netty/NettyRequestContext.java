@@ -82,6 +82,7 @@ import io.netty.handler.codec.http.multipart.HttpPostMultipartRequestDecoder;
 import io.netty.handler.codec.http.multipart.HttpPostStandardRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
+import io.netty.util.internal.ObjectPool;
 
 /**
  * Netty Request context
@@ -91,11 +92,11 @@ import io.netty.handler.codec.http.multipart.InterfaceHttpPostRequestDecoder;
  */
 public class NettyRequestContext extends RequestContext {
 
-  private final FullHttpRequest request;
+  FullHttpRequest request;
 
-  final NettyRequestConfig config;
+  ChannelHandlerContext channelContext;
 
-  final ChannelHandlerContext channelContext;
+  long requestTimeMillis;
 
   /**
    * response headers
@@ -105,7 +106,7 @@ public class NettyRequestContext extends RequestContext {
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
 
-  private final long requestTimeMillis = System.currentTimeMillis();
+  private final NettyRequestConfig config;
 
   @Nullable
   private String remoteAddress;
@@ -131,18 +132,28 @@ public class NettyRequestContext extends RequestContext {
   @Nullable
   private InetSocketAddress inetSocketAddress;
 
-  protected NettyRequestContext(ApplicationContext context, ChannelHandlerContext ctx,
-          FullHttpRequest request, NettyRequestConfig config, DispatcherHandler dispatcherHandler) {
+  /**
+   * @since 4.0
+   */
+  private final ObjectPool.Handle<NettyRequestContext> handle;
+
+  protected NettyRequestContext(ApplicationContext context, NettyRequestConfig config,
+          DispatcherHandler dispatcherHandler, ObjectPool.Handle<NettyRequestContext> handle) {
     super(context, dispatcherHandler);
     this.config = config;
-    this.request = request;
-    this.channelContext = ctx;
+    this.handle = handle;
     this.nettyResponseHeaders = config.httpHeadersFactory.newHeaders();
   }
 
   @Override
   public long getRequestTimeMillis() {
     return requestTimeMillis;
+  }
+
+  @Nullable
+  @Override
+  protected String initId() {
+    return channelContext.channel().id().asShortText();
   }
 
   @Override
@@ -234,6 +245,21 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected InputStream doGetInputStream() {
     return new ByteBufInputStream(request.content());
+  }
+
+  @Override
+  public cn.taketoday.http.HttpHeaders requestHeaders() {
+    var requestHeaders = this.requestHeaders;
+    if (requestHeaders == null) {
+      requestHeaders = createRequestHeaders();
+      this.requestHeaders = requestHeaders;
+    }
+    else if (requestHeaders.isEmpty()) {
+      for (Map.Entry<String, String> header : request.headers()) {
+        requestHeaders.add(header.getKey(), header.getValue());
+      }
+    }
+    return requestHeaders;
   }
 
   @Override
@@ -421,6 +447,7 @@ public class NettyRequestContext extends RequestContext {
   @Override
   protected void postRequestCompleted(@Nullable Throwable notHandled) {
     if (notHandled != null) {
+      recycle();
       return;
     }
 
@@ -469,6 +496,8 @@ public class NettyRequestContext extends RequestContext {
     if (requestDecoder != null) {
       requestDecoder.destroy();
     }
+
+    recycle();
   }
 
   /**
@@ -636,6 +665,67 @@ public class NettyRequestContext extends RequestContext {
   void dispatchConcurrentResult(Object concurrentResult) throws Throwable {
     Object handler = WebAsyncManager.findHttpRequestHandler(this);
     dispatcherHandler.handleConcurrentResult(this, handler, concurrentResult);
+  }
+
+  /**
+   * reset state
+   */
+  private void recycle() {
+    inetSocketAddress = null;
+    queryStringIndex = null;
+    nettyResponseHeaders.clear();
+    fileToSend = null;
+    responseBody = null;
+    status = HttpResponseStatus.OK;
+    remoteAddress = null;
+    keepAlive = null;
+    requestDecoder = null;
+    cookies = null;
+    writer = null;
+    reader = null;
+    inputStream = null;
+
+    method = null;
+    requestURI = null;
+    requestPath = null;
+    parameters = null;
+    queryString = null;
+    uri = null;
+    httpMethod = null;
+    lookupPath = null;
+    locale = null;
+    responseContentType = null;
+    multipartRequest = null;
+    asyncWebRequest = null;
+    webAsyncManager = null;
+    notModified = false;
+    matchingMetadata = null;
+    bindingContext = null;
+    redirectModel = null;
+    multipartFlag = null;
+    preFlightRequestFlag = null;
+    corsRequestFlag = null;
+    requestDestructionCallbacks = null;
+    requestCompletedTimeMillis = 0;
+    id = null;
+
+    clearAttributes();
+
+    reset();
+
+    if (outputStream instanceof NoBodyOutputStream nbStream) {
+      nbStream.contentLength = 0;
+    }
+
+    if (requestHeaders != null) {
+      requestHeaders.clear();
+    }
+
+    if (hasResponseCookie()) {
+      responseCookies.clear();
+    }
+
+    handle.recycle(this);
   }
 
   /**
