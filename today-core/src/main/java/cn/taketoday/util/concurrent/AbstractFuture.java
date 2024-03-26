@@ -47,7 +47,7 @@ public abstract class AbstractFuture<V> implements Future<V> {
    * One or more listeners.
    */
   @Nullable
-  protected Object listeners;
+  private Object listeners;
 
   protected final Executor executor;
 

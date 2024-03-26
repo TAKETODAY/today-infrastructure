@@ -44,13 +44,13 @@ public abstract class CompleteFuture<V> extends AbstractFuture<V> {
   @Override
   public CompleteFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
     Assert.notNull(listener, "listener is required");
-    DefaultFuture.notifyListener(executor, this, listener);
+    notifyListener(executor, this, listener);
     return this;
   }
 
   @Override
   public <C> CompleteFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    DefaultFuture.notifyListener(executor, this, FutureListener.forAdaption(listener, context));
+    notifyListener(executor, this, FutureListener.forAdaption(listener, context));
     return this;
   }
 

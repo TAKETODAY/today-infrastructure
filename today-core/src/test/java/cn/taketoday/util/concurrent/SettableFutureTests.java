@@ -20,8 +20,8 @@ package cn.taketoday.util.concurrent;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 class SettableFutureTests {
 
-  private final SettableFuture<String> settableFuture = new DefaultFuture<>(Runnable::run);
+  private final SettableFuture<String> settableFuture = Future.forSettable(Runnable::run);
 
   @Test
   void validateInitialValues() {
@@ -59,7 +59,7 @@ class SettableFutureTests {
   void returnsSetValueFromCompletable() throws ExecutionException, InterruptedException {
     String string = "hello";
     assertThat(settableFuture.trySuccess(string)).isTrue();
-    Future<String> completable = settableFuture.completable();
+    var completable = settableFuture.completable();
     assertThat(completable.get()).isEqualTo(string);
     assertThat(completable.isCancelled()).isFalse();
     assertThat(completable.isDone()).isTrue();
@@ -89,7 +89,7 @@ class SettableFutureTests {
   void throwsSetExceptionWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new RuntimeException();
     assertThat(settableFuture.tryFailure(exception)).isTrue();
-    Future<String> completable = settableFuture.completable();
+    CompletableFuture<String> completable = settableFuture.completable();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -116,7 +116,7 @@ class SettableFutureTests {
   void throwsSetErrorWrappedInExecutionExceptionFromCompletable() throws Exception {
     Throwable exception = new OutOfMemoryError();
     assertThat(settableFuture.tryFailure(exception)).isTrue();
-    Future<String> completable = settableFuture.completable();
+    CompletableFuture<String> completable = settableFuture.completable();
 
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(
                     completable::get)
@@ -389,8 +389,16 @@ class SettableFutureTests {
 
     private boolean interrupted = false;
 
+    /**
+     * Creates a new instance.
+     */
+    InterruptibleSettableFuture() {
+      super(defaultExecutor);
+    }
+
     @Override
     protected void interruptTask() {
+      super.interruptTask();
       interrupted = true;
     }
 

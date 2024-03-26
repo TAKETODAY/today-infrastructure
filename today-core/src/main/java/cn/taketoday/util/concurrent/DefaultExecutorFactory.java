@@ -23,7 +23,7 @@ import java.util.concurrent.ForkJoinPool;
 import cn.taketoday.lang.TodayStrategies;
 
 /**
- * for {@link DefaultFuture#defaultExecutor}
+ * for {@link Future#defaultExecutor}
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/28 13:24

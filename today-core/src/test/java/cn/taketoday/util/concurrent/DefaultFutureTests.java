@@ -51,8 +51,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class DefaultSettableFutureTests {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultSettableFutureTests.class);
+class DefaultFutureTests {
+
+  private static final Logger logger = LoggerFactory.getLogger(DefaultFutureTests.class);
 
   private static int stackOverflowDepth;
 

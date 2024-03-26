@@ -633,7 +633,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * Creates a new SettableFuture instance.
    */
   static <V> SettableFuture<V> forSettable() {
-    return new DefaultFuture<>();
+    return new DefaultFuture<>(defaultExecutor);
   }
 
   /**
