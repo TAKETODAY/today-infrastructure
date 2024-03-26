@@ -44,7 +44,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
           AtomicReferenceFieldUpdater.newUpdater(DefaultFuture.class, Object.class, "result");
 
   private static final Object SUCCESS = new Object();
-  private static final Object UNCANCELLABLE = new Object();
 
   private static final Failure CANCELLATION_CAUSE_HOLDER = new Failure(
           StacklessCancellationException.newInstance(DefaultFuture.class, "cancel(...)"));
@@ -65,7 +64,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    *
    * @see #defaultExecutor
    */
-  public DefaultFuture() {
+  DefaultFuture() {
     super(defaultExecutor);
   }
 
@@ -75,7 +74,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
    * @param executor the {@link Executor} which is used to notify
    * the SettableFuture once it is complete.
    */
-  public DefaultFuture(@Nullable Executor executor) {
+  DefaultFuture(@Nullable Executor executor) {
     super(executor);
   }
 
@@ -117,28 +116,14 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   @Override
-  public boolean setUncancellable() {
-    if (RESULT_UPDATER.compareAndSet(this, null, UNCANCELLABLE)) {
-      return true;
-    }
-    Object result = this.result;
-    return !isDone(result) || !isCancelled(result);
-  }
-
-  @Override
   public boolean isSuccess() {
     Object result = this.result;
-    return result != null && result != UNCANCELLABLE && !(result instanceof Failure);
+    return result != null && !(result instanceof Failure);
   }
 
   @Override
   public boolean isFailed() {
     return result instanceof Failure;
-  }
-
-  @Override
-  public boolean isCancellable() {
-    return result == null;
   }
 
   @Override
@@ -148,7 +133,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   @Override
   public boolean isDone() {
-    return isDone(result);
+    return result != null;
   }
 
   @Override
@@ -277,7 +262,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   @Override
   public V getNow() {
     Object result = this.result;
-    if (result instanceof Failure || result == SUCCESS || result == UNCANCELLABLE) {
+    if (result instanceof Failure || result == SUCCESS) {
       return null;
     }
     return (V) result;
@@ -287,11 +272,11 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   @Override
   public V get() throws InterruptedException, ExecutionException {
     Object result = this.result;
-    if (!isDone(result)) {
+    if (result == null) {
       await();
       result = this.result;
     }
-    if (result == SUCCESS || result == UNCANCELLABLE) {
+    if (result == SUCCESS) {
       return null;
     }
     Throwable cause = getCause(result);
@@ -309,13 +294,13 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   @Override
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     Object result = this.result;
-    if (!isDone(result)) {
+    if (result == null) {
       if (!await(timeout, unit)) {
         throw new TimeoutException();
       }
       result = this.result;
     }
-    if (result == SUCCESS || result == UNCANCELLABLE) {
+    if (result == SUCCESS) {
       return null;
     }
     Throwable cause = getCause(result);
@@ -383,9 +368,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
     if (result == SUCCESS) {
       buf.append("(success)");
     }
-    else if (result == UNCANCELLABLE) {
-      buf.append("(uncancellable)");
-    }
     else if (result instanceof Failure) {
       buf.append("(failure: ")
               .append(((Failure) result).cause)
@@ -413,8 +395,7 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
   }
 
   private boolean doSetValue(Object objResult) {
-    if (RESULT_UPDATER.compareAndSet(this, null, objResult)
-            || RESULT_UPDATER.compareAndSet(this, UNCANCELLABLE, objResult)) {
+    if (RESULT_UPDATER.compareAndSet(this, null, objResult)) {
       if (checkNotifyWaiters()) {
         notifyListeners();
       }
@@ -502,10 +483,6 @@ public class DefaultFuture<V> extends AbstractFuture<V> implements SettableFutur
 
   private static boolean isCancelled(@Nullable Object result) {
     return result instanceof Failure && ((Failure) result).cause instanceof CancellationException;
-  }
-
-  private static boolean isDone(@Nullable Object result) {
-    return result != null && result != UNCANCELLABLE;
   }
 
   private static final class Failure {

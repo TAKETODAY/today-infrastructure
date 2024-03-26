@@ -155,14 +155,11 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
   }
 
   /**
-   * Creates the {@link Future} which will return the result of running {@code combiner}
-   * when all Futures complete. {@code combiner} will run using {@code executor}.
+   * Creates the {@link Future} which will return Void when all Futures complete.
    *
    * <p>Canceling this Future will attempt to cancel all the component futures.
    *
-   * @return a future whose result is Void (or based on the input futures
-   * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
-   * FutureCombiner}).
+   * @return a future whose result is Void
    */
   public Future<Void> combine() {
     return call(() -> null, null);
@@ -178,7 +175,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
         return;
       }
     }
-    
+
     if (doneCount == expectedCount) {
       // all done
       safeExecute(task.executor(), task);
@@ -191,7 +188,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
       task.cancel(true);
     }
     else {
-      task.setException(cause);
+      task.tryFailure(cause);
     }
 
     // cancel all tasks

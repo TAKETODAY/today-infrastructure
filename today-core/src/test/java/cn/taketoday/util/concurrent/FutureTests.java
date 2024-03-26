@@ -55,7 +55,6 @@ class FutureTests {
     assertThat(future.isSuccess()).isFalse();
     assertThat(future.isFailed()).isFalse();
     assertThat(future.getCause()).isNull();
-    assertThat(future.isCancellable()).isTrue();
     assertThat(future.getNow()).isNull();
     assertThatThrownBy(future::obtain)
             .isInstanceOf(IllegalStateException.class)
@@ -71,7 +70,6 @@ class FutureTests {
     assertThat(future.isSuccess()).isFalse();
     assertThat(future.isFailed()).isTrue();
     assertThat(future.getCause()).isNotNull().isInstanceOf(CancellationException.class);
-    assertThat(future.isCancellable()).isFalse();
     assertThat(future.getNow()).isNull();
     assertThatThrownBy(future::obtain)
             .isInstanceOf(IllegalStateException.class)

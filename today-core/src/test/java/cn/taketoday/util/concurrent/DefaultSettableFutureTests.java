@@ -316,7 +316,6 @@ class DefaultSettableFutureTests {
   public void setUncancellableGetNow() {
     final SettableFuture<String> future = new DefaultFuture<String>();
     assertNull(future.getNow());
-    assertTrue(future.setUncancellable());
     assertNull(future.getNow());
     assertFalse(future.isDone());
     assertFalse(future.isSuccess());

@@ -102,7 +102,7 @@ public class AnnotationAsyncExecutionAspectTests {
   @Test
   public void methodReturningFutureInAsyncClassGetsRoutedAsynchronouslyAndReturnsAFuture() throws InterruptedException, ExecutionException {
     ClassWithAsyncAnnotation obj = new ClassWithAsyncAnnotation();
-    java.util.concurrent.Future<Integer> future = obj.incrementReturningAFuture();
+    var future = obj.incrementReturningAFuture();
     assertThat(future.get().intValue()).isEqualTo(5);
     assertThat(obj.counter).isEqualTo(1);
     assertThat(executor.submitStartCounter).isEqualTo(1);

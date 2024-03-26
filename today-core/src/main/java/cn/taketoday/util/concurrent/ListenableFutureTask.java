@@ -23,7 +23,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
@@ -31,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -93,11 +93,11 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   /** The underlying callable; nulled out after running */
 
   @Nullable
-  private Callable<V> callable;
+  private Callable<V> task;
 
   /** The result to return or exception to throw from get() */
   @Nullable
-  private Object outcome; // non-volatile, protected by state reads/writes
+  private Object result; // non-volatile, protected by state reads/writes
 
   /** The thread running the callable; CASed during run() */
   @Nullable
@@ -108,45 +108,16 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   private volatile Waiter waiters;
 
   /**
-   * Returns result or throws exception for completed task.
-   *
-   * @param s completed state value
-   */
-  @SuppressWarnings("unchecked")
-  private V report(int s) throws ExecutionException {
-    Object x = outcome;
-    if (s == NORMAL)
-      return (V) x;
-    if (s >= CANCELLED)
-      throw new CancellationException();
-    throw new ExecutionException((Throwable) x);
-  }
-
-  /**
    * Create a new {@code ListenableFutureTask} that will, upon running,
    * execute the given {@link Callable}.
    *
-   * @param callable the callable task
+   * @param task the callable task
    * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
    */
-  ListenableFutureTask(@Nullable Executor executor, Callable<V> callable) {
+  ListenableFutureTask(@Nullable Executor executor, Callable<V> task) {
     super(executor);
-    this.callable = callable;
-    this.state = NEW;       // ensure visibility of callable
-  }
-
-  /**
-   * Create a {@code ListenableFutureTask} that will, upon running,
-   * execute the given {@link Runnable}, and arrange that {@link #get()}
-   * will return the given result on successful completion.
-   *
-   * @param runnable the runnable task
-   * @param result the result to return on successful completion
-   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
-   */
-  ListenableFutureTask(@Nullable Executor executor, Runnable runnable, @Nullable V result) {
-    super(executor);
-    this.callable = Executors.callable(runnable, result);
+    Assert.notNull(task, "task is required");
+    this.task = task;
     this.state = NEW;       // ensure visibility of callable
   }
 
@@ -176,16 +147,12 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   }
 
   @Override
-  public boolean isCancellable() {
-    return state == NEW;
-  }
-
-  @Override
   public boolean cancel(boolean mayInterruptIfRunning) {
     if (!(state == NEW && STATE.compareAndSet(this, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED))) {
       return false;
     }
-    try {    // in case call to interrupt throws exception
+    try {
+      // in case call to interrupt throws exception
       if (mayInterruptIfRunning) {
         try {
           Thread t = runner;
@@ -205,9 +172,9 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
 
   @Override
   public Throwable getCause() {
-    int s = this.state;
+    int s = state;
     if (s == EXCEPTIONAL) {
-      return (Throwable) outcome;
+      return (Throwable) result;
     }
     else if (s >= CANCELLED) {
       return new DefaultFuture.LeanCancellationException();
@@ -218,7 +185,7 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   @Override
   @SuppressWarnings("unchecked")
   public V getNow() {
-    return state == NORMAL ? (V) outcome : null;
+    return state == NORMAL ? (V) result : null;
   }
 
   /**
@@ -236,8 +203,7 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
    * @throws CancellationException {@inheritDoc}
    */
   @Nullable
-  public V get(long timeout, TimeUnit unit)
-          throws InterruptedException, ExecutionException, TimeoutException {
+  public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     int s = state;
     if (s <= COMPLETING && (s = awaitDone(true, unit.toNanos(timeout))) <= COMPLETING) {
       throw new TimeoutException();
@@ -313,13 +279,18 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
    * upon successful completion of the computation.
    *
    * @param v the value
+   * @return {@code true} if and only if successfully marked this future as
+   * a success. Otherwise {@code false} because this future is
+   * already marked as either a success or a failure.
    */
-  protected void set(V v) {
+  protected boolean trySuccess(@Nullable V v) {
     if (STATE.compareAndSet(this, NEW, COMPLETING)) {
-      outcome = v;
+      result = v;
       STATE.setRelease(this, NORMAL); // final state
       finishCompletion();
+      return true;
     }
+    return false;
   }
 
   /**
@@ -331,47 +302,52 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
    * upon failure of the computation.
    *
    * @param t the cause of failure
+   * @return {@code true} if and only if successfully marked this future as
+   * a failure. Otherwise {@code false} because this future is
+   * already marked as either a success or a failure.
    */
-  protected void setException(Throwable t) {
+  protected boolean tryFailure(Throwable t) {
     if (STATE.compareAndSet(this, NEW, COMPLETING)) {
-      outcome = t;
+      result = t;
       STATE.setRelease(this, EXCEPTIONAL); // final state
       finishCompletion();
+      return true;
     }
+    return false;
   }
 
   @Override
   public void run() {
-    if (state != NEW || !RUNNER.compareAndSet(this, null, Thread.currentThread())) {
-      return;
-    }
-    try {
-      Callable<V> c = callable;
-      if (c != null && state == NEW) {
-        V result;
-        boolean ran;
-        try {
-          result = c.call();
-          ran = true;
+    if (state == NEW && RUNNER.compareAndSet(this, null, Thread.currentThread())) {
+      try {
+        Callable<V> c = task;
+        if (c != null && state == NEW) {
+          V result;
+          boolean ran;
+          try {
+            result = c.call();
+            ran = true;
+          }
+          catch (Throwable ex) {
+            result = null;
+            ran = false;
+            tryFailure(ex);
+          }
+          if (ran) {
+            trySuccess(result);
+          }
         }
-        catch (Throwable ex) {
-          result = null;
-          ran = false;
-          setException(ex);
-        }
-        if (ran)
-          set(result);
       }
-    }
-    finally {
-      // runner must be non-null until state is settled to
-      // prevent concurrent calls to run()
-      runner = null;
-      // state must be re-read after nulling runner to prevent
-      // leaked interrupts
-      int s = state;
-      if (s >= INTERRUPTING) {
-        handlePossibleCancellationInterrupt(s);
+      finally {
+        // runner must be non-null until state is settled to
+        // prevent concurrent calls to run()
+        runner = null;
+        // state must be re-read after nulling runner to prevent
+        // leaked interrupts
+        int s = state;
+        if (s >= INTERRUPTING) {
+          handlePossibleCancellationInterrupt(s);
+        }
       }
     }
   }
@@ -383,10 +359,11 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   private void handlePossibleCancellationInterrupt(int s) {
     // It is possible for our interrupter to stall before getting a
     // chance to interrupt us.  Let's spin-wait patiently.
-    if (s == INTERRUPTING)
-      while (state == INTERRUPTING)
+    if (s == INTERRUPTING) {
+      while (state == INTERRUPTING) {
         Thread.yield(); // wait out pending interrupt
-
+      }
+    }
     // assert state == INTERRUPTED;
 
     // We want to clear any interrupt we may have received from
@@ -396,6 +373,23 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
     // cancellation interrupt.
     //
     // Thread.interrupted();
+  }
+
+  /**
+   * Returns result or throws exception for completed task.
+   *
+   * @param s completed state value
+   */
+  @SuppressWarnings("unchecked")
+  private V report(int s) throws ExecutionException {
+    Object x = result;
+    if (s == NORMAL) {
+      return (V) x;
+    }
+    if (s >= CANCELLED) {
+      throw new CancellationException();
+    }
+    throw new ExecutionException((Throwable) x);
   }
 
   /**
@@ -421,7 +415,7 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
     // assert state > COMPLETING;
     for (Waiter q; (q = waiters) != null; ) {
       if (WAITERS.weakCompareAndSet(this, q, null)) {
-        for (; ; ) {
+        while (true) {
           Thread t = q.thread;
           if (t != null) {
             q.thread = null;
@@ -437,7 +431,7 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
       }
     }
     done();
-    callable = null;        // to reduce footprint
+    task = null;        // to reduce footprint
   }
 
   /**
@@ -458,7 +452,7 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
     long startTime = 0L;    // Special value 0L means not yet parked
     Waiter q = null;
     boolean queued = false;
-    for (; ; ) {
+    while (true) {
       int s = state;
       if (s > COMPLETING) {
         if (q != null) {
@@ -476,8 +470,9 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
         throw new InterruptedException();
       }
       else if (q == null) {
-        if (timed && nanos <= 0L)
+        if (timed && nanos <= 0L) {
           return s;
+        }
         q = new Waiter();
       }
       else if (!queued) {
@@ -501,11 +496,13 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
           parkNanos = nanos - elapsed;
         }
         // nanoTime may be slow; recheck before parking
-        if (state < COMPLETING)
+        if (state < COMPLETING) {
           LockSupport.parkNanos(this, parkNanos);
+        }
       }
-      else
+      else {
         LockSupport.park(this);
+      }
     }
   }
 
@@ -546,23 +543,24 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
 
   /**
    * Returns a string representation of this FutureTask.
-   *
-   * @return a string representation of this FutureTask
-   * @implSpec The default implementation returns a string identifying this
+   * <p>
+   * The default implementation returns a string identifying this
    * FutureTask, as well as its completion state.  The state, in
    * brackets, contains one of the strings {@code "Completed Normally"},
    * {@code "Completed Exceptionally"}, {@code "Cancelled"}, or {@code
    * "Not completed"}.
+   *
+   * @return a string representation of this FutureTask
    */
   @Override
   public String toString() {
     final String status = switch (state) {
       case NORMAL -> "[Completed normally]";
-      case EXCEPTIONAL -> "[Completed exceptionally: %s]".formatted(outcome);
+      case EXCEPTIONAL -> "[Completed exceptionally: %s]".formatted(result);
       case CANCELLED, INTERRUPTING, INTERRUPTED -> "[Cancelled]";
       default -> {
-        final Callable<?> callable = this.callable;
-        yield callable == null ? "[Not completed]" : "[Not completed, task = %s]".formatted(callable);
+        final Callable<?> task = this.task;
+        yield task == null ? "[Not completed]" : "[Not completed, task = %s]".formatted(task);
       }
     };
     return super.toString() + status;

@@ -109,11 +109,6 @@ public abstract class CompleteFuture<V> extends AbstractFuture<V> {
   }
 
   @Override
-  public final boolean isCancellable() {
-    return false;
-  }
-
-  @Override
   public final boolean isCancelled() {
     return false;
   }

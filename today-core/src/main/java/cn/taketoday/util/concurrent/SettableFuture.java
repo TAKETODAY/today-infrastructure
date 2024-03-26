@@ -21,6 +21,11 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Special {@link Future} which is writable.
+ * <p>
+ *
+ * A {@link Future} whose result can be set by a {@link #setSuccess(Object)},
+ * {@link #setFailure(Throwable)} call. It can also, like any other {@code Future},
+ * be {@linkplain #cancel cancelled}.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 15:57
@@ -62,15 +67,6 @@ public interface SettableFuture<V> extends Future<V> {
    * already marked as either a success or a failure.
    */
   boolean tryFailure(Throwable cause);
-
-  /**
-   * Make this future impossible to cancel.
-   *
-   * @return {@code true} if and only if successfully marked this
-   * future as uncancellable or it is already done without being cancelled.
-   * {@code false} if this future has been cancelled already.
-   */
-  boolean setUncancellable();
 
   @Override
   default SettableFuture<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {

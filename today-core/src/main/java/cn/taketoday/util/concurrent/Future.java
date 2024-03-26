@@ -24,6 +24,7 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -184,12 +185,6 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see CancellationException
    */
   boolean isCancelled();
-
-  /**
-   * @return returns {@code true} if and only if the operation can
-   * be cancelled via {@link #cancel(boolean)}.
-   */
-  boolean isCancellable();
 
   /**
    * Returns the cause of the failed operation if the operation failed.
@@ -359,7 +354,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
 
   /**
    * Cancel this asynchronous operation, unless it has already been
-   * completed or is not {@linkplain #isCancellable() cancellable}.
+   * completed.
    * <p>
    * A cancelled operation is considered to be {@linkplain #isDone() done}
    * and {@linkplain #isFailed() failed}.
@@ -685,7 +680,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   static <V> ListenableFutureTask<V> forFutureTask(Runnable task) {
-    return new ListenableFutureTask<>(defaultExecutor, task, null);
+    return new ListenableFutureTask<>(defaultExecutor, Executors.callable(task, null));
   }
 
   /**
@@ -698,7 +693,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable Executor executor) {
-    return new ListenableFutureTask<>(executor, task, null);
+    return new ListenableFutureTask<>(executor, Executors.callable(task, null));
   }
 
   /**
@@ -709,7 +704,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
-    return new ListenableFutureTask<>(defaultExecutor, task, result);
+    return new ListenableFutureTask<>(defaultExecutor, Executors.callable(task, result));
   }
 
   /**
@@ -722,7 +717,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see java.util.concurrent.FutureTask
    */
   static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result, @Nullable Executor executor) {
-    return new ListenableFutureTask<>(executor, task, result);
+    return new ListenableFutureTask<>(executor, Executors.callable(task, result));
   }
 
   /**
@@ -789,7 +784,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
     if (executor == null) {
       executor = defaultExecutor;
     }
-    var futureTask = new ListenableFutureTask<Void>(executor, task, null);
+
+    var futureTask = Future.<Void>forFutureTask(task, executor);
     executor.execute(futureTask);
     return futureTask;
   }
