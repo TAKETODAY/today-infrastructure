@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -70,6 +70,7 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
  * @since 4.0 2022/1/22 19:40
  */
 public abstract class AbstractMessageConverterMethodArgumentResolver implements ParameterResolvingStrategy {
+
   private static final Logger log = LoggerFactory.getLogger(AbstractMessageConverterMethodArgumentResolver.class);
 
   private static final EnumSet<HttpMethod> SUPPORTED_METHODS = EnumSet.of(
@@ -92,9 +93,7 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
   /**
    * Constructor with converters and {@code Request~} and {@code ResponseBodyAdvice}.
    */
-  public AbstractMessageConverterMethodArgumentResolver(
-          List<HttpMessageConverter<?>> converters, @Nullable List<Object> requestResponseBodyAdvice) {
-
+  public AbstractMessageConverterMethodArgumentResolver(List<HttpMessageConverter<?>> converters, @Nullable List<Object> requestResponseBodyAdvice) {
     Assert.notEmpty(converters, "'messageConverters' must not be empty");
     this.messageConverters = converters;
     this.advice = new RequestResponseBodyAdviceChain(requestResponseBodyAdvice);
@@ -229,10 +228,8 @@ public abstract class AbstractMessageConverterMethodArgumentResolver implements 
     if (log.isDebugEnabled()) {
       Object theBody = body;
       MediaType selectedContentType = contentType;
-      LogFormatUtils.traceDebug(log, traceOn -> {
-        String formatted = LogFormatUtils.formatValue(theBody, !traceOn);
-        return "Read \"" + selectedContentType + "\" to [" + formatted + "]";
-      });
+      LogFormatUtils.traceDebug(log, traceOn -> "Read \"%s\" to [%s]".formatted(
+              selectedContentType, LogFormatUtils.formatValue(theBody, !traceOn)));
     }
 
     return body;

@@ -269,17 +269,15 @@ public abstract class AbstractMessageConverterMethodProcessor
       RequestResponseBodyAdviceChain advice = getAdvice();
       selectedMediaType = selectedMediaType.removeQualityValue();
       for (HttpMessageConverter converter : messageConverters) {
-        var generic = converter instanceof GenericHttpMessageConverter
-                      ? (GenericHttpMessageConverter) converter : null;
-        if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType)
-                            : converter.canWrite(valueType, selectedMediaType)) {
+        var generic = converter instanceof GenericHttpMessageConverter ? (GenericHttpMessageConverter) converter : null;
+        if (generic != null ? generic.canWrite(targetType, valueType, selectedMediaType) : converter.canWrite(valueType, selectedMediaType)) {
 
           body = advice.beforeBodyWrite(body, returnType, selectedMediaType, converter, context);
           if (body != null) {
             if (log.isDebugEnabled()) {
               Object theBody = body;
               LogFormatUtils.traceDebug(log,
-                      traceOn -> "Writing [" + LogFormatUtils.formatValue(theBody, !traceOn) + "]");
+                      traceOn -> "Writing [%s]".formatted(LogFormatUtils.formatValue(theBody, !traceOn)));
             }
             addContentDispositionHeader(context);
             if (generic != null) {
@@ -303,7 +301,7 @@ public abstract class AbstractMessageConverterMethodProcessor
         MediaType[] producibleMediaTypes = matchingMetadata.getProducibleMediaTypes();
         if (isContentTypePreset || ObjectUtils.isNotEmpty(producibleMediaTypes)) {
           throw new HttpMessageNotWritableException(
-                  "No converter for [" + valueType + "] with preset Content-Type '" + contentType + "'");
+                  "No converter for [%s] with preset Content-Type '%s'".formatted(valueType, contentType));
         }
       }
       throw new HttpMediaTypeNotAcceptableException(getSupportedMediaTypes(body.getClass()));

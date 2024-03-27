@@ -82,17 +82,6 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
   }
 
   /**
-   * Basic constructor with converters and {@code ContentNegotiationManager}.
-   * Suitable for resolving {@code HttpEntity} and handling {@code ResponseEntity}
-   * without {@code Request~} or {@code ResponseBodyAdvice}.
-   */
-  public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters,
-          @Nullable ContentNegotiationManager manager, @Nullable RedirectModelManager redirectModelManager) {
-    super(converters, manager);
-    this.redirectModelManager = redirectModelManager;
-  }
-
-  /**
    * Complete constructor for resolving {@code HttpEntity} method arguments.
    * For handling {@code ResponseEntity} consider also providing a
    * {@code ContentNegotiationManager}.
@@ -108,7 +97,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
    * {@code ResponseEntity}.
    */
   public HttpEntityMethodProcessor(List<HttpMessageConverter<?>> converters, @Nullable ContentNegotiationManager manager,
-          List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
+          @Nullable List<Object> requestResponseBodyAdvice, @Nullable RedirectModelManager redirectModelManager) {
     super(converters, manager, requestResponseBodyAdvice);
     this.redirectModelManager = redirectModelManager;
   }
@@ -126,8 +115,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     MethodParameter parameter = resolvable.getParameter();
     Type paramType = getHttpEntityType(parameter);
     if (paramType == null) {
-      throw new IllegalArgumentException("HttpEntity parameter '" + parameter.getParameterName() +
-              "' in method " + parameter.getMethod() + " is not parameterized");
+      throw new IllegalArgumentException("HttpEntity parameter '%s' in method %s is not parameterized"
+              .formatted(parameter.getParameterName(), parameter.getMethod()));
     }
 
     Object body = readWithMessageConverters(context, parameter, paramType);
@@ -146,8 +135,8 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
     Type parameterType = parameter.getGenericParameterType();
     if (parameterType instanceof ParameterizedType type) {
       if (type.getActualTypeArguments().length != 1) {
-        throw new IllegalArgumentException("Expected single generic parameter on '" +
-                parameter.getParameterName() + "' in method " + parameter.getMethod());
+        throw new IllegalArgumentException("Expected single generic parameter on '%s' in method %s"
+                .formatted(parameter.getParameterName(), parameter.getMethod()));
       }
       return type.getActualTypeArguments()[0];
     }

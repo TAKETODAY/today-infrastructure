@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
@@ -52,6 +52,7 @@ import cn.taketoday.web.view.RedirectModel;
  */
 public class BindingContext {
 
+  @Nullable
   private ModelMap model;
 
   @Nullable
@@ -69,6 +70,7 @@ public class BindingContext {
   @Nullable
   private final WebBindingInitializer initializer;
 
+  @Nullable
   protected ModelAndView modelAndView;
 
   /**
@@ -111,7 +113,7 @@ public class BindingContext {
    * @throws Throwable if {@code @InitBinder} method invocation fails
    */
   public WebDataBinder createBinder(RequestContext request,
-      @Nullable Object target, String objectName) throws Throwable {
+          @Nullable Object target, String objectName) throws Throwable {
     return createBinder(request, target, objectName, null);
   }
 
@@ -122,7 +124,7 @@ public class BindingContext {
    * insight on how to initialize the binder.
    */
   public WebDataBinder createBinder(RequestContext request,
-      @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
+          @Nullable Object target, String objectName, @Nullable ResolvableType targetType) throws Throwable {
     WebDataBinder dataBinder = createBinderInstance(target, objectName, request);
     dataBinder.setNameResolver(new BindParamNameResolver());
 
@@ -148,7 +150,7 @@ public class BindingContext {
    * @throws Exception in case of invalid state or arguments
    */
   protected WebDataBinder createBinderInstance(
-      @Nullable Object target, String objectName, RequestContext request) throws Exception {
+          @Nullable Object target, String objectName, RequestContext request) throws Exception {
 
     return new WebDataBinder(target, objectName);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,8 +132,8 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
 
   public boolean supportsReturnType(MethodParameter returnType) {
     Class<?> bodyType = ResponseEntity.class.isAssignableFrom(returnType.getParameterType())
-                        ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
-                        : returnType.getParameterType();
+            ? ResolvableType.forMethodParameter(returnType).getGeneric().resolve()
+            : returnType.getParameterType();
     return bodyType != null
             && (
             ResponseBodyEmitter.class.isAssignableFrom(bodyType)
@@ -147,8 +147,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   }
 
   @Override
-  public void handleReturnValue(RequestContext request,
-          @Nullable Object handler, @Nullable Object returnValue) throws Exception {
+  public void handleReturnValue(RequestContext request, @Nullable Object handler, @Nullable Object returnValue) throws Exception {
     if (returnValue == null) {
       return;
     }
@@ -158,10 +157,10 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     if (handler instanceof HandlerMethod handlerMethod) {
       returnType = handlerMethod.getReturnType();
       // for ResponseEntity unwrap body
-      if (returnValue instanceof ResponseEntity<?> responseEntity) {
-        request.setStatus(responseEntity.getStatusCode());
-        request.mergeToResponse(responseEntity.getHeaders());
-        returnValue = responseEntity.getBody();
+      if (returnValue instanceof ResponseEntity<?> entity) {
+        request.setStatus(entity.getStatusCode());
+        request.mergeToResponse(entity.getHeaders());
+        returnValue = entity.getBody();
         returnType = returnType.nested();
         if (returnValue == null) {
           request.flush();
@@ -186,7 +185,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
     else {
       // should not happen
       throw new UnsupportedOperationException(
-              "Unsupported handler: '" + handler + "' and its return-value: '" + returnValue + "'");
+              "Unsupported handler: '%s' and its return-value: '%s'".formatted(handler, returnValue));
     }
     emitter.extendResponse(request);
 
@@ -220,6 +219,7 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
   private class HttpMessageConvertingHandler implements ResponseBodyEmitter.Handler {
 
     private final RequestContext request;
+
     private final DeferredResult<?> deferredResult;
 
     public HttpMessageConvertingHandler(RequestContext request, DeferredResult<?> deferredResult) {

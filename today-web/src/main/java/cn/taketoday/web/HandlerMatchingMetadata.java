@@ -44,10 +44,13 @@ public class HandlerMatchingMetadata {
   // handler lookup path
   private final PathContainer lookupPath;
 
+  @Nullable
   private PathPattern bestMatchingPattern;
 
+  @Nullable
   private PathContainer pathWithinMapping;
 
+  @Nullable
   private PathMatchInfo pathMatchInfo;
 
   @Nullable
@@ -146,6 +149,7 @@ public class HandlerMatchingMetadata {
     return getPathMatchInfo().getUriVariables();
   }
 
+  @Nullable
   public String getUriVariable(String name) {
     return getPathMatchInfo().getUriVariable(name);
   }
@@ -159,12 +163,12 @@ public class HandlerMatchingMetadata {
   }
 
   public PathPattern getBestMatchingPattern() {
-    PathPattern bestMatchingPattern = this.bestMatchingPattern;
-    if (bestMatchingPattern == null) {
-      bestMatchingPattern = patternParser.parse(directLookupPath);
-      this.bestMatchingPattern = bestMatchingPattern;
+    PathPattern pattern = this.bestMatchingPattern;
+    if (pattern == null) {
+      pattern = patternParser.parse(directLookupPath);
+      this.bestMatchingPattern = pattern;
     }
-    return bestMatchingPattern;
+    return pattern;
   }
 
   public PathContainer getLookupPath() {
