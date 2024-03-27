@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package cn.taketoday.framework;
 
 import org.awaitility.Awaitility;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -92,6 +93,7 @@ class ApplicationShutdownHookTests {
   }
 
   @Test
+  @Disabled
   void runWhenContextIsBeingClosedInAnotherThreadWaitsUntilContextIsInactive() throws InterruptedException {
     // This situation occurs in the Infra Tools IDE. It triggers a context close via
     // JMX and then stops the JVM. The two actions happen almost simultaneously

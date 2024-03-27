@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -35,6 +35,8 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.ViewRef;
 
 /**
  * Resolves method arguments annotated with {@code @RequestBody} and handles return
@@ -47,8 +49,8 @@ import cn.taketoday.web.view.ModelAndView;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/23 17:14
  */
-public class RequestResponseBodyMethodProcessor
-        extends AbstractMessageConverterMethodProcessor implements HandlerMethodReturnValueHandler {
+public class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor
+        implements HandlerMethodReturnValueHandler {
 
   /**
    * Basic constructor with converters only. Suitable for resolving
@@ -138,7 +140,9 @@ public class RequestResponseBodyMethodProcessor
 
   @Override
   public boolean supportsReturnValue(@Nullable Object returnValue) {
-    return !(returnValue instanceof ModelAndView);
+    return !(returnValue instanceof ModelAndView
+            || returnValue instanceof View
+            || returnValue instanceof ViewRef);
   }
 
   @Override

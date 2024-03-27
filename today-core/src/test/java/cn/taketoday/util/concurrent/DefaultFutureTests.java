@@ -189,7 +189,7 @@ class DefaultFutureTests {
 
   @Test
   public void testListenerNotifyOrder() throws Exception {
-    Executor executor = new TestExecutor();
+    Executor executor = Future.defaultExecutor;
     final BlockingQueue<FutureListener<Future<Void>>> listeners = new LinkedBlockingQueue<>();
     int runs = 100000;
 
@@ -228,7 +228,9 @@ class DefaultFutureTests {
         }
       });
 
-      future.onCompleted(listener1).onCompleted(listener2).onCompleted(listener3);
+      future.onCompleted(listener1)
+              .onCompleted(listener2)
+              .onCompleted(listener3);
 
       assertSame(listener1, listeners.take(), "Fail 1 during run " + i + " / " + runs);
       assertSame(listener2, listeners.take(), "Fail 2 during run " + i + " / " + runs);
