@@ -47,7 +47,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2024/3/23 23:06
  */
 @SuppressWarnings("rawtypes")
-public final class FutureCombiner implements FutureContextListener<Future<?>, AbstractSettableFuture<?>> {
+public final class FutureCombiner implements FutureContextListener<Future<?>, AbstractFuture<?>> {
 
   private final int expectedCount;
 
@@ -182,7 +182,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
     if (expectedCount == 0) {
       return Future.ok(null);
     }
-    var settable = new DefaultFuture<Void>(executor);
+    var settable = new SettableFuture<Void>(executor);
     for (Future future : futures) {
       future.onCompleted(this, settable);
     }
@@ -190,7 +190,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
   }
 
   @Override
-  public void operationComplete(Future<?> completed, AbstractSettableFuture<?> future) throws Throwable {
+  public void operationComplete(Future<?> completed, AbstractFuture<?> future) throws Throwable {
     int doneCount = done.incrementAndGet();
     if (allMustSucceed) {
       Throwable cause = completed.getCause();
@@ -211,7 +211,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Ab
     }
   }
 
-  private <C> void propagateFailure(Future<?> completed, AbstractSettableFuture<C> settable, Throwable cause) {
+  private <C> void propagateFailure(Future<?> completed, AbstractFuture<C> settable, Throwable cause) {
     // failed
     if (completed.isCancelled()) {
       settable.cancel(true);

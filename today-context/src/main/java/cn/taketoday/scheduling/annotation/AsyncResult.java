@@ -47,7 +47,7 @@ import cn.taketoday.util.concurrent.Future;
  * @see #forExecutionException(Throwable)
  * @since 4.0
  */
-public class AsyncResult<V> extends CompleteFuture<V> implements Future<V> {
+public class AsyncResult<V> extends CompleteFuture<V> {
 
   @Nullable
   private final V value;

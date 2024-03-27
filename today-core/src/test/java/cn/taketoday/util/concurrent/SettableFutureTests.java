@@ -385,7 +385,7 @@ class SettableFutureTests {
     assertThat(settableFuture.isDone()).isTrue();
   }
 
-  private static class InterruptibleSettableFuture extends DefaultFuture<String> {
+  private static class InterruptibleSettableFuture extends SettableFuture<String> {
 
     private boolean interrupted = false;
 

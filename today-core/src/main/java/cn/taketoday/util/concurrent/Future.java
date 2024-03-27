@@ -23,18 +23,24 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 import cn.taketoday.core.Pair;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingFunction;
+import io.netty.util.concurrent.AbstractFuture;
 
 /**
  * The result of an asynchronous operation.
@@ -133,7 +139,7 @@ import cn.taketoday.util.function.ThrowingFunction;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public interface Future<V> extends java.util.concurrent.Future<V> {
+public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * The default executor is {@link ForkJoinPool#commonPool()}.
@@ -162,20 +168,34 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @see ForkJoinPool#awaitQuiescence(long, TimeUnit)
    */
-  Executor defaultExecutor = DefaultExecutorFactory.lookup();
+  public static final Executor defaultExecutor = DefaultExecutorFactory.lookup();
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractFuture.class);
+
+  /**
+   * One or more listeners.
+   */
+  @Nullable
+  private Object listeners;
+
+  protected final Executor executor;
+
+  protected Future(@Nullable Executor executor) {
+    this.executor = executor == null ? defaultExecutor : executor;
+  }
 
   /**
    * Returns {@code true} if and only if the operation was completed
    * successfully.
    */
-  boolean isSuccess();
+  public abstract boolean isSuccess();
 
   /**
    * Returns {@code true} if and only if the operation was completed and failed.
    *
    * @see #getCause()
    */
-  boolean isFailed();
+  public abstract boolean isFailed();
 
   /**
    * Return {@code true} if this operation has been {@linkplain #cancel() cancelled}.
@@ -184,7 +204,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return {@code true} if this operation has been cancelled, otherwise {@code false}.
    * @see CancellationException
    */
-  boolean isCancelled();
+  public abstract boolean isCancelled();
 
   /**
    * Returns the cause of the failed operation if the operation failed.
@@ -196,7 +216,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see CancellationException
    */
   @Nullable
-  Throwable getCause();
+  public abstract Throwable getCause();
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
@@ -205,7 +225,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param failureCallback the failure callback
    * @return this future object.
    */
-  default Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
+  public Future<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
     return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
   }
 
@@ -215,7 +235,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param successCallback the success callback
    * @return this future object.
    */
-  default Future<V> onSuccess(SuccessCallback<V> successCallback) {
+  public Future<V> onSuccess(SuccessCallback<V> successCallback) {
     return onCompleted(successCallback, null);
   }
 
@@ -225,7 +245,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param failureCallback the failure callback
    * @return this future object.
    */
-  default Future<V> onFailure(FailureCallback failureCallback) {
+  public Future<V> onFailure(FailureCallback failureCallback) {
     return onCompleted(FutureListener.forFailure(failureCallback));
   }
 
@@ -240,7 +260,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * when this future completes.
    * @return this future object.
    */
-  default <C> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+  public <C> Future<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
     return onCompleted(FutureListener.forAdaption(listener, context));
   }
 
@@ -253,7 +273,28 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return this future object.
    */
-  Future<V> onCompleted(FutureListener<? extends Future<V>> listener);
+  public Future<V> onCompleted(FutureListener<? extends Future<V>> listener) {
+    Assert.notNull(listener, "listener is required");
+
+    synchronized(this) {
+      Object local = this.listeners;
+      if (local instanceof FutureListeners ls) {
+        ls.add(listener);
+      }
+      else if (local instanceof FutureListener<?> l) {
+        this.listeners = new FutureListeners(l, listener);
+      }
+      else {
+        this.listeners = listener;
+      }
+    }
+
+    if (isDone()) {
+      notifyListeners();
+    }
+
+    return this;
+  }
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
@@ -261,7 +302,11 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return this future object.
    */
-  Future<V> sync() throws InterruptedException;
+  public Future<V> sync() throws InterruptedException {
+    await();
+    rethrowIfFailed();
+    return this;
+  }
 
   /**
    * Waits for this future until it is done, and rethrows the cause of the
@@ -269,7 +314,11 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return this future object.
    */
-  Future<V> syncUninterruptibly();
+  public Future<V> syncUninterruptibly() {
+    awaitUninterruptibly();
+    rethrowIfFailed();
+    return this;
+  }
 
   /**
    * Waits for this future to be completed.
@@ -277,7 +326,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return this future object.
    * @throws InterruptedException if the current thread was interrupted
    */
-  Future<V> await() throws InterruptedException;
+  public abstract Future<V> await() throws InterruptedException;
 
   /**
    * Waits for this future to be completed without
@@ -286,7 +335,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return this future object.
    */
-  Future<V> awaitUninterruptibly();
+  public abstract Future<V> awaitUninterruptibly();
 
   /**
    * Waits for this future to be completed within the
@@ -296,7 +345,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * the specified time limit
    * @throws InterruptedException if the current thread was interrupted
    */
-  boolean await(long timeout, TimeUnit unit) throws InterruptedException;
+  public abstract boolean await(long timeout, TimeUnit unit) throws InterruptedException;
 
   /**
    * Waits for this future to be completed within the
@@ -306,7 +355,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * the specified time limit
    * @throws InterruptedException if the current thread was interrupted
    */
-  boolean await(long timeoutMillis) throws InterruptedException;
+  public abstract boolean await(long timeoutMillis) throws InterruptedException;
 
   /**
    * Waits for this future to be completed within the
@@ -316,7 +365,15 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return {@code true} if and only if the future was completed within
    * the specified time limit
    */
-  boolean awaitUninterruptibly(long timeout, TimeUnit unit);
+  public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
+    try {
+      return await(timeout, unit);
+    }
+    catch (InterruptedException e) {
+      // Should not be raised at all.
+      throw new InternalError();
+    }
+  }
 
   /**
    * Waits for this future to be completed within the
@@ -326,7 +383,15 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return {@code true} if and only if the future was completed within
    * the specified time limit
    */
-  boolean awaitUninterruptibly(long timeoutMillis);
+  public boolean awaitUninterruptibly(long timeoutMillis) {
+    try {
+      return await(timeoutMillis);
+    }
+    catch (InterruptedException e) {
+      // Should not be raised at all.
+      throw new InternalError();
+    }
+  }
 
   /**
    * Return the result without blocking. If the future is not done
@@ -338,7 +403,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * rely on the returned {@code null} value.
    */
   @Nullable
-  V getNow();
+  public abstract V getNow();
 
   /**
    * Return the result without blocking.
@@ -350,7 +415,42 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @see #getNow()
    * @see SettableFuture#setSuccess(Object)
    */
-  V obtain() throws IllegalStateException;
+  public V obtain() throws IllegalStateException {
+    V now = getNow();
+    Assert.state(now != null, "Result is required");
+    return now;
+  }
+
+  @Nullable
+  @Override
+  public V get() throws InterruptedException, ExecutionException {
+    await();
+
+    Throwable cause = getCause();
+    if (cause == null) {
+      return getNow();
+    }
+    if (cause instanceof CancellationException) {
+      throw (CancellationException) cause;
+    }
+    throw new ExecutionException(cause);
+  }
+
+  @Nullable
+  @Override
+  public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    if (await(timeout, unit)) {
+      Throwable cause = getCause();
+      if (cause == null) {
+        return getNow();
+      }
+      if (cause instanceof CancellationException) {
+        throw (CancellationException) cause;
+      }
+      throw new ExecutionException(cause);
+    }
+    throw new TimeoutException("Timeout");
+  }
 
   /**
    * Cancel this asynchronous operation, unless it has already been
@@ -368,7 +468,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return {@code true} if the operation was cancelled by this call,
    * otherwise {@code false}.
    */
-  default boolean cancel() {
+  public boolean cancel() {
     return cancel(true);
   }
 
@@ -379,7 +479,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * a {@link CancellationException}.
    */
   @Override
-  boolean cancel(boolean mayInterruptIfRunning);
+  public abstract boolean cancel(boolean mayInterruptIfRunning);
 
   /**
    * Creates a <strong>new</strong> {@link Future} that will complete
@@ -396,7 +496,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new future instance that will complete with the mapped
    * result of this future.
    */
-  default <R> Future<R> map(ThrowingFunction<V, R> mapper) {
+  public <R> Future<R> map(ThrowingFunction<V, R> mapper) {
     Assert.notNull(mapper, "mapper is required");
     return Futures.map(this, mapper);
   }
@@ -432,7 +532,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new future instance that will complete with the mapped result
    * of this future.
    */
-  default <R> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
+  public <R> Future<R> flatMap(ThrowingFunction<V, Future<R>> mapper) {
     Assert.notNull(mapper, "mapper is required");
     return Futures.flatMap(this, mapper);
   }
@@ -448,7 +548,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return itself
    * @throws IllegalArgumentException SettableFuture is null.
    */
-  default Future<V> cascadeTo(final SettableFuture<V> settable) {
+  public Future<V> cascadeTo(final SettableFuture<V> settable) {
     Futures.cascade(this, settable);
     return this;
   }
@@ -467,7 +567,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new Future.
    * @throws IllegalArgumentException recoverFunc is null.
    */
-  default Future<V> errorHandling(Function<Throwable, V> errorHandler) {
+  public Future<V> errorHandling(Function<Throwable, V> errorHandler) {
     Assert.notNull(errorHandler, "errorHandler is required");
     return Futures.errorHandling(this, errorHandler);
   }
@@ -483,7 +583,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new Future that returns both Future results.
    * @throws IllegalArgumentException if {@code that} is null
    */
-  default <U> Future<Pair<V, U>> zip(Future<U> that) {
+  public <U> Future<Pair<V, U>> zip(Future<U> that) {
     Assert.notNull(that, "Future is is required");
     return zipWith(that, Pair::of);
   }
@@ -501,7 +601,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A new Future that returns both Future results.
    * @throws IllegalArgumentException if {@code that} is null
    */
-  default <U, R> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
+  public <U, R> Future<R> zipWith(Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
     Assert.notNull(that, "Future is required");
     Assert.notNull(combinator, "combinator is required");
     return Futures.zipWith(this, that, combinator);
@@ -530,7 +630,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws InterruptedException if the thread is interrupted while waiting for
    * the future to complete.
    */
-  default <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
+  public <T> T join(ThrowingBiFunction<V, Throwable, T> resultHandler) throws Throwable {
     Assert.notNull(resultHandler, "resultHandler is required");
     await();
     if (isSuccess()) {
@@ -545,7 +645,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * Expose this {@link Future} as a JDK {@link CompletableFuture}.
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  default CompletableFuture<V> completable() {
+  public CompletableFuture<V> completable() {
     final CompletableFuture<V> ret = new CompletableFuture<>();
     onCompleted((FutureContextListener) Futures.completableAdapter, ret);
     return ret;
@@ -558,14 +658,86 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @return The underlying {@code Executor}.
    */
-  Executor executor();
+  public Executor executor() {
+    return executor;
+  }
+
+  protected final void rethrowIfFailed() {
+    Throwable cause = getCause();
+    if (cause == null) {
+      return;
+    }
+    throw ExceptionUtils.sneakyThrow(cause);
+  }
+
+  /**
+   * Notify a listener that a future has completed.
+   *
+   * @param executor the executor to use to notify the listener {@code listener}.
+   * @param future the future that is complete.
+   * @param listener the listener to notify.
+   */
+  protected static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
+    safeExecute(executor, () -> notifyListener(future, listener));
+  }
+
+  protected final void notifyListeners() {
+    safeExecute(executor, this::notifyListenersNow);
+  }
+
+  private void notifyListenersNow() {
+    Object listeners;
+    synchronized(this) {
+      if (this.listeners == null) {
+        return;
+      }
+      listeners = this.listeners;
+      this.listeners = null;
+    }
+    for (; ; ) {
+      if (listeners instanceof FutureListener<?> fl) {
+        notifyListener(this, fl);
+      }
+      else if (listeners instanceof FutureListeners holder) {
+        for (FutureListener<?> listener : holder.listeners) {
+          notifyListener(this, listener);
+        }
+      }
+      synchronized(this) {
+        if (this.listeners == null) {
+          return;
+        }
+        listeners = this.listeners;
+        this.listeners = null;
+      }
+    }
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  private static void notifyListener(Future future, FutureListener l) {
+    try {
+      l.operationComplete(future);
+    }
+    catch (Throwable t) {
+      log.warn("An exception was thrown by {}.operationComplete(Future)", l.getClass().getName(), t);
+    }
+  }
+
+  private static void safeExecute(Executor executor, Runnable task) {
+    try {
+      executor.execute(task);
+    }
+    catch (Throwable t) {
+      log.error("Failed to submit a listener notification task. Executor shutting-down?", t);
+    }
+  }
 
   // Static Factory Methods
 
   /**
    * Creates a new SucceededFuture instance.
    */
-  static <V> Future<V> ok(@Nullable V result) {
+  public static <V> Future<V> ok(@Nullable V result) {
     return new SucceededFuture<>(result);
   }
 
@@ -575,7 +747,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param executor the {@link Executor} which is used to notify
    * the Future once it is complete.
    */
-  static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
+  public static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
     return new SucceededFuture<>(executor, result);
   }
 
@@ -588,7 +760,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A failed {@code Future}.
    * @throws IllegalArgumentException if exception is null
    */
-  static <V> Future<V> failed(Throwable cause) {
+  public static <V> Future<V> failed(Throwable cause) {
     return failed(cause, defaultExecutor);
   }
 
@@ -603,7 +775,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A failed {@code Future}.
    * @throws NullPointerException if cause is null
    */
-  static <V> Future<V> failed(Throwable cause, @Nullable Executor executor) {
+  public static <V> Future<V> failed(Throwable cause, @Nullable Executor executor) {
     Assert.notNull(cause, "cause is required");
     return new FailedFuture<>(executor, cause);
   }
@@ -611,7 +783,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   /**
    * Adapts {@code CompletionStage} to a new SettableFuture instance.
    */
-  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage) {
+  public static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage) {
     return forAdaption(stage, defaultExecutor);
   }
 
@@ -620,7 +792,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
    */
-  static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
+  public static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
     SettableFuture<V> settable = forSettable(executor);
     stage.thenAcceptAsync(settable::trySuccess)
             .exceptionally(failure -> {
@@ -633,8 +805,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   /**
    * Creates a new SettableFuture instance.
    */
-  static <V> SettableFuture<V> forSettable() {
-    return new DefaultFuture<>(defaultExecutor);
+  public static <V> SettableFuture<V> forSettable() {
+    return new SettableFuture<>(defaultExecutor);
   }
 
   /**
@@ -643,8 +815,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param executor the {@link Executor} which is used to notify
    * the SettableFuture once it is complete.
    */
-  static <V> SettableFuture<V> forSettable(@Nullable Executor executor) {
-    return new DefaultFuture<>(executor);
+  public static <V> SettableFuture<V> forSettable(@Nullable Executor executor) {
+    return new SettableFuture<>(executor);
   }
 
   /**
@@ -655,7 +827,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws NullPointerException if computation Callable is null
    * @see java.util.concurrent.FutureTask
    */
-  static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task) {
+  public static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task) {
     return new ListenableFutureTask<>(defaultExecutor, task);
   }
 
@@ -669,7 +841,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws NullPointerException if computation Callable is null
    * @see java.util.concurrent.FutureTask
    */
-  static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task, @Nullable Executor executor) {
+  public static <V> ListenableFutureTask<V> forFutureTask(Callable<V> task, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, task);
   }
 
@@ -680,7 +852,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  static <V> ListenableFutureTask<V> forFutureTask(Runnable task) {
+  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task) {
     return new ListenableFutureTask<>(defaultExecutor, Executors.callable(task, null));
   }
 
@@ -693,7 +865,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable Executor executor) {
+  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, Executors.callable(task, null));
   }
 
@@ -704,7 +876,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
+  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result) {
     return new ListenableFutureTask<>(defaultExecutor, Executors.callable(task, result));
   }
 
@@ -717,7 +889,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws NullPointerException if task Runnable is null
    * @see java.util.concurrent.FutureTask
    */
-  static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result, @Nullable Executor executor) {
+  public static <V> ListenableFutureTask<V> forFutureTask(Runnable task, @Nullable V result, @Nullable Executor executor) {
     return new ListenableFutureTask<>(executor, Executors.callable(task, result));
   }
 
@@ -731,7 +903,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static <T> ListenableFutureTask<T> run(Callable<T> task) {
+  public static <T> ListenableFutureTask<T> run(Callable<T> task) {
     return run(task, defaultExecutor);
   }
 
@@ -747,7 +919,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static <V> ListenableFutureTask<V> run(Callable<V> computation, @Nullable Executor executor) {
+  public static <V> ListenableFutureTask<V> run(Callable<V> computation, @Nullable Executor executor) {
     Assert.notNull(computation, "computation is required");
     if (executor == null) {
       executor = defaultExecutor;
@@ -766,7 +938,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static ListenableFutureTask<Void> run(Runnable task) {
+  public static ListenableFutureTask<Void> run(Runnable task) {
     return run(task, defaultExecutor);
   }
 
@@ -780,7 +952,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  static ListenableFutureTask<Void> run(Runnable task, @Nullable Executor executor) {
+  public static ListenableFutureTask<Void> run(Runnable task, @Nullable Executor executor) {
     Assert.notNull(task, "unit is required");
     if (executor == null) {
       executor = defaultExecutor;
@@ -797,7 +969,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>Any failures from the input futures will not be propagated to the returned future.
    */
-  static FutureCombiner whenAllComplete(Future<?>... futures) {
+  public static FutureCombiner whenAllComplete(Future<?>... futures) {
     return new FutureCombiner(false, List.of(futures));
   }
 
@@ -807,7 +979,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>Any failures from the input futures will not be propagated to the returned future.
    */
-  static FutureCombiner whenAllComplete(Collection<Future<?>> futures) {
+  public static FutureCombiner whenAllComplete(Collection<Future<?>> futures) {
     return new FutureCombiner(false, futures);
   }
 
@@ -816,7 +988,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>If any input fails, the returned future fails immediately.
    */
-  static FutureCombiner whenAllSucceed(Future<?>... futures) {
+  public static FutureCombiner whenAllSucceed(Future<?>... futures) {
     return new FutureCombiner(true, List.of(futures));
   }
 
@@ -825,7 +997,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    *
    * <p>If any input fails, the returned future fails immediately.
    */
-  static FutureCombiner whenAllSucceed(Collection<Future<?>> futures) {
+  public static FutureCombiner whenAllSucceed(Collection<Future<?>> futures) {
     return new FutureCombiner(true, futures);
   }
 
