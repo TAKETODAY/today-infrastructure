@@ -27,7 +27,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 21:33
  */
-public final class SucceededFuture<V> extends CompleteFuture<V> {
+final class SucceededFuture<V> extends CompleteFuture<V> {
 
   @Nullable
   private final V result;
@@ -35,7 +35,7 @@ public final class SucceededFuture<V> extends CompleteFuture<V> {
   /**
    * Creates a new instance.
    */
-  public SucceededFuture(@Nullable V result) {
+  SucceededFuture(@Nullable V result) {
     super(null);
     this.result = result;
   }
@@ -45,7 +45,7 @@ public final class SucceededFuture<V> extends CompleteFuture<V> {
    *
    * @param executor the {@link Executor} associated with this future
    */
-  public SucceededFuture(@Nullable Executor executor, @Nullable V result) {
+  SucceededFuture(@Nullable Executor executor, @Nullable V result) {
     super(executor);
     this.result = result;
   }

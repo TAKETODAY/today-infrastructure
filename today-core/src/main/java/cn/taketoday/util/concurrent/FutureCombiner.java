@@ -20,6 +20,7 @@ package cn.taketoday.util.concurrent;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.lang.Assert;
@@ -46,7 +47,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0 2024/3/23 23:06
  */
 @SuppressWarnings("rawtypes")
-public final class FutureCombiner implements FutureContextListener<Future<?>, ListenableFutureTask<?>> {
+public final class FutureCombiner implements FutureContextListener<Future<?>, AbstractSettableFuture<?>> {
 
   private final int expectedCount;
 
@@ -99,6 +100,8 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
    *
    * <p>Canceling this future will attempt to cancel all the component futures.
    *
+   * @param executor the {@link Executor} which is used to notify the {@code Future}
+   * once it is complete. and combiner execution
    * @return a future whose result is based on {@code combiner} (or based on the input futures
    * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
    * FutureCombiner}).
@@ -130,7 +133,7 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
    * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
    * FutureCombiner}).
    */
-  public Future<Void> run(final Runnable combiner) {
+  public Future<Void> run(Runnable combiner) {
     return run(combiner, null);
   }
 
@@ -143,15 +146,15 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
    *
    * <p>Canceling this Future will attempt to cancel all the component futures.
    *
+   * @param executor the {@link Executor} which is used to notify the {@code Future}
+   * once it is complete. and combiner execution
    * @return a future whose result is based on {@code combiner} (or based on the input futures
    * passed to {@code whenAllSucceed}, if that is the method you used to create this {@code
    * FutureCombiner}).
+   * @throws NullPointerException if task null
    */
-  public Future<Void> run(final Runnable combiner, @Nullable Executor executor) {
-    return call(() -> {
-      combiner.run();
-      return null;
-    }, executor);
+  public Future<Void> run(Runnable combiner, @Nullable Executor executor) {
+    return call(Executors.callable(combiner, null), executor);
   }
 
   /**
@@ -162,33 +165,59 @@ public final class FutureCombiner implements FutureContextListener<Future<?>, Li
    * @return a future whose result is Void
    */
   public Future<Void> combine() {
-    return call(() -> null, null);
+    return combine(Future.defaultExecutor);
+  }
+
+  /**
+   * Creates the {@link Future} which will return Void when all Futures complete.
+   *
+   * <p>Canceling this Future will attempt to cancel all the component futures.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the {@code Future} once it is complete.
+   * @return a future whose result is Void
+   */
+  @SuppressWarnings("unchecked")
+  public Future<Void> combine(@Nullable Executor executor) {
+    if (expectedCount == 0) {
+      return Future.ok(null);
+    }
+    var settable = new DefaultFuture<Void>(executor);
+    for (Future future : futures) {
+      future.onCompleted(this, settable);
+    }
+    return settable;
   }
 
   @Override
-  public void operationComplete(Future<?> completed, ListenableFutureTask<?> task) throws Throwable {
+  public void operationComplete(Future<?> completed, AbstractSettableFuture<?> future) throws Throwable {
     int doneCount = done.incrementAndGet();
     if (allMustSucceed) {
       Throwable cause = completed.getCause();
       if (cause != null) {
-        propagateFailure(completed, task, cause);
+        propagateFailure(completed, future, cause);
         return;
       }
     }
 
     if (doneCount == expectedCount) {
       // all done
-      safeExecute(task.executor(), task);
+      if (future instanceof Runnable task) {
+        safeExecute(future.executor(), task);
+      }
+      else {
+        future.trySuccess(null);
+      }
     }
   }
 
-  private <C> void propagateFailure(Future<?> completed, ListenableFutureTask<C> task, Throwable cause) {
+  private <C> void propagateFailure(Future<?> completed, AbstractSettableFuture<C> settable, Throwable cause) {
     // failed
     if (completed.isCancelled()) {
-      task.cancel(true);
+      settable.cancel(true);
     }
     else {
-      task.tryFailure(cause);
+      settable.tryFailure(cause);
     }
 
     // cancel all tasks

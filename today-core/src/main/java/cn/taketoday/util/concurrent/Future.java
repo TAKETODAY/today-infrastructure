@@ -565,7 +565,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
   /**
    * Creates a new SucceededFuture instance.
    */
-  static <V> SucceededFuture<V> ok(@Nullable V result) {
+  static <V> Future<V> ok(@Nullable V result) {
     return new SucceededFuture<>(result);
   }
 
@@ -575,7 +575,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @param executor the {@link Executor} which is used to notify
    * the Future once it is complete.
    */
-  static <V> SucceededFuture<V> ok(@Nullable V result, @Nullable Executor executor) {
+  static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
     return new SucceededFuture<>(executor, result);
   }
 
@@ -588,7 +588,7 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A failed {@code Future}.
    * @throws IllegalArgumentException if exception is null
    */
-  static <V> FailedFuture<V> failed(Throwable cause) {
+  static <V> Future<V> failed(Throwable cause) {
     return failed(cause, defaultExecutor);
   }
 
@@ -603,7 +603,8 @@ public interface Future<V> extends java.util.concurrent.Future<V> {
    * @return A failed {@code Future}.
    * @throws NullPointerException if cause is null
    */
-  static <V> FailedFuture<V> failed(Throwable cause, @Nullable Executor executor) {
+  static <V> Future<V> failed(Throwable cause, @Nullable Executor executor) {
+    Assert.notNull(cause, "cause is required");
     return new FailedFuture<>(executor, cause);
   }
 

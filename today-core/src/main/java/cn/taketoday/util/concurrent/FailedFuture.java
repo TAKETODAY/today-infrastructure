@@ -19,7 +19,6 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Executor;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 
@@ -29,18 +28,9 @@ import cn.taketoday.util.ExceptionUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 21:31
  */
-public final class FailedFuture<V> extends CompleteFuture<V> {
+final class FailedFuture<V> extends CompleteFuture<V> {
 
   private final Throwable cause;
-
-  /**
-   * Creates a new instance.
-   *
-   * @param cause the cause of failure
-   */
-  public FailedFuture(Throwable cause) {
-    this(null, cause);
-  }
 
   /**
    * Creates a new instance.
@@ -48,9 +38,8 @@ public final class FailedFuture<V> extends CompleteFuture<V> {
    * @param executor the {@link Executor} associated with this future
    * @param cause the cause of failure
    */
-  public FailedFuture(@Nullable Executor executor, Throwable cause) {
+  FailedFuture(@Nullable Executor executor, Throwable cause) {
     super(executor);
-    Assert.notNull(cause, "cause is required");
     this.cause = cause;
   }
 

@@ -38,14 +38,14 @@ import cn.taketoday.lang.Nullable;
 public abstract class AbstractSettableFuture<V> extends AbstractFuture<V> {
 
   /**
-   * The run state of this task, initially NEW.  The run state
-   * transitions to a terminal state only in methods set,
-   * setException, and cancel.  During completion, state may take on
-   * transient values of COMPLETING (while outcome is being set) or
-   * INTERRUPTING (only while interrupting the runner to satisfy a
-   * cancel(true)). Transitions from these intermediate to final
-   * states use cheaper ordered/lazy writes because values are unique
-   * and cannot be further modified.
+   * The run state of this {@code Future}, initially {@link #NEW}. The run state
+   * transitions to a terminal state only in methods {@link #trySuccess(Object)},
+   * {@link #tryFailure(Throwable)}, and cancel. During completion, state may
+   * take on transient values of {@link #COMPLETING} (while outcome is being set)
+   * or {@link #INTERRUPTING} (only while interrupting the runner to satisfy a
+   * cancel(true)). Transitions from these intermediate to final states use
+   * cheaper ordered/lazy writes because values are unique and cannot be further
+   * modified.
    *
    * <pre>
    * Possible state transitions:
@@ -74,7 +74,8 @@ public abstract class AbstractSettableFuture<V> extends AbstractFuture<V> {
   private Object result; // non-volatile, protected by state reads/writes
 
   /**
-   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
+   * @param executor The {@link Executor} which is used to notify
+   * the {@code Future} once it is complete.
    */
   protected AbstractSettableFuture(@Nullable Executor executor) {
     super(executor);
