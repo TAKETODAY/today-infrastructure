@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -29,11 +31,13 @@ import cn.taketoday.lang.Nullable;
  * @param <Key> key type
  * @param <Param> param type, extra computing param type
  * @param <Value> value type
- * @author TODAY 2021/1/27 23:02
- * @since 3.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 3.0 2021/1/27 23:02
  */
 public class MapCache<Key, Value, Param> {
+
   private final Map<Key, Value> mapping;
+
   /** default mapping function */
   @Nullable
   private final Function<Key, Value> mappingFunction;
@@ -77,7 +81,7 @@ public class MapCache<Key, Value, Param> {
    * @param key key with which the specified value is to be associated
    * @param param createValue's param
    * @return the current (existing or computed) value associated with
-   * the specified key, or null if the computed value is null
+   * the specified key, should never {@code null}
    * @see #createValue
    */
   public final Value get(Key key, Param param) {
@@ -87,6 +91,7 @@ public class MapCache<Key, Value, Param> {
         value = mapping.get(key);
         if (value == null) {
           value = createValue(key, param);
+          Assert.state(value != null, "createValue() returns null");
           mapping.put(key, value);
         }
       }
@@ -103,8 +108,9 @@ public class MapCache<Key, Value, Param> {
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
+  @Nullable
   public final Value get(Key key) {
-    return get(key, (Function<Key, Value>) null);
+    return get(key, mappingFunction);
   }
 
   /**
@@ -113,10 +119,13 @@ public class MapCache<Key, Value, Param> {
    * function and enters it into this map unless {@code null}.
    *
    * @param key key with which the specified value is to be associated
-   * @param mappingFunction the function to compute a value, can be null, if its null use default mappingFunction
+   * @param mappingFunction the function to compute a value, can be null,
+   * if its null use default mappingFunction
    * @return the current (existing or computed) value associated with
    * the specified key, or null if the computed value is null
    */
+  @Nullable
+  @SuppressWarnings("unchecked")
   public final Value get(Key key, @Nullable Function<Key, Value> mappingFunction) {
     Value value = mapping.get(key);
     if (value == null) {
@@ -128,26 +137,30 @@ public class MapCache<Key, Value, Param> {
           }
           if (mappingFunction != null) {
             value = mappingFunction.apply(key);
-            mapping.put(key, value);
           }
           else {
             // fallback to #createValue()
             value = createValue(key, null);
-            mapping.put(key, value);
           }
+          if (value == null) {
+            value = (Value) NullValue.INSTANCE;
+          }
+          mapping.put(key, value);
         }
       }
     }
-    return value;
+    return unwrap(value);
   }
 
+  @Nullable
   protected Value createValue(Key key, Param param) {
     return null;
   }
 
-  public Value put(Key key, Value value) {
+  @Nullable
+  public Value put(Key key, @Nullable Value value) {
     synchronized(mapping) {
-      return mapping.put(key, value);
+      return unwrap(mapping.put(key, value));
     }
   }
 
@@ -157,10 +170,16 @@ public class MapCache<Key, Value, Param> {
     }
   }
 
+  @Nullable
   public Value remove(Key key) {
     synchronized(mapping) {
-      return mapping.remove(key);
+      return unwrap(mapping.remove(key));
     }
+  }
+
+  @Nullable
+  private static <V> V unwrap(@Nullable V ret) {
+    return ret == NullValue.INSTANCE ? null : ret;
   }
 
 }
