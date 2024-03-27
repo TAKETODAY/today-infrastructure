@@ -40,7 +40,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
 import cn.taketoday.util.function.ThrowingFunction;
-import io.netty.util.concurrent.AbstractFuture;
 
 /**
  * The result of an asynchronous operation.
@@ -170,7 +169,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static final Executor defaultExecutor = DefaultExecutorFactory.lookup();
 
-  private static final Logger log = LoggerFactory.getLogger(AbstractFuture.class);
+  private static final Logger log = LoggerFactory.getLogger(Future.class);
 
   /**
    * One or more listeners.
