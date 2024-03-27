@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**
  * Handler process around Handler.
  *
- * @author TODAY 2018-06-25 20:06:11
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-06-25 20:06:11
  */
 public interface HandlerInterceptor {
 
@@ -63,7 +62,7 @@ public interface HandlerInterceptor {
    * @throws Throwable If any exception occurred
    * @see HandlerMethod#unwrap(Object)
    */
-  default void afterProcess(RequestContext request, Object handler, Object result) throws Throwable { }
+  default void afterProcess(RequestContext request, Object handler, @Nullable Object result) throws Throwable { }
 
   /**
    * handler's interceptor intercept entrance
@@ -72,6 +71,7 @@ public interface HandlerInterceptor {
    * @see HandlerMethod#unwrap(Object)
    * @since 4.0
    */
+  @Nullable
   default Object intercept(RequestContext request, InterceptorChain chain) throws Throwable {
     Object handler = chain.getHandler();
     if (beforeProcess(request, handler)) {

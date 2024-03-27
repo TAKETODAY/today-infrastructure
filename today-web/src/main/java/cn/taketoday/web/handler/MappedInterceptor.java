@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -200,7 +197,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
   }
 
   @Override
-  public void afterProcess(RequestContext request, Object handler, Object result) throws Throwable {
+  public void afterProcess(RequestContext request, Object handler, @Nullable Object result) throws Throwable {
     interceptor.afterProcess(request, handler, result);
   }
 
@@ -245,8 +242,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
     }
 
     @Nullable
-    public static CompiledPattern[] initPatterns(
-            @Nullable String[] patterns, @Nullable PathPatternParser parser) {
+    public static CompiledPattern[] initPatterns(@Nullable String[] patterns, @Nullable PathPatternParser parser) {
       if (ObjectUtils.isEmpty(patterns)) {
         return null;
       }

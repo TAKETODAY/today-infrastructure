@@ -113,6 +113,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   @Nullable
   private ConfigurableEnvironment environment;
 
+  @Nullable
   private ApplicationContext applicationContext;
 
   /** Whether to log potentially sensitive info (request params at DEBUG + headers at TRACE). */

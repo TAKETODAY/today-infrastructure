@@ -118,52 +118,78 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   public static final HttpCookie[] EMPTY_COOKIES = {};
 
+  @Nullable
   protected HttpCookie[] cookies;
 
+  @Nullable
   protected PrintWriter writer;
+
+  @Nullable
   protected BufferedReader reader;
+
+  @Nullable
   protected InputStream inputStream;
+
+  @Nullable
   protected OutputStream outputStream;
 
   /** @since 3.0 */
+  @Nullable
   protected HttpHeaders requestHeaders;
   /** @since 3.0 */
+  @Nullable
   protected HttpHeaders responseHeaders;
   /** @since 3.0 */
+  @Nullable
   protected String method;
+
   /** @since 3.0 */
+  @Nullable
   protected String requestURI;
+
   /** @since 4.0 */
+  @Nullable
   protected RequestPath requestPath;
   /** @since 3.0 */
+  @Nullable
   protected MultiValueMap<String, String> parameters;
   /** @since 3.0 */
+  @Nullable
   protected String queryString;
 
   /** @since 3.0 */
+  @Nullable
   protected ArrayList<HttpCookie> responseCookies;
 
   /** @since 4.0 */
+  @Nullable
   protected URI uri;
 
   /** @since 4.0 */
+  @Nullable
   protected HttpMethod httpMethod;
 
   /** @since 4.0 */
+  @Nullable
   protected PathContainer lookupPath;
 
   /** @since 4.0 */
+  @Nullable
   protected Locale locale;
 
   /** @since 4.0 */
+  @Nullable
   protected String responseContentType;
 
   /** @since 4.0 */
+  @Nullable
   protected MultipartRequest multipartRequest;
 
   /** @since 4.0 */
+  @Nullable
   protected AsyncWebRequest asyncWebRequest;
 
+  @Nullable
   protected WebAsyncManager webAsyncManager;
 
   protected boolean notModified = false;
@@ -177,12 +203,17 @@ public abstract class RequestContext extends AttributeAccessorSupport
   @Nullable
   protected Object redirectModel;
 
+  @Nullable
   protected Boolean multipartFlag;
 
+  @Nullable
   protected Boolean preFlightRequestFlag;
+
+  @Nullable
   protected Boolean corsRequestFlag;
 
   /** Map from attribute name String to destruction callback Runnable.  @since 4.0 */
+  @Nullable
   protected LinkedHashMap<String, Runnable> requestDestructionCallbacks;
 
   private long requestCompletedTimeMillis;
@@ -521,6 +552,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @param name cookie name
    * @return removed cookie
    */
+  @Nullable
   public List<HttpCookie> removeCookie(String name) {
     if (responseCookies != null) {
       ArrayList<HttpCookie> toRemove = new ArrayList<>(2);
