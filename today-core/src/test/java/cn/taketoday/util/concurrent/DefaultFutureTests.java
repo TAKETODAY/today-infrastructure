@@ -128,7 +128,7 @@ class DefaultFutureTests {
 
   @Test
   public void testCancellationExceptionIsThrownWhenBlockingGetWithTimeout() {
-    final SettableFuture<Void> future = new DefaultFuture<Void>();
+    final SettableFuture<Void> future = new DefaultFuture<>(Future.defaultExecutor);
     assertTrue(future.cancel(false));
     assertThrows(CancellationException.class, new Executable() {
       @Override
@@ -140,7 +140,7 @@ class DefaultFutureTests {
 
   @Test
   public void testCancellationExceptionIsReturnedAsCause() {
-    final SettableFuture<Void> future = new DefaultFuture<Void>();
+    final SettableFuture<Void> future = new DefaultFuture<>(Future.defaultExecutor);
     assertTrue(future.cancel(false));
     assertThat(future.getCause()).isInstanceOf(CancellationException.class);
   }
@@ -299,7 +299,7 @@ class DefaultFutureTests {
 
   @Test
   public void signalUncancellableCompletionValue() {
-    final SettableFuture<Signal> future = new DefaultFuture<Signal>();
+    final SettableFuture<Signal> future = new DefaultFuture<Signal>(Runnable::run);
     future.setSuccess(Signal.valueOf(DefaultFuture.class, "UNCANCELLABLE"));
     assertTrue(future.isDone());
     assertTrue(future.isSuccess());
@@ -307,7 +307,7 @@ class DefaultFutureTests {
 
   @Test
   public void signalSuccessCompletionValue() {
-    final SettableFuture<Signal> future = new DefaultFuture<Signal>();
+    final SettableFuture<Signal> future = new DefaultFuture<Signal>(Runnable::run);
     future.setSuccess(Signal.valueOf(DefaultFuture.class, "SUCCESS"));
     assertTrue(future.isDone());
     assertTrue(future.isSuccess());
@@ -315,7 +315,7 @@ class DefaultFutureTests {
 
   @Test
   public void setUncancellableGetNow() {
-    final SettableFuture<String> future = new DefaultFuture<String>();
+    final SettableFuture<String> future = new DefaultFuture<String>(Runnable::run);
     assertNull(future.getNow());
     assertNull(future.getNow());
     assertFalse(future.isDone());
@@ -462,7 +462,7 @@ class DefaultFutureTests {
 
   private static void testSettableFutureListenerAddWhenComplete(Throwable cause) throws InterruptedException {
     final CountDownLatch latch = new CountDownLatch(1);
-    final SettableFuture<Void> settableFuture = new DefaultFuture<>();
+    final SettableFuture<Void> settableFuture = new DefaultFuture<>(Runnable::run);
     settableFuture.onCompleted(future -> settableFuture.onCompleted(future1 -> latch.countDown()));
     if (cause == null) {
       settableFuture.setSuccess(null);
