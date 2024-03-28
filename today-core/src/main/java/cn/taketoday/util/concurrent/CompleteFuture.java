@@ -17,6 +17,8 @@
 
 package cn.taketoday.util.concurrent;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -30,15 +32,75 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 21:28
  */
-public abstract class CompleteFuture<V> extends Future<V> {
+class CompleteFuture<V> extends Future<V> {
+
+  @Nullable
+  private final V value;
+
+  @Nullable
+  private final Throwable executionException;
 
   /**
    * Creates a new instance.
    *
    * @param executor the {@link Executor} associated with this future
+   * @param value the value to pass through
    */
-  protected CompleteFuture(@Nullable Executor executor) {
+  CompleteFuture(@Nullable Executor executor, @Nullable V value, @Nullable Throwable ex) {
     super(executor);
+    this.value = value;
+    this.executionException = ex;
+  }
+
+  @Override
+  public boolean isFailed() {
+    return executionException != null;
+  }
+
+  @Override
+  @Nullable
+  public V get() throws ExecutionException {
+    if (this.executionException != null) {
+      throw (this.executionException instanceof ExecutionException ?
+              (ExecutionException) this.executionException :
+              new ExecutionException(this.executionException));
+    }
+    return this.value;
+  }
+
+  @Override
+  @Nullable
+  public V get(long timeout, TimeUnit unit) throws ExecutionException {
+    return get();
+  }
+
+  @Override
+  public boolean isSuccess() {
+    return executionException == null;
+  }
+
+  @Nullable
+  @Override
+  public Throwable getCause() {
+    return exposedException(executionException);
+  }
+
+  @Nullable
+  @Override
+  public V getNow() {
+    return value;
+  }
+
+  @Override
+  public CompletableFuture<V> completable() {
+    if (this.executionException != null) {
+      CompletableFuture<V> completable = new CompletableFuture<>();
+      completable.completeExceptionally(exposedException(this.executionException));
+      return completable;
+    }
+    else {
+      return CompletableFuture.completedFuture(this.value);
+    }
   }
 
   @Override
@@ -68,16 +130,6 @@ public abstract class CompleteFuture<V> extends Future<V> {
       throw new InterruptedException();
     }
     return true;
-  }
-
-  @Override
-  public CompleteFuture<V> sync() throws InterruptedException {
-    return this;
-  }
-
-  @Override
-  public CompleteFuture<V> syncUninterruptibly() {
-    return this;
   }
 
   @Override
@@ -121,6 +173,23 @@ public abstract class CompleteFuture<V> extends Future<V> {
   @Override
   public final boolean cancel(boolean mayInterruptIfRunning) {
     return false;
+  }
+
+  /**
+   * Determine the exposed exception: either the cause of a given
+   * {@link ExecutionException}, or the original exception as-is.
+   *
+   * @return the exposed exception
+   */
+  @Nullable
+  private static Throwable exposedException(@Nullable Throwable original) {
+    if (original instanceof ExecutionException) {
+      Throwable cause = original.getCause();
+      if (cause != null) {
+        return cause;
+      }
+    }
+    return original;
   }
 
 }

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.scheduling.annotation;
+package cn.taketoday.util.concurrent;
 
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +38,7 @@ public class AsyncResultTests {
   public void asyncResultWithCallbackAndValue() throws Exception {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
-    Future<String> future = AsyncResult.forValue(value, Runnable::run);
+    Future<String> future = Future.ok(value, Runnable::run);
 
     future.onCompleted(values::add, ex -> {
       throw new AssertionError("Failure callback not expected: " + ex, ex);
@@ -54,7 +54,7 @@ public class AsyncResultTests {
   public void asyncResultWithCallbackAndException() throws Exception {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
-    Future<String> future = AsyncResult.forExecutionException(ex, Runnable::run);
+    Future<String> future = Future.failed(ex, Runnable::run);
 
     future.onCompleted(result -> {
       throw new AssertionError("Success callback not expected: " + result);
@@ -74,7 +74,7 @@ public class AsyncResultTests {
   public void asyncResultWithSeparateCallbacksAndValue() throws Exception {
     String value = "val";
     final Set<String> values = new HashSet<>(1);
-    Future<String> future = AsyncResult.forValue(value, Runnable::run);
+    Future<String> future = Future.ok(value, Runnable::run);
     future.onCompleted(values::add, ex -> new AssertionError("Failure callback not expected: " + ex));
 
     assertThat(values.iterator().next()).isSameAs(value);
@@ -87,7 +87,7 @@ public class AsyncResultTests {
   public void asyncResultWithSeparateCallbacksAndException() throws Exception {
     IOException ex = new IOException();
     final Set<Throwable> values = new HashSet<>(1);
-    Future<String> future = AsyncResult.forExecutionException(ex, Runnable::run);
+    Future<String> future = Future.failed(ex, Runnable::run);
 
     future.onCompleted(result -> new AssertionError("Success callback not expected: " + result), values::add);
 

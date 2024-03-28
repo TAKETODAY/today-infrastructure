@@ -20,7 +20,6 @@ package cn.taketoday.util.concurrent;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
@@ -51,7 +50,7 @@ public class GlobalExecutor implements Executor {
   private final AtomicBoolean started = new AtomicBoolean();
   volatile Thread thread;
 
-  private final Future<?> terminationFuture = new FailedFuture<Object>(this, new UnsupportedOperationException());
+  private final Future<?> terminationFuture = Future.failed(new UnsupportedOperationException(), this);
 
   private GlobalExecutor() {
     threadFactory = Executors.defaultThreadFactory();

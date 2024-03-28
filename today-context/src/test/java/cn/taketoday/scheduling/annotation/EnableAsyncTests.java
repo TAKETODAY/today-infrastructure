@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.scheduling.annotation;
@@ -28,7 +28,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -55,6 +54,7 @@ import cn.taketoday.scheduling.concurrent.CustomizableThreadFactory;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.ReflectionUtils;
+import cn.taketoday.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -356,22 +356,22 @@ public class EnableAsyncTests {
 
     @Async
     public Future<Thread> work0() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("e1")
     public Future<Thread> work() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("otherExecutor")
     public Future<Thread> work2() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("e2")
     public Future<Thread> work3() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
   }
 
@@ -379,17 +379,17 @@ public class EnableAsyncTests {
 
     @Async("#{environment['myExecutor']}")
     public Future<Thread> myWork1() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("${my.app.myExecutor}")
     public Future<Thread> myWork2() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("${my.app.myExecutor.UNDEFINED:}")
     public Future<Thread> fallBackToDefaultExecutor() {
-      return new AsyncResult<>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
   }
 

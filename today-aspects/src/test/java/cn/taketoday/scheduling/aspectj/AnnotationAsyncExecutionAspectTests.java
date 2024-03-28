@@ -31,7 +31,6 @@ import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.scheduling.annotation.Async;
-import cn.taketoday.scheduling.annotation.AsyncResult;
 import cn.taketoday.scheduling.concurrent.ThreadPoolTaskExecutor;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.concurrent.Future;
@@ -217,7 +216,7 @@ public class AnnotationAsyncExecutionAspectTests {
     @Async
     public java.util.concurrent.Future<Integer> incrementReturningAFuture() {
       counter++;
-      return new AsyncResult<Integer>(5);
+      return Future.ok(5);
     }
 
     /**
@@ -251,7 +250,7 @@ public class AnnotationAsyncExecutionAspectTests {
 
     public java.util.concurrent.Future<Integer> incrementReturningAFuture() {
       counter++;
-      return new AsyncResult<Integer>(5);
+      return Future.ok(5);
     }
   }
 
@@ -259,12 +258,12 @@ public class AnnotationAsyncExecutionAspectTests {
 
     @Async
     public java.util.concurrent.Future<Thread> defaultWork() {
-      return new AsyncResult<Thread>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("e1")
     public Future<Thread> e1Work() {
-      return new AsyncResult<Thread>(Thread.currentThread());
+      return Future.ok(Thread.currentThread());
     }
 
     @Async("e1")

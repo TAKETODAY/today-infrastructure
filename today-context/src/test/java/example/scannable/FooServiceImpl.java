@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package example.scannable;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Future;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.annotation.Autowired;
@@ -37,8 +33,8 @@ import cn.taketoday.context.support.AbstractApplicationContext;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.scheduling.annotation.AsyncResult;
 import cn.taketoday.stereotype.Service;
+import cn.taketoday.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 
 /**
@@ -107,7 +103,7 @@ public abstract class FooServiceImpl implements FooService {
   public Future<String> asyncFoo(int id) {
     System.out.println(Thread.currentThread().getName());
     Assert.state(ServiceInvocationCounter.getThreadLocalCount() != null, "Thread-local counter not exposed");
-    return new AsyncResult<>(fooDao().findFoo(id));
+    return Future.ok(fooDao().findFoo(id));
   }
 
   @Override

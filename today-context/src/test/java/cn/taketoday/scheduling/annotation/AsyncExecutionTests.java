@@ -431,9 +431,9 @@ public class AsyncExecutionTests {
         throw new IllegalArgumentException();
       }
       else if (i < 0) {
-        return AsyncResult.forExecutionException(new IOException());
+        return Future.failed(new IOException());
       }
-      return AsyncResult.forValue(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
 
     @Async
@@ -444,9 +444,9 @@ public class AsyncExecutionTests {
         throw new IllegalArgumentException();
       }
       else if (i < 0) {
-        return AsyncResult.forExecutionException(new IOException());
+        return Future.failed(new IOException());
       }
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
 
     @Async
@@ -487,14 +487,14 @@ public class AsyncExecutionTests {
       boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
       assertThat(condition).isTrue();
       assertThat(Thread.currentThread().getName().startsWith("e2-")).isTrue();
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
 
     public java.util.concurrent.Future<String> returnSomething2(int i) {
       boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
       assertThat(condition).isTrue();
       assertThat(Thread.currentThread().getName().startsWith("e0-")).isTrue();
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
   }
 
@@ -521,7 +521,7 @@ public class AsyncExecutionTests {
       if (i == 0) {
         throw new IllegalArgumentException();
       }
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
 
     public Future<String> returnSomethingListenable(int i) {
@@ -530,7 +530,7 @@ public class AsyncExecutionTests {
       if (i == 0) {
         throw new IllegalArgumentException();
       }
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
 
     @Async
@@ -568,7 +568,7 @@ public class AsyncExecutionTests {
     public java.util.concurrent.Future<String> returnSomething(int i) {
       boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
       assertThat(condition).isTrue();
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
   }
 
@@ -592,7 +592,7 @@ public class AsyncExecutionTests {
     public java.util.concurrent.Future<String> returnSomething(int i) {
       boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
       assertThat(condition).isTrue();
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
   }
 
@@ -606,7 +606,7 @@ public class AsyncExecutionTests {
         boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
         assertThat(condition).isTrue();
         if (java.util.concurrent.Future.class.equals(invocation.getMethod().getReturnType())) {
-          return new AsyncResult<>(invocation.getArguments()[0].toString());
+          return Future.ok(invocation.getArguments()[0].toString());
         }
         return null;
       });
@@ -659,7 +659,7 @@ public class AsyncExecutionTests {
     public java.util.concurrent.Future<String> returnSomething(int i) {
       boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
       assertThat(condition).isTrue();
-      return new AsyncResult<>(Integer.toString(i));
+      return Future.ok(Integer.toString(i));
     }
   }
 
@@ -673,7 +673,7 @@ public class AsyncExecutionTests {
         boolean condition = !Thread.currentThread().getName().equals(originalThreadName);
         assertThat(condition).isTrue();
         if (java.util.concurrent.Future.class.equals(invocation.getMethod().getReturnType())) {
-          return new AsyncResult<>(invocation.getArguments()[0].toString());
+          return Future.ok(invocation.getArguments()[0].toString());
         }
         return null;
       });

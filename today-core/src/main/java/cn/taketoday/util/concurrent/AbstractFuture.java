@@ -37,6 +37,14 @@ import cn.taketoday.lang.Nullable;
  */
 abstract class AbstractFuture<V> extends Future<V> {
 
+  protected static final int NEW = 0;
+  protected static final int COMPLETING = 1;
+  protected static final int NORMAL = 2;
+  protected static final int EXCEPTIONAL = 3;
+  protected static final int CANCELLED = 4;
+  protected static final int INTERRUPTING = 5;
+  protected static final int INTERRUPTED = 6;
+
   /**
    * The run state of this {@code Future}, initially {@link #NEW}. The run state
    * transitions to a terminal state only in methods {@link #trySuccess(Object)},
@@ -56,14 +64,6 @@ abstract class AbstractFuture<V> extends Future<V> {
    * </pre>
    */
   protected volatile int state;
-
-  protected static final int NEW = 0;
-  protected static final int COMPLETING = 1;
-  protected static final int NORMAL = 2;
-  protected static final int EXCEPTIONAL = 3;
-  protected static final int CANCELLED = 4;
-  protected static final int INTERRUPTING = 5;
-  protected static final int INTERRUPTED = 6;
 
   /** Treiber stack of waiting threads */
   @Nullable
@@ -292,11 +292,10 @@ abstract class AbstractFuture<V> extends Future<V> {
   static final class Waiter {
 
     @Nullable
-    volatile Thread thread = Thread.currentThread();
+    public volatile Thread thread = Thread.currentThread();
 
     @Nullable
-    volatile Waiter next;
-
+    public volatile Waiter next;
   }
 
   /**

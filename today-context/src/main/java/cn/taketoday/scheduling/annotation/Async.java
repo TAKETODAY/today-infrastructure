@@ -46,11 +46,12 @@ import cn.taketoday.util.concurrent.Future;
  * {@code Future} that can be used to track the result of the asynchronous method
  * execution. However, since the target method needs to implement the same signature,
  * it will have to return a temporary {@code Future} handle that just passes a value
- * through: for example {@link AsyncResult}, EJB 3.1's {@link jakarta.ejb.AsyncResult},
+ * through: for example {@link Future#ok(Object)}, EJB 3.1's {@link jakarta.ejb.AsyncResult},
  * or {@link java.util.concurrent.CompletableFuture#completedFuture(Object)}.
  *
  * @author Juergen Hoeller
  * @author Chris Beams
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see AnnotationAsyncExecutionInterceptor
  * @see AsyncAnnotationAdvisor
  * @since 4.0

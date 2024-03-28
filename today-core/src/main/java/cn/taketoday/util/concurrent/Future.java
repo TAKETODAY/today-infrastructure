@@ -132,10 +132,8 @@ import cn.taketoday.util.function.ThrowingFunction;
  * and {@code io.netty.util.concurrent.Future}
  *
  * @param <V> the result type returned by this Future's {@code get} method
- * @author Arjen Poutsma
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @author Juergen Hoeller
  * @since 4.0
  */
 public abstract class Future<V> implements java.util.concurrent.Future<V> {
@@ -676,7 +674,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param future the future that is complete.
    * @param listener the listener to notify.
    */
-  protected static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
+  static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
     safeExecute(executor, () -> notifyListener(future, listener));
   }
 
@@ -734,30 +732,40 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   // Static Factory Methods
 
   /**
-   * Creates a new SucceededFuture instance.
+   * Create a new async result which exposes the given value
+   * from {@link java.util.concurrent.Future#get()}.
+   *
+   * @param result the value to expose
+   * @see java.util.concurrent.Future#get()
    */
   public static <V> Future<V> ok(@Nullable V result) {
-    return new SucceededFuture<>(result);
+    return new CompleteFuture<>(defaultExecutor, result, null);
   }
 
   /**
-   * Creates a new SucceededFuture instance.
+   * Create a new async result which exposes the given value
+   * from {@link java.util.concurrent.Future#get()}.
    *
+   * @param result the value to expose
    * @param executor the {@link Executor} which is used to notify
    * the Future once it is complete.
+   * @see java.util.concurrent.Future#get()
    */
   public static <V> Future<V> ok(@Nullable V result, @Nullable Executor executor) {
-    return new SucceededFuture<>(executor, result);
+    return new CompleteFuture<>(executor, result, null);
   }
 
   /**
    * Creates a failed {@code Future} with the given {@code exception},
-   * backed by the {@link #defaultExecutor}.
+   * backed by the given {@link Executor}.
    *
-   * @param cause The reason why it failed.
+   * @param cause The reason why it failed. the exception to expose
+   * (either an pre-built {@link ExecutionException} or a cause to
+   * be wrapped in an {@link ExecutionException})
    * @param <V> The value type of successful result.
    * @return A failed {@code Future}.
-   * @throws IllegalArgumentException if exception is null
+   * @throws NullPointerException if cause is null
+   * @see ExecutionException
    */
   public static <V> Future<V> failed(Throwable cause) {
     return failed(cause, defaultExecutor);
@@ -769,14 +777,17 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
-   * @param cause The reason why it failed.
+   * @param cause The reason why it failed. the exception to expose
+   * (either an pre-built {@link ExecutionException} or a cause to
+   * be wrapped in an {@link ExecutionException})
    * @param <V> The value type of successful result.
    * @return A failed {@code Future}.
    * @throws NullPointerException if cause is null
+   * @see ExecutionException
    */
   public static <V> Future<V> failed(Throwable cause, @Nullable Executor executor) {
     Assert.notNull(cause, "cause is required");
-    return new FailedFuture<>(executor, cause);
+    return new CompleteFuture<>(executor, null, cause);
   }
 
   /**

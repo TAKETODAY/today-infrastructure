@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package example.scannable;
 
-import java.util.concurrent.Future;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.beans.factory.annotation.Qualifier;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.scheduling.annotation.AsyncResult;
+import cn.taketoday.util.concurrent.Future;
 import jakarta.annotation.PostConstruct;
 
 /**
@@ -56,7 +52,7 @@ public class AutowiredQualifierFooService implements FooService {
 
   @Override
   public Future<String> asyncFoo(int id) {
-    return new AsyncResult<>(this.fooDao.findFoo(id));
+    return Future.ok(this.fooDao.findFoo(id));
   }
 
   @Override
