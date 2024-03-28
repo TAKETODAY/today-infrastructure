@@ -22,12 +22,13 @@ import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.core.Pair;
 
@@ -380,55 +381,138 @@ class FutureTests {
   }
 
   @Test
-  void whenAllSucceed_releasesInputFuturesUponSubmission() throws Exception {
+  void whenAllSucceed_combineSuccess() throws Exception {
     SettableFuture<Long> future1 = Future.forSettable();
     SettableFuture<Long> future2 = Future.forSettable();
-    WeakReference<SettableFuture<Long>> future1Ref = new WeakReference<>(future1);
-    WeakReference<SettableFuture<Long>> future2Ref = new WeakReference<>(future2);
 
-    Callable<Long> combiner = new Callable<Long>() {
-      @Override
-      public Long call() {
-        throw new AssertionError();
-      }
-    };
+    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+            .combine();
 
-    Future<Long> unused = Future.whenAllSucceed(future1, future2)
-            .call(combiner, noOpScheduledExecutor());
+    assertThat(combine).isNotDone();
 
     future1.setSuccess(1L);
-    future1 = null;
     future2.setSuccess(2L);
-    future2 = null;
 
+    assertThat(combine.get()).isNull();
+    assertThat(combine.getNow()).isNull();
+    assertThat(combine.getCause()).isNull();
+    assertThat(combine.isSuccess()).isTrue();
+    assertThat(combine.isFailed()).isFalse();
+    assertThat(combine).isDone();
+    assertThat(combine).isNotCancelled();
+    assertThat(combine.await(1)).isTrue();
+    assertThat(combine.await(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1)).isTrue();
+    assertThat(combine.awaitUninterruptibly()).isSameAs(combine);
+    assertThat(combine.sync()).isSameAs(combine);
+    assertThat(combine.syncUninterruptibly()).isSameAs(combine);
+
+    assertThatThrownBy(combine::obtain).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
-  void whenAllComplete_releasesInputFuturesUponCancellation() throws Exception {
-    SettableFuture<Long> future = Future.forSettable();
-    WeakReference<SettableFuture<Long>> futureRef = new WeakReference<>(future);
+  void whenAllSucceed_combineFailed() throws Exception {
+    SettableFuture<Long> future1 = Future.forSettable();
+    SettableFuture<Long> future2 = Future.forSettable();
 
-    Callable<Long> combiner = new Callable<Long>() {
-      @Override
-      public Long call() {
-        throw new AssertionError();
-      }
-    };
+    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+            .combine();
 
-    Future<Long> unused = Future.whenAllComplete(future)
-            .call(combiner, noOpScheduledExecutor());
+    assertThat(combine).isNotDone();
 
-    unused.cancel(false);
-    future = null;
+    future1.setSuccess(1L);
+    future2.setFailure(new RuntimeException());
 
+    assertThat(combine.await().getNow()).isNull();
+    assertThat(combine.getCause()).isInstanceOf(RuntimeException.class);
+    assertThat(combine.isSuccess()).isFalse();
+    assertThat(combine.isFailed()).isTrue();
+    assertThat(combine).isDone();
+    assertThat(combine).isNotCancelled();
+    assertThat(combine.await(1)).isTrue();
+    assertThat(combine.await(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1)).isTrue();
+    assertThat(combine.awaitUninterruptibly()).isSameAs(combine);
+
+    assertThatThrownBy(combine::get).isInstanceOf(ExecutionException.class);
+    assertThatThrownBy(combine::obtain).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(combine::sync).isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(combine::syncUninterruptibly).isInstanceOf(RuntimeException.class);
+  }
+
+  @Test
+  void whenAllSucceed_runSucceed() throws Exception {
+    SettableFuture<Long> future1 = Future.forSettable();
+    SettableFuture<Long> future2 = Future.forSettable();
+
+    AtomicInteger counter = new AtomicInteger(0);
+    Future<Void> combine = Future.whenAllSucceed(future1, future2)
+            .run(counter::incrementAndGet);
+
+    assertThat(combine).isNotDone();
+
+    future1.setSuccess(1L);
+    assertThat(combine).isNotDone();
+    future2.setSuccess(1L);
+    assertThat(combine).isNotDone();
+
+    assertThat(combine.await().getNow()).isNull();
+    assertThat(combine).isDone();
+    assertThat(counter.get()).isEqualTo(1);
+
+    assertThat(combine.getCause()).isNull();
+    assertThat(combine.isSuccess()).isTrue();
+    assertThat(combine.isFailed()).isFalse();
+    assertThat(combine).isDone();
+    assertThat(combine).isNotCancelled();
+    assertThat(combine.await(1)).isTrue();
+    assertThat(combine.await(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1)).isTrue();
+    assertThat(combine.awaitUninterruptibly()).isSameAs(combine);
+    assertThat(combine.sync()).isSameAs(combine);
+    assertThat(combine.syncUninterruptibly()).isSameAs(combine);
+  }
+
+  @Test
+  void whenAllSucceed_callSucceed() throws Exception {
+    SettableFuture<Long> future1 = Future.forSettable();
+    SettableFuture<Long> future2 = Future.forSettable();
+
+    Future<Long> combine = Future.whenAllSucceed(future1, future2)
+            .call(() -> future1.obtain() + future2.obtain());
+
+    assertThat(combine).isNotDone();
+
+    future1.setSuccess(1L);
+    assertThat(combine).isNotDone();
+    future2.setSuccess(1L);
+    assertThat(combine).isNotDone();
+
+    assertThat(combine.await().getNow()).isEqualTo(2);
+    assertThat(combine.obtain()).isEqualTo(2);
+    assertThat(combine.get()).isEqualTo(2);
+    assertThat(combine.get(1, TimeUnit.SECONDS)).isEqualTo(2);
+
+    assertThat(combine).isDone();
+    assertThat(combine.getCause()).isNull();
+    assertThat(combine.isSuccess()).isTrue();
+    assertThat(combine.isFailed()).isFalse();
+    assertThat(combine).isDone();
+    assertThat(combine).isNotCancelled();
+    assertThat(combine.await(1)).isTrue();
+    assertThat(combine.await(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(combine.awaitUninterruptibly(1)).isTrue();
+    assertThat(combine.awaitUninterruptibly()).isSameAs(combine);
+    assertThat(combine.sync()).isSameAs(combine);
+    assertThat(combine.syncUninterruptibly()).isSameAs(combine);
   }
 
   static Executor directExecutor() {
     return Runnable::run;
-  }
-
-  static Executor noOpScheduledExecutor() {
-    return runnable -> { };
   }
 
   private static String createCombinedResult(Integer i, Boolean b) {

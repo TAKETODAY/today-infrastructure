@@ -50,11 +50,10 @@ public class SettableFuture<V> extends AbstractFuture<V> {
    *
    * If it is success or failed already it will throw an {@link IllegalStateException}.
    */
-  public SettableFuture<V> setSuccess(@Nullable V result) {
-    if (trySuccess(result)) {
-      return this;
+  public void setSuccess(@Nullable V result) {
+    if (!trySuccess(result)) {
+      throw new IllegalStateException("complete already: " + this);
     }
-    throw new IllegalStateException("complete already: " + this);
   }
 
   /**
@@ -63,11 +62,10 @@ public class SettableFuture<V> extends AbstractFuture<V> {
    *
    * If it is success or failed already it will throw an {@link IllegalStateException}.
    */
-  public SettableFuture<V> setFailure(Throwable cause) {
-    if (tryFailure(cause)) {
-      return this;
+  public void setFailure(Throwable cause) {
+    if (!tryFailure(cause)) {
+      throw new IllegalStateException("complete already: " + this, cause);
     }
-    throw new IllegalStateException("complete already: " + this, cause);
   }
 
   @Override
@@ -78,7 +76,8 @@ public class SettableFuture<V> extends AbstractFuture<V> {
 
   @Override
   public <C> SettableFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
-    return onCompleted(FutureListener.forAdaption(listener, context));
+    super.onCompleted(listener, context);
+    return this;
   }
 
   @Override

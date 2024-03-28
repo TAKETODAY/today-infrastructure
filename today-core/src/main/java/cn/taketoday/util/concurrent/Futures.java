@@ -78,7 +78,6 @@ final class Futures {
    */
   @SuppressWarnings("unchecked")
   public static <V, R> Future<R> map(Future<V> future, ThrowingFunction<V, R> mapper) {
-
     if (future.isFailed()) {
       // Cast is safe because the result type is not used in failed futures.
       return (Future<R>) future;
@@ -162,7 +161,7 @@ final class Futures {
       if (completed.isSuccess()) {
         settable.setSuccess(completed.getNow());
       }
-      else if (future.isCancelled()) {
+      else if (completed.isCancelled()) {
         settable.cancel();
       }
       else {

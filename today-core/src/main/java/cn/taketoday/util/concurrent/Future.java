@@ -35,7 +35,6 @@ import java.util.function.Function;
 import cn.taketoday.core.Pair;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.function.ThrowingBiFunction;
@@ -167,8 +166,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static final Executor defaultExecutor = DefaultExecutorFactory.lookup();
 
-  private static final Logger log = LoggerFactory.getLogger(Future.class);
-
   /**
    * One or more listeners.
    */
@@ -201,7 +198,20 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return {@code true} if this operation has been cancelled, otherwise {@code false}.
    * @see CancellationException
    */
+  @Override
   public abstract boolean isCancelled();
+
+  /**
+   * Returns {@code true} if this task completed.
+   *
+   * Completion may be due to normal termination, an exception, or
+   * cancellation -- in all of these cases, this method will return
+   * {@code true}.
+   *
+   * @return {@code true} if this task completed
+   */
+  @Override
+  public abstract boolean isDone();
 
   /**
    * Returns the cause of the failed operation if the operation failed.
@@ -318,6 +328,42 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Waits for this future to be completed within the
+   * specified time limit without interruption.  This method catches an
+   * {@link InterruptedException} and discards it silently.
+   *
+   * @return {@code true} if and only if the future was completed within
+   * the specified time limit
+   */
+  public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
+    try {
+      return await(timeout, unit);
+    }
+    catch (InterruptedException e) {
+      // Should not be raised at all.
+      throw new InternalError();
+    }
+  }
+
+  /**
+   * Waits for this future to be completed within the
+   * specified time limit without interruption.  This method catches an
+   * {@link InterruptedException} and discards it silently.
+   *
+   * @return {@code true} if and only if the future was completed within
+   * the specified time limit
+   */
+  public boolean awaitUninterruptibly(long timeoutMillis) {
+    try {
+      return await(timeoutMillis);
+    }
+    catch (InterruptedException e) {
+      // Should not be raised at all.
+      throw new InternalError();
+    }
+  }
+
+  /**
    * Waits for this future to be completed.
    *
    * @return this future object.
@@ -355,42 +401,6 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   public abstract boolean await(long timeoutMillis) throws InterruptedException;
 
   /**
-   * Waits for this future to be completed within the
-   * specified time limit without interruption.  This method catches an
-   * {@link InterruptedException} and discards it silently.
-   *
-   * @return {@code true} if and only if the future was completed within
-   * the specified time limit
-   */
-  public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
-    try {
-      return await(timeout, unit);
-    }
-    catch (InterruptedException e) {
-      // Should not be raised at all.
-      throw new InternalError();
-    }
-  }
-
-  /**
-   * Waits for this future to be completed within the
-   * specified time limit without interruption.  This method catches an
-   * {@link InterruptedException} and discards it silently.
-   *
-   * @return {@code true} if and only if the future was completed within
-   * the specified time limit
-   */
-  public boolean awaitUninterruptibly(long timeoutMillis) {
-    try {
-      return await(timeoutMillis);
-    }
-    catch (InterruptedException e) {
-      // Should not be raised at all.
-      throw new InternalError();
-    }
-  }
-
-  /**
    * Return the result without blocking. If the future is not done
    * yet this will return {@code null}.
    * <p>
@@ -413,11 +423,24 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @see SettableFuture#setSuccess(Object)
    */
   public V obtain() throws IllegalStateException {
-    V now = getNow();
-    Assert.state(now != null, "Result is required");
-    return now;
+    V v = getNow();
+    if (v == null) {
+      throw new IllegalStateException("Result is required");
+    }
+    return v;
   }
 
+  /**
+   * Waits if necessary for the computation to complete, and then
+   * retrieves its result.
+   *
+   * @return the computed result
+   * @throws CancellationException if the computation was cancelled
+   * @throws ExecutionException if the computation threw an
+   * exception
+   * @throws InterruptedException if the current thread was interrupted
+   * while waiting
+   */
   @Nullable
   @Override
   public V get() throws InterruptedException, ExecutionException {
@@ -433,6 +456,20 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     throw new ExecutionException(cause);
   }
 
+  /**
+   * Waits if necessary for at most the given time for the computation
+   * to complete, and then retrieves its result, if available.
+   *
+   * @param timeout the maximum time to wait
+   * @param unit the time unit of the timeout argument
+   * @return the computed result
+   * @throws CancellationException if the computation was cancelled
+   * @throws ExecutionException if the computation threw an
+   * exception
+   * @throws InterruptedException if the current thread was interrupted
+   * while waiting
+   * @throws TimeoutException if the wait timed out
+   */
   @Nullable
   @Override
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
@@ -659,12 +696,11 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     return executor;
   }
 
-  protected final void rethrowIfFailed() {
+  private void rethrowIfFailed() {
     Throwable cause = getCause();
-    if (cause == null) {
-      return;
+    if (cause != null) {
+      throw ExceptionUtils.sneakyThrow(cause);
     }
-    throw ExceptionUtils.sneakyThrow(cause);
   }
 
   /**
@@ -674,7 +710,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param future the future that is complete.
    * @param listener the listener to notify.
    */
-  static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
+  protected static void notifyListener(Executor executor, final Future<?> future, final FutureListener<?> listener) {
     safeExecute(executor, () -> notifyListener(future, listener));
   }
 
@@ -691,7 +727,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
       listeners = this.listeners;
       this.listeners = null;
     }
-    for (; ; ) {
+    while (true) {
       if (listeners instanceof FutureListener<?> fl) {
         notifyListener(this, fl);
       }
@@ -716,7 +752,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
       l.operationComplete(future);
     }
     catch (Throwable t) {
-      log.warn("An exception was thrown by {}.operationComplete(Future)", l.getClass().getName(), t);
+      LoggerFactory.getLogger(Future.class)
+              .warn("An exception was thrown by {}.operationComplete(Future)", l.getClass().getName(), t);
     }
   }
 
@@ -725,11 +762,14 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
       executor.execute(task);
     }
     catch (Throwable t) {
-      log.error("Failed to submit a listener notification task. Executor shutting-down?", t);
+      LoggerFactory.getLogger(Future.class)
+              .error("Failed to submit a listener notification task. Executor shutting-down?", t);
     }
   }
 
+  //---------------------------------------------------------------------
   // Static Factory Methods
+  //---------------------------------------------------------------------
 
   /**
    * Create a new async result which exposes the given value
@@ -793,16 +833,17 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   /**
    * Adapts {@code CompletionStage} to a new SettableFuture instance.
    */
-  public static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage) {
+  public static <V> Future<V> forAdaption(CompletionStage<V> stage) {
     return forAdaption(stage, defaultExecutor);
   }
 
   /**
    * Adapts {@code CompletionStage} to a new SettableFuture instance.
    *
-   * @param executor The {@link Executor} which is used to notify the {@code Future} once it is complete.
+   * @param executor The {@link Executor} which is used to notify the
+   * {@code Future} once it is complete.
    */
-  public static <V> SettableFuture<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
+  public static <V> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
     SettableFuture<V> settable = forSettable(executor);
     stage.thenAcceptAsync(settable::trySuccess)
             .exceptionally(failure -> {

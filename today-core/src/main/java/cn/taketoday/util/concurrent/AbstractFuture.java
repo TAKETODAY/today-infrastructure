@@ -165,7 +165,7 @@ abstract class AbstractFuture<V> extends Future<V> {
   public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
     int s = state;
     if (s <= COMPLETING && (s = awaitDone(true, unit.toNanos(timeout))) <= COMPLETING) {
-      throw new TimeoutException();
+      throw new TimeoutException("Timeout");
     }
     return report(s);
   }
@@ -193,14 +193,12 @@ abstract class AbstractFuture<V> extends Future<V> {
 
   @Override
   public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
-    return state <= COMPLETING
-            && awaitDone(true, unit.toNanos(timeout)) <= COMPLETING;
+    return state > COMPLETING || awaitDone(true, unit.toNanos(timeout)) > COMPLETING;
   }
 
   @Override
   public boolean await(long timeoutMillis) throws InterruptedException {
-    return state <= COMPLETING
-            && awaitDone(true, TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) <= COMPLETING;
+    return state > COMPLETING || awaitDone(true, TimeUnit.MILLISECONDS.toNanos(timeoutMillis)) > COMPLETING;
   }
 
   /**
@@ -272,6 +270,7 @@ abstract class AbstractFuture<V> extends Future<V> {
    *
    * @param s completed state value
    */
+  @Nullable
   @SuppressWarnings("unchecked")
   private V report(int s) throws ExecutionException {
     Object x = result;

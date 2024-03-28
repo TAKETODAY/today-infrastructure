@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 21:28
  */
-class CompleteFuture<V> extends Future<V> {
+final class CompleteFuture<V> extends Future<V> {
 
   @Nullable
   private final V value;
@@ -125,7 +125,7 @@ class CompleteFuture<V> extends Future<V> {
   }
 
   @Override
-  public final boolean await(long timeout, TimeUnit unit) throws InterruptedException {
+  public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
@@ -133,7 +133,7 @@ class CompleteFuture<V> extends Future<V> {
   }
 
   @Override
-  public final boolean await(long timeoutMillis) throws InterruptedException {
+  public boolean await(long timeoutMillis) throws InterruptedException {
     if (Thread.interrupted()) {
       throw new InterruptedException();
     }
@@ -141,27 +141,27 @@ class CompleteFuture<V> extends Future<V> {
   }
 
   @Override
-  public final CompleteFuture<V> awaitUninterruptibly() {
+  public CompleteFuture<V> awaitUninterruptibly() {
     return this;
   }
 
   @Override
-  public final boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
+  public boolean awaitUninterruptibly(long timeout, TimeUnit unit) {
     return true;
   }
 
   @Override
-  public final boolean awaitUninterruptibly(long timeoutMillis) {
+  public boolean awaitUninterruptibly(long timeoutMillis) {
     return true;
   }
 
   @Override
-  public final boolean isDone() {
+  public boolean isDone() {
     return true;
   }
 
   @Override
-  public final boolean isCancelled() {
+  public boolean isCancelled() {
     return false;
   }
 
@@ -171,7 +171,7 @@ class CompleteFuture<V> extends Future<V> {
    * @param mayInterruptIfRunning this value has no effect in this implementation.
    */
   @Override
-  public final boolean cancel(boolean mayInterruptIfRunning) {
+  public boolean cancel(boolean mayInterruptIfRunning) {
     return false;
   }
 
