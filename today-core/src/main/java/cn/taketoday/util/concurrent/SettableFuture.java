@@ -17,6 +17,8 @@
 
 package cn.taketoday.util.concurrent;
 
+import java.util.concurrent.Executor;
+
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,7 +32,17 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 15:57
  */
-public interface SettableFuture<V> extends Future<V> {
+public class SettableFuture<V> extends AbstractFuture<V> {
+
+  /**
+   * Creates a new instance.
+   *
+   * @param executor the {@link Executor} which is used to notify
+   * the SettableFuture once it is complete.
+   */
+  SettableFuture(@Nullable Executor executor) {
+    super(executor);
+  }
 
   /**
    * Marks this future as a success and notifies all
@@ -38,17 +50,12 @@ public interface SettableFuture<V> extends Future<V> {
    *
    * If it is success or failed already it will throw an {@link IllegalStateException}.
    */
-  SettableFuture<V> setSuccess(@Nullable V result);
-
-  /**
-   * Marks this future as a success and notifies all
-   * listeners.
-   *
-   * @return {@code true} if and only if successfully marked this future as
-   * a success. Otherwise {@code false} because this future is
-   * already marked as either a success or a failure.
-   */
-  boolean trySuccess(@Nullable V result);
+  public SettableFuture<V> setSuccess(@Nullable V result) {
+    if (trySuccess(result)) {
+      return this;
+    }
+    throw new IllegalStateException("complete already: " + this);
+  }
 
   /**
    * Marks this future as a failure and notifies all
@@ -56,54 +63,50 @@ public interface SettableFuture<V> extends Future<V> {
    *
    * If it is success or failed already it will throw an {@link IllegalStateException}.
    */
-  SettableFuture<V> setFailure(Throwable cause);
-
-  /**
-   * Marks this future as a failure and notifies all
-   * listeners.
-   *
-   * @return {@code true} if and only if successfully marked this future as
-   * a failure. Otherwise {@code false} because this future is
-   * already marked as either a success or a failure.
-   */
-  boolean tryFailure(Throwable cause);
-
-  @Override
-  default SettableFuture<V> onCompleted(SuccessCallback<V> successCallback, @Nullable FailureCallback failureCallback) {
-    return onCompleted(FutureListener.forAdaption(successCallback, failureCallback));
+  public SettableFuture<V> setFailure(Throwable cause) {
+    if (tryFailure(cause)) {
+      return this;
+    }
+    throw new IllegalStateException("complete already: " + this, cause);
   }
 
   @Override
-  default SettableFuture<V> onSuccess(SuccessCallback<V> successCallback) {
-    return onCompleted(successCallback, null);
-  }
-
-  @Override
-  default SettableFuture<V> onFailure(FailureCallback failureCallback) {
-    onCompleted(FutureListener.forFailure(failureCallback));
+  public SettableFuture<V> onCompleted(FutureListener<? extends Future<V>> listener) {
+    super.onCompleted(listener);
     return this;
   }
 
   @Override
-  SettableFuture<V> onCompleted(FutureListener<? extends Future<V>> listener);
+  public <C> SettableFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context) {
+    return onCompleted(FutureListener.forAdaption(listener, context));
+  }
 
   @Override
-  <C> SettableFuture<V> onCompleted(FutureContextListener<? extends Future<V>, C> listener, @Nullable C context);
+  public SettableFuture<V> sync() throws InterruptedException {
+    super.sync();
+    return this;
+  }
 
   @Override
-  SettableFuture<V> await() throws InterruptedException;
+  public SettableFuture<V> syncUninterruptibly() {
+    super.syncUninterruptibly();
+    return this;
+  }
 
   @Override
-  SettableFuture<V> awaitUninterruptibly();
+  public SettableFuture<V> await() throws InterruptedException {
+    super.await();
+    return this;
+  }
 
   @Override
-  SettableFuture<V> sync() throws InterruptedException;
+  public SettableFuture<V> awaitUninterruptibly() {
+    super.awaitUninterruptibly();
+    return this;
+  }
 
   @Override
-  SettableFuture<V> syncUninterruptibly();
-
-  @Override
-  default SettableFuture<V> cascadeTo(final SettableFuture<V> settable) {
+  public SettableFuture<V> cascadeTo(final SettableFuture<V> settable) {
     Futures.cascade(this, settable);
     return this;
   }

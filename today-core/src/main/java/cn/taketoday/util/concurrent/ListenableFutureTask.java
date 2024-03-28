@@ -54,7 +54,7 @@ import cn.taketoday.lang.Nullable;
  * @see FutureTask
  * @since 4.0
  */
-public class ListenableFutureTask<V> extends AbstractSettableFuture<V> implements RunnableFuture<V> {
+public class ListenableFutureTask<V> extends AbstractFuture<V> implements RunnableFuture<V> {
 
   /** The underlying callable; nulled out after running */
 

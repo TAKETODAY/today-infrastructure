@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/26 21:28
  */
-public abstract class CompleteFuture<V> extends AbstractFuture<V> {
+public abstract class CompleteFuture<V> extends Future<V> {
 
   /**
    * Creates a new instance.
