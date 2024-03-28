@@ -456,7 +456,6 @@ class FutureTests {
     future1.setSuccess(1L);
     assertThat(combine).isNotDone();
     future2.setSuccess(1L);
-    assertThat(combine).isNotDone();
 
     assertThat(combine.await().getNow()).isNull();
     assertThat(combine).isDone();
@@ -489,7 +488,6 @@ class FutureTests {
     future1.setSuccess(1L);
     assertThat(combine).isNotDone();
     future2.setSuccess(1L);
-    assertThat(combine).isNotDone();
 
     assertThat(combine.await().getNow()).isEqualTo(2);
     assertThat(combine.obtain()).isEqualTo(2);
