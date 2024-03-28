@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.sql.DataSource;
 
@@ -713,6 +714,23 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey) throws DataAccessException {
     return iterate(entityClass, handler).toMap(mapKey);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <K, T> Map<K, T> find(T example, Function<T, K> keyMapper) throws DataAccessException {
+    return find((Class<T>) example.getClass(), example, keyMapper);
+  }
+
+  @Override
+  public <K, T> Map<K, T> find(Class<T> entityClass, Object example, Function<T, K> keyMapper) throws DataAccessException {
+    return iterate(entityClass, example).toMap(keyMapper);
+
+  }
+
+  @Override
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, Function<T, K> keyMapper) throws DataAccessException {
+    return iterate(entityClass, handler).toMap(keyMapper);
   }
 
   @Override

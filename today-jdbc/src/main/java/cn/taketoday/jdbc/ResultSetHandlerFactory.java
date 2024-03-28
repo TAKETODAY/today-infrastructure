@@ -27,5 +27,8 @@ import cn.taketoday.jdbc.core.ResultSetExtractor;
  */
 public interface ResultSetHandlerFactory<T> {
 
+  /**
+   * Get one row ResultSetExtractor
+   */
   ResultSetExtractor<T> getResultSetHandler(ResultSetMetaData resultSetMetaData) throws SQLException;
 }

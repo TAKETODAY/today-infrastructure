@@ -22,6 +22,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.dao.DataAccessException;
@@ -336,6 +337,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
+   * <p>
    * E.g. Return an of Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
@@ -350,6 +352,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
+   * <p>
    * E.g. Return a Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
@@ -365,6 +368,7 @@ public interface EntityManager {
    * The find Map is a special case in that it is designed to convert a list
    * of results into a Map based on one of the properties in the resulting
    * objects.
+   * <p>
    * E.g. Return a Map[Integer,Author] for find(Author.class, example, "id")
    *
    * @param <K> the returned Map keys type
@@ -374,6 +378,52 @@ public interface EntityManager {
    * @throws IllegalEntityException entityClass is legal entity
    */
   <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey)
+          throws DataAccessException;
+
+  /**
+   * The find Map is a special case in that it is designed to convert a list
+   * of results into a Map based on one of the properties in the resulting
+   * objects.
+   * E.g. Return an of Map[Integer,Author] for {@code find(Author.class, Author::getId)}
+   *
+   * @param <K> the returned Map keys type
+   * @param <T> the returned Map values type
+   * @param keyMapper key mapping function
+   * @return Map containing key pair data.
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <K, T> Map<K, T> find(T example, Function<T, K> keyMapper) throws DataAccessException;
+
+  /**
+   * The find Map is a special case in that it is designed to convert a list
+   * of results into a Map based on one of the properties in the resulting
+   * objects.
+   * <p>
+   * E.g. Return a Map[Integer,Author] for {@code find(Author.class, example, Author::getId))}
+   *
+   * @param <K> the returned Map keys type
+   * @param <T> the returned Map values type
+   * @param keyMapper key mapping function
+   * @return Map containing key pair data.
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <K, T> Map<K, T> find(Class<T> entityClass, Object example, Function<T, K> keyMapper)
+          throws DataAccessException;
+
+  /**
+   * The find Map is a special case in that it is designed to convert a list
+   * of results into a Map based on one of the properties in the resulting
+   * objects.
+   * <p>
+   * E.g. Return a Map[Integer,Author] for {@code find(Author.class, handler, Author::getId)}
+   *
+   * @param <K> the returned Map keys type
+   * @param <T> the returned Map values type
+   * @param keyMapper key mapping function
+   * @return Map containing key pair data.
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, Function<T, K> keyMapper)
           throws DataAccessException;
 
   /**

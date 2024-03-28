@@ -20,6 +20,7 @@ package cn.taketoday.jdbc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -41,7 +42,7 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T>, AutoCloseable {
-  // fields needed to read result set
+  // fields needed to read rows set
   protected final ResultSet resultSet;
 
   /**
@@ -57,7 +58,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   @Nullable
   private ResultSetValue<T> next; // keep track of next item in case hasNext() is called multiple times
 
-  private boolean resultSetFinished; // used to note when result set exhausted
+  private boolean resultSetFinished; // used to note when rows set exhausted
 
   @Override
   public boolean hasNext() {
@@ -65,7 +66,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     if (next != null) {
       return true;
     }
-    // check if result set already finished
+    // check if rows set already finished
     if (resultSetFinished) {
       return false;
     }
@@ -132,8 +133,9 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    */
   @Override
   public boolean tryAdvance(Consumer<? super T> action) {
-    if (hasNext()) {
-      action.accept(next());
+    T next = readNext();
+    if (next != null) {
+      action.accept(next);
       return true;
     }
     return false;
@@ -180,8 +182,18 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    */
   @Override
   public void forEachRemaining(Consumer<? super T> action) {
-    while (hasNext())
-      action.accept(next());
+    final ResultSet rows = this.resultSet;
+    try {
+      while (rows.next()) {
+        action.accept(readNext(rows));
+      }
+    }
+    catch (SQLException ex) {
+      throw handleReadError(ex);
+    }
+    finally {
+      close();
+    }
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -247,10 +259,14 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @since 4.0
    */
   public void consume(Consumer<T> consumer) {
+    final ResultSet rows = this.resultSet;
     try {
-      while (hasNext()) {
-        consumer.accept(next());
+      while (rows.next()) {
+        consumer.accept(readNext(rows));
       }
+    }
+    catch (SQLException ex) {
+      throw handleReadError(ex);
     }
     finally {
       close();
@@ -265,12 +281,9 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   @Nullable
   public T unique() {
     try {
-      T returnValue = null;
-      while (hasNext()) {
-        if (returnValue != null) {
-          throw new IncorrectResultSizeDataAccessException(1);
-        }
-        returnValue = next();
+      T returnValue = readNext();
+      if (returnValue != null && readNext() != null) {
+        throw new IncorrectResultSizeDataAccessException(1);
       }
       return returnValue;
     }
@@ -287,13 +300,7 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
   @Nullable
   public T first() {
     try {
-      while (hasNext()) {
-        T returnValue = next();
-        if (returnValue != null) {
-          return returnValue;
-        }
-      }
-      return null;
+      return readNext();
     }
     finally {
       close();
@@ -306,12 +313,36 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
    * @since 4.0
    */
   public List<T> list() {
+    ArrayList<T> entities = new ArrayList<>();
+    collect(entities);
+    return entities;
+  }
+
+  /**
+   * Fetch list of elements
+   *
+   * @since 4.0
+   */
+  public List<T> list(int initialCapacity) {
+    ArrayList<T> entities = new ArrayList<>(initialCapacity);
+    collect(entities);
+    return entities;
+  }
+
+  /**
+   * Fetch list of elements
+   *
+   * @since 4.0
+   */
+  public void collect(Collection<T> entities) {
+    final ResultSet resultSet = this.resultSet;
     try {
-      ArrayList<T> entities = new ArrayList<>();
-      while (hasNext()) {
-        entities.add(next());
+      while (resultSet.next()) {
+        entities.add(readNext(resultSet));
       }
-      return entities;
+    }
+    catch (SQLException ex) {
+      throw handleReadError(ex);
     }
     finally {
       close();
@@ -328,8 +359,19 @@ public abstract class ResultSetIterator<T> implements Iterator<T>, Spliterator<T
     }
   }
 
+  @Nullable
+  private T readNext() {
+    final ResultSet resultSet = this.resultSet;
+    try {
+      return resultSet.next() ? readNext(resultSet) : null;
+    }
+    catch (SQLException ex) {
+      throw handleReadError(ex);
+    }
+  }
+
   protected RuntimeException handleReadError(SQLException ex) {
-    return new PersistenceException("Database error: " + ex.getMessage(), ex);
+    return new PersistenceException("Database read error: " + ex.getMessage(), ex);
   }
 
   protected abstract T readNext(ResultSet resultSet) throws SQLException;

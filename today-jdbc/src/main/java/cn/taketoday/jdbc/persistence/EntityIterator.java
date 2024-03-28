@@ -20,6 +20,7 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.jdbc.ResultSetIterator;
@@ -40,6 +41,8 @@ public abstract class EntityIterator<T> extends ResultSetIterator<T> {
   }
 
   /**
+   * Convert entities to Map
+   *
    * @param mapKey entity property
    */
   @SuppressWarnings("unchecked")
@@ -51,6 +54,26 @@ public abstract class EntityIterator<T> extends ResultSetIterator<T> {
         T entity = next();
         Object propertyValue = beanProperty.getValue(entity);
         entities.put((K) propertyValue, entity);
+      }
+      return entities;
+    }
+    finally {
+      close();
+    }
+  }
+
+  /**
+   * Convert entities to Map
+   *
+   * @param keyMapper key mapping function
+   */
+  public <K> Map<K, T> toMap(Function<T, K> keyMapper) {
+    try {
+      LinkedHashMap<K, T> entities = new LinkedHashMap<>();
+      while (hasNext()) {
+        T entity = next();
+        K key = keyMapper.apply(entity);
+        entities.put(key, entity);
       }
       return entities;
     }
