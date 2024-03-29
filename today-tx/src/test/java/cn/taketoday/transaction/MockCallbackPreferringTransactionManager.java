@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction;
@@ -24,6 +21,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.support.CallbackPreferringPlatformTransactionManager;
 import cn.taketoday.transaction.support.SimpleTransactionStatus;
 import cn.taketoday.transaction.support.TransactionCallback;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * @author Juergen Hoeller
@@ -38,7 +36,12 @@ public class MockCallbackPreferringTransactionManager implements CallbackPreferr
   public <T> T execute(TransactionDefinition definition, TransactionCallback<T> callback) throws TransactionException {
     this.definition = definition;
     this.status = new SimpleTransactionStatus();
-    return callback.doInTransaction(this.status);
+    try {
+      return callback.doInTransaction(this.status);
+    }
+    catch (Throwable e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
   public TransactionDefinition getDefinition() {
