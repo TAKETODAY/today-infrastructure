@@ -48,9 +48,9 @@ public class SettableFuture<V> extends AbstractFuture<V> {
    * Marks this future as a success and notifies all
    * listeners.
    *
-   * If it is success or failed already it will throw an {@link IllegalStateException}.
+   * @throws IllegalStateException If it is success or failed already
    */
-  public void setSuccess(@Nullable V result) {
+  public void setSuccess(@Nullable V result) throws IllegalStateException {
     if (!trySuccess(result)) {
       throw new IllegalStateException("complete already: " + this);
     }
@@ -60,9 +60,9 @@ public class SettableFuture<V> extends AbstractFuture<V> {
    * Marks this future as a failure and notifies all
    * listeners.
    *
-   * If it is success or failed already it will throw an {@link IllegalStateException}.
+   * @throws IllegalStateException If it is success or failed already
    */
-  public void setFailure(Throwable cause) {
+  public void setFailure(Throwable cause) throws IllegalStateException {
     if (!tryFailure(cause)) {
       throw new IllegalStateException("complete already: " + this, cause);
     }

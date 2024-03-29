@@ -847,7 +847,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     SettableFuture<V> settable = forSettable(executor);
     stage.thenAcceptAsync(settable::trySuccess)
             .exceptionally(failure -> {
-              settable.setFailure(failure);
+              settable.tryFailure(failure);
               return null;
             });
     return settable;

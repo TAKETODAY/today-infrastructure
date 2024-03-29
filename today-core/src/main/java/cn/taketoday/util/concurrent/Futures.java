@@ -159,14 +159,14 @@ final class Futures {
     SettableFuture<V> settable = Future.forSettable(executor);
     future.onCompleted(completed -> {
       if (completed.isSuccess()) {
-        settable.setSuccess(completed.getNow());
+        settable.trySuccess(completed.getNow());
       }
       else if (completed.isCancelled()) {
         settable.cancel();
       }
       else {
         V result = recoverFunc.apply(completed.getCause());
-        settable.setSuccess(result);
+        settable.trySuccess(result);
       }
     });
 
@@ -203,7 +203,7 @@ final class Futures {
         that.onCompleted(t -> {
           Throwable c = t.getCause();
           if (c != null) {
-            recipient.setFailure(c);
+            recipient.tryFailure(c);
           }
           else {
             try {

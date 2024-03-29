@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.core.Pair;
+import lombok.SneakyThrows;
 
 import static cn.taketoday.util.concurrent.Future.ok;
 import static cn.taketoday.util.concurrent.Future.whenAllComplete;
@@ -507,6 +508,29 @@ class FutureTests {
     assertThat(combine.awaitUninterruptibly()).isSameAs(combine);
     assertThat(combine.sync()).isSameAs(combine);
     assertThat(combine.syncUninterruptibly()).isSameAs(combine);
+  }
+
+  @Test
+  void awaitOk() throws Exception {
+    SettableFuture<Void> settable = Future.forSettable();
+    assertThat(settable).isNotDone();
+    Future.defaultExecutor.execute(new Runnable() {
+      @SneakyThrows
+      @Override
+      public void run() {
+        Thread.sleep(1000);
+        settable.setSuccess(null);
+      }
+    });
+
+    assertThat(settable.await(5, TimeUnit.SECONDS)).isTrue();
+  }
+
+  @Test
+  void awaitFalse() throws Exception {
+    SettableFuture<Void> settable = Future.forSettable();
+    assertThat(settable).isNotDone();
+    assertThat(settable.await(1, TimeUnit.SECONDS)).isFalse();
   }
 
   static Executor directExecutor() {
