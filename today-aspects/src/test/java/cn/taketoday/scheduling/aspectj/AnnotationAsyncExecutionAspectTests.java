@@ -180,9 +180,9 @@ public class AnnotationAsyncExecutionAspectTests {
     int submitCompleteCounter;
 
     @Override
-    public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
+    public <T> Future<T> submit(Callable<T> task) {
       submitStartCounter++;
-      java.util.concurrent.Future<T> future = super.submit(task);
+      Future<T> future = super.submit(task);
       submitCompleteCounter++;
       synchronized(this) {
         notifyAll();
