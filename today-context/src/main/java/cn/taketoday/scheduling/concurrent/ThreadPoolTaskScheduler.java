@@ -35,7 +35,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskDecorator;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Assert;
@@ -66,8 +66,7 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
-        implements AsyncListenableTaskExecutor, SchedulingTaskExecutor, TaskScheduler {
+public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport implements AsyncTaskExecutor, SchedulingTaskExecutor, TaskScheduler {
 
   private static final TimeUnit NANO = TimeUnit.NANOSECONDS;
 
@@ -325,32 +324,10 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public java.util.concurrent.Future<?> submit(Runnable task) {
+  public Future<Void> submit(Runnable task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      return executor.submit(errorHandlingTask(task, false));
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(executor, task, ex);
-    }
-  }
-
-  @Override
-  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
-    ExecutorService executor = getScheduledExecutor();
-    try {
-      return executor.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(executor, task, ex);
-    }
-  }
-
-  @Override
-  public Future<?> submitListenable(Runnable task) {
-    ExecutorService executor = getScheduledExecutor();
-    try {
-      var future = Future.forFutureTask(task, executor);
+      var future = Future.<Void>forFutureTask(errorHandlingTask(task, false), executor);
       executeAndTrack(executor, future);
       return future;
     }
@@ -360,10 +337,10 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   @Override
-  public <T> Future<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submit(Callable<T> task) {
     ExecutorService executor = getScheduledExecutor();
     try {
-      var future = Future.forFutureTask(task, executor);
+      var future = Future.forFutureTask(new DelegatingErrorHandlingCallable<>(task, this.errorHandler), executor);
       executeAndTrack(executor, future);
       return future;
     }
@@ -373,7 +350,7 @@ public class ThreadPoolTaskScheduler extends ExecutorConfigurationSupport
   }
 
   private void executeAndTrack(ExecutorService executor, ListenableFutureTask<?> task) {
-    var scheduledFuture = executor.submit(errorHandlingTask(task, false));
+    var scheduledFuture = executor.submit(task);
     listenableFutureMap.put(scheduledFuture, task);
     task.onCompleted(f -> listenableFutureMap.remove(scheduledFuture));
   }

@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadFactory;
 
 import cn.taketoday.lang.Assert;
@@ -53,8 +52,7 @@ import cn.taketoday.util.concurrent.Future;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
-        implements AsyncListenableTaskExecutor, Serializable, AutoCloseable {
+public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator implements AsyncTaskExecutor, Serializable, AutoCloseable {
 
   /** Internal concurrency throttle used by this executor. */
   private final ConcurrencyThrottleAdapter concurrencyThrottle = new ConcurrencyThrottleAdapter();
@@ -258,28 +256,14 @@ public class SimpleAsyncTaskExecutor extends CustomizableThreadCreator
   }
 
   @Override
-  public java.util.concurrent.Future<?> submit(Runnable task) {
-    FutureTask<Object> future = new FutureTask<>(task, null);
+  public Future<Void> submit(Runnable task) {
+    var future = Future.<Void>forFutureTask(task, null, this);
     execute(future, TIMEOUT_INDEFINITE);
     return future;
   }
 
   @Override
-  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
-    FutureTask<T> future = new FutureTask<>(task);
-    execute(future, TIMEOUT_INDEFINITE);
-    return future;
-  }
-
-  @Override
-  public Future<?> submitListenable(Runnable task) {
-    var future = Future.forFutureTask(task, this);
-    execute(future, TIMEOUT_INDEFINITE);
-    return future;
-  }
-
-  @Override
-  public <T> Future<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submit(Callable<T> task) {
     var future = Future.forFutureTask(task, this);
     execute(future, TIMEOUT_INDEFINITE);
     return future;

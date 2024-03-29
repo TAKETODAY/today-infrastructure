@@ -19,9 +19,8 @@ package cn.taketoday.core.task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.FutureUtils;
 
 /**
@@ -78,10 +77,8 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @return a Future representing pending completion of the task
    * @throws TaskRejectedException if the given task was not accepted
    */
-  default Future<?> submit(Runnable task) {
-    FutureTask<Object> future = new FutureTask<>(task, null);
-    execute(future);
-    return future;
+  default Future<Void> submit(Runnable task) {
+    return Future.run(task, this);
   }
 
   /**
@@ -95,9 +92,7 @@ public interface AsyncTaskExecutor extends TaskExecutor {
    * @throws TaskRejectedException if the given task was not accepted
    */
   default <T> Future<T> submit(Callable<T> task) {
-    FutureTask<T> future = new FutureTask<>(task);
-    execute(future, TIMEOUT_INDEFINITE);
-    return future;
+    return Future.run(task, this);
   }
 
   /**

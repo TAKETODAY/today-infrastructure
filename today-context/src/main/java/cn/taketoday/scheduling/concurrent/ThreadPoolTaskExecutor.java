@@ -29,7 +29,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskDecorator;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Assert;
@@ -78,7 +78,7 @@ import cn.taketoday.util.concurrent.Future;
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport implements AsyncListenableTaskExecutor, SchedulingTaskExecutor {
+public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport implements AsyncTaskExecutor, SchedulingTaskExecutor {
 
   private final Object poolSizeMonitor = new Object();
 
@@ -391,29 +391,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport impleme
   }
 
   @Override
-  public java.util.concurrent.Future<?> submit(Runnable task) {
-    ExecutorService executor = getThreadPoolExecutor();
-    try {
-      return executor.submit(task);
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(executor, task, ex);
-    }
-  }
-
-  @Override
-  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
-    ExecutorService executor = getThreadPoolExecutor();
-    try {
-      return executor.submit(task);
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(executor, task, ex);
-    }
-  }
-
-  @Override
-  public Future<?> submitListenable(Runnable task) {
+  public Future<Void> submit(Runnable task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       return Future.run(task, executor);
@@ -424,7 +402,7 @@ public class ThreadPoolTaskExecutor extends ExecutorConfigurationSupport impleme
   }
 
   @Override
-  public <T> Future<T> submitListenable(Callable<T> task) {
+  public <T> Future<T> submit(Callable<T> task) {
     ExecutorService executor = getThreadPoolExecutor();
     try {
       return Future.run(task, executor);

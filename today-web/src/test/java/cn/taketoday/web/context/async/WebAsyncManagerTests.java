@@ -22,12 +22,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
+import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
@@ -137,7 +137,7 @@ class WebAsyncManagerTests {
 
     this.asyncManager.setTaskExecutor(new SimpleAsyncTaskExecutor() {
       @Override
-      public Future<?> submit(Runnable task) {
+      public Future<Void> submit(Runnable task) {
         throw ex;
       }
     });

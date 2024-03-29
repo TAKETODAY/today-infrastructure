@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.net.ssl.SSLContext;
 
 import cn.taketoday.core.Decorator;
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.http.HttpHeaders;
@@ -69,7 +69,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
   private final HashMap<String, Object> userProperties = new HashMap<>();
 
   @Nullable
-  private AsyncListenableTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+  private AsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
 
   @Nullable
   private Decorator<WebSocketSession> sessionDecorator;
@@ -117,12 +117,12 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
   }
 
   /**
-   * Set an {@link AsyncListenableTaskExecutor} to use when opening connections.
+   * Set an {@link AsyncTaskExecutor} to use when opening connections.
    * If this property is set to {@code null}, calls to any of the
    * {@code doHandshake} methods will block until the connection is established.
    * <p>By default, an instance of {@code SimpleAsyncTaskExecutor} is used.
    */
-  public void setTaskExecutor(@Nullable AsyncListenableTaskExecutor taskExecutor) {
+  public void setTaskExecutor(@Nullable AsyncTaskExecutor taskExecutor) {
     this.taskExecutor = taskExecutor;
   }
 
@@ -130,7 +130,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
    * Return the configured {@link TaskExecutor}.
    */
   @Nullable
-  public AsyncListenableTaskExecutor getTaskExecutor() {
+  public AsyncTaskExecutor getTaskExecutor() {
     return this.taskExecutor;
   }
 
@@ -191,7 +191,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     };
 
     if (this.taskExecutor != null) {
-      return this.taskExecutor.submitListenable(connectTask);
+      return this.taskExecutor.submit(connectTask);
     }
     else {
       var task = Future.forFutureTask(connectTask);
@@ -200,8 +200,7 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     }
   }
 
-  private WebSocketSession createSession(HttpHeaders headers,
-          InetSocketAddress localAddress, InetSocketAddress remoteAddress) {
+  private WebSocketSession createSession(HttpHeaders headers, InetSocketAddress localAddress, InetSocketAddress remoteAddress) {
     WebSocketSession session = new StandardWebSocketSession(headers, localAddress, remoteAddress);
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);

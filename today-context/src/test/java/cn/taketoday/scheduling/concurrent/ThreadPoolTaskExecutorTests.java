@@ -27,7 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -43,7 +43,7 @@ class ThreadPoolTaskExecutorTests extends AbstractSchedulingTaskExecutorTests {
   private final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
   @Override
-  protected AsyncListenableTaskExecutor buildExecutor() {
+  protected AsyncTaskExecutor buildExecutor() {
     executor.setThreadNamePrefix(this.threadNamePrefix);
     executor.setMaxPoolSize(1);
     executor.afterPropertiesSet();

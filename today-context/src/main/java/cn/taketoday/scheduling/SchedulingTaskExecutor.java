@@ -31,10 +31,11 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
  * of the {@code TaskExecutor} implementation in use.
  *
  * <p>Note: {@link SchedulingTaskExecutor} implementations are encouraged to also
- * implement the {@link cn.taketoday.core.task.AsyncListenableTaskExecutor}
+ * implement the {@link cn.taketoday.core.task.AsyncTaskExecutor}
  * interface.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see SchedulingAwareRunnable
  * @see cn.taketoday.core.task.TaskExecutor
  * @since 4.0

@@ -1004,12 +1004,26 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * accepted for execution
    */
   public static ListenableFutureTask<Void> run(Runnable task, @Nullable Executor executor) {
+    return run(task, null, executor);
+  }
+
+  /**
+   * Starts an asynchronous computation, backed by the given {@link Executor}.
+   *
+   * @param executor An {@link Executor}.
+   * @param task A unit of work.
+   * @return A new Future instance which results in nothing.
+   * @throws IllegalArgumentException unit is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
+   */
+  public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result, @Nullable Executor executor) {
     Assert.notNull(task, "unit is required");
     if (executor == null) {
       executor = defaultExecutor;
     }
 
-    var futureTask = Future.<Void>forFutureTask(task, executor);
+    var futureTask = Future.forFutureTask(task, result, executor);
     executor.execute(futureTask);
     return futureTask;
   }

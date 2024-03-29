@@ -20,10 +20,9 @@ package cn.taketoday.core.task.support;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskDecorator;
 import cn.taketoday.core.task.TaskRejectedException;
 import cn.taketoday.lang.Assert;
@@ -43,7 +42,7 @@ import cn.taketoday.util.concurrent.Future;
  * @see java.util.concurrent.Executors
  * @since 4.0
  */
-public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
+public class TaskExecutorAdapter implements AsyncTaskExecutor {
 
   private final Executor concurrentExecutor;
 
@@ -95,63 +94,17 @@ public class TaskExecutorAdapter implements AsyncListenableTaskExecutor {
   }
 
   @Override
-  public java.util.concurrent.Future<?> submit(Runnable task) {
-    try {
-      if (this.taskDecorator == null &&
-              this.concurrentExecutor instanceof ExecutorService executorService) {
-        return executorService.submit(task);
-      }
-      else {
-        FutureTask<Object> future = new FutureTask<>(task, null);
-        doExecute(this.concurrentExecutor, this.taskDecorator, future);
-        return future;
-      }
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
-    }
+  public Future<Void> submit(Runnable task) {
+    var future = Future.<Void>forFutureTask(task, this);
+    execute(future, TIMEOUT_INDEFINITE);
+    return future;
   }
 
   @Override
-  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
-    try {
-      if (this.taskDecorator == null &&
-              this.concurrentExecutor instanceof ExecutorService executorService) {
-        return executorService.submit(task);
-      }
-      else {
-        FutureTask<T> future = new FutureTask<>(task);
-        doExecute(this.concurrentExecutor, this.taskDecorator, future);
-        return future;
-      }
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
-    }
-  }
-
-  @Override
-  public Future<?> submitListenable(Runnable task) {
-    try {
-      var future = Future.forFutureTask(task, this);
-      doExecute(this.concurrentExecutor, this.taskDecorator, future);
-      return future;
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
-    }
-  }
-
-  @Override
-  public <T> Future<T> submitListenable(Callable<T> task) {
-    try {
-      var future = Future.forFutureTask(task, this);
-      doExecute(this.concurrentExecutor, this.taskDecorator, future);
-      return future;
-    }
-    catch (RejectedExecutionException ex) {
-      throw new TaskRejectedException(this.concurrentExecutor, task, ex);
-    }
+  public <T> Future<T> submit(Callable<T> task) {
+    var future = Future.forFutureTask(task, this);
+    execute(future, TIMEOUT_INDEFINITE);
+    return future;
   }
 
   /**

@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 import java.util.function.Supplier;
 
 import cn.taketoday.beans.factory.BeanFactory;
@@ -33,7 +34,6 @@ import cn.taketoday.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.config.EmbeddedValueResolver;
 import cn.taketoday.core.StringValueResolver;
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskExecutor;
 import cn.taketoday.core.task.support.TaskExecutorAdapter;
@@ -42,7 +42,6 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.function.SingletonSupplier;
 
 /**
@@ -162,7 +161,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
 
   /**
    * Determine the specific executor to use when executing the given method.
-   * <p>Should preferably return an {@link AsyncListenableTaskExecutor} implementation.
+   * <p>Should preferably return an {@link AsyncTaskExecutor} implementation.
    *
    * @return the executor to use (or {@code null}, but just if no default executor is available)
    */
@@ -184,8 +183,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
       if (targetExecutor == null) {
         return null;
       }
-      executor = (targetExecutor instanceof AsyncTaskExecutor asyncTaskExecutor ?
-                  asyncTaskExecutor : new TaskExecutorAdapter(targetExecutor));
+      executor = targetExecutor instanceof AsyncTaskExecutor ate
+                 ? ate : new TaskExecutorAdapter(targetExecutor);
       this.executors.put(method, executor);
     }
     return executor;
@@ -216,8 +215,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   @Nullable
   protected Executor findQualifiedExecutor(@Nullable BeanFactory beanFactory, String qualifier) {
     if (beanFactory == null) {
-      throw new IllegalStateException("BeanFactory must be set on " + getClass().getSimpleName() +
-              " to access qualified executor '" + qualifier + "'");
+      throw new IllegalStateException("BeanFactory must be set on %s to access qualified executor '%s'"
+              .formatted(getClass().getSimpleName(), qualifier));
     }
     if (beanFactory instanceof ConfigurableBeanFactory factory) {
       var resolver = new EmbeddedValueResolver(factory);
@@ -282,8 +281,8 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    *
    * @param task the task to execute
    * @param executor the chosen executor
-   * @param returnType the declared return type (potentially a {@link java.util.concurrent.Future} variant)
-   * @return the execution result (potentially a corresponding {@link java.util.concurrent.Future} handle)
+   * @param returnType the declared return type (potentially a {@link Future} variant)
+   * @return the execution result (potentially a corresponding {@link Future} handle)
    */
   @Nullable
   protected Object doSubmit(Callable<Object> task, AsyncTaskExecutor executor, Class<?> returnType) {
@@ -298,9 +297,6 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
       }, executor);
     }
     else if (Future.class.isAssignableFrom(returnType)) {
-      return ((AsyncListenableTaskExecutor) executor).submitListenable(task);
-    }
-    else if (java.util.concurrent.Future.class.isAssignableFrom(returnType)) {
       return executor.submit(task);
     }
     else {
@@ -312,7 +308,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
   /**
    * Handles a fatal error thrown while asynchronously invoking the specified
    * {@link Method}.
-   * <p>If the return type of the method is a {@link java.util.concurrent.Future} object, the original
+   * <p>If the return type of the method is a {@link Future} object, the original
    * exception can be propagated by just throwing it at the higher level. However,
    * for all other cases, the exception will not be transmitted back to the client.
    * In that later case, the current {@link AsyncUncaughtExceptionHandler} will be
@@ -323,7 +319,7 @@ public abstract class AsyncExecutionAspectSupport implements BeanFactoryAware {
    * @param params the parameters used to invoke the method
    */
   public void handleError(Throwable ex, Method method, Object... params) throws Exception {
-    if (java.util.concurrent.Future.class.isAssignableFrom(method.getReturnType())) {
+    if (Future.class.isAssignableFrom(method.getReturnType())) {
       ReflectionUtils.rethrowException(ex);
     }
     else {

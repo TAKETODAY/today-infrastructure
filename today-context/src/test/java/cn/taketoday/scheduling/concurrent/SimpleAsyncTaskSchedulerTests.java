@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.TriggerContext;
 import cn.taketoday.util.ErrorHandler;
@@ -45,7 +45,7 @@ class SimpleAsyncTaskSchedulerTests extends AbstractSchedulingTaskExecutorTests 
   private final AtomicBoolean taskRun = new AtomicBoolean();
 
   @Override
-  protected AsyncListenableTaskExecutor buildExecutor() {
+  protected AsyncTaskExecutor buildExecutor() {
     scheduler.setTaskDecorator(runnable -> () -> {
       taskRun.set(true);
       runnable.run();

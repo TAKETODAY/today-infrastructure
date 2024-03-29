@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.TaskDecorator;
 import cn.taketoday.lang.Assert;
 
@@ -42,7 +42,7 @@ class ConcurrentTaskExecutorTests extends AbstractSchedulingTaskExecutorTests {
           new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
   @Override
-  protected AsyncListenableTaskExecutor buildExecutor() {
+  protected AsyncTaskExecutor buildExecutor() {
     concurrentExecutor.setThreadFactory(new CustomizableThreadFactory(this.threadNamePrefix));
     return new ConcurrentTaskExecutor(concurrentExecutor);
   }

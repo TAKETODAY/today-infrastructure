@@ -20,7 +20,7 @@
 
 package cn.taketoday.scheduling.concurrent;
 
-import cn.taketoday.core.task.AsyncListenableTaskExecutor;
+import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.scheduling.support.DelegatingErrorHandlingRunnable;
 import cn.taketoday.scheduling.support.TaskUtils;
 
@@ -31,7 +31,7 @@ import cn.taketoday.scheduling.support.TaskUtils;
 class DecoratedThreadPoolTaskExecutorTests extends AbstractSchedulingTaskExecutorTests {
 
   @Override
-  protected AsyncListenableTaskExecutor buildExecutor() {
+  protected AsyncTaskExecutor buildExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
     executor.setTaskDecorator(runnable ->
             new DelegatingErrorHandlingRunnable(runnable, TaskUtils.LOG_AND_PROPAGATE_ERROR_HANDLER));

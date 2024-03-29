@@ -40,6 +40,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  * Abstract base class for {@link WebSocketClient} implementations.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractWebSocketClient implements WebSocketClient {
@@ -72,7 +73,6 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   @Override
   public final CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
           @Nullable WebSocketHttpHeaders headers, URI uri) {
-
     Assert.notNull(webSocketHandler, "WebSocketHandler is required");
     assertUri(uri);
 
@@ -99,18 +99,15 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   }
 
   @Override
-  public Future<WebSocketSession> doHandshake(
-          WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
-
+  public Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
     Assert.notNull(uriTemplate, "'uriTemplate' is required");
+
     URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
     return doHandshake(webSocketHandler, null, uri);
   }
 
   @Override
-  public final Future<WebSocketSession> doHandshake(
-          WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri) {
-
+  public final Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri) {
     Assert.notNull(webSocketHandler, "WebSocketHandler is required");
     assertUri(uri);
 
@@ -154,8 +151,7 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
    * @param extensions requested WebSocket extensions, or an empty list
    * @return the established WebSocket session wrapped in a ListenableFuture.
    */
-  protected abstract Future<WebSocketSession> doHandshakeInternal(
-          WebSocketHandler webSocketHandler,
+  protected abstract Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions);
 
   /**

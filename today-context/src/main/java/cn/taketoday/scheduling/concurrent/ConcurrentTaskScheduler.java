@@ -197,23 +197,13 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
   }
 
   @Override
-  public java.util.concurrent.Future<?> submit(Runnable task) {
+  public Future<Void> submit(Runnable task) {
     return super.submit(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
   }
 
   @Override
-  public <T> java.util.concurrent.Future<T> submit(Callable<T> task) {
+  public <T> Future<T> submit(Callable<T> task) {
     return super.submit(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
-  }
-
-  @Override
-  public Future<?> submitListenable(Runnable task) {
-    return super.submitListenable(TaskUtils.decorateTaskWithErrorHandler(task, this.errorHandler, false));
-  }
-
-  @Override
-  public <T> Future<T> submitListenable(Callable<T> task) {
-    return super.submitListenable(new DelegatingErrorHandlingCallable<>(task, this.errorHandler));
   }
 
   @Override
