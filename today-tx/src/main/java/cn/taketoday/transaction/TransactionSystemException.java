@@ -17,17 +17,19 @@
 package cn.taketoday.transaction;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Exception thrown when a general transaction system error is encountered, like
  * on commit or rollback.
  *
  * @author Juergen Hoeller
- * @author TODAY <br>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 @SuppressWarnings("serial")
 public class TransactionSystemException extends TransactionException {
 
+  @Nullable
   private Throwable applicationException;
 
   public TransactionSystemException(String msg) {
@@ -61,7 +63,7 @@ public class TransactionSystemException extends TransactionException {
    *
    * @return the application exception, or {@code null} if none set
    */
-
+  @Nullable
   public final Throwable getApplicationException() {
     return this.applicationException;
   }

@@ -20,6 +20,7 @@ package cn.taketoday.transaction.support;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.TransactionDefinition;
 import cn.taketoday.transaction.TransactionException;
+import cn.taketoday.util.ExceptionUtils;
 
 /**
  * A {@link TransactionOperations} implementation which executes a given
@@ -37,7 +38,12 @@ final class WithoutTransactionOperations implements TransactionOperations {
   @Override
   @Nullable
   public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-    return action.doInTransaction(new SimpleTransactionStatus(false));
+    try {
+      return action.doInTransaction(new SimpleTransactionStatus(false));
+    }
+    catch (Throwable e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
   }
 
   @Nullable

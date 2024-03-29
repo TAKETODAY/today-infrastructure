@@ -35,7 +35,7 @@ public interface TransactionCallbackWithoutResult extends TransactionCallback<Ob
 
   @Override
   @Nullable
-  default Object doInTransaction(TransactionStatus status) {
+  default Object doInTransaction(TransactionStatus status) throws Throwable {
     doInTransactionWithoutResult(status);
     return null;
   }
@@ -55,6 +55,6 @@ public interface TransactionCallbackWithoutResult extends TransactionCallback<Ob
    * @param status associated transaction status
    * @see TransactionTemplate#executeWithoutResult
    */
-  void doInTransactionWithoutResult(TransactionStatus status);
+  void doInTransactionWithoutResult(TransactionStatus status) throws Throwable;
 
 }

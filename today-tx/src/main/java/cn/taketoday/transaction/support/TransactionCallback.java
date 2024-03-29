@@ -31,6 +31,7 @@ import cn.taketoday.transaction.TransactionStatus;
  *
  * @param <T> the result type
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see TransactionTemplate
  * @see CallbackPreferringPlatformTransactionManager
  * @since 4.0
@@ -55,6 +56,6 @@ public interface TransactionCallback<T> {
    * @see CallbackPreferringPlatformTransactionManager#execute
    */
   @Nullable
-  T doInTransaction(TransactionStatus status);
+  T doInTransaction(TransactionStatus status) throws Throwable;
 
 }
