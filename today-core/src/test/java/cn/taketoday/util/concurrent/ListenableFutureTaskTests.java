@@ -130,4 +130,15 @@ class ListenableFutureTaskTests {
             .satisfies(e -> assertThat(e.getCause().getMessage()).isEqualTo(s));
   }
 
+  @Test
+  void cascadeTo() throws InterruptedException {
+    ListenableFutureTask<Integer> futureTask = Future.run(() -> 1);
+    assertThat(futureTask.await().getNow()).isEqualTo(1);
+
+    SettableFuture<Integer> settable = Future.forSettable();
+    futureTask.cascadeTo(settable);
+
+    assertThat(settable.await().getNow()).isEqualTo(1);
+  }
+
 }

@@ -126,17 +126,13 @@ final class CompleteFuture<V> extends Future<V> {
 
   @Override
   public boolean await(long timeout, TimeUnit unit) throws InterruptedException {
-    if (Thread.interrupted()) {
-      throw new InterruptedException();
-    }
+    await();
     return true;
   }
 
   @Override
   public boolean await(long timeoutMillis) throws InterruptedException {
-    if (Thread.interrupted()) {
-      throw new InterruptedException();
-    }
+    await();
     return true;
   }
 

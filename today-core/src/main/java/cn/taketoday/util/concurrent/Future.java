@@ -33,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
 import cn.taketoday.core.Pair;
+import cn.taketoday.core.Triple;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -443,18 +444,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   @Nullable
   @Override
-  public V get() throws InterruptedException, ExecutionException {
-    await();
-
-    Throwable cause = getCause();
-    if (cause == null) {
-      return getNow();
-    }
-    if (cause instanceof CancellationException) {
-      throw (CancellationException) cause;
-    }
-    throw new ExecutionException(cause);
-  }
+  public abstract V get() throws InterruptedException, ExecutionException;
 
   /**
    * Waits if necessary for at most the given time for the computation
@@ -472,19 +462,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   @Nullable
   @Override
-  public V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-    if (await(timeout, unit)) {
-      Throwable cause = getCause();
-      if (cause == null) {
-        return getNow();
-      }
-      if (cause instanceof CancellationException) {
-        throw (CancellationException) cause;
-      }
-      throw new ExecutionException(cause);
-    }
-    throw new TimeoutException("Timeout");
-  }
+  public abstract V get(long timeout, TimeUnit unit)
+          throws InterruptedException, ExecutionException, TimeoutException;
 
   /**
    * Cancel this asynchronous operation, unless it has already been
@@ -582,8 +561,9 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @return itself
    * @throws IllegalArgumentException SettableFuture is null.
    */
-  public Future<V> cascadeTo(final SettableFuture<V> settable) {
-    Futures.cascade(this, settable);
+  public Future<V> cascadeTo(SettableFuture<V> settable) {
+    Assert.notNull(settable, "SettableFuture is required");
+    Futures.cascadeTo(this, settable);
     return this;
   }
 
@@ -607,7 +587,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
-   * Returns a tuple of this and that Future result.
+   * Returns a Pair of this and that Future result.
    * <p>
    * If this Future failed the result contains this failure. Otherwise, the
    * result contains that failure or a tuple of both successful Future results.
@@ -618,8 +598,21 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @throws IllegalArgumentException if {@code that} is null
    */
   public <U> Future<Pair<V, U>> zip(Future<U> that) {
-    Assert.notNull(that, "Future is is required");
     return zipWith(that, Pair::of);
+  }
+
+  /**
+   * Returns a Triple of this and that Future result.
+   * <p>
+   * If this Future failed the result contains this failure. Otherwise, the
+   * result contains that failure or a tuple of both successful Future results.
+   *
+   * @return A new Future that returns both Future results.
+   * @throws IllegalArgumentException if {@code that} is null
+   * @throws NullPointerException if {@code thatA} is null
+   */
+  public <A, B> Future<Triple<V, A, B>> zip(Future<A> thatA, Future<B> thatB) {
+    return zipWith(thatA.zip(thatB), (v, ab) -> Triple.of(v, ab.first, ab.second));
   }
 
   /**
@@ -845,11 +838,14 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static <V> Future<V> forAdaption(CompletionStage<V> stage, @Nullable Executor executor) {
     SettableFuture<V> settable = forSettable(executor);
-    stage.thenAcceptAsync(settable::trySuccess)
-            .exceptionally(failure -> {
-              settable.tryFailure(failure);
-              return null;
-            });
+    stage.whenCompleteAsync((v, failure) -> {
+      if (failure != null) {
+        settable.tryFailure(failure);
+      }
+      else {
+        settable.trySuccess(v);
+      }
+    }, settable.executor());
     return settable;
   }
 
@@ -948,13 +944,13 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Starts an asynchronous computation, backed by the {@link #defaultExecutor}.
    *
    * @param task A computation task.
-   * @param <T> Type of the computation result.
+   * @param <V> Type of the computation result.
    * @return A new Future instance.
    * @throws IllegalArgumentException if computation is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static <T> ListenableFutureTask<T> run(Callable<T> task) {
+  public static <V> ListenableFutureTask<V> run(Callable<V> task) {
     return run(task, defaultExecutor);
   }
 
@@ -972,12 +968,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static <V> ListenableFutureTask<V> run(Callable<V> computation, @Nullable Executor executor) {
     Assert.notNull(computation, "computation is required");
-    if (executor == null) {
-      executor = defaultExecutor;
-    }
-    var task = new ListenableFutureTask<>(executor, computation);
-    executor.execute(task);
-    return task;
+    return new ListenableFutureTask<>(executor, computation).execute();
   }
 
   /**
@@ -1008,6 +999,19 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   /**
+   * Runs an asynchronous computation, backed by the {@link #defaultExecutor}.
+   *
+   * @param task A unit of work.
+   * @return A new Future instance which results in nothing.
+   * @throws IllegalArgumentException if unit is null.
+   * @throws RejectedExecutionException if this task cannot be
+   * accepted for execution
+   */
+  public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result) {
+    return run(task, result, defaultExecutor);
+  }
+
+  /**
    * Starts an asynchronous computation, backed by the given {@link Executor}.
    *
    * @param executor An {@link Executor}.
@@ -1019,13 +1023,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    */
   public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result, @Nullable Executor executor) {
     Assert.notNull(task, "unit is required");
-    if (executor == null) {
-      executor = defaultExecutor;
-    }
-
-    var futureTask = Future.forFutureTask(task, result, executor);
-    executor.execute(futureTask);
-    return futureTask;
+    return forFutureTask(task, result, executor).execute();
   }
 
   /**

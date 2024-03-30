@@ -220,9 +220,6 @@ abstract class AbstractFuture<V> extends Future<V> {
    * <p>
    * Marks this future as a success and notifies all listeners.
    *
-   * <p>This method is invoked internally by the {@link #run} method
-   * upon successful completion of the computation.
-   *
    * @param v the value
    * @return {@code true} if and only if successfully marked this future as
    * a success. Otherwise {@code false} because this future is
@@ -245,9 +242,6 @@ abstract class AbstractFuture<V> extends Future<V> {
    *
    * <p>
    * Marks this future as a failure and notifies all listeners.
-   *
-   * <p>This method is invoked internally by the {@link #run} method
-   * upon failure of the computation.
    *
    * @param t the cause of failure
    * @return {@code true} if and only if successfully marked this future as
@@ -273,14 +267,13 @@ abstract class AbstractFuture<V> extends Future<V> {
   @Nullable
   @SuppressWarnings("unchecked")
   private V report(int s) throws ExecutionException {
-    Object x = result;
     if (s == NORMAL) {
-      return (V) x;
+      return (V) result;
     }
     if (s >= CANCELLED) {
       throw new CancellationException();
     }
-    throw new ExecutionException((Throwable) x);
+    throw new ExecutionException((Throwable) result);
   }
 
   /**

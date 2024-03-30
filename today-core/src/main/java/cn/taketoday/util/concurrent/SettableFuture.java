@@ -106,7 +106,7 @@ public class SettableFuture<V> extends AbstractFuture<V> {
 
   @Override
   public SettableFuture<V> cascadeTo(final SettableFuture<V> settable) {
-    Futures.cascade(this, settable);
+    super.cascadeTo(settable);
     return this;
   }
 

@@ -162,6 +162,14 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
     return task == null ? "[Not completed]" : "[Not completed, task = %s]".formatted(task);
   }
 
+  /**
+   * Using internal listener notifying executor
+   */
+  protected ListenableFutureTask<V> execute() {
+    executor.execute(this);
+    return this;
+  }
+
   //
 
   @Override
@@ -201,13 +209,13 @@ public class ListenableFutureTask<V> extends AbstractFuture<V> implements Runnab
   }
 
   @Override
-  public ListenableFutureTask<V> cascadeTo(final SettableFuture<V> settable) {
-    Futures.cascade(this, settable);
+  public ListenableFutureTask<V> cascadeTo(SettableFuture<V> settable) {
+    super.cascadeTo(settable);
     return this;
   }
 
   // VarHandle mechanics
-  protected static final VarHandle RUNNER;
+  private static final VarHandle RUNNER;
 
   static {
     try {

@@ -27,6 +27,7 @@ import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -383,6 +384,22 @@ class SettableFutureTests {
 
     assertThat(settableFuture.isCancelled()).isTrue();
     assertThat(settableFuture.isDone()).isTrue();
+  }
+
+  @Test
+  void setSuccess() {
+    SettableFuture<Void> settable = Future.forSettable();
+    settable.setSuccess(null);
+    assertThatThrownBy(() -> settable.setSuccess(null))
+            .hasMessageStartingWith("complete already:");
+  }
+
+  @Test
+  void setFailure() {
+    SettableFuture<Void> settable = Future.forSettable();
+    settable.setSuccess(null);
+    assertThatThrownBy(() -> settable.setFailure(new RuntimeException()))
+            .hasMessageStartingWith("complete already:");
   }
 
   private static class InterruptibleSettableFuture extends SettableFuture<String> {

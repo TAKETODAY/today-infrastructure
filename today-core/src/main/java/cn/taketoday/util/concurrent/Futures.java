@@ -22,7 +22,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -147,6 +146,10 @@ final class Futures {
    * @return A new Future.
    */
   public static <V> Future<V> errorHandling(Future<V> future, Function<Throwable, V> recoverFunc) {
+    if (future.isCancelled()) {
+      return future;
+    }
+
     Executor executor = future.executor();
     Throwable cause = future.getCause();
     if (cause != null) {
@@ -193,19 +196,10 @@ final class Futures {
   public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
     SettableFuture<R> recipient = Future.forSettable(future.executor());
     future.onCompleted(completed -> {
-      Throwable cause = completed.getCause();
-      if (cause != null) {
-        // failed
-        recipient.tryFailure(cause);
-      }
-      else {
+      if (completed.isSuccess()) {
         // succeed
         that.onCompleted(t -> {
-          Throwable c = t.getCause();
-          if (c != null) {
-            recipient.tryFailure(c);
-          }
-          else {
+          if (t.isSuccess()) {
             try {
               V first = completed.getNow();
               U second = t.getNow();
@@ -215,7 +209,13 @@ final class Futures {
               tryFailure(recipient, e, logger);
             }
           }
+          else {
+            propagateUncommonCompletion(t, recipient);
+          }
         });
+      }
+      else {
+        propagateUncommonCompletion(completed, recipient);
       }
     });
 
@@ -374,9 +374,7 @@ final class Futures {
    * @param settable the {@link SettableFuture} which will be notified
    * @param <V> the type of the value.
    */
-  static <V> void cascade(final Future<V> future, final SettableFuture<V> settable) {
-    Assert.notNull(settable, "SettableFuture is required");
-
+  static <V> void cascadeTo(final Future<V> future, final SettableFuture<V> settable) {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
@@ -400,4 +398,5 @@ final class Futures {
       }
     }
   }
+
 }
