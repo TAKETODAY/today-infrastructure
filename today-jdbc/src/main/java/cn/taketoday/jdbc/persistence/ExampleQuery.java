@@ -21,12 +21,20 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.jdbc.persistence.PropertyConditionStrategy.Condition;
+import cn.taketoday.jdbc.persistence.sql.MutableOrderByClause;
+import cn.taketoday.jdbc.persistence.sql.OrderByClause;
+import cn.taketoday.jdbc.persistence.sql.OrderBySource;
+import cn.taketoday.jdbc.persistence.sql.Restriction;
 import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 import cn.taketoday.jdbc.persistence.support.DefaultConditionStrategy;
 import cn.taketoday.jdbc.persistence.support.FuzzyQueryConditionStrategy;
 import cn.taketoday.jdbc.persistence.support.WhereAnnotationConditionStrategy;
+import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.LogMessage;
 
@@ -34,49 +42,59 @@ import cn.taketoday.logging.LogMessage;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/19 19:56
  */
-final class ExampleQuery extends SimpleSelectQueryHandler {
+final class ExampleQuery extends SimpleSelectQueryHandler implements ConditionHandler {
 
   static final List<PropertyConditionStrategy> strategies;
 
   static {
-    List<PropertyConditionStrategy> strategyList = TodayStrategies.find(PropertyConditionStrategy.class);
-    strategyList.add(new WhereAnnotationConditionStrategy());
-    strategyList.add(new FuzzyQueryConditionStrategy());
-    strategyList.add(new DefaultConditionStrategy());
-    strategies = List.copyOf(strategyList);
+    List<PropertyConditionStrategy> list = TodayStrategies.find(PropertyConditionStrategy.class);
+    list.add(new WhereAnnotationConditionStrategy());
+    list.add(new FuzzyQueryConditionStrategy());
+    list.add(new DefaultConditionStrategy());
+    strategies = List.copyOf(list);
   }
 
   private final Object example;
 
   private final EntityMetadata exampleMetadata;
 
-  private final ArrayList<Condition> conditions = new ArrayList<>();
+  @Nullable
+  private ArrayList<Condition> conditions;
 
-  ExampleQuery(Object example, EntityMetadata exampleMetadata) {
+  @Nullable
+  private OrderByClause orderByClause;
+
+  ExampleQuery(EntityMetadataFactory factory, Object example) {
     this.example = example;
-    this.exampleMetadata = exampleMetadata;
+    this.exampleMetadata = factory.getEntityMetadata(example.getClass());
   }
 
   @Override
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
-    for (EntityProperty entityProperty : exampleMetadata.entityProperties) {
-      Object propertyValue = entityProperty.getValue(example);
-      if (propertyValue != null) {
-        for (var strategy : strategies) {
-          var condition = strategy.resolve(entityProperty, propertyValue);
-          if (condition != null) {
-            conditions.add(condition);
-            select.addRestriction(condition.restriction);
-          }
-        }
+    scan(condition -> select.addRestriction(condition.restriction));
+    select.orderBy(example instanceof OrderBySource source ? source.getOrderByClause() : orderByClause);
+  }
+
+  @Override
+  public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
+    restrictions.addAll(scan(null));
+  }
+
+  @Override
+  public OrderByClause getOrderByClause(EntityMetadata metadata) {
+    if (example instanceof OrderBySource source) {
+      OrderByClause orderByClause = source.getOrderByClause();
+      if (!orderByClause.isEmpty()) {
+        return orderByClause;
       }
     }
+    return orderByClause;
   }
 
   @Override
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     int idx = 1;
-    for (var condition : conditions) {
+    for (var condition : scan(null)) {
       idx = condition.setParameter(statement, idx);
     }
   }
@@ -91,4 +109,59 @@ final class ExampleQuery extends SimpleSelectQueryHandler {
     return LogMessage.format("Query entity using example: {}", example);
   }
 
+  private ArrayList<Condition> scan(@Nullable Consumer<Condition> consumer) {
+    ArrayList<Condition> conditions = this.conditions;
+    if (conditions == null) {
+      conditions = new ArrayList<>(exampleMetadata.entityProperties.length);
+      // apply class level order by
+      applyOrderByClause();
+
+      for (EntityProperty entityProperty : exampleMetadata.entityProperties) {
+        Object propertyValue = entityProperty.getValue(example);
+        if (propertyValue != null) {
+          for (var strategy : strategies) {
+            var condition = strategy.resolve(entityProperty, propertyValue);
+            if (condition != null) {
+              if (consumer != null) {
+                consumer.accept(condition);
+              }
+              conditions.add(condition);
+            }
+          }
+        }
+
+        applyOrderByClause(entityProperty);
+      }
+      this.conditions = conditions;
+    }
+    else if (consumer != null) {
+      conditions.forEach(consumer);
+    }
+    return conditions;
+  }
+
+  private void applyOrderByClause() {
+    MergedAnnotation<OrderBy> orderBy = exampleMetadata.getAnnotation(OrderBy.class);
+    if (orderBy.isPresent()) {
+      String clause = orderBy.getString("clause");
+      if (!Constant.DEFAULT_NONE.equals(clause)) {
+        orderByClause = OrderByClause.plain(clause);
+      }
+    }
+  }
+
+  private void applyOrderByClause(EntityProperty entityProperty) {
+    if (!(orderByClause instanceof OrderByClause.Plain)) {
+      MergedAnnotation<OrderBy> annotation = entityProperty.getAnnotation(OrderBy.class);
+      if (annotation.isPresent()) {
+        Order direction = annotation.getEnum("direction", Order.class);
+        MutableOrderByClause mutable = (MutableOrderByClause) orderByClause;
+        if (mutable == null) {
+          mutable = OrderByClause.mutable();
+          this.orderByClause = mutable;
+        }
+        mutable.orderBy(entityProperty.columnName, direction);
+      }
+    }
+  }
 }

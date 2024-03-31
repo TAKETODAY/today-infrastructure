@@ -94,7 +94,7 @@ public class Insert implements StatementSequence {
   }
 
   @Override
-  public String toStatementString() {
+  public String toStatementString(Platform platform) {
     final StringBuilder buf = new StringBuilder(columns.size() * 15 + tableName.length() + 10);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
@@ -103,7 +103,7 @@ public class Insert implements StatementSequence {
     buf.append("INSERT INTO ").append(tableName);
 
     if (columns.isEmpty()) {
-      buf.append(' ').append(platform.getNoColumnsInsertString());
+      buf.append(' ').append(this.platform.getNoColumnsInsertString());
     }
     else {
       buf.append(" (");

@@ -23,47 +23,34 @@ import java.util.List;
 
 import cn.taketoday.jdbc.persistence.sql.OrderByClause;
 import cn.taketoday.jdbc.persistence.sql.Restriction;
-import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LogMessage;
 
 /**
+ * Condition Render
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/20 17:03
+ * @since 4.0 2024/3/31 15:51
  */
-final class NoConditionsQuery extends AbstractColumnsQueryHandler implements ConditionHandler {
+public interface ConditionHandler extends DescriptiveHandler {
 
-  static final NoConditionsQuery instance = new NoConditionsQuery();
-
-  @Override
-  protected void renderInternal(EntityMetadata metadata, Select select) {
-    // noop
-  }
-
-  @Override
-  public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
-    // noop
-  }
-
-  @Override
-  public String getDescription() {
-    return "Query entities without conditions";
-  }
-
-  @Override
-  public Object getDebugLogMessage() {
-    return LogMessage.format(getDescription());
-  }
-
-  @Override
-  public void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions) {
-    // noop
-  }
+  void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions);
 
   @Nullable
-  @Override
-  public OrderByClause getOrderByClause(EntityMetadata metadata) {
+  default OrderByClause getOrderByClause(EntityMetadata metadata) {
     return null;
+  }
+
+  /**
+   * apply statement parameters
+   *
+   * @param metadata entity info
+   * @param statement JDBC statement
+   */
+  void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
+
+  @Override
+  default String getDescription() {
+    return "Query Condition";
   }
 
 }

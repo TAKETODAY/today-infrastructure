@@ -17,9 +17,7 @@
 
 package cn.taketoday.jdbc.persistence.support;
 
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.jdbc.persistence.EntityProperty;
 import cn.taketoday.jdbc.persistence.Like;
 import cn.taketoday.jdbc.persistence.PrefixLike;
@@ -38,10 +36,7 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
   @Nullable
   @Override
   public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
-    BeanProperty property = entityProperty.property;
-    MergedAnnotations annotations = MergedAnnotations.from(property, property.getAnnotations());
-
-    MergedAnnotation<Like> annotation = annotations.get(Like.class);
+    MergedAnnotation<Like> annotation = entityProperty.getAnnotation(Like.class);
     if (annotation.isPresent()) {
       // get column name
       String column = annotation.getStringValue();
@@ -56,11 +51,10 @@ public class FuzzyQueryConditionStrategy implements PropertyConditionStrategy {
         if (annotation.getBoolean("trim")) {
           string = string.trim();
         }
-
-        if (annotations.isPresent(PrefixLike.class)) {
+        if (entityProperty.isPresent(PrefixLike.class)) {
           string = string + '%';
         }
-        else if (annotations.isPresent(SuffixLike.class)) {
+        else if (entityProperty.isPresent(SuffixLike.class)) {
           string = '%' + string;
         }
         else {

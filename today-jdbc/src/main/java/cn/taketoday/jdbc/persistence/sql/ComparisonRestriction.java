@@ -24,23 +24,15 @@ package cn.taketoday.jdbc.persistence.sql;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ComparisonRestriction implements Restriction {
+class ComparisonRestriction implements Restriction {
 
   private final String lhs;
 
-  private final Operator operator;
+  private final String operator;
 
   private final String rhs;
 
-  public ComparisonRestriction(String lhs) {
-    this(lhs, "?");
-  }
-
-  public ComparisonRestriction(String lhs, String rhs) {
-    this(lhs, Operator.EQ, rhs);
-  }
-
-  public ComparisonRestriction(String lhs, Operator operator, String rhs) {
+  public ComparisonRestriction(String lhs, String operator, String rhs) {
     this.lhs = lhs;
     this.operator = operator;
     this.rhs = rhs;
@@ -51,22 +43,8 @@ public class ComparisonRestriction implements Restriction {
     sqlBuffer.append('`')
             .append(lhs)
             .append('`')
-            .append(operator.getSqlText())
+            .append(operator)
             .append(rhs);
   }
 
-  public enum Operator {
-    EQ(" = "),
-    NE(" <> ");
-
-    private final String sqlText;
-
-    Operator(String sqlText) {
-      this.sqlText = sqlText;
-    }
-
-    public String getSqlText() {
-      return sqlText;
-    }
-  }
 }

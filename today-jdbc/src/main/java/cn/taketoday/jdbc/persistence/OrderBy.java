@@ -15,15 +15,32 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence.dialect;
+package cn.taketoday.jdbc.persistence;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import cn.taketoday.lang.Constant;
 
 /**
- * Platform aware
+ * clause and direction cannot present same time
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/22 21:52
+ * @since 4.0 2024/3/31 17:21
  */
-public interface PlatformAware {
+@Target({ ElementType.TYPE, ElementType.METHOD, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface OrderBy {
 
-  void setPlatform(Platform platform);
+  /**
+   * Class level
+   */
+  String clause() default Constant.DEFAULT_NONE;
+
+  /**
+   * Property level
+   */
+  Order direction() default Order.ASC;
 }

@@ -50,7 +50,7 @@ public interface Operator {
   Operator NOT_IN = in(true);
 
   /**
-   * Render this operator and value-placeholder to StringBuilder
+   * Render this operator and value-sequence to StringBuilder
    * <p> sql snippet must start with a space
    *
    * @param sql SQL appender

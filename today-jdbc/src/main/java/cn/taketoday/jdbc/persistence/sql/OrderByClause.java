@@ -17,14 +17,13 @@
 
 package cn.taketoday.jdbc.persistence.sql;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.core.Pair;
 import cn.taketoday.jdbc.persistence.Order;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.util.StringUtils;
 
 /**
  * OrderBy Clause
@@ -32,68 +31,16 @@ import cn.taketoday.lang.Assert;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 12:39
  */
-public class OrderByClause {
+public interface OrderByClause {
 
-  private final ArrayList<Pair<String, Order>> sortKeys;
+  CharSequence toClause();
 
-  public OrderByClause() {
-    this.sortKeys = new ArrayList<>();
-  }
+  boolean isEmpty();
 
-  public OrderByClause(Collection<Pair<String, Order>> sortKeys) {
-    this.sortKeys = new ArrayList<>(sortKeys);
-  }
+  // Static Factory Methods
 
-  OrderByClause(int initialCapacity) {
-    this.sortKeys = new ArrayList<>(initialCapacity);
-  }
-
-  public OrderByClause asc(String col) {
-    sortKeys.add(Pair.of(col, Order.ASC));
-    return this;
-  }
-
-  public OrderByClause desc(String col) {
-    sortKeys.add(Pair.of(col, Order.DESC));
-    return this;
-  }
-
-  public OrderByClause orderBy(String col, Order order) {
-    return orderBy(Pair.of(col, order));
-  }
-
-  public OrderByClause orderBy(Pair<String, Order> sortKey) {
-    sortKeys.add(sortKey);
-    return this;
-  }
-
-  public boolean isEmpty() {
-    return sortKeys.isEmpty();
-  }
-
-  public CharSequence toClause() {
-    StringBuilder orderByClause = new StringBuilder();
-    boolean first = true;
-    for (var entry : sortKeys) {
-      if (first) {
-        first = false;
-        orderByClause.append('`');
-        orderByClause.append(entry.first)
-                .append("` ")
-                .append(entry.second.name());
-      }
-      else {
-        orderByClause.append(", `")
-                .append(entry.first)
-                .append("` ")
-                .append(entry.second.name());
-      }
-    }
-    return orderByClause;
-  }
-
-  public static OrderByClause forMap(Map<String, Order> sortKeys) {
-    OrderByClause clause = new OrderByClause(sortKeys.size());
+  static MutableOrderByClause forMap(Map<String, Order> sortKeys) {
+    MutableOrderByClause clause = new MutableOrderByClause(sortKeys.size());
     for (Map.Entry<String, Order> entry : sortKeys.entrySet()) {
       clause.orderBy(entry.getKey(), entry.getValue());
     }
@@ -101,9 +48,40 @@ public class OrderByClause {
   }
 
   @SafeVarargs
-  public static OrderByClause valueOf(Pair<String, Order>... sortKeys) {
+  static MutableOrderByClause valueOf(Pair<String, Order>... sortKeys) {
     Assert.notNull(sortKeys, "sortKeys is required");
-    return new OrderByClause(List.of(sortKeys));
+    return new MutableOrderByClause(List.of(sortKeys));
+  }
+
+  static OrderByClause plain(CharSequence sequence) {
+    return new Plain(sequence);
+  }
+
+  static MutableOrderByClause mutable() {
+    return new MutableOrderByClause();
+  }
+
+  /**
+   * Plain
+   */
+  class Plain implements OrderByClause {
+
+    final CharSequence sequence;
+
+    Plain(CharSequence sequence) {
+      this.sequence = sequence;
+    }
+
+    @Override
+    public CharSequence toClause() {
+      return sequence;
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return StringUtils.isBlank(sequence);
+    }
+
   }
 
 }

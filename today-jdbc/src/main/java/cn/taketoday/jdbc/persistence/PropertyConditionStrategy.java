@@ -32,7 +32,7 @@ public interface PropertyConditionStrategy {
   @Nullable
   Condition resolve(EntityProperty entityProperty, Object propertyValue);
 
-  class Condition {
+  class Condition implements Restriction {
 
     public final Object propertyValue;
 
@@ -44,6 +44,14 @@ public interface PropertyConditionStrategy {
       this.propertyValue = propertyValue;
       this.restriction = restriction;
       this.entityProperty = entityProperty;
+    }
+
+    /**
+     * Render the restriction into the SQL buffer
+     */
+    @Override
+    public void render(StringBuilder sqlBuffer) {
+      restriction.render(sqlBuffer);
     }
 
     /**

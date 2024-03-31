@@ -36,10 +36,94 @@ public interface Restriction {
    */
   void render(StringBuilder sqlBuffer);
 
+  // Static Factory Methods
+
+  static Restriction plain(CharSequence sequence) {
+    return new Plain(sequence);
+  }
+
+  /**
+   * equal
+   */
+  static Restriction equal(String columnName) {
+    return new ComparisonRestriction(columnName, " = ", "?");
+  }
+
+  /**
+   * equal
+   */
+  static Restriction equal(String lhs, String rhs) {
+    return new ComparisonRestriction(lhs, " = ", rhs);
+  }
+
+  /**
+   * not equal
+   */
+  static Restriction notEqual(String columnName) {
+    return new ComparisonRestriction(columnName, " <> ", "?");
+  }
+
+  /**
+   * not equal
+   */
+  static Restriction notEqual(String lhs, String rhs) {
+    return new ComparisonRestriction(lhs, " <> ", rhs);
+  }
+
+  static Restriction graterThan(String columnName) {
+    return graterThan(columnName, "?");
+  }
+
+  static Restriction graterThan(String lhs, String rhs) {
+    return new ComparisonRestriction(lhs, " > ", rhs);
+  }
+
+  static Restriction graterEqual(String columnName) {
+    return graterEqual(columnName, "?");
+  }
+
+  static Restriction graterEqual(String lhs, String rhs) {
+    return new ComparisonRestriction(lhs, " >= ", rhs);
+  }
+
+  static Restriction lessThan(String columnName) {
+    return lessThan(columnName, "?");
+  }
+
+  static Restriction lessThan(String lhs, String rhs) {
+    return new ComparisonRestriction(lhs, " < ", rhs);
+  }
+
+  static Restriction lessEqual(String columnName) {
+    return lessEqual(columnName, "?");
+  }
+
+  static Restriction lessEqual(String lhs, String rhs) {
+    return new ComparisonRestriction(lhs, " <= ", rhs);
+  }
+
+  static Restriction forOperator(String lhs, String operator, String rhs) {
+    return new ComparisonRestriction(lhs, operator, rhs);
+  }
+
+  /**
+   * Null-ness restriction - IS (NOT)? NULL
+   */
+  static Restriction isNull(String columnName) {
+    return new NullnessRestriction(columnName, true);
+  }
+
+  /**
+   * Null-ness restriction - IS (NOT)? NULL
+   */
+  static Restriction isNotNull(String columnName) {
+    return new NullnessRestriction(columnName, false);
+  }
+
   /**
    * Render the restriction into the SQL buffer
    */
-  static void render(@Nullable Collection<Restriction> restrictions, StringBuilder buf) {
+  static void render(@Nullable Collection<? extends Restriction> restrictions, StringBuilder buf) {
     if (CollectionUtils.isNotEmpty(restrictions)) {
       buf.append(" WHERE ");
       renderWhereClause(restrictions, buf);
@@ -49,7 +133,20 @@ public interface Restriction {
   /**
    * Render the restriction into the SQL buffer
    */
-  static void renderWhereClause(Collection<Restriction> restrictions, StringBuilder buf) {
+  @Nullable
+  static StringBuilder renderWhereClause(@Nullable Collection<? extends Restriction> restrictions) {
+    if (CollectionUtils.isNotEmpty(restrictions)) {
+      StringBuilder buf = new StringBuilder(restrictions.size() * 10);
+      renderWhereClause(restrictions, buf);
+      return buf;
+    }
+    return null;
+  }
+
+  /**
+   * Render the restriction into the SQL buffer
+   */
+  static void renderWhereClause(Collection<? extends Restriction> restrictions, StringBuilder buf) {
     boolean appended = false;
     for (Restriction restriction : restrictions) {
       if (appended) {
@@ -60,6 +157,21 @@ public interface Restriction {
       }
       restriction.render(buf);
     }
+  }
+
+  class Plain implements Restriction {
+
+    private final CharSequence sequence;
+
+    Plain(CharSequence sequence) {
+      this.sequence = sequence;
+    }
+
+    @Override
+    public void render(StringBuilder sqlBuffer) {
+      sqlBuffer.append(sequence);
+    }
+
   }
 
 }

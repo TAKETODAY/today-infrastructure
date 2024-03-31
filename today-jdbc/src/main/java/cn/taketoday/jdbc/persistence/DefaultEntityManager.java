@@ -46,8 +46,9 @@ import cn.taketoday.jdbc.core.ResultSetExtractor;
 import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.format.SqlStatementLogger;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
-import cn.taketoday.jdbc.persistence.dialect.PlatformAware;
 import cn.taketoday.jdbc.persistence.sql.OrderByClause;
+import cn.taketoday.jdbc.persistence.sql.Restriction;
+import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 import cn.taketoday.jdbc.persistence.sql.Update;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Assert;
@@ -83,6 +84,8 @@ public class DefaultEntityManager implements EntityManager {
 
   private PropertyUpdateStrategy defaultUpdateStrategy = PropertyUpdateStrategy.noneNull();
 
+  private Pageable defaultPageable = Pageable.of(10, 1);
+
   private Platform platform = Platform.forClasspath();
 
   private SqlStatementLogger stmtLogger = SqlStatementLogger.sharedInstance;
@@ -101,6 +104,11 @@ public class DefaultEntityManager implements EntityManager {
   public void setDefaultUpdateStrategy(PropertyUpdateStrategy defaultUpdateStrategy) {
     Assert.notNull(defaultUpdateStrategy, "defaultUpdateStrategy is required");
     this.defaultUpdateStrategy = defaultUpdateStrategy;
+  }
+
+  public void setDefaultPageable(Pageable defaultPageable) {
+    Assert.notNull(defaultPageable, "defaultPageable is required");
+    this.defaultPageable = defaultPageable;
   }
 
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
@@ -359,7 +367,7 @@ public class DefaultEntityManager implements EntityManager {
       throw new InvalidDataAccessApiUsageException("Updating an entity, There is no update properties");
     }
 
-    String sql = updateStmt.toStatementString();
+    String sql = updateStmt.toStatementString(platform);
 
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
@@ -412,7 +420,7 @@ public class DefaultEntityManager implements EntityManager {
       }
     }
 
-    String sql = updateStmt.toStatementString();
+    String sql = updateStmt.toStatementString(platform);
 
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Updating entity using ID: '{}'", id), sql);
@@ -483,7 +491,7 @@ public class DefaultEntityManager implements EntityManager {
               "Updating an entity, 'where' property value '%s' is required".formatted(where));
     }
 
-    String sql = updateStmt.toStatementString();
+    String sql = updateStmt.toStatementString(platform);
     if (stmtLogger.isDebugEnabled()) {
       stmtLogger.logStatement(LogMessage.format("Updating entity using {} : '{}'", where, updateByValue), sql);
     }
@@ -689,11 +697,12 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public <T> List<T> find(Class<T> entityClass, Pair<String, Order> sortKey) throws DataAccessException {
     Assert.notNull(sortKey, "sortKey is required");
-    return find(entityClass, new NoConditionsOrderByQuery(new OrderByClause().orderBy(sortKey)));
+    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.mutable().orderBy(sortKey)));
   }
 
+  @SafeVarargs
   @Override
-  public <T> List<T> find(Class<T> entityClass, Pair<String, Order>... sortKeys) throws DataAccessException {
+  public final <T> List<T> find(Class<T> entityClass, Pair<String, Order>... sortKeys) throws DataAccessException {
     return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.valueOf(sortKeys)));
   }
 
@@ -738,12 +747,43 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public <K, T> Map<K, T> find(Class<T> entityClass, Object example, Function<T, K> keyMapper) throws DataAccessException {
     return iterate(entityClass, example).toMap(keyMapper);
-
   }
 
   @Override
   public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, Function<T, K> keyMapper) throws DataAccessException {
     return iterate(entityClass, handler).toMap(keyMapper);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Number count(T example) throws DataAccessException {
+    return count((Class<T>) example.getClass(), example);
+  }
+
+  @Override
+  public <T> Number count(Class<T> entityClass, Object example) throws DataAccessException {
+    return count(entityClass, new ExampleQuery(entityMetadataFactory, example));
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Page<T> page(T example) throws DataAccessException {
+    return page((Class<T>) example.getClass(), example);
+  }
+
+  @Override
+  public <T> Page<T> page(Class<T> entityClass, Object example) throws DataAccessException {
+    return page(entityClass, new ExampleQuery(entityMetadataFactory, example));
+  }
+
+  @Override
+  public <T> Page<T> page(Class<T> entityClass, Object example, @Nullable Pageable pageable) throws DataAccessException {
+    return page(entityClass, new ExampleQuery(entityMetadataFactory, example), pageable);
+  }
+
+  @Override
+  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler) throws DataAccessException {
+    return page(entityClass, handler, null);
   }
 
   @Override
@@ -770,9 +810,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
-    EntityMetadata queryMetadata = entityMetadataFactory.getEntityMetadata(example.getClass());
-    ExampleQuery exampleQuery = new ExampleQuery(example, queryMetadata);
-    return iterate(entityClass, exampleQuery);
+    return iterate(entityClass, new ExampleQuery(entityMetadataFactory, example));
   }
 
   @Override
@@ -781,15 +819,9 @@ public class DefaultEntityManager implements EntityManager {
       handler = NoConditionsQuery.instance;
     }
 
-    if (handler instanceof PlatformAware aware) {
-      aware.setPlatform(platform);
-    }
-
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-
     Connection con = DataSourceUtils.getConnection(dataSource);
-
-    String statement = handler.render(metadata).toStatementString();
+    String statement = handler.render(metadata).toStatementString(platform);
     try {
       PreparedStatement stmt = con.prepareStatement(statement);
       handler.setParameter(metadata, stmt);
@@ -804,6 +836,92 @@ public class DefaultEntityManager implements EntityManager {
       DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException(handler.getDescription(), statement, ex);
     }
+  }
+
+  @Override
+  public <T> Number count(Class<T> entityClass, @Nullable ConditionHandler handler) throws DataAccessException {
+    if (handler == null) {
+      handler = NoConditionsQuery.instance;
+    }
+
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    Connection con = DataSourceUtils.getConnection(dataSource);
+
+    ArrayList<Restriction> restrictions = new ArrayList<>(metadata.entityProperties.length);
+    handler.renderWhereClause(metadata, restrictions);
+
+    StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.tableName.length());
+    countSql.append("SELECT COUNT(*) FROM `")
+            .append(metadata.tableName)
+            .append('`');
+
+    Restriction.render(restrictions, countSql);
+
+    String statement = countSql.toString();
+    try {
+      PreparedStatement stmt = con.prepareStatement(statement);
+      handler.setParameter(metadata, stmt);
+
+      if (stmtLogger.isDebugEnabled()) {
+        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
+      }
+      ResultSet resultSet = stmt.executeQuery();
+      if (resultSet.next()) {
+        return resultSet.getLong(1);
+      }
+      return 0;
+    }
+    catch (SQLException ex) {
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException(handler.getDescription(), statement, ex);
+    }
+  }
+
+  @Override
+  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler, @Nullable Pageable pageable) throws DataAccessException {
+    if (handler == null) {
+      handler = NoConditionsQuery.instance;
+    }
+
+    if (pageable == null) {
+      pageable = defaultPageable();
+    }
+
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    Connection con = DataSourceUtils.getConnection(dataSource);
+
+    Number count = count(entityClass, handler);
+
+    SimpleSelect select = new SimpleSelect();
+    handler.renderWhereClause(metadata, select.restrictions);
+    select.setTableName(metadata.tableName)
+            .addColumns(metadata.columnNames)
+            .pageable(pageable)
+            .orderBy(handler.getOrderByClause(metadata));
+
+    String statement = select.toStatementString(platform);
+    try {
+      PreparedStatement stmt = con.prepareStatement(statement);
+      handler.setParameter(metadata, stmt);
+
+      if (stmtLogger.isDebugEnabled()) {
+        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
+      }
+
+      return new Page<>(pageable, count.longValue(),
+              new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.size()));
+    }
+    catch (SQLException ex) {
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException(handler.getDescription(), statement, ex);
+    }
+  }
+
+  /**
+   * default Pageable
+   */
+  protected Pageable defaultPageable() {
+    return defaultPageable;
   }
 
   /**

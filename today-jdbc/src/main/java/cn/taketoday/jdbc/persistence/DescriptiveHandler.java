@@ -15,12 +15,22 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence.dialect;
+package cn.taketoday.jdbc.persistence;
+
+import cn.taketoday.lang.Descriptive;
+import cn.taketoday.logging.LogMessage;
 
 /**
- * @author TODAY 2021/10/10 13:13
- * @since 4.0
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2024/3/31 16:47
  */
-public class PostgreSQLPlatform extends Platform {
+interface DescriptiveHandler extends Descriptive {
+
+  @Override
+  String getDescription();
+
+  default Object getDebugLogMessage() {
+    return LogMessage.format(getDescription());
+  }
 
 }

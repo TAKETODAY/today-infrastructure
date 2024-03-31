@@ -69,7 +69,7 @@ public class InsertSelect implements StatementSequence {
   }
 
   @Override
-  public String toStatementString() {
+  public String toStatementString(Platform platform) {
     Assert.state(select != null, "no select defined for insert-select");
     Assert.state(tableName != null, "no table name defined for insert-select");
 
@@ -89,7 +89,7 @@ public class InsertSelect implements StatementSequence {
       }
       buf.append(")");
     }
-    buf.append(' ').append(select.toStatementString());
+    buf.append(' ').append(select.toStatementString(platform));
     return buf.toString();
   }
 }

@@ -18,21 +18,10 @@
 package cn.taketoday.jdbc.persistence.sql;
 
 /**
- * For a complete predicate.
- *
- * @author Steve Ebersole
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/3/31 19:28
  */
-public class CompleteRestriction implements Restriction {
-  private final String predicate;
+public interface OrderBySource {
 
-  public CompleteRestriction(String predicate) {
-    this.predicate = predicate;
-  }
-
-  @Override
-  public void render(StringBuilder sqlBuffer) {
-    sqlBuffer.append(predicate);
-  }
+  OrderByClause getOrderByClause();
 }

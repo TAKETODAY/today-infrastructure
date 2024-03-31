@@ -17,12 +17,15 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import java.lang.annotation.Annotation;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Objects;
 
 import cn.taketoday.beans.BeanProperty;
+import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.style.ToStringBuilder;
 import cn.taketoday.jdbc.type.TypeHandler;
 import cn.taketoday.lang.Nullable;
@@ -39,6 +42,9 @@ public class EntityProperty {
   public final BeanProperty property;
 
   public final TypeHandler<Object> typeHandler;
+
+  @Nullable
+  private MergedAnnotations annotations;
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
   EntityProperty(BeanProperty property, String columnName, TypeHandler typeHandler, boolean isIdProperty) {
@@ -134,6 +140,23 @@ public class EntityProperty {
   public void setProperty(Object entity, ResultSet rs, int columnIndex) throws SQLException {
     Object propertyValue = typeHandler.getResult(rs, columnIndex);
     property.setDirectly(entity, propertyValue);
+  }
+
+  public MergedAnnotations getAnnotations() {
+    MergedAnnotations annotations = this.annotations;
+    if (annotations == null) {
+      annotations = MergedAnnotations.from(property, property.getAnnotations());
+      this.annotations = annotations;
+    }
+    return annotations;
+  }
+
+  public <A extends Annotation> MergedAnnotation<A> getAnnotation(Class<A> annType) {
+    return getAnnotations().get(annType);
+  }
+
+  public <A extends Annotation> boolean isPresent(Class<A> annType) {
+    return getAnnotations().isPresent(annType);
   }
 
   @Override

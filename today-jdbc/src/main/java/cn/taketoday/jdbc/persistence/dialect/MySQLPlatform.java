@@ -23,14 +23,4 @@ package cn.taketoday.jdbc.persistence.dialect;
  */
 public class MySQLPlatform extends Platform {
 
-  @Override
-  public String pagination(SQLParams sqlParams) {
-    PageRow pageRow = sqlParams.getPageRow();
-    int limit = pageRow.getPageSize();
-    int offset = limit * (pageRow.getPageNum() - 1);
-    String limitSQL = " LIMIT " + offset + "," + limit;
-
-    return select(sqlParams) + limitSQL;
-  }
-
 }

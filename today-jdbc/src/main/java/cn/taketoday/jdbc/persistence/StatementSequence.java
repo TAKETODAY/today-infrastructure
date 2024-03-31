@@ -17,11 +17,13 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import cn.taketoday.jdbc.persistence.dialect.Platform;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/2/21 22:45
  */
 public interface StatementSequence {
 
-  String toStatementString();
+  String toStatementString(Platform platform);
 }

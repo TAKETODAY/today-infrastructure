@@ -49,14 +49,28 @@ class OrderByClauseTests {
 
   @Test
   void asc() {
-    assertThat(new OrderByClause()
+    assertThat(OrderByClause.mutable()
             .asc("name").toClause().toString()).isEqualTo("`name` ASC");
   }
 
   @Test
   void isEmpty() {
-    assertThat(new OrderByClause().isEmpty()).isTrue();
-    assertThat(new OrderByClause().asc("name").isEmpty()).isFalse();
+    assertThat(OrderByClause.mutable().isEmpty()).isTrue();
+    assertThat(OrderByClause.mutable().asc("name").isEmpty()).isFalse();
+  }
+
+  @Test
+  void merge() {
+    MutableOrderByClause clause = new MutableOrderByClause().asc("name");
+    clause.merge(OrderByClause.mutable().desc("age"));
+    assertThat(clause.isEmpty()).isFalse();
+    assertThat(clause.toClause().toString()).isEqualTo("`name` ASC, `age` DESC");
+  }
+
+  @Test
+  void plain() {
+    assertThat(OrderByClause.plain("`name` ASC, `age` DESC").isEmpty()).isFalse();
+    assertThat(OrderByClause.plain("`name` ASC, `age` DESC").toClause()).isEqualTo("`name` ASC, `age` DESC");
   }
 
 }

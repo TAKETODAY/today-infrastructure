@@ -434,6 +434,55 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
+  <T> Number count(T example) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> Number count(Class<T> entityClass, Object example) throws DataAccessException;
+
+  /**
+   * @param handler build {@link Select}
+   * @throws IllegalEntityException entityClass is legal entity
+   * @see #iterate(Class, QueryHandler)
+   */
+  <T> Number count(Class<T> entityClass, @Nullable ConditionHandler handler)
+          throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> Page<T> page(T example) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> Page<T> page(Class<T> entityClass, Object example) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> Page<T> page(Class<T> entityClass, Object example, @Nullable Pageable pageable) throws DataAccessException;
+
+  /**
+   * @param handler build {@link Select}
+   * @throws IllegalEntityException entityClass is legal entity
+   * @see #iterate(Class, QueryHandler)
+   */
+  <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler)
+          throws DataAccessException;
+
+  /**
+   * @param handler build {@link Select}
+   * @throws IllegalEntityException entityClass is legal entity
+   * @see #iterate(Class, QueryHandler)
+   */
+  <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler, @Nullable Pageable pageable)
+          throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
   <T> void iterate(T example, Consumer<T> entityConsumer) throws DataAccessException;
 
   /**

@@ -17,15 +17,12 @@
 
 package cn.taketoday.jdbc.persistence.support;
 
-import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.core.annotation.MergedAnnotation;
-import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.jdbc.persistence.EntityProperty;
 import cn.taketoday.jdbc.persistence.PropertyConditionStrategy;
 import cn.taketoday.jdbc.persistence.TrimWhere;
 import cn.taketoday.jdbc.persistence.Where;
-import cn.taketoday.jdbc.persistence.sql.ComparisonRestriction;
-import cn.taketoday.jdbc.persistence.sql.CompleteRestriction;
+import cn.taketoday.jdbc.persistence.sql.Restriction;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 
@@ -38,25 +35,21 @@ public class WhereAnnotationConditionStrategy implements PropertyConditionStrate
   @Nullable
   @Override
   public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
-    BeanProperty property = entityProperty.property;
-    MergedAnnotations annotations = MergedAnnotations.from(property, property.getAnnotations());
-
-    if (propertyValue instanceof String string && annotations.isPresent(TrimWhere.class)) {
+    if (propertyValue instanceof String string && entityProperty.isPresent(TrimWhere.class)) {
       propertyValue = string.trim();
     }
 
     // render where clause
-
-    MergedAnnotation<Where> annotation = annotations.get(Where.class);
+    MergedAnnotation<Where> annotation = entityProperty.getAnnotation(Where.class);
     if (annotation.isPresent()) {
       String value = annotation.getStringValue();
       if (!Constant.DEFAULT_NONE.equals(value)) {
-        return new Condition(propertyValue, new CompleteRestriction(value), entityProperty);
+        return new Condition(propertyValue, Restriction.plain(value), entityProperty);
       }
       else {
         String condition = annotation.getString("condition");
         if (Constant.DEFAULT_NONE.equals(condition)) {
-          return new Condition(propertyValue, new ComparisonRestriction(entityProperty.columnName), entityProperty);
+          return new Condition(propertyValue, Restriction.equal(entityProperty.columnName), entityProperty);
         }
       }
     }

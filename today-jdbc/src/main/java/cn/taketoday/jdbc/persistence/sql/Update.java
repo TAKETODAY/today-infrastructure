@@ -74,7 +74,7 @@ public class Update implements StatementSequence {
   }
 
   public Update addRestriction(String column) {
-    restrictions.add(new ComparisonRestriction(column));
+    restrictions.add(Restriction.equal(column));
     return this;
   }
 
@@ -88,44 +88,33 @@ public class Update implements StatementSequence {
   }
 
   public Update addRestriction(String column, String value) {
-    restrictions.add(new ComparisonRestriction(column, value));
-    return this;
-  }
-
-  public Update addRestriction(String column, ComparisonRestriction.Operator op, String value) {
-    restrictions.add(new ComparisonRestriction(column, op, value));
+    restrictions.add(Restriction.equal(column, value));
     return this;
   }
 
   public Update addColumnIsNullRestriction(String columnName) {
-    restrictions.add(new NullnessRestriction(columnName));
+    restrictions.add(Restriction.isNull(columnName));
     return this;
   }
 
   public Update addColumnIsNotNullRestriction(String columnName) {
-    restrictions.add(new NullnessRestriction(columnName, false));
+    restrictions.add(Restriction.isNotNull(columnName));
     return this;
   }
 
-  @Override
-  public String toStatementString() {
-    final var buf = new StringBuilder((assignments.size() * 15) + tableName.length() + 10);
-
-    applyComment(buf);
-    buf.append("UPDATE ").append(tableName);
-    applyAssignments(buf);
-    applyRestrictions(buf);
-
-    return buf.toString();
+  public ArrayList<Restriction> getRestrictions() {
+    return restrictions;
   }
 
-  private void applyComment(StringBuilder buf) {
+  @Override
+  public String toStatementString(Platform platform) {
+    final var buf = new StringBuilder((assignments.size() * 15) + tableName.length() + 10);
+
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
-  }
 
-  private void applyAssignments(StringBuilder buf) {
+    buf.append("UPDATE ").append(tableName);
     buf.append(" set ");
     final var entries = assignments.entrySet().iterator();
     while (entries.hasNext()) {
@@ -136,10 +125,9 @@ public class Update implements StatementSequence {
         buf.append(", ");
       }
     }
-  }
 
-  private void applyRestrictions(StringBuilder buf) {
     Restriction.render(restrictions, buf);
+    return buf.toString();
   }
 
 }

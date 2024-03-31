@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.jdbc.persistence;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -28,293 +25,181 @@ import java.util.stream.Collectors;
 
 import cn.taketoday.core.style.ToStringBuilder;
 
+/**
+ * Page holder
+ *
+ * @param <T> content type
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
+ */
 public class Page<T> {
 
   /**
    * current pageNum number
    */
-  private int pageNum = 1;
+  private final int pageNumber;
 
   /**
    * How many pages per pageNum
    */
-  private int limit = 10;
+  private final int limit;
 
   /**
    * prev pageNum number
    */
-  private int prevPage = 1;
+  private final int prevPage;
 
   /**
    * next pageNum number
    */
-  private int nextPage = 1;
+  private final int nextPage;
 
   /**
    * total pageNum count
    */
-  private int totalPages = 1;
+  private final int totalPages;
 
   /**
    * total row count
    */
-  private long totalRows = 0L;
+  private final long totalRows;
 
   /**
    * row list
    */
-  private List<T> rows;
+  private final List<T> rows;
 
   /**
    * is first pageNum
    */
-  private boolean isFirstPage = false;
+  private final boolean firstPage;
 
   /**
    * is last pageNum
    */
-  private boolean isLastPage = false;
+  private final boolean lastPage;
 
   /**
    * has prev pageNum
    */
-  private boolean hasPrevPage = false;
+  private final boolean hasPrevPage;
 
   /**
    * has next pageNum
    */
-  private boolean hasNextPage = false;
+  private final boolean hasNextPage;
 
-  /**
-   * navigation pageNum number
-   */
-  private int navPages = 8;
-
-  /**
-   * all navigation pageNum number
-   */
-  private int[] navPageNums;
-
-  public <R> Page<R> map(Function<? super T, ? extends R> mapper) {
-    Page<R> page = new Page<>(this.totalRows, this.pageNum, this.limit);
-    if (null != rows) {
-      page.setRows(rows.stream().map(mapper).collect(Collectors.toList()));
-    }
-    return page;
+  public Page(Pageable pageable, long total, List<T> rows) {
+    this(total, pageable.current(), pageable.size(), rows);
   }
 
-  public Page<T> peek(Consumer<T> consumer) {
-    if (null != rows) {
-      this.rows = rows.stream().peek(consumer).collect(Collectors.toList());
-    }
-    return this;
-  }
-
-  public Page<T> navPages(int navPages) {
-    // calculation of navigation pageNum after basic parameter setting
-    this.calcNavigatePageNumbers(navPages);
-    return this;
-  }
-
-  public Page() {
-  }
-
-  public Page(long total, int page, int limit) {
-    init(total, page, limit);
-  }
-
-  private void init(long total, int pageNum, int limit) {
+  public Page(long total, int pageNumber, int limit, List<T> rows) {
     // set basic params
     this.totalRows = total;
     this.limit = limit;
+    this.rows = rows;
     this.totalPages = (int) ((this.totalRows - 1) / this.limit + 1);
 
     // automatic correction based on the current number of the wrong input
-    if (pageNum < 1) {
-      this.pageNum = 1;
-    }
-    else if (pageNum > this.totalPages) {
-      this.pageNum = this.totalPages;
+    if (pageNumber >= 1) {
+      this.pageNumber = Math.min(pageNumber, this.totalPages);
     }
     else {
-      this.pageNum = pageNum;
+      this.pageNumber = 1;
     }
 
-    // calculation of navigation pageNum after basic parameter setting
-    this.calcNavigatePageNumbers(this.navPages);
-
+    this.firstPage = this.pageNumber == 1;
+    this.lastPage = this.totalPages == this.pageNumber && pageNumber != 1;
     // and the determination of pageNum boundaries
-    judgePageBoudary();
-  }
-
-  private void calcNavigatePageNumbers(int navPages) {
-    // when the total number of pages is less than or equal to the number of navigation pages
-    if (this.totalPages <= navPages) {
-      navPageNums = new int[totalPages];
-      for (int i = 0; i < totalPages; i++) {
-        navPageNums[i] = i + 1;
-      }
-    }
-    else {
-      // when the total number of pages is greater than the number of navigation pages
-      navPageNums = new int[navPages];
-      int startNum = pageNum - navPages / 2;
-      int endNum = pageNum + navPages / 2;
-      if (startNum < 1) {
-        startNum = 1;
-        for (int i = 0; i < navPages; i++) {
-          navPageNums[i] = startNum++;
-        }
-      }
-      else if (endNum > totalPages) {
-        endNum = totalPages;
-        for (int i = navPages - 1; i >= 0; i--) {
-          navPageNums[i] = endNum--;
-        }
-      }
-      else {
-        for (int i = 0; i < navPages; i++) {
-          navPageNums[i] = startNum++;
-        }
-      }
-    }
-  }
-
-  private void judgePageBoudary() {
-    isFirstPage = pageNum == 1;
-    isLastPage = pageNum == totalPages && pageNum != 1;
-    hasPrevPage = pageNum != 1;
-    hasNextPage = pageNum != totalPages;
-    if (hasNextPage) {
-      nextPage = pageNum + 1;
-    }
-    if (hasPrevPage) {
-      prevPage = pageNum - 1;
-    }
+    this.hasPrevPage = pageNumber != 1;
+    this.hasNextPage = pageNumber != totalPages;
+    this.nextPage = hasNextPage ? (pageNumber + 1) : 1;
+    this.prevPage = hasPrevPage ? (pageNumber - 1) : 1;
   }
 
   //
 
-  public int getPageNum() {
-    return pageNum;
+  public <R> Page<R> mapRows(Function<? super T, ? extends R> mapper) {
+    return withRows(rows.stream().map(mapper).collect(Collectors.toList()));
   }
 
-  public void setPageNum(int pageNum) {
-    this.pageNum = pageNum;
+  public <R> R map(Function<Page<T>, R> mapper) {
+    return mapper.apply(this);
+  }
+
+  public Page<T> peek(Consumer<T> consumer) {
+    if (rows != null) {
+      for (T row : rows) {
+        consumer.accept(row);
+      }
+    }
+    return this;
+  }
+
+  //
+
+  public int getPageNumber() {
+    return pageNumber;
   }
 
   public int getLimit() {
     return limit;
   }
 
-  public void setLimit(int limit) {
-    this.limit = limit;
-  }
-
   public int getPrevPage() {
     return prevPage;
-  }
-
-  public void setPrevPage(int prevPage) {
-    this.prevPage = prevPage;
   }
 
   public int getNextPage() {
     return nextPage;
   }
 
-  public void setNextPage(int nextPage) {
-    this.nextPage = nextPage;
-  }
-
   public int getTotalPages() {
     return totalPages;
-  }
-
-  public void setTotalPages(int totalPages) {
-    this.totalPages = totalPages;
   }
 
   public long getTotalRows() {
     return totalRows;
   }
 
-  public void setTotalRows(long totalRows) {
-    this.totalRows = totalRows;
-  }
-
   public List<T> getRows() {
     return rows;
   }
 
-  public void setRows(List<T> rows) {
-    this.rows = rows;
+  public <E> Page<E> withRows(List<E> rows) {
+    return new Page<>(totalRows, pageNumber, limit, rows);
   }
 
   public boolean isFirstPage() {
-    return isFirstPage;
-  }
-
-  public void setFirstPage(boolean firstPage) {
-    isFirstPage = firstPage;
+    return firstPage;
   }
 
   public boolean isLastPage() {
-    return isLastPage;
-  }
-
-  public void setLastPage(boolean lastPage) {
-    isLastPage = lastPage;
+    return lastPage;
   }
 
   public boolean isHasPrevPage() {
     return hasPrevPage;
   }
 
-  public void setHasPrevPage(boolean hasPrevPage) {
-    this.hasPrevPage = hasPrevPage;
-  }
-
   public boolean isHasNextPage() {
     return hasNextPage;
-  }
-
-  public void setHasNextPage(boolean hasNextPage) {
-    this.hasNextPage = hasNextPage;
-  }
-
-  public int getNavPages() {
-    return navPages;
-  }
-
-  public void setNavPages(int navPages) {
-    this.navPages = navPages;
-  }
-
-  public int[] getNavPageNums() {
-    return navPageNums;
-  }
-
-  public void setNavPageNums(int[] navPageNums) {
-    this.navPageNums = navPageNums;
   }
 
   @Override
   public String toString() {
     return ToStringBuilder.from(this)
-            .append("pageNum", pageNum)
+            .append("pageNumber", pageNumber)
             .append("limit", limit)
             .append("prevPage", prevPage)
             .append("nextPage", nextPage)
             .append("totalPages", totalPages)
             .append("totalRows", totalRows)
             .append("rows", rows)
-            .append("isFirstPage", isFirstPage)
-            .append("isLastPage", isLastPage)
+            .append("isFirstPage", firstPage)
+            .append("isLastPage", lastPage)
             .append("hasPrevPage", hasPrevPage)
             .append("hasNextPage", hasNextPage)
-            .append("navPages", navPages)
-            .append("navPageNums", navPageNums)
             .toString();
   }
 
@@ -324,29 +209,26 @@ public class Page<T> {
       return true;
     }
     if (o instanceof Page<?> page) {
-      return pageNum == page.pageNum
+      return pageNumber == page.pageNumber
               && limit == page.limit
-              && navPages == page.navPages
               && prevPage == page.prevPage
               && nextPage == page.nextPage
               && totalRows == page.totalRows
               && totalPages == page.totalPages
-              && isLastPage == page.isLastPage
-              && isFirstPage == page.isFirstPage
+              && lastPage == page.lastPage
+              && firstPage == page.firstPage
               && hasPrevPage == page.hasPrevPage
               && hasNextPage == page.hasNextPage
-              && Objects.equals(rows, page.rows)
-              && Arrays.equals(navPageNums, page.navPageNums);
+              && Objects.equals(rows, page.rows);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(pageNum, limit, prevPage,
-            nextPage, totalPages, totalRows, rows, isFirstPage,
-            isLastPage, hasPrevPage, hasNextPage, navPages);
-    result = 31 * result + Arrays.hashCode(navPageNums);
-    return result;
+    return Objects.hash(pageNumber, limit, prevPage,
+            nextPage, totalPages, totalRows, rows, firstPage,
+            lastPage, hasPrevPage, hasNextPage);
   }
+
 }

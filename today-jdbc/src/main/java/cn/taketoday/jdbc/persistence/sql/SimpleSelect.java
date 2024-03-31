@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import cn.taketoday.jdbc.persistence.Order;
+import cn.taketoday.jdbc.persistence.Pageable;
 import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Nullable;
@@ -49,7 +50,29 @@ public class SimpleSelect implements StatementSequence {
   @Nullable
   protected HashMap<String, String> aliases;
 
-  protected final ArrayList<Restriction> restrictions = new ArrayList<>();
+  public final ArrayList<Restriction> restrictions = new ArrayList<>();
+
+  @Nullable
+  private Integer limit;
+
+  @Nullable
+  private Integer offset;
+
+  public SimpleSelect pageable(Pageable pageable) {
+    this.limit = pageable.size();
+    this.offset = pageable.offset();
+    return this;
+  }
+
+  public SimpleSelect limit(@Nullable Integer limit) {
+    this.limit = limit;
+    return this;
+  }
+
+  public SimpleSelect offset(@Nullable Integer offset) {
+    this.offset = offset;
+    return this;
+  }
 
   /**
    * Sets the name of the table we are selecting from
@@ -91,28 +114,18 @@ public class SimpleSelect implements StatementSequence {
    * Appends a complete where condition.
    * The {@code condition} is added as-is.
    */
-  public SimpleSelect addWhereToken(String condition) {
+  public SimpleSelect addWhereToken(CharSequence condition) {
     if (condition != null) {
-      restrictions.add(new CompleteRestriction(condition));
+      restrictions.add(Restriction.plain(condition));
     }
     return this;
   }
 
   /**
    * Appends a restriction comparing the {@code columnName} for equality with a parameter
-   *
-   * @see #addRestriction(String, ComparisonRestriction.Operator, String)
    */
   public SimpleSelect addRestriction(String columnName) {
-    restrictions.add(new ComparisonRestriction(columnName));
-    return this;
-  }
-
-  /**
-   * Appends a restriction based on the comparison between {@code lhs} and {@code rhs}.
-   */
-  public SimpleSelect addRestriction(String lhs, ComparisonRestriction.Operator op, String rhs) {
-    restrictions.add(new ComparisonRestriction(lhs, op, rhs));
+    restrictions.add(Restriction.equal(columnName));
     return this;
   }
 
@@ -145,13 +158,18 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
-  public OrderByClause orderByClause() {
-    OrderByClause orderByClause = this.orderByClause;
-    if (orderByClause == null) {
-      orderByClause = new OrderByClause();
-      this.orderByClause = orderByClause;
+  public SimpleSelect orderBy(@Nullable OrderByClause orderByClause) {
+    this.orderByClause = orderByClause;
+    return this;
+  }
+
+  public MutableOrderByClause orderByClause() {
+    if (orderByClause instanceof MutableOrderByClause mutable) {
+      return mutable;
     }
-    return orderByClause;
+    var mutable = OrderByClause.mutable();
+    this.orderByClause = OrderByClause.mutable();
+    return mutable;
   }
 
   public SimpleSelect setComment(@Nullable String comment) {
@@ -160,7 +178,7 @@ public class SimpleSelect implements StatementSequence {
   }
 
   @Override
-  public String toStatementString() {
+  public String toStatementString(Platform platform) {
     StringBuilder buf = new StringBuilder(columns.size() * 10 + tableName.length() + restrictions.size() * 10 + 10);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
@@ -170,8 +188,17 @@ public class SimpleSelect implements StatementSequence {
     buf.append(" FROM ").append(tableName);
     // where
     Restriction.render(restrictions, buf);
-    if (orderByClause != null) {
+
+    OrderByClause orderByClause = this.orderByClause;
+    if (orderByClause != null && !orderByClause.isEmpty()) {
       buf.append(" order by ").append(orderByClause.toClause());
+    }
+
+    if (limit != null) {
+      buf.append(" LIMIT ").append(limit);
+      if (offset != null && offset > 0) {
+        buf.append(" OFFSET ").append(offset);
+      }
     }
 
     return buf.toString();

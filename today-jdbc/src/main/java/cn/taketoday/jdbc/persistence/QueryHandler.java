@@ -20,16 +20,13 @@ package cn.taketoday.jdbc.persistence;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import cn.taketoday.lang.Descriptive;
-import cn.taketoday.logging.LogMessage;
-
 /**
  * Query condition builder
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/16 14:45
  */
-public interface QueryHandler extends Descriptive {
+public interface QueryHandler extends DescriptiveHandler {
 
   /**
    * prepare select statement
@@ -49,10 +46,6 @@ public interface QueryHandler extends Descriptive {
   @Override
   default String getDescription() {
     return "Query entities";
-  }
-
-  default Object getDebugLogMessage() {
-    return LogMessage.format(getDescription());
   }
 
 }

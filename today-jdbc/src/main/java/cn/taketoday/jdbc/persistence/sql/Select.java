@@ -53,19 +53,13 @@ public class Select implements StatementSequence {
 
   protected boolean forUpdate;
 
-  public final Platform platform;
-
   private int guesstimatedBufferSize = 20;
-
-  public Select(Platform platform) {
-    this.platform = platform;
-  }
 
   /**
    * Construct an SQL <tt>SELECT</tt> statement from the given clauses
    */
   @Override
-  public String toStatementString() {
+  public String toStatementString(Platform platform) {
     StringBuilder buf = new StringBuilder(guesstimatedBufferSize);
 
     if (comment != null) {
@@ -85,11 +79,11 @@ public class Select implements StatementSequence {
       // handle dynamic filters
       if (outerJoinsAfterWhere != null) {
         buf.append(outerJoinsAfterWhere);
-        if (whereClause != null) {
+        if (whereClause != null && !whereClause.isEmpty()) {
           buf.append(" AND ");
         }
       }
-      if (whereClause != null) {
+      if (whereClause != null && !whereClause.isEmpty()) {
         buf.append(whereClause);
       }
     }

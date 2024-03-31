@@ -19,6 +19,7 @@ package cn.taketoday.jdbc.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.jdbc.persistence.sql.Update;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class UpdateTests {
 
+  private final Platform platform = Platform.forClasspath();
+
   @Test
   void sql() {
     Update update = new Update();
@@ -36,10 +39,10 @@ class UpdateTests {
     update.addAssignment("name");
     update.addRestriction("id");
 
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
+    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
 
     update.addAssignment("name", ":name");
-    assertThat(update.toStatementString()).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
+    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
   }
 
 }

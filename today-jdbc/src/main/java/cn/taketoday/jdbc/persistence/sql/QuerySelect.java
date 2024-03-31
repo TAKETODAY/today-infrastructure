@@ -120,7 +120,7 @@ public class QuerySelect implements StatementSequence {
   }
 
   @Override
-  public String toStatementString() {
+  public String toStatementString(Platform platform) {
     StringBuilder buf = new StringBuilder(50);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");

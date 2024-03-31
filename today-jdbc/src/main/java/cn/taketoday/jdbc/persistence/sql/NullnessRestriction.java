@@ -24,17 +24,13 @@ package cn.taketoday.jdbc.persistence.sql;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class NullnessRestriction implements Restriction {
+final class NullnessRestriction implements Restriction {
 
   private final String columnName;
 
   private final boolean affirmative;
 
-  public NullnessRestriction(String columnName) {
-    this(columnName, true);
-  }
-
-  public NullnessRestriction(String columnName, boolean affirmative) {
+  NullnessRestriction(String columnName, boolean affirmative) {
     this.columnName = columnName;
     this.affirmative = affirmative;
   }

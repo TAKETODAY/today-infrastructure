@@ -19,7 +19,7 @@ package cn.taketoday.jdbc.persistence.support;
 
 import cn.taketoday.jdbc.persistence.EntityProperty;
 import cn.taketoday.jdbc.persistence.PropertyConditionStrategy;
-import cn.taketoday.jdbc.persistence.sql.ComparisonRestriction;
+import cn.taketoday.jdbc.persistence.sql.Restriction;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -31,7 +31,7 @@ public class DefaultConditionStrategy implements PropertyConditionStrategy {
   @Nullable
   @Override
   public Condition resolve(EntityProperty entityProperty, Object propertyValue) {
-    return new Condition(propertyValue, new ComparisonRestriction(entityProperty.columnName), entityProperty);
+    return new Condition(propertyValue, Restriction.equal(entityProperty.columnName), entityProperty);
   }
 
 }
