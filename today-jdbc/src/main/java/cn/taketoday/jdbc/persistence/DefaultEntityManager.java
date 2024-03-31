@@ -908,7 +908,7 @@ public class DefaultEntityManager implements EntityManager {
         stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
       }
 
-      return new Page<>(pageable, count.longValue(),
+      return new Page<>(pageable, count,
               new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.size()));
     }
     catch (SQLException ex) {

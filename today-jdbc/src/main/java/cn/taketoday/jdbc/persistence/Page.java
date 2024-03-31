@@ -62,7 +62,7 @@ public class Page<T> {
   /**
    * total row count
    */
-  private final long totalRows;
+  private final Number totalRows;
 
   /**
    * row list
@@ -89,16 +89,21 @@ public class Page<T> {
    */
   private final boolean hasNextPage;
 
-  public Page(Pageable pageable, long total, List<T> rows) {
+  /**
+   * @param pageable page params
+   * @param total total rows count
+   * @param rows rows data
+   */
+  public Page(Pageable pageable, Number total, List<T> rows) {
     this(total, pageable.current(), pageable.size(), rows);
   }
 
-  public Page(long total, int pageNumber, int limit, List<T> rows) {
+  public Page(Number total, int pageNumber, int limit, List<T> rows) {
     // set basic params
     this.totalRows = total;
     this.limit = limit;
     this.rows = rows;
-    this.totalPages = (int) ((this.totalRows - 1) / this.limit + 1);
+    this.totalPages = (int) ((total.longValue() - 1) / limit + 1);
 
     // automatic correction based on the current number of the wrong input
     if (pageNumber >= 1) {
@@ -158,7 +163,7 @@ public class Page<T> {
     return totalPages;
   }
 
-  public long getTotalRows() {
+  public Number getTotalRows() {
     return totalRows;
   }
 
@@ -195,11 +200,11 @@ public class Page<T> {
             .append("nextPage", nextPage)
             .append("totalPages", totalPages)
             .append("totalRows", totalRows)
-            .append("rows", rows)
             .append("isFirstPage", firstPage)
             .append("isLastPage", lastPage)
             .append("hasPrevPage", hasPrevPage)
             .append("hasNextPage", hasNextPage)
+            .append("rows", rows)
             .toString();
   }
 
@@ -213,12 +218,12 @@ public class Page<T> {
               && limit == page.limit
               && prevPage == page.prevPage
               && nextPage == page.nextPage
-              && totalRows == page.totalRows
               && totalPages == page.totalPages
               && lastPage == page.lastPage
               && firstPage == page.firstPage
               && hasPrevPage == page.hasPrevPage
               && hasNextPage == page.hasNextPage
+              && Objects.equals(totalRows, page.totalRows)
               && Objects.equals(rows, page.rows);
     }
     return false;
