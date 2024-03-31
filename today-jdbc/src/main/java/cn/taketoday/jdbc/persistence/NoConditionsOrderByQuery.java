@@ -19,8 +19,8 @@ package cn.taketoday.jdbc.persistence;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Map;
 
+import cn.taketoday.jdbc.persistence.sql.OrderByClause;
 import cn.taketoday.jdbc.persistence.sql.Select;
 
 /**
@@ -29,34 +29,16 @@ import cn.taketoday.jdbc.persistence.sql.Select;
  */
 class NoConditionsOrderByQuery extends AbstractColumnsQueryHandler implements QueryHandler {
 
-  private final Map<String, Order> sortKeys;
+  private final OrderByClause clause;
 
-  NoConditionsOrderByQuery(Map<String, Order> sortKeys) {
-    this.sortKeys = sortKeys;
+  NoConditionsOrderByQuery(OrderByClause clause) {
+    this.clause = clause;
   }
 
   @Override
   protected void renderInternal(EntityMetadata metadata, Select select) {
-    if (!sortKeys.isEmpty()) {
-      StringBuilder orderByClause = new StringBuilder();
-      boolean first = true;
-      for (var entry : sortKeys.entrySet()) {
-        if (first) {
-          first = false;
-          orderByClause.append('`');
-          orderByClause.append(entry.getKey())
-                  .append("` ")
-                  .append(entry.getValue().name());
-        }
-        else {
-          orderByClause.append(", `")
-                  .append(entry.getKey())
-                  .append("` ")
-                  .append(entry.getValue().name());
-        }
-      }
-
-      select.setOrderByClause(orderByClause);
+    if (!clause.isEmpty()) {
+      select.setOrderByClause(clause.toClause());
     }
   }
 

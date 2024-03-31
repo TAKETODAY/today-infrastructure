@@ -25,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import cn.taketoday.core.Pair;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.jdbc.persistence.sql.Select;
 import cn.taketoday.lang.Nullable;
@@ -314,6 +315,10 @@ public interface EntityManager {
   <T> List<T> find(Class<T> entityClass) throws DataAccessException;
 
   <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException;
+
+  <T> List<T> find(Class<T> entityClass, Pair<String, Order> sortKey) throws DataAccessException;
+
+  <T> List<T> find(Class<T> entityClass, Pair<String, Order>... sortKeys) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import cn.taketoday.jdbc.persistence.model.UserModel;
+import cn.taketoday.jdbc.persistence.sql.OrderByClause;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,7 +36,7 @@ class NoConditionsOrderByQueryTests {
   @Test
   void render() {
     EntityMetadata entityMetadata = factory.createEntityMetadata(UserModel.class);
-    var handler = new NoConditionsOrderByQuery(Map.of("name", Order.ASC, "age", Order.DESC));
+    var handler = new NoConditionsOrderByQuery(OrderByClause.forMap(Map.of("name", Order.ASC, "age", Order.DESC)));
 
     StatementSequence select = handler.render(entityMetadata);
     assertThat(select).extracting("orderByClause").isNotNull().asString().contains("`name` ASC").contains("`age` DESC");

@@ -33,6 +33,7 @@ import java.util.function.Function;
 
 import javax.sql.DataSource;
 
+import cn.taketoday.core.Pair;
 import cn.taketoday.dao.DataAccessException;
 import cn.taketoday.dao.InvalidDataAccessApiUsageException;
 import cn.taketoday.jdbc.DefaultResultSetHandlerFactory;
@@ -46,6 +47,7 @@ import cn.taketoday.jdbc.datasource.DataSourceUtils;
 import cn.taketoday.jdbc.format.SqlStatementLogger;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.jdbc.persistence.dialect.PlatformAware;
+import cn.taketoday.jdbc.persistence.sql.OrderByClause;
 import cn.taketoday.jdbc.persistence.sql.Update;
 import cn.taketoday.jdbc.support.JdbcUtils;
 import cn.taketoday.lang.Assert;
@@ -681,7 +683,18 @@ public class DefaultEntityManager implements EntityManager {
   @Override
   public <T> List<T> find(Class<T> entityClass, Map<String, Order> sortKeys) throws DataAccessException {
     Assert.notEmpty(sortKeys, "sortKeys is required");
-    return find(entityClass, new NoConditionsOrderByQuery(sortKeys));
+    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.forMap(sortKeys)));
+  }
+
+  @Override
+  public <T> List<T> find(Class<T> entityClass, Pair<String, Order> sortKey) throws DataAccessException {
+    Assert.notNull(sortKey, "sortKey is required");
+    return find(entityClass, new NoConditionsOrderByQuery(new OrderByClause().orderBy(sortKey)));
+  }
+
+  @Override
+  public <T> List<T> find(Class<T> entityClass, Pair<String, Order>... sortKeys) throws DataAccessException {
+    return find(entityClass, new NoConditionsOrderByQuery(OrderByClause.valueOf(sortKeys)));
   }
 
   @Override
@@ -840,9 +853,8 @@ public class DefaultEntityManager implements EntityManager {
       this.statement = statement;
       this.connection = connection;
       try {
-        var factory = new DefaultResultSetHandlerFactory<T>(
-                new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(), true, true),
-                repositoryManager, null);
+        var factory = new DefaultResultSetHandlerFactory<T>(new JdbcBeanMetadata(entityClass, repositoryManager.isDefaultCaseSensitive(),
+                true, true), repositoryManager, null);
         this.handler = factory.getResultSetHandler(resultSet.getMetaData());
       }
       catch (SQLException e) {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import cn.taketoday.jdbc.persistence.Order;
 import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
 import cn.taketoday.lang.Nullable;
@@ -38,7 +39,7 @@ public class SimpleSelect implements StatementSequence {
   protected String tableName;
 
   @Nullable
-  protected CharSequence orderByClause;
+  protected OrderByClause orderByClause;
 
   @Nullable
   protected CharSequence comment;
@@ -134,9 +135,23 @@ public class SimpleSelect implements StatementSequence {
     return this;
   }
 
-  public SimpleSelect setOrderByClause(@Nullable CharSequence orderByClause) {
-    this.orderByClause = orderByClause;
+  public SimpleSelect orderBy(String col) {
+    orderByClause().asc(col);
     return this;
+  }
+
+  public SimpleSelect orderBy(String col, Order order) {
+    orderByClause().orderBy(col, order);
+    return this;
+  }
+
+  public OrderByClause orderByClause() {
+    OrderByClause orderByClause = this.orderByClause;
+    if (orderByClause == null) {
+      orderByClause = new OrderByClause();
+      this.orderByClause = orderByClause;
+    }
+    return orderByClause;
   }
 
   public SimpleSelect setComment(@Nullable String comment) {
@@ -146,21 +161,20 @@ public class SimpleSelect implements StatementSequence {
 
   @Override
   public String toStatementString() {
-    final var buf = new StringBuilder(columns.size() * 10 + tableName.length() + restrictions.size() * 10 + 10);
-
-    applyComment(buf);
-    applySelectClause(buf);
-    applyFromClause(buf);
-    applyWhereClause(buf);
-    applyOrderBy(buf);
-
-    return buf.toString();
-  }
-
-  private void applyComment(StringBuilder buf) {
+    StringBuilder buf = new StringBuilder(columns.size() * 10 + tableName.length() + restrictions.size() * 10 + 10);
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
+
+    applySelectClause(buf);
+    buf.append(" FROM ").append(tableName);
+    // where
+    Restriction.render(restrictions, buf);
+    if (orderByClause != null) {
+      buf.append(" order by ").append(orderByClause.toClause());
+    }
+
+    return buf.toString();
   }
 
   private void applySelectClause(StringBuilder buf) {
@@ -196,20 +210,6 @@ public class SimpleSelect implements StatementSequence {
       return null;
     }
     return aliases.get(col);
-  }
-
-  private void applyFromClause(StringBuilder buf) {
-    buf.append(" FROM ").append(tableName);
-  }
-
-  private void applyWhereClause(StringBuilder buf) {
-    Restriction.render(restrictions, buf);
-  }
-
-  private void applyOrderBy(StringBuilder buf) {
-    if (orderByClause != null) {
-      buf.append(" order by ").append(orderByClause);
-    }
   }
 
 }

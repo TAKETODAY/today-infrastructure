@@ -34,7 +34,6 @@ public abstract class SimpleSelectQueryHandler implements QueryHandler {
 
     renderInternal(metadata, select);
     return select;
-
   }
 
   protected abstract void renderInternal(EntityMetadata metadata, SimpleSelect select);

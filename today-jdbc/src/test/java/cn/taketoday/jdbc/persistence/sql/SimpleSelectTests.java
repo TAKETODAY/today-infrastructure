@@ -19,6 +19,8 @@ package cn.taketoday.jdbc.persistence.sql;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.jdbc.persistence.Order;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -74,10 +76,10 @@ class SimpleSelectTests {
             .addWhereToken("id = 1")
             .addRestriction("name")
             .setTableName("t_user")
-            .setOrderByClause("id");
+            .orderBy("id", Order.DESC);
 
     assertThat(select.toStatementString()).isEqualTo(
-            "SELECT `name`, `age` FROM t_user WHERE id = 1 AND `name` = ? order by id");
+            "SELECT `name`, `age` FROM t_user WHERE id = 1 AND `name` = ? order by id DESC");
   }
 
   @Test
@@ -88,10 +90,10 @@ class SimpleSelectTests {
             .addWhereToken("id = 1")
             .setTableName("t_user")
             .setComment("find by id")
-            .setOrderByClause("id");
+            .orderBy("id");
 
     assertThat(select.toStatementString()).isEqualTo(
-            "/* find by id */ SELECT `name`, `age` FROM t_user WHERE id = 1 order by id");
+            "/* find by id */ SELECT `name`, `age` FROM t_user WHERE id = 1 order by id ASC");
   }
 
 }
