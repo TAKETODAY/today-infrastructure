@@ -858,22 +858,28 @@ public class DefaultEntityManager implements EntityManager {
     Restriction.render(restrictions, countSql);
 
     String statement = countSql.toString();
+    ResultSet resultSet = null;
+    PreparedStatement stmt = null;
     try {
-      PreparedStatement stmt = con.prepareStatement(statement);
+      stmt = con.prepareStatement(statement);
       handler.setParameter(metadata, stmt);
 
       if (stmtLogger.isDebugEnabled()) {
         stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
       }
-      ResultSet resultSet = stmt.executeQuery();
+      resultSet = stmt.executeQuery();
       if (resultSet.next()) {
         return resultSet.getLong(1);
       }
       return 0;
     }
     catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException(handler.getDescription(), statement, ex);
+    }
+    finally {
+      JdbcUtils.closeQuietly(stmt);
+      JdbcUtils.closeQuietly(resultSet);
+      DataSourceUtils.releaseConnection(con, dataSource);
     }
   }
 
