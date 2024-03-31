@@ -79,7 +79,7 @@ class SimpleSelectTests {
             .orderBy("id", Order.DESC);
 
     assertThat(select.toStatementString()).isEqualTo(
-            "SELECT `name`, `age` FROM t_user WHERE id = 1 AND `name` = ? order by id DESC");
+            "SELECT `name`, `age` FROM t_user WHERE id = 1 AND `name` = ? order by `id` DESC");
   }
 
   @Test
@@ -93,7 +93,7 @@ class SimpleSelectTests {
             .orderBy("id");
 
     assertThat(select.toStatementString()).isEqualTo(
-            "/* find by id */ SELECT `name`, `age` FROM t_user WHERE id = 1 order by id ASC");
+            "/* find by id */ SELECT `name`, `age` FROM t_user WHERE id = 1 order by `id` ASC");
   }
 
 }
