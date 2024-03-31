@@ -17,6 +17,9 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import cn.taketoday.jdbc.persistence.sql.Restriction;
 import cn.taketoday.lang.Nullable;
 
@@ -42,5 +45,21 @@ public interface PropertyConditionStrategy {
       this.restriction = restriction;
       this.entityProperty = entityProperty;
     }
+
+    /**
+     * <p>Sets the value of the designated parameter using the given object.
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @return Returns next parameterIndex
+     * @throws SQLException if parameterIndex does not correspond to a parameter
+     * marker in the SQL statement; if a database access error occurs;
+     * this method is called on a closed {@code PreparedStatement}
+     * or the type of the given object is ambiguous
+     */
+    public int setParameter(PreparedStatement ps, int parameterIndex) throws SQLException {
+      entityProperty.setParameter(ps, parameterIndex++, propertyValue);
+      return parameterIndex;
+    }
+
   }
 }

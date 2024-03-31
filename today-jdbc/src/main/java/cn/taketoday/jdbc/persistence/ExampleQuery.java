@@ -77,7 +77,7 @@ final class ExampleQuery extends SimpleSelectQueryHandler {
   public void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException {
     int idx = 1;
     for (var condition : conditions) {
-      condition.entityProperty.setParameter(statement, idx++, condition.propertyValue);
+      idx = condition.setParameter(statement, idx);
     }
   }
 
