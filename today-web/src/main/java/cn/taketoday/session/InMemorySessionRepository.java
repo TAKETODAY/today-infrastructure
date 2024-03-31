@@ -42,6 +42,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -442,17 +443,17 @@ public class InMemorySessionRepository implements SessionRepository {
         int n = saveNames.size();
         stream.writeInt(n);
         for (int i = 0; i < n; i++) {
-          stream.writeObject(saveNames.get(i));
+          String name = saveNames.get(i);
+          stream.writeObject(name);
           try {
-            stream.writeObject(saveValues.get(i));
-            if (log.isDebugEnabled()) {
-              log.debug("  storing attribute '{}' with value '{}'",
-                      saveNames.get(i), saveValues.get(i));
-            }
+            Object object = saveValues.get(i);
+            stream.writeObject(object);
+            LogFormatUtils.traceDebug(log, traceOn -> LogFormatUtils.formatValue("  storing attribute '%s' with value '%s'"
+                    .formatted(name, object), !traceOn));
           }
           catch (NotSerializableException e) {
             log.warn("Cannot serialize session attribute [{}] for session [{}]",
-                    saveNames.get(i), id, e);
+                    name, id, e);
           }
         }
       }
@@ -498,11 +499,9 @@ public class InMemorySessionRepository implements SessionRepository {
             }
             throw wae;
           }
-          if (log.isDebugEnabled()) {
-            log.debug("  loading attribute '{}' with value '{}'", name, value);
-          }
-
           attributes.put(name, value);
+          LogFormatUtils.traceDebug(log, traceOn -> LogFormatUtils.formatValue("  loading attribute '%s' with value '%s'"
+                  .formatted(name, value), !traceOn));
         }
       }
 
