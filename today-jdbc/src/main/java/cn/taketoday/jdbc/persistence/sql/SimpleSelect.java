@@ -20,6 +20,7 @@ package cn.taketoday.jdbc.persistence.sql;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import cn.taketoday.jdbc.persistence.Order;
 import cn.taketoday.jdbc.persistence.Pageable;
@@ -37,6 +38,10 @@ import cn.taketoday.util.CollectionUtils;
  */
 public class SimpleSelect implements StatementSequence {
 
+  public final List<Restriction> restrictions;
+
+  protected final List<String> columns;
+
   protected String tableName;
 
   @Nullable
@@ -45,18 +50,24 @@ public class SimpleSelect implements StatementSequence {
   @Nullable
   protected CharSequence comment;
 
-  protected final ArrayList<String> columns = new ArrayList<>();
-
   @Nullable
   protected HashMap<String, String> aliases;
-
-  public final ArrayList<Restriction> restrictions = new ArrayList<>();
 
   @Nullable
   private Integer limit;
 
   @Nullable
   private Integer offset;
+
+  public SimpleSelect() {
+    this.columns = new ArrayList<>();
+    this.restrictions = new ArrayList<>();
+  }
+
+  public SimpleSelect(List<String> columns, List<Restriction> restrictions) {
+    this.restrictions = restrictions;
+    this.columns = columns;
+  }
 
   public SimpleSelect pageable(Pageable pageable) {
     this.limit = pageable.size();

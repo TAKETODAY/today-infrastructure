@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -864,9 +865,60 @@ public class DefaultEntityManager implements EntityManager {
     EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     Connection con = DataSourceUtils.getConnection(dataSource);
 
-    ArrayList<Restriction> restrictions = new ArrayList<>(metadata.entityProperties.length);
+    ArrayList<Restriction> restrictions = new ArrayList<>();
+    handler.renderWhereClause(metadata, restrictions);
+    try {
+      return doQueryCount(metadata, handler, restrictions, con);
+    }
+    finally {
+      DataSourceUtils.releaseConnection(con, dataSource);
+    }
+  }
+
+  @Override
+  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler, @Nullable Pageable pageable) throws DataAccessException {
+    if (handler == null) {
+      handler = NoConditionsQuery.instance;
+    }
+
+    if (pageable == null) {
+      pageable = defaultPageable();
+    }
+
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
+    ArrayList<Restriction> restrictions = new ArrayList<>();
     handler.renderWhereClause(metadata, restrictions);
 
+    Connection con = DataSourceUtils.getConnection(dataSource);
+    Number count = doQueryCount(metadata, handler, restrictions, con);
+
+    if (count.intValue() < 1) {
+      return new Page<>(pageable, 0, Collections.emptyList());
+    }
+
+    String statement = new SimpleSelect(Arrays.asList(metadata.columnNames), restrictions)
+            .setTableName(metadata.tableName)
+            .pageable(pageable)
+            .orderBy(handler.getOrderByClause(metadata))
+            .toStatementString(platform);
+    try {
+      PreparedStatement stmt = con.prepareStatement(statement);
+      handler.setParameter(metadata, stmt);
+
+      if (stmtLogger.isDebugEnabled()) {
+        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
+      }
+
+      return new Page<>(pageable, count,
+              new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.size()));
+    }
+    catch (SQLException ex) {
+      DataSourceUtils.releaseConnection(con, dataSource);
+      throw translateException(handler.getDescription(), statement, ex);
+    }
+  }
+
+  private Number doQueryCount(EntityMetadata metadata, ConditionHandler handler, ArrayList<Restriction> restrictions, Connection con) {
     StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.tableName.length());
     countSql.append("SELECT COUNT(*) FROM `")
             .append(metadata.tableName)
@@ -891,55 +943,12 @@ public class DefaultEntityManager implements EntityManager {
       return 0;
     }
     catch (SQLException ex) {
+      DataSourceUtils.releaseConnection(con, dataSource);
       throw translateException(handler.getDescription(), statement, ex);
     }
     finally {
       JdbcUtils.closeQuietly(stmt);
       JdbcUtils.closeQuietly(resultSet);
-      DataSourceUtils.releaseConnection(con, dataSource);
-    }
-  }
-
-  @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler, @Nullable Pageable pageable) throws DataAccessException {
-    if (handler == null) {
-      handler = NoConditionsQuery.instance;
-    }
-
-    if (pageable == null) {
-      pageable = defaultPageable();
-    }
-
-    Number count = count(entityClass, handler);
-
-    if (count.intValue() < 1) {
-      return new Page<>(pageable, 0, Collections.emptyList());
-    }
-
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    SimpleSelect select = new SimpleSelect();
-    handler.renderWhereClause(metadata, select.restrictions);
-
-    String statement = select.setTableName(metadata.tableName)
-            .addColumns(metadata.columnNames)
-            .pageable(pageable)
-            .orderBy(handler.getOrderByClause(metadata))
-            .toStatementString(platform);
-    Connection con = DataSourceUtils.getConnection(dataSource);
-    try {
-      PreparedStatement stmt = con.prepareStatement(statement);
-      handler.setParameter(metadata, stmt);
-
-      if (stmtLogger.isDebugEnabled()) {
-        stmtLogger.logStatement(handler.getDebugLogMessage(), statement);
-      }
-
-      return new Page<>(pageable, count,
-              new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.size()));
-    }
-    catch (SQLException ex) {
-      DataSourceUtils.releaseConnection(con, dataSource);
-      throw translateException(handler.getDescription(), statement, ex);
     }
   }
 

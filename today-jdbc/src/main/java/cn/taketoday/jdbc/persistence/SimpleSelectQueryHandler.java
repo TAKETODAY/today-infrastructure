@@ -17,6 +17,9 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 
 /**
@@ -27,9 +30,7 @@ public abstract class SimpleSelectQueryHandler implements QueryHandler {
 
   @Override
   public StatementSequence render(EntityMetadata metadata) {
-    SimpleSelect select = new SimpleSelect();
-
-    select.addColumns(metadata.columnNames);
+    SimpleSelect select = new SimpleSelect(Arrays.asList(metadata.columnNames), new ArrayList<>());
     select.setTableName(metadata.tableName);
 
     renderInternal(metadata, select);
