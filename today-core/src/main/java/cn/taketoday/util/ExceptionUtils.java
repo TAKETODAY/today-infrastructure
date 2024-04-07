@@ -119,6 +119,39 @@ public abstract class ExceptionUtils {
   }
 
   /**
+   * Retrieve the most specific cause of the given exception,
+   *
+   * @param original the original exception to introspect
+   * @return the most specific cause, Maybe {@code null} if not found
+   * @since 4.0
+   */
+  @Nullable
+  @SuppressWarnings("unchecked")
+  public static <T extends Throwable> T getMostSpecificCause(@Nullable Throwable original, @Nullable Class<T> exType) {
+    if (exType == null || original == null) {
+      return null;
+    }
+    if (exType.isInstance(original)) {
+      return (T) original;
+    }
+    Throwable cause = original.getCause();
+    if (cause == original) {
+      return null;
+    }
+
+    while (cause != null) {
+      if (exType.isInstance(cause)) {
+        return (T) cause;
+      }
+      if (cause.getCause() == cause) {
+        break;
+      }
+      cause = cause.getCause();
+    }
+    return null;
+  }
+
+  /**
    * Check whether this exception contains an exception of the given type:
    * either it is of the given class itself or it contains a nested cause
    * of the given type.

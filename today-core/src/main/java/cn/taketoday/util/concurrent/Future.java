@@ -30,7 +30,6 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 import cn.taketoday.core.Pair;
 import cn.taketoday.core.Triple;
@@ -204,7 +203,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Returns {@code true} if this task completed.
-   *
+   * <p>
    * Completion may be due to normal termination, an exception, or
    * cancellation -- in all of these cases, this method will return
    * {@code true}.
@@ -573,17 +572,91 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Example:
    * <pre>{@code
    * // = "oh!"
-   * Future.run(() -> new Error("oh!"))
-   *       .errorHandling(Throwable::getMessage);
+   * Future.run(() -> { throw new Error("oh!"); })
+   *   .errorHandling(Throwable::getMessage);
    * }</pre>
+   * <p>
+   * {@code errorHandler} errors will propagate to next futures
    *
-   * @param errorHandler A function which takes the exception of a failure and returns a new value.
+   * @param errorHandler A function which takes the exception to a failure and returns a new value.
    * @return A new Future.
-   * @throws IllegalArgumentException recoverFunc is null.
+   * @throws IllegalArgumentException errorHandler is null.
    */
-  public Future<V> errorHandling(Function<Throwable, V> errorHandler) {
-    Assert.notNull(errorHandler, "errorHandler is required");
-    return Futures.errorHandling(this, errorHandler);
+  @SuppressWarnings("unchecked")
+  public Future<V> errorHandling(ThrowingFunction<Throwable, V> errorHandler) {
+    return Futures.errorHandling(this, null, errorHandler, Futures.alwaysFunction);
+  }
+
+  /**
+   * Handles a failure of this Future by returning another result.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * // = "oh!"
+   * Future.run(() -> { throw new IllegalStateException(); })
+   *   .catching(IllegalStateException.class, i -> "oh!")
+   *   .catching(IllegalArgumentException.class, IllegalArgumentException::getMessage);
+   * }</pre>
+   * <p>
+   * {@code errorHandler} errors will propagate to next futures, this method like Java try-catch
+   *
+   * @param errorHandler A function which takes the exception to a failure and returns a new value.
+   * @return A new Future.
+   * @throws IllegalArgumentException errorHandler is null.
+   * @see Class#isInstance(Object)
+   */
+  @SuppressWarnings("unchecked")
+  public <T> Future<V> catching(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
+    Assert.notNull(exType, "exType is required");
+    return Futures.errorHandling(this, exType, errorHandler, Futures.isInstanceFunction);
+  }
+
+  /**
+   * Handles a failure of this Future by returning another result.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * // = "oh!"
+   * Future.run(() -> { throw new RpcException(new IllegalStateException("oh!")); })
+   *   .catchSpecificCause(IllegalArgumentException.class, i -> "iae")
+   *   .catchSpecificCause(IllegalStateException.class, IllegalStateException::getMessage);
+   * }</pre>
+   * <p>
+   * {@code errorHandler} errors will propagate to next futures
+   *
+   * @param errorHandler A function which takes the exception to a failure and returns a new value.
+   * @return A new Future.
+   * @throws IllegalArgumentException errorHandler is null.
+   * @see ExceptionUtils#getMostSpecificCause(Throwable, Class)
+   */
+  @SuppressWarnings("unchecked")
+  public <T> Future<V> catchSpecificCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
+    Assert.notNull(exType, "exType is required");
+    return Futures.errorHandling(this, exType, errorHandler, Futures.mostSpecificCauseFunction);
+  }
+
+  /**
+   * Handles a failure of this Future by returning another result.
+   * <p>
+   * Example:
+   * <pre>{@code
+   * // = "oh!"
+   * Future.run(() -> { throw new HttpException(new OtherError(new IllegalArgumentException("oh!"))); })
+   *   .catchRootCause(IllegalStateException.class, i -> "IllegalStateException")
+   *   .catchRootCause(IllegalArgumentException.class, IllegalArgumentException::getMessage);
+   * }</pre>
+   * <p>
+   * {@code errorHandler} errors will propagate to next futures
+   *
+   * @param errorHandler A function which takes the exception to a failure and returns a new value.
+   * @return A new Future.
+   * @throws IllegalArgumentException errorHandler is null.
+   * @see ExceptionUtils#getRootCause(Throwable)
+   */
+  @SuppressWarnings("unchecked")
+  public <T> Future<V> catchRootCause(Class<T> exType, ThrowingFunction<T, V> errorHandler) {
+    Assert.notNull(exType, "exType is required");
+    return Futures.errorHandling(this, exType, errorHandler, Futures.rootCauseFunction);
   }
 
   /**
@@ -671,10 +744,10 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   /**
    * Expose this {@link Future} as a JDK {@link CompletableFuture}.
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings("unchecked")
   public CompletableFuture<V> completable() {
     final CompletableFuture<V> ret = new CompletableFuture<>();
-    onCompleted((FutureContextListener) Futures.completableAdapter, ret);
+    onCompleted(Futures.completableAdapter, ret);
     return ret;
   }
 
@@ -959,16 +1032,15 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @param executor The {@link Executor} which is used to notify the
    * {@code Future} once it is complete.
-   * @param computation A computation task.
+   * @param task A computation task.
    * @param <V> Type of the computation result.
    * @return A new Future instance.
    * @throws IllegalArgumentException computation is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
-  public static <V> ListenableFutureTask<V> run(Callable<V> computation, @Nullable Executor executor) {
-    Assert.notNull(computation, "computation is required");
-    return new ListenableFutureTask<>(executor, computation).execute();
+  public static <V> ListenableFutureTask<V> run(Callable<V> task, @Nullable Executor executor) {
+    return new ListenableFutureTask<>(executor, task).execute();
   }
 
   /**
@@ -976,7 +1048,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @param task A unit of work.
    * @return A new Future instance which results in nothing.
-   * @throws IllegalArgumentException if unit is null.
+   * @throws IllegalArgumentException if task is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
@@ -990,7 +1062,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param executor An {@link Executor}.
    * @param task A unit of work.
    * @return A new Future instance which results in nothing.
-   * @throws IllegalArgumentException unit is null.
+   * @throws IllegalArgumentException task is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
@@ -1003,7 +1075,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    *
    * @param task A unit of work.
    * @return A new Future instance which results in nothing.
-   * @throws IllegalArgumentException if unit is null.
+   * @throws IllegalArgumentException if task is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
@@ -1017,12 +1089,12 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * @param executor An {@link Executor}.
    * @param task A unit of work.
    * @return A new Future instance which results in nothing.
-   * @throws IllegalArgumentException unit is null.
+   * @throws IllegalArgumentException task is null.
    * @throws RejectedExecutionException if this task cannot be
    * accepted for execution
    */
   public static <V> ListenableFutureTask<V> run(Runnable task, @Nullable V result, @Nullable Executor executor) {
-    Assert.notNull(task, "unit is required");
+    Assert.notNull(task, "task is required");
     return forFutureTask(task, result, executor).execute();
   }
 

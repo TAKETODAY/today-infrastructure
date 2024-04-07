@@ -168,6 +168,23 @@ class FutureTests {
   }
 
   @Test
+  void zipWith_failed() {
+    Future<Object> future = ok("2")
+            .zipWith(ok(1), (first, second) -> {
+              assertThat(first).isEqualTo("2");
+              assertThat(second).isEqualTo(1);
+              throw new IllegalStateException();
+            })
+            .onSuccess(result -> {
+              fail("never");
+            })
+            .onFailure((e) -> fail("never"));
+
+    assertThat(future.awaitUninterruptibly()).isDone();
+    assertThat(future.getCause()).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
   void errorHandling() throws InterruptedException {
     String string = Future.<String>failed(new RuntimeException())
             .errorHandling(e -> "recover")
@@ -211,6 +228,104 @@ class FutureTests {
 
     assertThat(stringFuture.await()).isDone();
     assertThat(stringFuture.getNow()).isEqualTo("result");
+  }
+
+  @Test
+  void errorHandling_notPropagate() throws InterruptedException {
+    SettableFuture<String> settable = Future.forSettable();
+    Future<String> stringFuture = settable.errorHandling(s -> "notPropagate")
+            .errorHandling(Throwable::getMessage);
+    settable.tryFailure(new IllegalStateException());
+
+    assertThat(stringFuture.await()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("notPropagate");
+  }
+
+  @Test
+  void catchMostSpecific_propagate() {
+    var stringFuture = Future.<String>run(() -> { throw new UnsupportedOperationException(new IllegalStateException()); })
+            .catchSpecificCause(IllegalArgumentException.class, iae -> "iae")
+            .catchSpecificCause(IllegalStateException.class, i -> "IllegalStateException");
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("IllegalStateException");
+  }
+
+  @Test
+  void catchMostSpecific_notPropagate() {
+    Future<String> stringFuture = Future.<String>run(() -> { throw new UnsupportedOperationException(new IllegalArgumentException()); })
+            .catchSpecificCause(IllegalArgumentException.class, iae -> "iae")
+            .catchSpecificCause(IllegalStateException.class, i -> "IllegalStateException");
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("iae");
+  }
+
+  @Test
+  void catchRootCause_propagate() {
+    Future<String> stringFuture = Future.<String>run(() -> { throw new UnsupportedOperationException(new IllegalStateException()); })
+            .catchRootCause(IllegalArgumentException.class, iae -> "iae")
+            .catchRootCause(IllegalStateException.class, i -> "IllegalStateException");
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("IllegalStateException");
+  }
+
+  @Test
+  void catchRootCause_notPropagate() {
+    Future<String> stringFuture = Future.<String>run(() -> { throw new UnsupportedOperationException(new IllegalArgumentException()); })
+            .catchRootCause(IllegalArgumentException.class, iae -> "iae")
+            .catchRootCause(IllegalStateException.class, i -> "IllegalStateException");
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("iae");
+  }
+
+  @Test
+  void catching_propagate() {
+    Future<String> stringFuture = Future.<String>run(() -> { throw new IllegalStateException(new IllegalArgumentException()); })
+            .catching(IllegalArgumentException.class, iae -> "iae")
+            .catching(IllegalStateException.class, i -> "IllegalStateException");
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("IllegalStateException");
+  }
+
+  @Test
+  void catching_notPropagate() {
+    Future<String> stringFuture = Future.<String>run(() -> { throw new IllegalArgumentException(new IllegalStateException()); })
+            .catching(IllegalArgumentException.class, iae -> "iae")
+            .catching(IllegalStateException.class, i -> "IllegalStateException");
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("iae");
+  }
+
+  @Test
+  void catching_failed() {
+    SettableFuture<String> future = forSettable();
+    Future<String> stringFuture = future
+            .catching(IllegalArgumentException.class, iae -> { throw new IllegalStateException("result"); })
+            .catching(IllegalStateException.class, IllegalStateException::getMessage);
+
+    future.tryFailure(new IllegalArgumentException(new IllegalStateException()));
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isEqualTo("result");
+  }
+
+  @Test
+  void catching_lost() {
+    SettableFuture<String> future = forSettable();
+    Future<String> stringFuture = future
+            .catching(UnsupportedOperationException.class, UnsupportedOperationException::getMessage);
+
+    IllegalArgumentException exception = new IllegalArgumentException(new IllegalStateException());
+    future.tryFailure(exception);
+
+    assertThat(stringFuture.awaitUninterruptibly()).isDone();
+    assertThat(stringFuture.getNow()).isNull();
+    assertThat(stringFuture.getCause()).isSameAs(exception);
   }
 
   @Test

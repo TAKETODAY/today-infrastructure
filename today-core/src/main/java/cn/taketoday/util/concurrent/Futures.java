@@ -19,9 +19,9 @@ package cn.taketoday.util.concurrent;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -40,21 +40,70 @@ import cn.taketoday.util.function.ThrowingFunction;
  * as static inner classes instead of lambdas to aid debugging.
  * @since 4.0
  */
+@SuppressWarnings({ "rawtypes", "unchecked" })
 final class Futures {
 
   private static final Logger logger = LoggerFactory.getLogger(Futures.class);
 
   private static final PassThrough<?> PASS_THROUGH = new PassThrough<>();
 
-  private static final PropagateCancel PROPAGATE_CANCEL = new PropagateCancel();
+  private static final FutureContextListener propagateCancel = new FutureContextListener<Future<Object>, Future<Object>>() {
 
-  public static final FutureContextListener<Future<Object>, CompletableFuture<Object>> completableAdapter = (completed, context) -> {
-    Throwable cause = completed.getCause();
-    if (cause != null) {
-      context.completeExceptionally(cause);
+    @Override
+    public void operationComplete(Future<Object> completed, Future<Object> context) {
+      if (completed.isCancelled()) {
+        context.cancel();
+      }
     }
-    else {
-      context.complete(completed.getNow());
+  };
+
+  public static final FutureContextListener completableAdapter = new FutureContextListener<Future<Object>, CompletableFuture<Object>>() {
+
+    @Override
+    public void operationComplete(Future<Object> completed, CompletableFuture<Object> context) {
+      Throwable cause = completed.getCause();
+      if (cause != null) {
+        context.completeExceptionally(cause);
+      }
+      else {
+        context.complete(completed.getNow());
+      }
+    }
+  };
+
+  static final BiFunction rootCauseFunction = new BiFunction<Throwable, Class<?>, Throwable>() {
+
+    @Override
+    @Nullable
+    public Throwable apply(Throwable throwable, Class<?> type) {
+      Throwable rootCause = ExceptionUtils.getMostSpecificCause(throwable);
+      return type.isInstance(rootCause) ? rootCause : null;
+    }
+  };
+
+  static final BiFunction mostSpecificCauseFunction = new BiFunction<Throwable, Class<? extends Throwable>, Throwable>() {
+
+    @Nullable
+    @Override
+    public Throwable apply(Throwable throwable, Class<? extends Throwable> type) {
+      return ExceptionUtils.getMostSpecificCause(throwable, type);
+    }
+  };
+
+  static final BiFunction isInstanceFunction = new BiFunction<Throwable, Class<? extends Throwable>, Throwable>() {
+
+    @Override
+    @Nullable
+    public Throwable apply(Throwable cc, Class<? extends Throwable> type) {
+      return type.isInstance(cc) ? cc : null;
+    }
+  };
+
+  static final BiFunction alwaysFunction = new BiFunction<Throwable, Class<? extends Throwable>, Throwable>() {
+
+    @Override
+    public Throwable apply(Throwable cc, Class<? extends Throwable> type) {
+      return cc;
     }
   };
 
@@ -75,21 +124,17 @@ final class Futures {
    * @param <R> The result type of the mapper function, and of the returned future.
    * @return A new future instance that will complete with the mapped result of the given future.
    */
-  @SuppressWarnings("unchecked")
   public static <V, R> Future<R> map(Future<V> future, ThrowingFunction<V, R> mapper) {
     if (future.isFailed()) {
       // Cast is safe because the result type is not used in failed futures.
       return (Future<R>) future;
     }
-    Executor executor = future.executor();
     if (future.isSuccess()) {
-      var task = new ListenableFutureTask<>(executor, new CallableMapper<>(future, mapper));
-      executor.execute(task);
-      return task;
+      return new ListenableFutureTask<>(future.executor(), new MapCallable<>(future.getNow(), mapper)).execute();
     }
-    SettableFuture<R> settable = Future.forSettable(executor);
+    SettableFuture<R> settable = Future.forSettable(future.executor());
     future.onCompleted(new Mapper<>(settable, mapper));
-    settable.onCompleted(propagateCancel(), future);
+    settable.onCompleted(propagateCancel, future);
     return settable;
   }
 
@@ -128,7 +173,7 @@ final class Futures {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel(), future);
+      settable.onCompleted(propagateCancel, future);
     }
     return settable;
   }
@@ -139,44 +184,36 @@ final class Futures {
    * Example:
    * <pre>{@code
    * // = "oh!"
-   * Future.run(() -> new Error("oh!")).recover(Throwable::getMessage);
+   * Future.run(() -> { throw new Error("oh!"); })
+   *   .errorHandling(Throwable::getMessage);
    * }</pre>
    *
-   * @param recoverFunc A function which takes the exception of a failure and returns a new value.
    * @return A new Future.
    */
-  public static <V> Future<V> errorHandling(Future<V> future, Function<Throwable, V> recoverFunc) {
+  public static <V, T> Future<V> errorHandling(Future<V> future, @Nullable Class<T> exType,
+          ThrowingFunction<T, V> errorHandler, BiFunction<Throwable, Class<T>, T> causeFunction) {
+    Assert.notNull(errorHandler, "errorHandler is required");
     if (future.isCancelled()) {
       return future;
     }
 
-    Executor executor = future.executor();
     Throwable cause = future.getCause();
     if (cause != null) {
-      // already failed
-      var task = new ListenableFutureTask<>(executor, () -> recoverFunc.apply(cause));
-      executor.execute(task);
-      return task;
+      T target = causeFunction.apply(cause, exType);
+      if (target != null) {
+        // already failed
+        return new ListenableFutureTask<>(future.executor, new MapCallable<>(target, errorHandler)).execute();
+      }
+      return future;
     }
 
-    SettableFuture<V> settable = Future.forSettable(executor);
-    future.onCompleted(completed -> {
-      if (completed.isSuccess()) {
-        settable.trySuccess(completed.getNow());
-      }
-      else if (completed.isCancelled()) {
-        settable.cancel();
-      }
-      else {
-        V result = recoverFunc.apply(completed.getCause());
-        settable.trySuccess(result);
-      }
-    });
+    SettableFuture<V> settable = Future.forSettable(future.executor);
+    future.onCompleted(new ErrorHandling<>(settable, exType, errorHandler, causeFunction));
 
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel(), future);
+      settable.onCompleted(propagateCancel, future);
     }
     return settable;
   }
@@ -194,7 +231,7 @@ final class Futures {
    * @return A new Future that returns both Future results.
    */
   public static <U, R, V> Future<R> zipWith(Future<V> future, Future<U> that, ThrowingBiFunction<V, U, R> combinator) {
-    SettableFuture<R> recipient = Future.forSettable(future.executor());
+    SettableFuture<R> recipient = Future.forSettable(future.executor);
     future.onCompleted(completed -> {
       if (completed.isSuccess()) {
         // succeed
@@ -222,14 +259,43 @@ final class Futures {
     if (!future.isSuccess()) {
       // Propagate cancellation if future is either incomplete or failed.
       // Failed means it could be cancelled, so that needs to be propagated.
-      recipient.onCompleted(propagateCancel(), future);
+      recipient.onCompleted(propagateCancel, future);
     }
     return recipient;
   }
 
-  @SuppressWarnings("unchecked")
-  static <V, R> FutureContextListener<SettableFuture<V>, Future<R>> propagateCancel() {
-    return (FutureContextListener<SettableFuture<V>, Future<R>>) (FutureContextListener<?, ?>) PROPAGATE_CANCEL;
+  /**
+   * Link the {@link Future} and {@link SettableFuture} such that if the {@link Future} completes the {@link SettableFuture}
+   * will be notified. Cancellation is propagated both ways such that if the {@link Future} is cancelled
+   * the {@link SettableFuture} is cancelled and vice-versa.
+   *
+   * @param future the {@link Future} which will be used to listen to for notifying the {@link SettableFuture}.
+   * @param settable the {@link SettableFuture} which will be notified
+   * @param <V> the type of the value.
+   */
+  static <V> void cascadeTo(final Future<V> future, final SettableFuture<V> settable) {
+    if (!future.isSuccess()) {
+      // Propagate cancellation if future is either incomplete or failed.
+      // Failed means it could be cancelled, so that needs to be propagated.
+      settable.onCompleted(propagateCancel, future);
+    }
+    future.onCompleted(passThrough(), settable);
+  }
+
+  /**
+   * Try to mark the {@link SettableFuture} as failure and log if {@code logger} is not {@code null} in case this fails.
+   */
+  static void tryFailure(SettableFuture<?> p, Throwable cause, @Nullable Logger logger) {
+    if (!p.tryFailure(cause) && logger != null) {
+      Throwable err = p.getCause();
+      if (err == null) {
+        logger.warn("Failed to mark a SettableFuture as failure because it has succeeded already: {}", p, cause);
+      }
+      else if (logger.isWarnEnabled()) {
+        logger.warn("Failed to mark a SettableFuture as failure because it has failed already: {}, unnotified cause: {}",
+                p, ExceptionUtils.stackTraceToString(err), cause);
+      }
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -249,28 +315,12 @@ final class Futures {
     }
   }
 
-  private static final class PropagateCancel implements FutureContextListener<Future<Object>, Future<Object>> {
-
-    @Override
-    public void operationComplete(Future<Object> completed, Future<Object> context) {
-      if (completed.isCancelled()) {
-        context.cancel();
-      }
-    }
-  }
-
   private static final class PassThrough<R> implements FutureContextListener<Future<R>, SettableFuture<R>> {
 
     @Override
     public void operationComplete(Future<R> completed, SettableFuture<R> recipient) {
       if (completed.isSuccess()) {
-        try {
-          R result = completed.getNow();
-          recipient.trySuccess(result);
-        }
-        catch (Throwable e) {
-          tryFailure(recipient, e, logger);
-        }
+        recipient.trySuccess(completed.getNow());
       }
       else {
         propagateUncommonCompletion(completed, recipient);
@@ -278,21 +328,21 @@ final class Futures {
     }
   }
 
-  private static final class CallableMapper<R, T> implements Callable<R> {
+  private static final class MapCallable<R, T> implements Callable<R> {
 
-    private final Future<T> future;
+    private final T input;
 
     private final ThrowingFunction<T, R> mapper;
 
-    CallableMapper(Future<T> future, ThrowingFunction<T, R> mapper) {
-      this.future = future;
+    MapCallable(T input, ThrowingFunction<T, R> mapper) {
+      this.input = input;
       this.mapper = mapper;
     }
 
     @Override
     public R call() {
       try {
-        return mapper.applyWithException(future.getNow());
+        return mapper.applyWithException(input);
       }
       catch (Throwable e) {
         throw ExceptionUtils.sneakyThrow(e);
@@ -352,7 +402,7 @@ final class Futures {
           }
           else {
             mapped.onCompleted(passThrough(), recipient);
-            recipient.onCompleted(propagateCancel(), mapped);
+            recipient.onCompleted(propagateCancel, mapped);
           }
         }
         catch (Throwable e) {
@@ -365,38 +415,52 @@ final class Futures {
     }
   }
 
-  /**
-   * Link the {@link Future} and {@link SettableFuture} such that if the {@link Future} completes the {@link SettableFuture}
-   * will be notified. Cancellation is propagated both ways such that if the {@link Future} is cancelled
-   * the {@link SettableFuture} is cancelled and vice-versa.
-   *
-   * @param future the {@link Future} which will be used to listen to for notifying the {@link SettableFuture}.
-   * @param settable the {@link SettableFuture} which will be notified
-   * @param <V> the type of the value.
-   */
-  static <V> void cascadeTo(final Future<V> future, final SettableFuture<V> settable) {
-    if (!future.isSuccess()) {
-      // Propagate cancellation if future is either incomplete or failed.
-      // Failed means it could be cancelled, so that needs to be propagated.
-      settable.onCompleted(propagateCancel(), future);
-    }
-    future.onCompleted(passThrough(), settable);
-  }
+  static final class ErrorHandling<V, T> implements FutureListener<Future<V>> {
 
-  /**
-   * Try to mark the {@link SettableFuture} as failure and log if {@code logger} is not {@code null} in case this fails.
-   */
-  static void tryFailure(SettableFuture<?> p, Throwable cause, @Nullable Logger logger) {
-    if (!p.tryFailure(cause) && logger != null) {
-      Throwable err = p.getCause();
-      if (err == null) {
-        logger.warn("Failed to mark a SettableFuture as failure because it has succeeded already: {}", p, cause);
+    @Nullable
+    private final Class<T> exType;
+
+    private final SettableFuture<V> recipient;
+
+    private final ThrowingFunction<T, V> recoverFunc;
+
+    private final BiFunction<Throwable, Class<T>, T> causeFunction;
+
+    private ErrorHandling(SettableFuture<V> recipient, @Nullable Class<T> exType,
+            ThrowingFunction<T, V> recoverFunc, BiFunction<Throwable, Class<T>, T> causeFunction) {
+      this.recipient = recipient;
+      this.exType = exType;
+      this.recoverFunc = recoverFunc;
+      this.causeFunction = causeFunction;
+    }
+
+    @Override
+    public void operationComplete(Future<V> completed) {
+      Throwable cc = completed.getCause();
+      if (cc == null) {
+        recipient.trySuccess(completed.getNow());
       }
-      else if (logger.isWarnEnabled()) {
-        logger.warn("Failed to mark a SettableFuture as failure because it has failed already: {}, unnotified cause: {}",
-                p, ExceptionUtils.stackTraceToString(err), cause);
+      else if (completed.isCancelled()) {
+        recipient.cancel();
+      }
+      else {
+        T cause = causeFunction.apply(cc, exType);
+        if (cause != null) {
+          try {
+            V result = recoverFunc.applyWithException(cause);
+            recipient.trySuccess(result);
+          }
+          catch (Throwable e) {
+            tryFailure(recipient, e, logger);
+          }
+        }
+        else {
+          // just propagate
+          recipient.tryFailure(cc);
+        }
       }
     }
+
   }
 
 }
