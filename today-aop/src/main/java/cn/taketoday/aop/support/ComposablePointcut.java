@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import cn.taketoday.aop.ClassFilter;
@@ -38,11 +39,13 @@ import cn.taketoday.lang.Assert;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
- * @author TODAY 2021/2/1 18:18
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Pointcut
- * @since 3.0
+ * @since 3.0 2021/2/1 18:18
  */
 public class ComposablePointcut implements Pointcut, Serializable {
+
+  @Serial
   private static final long serialVersionUID = 1L;
 
   private ClassFilter classFilter;
@@ -194,12 +197,11 @@ public class ComposablePointcut implements Pointcut, Serializable {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ComposablePointcut)) {
+    if (!(other instanceof ComposablePointcut otherPointcut)) {
       return false;
     }
-    ComposablePointcut otherPointcut = (ComposablePointcut) other;
-    return (this.classFilter.equals(otherPointcut.classFilter) &&
-            this.methodMatcher.equals(otherPointcut.methodMatcher));
+    return classFilter.equals(otherPointcut.classFilter)
+            && methodMatcher.equals(otherPointcut.methodMatcher);
   }
 
   @Override

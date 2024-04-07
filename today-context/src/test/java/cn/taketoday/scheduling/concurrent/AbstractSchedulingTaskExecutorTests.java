@@ -97,7 +97,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   @Test
   void submitRunnable() throws Exception {
     TestTask task = new TestTask(this.testName, 1);
-    java.util.concurrent.Future<?> future = executor.submit(task);
+    var future = executor.submit(task);
     Object result = future.get(1000, TimeUnit.MILLISECONDS);
     assertThat(result).isNull();
     assertThreadNamePrefix(task);
@@ -106,7 +106,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   @Test
   void submitFailingRunnable() {
     TestTask task = new TestTask(this.testName, 0);
-    java.util.concurrent.Future<?> future = executor.submit(task);
+    var future = executor.submit(task);
     assertThatExceptionOfType(ExecutionException.class).isThrownBy(() ->
             future.get(1000, TimeUnit.MILLISECONDS));
     assertThat(future.isDone()).isTrue();
@@ -114,8 +114,8 @@ abstract class AbstractSchedulingTaskExecutorTests {
 
   @Test
   void submitRunnableWithGetAfterShutdown() throws Exception {
-    java.util.concurrent.Future<?> future1 = executor.submit(new TestTask(this.testName, -1));
-    java.util.concurrent.Future<?> future2 = executor.submit(new TestTask(this.testName, -1));
+    var future1 = executor.submit(new TestTask(this.testName, -1));
+    var future2 = executor.submit(new TestTask(this.testName, -1));
     shutdownExecutor();
     assertThatExceptionOfType(CancellationException.class).isThrownBy(() -> {
       future1.get(1000, TimeUnit.MILLISECONDS);
@@ -230,7 +230,7 @@ abstract class AbstractSchedulingTaskExecutorTests {
   @Test
   void submitFailingCallable() {
     TestCallable task = new TestCallable(this.testName, 0);
-    java.util.concurrent.Future<String> future = executor.submit(task);
+    var future = executor.submit(task);
     assertThatExceptionOfType(ExecutionException.class)
             .isThrownBy(() -> future.get(1000, TimeUnit.MILLISECONDS));
     assertThat(future.isDone()).isTrue();
@@ -238,8 +238,8 @@ abstract class AbstractSchedulingTaskExecutorTests {
 
   @Test
   void submitCallableWithGetAfterShutdown() throws Exception {
-    java.util.concurrent.Future<?> future1 = executor.submit(new TestCallable(this.testName, -1));
-    java.util.concurrent.Future<?> future2 = executor.submit(new TestCallable(this.testName, -1));
+    var future1 = executor.submit(new TestCallable(this.testName, -1));
+    var future2 = executor.submit(new TestCallable(this.testName, -1));
     shutdownExecutor();
 
     try {
