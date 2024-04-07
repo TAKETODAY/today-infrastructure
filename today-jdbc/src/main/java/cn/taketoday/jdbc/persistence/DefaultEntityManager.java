@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -761,6 +762,11 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
+  public <T> Number count(Class<T> entityClass) throws DataAccessException {
+    return count(entityClass, null);
+  }
+
+  @Override
   public <T> Number count(Class<T> entityClass, Object example) throws DataAccessException {
     return count(entityClass, new ExampleQuery(entityMetadataFactory, example));
   }
@@ -769,6 +775,17 @@ public class DefaultEntityManager implements EntityManager {
   @SuppressWarnings("unchecked")
   public <T> Page<T> page(T example) throws DataAccessException {
     return page((Class<T>) example.getClass(), example);
+  }
+
+  @Override
+  public <T> Page<T> page(Class<T> entityClass, @Nullable Pageable pageable) throws DataAccessException {
+    return page(entityClass, null, pageable);
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> Page<T> page(T example, @Nullable Pageable pageable) throws DataAccessException {
+    return page((Class<T>) example.getClass(), example, pageable);
   }
 
   @Override
@@ -893,19 +910,22 @@ public class DefaultEntityManager implements EntityManager {
       pageable = defaultPageable();
     }
 
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
-    Connection con = DataSourceUtils.getConnection(dataSource);
-
     Number count = count(entityClass, handler);
 
+    if (count.intValue() < 1) {
+      return new Page<>(pageable, 0, Collections.emptyList());
+    }
+
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     SimpleSelect select = new SimpleSelect();
     handler.renderWhereClause(metadata, select.restrictions);
-    select.setTableName(metadata.tableName)
+
+    String statement = select.setTableName(metadata.tableName)
             .addColumns(metadata.columnNames)
             .pageable(pageable)
-            .orderBy(handler.getOrderByClause(metadata));
-
-    String statement = select.toStatementString(platform);
+            .orderBy(handler.getOrderByClause(metadata))
+            .toStatementString(platform);
+    Connection con = DataSourceUtils.getConnection(dataSource);
     try {
       PreparedStatement stmt = con.prepareStatement(statement);
       handler.setParameter(metadata, stmt);

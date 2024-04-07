@@ -439,6 +439,11 @@ public interface EntityManager {
   /**
    * @throws IllegalEntityException entityClass is legal entity
    */
+  <T> Number count(Class<T> entityClass) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
   <T> Number count(Class<T> entityClass, Object example) throws DataAccessException;
 
   /**
@@ -451,8 +456,20 @@ public interface EntityManager {
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
+   * @see #iterate(Class, QueryHandler)
+   */
+  <T> Page<T> page(Class<T> entityClass, @Nullable Pageable pageable)
+          throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
    */
   <T> Page<T> page(T example) throws DataAccessException;
+
+  /**
+   * @throws IllegalEntityException entityClass is legal entity
+   */
+  <T> Page<T> page(T example, @Nullable Pageable pageable) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity
