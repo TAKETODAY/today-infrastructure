@@ -168,7 +168,7 @@ public class SimpleSelect implements StatementSequence {
       return mutable;
     }
     var mutable = OrderByClause.mutable();
-    this.orderByClause = OrderByClause.mutable();
+    this.orderByClause = mutable;
     return mutable;
   }
 
