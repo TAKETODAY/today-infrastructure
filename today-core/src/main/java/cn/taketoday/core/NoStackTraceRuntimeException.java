@@ -29,28 +29,9 @@ import cn.taketoday.lang.Nullable;
  * @since 4.0
  */
 public class NoStackTraceRuntimeException extends NestedRuntimeException {
+
   @Serial
   private static final long serialVersionUID = 1L;
-
-  public NoStackTraceRuntimeException() { }
-
-  /**
-   * Construct a {@code NestedRuntimeException} with the specified detail message.
-   *
-   * @param msg the detail message
-   */
-  public NoStackTraceRuntimeException(@Nullable String msg) {
-    super(msg);
-  }
-
-  /**
-   * Construct a {@code NestedRuntimeException} with the specified nested exception.
-   *
-   * @param cause the nested exception
-   */
-  public NoStackTraceRuntimeException(@Nullable Throwable cause) {
-    super(cause);
-  }
 
   /**
    * Construct a {@code NestedRuntimeException} with the specified detail message
