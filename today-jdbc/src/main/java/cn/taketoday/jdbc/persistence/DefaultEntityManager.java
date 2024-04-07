@@ -791,7 +791,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Page<T> page(Class<T> entityClass, Object example) throws DataAccessException {
-    return page(entityClass, new ExampleQuery(entityMetadataFactory, example));
+    return page(entityClass, new ExampleQuery(entityMetadataFactory, example), null);
   }
 
   @Override
@@ -885,8 +885,8 @@ public class DefaultEntityManager implements EntityManager {
       pageable = defaultPageable();
     }
 
-    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     ArrayList<Restriction> restrictions = new ArrayList<>();
+    EntityMetadata metadata = entityMetadataFactory.getEntityMetadata(entityClass);
     handler.renderWhereClause(metadata, restrictions);
 
     Connection con = DataSourceUtils.getConnection(dataSource);

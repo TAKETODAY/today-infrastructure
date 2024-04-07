@@ -176,9 +176,6 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
   void findByExample(RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
 
-    UserForm userForm = new UserForm();
-    userForm.age = 10;
-
     UserModel userModel = UserModel.male("TODAY", 9);
 
     List<Object> entities = new ArrayList<>();
@@ -190,19 +187,14 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     entityManager.persist(entities);
 
-    List<UserModel> list = entityManager.find(UserModel.class, userForm);
-
-    System.out.println(list);
-
-    userForm = new UserForm();
+    UserForm userForm = new UserForm();
     userForm.name = "TODAY";
 
-    list = entityManager.find(UserModel.class, userForm);
-    System.out.println(list);
+    List<UserModel> list = entityManager.find(UserModel.class, userForm);
 
     assertThat(list).hasSize(entities.size()).isEqualTo(entities);
 
-    entityManager.iterate(UserModel.class, userForm, System.out::println);
+    // entityManager.iterate(UserModel.class, userForm, System.out::println);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -214,9 +206,8 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 //            QueryCondition.equalsTo("age", 10)
 //                    .and(QueryCondition.of("name", ConditionOperator.LIKE, "T"));
 
-    QueryCondition condition = QueryCondition.of("name", Operator.SUFFIX_LIKE, "T");
-    entityManager.iterate(UserModel.class, condition, System.out::println);
-
+//    QueryCondition condition = QueryCondition.of("name", Operator.SUFFIX_LIKE, "T");
+    // entityManager.iterate(UserModel.class, condition, System.out::println);
   }
 
   @ParameterizedRepositoryManagerTest
@@ -450,6 +441,78 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     });
 
     createData(entityManager);
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void count(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    UserModel userModel = UserModel.male("TODAY", 9);
+    List<Object> entities = new ArrayList<>();
+    entities.add(userModel);
+
+    for (int i = 0; i < 100; i++) {
+      entities.add(UserModel.male("TODAY", 10 + i));
+    }
+    entityManager.persist(entities);
+
+    assertThat(entityManager.count(new UserModel())).isEqualTo(101L);
+    assertThat(entityManager.count(UserModel.class)).isEqualTo(101L);
+    assertThat(entityManager.count(UserModel.class, null)).isEqualTo(101L);
+    UserForm userForm = new UserForm();
+    userForm.age = 10;
+    userForm.name = "TODAY";
+    assertThat(entityManager.count(UserModel.class, userForm)).isEqualTo(1L);
+
+  }
+
+  @ParameterizedRepositoryManagerTest
+  void page(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+
+    UserModel userModel = UserModel.male("TODAY", 9);
+
+    List<Object> entities = new ArrayList<>();
+    entities.add(userModel);
+
+    for (int i = 0; i < 100; i++) {
+      entities.add(UserModel.male("TODAY", 10 + i));
+    }
+
+    entityManager.persist(entities);
+
+    UserForm userForm = new UserForm();
+    userForm.age = 10;
+    userForm.name = "TODAY";
+
+    Page<UserModel> page = entityManager.page(UserModel.class, userForm, Pageable.of(10, 1));
+    assertThat(page.getRows()).hasSize(1);
+    assertThat(page.isFirstPage()).isTrue();
+    assertThat(page.isLastPage()).isFalse();
+    assertThat(page.isHasNextPage()).isFalse();
+    assertThat(page.isHasPrevPage()).isFalse();
+    assertThat(page.getPageNumber()).isEqualTo(1);
+    assertThat(page.getLimit()).isEqualTo(10);
+    assertThat(page.getNextPage()).isEqualTo(1);
+    assertThat(page.getPrevPage()).isEqualTo(1);
+    assertThat(page.getTotalPages()).isEqualTo(1);
+    assertThat(page.getTotalRows()).isEqualTo(1L);
+
+    //
+    page = entityManager.page(UserModel.class, Pageable.of(10, 1));
+    assertThat(page.getRows()).hasSize(10);
+    assertThat(page.isFirstPage()).isTrue();
+    assertThat(page.isLastPage()).isFalse();
+    assertThat(page.isHasNextPage()).isTrue();
+    assertThat(page.isHasPrevPage()).isFalse();
+    assertThat(page.getPageNumber()).isEqualTo(1);
+    assertThat(page.getLimit()).isEqualTo(10);
+    assertThat(page.getNextPage()).isEqualTo(2);
+    assertThat(page.getPrevPage()).isEqualTo(1);
+    assertThat(page.getTotalPages()).isEqualTo(11);
+    assertThat(page.getTotalRows()).isEqualTo(101L);
+    assertThat(page.getRows().get(0)).isEqualTo(userModel);
+
   }
 
   public static void createData(DefaultEntityManager entityManager) {

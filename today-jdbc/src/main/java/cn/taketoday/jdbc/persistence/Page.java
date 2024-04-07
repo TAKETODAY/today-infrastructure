@@ -141,6 +141,10 @@ public class Page<T> {
     return this;
   }
 
+  public <E> Page<E> withRows(List<E> rows) {
+    return new Page<>(totalRows, pageNumber, limit, rows);
+  }
+
   //
 
   public int getPageNumber() {
@@ -169,10 +173,6 @@ public class Page<T> {
 
   public List<T> getRows() {
     return rows;
-  }
-
-  public <E> Page<E> withRows(List<E> rows) {
-    return new Page<>(totalRows, pageNumber, limit, rows);
   }
 
   public boolean isFirstPage() {
