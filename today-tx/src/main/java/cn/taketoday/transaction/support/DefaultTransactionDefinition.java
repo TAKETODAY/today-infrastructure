@@ -17,6 +17,7 @@
 
 package cn.taketoday.transaction.support;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -37,8 +38,10 @@ import cn.taketoday.transaction.TransactionDefinition;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class DefaultTransactionDefinition implements TransactionDefinition, Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   /** Prefix for the propagation constants defined in TransactionDefinition. */
   public static final String PREFIX_PROPAGATION = "PROPAGATION_";
@@ -99,8 +102,7 @@ public class DefaultTransactionDefinition implements TransactionDefinition, Seri
    * @see #setReadOnly
    * @see #setName
    */
-  public DefaultTransactionDefinition() {
-  }
+  public DefaultTransactionDefinition() { }
 
   /**
    * Copy constructor. Definition can be modified through bean property setters.

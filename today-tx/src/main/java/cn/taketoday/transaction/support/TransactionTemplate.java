@@ -17,6 +17,7 @@
 
 package cn.taketoday.transaction.support;
 
+import java.io.Serial;
 import java.lang.reflect.UndeclaredThrowableException;
 
 import cn.taketoday.beans.factory.InitializingBean;
@@ -62,8 +63,10 @@ import cn.taketoday.transaction.TransactionSystemException;
  * @see PlatformTransactionManager
  * @since 4.0
  */
-@SuppressWarnings("serial")
 public class TransactionTemplate extends DefaultTransactionDefinition implements TransactionOperations, InitializingBean {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   private static final Logger log = LoggerFactory.getLogger(TransactionTemplate.class);
 
