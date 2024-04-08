@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode;
 
@@ -128,7 +125,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     assertNotNull(classReader.getInterfaces());
   }
 
-  /** Tests {@link ClassReader#ClassReader(byte[], int, int)} and the basic ClassReader accessors. */
+  /** Tests {@link #ClassReader(byte[], int)} and the basic ClassReader accessors. */
   @ParameterizedTest
   @MethodSource(ALL_CLASSES_AND_LATEST_API)
   public void testByteArrayConstructor_withOffset(
@@ -137,7 +134,7 @@ public class ClassReaderTest extends AsmTest implements Opcodes {
     byte[] byteBuffer = new byte[classFile.length + 1];
     System.arraycopy(classFile, 0, byteBuffer, 1, classFile.length);
 
-    ClassReader classReader = new ClassReader(byteBuffer, 1, classFile.length);
+    ClassReader classReader = new ClassReader(byteBuffer, 1);
 
     assertNotEquals(0, classReader.getAccess());
     assertEquals(classParameter.getInternalName(), classReader.getClassName());

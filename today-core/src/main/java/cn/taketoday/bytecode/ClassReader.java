@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode;
 
@@ -31,6 +28,7 @@ import java.io.InputStream;
  *
  * @author Eric Bruneton
  * @author Eugene Kuleshov
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html">JVMS 4</a>
  */
 public class ClassReader {
@@ -145,7 +143,7 @@ public class ClassReader {
    * @param classFile the JVMS ClassFile structure to be read.
    */
   public ClassReader(final byte[] classFile) {
-    this(classFile, 0, classFile.length);
+    this(classFile, 0);
   }
 
   /**
@@ -153,12 +151,8 @@ public class ClassReader {
    *
    * @param classFileBuffer a byte array containing the JVMS ClassFile structure to be read.
    * @param classFileOffset the offset in byteBuffer of the first byte of the ClassFile to be read.
-   * @param classFileLength the length in bytes of the ClassFile to be read.
    */
-  public ClassReader(
-          final byte[] classFileBuffer,
-          final int classFileOffset,
-          final int classFileLength) { // NOPMD(UnusedFormalParameter) used for backward compatibility.
+  public ClassReader(final byte[] classFileBuffer, final int classFileOffset) {
     this(classFileBuffer, classFileOffset, /* checkClassVersion = */ true);
   }
 
@@ -237,10 +231,8 @@ public class ClassReader {
 
     // Allocate the cache of ConstantDynamic values, if there is at least one.
     constantDynamicValues = hasConstantDynamic ? new ConstantDynamic[constantPoolCount] : null;
-
     // Read the BootstrapMethods attribute, if any (only get the offset of each method).
-    bootstrapMethodOffsets =
-            hasBootstrapMethods ? readBootstrapMethodsAttribute(currentMaxStringLength) : null;
+    bootstrapMethodOffsets = hasBootstrapMethods ? readBootstrapMethodsAttribute(currentMaxStringLength) : null;
   }
 
   /**
@@ -275,8 +267,7 @@ public class ClassReader {
    * @return the content of the given input stream.
    * @throws IOException if a problem occurs during reading.
    */
-  private static byte[] readStream(final InputStream inputStream, final boolean close)
-          throws IOException {
+  private static byte[] readStream(final InputStream inputStream, final boolean close) throws IOException {
     if (inputStream == null) {
       throw new IOException("Class not found");
     }
@@ -406,8 +397,7 @@ public class ClassReader {
    * @param parsingOptions the options to use to parse this class. One or more of {@link
    * #SKIP_CODE}, {@link #SKIP_DEBUG}, {@link #SKIP_FRAMES} or {@link #EXPAND_FRAMES}.
    */
-  public void accept(
-          final ClassVisitor classVisitor, final Attribute[] attributePrototypes, final int parsingOptions) {
+  public void accept(final ClassVisitor classVisitor, final Attribute[] attributePrototypes, final int parsingOptions) {
     Context context = new Context();
     context.attributePrototypes = attributePrototypes;
     context.parsingOptions = parsingOptions;
@@ -508,8 +498,7 @@ public class ClassReader {
         if (attributeLength > classFileBuffer.length - currentAttributeOffset) {
           throw new IllegalArgumentException();
         }
-        sourceDebugExtension =
-                readUtf(currentAttributeOffset, attributeLength, new char[attributeLength]);
+        sourceDebugExtension = readUtf(currentAttributeOffset, attributeLength, new char[attributeLength]);
       }
       else if (Constants.RUNTIME_INVISIBLE_ANNOTATIONS.equals(attributeName)) {
         runtimeInvisibleAnnotationsOffset = currentAttributeOffset;
@@ -532,15 +521,8 @@ public class ClassReader {
       }
       else if (!Constants.BOOTSTRAP_METHODS.equals(attributeName)) {
         // The BootstrapMethods attribute is read in the constructor.
-        Attribute attribute =
-                readAttribute(
-                        attributePrototypes,
-                        attributeName,
-                        currentAttributeOffset,
-                        attributeLength,
-                        charBuffer,
-                        -1,
-                        null);
+        Attribute attribute = readAttribute(attributePrototypes, attributeName,
+                currentAttributeOffset, attributeLength, charBuffer, -1, null);
         attribute.nextAttribute = attributes;
         attributes = attribute;
       }
@@ -560,8 +542,7 @@ public class ClassReader {
 
     // Visit the Module, ModulePackages and ModuleMainClass attributes.
     if (moduleOffset != 0) {
-      readModuleAttributes(
-              classVisitor, context, moduleOffset, modulePackagesOffset, moduleMainClass);
+      readModuleAttributes(classVisitor, context, moduleOffset, modulePackagesOffset, moduleMainClass);
     }
 
     // Visit the NestHost attribute.
@@ -587,12 +568,9 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        classVisitor.visitAnnotation(annotationDescriptor, /* visible = */ true),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                classVisitor.visitAnnotation(annotationDescriptor, /* visible = */ true),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -605,12 +583,9 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        classVisitor.visitAnnotation(annotationDescriptor, /* visible = */ false),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                classVisitor.visitAnnotation(annotationDescriptor, /* visible = */ false),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -625,16 +600,10 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        classVisitor.visitTypeAnnotation(
-                                context.currentTypeAnnotationTarget,
-                                context.currentTypeAnnotationTargetPath,
-                                annotationDescriptor,
-                                /* visible = */ true),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                classVisitor.visitTypeAnnotation(context.currentTypeAnnotationTarget,
+                        context.currentTypeAnnotationTargetPath, annotationDescriptor, /* visible = */ true),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -649,16 +618,9 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        classVisitor.visitTypeAnnotation(
-                                context.currentTypeAnnotationTarget,
-                                context.currentTypeAnnotationTargetPath,
-                                annotationDescriptor,
-                                /* visible = */ false),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(classVisitor.visitTypeAnnotation(context.currentTypeAnnotationTarget,
+                        context.currentTypeAnnotationTargetPath, annotationDescriptor, /* visible = */ false),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -747,12 +709,8 @@ public class ClassReader {
    * @param moduleMainClass the string corresponding to the ModuleMainClass attribute, or {@literal
    * null}.
    */
-  private void readModuleAttributes(
-          final ClassVisitor classVisitor,
-          final Context context,
-          final int moduleOffset,
-          final int modulePackagesOffset,
-          final String moduleMainClass) {
+  private void readModuleAttributes(final ClassVisitor classVisitor, final Context context,
+          final int moduleOffset, final int modulePackagesOffset, final String moduleMainClass) {
     char[] buffer = context.charBuffer;
 
     // Read the module_name_index, module_flags and module_version_index fields and visit them.
@@ -870,8 +828,7 @@ public class ClassReader {
    * @param recordComponentOffset the offset of the current record component.
    * @return the offset of the first byte following the record component.
    */
-  private int readRecordComponent(
-          final ClassVisitor classVisitor, final Context context, final int recordComponentOffset) {
+  private int readRecordComponent(final ClassVisitor classVisitor, final Context context, final int recordComponentOffset) {
     char[] charBuffer = context.charBuffer;
 
     int currentOffset = recordComponentOffset;
@@ -922,23 +879,15 @@ public class ClassReader {
         runtimeInvisibleTypeAnnotationsOffset = currentOffset;
       }
       else {
-        Attribute attribute =
-                readAttribute(
-                        context.attributePrototypes,
-                        attributeName,
-                        currentOffset,
-                        attributeLength,
-                        charBuffer,
-                        -1,
-                        null);
+        Attribute attribute = readAttribute(context.attributePrototypes, attributeName,
+                currentOffset, attributeLength, charBuffer, -1, null);
         attribute.nextAttribute = attributes;
         attributes = attribute;
       }
       currentOffset += attributeLength;
     }
 
-    RecordComponentVisitor recordComponentVisitor =
-            classVisitor.visitRecordComponent(name, descriptor, signature);
+    RecordComponentVisitor recordComponentVisitor = classVisitor.visitRecordComponent(name, descriptor, signature);
     if (recordComponentVisitor == null) {
       return currentOffset;
     }
@@ -952,12 +901,9 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        recordComponentVisitor.visitAnnotation(annotationDescriptor, /* visible = */ true),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                recordComponentVisitor.visitAnnotation(annotationDescriptor, /* visible = */ true),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -970,12 +916,9 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        recordComponentVisitor.visitAnnotation(annotationDescriptor, /* visible = */ false),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                recordComponentVisitor.visitAnnotation(annotationDescriptor, /* visible = */ false),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -990,16 +933,10 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        recordComponentVisitor.visitTypeAnnotation(
-                                context.currentTypeAnnotationTarget,
-                                context.currentTypeAnnotationTargetPath,
-                                annotationDescriptor,
-                                /* visible = */ true),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                recordComponentVisitor.visitTypeAnnotation(context.currentTypeAnnotationTarget,
+                        context.currentTypeAnnotationTargetPath, annotationDescriptor, /* visible = */ true),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -1014,16 +951,10 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
         currentAnnotationOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentAnnotationOffset =
-                readElementValues(
-                        recordComponentVisitor.visitTypeAnnotation(
-                                context.currentTypeAnnotationTarget,
-                                context.currentTypeAnnotationTargetPath,
-                                annotationDescriptor,
-                                /* visible = */ false),
-                        currentAnnotationOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentAnnotationOffset = readElementValues(
+                recordComponentVisitor.visitTypeAnnotation(context.currentTypeAnnotationTarget,
+                        context.currentTypeAnnotationTargetPath, annotationDescriptor, /* visible = */ false),
+                currentAnnotationOffset, /* named = */ true, charBuffer);
       }
     }
 
@@ -1049,8 +980,7 @@ public class ClassReader {
    * @param fieldInfoOffset the start offset of the field_info structure.
    * @return the offset of the first byte following the field_info structure.
    */
-  private int readField(
-          final ClassVisitor classVisitor, final Context context, final int fieldInfoOffset) {
+  private int readField(final ClassVisitor classVisitor, final Context context, final int fieldInfoOffset) {
     char[] charBuffer = context.charBuffer;
 
     // Read the access_flags, name_index and descriptor_index fields.
@@ -1241,8 +1171,7 @@ public class ClassReader {
    * @param methodInfoOffset the start offset of the method_info structure.
    * @return the offset of the first byte following the method_info structure.
    */
-  private int readMethod(
-          final ClassVisitor classVisitor, final Context context, final int methodInfoOffset) {
+  private int readMethod(final ClassVisitor classVisitor, final Context context, final int methodInfoOffset) {
     char[] charBuffer = context.charBuffer;
 
     // Read the access_flags, name_index and descriptor_index fields.
@@ -1539,8 +1468,7 @@ public class ClassReader {
    * @param codeOffset the start offset in {@link #classFileBuffer} of the Code attribute, excluding
    * its attribute_name_index and attribute_length fields.
    */
-  private void readCode(
-          final MethodVisitor methodVisitor, final Context context, final int codeOffset) {
+  private void readCode(final MethodVisitor methodVisitor, final Context context, final int codeOffset) {
     int currentOffset = codeOffset;
 
     // Read the max_stack, max_locals and code_length fields.
@@ -1562,212 +1490,56 @@ public class ClassReader {
       final int bytecodeOffset = currentOffset - bytecodeStartOffset;
       final int opcode = classBuffer[currentOffset] & 0xFF;
       switch (opcode) {
-        case Opcodes.NOP:
-        case Opcodes.ACONST_NULL:
-        case Opcodes.ICONST_M1:
-        case Opcodes.ICONST_0:
-        case Opcodes.ICONST_1:
-        case Opcodes.ICONST_2:
-        case Opcodes.ICONST_3:
-        case Opcodes.ICONST_4:
-        case Opcodes.ICONST_5:
-        case Opcodes.LCONST_0:
-        case Opcodes.LCONST_1:
-        case Opcodes.FCONST_0:
-        case Opcodes.FCONST_1:
-        case Opcodes.FCONST_2:
-        case Opcodes.DCONST_0:
-        case Opcodes.DCONST_1:
-        case Opcodes.IALOAD:
-        case Opcodes.LALOAD:
-        case Opcodes.FALOAD:
-        case Opcodes.DALOAD:
-        case Opcodes.AALOAD:
-        case Opcodes.BALOAD:
-        case Opcodes.CALOAD:
-        case Opcodes.SALOAD:
-        case Opcodes.IASTORE:
-        case Opcodes.LASTORE:
-        case Opcodes.FASTORE:
-        case Opcodes.DASTORE:
-        case Opcodes.AASTORE:
-        case Opcodes.BASTORE:
-        case Opcodes.CASTORE:
-        case Opcodes.SASTORE:
-        case Opcodes.POP:
-        case Opcodes.POP2:
-        case Opcodes.DUP:
-        case Opcodes.DUP_X1:
-        case Opcodes.DUP_X2:
-        case Opcodes.DUP2:
-        case Opcodes.DUP2_X1:
-        case Opcodes.DUP2_X2:
-        case Opcodes.SWAP:
-        case Opcodes.IADD:
-        case Opcodes.LADD:
-        case Opcodes.FADD:
-        case Opcodes.DADD:
-        case Opcodes.ISUB:
-        case Opcodes.LSUB:
-        case Opcodes.FSUB:
-        case Opcodes.DSUB:
-        case Opcodes.IMUL:
-        case Opcodes.LMUL:
-        case Opcodes.FMUL:
-        case Opcodes.DMUL:
-        case Opcodes.IDIV:
-        case Opcodes.LDIV:
-        case Opcodes.FDIV:
-        case Opcodes.DDIV:
-        case Opcodes.IREM:
-        case Opcodes.LREM:
-        case Opcodes.FREM:
-        case Opcodes.DREM:
-        case Opcodes.INEG:
-        case Opcodes.LNEG:
-        case Opcodes.FNEG:
-        case Opcodes.DNEG:
-        case Opcodes.ISHL:
-        case Opcodes.LSHL:
-        case Opcodes.ISHR:
-        case Opcodes.LSHR:
-        case Opcodes.IUSHR:
-        case Opcodes.LUSHR:
-        case Opcodes.IAND:
-        case Opcodes.LAND:
-        case Opcodes.IOR:
-        case Opcodes.LOR:
-        case Opcodes.IXOR:
-        case Opcodes.LXOR:
-        case Opcodes.I2L:
-        case Opcodes.I2F:
-        case Opcodes.I2D:
-        case Opcodes.L2I:
-        case Opcodes.L2F:
-        case Opcodes.L2D:
-        case Opcodes.F2I:
-        case Opcodes.F2L:
-        case Opcodes.F2D:
-        case Opcodes.D2I:
-        case Opcodes.D2L:
-        case Opcodes.D2F:
-        case Opcodes.I2B:
-        case Opcodes.I2C:
-        case Opcodes.I2S:
-        case Opcodes.LCMP:
-        case Opcodes.FCMPL:
-        case Opcodes.FCMPG:
-        case Opcodes.DCMPL:
-        case Opcodes.DCMPG:
-        case Opcodes.IRETURN:
-        case Opcodes.LRETURN:
-        case Opcodes.FRETURN:
-        case Opcodes.DRETURN:
-        case Opcodes.ARETURN:
-        case Opcodes.RETURN:
-        case Opcodes.ARRAYLENGTH:
-        case Opcodes.ATHROW:
-        case Opcodes.MONITORENTER:
-        case Opcodes.MONITOREXIT:
-        case Constants.ILOAD_0:
-        case Constants.ILOAD_1:
-        case Constants.ILOAD_2:
-        case Constants.ILOAD_3:
-        case Constants.LLOAD_0:
-        case Constants.LLOAD_1:
-        case Constants.LLOAD_2:
-        case Constants.LLOAD_3:
-        case Constants.FLOAD_0:
-        case Constants.FLOAD_1:
-        case Constants.FLOAD_2:
-        case Constants.FLOAD_3:
-        case Constants.DLOAD_0:
-        case Constants.DLOAD_1:
-        case Constants.DLOAD_2:
-        case Constants.DLOAD_3:
-        case Constants.ALOAD_0:
-        case Constants.ALOAD_1:
-        case Constants.ALOAD_2:
-        case Constants.ALOAD_3:
-        case Constants.ISTORE_0:
-        case Constants.ISTORE_1:
-        case Constants.ISTORE_2:
-        case Constants.ISTORE_3:
-        case Constants.LSTORE_0:
-        case Constants.LSTORE_1:
-        case Constants.LSTORE_2:
-        case Constants.LSTORE_3:
-        case Constants.FSTORE_0:
-        case Constants.FSTORE_1:
-        case Constants.FSTORE_2:
-        case Constants.FSTORE_3:
-        case Constants.DSTORE_0:
-        case Constants.DSTORE_1:
-        case Constants.DSTORE_2:
-        case Constants.DSTORE_3:
-        case Constants.ASTORE_0:
-        case Constants.ASTORE_1:
-        case Constants.ASTORE_2:
-        case Constants.ASTORE_3:
-          currentOffset += 1;
-          break;
-        case Opcodes.IFEQ:
-        case Opcodes.IFNE:
-        case Opcodes.IFLT:
-        case Opcodes.IFGE:
-        case Opcodes.IFGT:
-        case Opcodes.IFLE:
-        case Opcodes.IF_ICMPEQ:
-        case Opcodes.IF_ICMPNE:
-        case Opcodes.IF_ICMPLT:
-        case Opcodes.IF_ICMPGE:
-        case Opcodes.IF_ICMPGT:
-        case Opcodes.IF_ICMPLE:
-        case Opcodes.IF_ACMPEQ:
-        case Opcodes.IF_ACMPNE:
-        case Opcodes.GOTO:
-        case Opcodes.JSR:
-        case Opcodes.IFNULL:
-        case Opcodes.IFNONNULL:
+        case Opcodes.NOP, Opcodes.ACONST_NULL, Opcodes.ICONST_M1,
+                Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3, Opcodes.ICONST_4, Opcodes.ICONST_5,
+                Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2, Opcodes.DCONST_0,
+                Opcodes.DCONST_1, Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD, Opcodes.AALOAD, Opcodes.BALOAD,
+                Opcodes.CALOAD, Opcodes.SALOAD, Opcodes.IASTORE, Opcodes.LASTORE, Opcodes.FASTORE, Opcodes.DASTORE, Opcodes.AASTORE,
+                Opcodes.BASTORE, Opcodes.CASTORE, Opcodes.SASTORE, Opcodes.POP, Opcodes.POP2, Opcodes.DUP, Opcodes.DUP_X1, Opcodes.DUP_X2,
+                Opcodes.DUP2, Opcodes.DUP2_X1, Opcodes.DUP2_X2, Opcodes.SWAP, Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD,
+                Opcodes.ISUB, Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB, Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL,
+                Opcodes.IDIV, Opcodes.LDIV, Opcodes.FDIV, Opcodes.DDIV, Opcodes.IREM, Opcodes.LREM, Opcodes.FREM, Opcodes.DREM,
+                Opcodes.INEG, Opcodes.LNEG, Opcodes.FNEG, Opcodes.DNEG, Opcodes.ISHL, Opcodes.LSHL, Opcodes.ISHR, Opcodes.LSHR,
+                Opcodes.IUSHR, Opcodes.LUSHR, Opcodes.IAND, Opcodes.LAND, Opcodes.IOR, Opcodes.LOR, Opcodes.IXOR, Opcodes.LXOR,
+                Opcodes.I2L, Opcodes.I2F, Opcodes.I2D, Opcodes.L2I, Opcodes.L2F, Opcodes.L2D, Opcodes.F2I, Opcodes.F2L, Opcodes.F2D,
+                Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, Opcodes.LCMP, Opcodes.FCMPL, Opcodes.FCMPG,
+                Opcodes.DCMPL, Opcodes.DCMPG, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN, Opcodes.ARETURN,
+                Opcodes.RETURN, Opcodes.ARRAYLENGTH, Opcodes.ATHROW, Opcodes.MONITORENTER, Opcodes.MONITOREXIT, Constants.ILOAD_0,
+                Constants.ILOAD_1, Constants.ILOAD_2, Constants.ILOAD_3, Constants.LLOAD_0, Constants.LLOAD_1, Constants.LLOAD_2,
+                Constants.LLOAD_3, Constants.FLOAD_0, Constants.FLOAD_1, Constants.FLOAD_2, Constants.FLOAD_3, Constants.DLOAD_0,
+                Constants.DLOAD_1, Constants.DLOAD_2, Constants.DLOAD_3, Constants.ALOAD_0, Constants.ALOAD_1, Constants.ALOAD_2,
+                Constants.ALOAD_3, Constants.ISTORE_0, Constants.ISTORE_1, Constants.ISTORE_2, Constants.ISTORE_3, Constants.LSTORE_0,
+                Constants.LSTORE_1, Constants.LSTORE_2, Constants.LSTORE_3, Constants.FSTORE_0, Constants.FSTORE_1, Constants.FSTORE_2,
+                Constants.FSTORE_3, Constants.DSTORE_0, Constants.DSTORE_1, Constants.DSTORE_2, Constants.DSTORE_3, Constants.ASTORE_0,
+                Constants.ASTORE_1, Constants.ASTORE_2, Constants.ASTORE_3 -> currentOffset += 1;
+
+        case Opcodes.IFEQ, Opcodes.IFNE, Opcodes.IFLT, Opcodes.IFGE, Opcodes.IFGT, Opcodes.IFLE, Opcodes.IF_ICMPEQ, Opcodes.IF_ICMPNE,
+                Opcodes.IF_ICMPLT, Opcodes.IF_ICMPGE, Opcodes.IF_ICMPGT, Opcodes.IF_ICMPLE, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.GOTO,
+                Opcodes.JSR, Opcodes.IFNULL, Opcodes.IFNONNULL -> {
           createLabel(bytecodeOffset + readShort(currentOffset + 1), labels);
           currentOffset += 3;
-          break;
-        case Constants.ASM_IFEQ:
-        case Constants.ASM_IFNE:
-        case Constants.ASM_IFLT:
-        case Constants.ASM_IFGE:
-        case Constants.ASM_IFGT:
-        case Constants.ASM_IFLE:
-        case Constants.ASM_IF_ICMPEQ:
-        case Constants.ASM_IF_ICMPNE:
-        case Constants.ASM_IF_ICMPLT:
-        case Constants.ASM_IF_ICMPGE:
-        case Constants.ASM_IF_ICMPGT:
-        case Constants.ASM_IF_ICMPLE:
-        case Constants.ASM_IF_ACMPEQ:
-        case Constants.ASM_IF_ACMPNE:
-        case Constants.ASM_GOTO:
-        case Constants.ASM_JSR:
-        case Constants.ASM_IFNULL:
-        case Constants.ASM_IFNONNULL:
+        }
+
+        case Constants.ASM_IFEQ, Constants.ASM_IFNE, Constants.ASM_IFLT, Constants.ASM_IFGE, Constants.ASM_IFGT, Constants.ASM_IFLE,
+                Constants.ASM_IF_ICMPEQ, Constants.ASM_IF_ICMPNE, Constants.ASM_IF_ICMPLT, Constants.ASM_IF_ICMPGE, Constants.ASM_IF_ICMPGT,
+                Constants.ASM_IF_ICMPLE, Constants.ASM_IF_ACMPEQ, Constants.ASM_IF_ACMPNE, Constants.ASM_GOTO, Constants.ASM_JSR,
+                Constants.ASM_IFNULL, Constants.ASM_IFNONNULL -> {
           createLabel(bytecodeOffset + readUnsignedShort(currentOffset + 1), labels);
           currentOffset += 3;
-          break;
-        case Constants.GOTO_W:
-        case Constants.JSR_W:
-        case Constants.ASM_GOTO_W:
+        }
+        case Constants.GOTO_W, Constants.JSR_W, Constants.ASM_GOTO_W -> {
           createLabel(bytecodeOffset + readInt(currentOffset + 1), labels);
           currentOffset += 5;
-          break;
-        case Constants.WIDE:
+        }
+        case Constants.WIDE -> {
           switch (classBuffer[currentOffset + 1] & 0xFF) {
             case Opcodes.ILOAD, Opcodes.FLOAD, Opcodes.ALOAD, Opcodes.LLOAD, Opcodes.DLOAD, Opcodes.ISTORE,
                     Opcodes.FSTORE, Opcodes.ASTORE, Opcodes.LSTORE, Opcodes.DSTORE, Opcodes.RET -> currentOffset += 4;
             case Opcodes.IINC -> currentOffset += 6;
             default -> throw new IllegalArgumentException();
           }
-          break;
-        case Opcodes.TABLESWITCH:
+        }
+        case Opcodes.TABLESWITCH -> {
           // Skip 0 to 3 padding bytes.
           currentOffset += 4 - (bytecodeOffset & 3);
           // Read the default label and the number of table entries.
@@ -1779,8 +1551,8 @@ public class ClassReader {
             createLabel(bytecodeOffset + readInt(currentOffset), labels);
             currentOffset += 4;
           }
-          break;
-        case Opcodes.LOOKUPSWITCH:
+        }
+        case Opcodes.LOOKUPSWITCH -> {
           // Skip 0 to 3 padding bytes.
           currentOffset += 4 - (bytecodeOffset & 3);
           // Read the default label and the number of switch cases.
@@ -1792,49 +1564,17 @@ public class ClassReader {
             createLabel(bytecodeOffset + readInt(currentOffset + 4), labels);
             currentOffset += 8;
           }
-          break;
-        case Opcodes.ILOAD:
-        case Opcodes.LLOAD:
-        case Opcodes.FLOAD:
-        case Opcodes.DLOAD:
-        case Opcodes.ALOAD:
-        case Opcodes.ISTORE:
-        case Opcodes.LSTORE:
-        case Opcodes.FSTORE:
-        case Opcodes.DSTORE:
-        case Opcodes.ASTORE:
-        case Opcodes.RET:
-        case Opcodes.BIPUSH:
-        case Opcodes.NEWARRAY:
-        case Opcodes.LDC:
-          currentOffset += 2;
-          break;
-        case Opcodes.SIPUSH:
-        case Constants.LDC_W:
-        case Constants.LDC2_W:
-        case Opcodes.GETSTATIC:
-        case Opcodes.PUTSTATIC:
-        case Opcodes.GETFIELD:
-        case Opcodes.PUTFIELD:
-        case Opcodes.INVOKEVIRTUAL:
-        case Opcodes.INVOKESPECIAL:
-        case Opcodes.INVOKESTATIC:
-        case Opcodes.NEW:
-        case Opcodes.ANEWARRAY:
-        case Opcodes.CHECKCAST:
-        case Opcodes.INSTANCEOF:
-        case Opcodes.IINC:
-          currentOffset += 3;
-          break;
-        case Opcodes.INVOKEINTERFACE:
-        case Opcodes.INVOKEDYNAMIC:
-          currentOffset += 5;
-          break;
-        case Opcodes.MULTIANEWARRAY:
-          currentOffset += 4;
-          break;
-        default:
-          throw new IllegalArgumentException();
+        }
+        case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD, Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE,
+                Opcodes.DSTORE, Opcodes.ASTORE, Opcodes.RET, Opcodes.BIPUSH, Opcodes.NEWARRAY, Opcodes.LDC -> currentOffset += 2;
+
+        case Opcodes.SIPUSH, Constants.LDC_W, Constants.LDC2_W, Opcodes.GETSTATIC, Opcodes.PUTSTATIC, Opcodes.GETFIELD,
+                Opcodes.PUTFIELD, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKESPECIAL, Opcodes.INVOKESTATIC, Opcodes.NEW, Opcodes.ANEWARRAY,
+                Opcodes.CHECKCAST, Opcodes.INSTANCEOF, Opcodes.IINC -> currentOffset += 3;
+
+        case Opcodes.INVOKEINTERFACE, Opcodes.INVOKEDYNAMIC -> currentOffset += 5;
+        case Opcodes.MULTIANEWARRAY -> currentOffset += 4;
+        default -> throw new IllegalArgumentException();
       }
     }
 
@@ -1922,8 +1662,7 @@ public class ClassReader {
         }
       }
       else if (Constants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
-        visibleTypeAnnotationOffsets =
-                readTypeAnnotations(methodVisitor, context, currentOffset, /* visible = */ true);
+        visibleTypeAnnotationOffsets = readTypeAnnotations(methodVisitor, context, currentOffset, /* visible = */ true);
         // Here we do not extract the labels corresponding to the attribute content. This would
         // require a full parsing of the attribute, which would need to be repeated when parsing
         // the bytecode instructions (see below). Instead, the content of the attribute is read one
@@ -1932,8 +1671,7 @@ public class ClassReader {
         // time. This assumes that type annotations are ordered by increasing bytecode offset.
       }
       else if (Constants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS.equals(attributeName)) {
-        invisibleTypeAnnotationOffsets =
-                readTypeAnnotations(methodVisitor, context, currentOffset, /* visible = */ false);
+        invisibleTypeAnnotationOffsets = readTypeAnnotations(methodVisitor, context, currentOffset, /* visible = */ false);
         // Same comment as above for the RuntimeVisibleTypeAnnotations attribute.
       }
       else if (Constants.STACK_MAP_TABLE.equals(attributeName)) {
@@ -1963,15 +1701,8 @@ public class ClassReader {
         // StackMapTable attribute).
       }
       else {
-        Attribute attribute =
-                readAttribute(
-                        context.attributePrototypes,
-                        attributeName,
-                        currentOffset,
-                        attributeLength,
-                        charBuffer,
-                        codeOffset,
-                        labels);
+        Attribute attribute = readAttribute(context.attributePrototypes, attributeName,
+                currentOffset, attributeLength, charBuffer, codeOffset, labels);
         attribute.nextAttribute = attributes;
         attributes = attribute;
       }
@@ -2007,8 +1738,7 @@ public class ClassReader {
           int potentialBytecodeOffset = readUnsignedShort(offset + 1);
           if (potentialBytecodeOffset >= 0
                   && potentialBytecodeOffset < codeLength
-                  && (classBuffer[bytecodeStartOffset + potentialBytecodeOffset] & 0xFF)
-                  == Opcodes.NEW) {
+                  && (classBuffer[bytecodeStartOffset + potentialBytecodeOffset] & 0xFF) == Opcodes.NEW) {
             createLabel(potentialBytecodeOffset, labels);
           }
         }
@@ -2031,14 +1761,12 @@ public class ClassReader {
     // visibleTypeAnnotationOffsets array).
     int currentVisibleTypeAnnotationIndex = 0;
     // The bytecode offset of the next runtime visible type annotation to read, or -1.
-    int currentVisibleTypeAnnotationBytecodeOffset =
-            getTypeAnnotationBytecodeOffset(visibleTypeAnnotationOffsets, 0);
+    int currentVisibleTypeAnnotationBytecodeOffset = getTypeAnnotationBytecodeOffset(visibleTypeAnnotationOffsets, 0);
     // Index of the next runtime invisible type annotation to read (in the
     // invisibleTypeAnnotationOffsets array).
     int currentInvisibleTypeAnnotationIndex = 0;
     // The bytecode offset of the next runtime invisible type annotation to read, or -1.
-    int currentInvisibleTypeAnnotationBytecodeOffset =
-            getTypeAnnotationBytecodeOffset(invisibleTypeAnnotationOffsets, 0);
+    int currentInvisibleTypeAnnotationBytecodeOffset = getTypeAnnotationBytecodeOffset(invisibleTypeAnnotationOffsets, 0);
 
     // Whether a F_INSERT stack map frame must be inserted before the current instruction.
     boolean insertFrame = false;
@@ -2061,34 +1789,24 @@ public class ClassReader {
 
       // Visit the stack map frame for this bytecode offset, if any.
       while (stackMapFrameOffset != 0
-              && (context.currentFrameOffset == currentBytecodeOffset
-              || context.currentFrameOffset == -1)) {
+              && (context.currentFrameOffset == currentBytecodeOffset || context.currentFrameOffset == -1)) {
         // If there is a stack map frame for this offset, make methodVisitor visit it, and read the
         // next stack map frame if there is one.
         if (context.currentFrameOffset != -1) {
           if (!compressedFrames || expandFrames) {
-            methodVisitor.visitFrame(
-                    Opcodes.F_NEW,
-                    context.currentFrameLocalCount,
-                    context.currentFrameLocalTypes,
-                    context.currentFrameStackCount,
-                    context.currentFrameStackTypes);
+            methodVisitor.visitFrame(Opcodes.F_NEW, context.currentFrameLocalCount, context.currentFrameLocalTypes,
+                    context.currentFrameStackCount, context.currentFrameStackTypes);
           }
           else {
-            methodVisitor.visitFrame(
-                    context.currentFrameType,
-                    context.currentFrameLocalCountDelta,
-                    context.currentFrameLocalTypes,
-                    context.currentFrameStackCount,
-                    context.currentFrameStackTypes);
+            methodVisitor.visitFrame(context.currentFrameType, context.currentFrameLocalCountDelta,
+                    context.currentFrameLocalTypes, context.currentFrameStackCount, context.currentFrameStackTypes);
           }
           // Since there is already a stack map frame for this bytecode offset, there is no need to
           // insert a new one.
           insertFrame = false;
         }
         if (stackMapFrameOffset < stackMapTableEndOffset) {
-          stackMapFrameOffset =
-                  readStackMapFrame(stackMapFrameOffset, compressedFrames, expandFrames, context);
+          stackMapFrameOffset = readStackMapFrame(stackMapFrameOffset, compressedFrames, expandFrames, context);
         }
         else {
           stackMapFrameOffset = 0;
@@ -2107,220 +1825,56 @@ public class ClassReader {
       // Visit the instruction at this bytecode offset.
       int opcode = classBuffer[currentOffset] & 0xFF;
       switch (opcode) {
-        case Opcodes.NOP:
-        case Opcodes.ACONST_NULL:
-        case Opcodes.ICONST_M1:
-        case Opcodes.ICONST_0:
-        case Opcodes.ICONST_1:
-        case Opcodes.ICONST_2:
-        case Opcodes.ICONST_3:
-        case Opcodes.ICONST_4:
-        case Opcodes.ICONST_5:
-        case Opcodes.LCONST_0:
-        case Opcodes.LCONST_1:
-        case Opcodes.FCONST_0:
-        case Opcodes.FCONST_1:
-        case Opcodes.FCONST_2:
-        case Opcodes.DCONST_0:
-        case Opcodes.DCONST_1:
-        case Opcodes.IALOAD:
-        case Opcodes.LALOAD:
-        case Opcodes.FALOAD:
-        case Opcodes.DALOAD:
-        case Opcodes.AALOAD:
-        case Opcodes.BALOAD:
-        case Opcodes.CALOAD:
-        case Opcodes.SALOAD:
-        case Opcodes.IASTORE:
-        case Opcodes.LASTORE:
-        case Opcodes.FASTORE:
-        case Opcodes.DASTORE:
-        case Opcodes.AASTORE:
-        case Opcodes.BASTORE:
-        case Opcodes.CASTORE:
-        case Opcodes.SASTORE:
-        case Opcodes.POP:
-        case Opcodes.POP2:
-        case Opcodes.DUP:
-        case Opcodes.DUP_X1:
-        case Opcodes.DUP_X2:
-        case Opcodes.DUP2:
-        case Opcodes.DUP2_X1:
-        case Opcodes.DUP2_X2:
-        case Opcodes.SWAP:
-        case Opcodes.IADD:
-        case Opcodes.LADD:
-        case Opcodes.FADD:
-        case Opcodes.DADD:
-        case Opcodes.ISUB:
-        case Opcodes.LSUB:
-        case Opcodes.FSUB:
-        case Opcodes.DSUB:
-        case Opcodes.IMUL:
-        case Opcodes.LMUL:
-        case Opcodes.FMUL:
-        case Opcodes.DMUL:
-        case Opcodes.IDIV:
-        case Opcodes.LDIV:
-        case Opcodes.FDIV:
-        case Opcodes.DDIV:
-        case Opcodes.IREM:
-        case Opcodes.LREM:
-        case Opcodes.FREM:
-        case Opcodes.DREM:
-        case Opcodes.INEG:
-        case Opcodes.LNEG:
-        case Opcodes.FNEG:
-        case Opcodes.DNEG:
-        case Opcodes.ISHL:
-        case Opcodes.LSHL:
-        case Opcodes.ISHR:
-        case Opcodes.LSHR:
-        case Opcodes.IUSHR:
-        case Opcodes.LUSHR:
-        case Opcodes.IAND:
-        case Opcodes.LAND:
-        case Opcodes.IOR:
-        case Opcodes.LOR:
-        case Opcodes.IXOR:
-        case Opcodes.LXOR:
-        case Opcodes.I2L:
-        case Opcodes.I2F:
-        case Opcodes.I2D:
-        case Opcodes.L2I:
-        case Opcodes.L2F:
-        case Opcodes.L2D:
-        case Opcodes.F2I:
-        case Opcodes.F2L:
-        case Opcodes.F2D:
-        case Opcodes.D2I:
-        case Opcodes.D2L:
-        case Opcodes.D2F:
-        case Opcodes.I2B:
-        case Opcodes.I2C:
-        case Opcodes.I2S:
-        case Opcodes.LCMP:
-        case Opcodes.FCMPL:
-        case Opcodes.FCMPG:
-        case Opcodes.DCMPL:
-        case Opcodes.DCMPG:
-        case Opcodes.IRETURN:
-        case Opcodes.LRETURN:
-        case Opcodes.FRETURN:
-        case Opcodes.DRETURN:
-        case Opcodes.ARETURN:
-        case Opcodes.RETURN:
-        case Opcodes.ARRAYLENGTH:
-        case Opcodes.ATHROW:
-        case Opcodes.MONITORENTER:
-        case Opcodes.MONITOREXIT:
+        case Opcodes.NOP, Opcodes.ACONST_NULL, Opcodes.ICONST_M1, Opcodes.ICONST_0, Opcodes.ICONST_1, Opcodes.ICONST_2, Opcodes.ICONST_3,
+                Opcodes.ICONST_4, Opcodes.ICONST_5, Opcodes.LCONST_0, Opcodes.LCONST_1, Opcodes.FCONST_0, Opcodes.FCONST_1, Opcodes.FCONST_2,
+                Opcodes.DCONST_0, Opcodes.DCONST_1, Opcodes.IALOAD, Opcodes.LALOAD, Opcodes.FALOAD, Opcodes.DALOAD, Opcodes.AALOAD, Opcodes.BALOAD,
+                Opcodes.CALOAD, Opcodes.SALOAD, Opcodes.IASTORE, Opcodes.LASTORE, Opcodes.FASTORE, Opcodes.DASTORE, Opcodes.AASTORE, Opcodes.BASTORE,
+                Opcodes.CASTORE, Opcodes.SASTORE, Opcodes.POP, Opcodes.POP2, Opcodes.DUP, Opcodes.DUP_X1, Opcodes.DUP_X2, Opcodes.DUP2,
+                Opcodes.DUP2_X1, Opcodes.DUP2_X2, Opcodes.SWAP, Opcodes.IADD, Opcodes.LADD, Opcodes.FADD, Opcodes.DADD, Opcodes.ISUB,
+                Opcodes.LSUB, Opcodes.FSUB, Opcodes.DSUB, Opcodes.IMUL, Opcodes.LMUL, Opcodes.FMUL, Opcodes.DMUL, Opcodes.IDIV, Opcodes.LDIV,
+                Opcodes.FDIV, Opcodes.DDIV, Opcodes.IREM, Opcodes.LREM, Opcodes.FREM, Opcodes.DREM, Opcodes.INEG, Opcodes.LNEG, Opcodes.FNEG,
+                Opcodes.DNEG, Opcodes.ISHL, Opcodes.LSHL, Opcodes.ISHR, Opcodes.LSHR, Opcodes.IUSHR, Opcodes.LUSHR, Opcodes.IAND, Opcodes.LAND,
+                Opcodes.IOR, Opcodes.LOR, Opcodes.IXOR, Opcodes.LXOR, Opcodes.I2L, Opcodes.I2F, Opcodes.I2D, Opcodes.L2I, Opcodes.L2F, Opcodes.L2D,
+                Opcodes.F2I, Opcodes.F2L, Opcodes.F2D, Opcodes.D2I, Opcodes.D2L, Opcodes.D2F, Opcodes.I2B, Opcodes.I2C, Opcodes.I2S, Opcodes.LCMP,
+                Opcodes.FCMPL, Opcodes.FCMPG, Opcodes.DCMPL, Opcodes.DCMPG, Opcodes.IRETURN, Opcodes.LRETURN, Opcodes.FRETURN, Opcodes.DRETURN,
+                Opcodes.ARETURN, Opcodes.RETURN, Opcodes.ARRAYLENGTH, Opcodes.ATHROW, Opcodes.MONITORENTER, Opcodes.MONITOREXIT -> {
           methodVisitor.visitInsn(opcode);
           currentOffset += 1;
-          break;
-        case Constants.ILOAD_0:
-        case Constants.ILOAD_1:
-        case Constants.ILOAD_2:
-        case Constants.ILOAD_3:
-        case Constants.LLOAD_0:
-        case Constants.LLOAD_1:
-        case Constants.LLOAD_2:
-        case Constants.LLOAD_3:
-        case Constants.FLOAD_0:
-        case Constants.FLOAD_1:
-        case Constants.FLOAD_2:
-        case Constants.FLOAD_3:
-        case Constants.DLOAD_0:
-        case Constants.DLOAD_1:
-        case Constants.DLOAD_2:
-        case Constants.DLOAD_3:
-        case Constants.ALOAD_0:
-        case Constants.ALOAD_1:
-        case Constants.ALOAD_2:
-        case Constants.ALOAD_3:
+        }
+        case Constants.ILOAD_0, Constants.ILOAD_1, Constants.ILOAD_2, Constants.ILOAD_3, Constants.LLOAD_0, Constants.LLOAD_1, Constants.LLOAD_2,
+                Constants.LLOAD_3, Constants.FLOAD_0, Constants.FLOAD_1, Constants.FLOAD_2, Constants.FLOAD_3, Constants.DLOAD_0, Constants.DLOAD_1,
+                Constants.DLOAD_2, Constants.DLOAD_3, Constants.ALOAD_0, Constants.ALOAD_1, Constants.ALOAD_2, Constants.ALOAD_3 -> {
           opcode -= Constants.ILOAD_0;
           methodVisitor.visitVarInsn(Opcodes.ILOAD + (opcode >> 2), opcode & 0x3);
           currentOffset += 1;
-          break;
-        case Constants.ISTORE_0:
-        case Constants.ISTORE_1:
-        case Constants.ISTORE_2:
-        case Constants.ISTORE_3:
-        case Constants.LSTORE_0:
-        case Constants.LSTORE_1:
-        case Constants.LSTORE_2:
-        case Constants.LSTORE_3:
-        case Constants.FSTORE_0:
-        case Constants.FSTORE_1:
-        case Constants.FSTORE_2:
-        case Constants.FSTORE_3:
-        case Constants.DSTORE_0:
-        case Constants.DSTORE_1:
-        case Constants.DSTORE_2:
-        case Constants.DSTORE_3:
-        case Constants.ASTORE_0:
-        case Constants.ASTORE_1:
-        case Constants.ASTORE_2:
-        case Constants.ASTORE_3:
+        }
+        case Constants.ISTORE_0, Constants.ISTORE_1, Constants.ISTORE_2, Constants.ISTORE_3, Constants.LSTORE_0, Constants.LSTORE_1, Constants.LSTORE_2,
+                Constants.LSTORE_3, Constants.FSTORE_0, Constants.FSTORE_1, Constants.FSTORE_2, Constants.FSTORE_3, Constants.DSTORE_0,
+                Constants.DSTORE_1, Constants.DSTORE_2, Constants.DSTORE_3, Constants.ASTORE_0, Constants.ASTORE_1, Constants.ASTORE_2,
+                Constants.ASTORE_3 -> {
           opcode -= Constants.ISTORE_0;
           methodVisitor.visitVarInsn(Opcodes.ISTORE + (opcode >> 2), opcode & 0x3);
           currentOffset += 1;
-          break;
-        case Opcodes.IFEQ:
-        case Opcodes.IFNE:
-        case Opcodes.IFLT:
-        case Opcodes.IFGE:
-        case Opcodes.IFGT:
-        case Opcodes.IFLE:
-        case Opcodes.IF_ICMPEQ:
-        case Opcodes.IF_ICMPNE:
-        case Opcodes.IF_ICMPLT:
-        case Opcodes.IF_ICMPGE:
-        case Opcodes.IF_ICMPGT:
-        case Opcodes.IF_ICMPLE:
-        case Opcodes.IF_ACMPEQ:
-        case Opcodes.IF_ACMPNE:
-        case Opcodes.GOTO:
-        case Opcodes.JSR:
-        case Opcodes.IFNULL:
-        case Opcodes.IFNONNULL:
-          methodVisitor.visitJumpInsn(
-                  opcode, labels[currentBytecodeOffset + readShort(currentOffset + 1)]);
+        }
+        case Opcodes.IFEQ, Opcodes.IFNE, Opcodes.IFLT, Opcodes.IFGE, Opcodes.IFGT, Opcodes.IFLE, Opcodes.IF_ICMPEQ, Opcodes.IF_ICMPNE,
+                Opcodes.IF_ICMPLT, Opcodes.IF_ICMPGE, Opcodes.IF_ICMPGT, Opcodes.IF_ICMPLE, Opcodes.IF_ACMPEQ, Opcodes.IF_ACMPNE, Opcodes.GOTO,
+                Opcodes.JSR, Opcodes.IFNULL, Opcodes.IFNONNULL -> {
+          methodVisitor.visitJumpInsn(opcode, labels[currentBytecodeOffset + readShort(currentOffset + 1)]);
           currentOffset += 3;
-          break;
-        case Constants.GOTO_W:
-        case Constants.JSR_W:
-          methodVisitor.visitJumpInsn(
-                  opcode - wideJumpOpcodeDelta,
+        }
+        case Constants.GOTO_W, Constants.JSR_W -> {
+          methodVisitor.visitJumpInsn(opcode - wideJumpOpcodeDelta,
                   labels[currentBytecodeOffset + readInt(currentOffset + 1)]);
           currentOffset += 5;
-          break;
-        case Constants.ASM_IFEQ:
-        case Constants.ASM_IFNE:
-        case Constants.ASM_IFLT:
-        case Constants.ASM_IFGE:
-        case Constants.ASM_IFGT:
-        case Constants.ASM_IFLE:
-        case Constants.ASM_IF_ICMPEQ:
-        case Constants.ASM_IF_ICMPNE:
-        case Constants.ASM_IF_ICMPLT:
-        case Constants.ASM_IF_ICMPGE:
-        case Constants.ASM_IF_ICMPGT:
-        case Constants.ASM_IF_ICMPLE:
-        case Constants.ASM_IF_ACMPEQ:
-        case Constants.ASM_IF_ACMPNE:
-        case Constants.ASM_GOTO:
-        case Constants.ASM_JSR:
-        case Constants.ASM_IFNULL:
-        case Constants.ASM_IFNONNULL: {
+        }
+        case Constants.ASM_IFEQ, Constants.ASM_IFNE, Constants.ASM_IFLT, Constants.ASM_IFGE, Constants.ASM_IFGT, Constants.ASM_IFLE, Constants.ASM_IF_ICMPEQ, Constants.ASM_IF_ICMPNE, Constants.ASM_IF_ICMPLT, Constants.ASM_IF_ICMPGE, Constants.ASM_IF_ICMPGT, Constants.ASM_IF_ICMPLE, Constants.ASM_IF_ACMPEQ, Constants.ASM_IF_ACMPNE, Constants.ASM_GOTO, Constants.ASM_JSR, Constants.ASM_IFNULL, Constants.ASM_IFNONNULL -> {
           // A forward jump with an offset > 32767. In this case we automatically replace ASM_GOTO
           // with GOTO_W, ASM_JSR with JSR_W and ASM_IFxxx <l> with IFNOTxxx <L> GOTO_W <l> L:...,
           // where IFNOTxxx is the "opposite" opcode of ASMS_IFxxx (e.g. IFNE for ASM_IFEQ) and
           // where <L> designates the instruction just after the GOTO_W.
           // First, change the ASM specific opcodes ASM_IFEQ ... ASM_JSR, ASM_IFNULL and
           // ASM_IFNONNULL to IFEQ ... JSR, IFNULL and IFNONNULL.
-          opcode = opcode < Constants.ASM_IFNULL
-                   ? opcode - Constants.ASM_OPCODE_DELTA
-                   : opcode - Constants.ASM_IFNULL_OPCODE_DELTA;
+          opcode = opcode < Constants.ASM_IFNULL ? opcode - Constants.ASM_OPCODE_DELTA : opcode - Constants.ASM_IFNULL_OPCODE_DELTA;
           Label target = labels[currentBytecodeOffset + readUnsignedShort(currentOffset + 1)];
           if (opcode == Opcodes.GOTO || opcode == Opcodes.JSR) {
             // Replace GOTO with GOTO_W and JSR with JSR_W.
@@ -2339,31 +1893,28 @@ public class ClassReader {
             insertFrame = true;
           }
           currentOffset += 3;
-          break;
         }
-        case Constants.ASM_GOTO_W:
+        case Constants.ASM_GOTO_W -> {
           // Replace ASM_GOTO_W with GOTO_W.
-          methodVisitor.visitJumpInsn(
-                  Constants.GOTO_W, labels[currentBytecodeOffset + readInt(currentOffset + 1)]);
+          methodVisitor.visitJumpInsn(Constants.GOTO_W, labels[currentBytecodeOffset + readInt(currentOffset + 1)]);
           // The instruction just after is a jump target (because ASM_GOTO_W is used in patterns
           // IFNOTxxx <L> ASM_GOTO_W <l> L:..., see MethodWriter), so we need to insert a frame
           // here.
           insertFrame = true;
           currentOffset += 5;
-          break;
-        case Constants.WIDE:
+        }
+        case Constants.WIDE -> {
           opcode = classBuffer[currentOffset + 1] & 0xFF;
           if (opcode == Opcodes.IINC) {
-            methodVisitor.visitIincInsn(
-                    readUnsignedShort(currentOffset + 2), readShort(currentOffset + 4));
+            methodVisitor.visitIincInsn(readUnsignedShort(currentOffset + 2), readShort(currentOffset + 4));
             currentOffset += 6;
           }
           else {
             methodVisitor.visitVarInsn(opcode, readUnsignedShort(currentOffset + 2));
             currentOffset += 4;
           }
-          break;
-        case Opcodes.TABLESWITCH: {
+        }
+        case Opcodes.TABLESWITCH -> {
           // Skip 0 to 3 padding bytes.
           currentOffset += 4 - (currentBytecodeOffset & 3);
           // Read the instruction.
@@ -2377,9 +1928,8 @@ public class ClassReader {
             currentOffset += 4;
           }
           methodVisitor.visitTableSwitchInsn(low, high, defaultLabel, table);
-          break;
         }
-        case Opcodes.LOOKUPSWITCH: {
+        case Opcodes.LOOKUPSWITCH -> {
           // Skip 0 to 3 padding bytes.
           currentOffset += 4 - (currentBytecodeOffset & 3);
           // Read the instruction.
@@ -2394,48 +1944,30 @@ public class ClassReader {
             currentOffset += 8;
           }
           methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, values);
-          break;
         }
-        case Opcodes.ILOAD:
-        case Opcodes.LLOAD:
-        case Opcodes.FLOAD:
-        case Opcodes.DLOAD:
-        case Opcodes.ALOAD:
-        case Opcodes.ISTORE:
-        case Opcodes.LSTORE:
-        case Opcodes.FSTORE:
-        case Opcodes.DSTORE:
-        case Opcodes.ASTORE:
-        case Opcodes.RET:
+        case Opcodes.ILOAD, Opcodes.LLOAD, Opcodes.FLOAD, Opcodes.DLOAD, Opcodes.ALOAD, Opcodes.ISTORE, Opcodes.LSTORE, Opcodes.FSTORE,
+                Opcodes.DSTORE, Opcodes.ASTORE, Opcodes.RET -> {
           methodVisitor.visitVarInsn(opcode, classBuffer[currentOffset + 1] & 0xFF);
           currentOffset += 2;
-          break;
-        case Opcodes.BIPUSH:
-        case Opcodes.NEWARRAY:
+        }
+        case Opcodes.BIPUSH, Opcodes.NEWARRAY -> {
           methodVisitor.visitIntInsn(opcode, classBuffer[currentOffset + 1]);
           currentOffset += 2;
-          break;
-        case Opcodes.SIPUSH:
+        }
+        case Opcodes.SIPUSH -> {
           methodVisitor.visitIntInsn(opcode, readShort(currentOffset + 1));
           currentOffset += 3;
-          break;
-        case Opcodes.LDC:
+        }
+        case Opcodes.LDC -> {
           methodVisitor.visitLdcInsn(readConst(classBuffer[currentOffset + 1] & 0xFF, charBuffer));
           currentOffset += 2;
-          break;
-        case Constants.LDC_W:
-        case Constants.LDC2_W:
+        }
+        case Constants.LDC_W, Constants.LDC2_W -> {
           methodVisitor.visitLdcInsn(readConst(readUnsignedShort(currentOffset + 1), charBuffer));
           currentOffset += 3;
-          break;
-        case Opcodes.GETSTATIC:
-        case Opcodes.PUTSTATIC:
-        case Opcodes.GETFIELD:
-        case Opcodes.PUTFIELD:
-        case Opcodes.INVOKEVIRTUAL:
-        case Opcodes.INVOKESPECIAL:
-        case Opcodes.INVOKESTATIC:
-        case Opcodes.INVOKEINTERFACE: {
+        }
+        case Opcodes.GETSTATIC, Opcodes.PUTSTATIC, Opcodes.GETFIELD, Opcodes.PUTFIELD, Opcodes.INVOKEVIRTUAL, Opcodes.INVOKESPECIAL,
+                Opcodes.INVOKESTATIC, Opcodes.INVOKEINTERFACE -> {
           int cpInfoOffset = cpInfoOffsets[readUnsignedShort(currentOffset + 1)];
           int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
           String owner = readClass(cpInfoOffset, charBuffer);
@@ -2445,8 +1977,7 @@ public class ClassReader {
             methodVisitor.visitFieldInsn(opcode, owner, name, descriptor);
           }
           else {
-            boolean isInterface =
-                    classBuffer[cpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
+            boolean isInterface = classBuffer[cpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
             methodVisitor.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
           }
           if (opcode == Opcodes.INVOKEINTERFACE) {
@@ -2455,48 +1986,37 @@ public class ClassReader {
           else {
             currentOffset += 3;
           }
-          break;
         }
-        case Opcodes.INVOKEDYNAMIC: {
+        case Opcodes.INVOKEDYNAMIC -> {
           int cpInfoOffset = cpInfoOffsets[readUnsignedShort(currentOffset + 1)];
           int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 2)];
           String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
           String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
           int bootstrapMethodOffset = bootstrapMethodOffsets[readUnsignedShort(cpInfoOffset)];
-          Handle handle =
-                  (Handle) readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
-          Object[] bootstrapMethodArguments =
-                  new Object[readUnsignedShort(bootstrapMethodOffset + 2)];
+          Handle handle = (Handle) readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
+          Object[] bootstrapMethodArguments = new Object[readUnsignedShort(bootstrapMethodOffset + 2)];
           bootstrapMethodOffset += 4;
           for (int i = 0; i < bootstrapMethodArguments.length; i++) {
-            bootstrapMethodArguments[i] =
-                    readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
+            bootstrapMethodArguments[i] = readConst(readUnsignedShort(bootstrapMethodOffset), charBuffer);
             bootstrapMethodOffset += 2;
           }
-          methodVisitor.visitInvokeDynamicInsn(
-                  name, descriptor, handle, bootstrapMethodArguments);
+          methodVisitor.visitInvokeDynamicInsn(name, descriptor, handle, bootstrapMethodArguments);
           currentOffset += 5;
-          break;
         }
-        case Opcodes.NEW:
-        case Opcodes.ANEWARRAY:
-        case Opcodes.CHECKCAST:
-        case Opcodes.INSTANCEOF:
+        case Opcodes.NEW, Opcodes.ANEWARRAY, Opcodes.CHECKCAST, Opcodes.INSTANCEOF -> {
           methodVisitor.visitTypeInsn(opcode, readClass(currentOffset + 1, charBuffer));
           currentOffset += 3;
-          break;
-        case Opcodes.IINC:
-          methodVisitor.visitIincInsn(
-                  classBuffer[currentOffset + 1] & 0xFF, classBuffer[currentOffset + 2]);
+        }
+        case Opcodes.IINC -> {
+          methodVisitor.visitIincInsn(classBuffer[currentOffset + 1] & 0xFF, classBuffer[currentOffset + 2]);
           currentOffset += 3;
-          break;
-        case Opcodes.MULTIANEWARRAY:
+        }
+        case Opcodes.MULTIANEWARRAY -> {
           methodVisitor.visitMultiANewArrayInsn(
                   readClass(currentOffset + 1, charBuffer), classBuffer[currentOffset + 3] & 0xFF);
           currentOffset += 4;
-          break;
-        default:
-          throw new AssertionError();
+        }
+        default -> throw new AssertionError();
       }
 
       // Visit the runtime visible instruction annotations, if any.
@@ -2505,26 +2025,17 @@ public class ClassReader {
               && currentVisibleTypeAnnotationBytecodeOffset <= currentBytecodeOffset) {
         if (currentVisibleTypeAnnotationBytecodeOffset == currentBytecodeOffset) {
           // Parse the target_type, target_info and target_path fields.
-          int currentAnnotationOffset =
-                  readTypeAnnotationTarget(
-                          context, visibleTypeAnnotationOffsets[currentVisibleTypeAnnotationIndex]);
+          int currentAnnotationOffset = readTypeAnnotationTarget(
+                  context, visibleTypeAnnotationOffsets[currentVisibleTypeAnnotationIndex]);
           // Parse the type_index field.
           String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
           currentAnnotationOffset += 2;
           // Parse num_element_value_pairs and element_value_pairs and visit these values.
-          readElementValues(
-                  methodVisitor.visitInsnAnnotation(
-                          context.currentTypeAnnotationTarget,
-                          context.currentTypeAnnotationTargetPath,
-                          annotationDescriptor,
-                          /* visible = */ true),
-                  currentAnnotationOffset,
-                  /* named = */ true,
-                  charBuffer);
+          readElementValues(methodVisitor.visitInsnAnnotation(context.currentTypeAnnotationTarget,
+                          context.currentTypeAnnotationTargetPath, annotationDescriptor,/* visible = */ true),
+                  currentAnnotationOffset,/* named = */ true, charBuffer);
         }
-        currentVisibleTypeAnnotationBytecodeOffset =
-                getTypeAnnotationBytecodeOffset(
-                        visibleTypeAnnotationOffsets, ++currentVisibleTypeAnnotationIndex);
+        currentVisibleTypeAnnotationBytecodeOffset = getTypeAnnotationBytecodeOffset(visibleTypeAnnotationOffsets, ++currentVisibleTypeAnnotationIndex);
       }
 
       // Visit the runtime invisible instruction annotations, if any.
@@ -2533,9 +2044,8 @@ public class ClassReader {
               && currentInvisibleTypeAnnotationBytecodeOffset <= currentBytecodeOffset) {
         if (currentInvisibleTypeAnnotationBytecodeOffset == currentBytecodeOffset) {
           // Parse the target_type, target_info and target_path fields.
-          int currentAnnotationOffset =
-                  readTypeAnnotationTarget(
-                          context, invisibleTypeAnnotationOffsets[currentInvisibleTypeAnnotationIndex]);
+          int currentAnnotationOffset = readTypeAnnotationTarget(
+                  context, invisibleTypeAnnotationOffsets[currentInvisibleTypeAnnotationIndex]);
           // Parse the type_index field.
           String annotationDescriptor = readUTF8(currentAnnotationOffset, charBuffer);
           currentAnnotationOffset += 2;
@@ -2610,18 +2120,10 @@ public class ClassReader {
           String annotationDescriptor = readUTF8(currentOffset, charBuffer);
           currentOffset += 2;
           // Parse num_element_value_pairs and element_value_pairs and visit these values.
-          readElementValues(
-                  methodVisitor.visitLocalVariableAnnotation(
-                          context.currentTypeAnnotationTarget,
-                          context.currentTypeAnnotationTargetPath,
-                          context.currentLocalVariableAnnotationRangeStarts,
-                          context.currentLocalVariableAnnotationRangeEnds,
-                          context.currentLocalVariableAnnotationRangeIndices,
-                          annotationDescriptor,
-                          /* visible = */ true),
-                  currentOffset,
-                  /* named = */ true,
-                  charBuffer);
+          readElementValues(methodVisitor.visitLocalVariableAnnotation(context.currentTypeAnnotationTarget,
+                  context.currentTypeAnnotationTargetPath, context.currentLocalVariableAnnotationRangeStarts,
+                  context.currentLocalVariableAnnotationRangeEnds, context.currentLocalVariableAnnotationRangeIndices,
+                  annotationDescriptor, /* visible = */ true), currentOffset, /* named = */ true, charBuffer);
         }
       }
     }
@@ -2731,11 +2233,8 @@ public class ClassReader {
    * @return the start offset of each entry of the Runtime[In]VisibleTypeAnnotations_attribute's
    * 'annotations' array field.
    */
-  private int[] readTypeAnnotations(
-          final MethodVisitor methodVisitor,
-          final Context context,
-          final int runtimeTypeAnnotationsOffset,
-          final boolean visible) {
+  private int[] readTypeAnnotations(final MethodVisitor methodVisitor,
+          final Context context, final int runtimeTypeAnnotationsOffset, final boolean visible) {
     char[] charBuffer = context.charBuffer;
     byte[] classFileBuffer = this.classFileBuffer;
 
@@ -2750,8 +2249,7 @@ public class ClassReader {
       // target_info field depends on the value of target_type.
       int targetType = readInt(currentOffset);
       switch (targetType >>> 24) {
-        case TypeReference.LOCAL_VARIABLE:
-        case TypeReference.RESOURCE_VARIABLE:
+        case TypeReference.LOCAL_VARIABLE, TypeReference.RESOURCE_VARIABLE -> {
           // A localvar_target has a variable size, which depends on the value of their table_length
           // field. It also references bytecode offsets, for which we need labels.
           int tableLength = readUnsignedShort(currentOffset + 1);
@@ -2764,34 +2262,14 @@ public class ClassReader {
             createLabel(startPc, context.currentMethodLabels);
             createLabel(startPc + length, context.currentMethodLabels);
           }
-          break;
-        case TypeReference.CAST:
-        case TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT:
-        case TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT:
-        case TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT:
-        case TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT:
-          currentOffset += 4;
-          break;
-        case TypeReference.CLASS_EXTENDS:
-        case TypeReference.CLASS_TYPE_PARAMETER_BOUND:
-        case TypeReference.METHOD_TYPE_PARAMETER_BOUND:
-        case TypeReference.THROWS:
-        case TypeReference.EXCEPTION_PARAMETER:
-        case TypeReference.INSTANCEOF:
-        case TypeReference.NEW:
-        case TypeReference.CONSTRUCTOR_REFERENCE:
-        case TypeReference.METHOD_REFERENCE:
-          currentOffset += 3;
-          break;
-        case TypeReference.CLASS_TYPE_PARAMETER:
-        case TypeReference.METHOD_TYPE_PARAMETER:
-        case TypeReference.METHOD_FORMAL_PARAMETER:
-        case TypeReference.FIELD:
-        case TypeReference.METHOD_RETURN:
-        case TypeReference.METHOD_RECEIVER:
-        default:
-          // TypeReference type which can't be used in Code attribute, or which is unknown.
-          throw new IllegalArgumentException();
+        }
+        case TypeReference.CAST, TypeReference.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT, TypeReference.METHOD_INVOCATION_TYPE_ARGUMENT,
+                TypeReference.CONSTRUCTOR_REFERENCE_TYPE_ARGUMENT, TypeReference.METHOD_REFERENCE_TYPE_ARGUMENT -> currentOffset += 4;
+
+        case TypeReference.CLASS_EXTENDS, TypeReference.CLASS_TYPE_PARAMETER_BOUND, TypeReference.METHOD_TYPE_PARAMETER_BOUND,
+                TypeReference.THROWS, TypeReference.EXCEPTION_PARAMETER, TypeReference.INSTANCEOF, TypeReference.NEW,
+                TypeReference.CONSTRUCTOR_REFERENCE, TypeReference.METHOD_REFERENCE -> currentOffset += 3;
+        default -> throw new IllegalArgumentException(); // TypeReference type which can't be used in Code attribute, or which is unknown.
       }
       // Parse the rest of the type_annotation structure, starting with the target_path structure
       // (whose size depends on its path_length field).
@@ -2804,13 +2282,8 @@ public class ClassReader {
         String annotationDescriptor = readUTF8(currentOffset, charBuffer);
         currentOffset += 2;
         // Parse num_element_value_pairs and element_value_pairs and visit these values.
-        currentOffset =
-                readElementValues(
-                        methodVisitor.visitTryCatchAnnotation(
-                                targetType & 0xFFFFFF00, path, annotationDescriptor, visible),
-                        currentOffset,
-                        /* named = */ true,
-                        charBuffer);
+        currentOffset = readElementValues(methodVisitor.visitTryCatchAnnotation(targetType & 0xFFFFFF00, path, annotationDescriptor, visible),
+                currentOffset, /* named = */ true, charBuffer);
       }
       else {
         // We don't want to visit the other target_type annotations, so we just skip them (which
@@ -2837,8 +2310,7 @@ public class ClassReader {
    * @return bytecode offset corresponding to the specified JVMS 'type_annotation' structure, or -1
    * if there is no such type_annotation of if it does not have a bytecode offset.
    */
-  private int getTypeAnnotationBytecodeOffset(
-          final int[] typeAnnotationOffsets, final int typeAnnotationIndex) {
+  private int getTypeAnnotationBytecodeOffset(final int[] typeAnnotationOffsets, final int typeAnnotationIndex) {
     if (typeAnnotationOffsets == null
             || typeAnnotationIndex >= typeAnnotationOffsets.length
             || readByte(typeAnnotationOffsets[typeAnnotationIndex]) < TypeReference.INSTANCEOF) {
@@ -2940,11 +2412,8 @@ public class ClassReader {
    * @param visible true if the attribute to parse is a RuntimeVisibleParameterAnnotations
    * attribute, false it is a RuntimeInvisibleParameterAnnotations attribute.
    */
-  private void readParameterAnnotations(
-          final MethodVisitor methodVisitor,
-          final Context context,
-          final int runtimeParameterAnnotationsOffset,
-          final boolean visible) {
+  private void readParameterAnnotations(final MethodVisitor methodVisitor,
+          final Context context, final int runtimeParameterAnnotationsOffset, final boolean visible) {
     int currentOffset = runtimeParameterAnnotationsOffset;
     int numParameters = classFileBuffer[currentOffset++] & 0xFF;
     methodVisitor.visitAnnotableParameterCount(numParameters, visible);
@@ -2981,11 +2450,8 @@ public class ClassReader {
    * @param charBuffer the buffer used to read strings in the constant pool.
    * @return the end offset of the JVMS 'annotation' or 'array_value' structure.
    */
-  private int readElementValues(
-          final AnnotationVisitor annotationVisitor,
-          final int annotationOffset,
-          final boolean named,
-          final char[] charBuffer) {
+  private int readElementValues(final AnnotationVisitor annotationVisitor,
+          final int annotationOffset, final boolean named, final char[] charBuffer) {
     int currentOffset = annotationOffset;
     // Read the num_element_value_pairs field (or num_values field for an array_value).
     int numElementValuePairs = readUnsignedShort(currentOffset);
@@ -3021,11 +2487,8 @@ public class ClassReader {
    * @param charBuffer the buffer used to read strings in the constant pool.
    * @return the end offset of the JVMS 'element_value' structure.
    */
-  private int readElementValue(
-          final AnnotationVisitor annotationVisitor,
-          final int elementValueOffset,
-          final String elementName,
-          final char[] charBuffer) {
+  private int readElementValue(final AnnotationVisitor annotationVisitor,
+          final int elementValueOffset, final String elementName, final char[] charBuffer) {
     int currentOffset = elementValueOffset;
     byte[] classFileBuffer = this.classFileBuffer;
     if (annotationVisitor == null) {
@@ -3064,11 +2527,8 @@ public class ClassReader {
         currentOffset += 2;
       }
       case 'Z' -> { // const_value_index, CONSTANT_Integer
-        annotationVisitor.visit(
-                elementName,
-                readInt(cpInfoOffsets[readUnsignedShort(currentOffset)]) == 0
-                ? Boolean.FALSE
-                : Boolean.TRUE);
+        annotationVisitor.visit(elementName,
+                readInt(cpInfoOffsets[readUnsignedShort(currentOffset)]) == 0 ? Boolean.FALSE : Boolean.TRUE);
         currentOffset += 2;
       }
       case 's' -> { // const_value_index, CONSTANT_Utf8
@@ -3087,22 +2547,16 @@ public class ClassReader {
         currentOffset += 2;
       }
       case '@' -> {// annotation_value
-        currentOffset =
-                readElementValues(
-                        annotationVisitor.visitAnnotation(elementName, readUTF8(currentOffset, charBuffer)),
-                        currentOffset + 2,
-                        true,
-                        charBuffer);
+        currentOffset = readElementValues(
+                annotationVisitor.visitAnnotation(elementName, readUTF8(currentOffset, charBuffer)),
+                currentOffset + 2, true, charBuffer);
       }
       case '[' -> { // array_value
         int numValues = readUnsignedShort(currentOffset);
         currentOffset += 2;
         if (numValues == 0) {
-          return readElementValues(
-                  annotationVisitor.visitArray(elementName),
-                  currentOffset - 2,
-                  /* named = */ false,
-                  charBuffer);
+          return readElementValues(annotationVisitor.visitArray(elementName),
+                  currentOffset - 2, /* named = */ false, charBuffer);
         }
         switch (classFileBuffer[currentOffset] & 0xFF) {
           case 'B' -> {
@@ -3156,9 +2610,8 @@ public class ClassReader {
           case 'F' -> {
             float[] floatValues = new float[numValues];
             for (int i = 0; i < numValues; i++) {
-              floatValues[i] =
-                      Float.intBitsToFloat(
-                              readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
+              floatValues[i] = Float.intBitsToFloat(
+                      readInt(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, floatValues);
@@ -3166,20 +2619,18 @@ public class ClassReader {
           case 'D' -> {
             double[] doubleValues = new double[numValues];
             for (int i = 0; i < numValues; i++) {
-              doubleValues[i] =
-                      Double.longBitsToDouble(
-                              readLong(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
+              doubleValues[i] = Double.longBitsToDouble(
+                      readLong(cpInfoOffsets[readUnsignedShort(currentOffset + 1)]));
               currentOffset += 3;
             }
             annotationVisitor.visit(elementName, doubleValues);
           }
           default -> {
-            currentOffset =
-                    readElementValues(
-                            annotationVisitor.visitArray(elementName),
-                            currentOffset - 2,
-                            /* named = */ false,
-                            charBuffer);
+            currentOffset = readElementValues(
+                    annotationVisitor.visitArray(elementName),
+                    currentOffset - 2,
+                    /* named = */ false,
+                    charBuffer);
           }
         }
       }
@@ -3264,11 +2715,8 @@ public class ClassReader {
    * @param context where the parsed stack map frame must be stored.
    * @return the end offset of the JVMS 'stack_map_frame' or 'full_frame' structure.
    */
-  private int readStackMapFrame(
-          final int stackMapFrameOffset,
-          final boolean compressed,
-          final boolean expand,
-          final Context context) {
+  private int readStackMapFrame(final int stackMapFrameOffset,
+          final boolean compressed, final boolean expand, final Context context) {
     int currentOffset = stackMapFrameOffset;
     final char[] charBuffer = context.charBuffer;
     final Label[] labels = context.currentMethodLabels;
@@ -3371,12 +2819,8 @@ public class ClassReader {
    * stored in this array if it does not already exist.
    * @return the end offset of the JVMS 'verification_type_info' structure.
    */
-  private int readVerificationTypeInfo(
-          final int verificationTypeInfoOffset,
-          final Object[] frame,
-          final int index,
-          final char[] charBuffer,
-          final Label[] labels) {
+  private int readVerificationTypeInfo(final int verificationTypeInfoOffset,
+          final Object[] frame, final int index, final char[] charBuffer, final Label[] labels) {
     int currentOffset = verificationTypeInfoOffset;
     int tag = classFileBuffer[currentOffset++] & 0xFF;
     switch (tag) {
@@ -3505,14 +2949,8 @@ public class ClassReader {
    * is not a code attribute.
    * @return the attribute that has been read.
    */
-  private Attribute readAttribute(
-          final Attribute[] attributePrototypes,
-          final String type,
-          final int offset,
-          final int length,
-          final char[] charBuffer,
-          final int codeAttributeOffset,
-          final Label[] labels) {
+  private Attribute readAttribute(final Attribute[] attributePrototypes, final String type,
+          final int offset, final int length, final char[] charBuffer, final int codeAttributeOffset, final Label[] labels) {
     for (Attribute attributePrototype : attributePrototypes) {
       if (attributePrototype.type.equals(type)) {
         return attributePrototype.read(
@@ -3687,11 +3125,9 @@ public class ClassReader {
                 (char) (((currentByte & 0x1F) << 6) + (classBuffer[currentOffset++] & 0x3F));
       }
       else {
-        charBuffer[strLength++] =
-                (char)
-                        (((currentByte & 0xF) << 12)
-                                + ((classBuffer[currentOffset++] & 0x3F) << 6)
-                                + (classBuffer[currentOffset++] & 0x3F));
+        charBuffer[strLength++] = (char) (((currentByte & 0xF) << 12)
+                + ((classBuffer[currentOffset++] & 0x3F) << 6)
+                + (classBuffer[currentOffset++] & 0x3F));
       }
     }
     return new String(charBuffer, 0, strLength);
@@ -3770,8 +3206,7 @@ public class ClassReader {
    * large. It is not automatically resized.
    * @return the ConstantDynamic corresponding to the specified CONSTANT_Dynamic entry.
    */
-  private ConstantDynamic readConstantDynamic(
-          final int constantPoolEntryIndex, final char[] charBuffer) {
+  private ConstantDynamic readConstantDynamic(final int constantPoolEntryIndex, final char[] charBuffer) {
     ConstantDynamic constantDynamic = constantDynamicValues[constantPoolEntryIndex];
     if (constantDynamic != null) {
       return constantDynamic;
@@ -3808,36 +3243,26 @@ public class ClassReader {
    */
   public Object readConst(final int constantPoolEntryIndex, final char[] charBuffer) {
     int cpInfoOffset = cpInfoOffsets[constantPoolEntryIndex];
-    byte[] classFileBuffer = this.classFileBuffer;
-    switch (classFileBuffer[cpInfoOffset - 1]) {
-      case Symbol.CONSTANT_INTEGER_TAG:
-        return readInt(cpInfoOffset);
-      case Symbol.CONSTANT_FLOAT_TAG:
-        return Float.intBitsToFloat(readInt(cpInfoOffset));
-      case Symbol.CONSTANT_LONG_TAG:
-        return readLong(cpInfoOffset);
-      case Symbol.CONSTANT_DOUBLE_TAG:
-        return Double.longBitsToDouble(readLong(cpInfoOffset));
-      case Symbol.CONSTANT_CLASS_TAG:
-        return Type.fromInternalName(readUTF8(cpInfoOffset, charBuffer));
-      case Symbol.CONSTANT_STRING_TAG:
-        return readUTF8(cpInfoOffset, charBuffer);
-      case Symbol.CONSTANT_METHOD_TYPE_TAG:
-        return Type.fromMethod(readUTF8(cpInfoOffset, charBuffer));
-      case Symbol.CONSTANT_METHOD_HANDLE_TAG:
+    return switch (classFileBuffer[cpInfoOffset - 1]) {
+      case Symbol.CONSTANT_INTEGER_TAG -> readInt(cpInfoOffset);
+      case Symbol.CONSTANT_FLOAT_TAG -> Float.intBitsToFloat(readInt(cpInfoOffset));
+      case Symbol.CONSTANT_LONG_TAG -> readLong(cpInfoOffset);
+      case Symbol.CONSTANT_DOUBLE_TAG -> Double.longBitsToDouble(readLong(cpInfoOffset));
+      case Symbol.CONSTANT_CLASS_TAG -> Type.fromInternalName(readUTF8(cpInfoOffset, charBuffer));
+      case Symbol.CONSTANT_STRING_TAG -> readUTF8(cpInfoOffset, charBuffer);
+      case Symbol.CONSTANT_METHOD_TYPE_TAG -> Type.fromMethod(readUTF8(cpInfoOffset, charBuffer));
+      case Symbol.CONSTANT_DYNAMIC_TAG -> readConstantDynamic(constantPoolEntryIndex, charBuffer);
+      case Symbol.CONSTANT_METHOD_HANDLE_TAG -> {
         int referenceKind = readByte(cpInfoOffset);
         int referenceCpInfoOffset = cpInfoOffsets[readUnsignedShort(cpInfoOffset + 1)];
         int nameAndTypeCpInfoOffset = cpInfoOffsets[readUnsignedShort(referenceCpInfoOffset + 2)];
         String owner = readClass(referenceCpInfoOffset, charBuffer);
         String name = readUTF8(nameAndTypeCpInfoOffset, charBuffer);
         String descriptor = readUTF8(nameAndTypeCpInfoOffset + 2, charBuffer);
-        boolean isInterface =
-                classFileBuffer[referenceCpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
-        return new Handle(referenceKind, owner, name, descriptor, isInterface);
-      case Symbol.CONSTANT_DYNAMIC_TAG:
-        return readConstantDynamic(constantPoolEntryIndex, charBuffer);
-      default:
-        throw new IllegalArgumentException();
-    }
+        boolean isInterface = classFileBuffer[referenceCpInfoOffset - 1] == Symbol.CONSTANT_INTERFACE_METHODREF_TAG;
+        yield new Handle(referenceKind, owner, name, descriptor, isInterface);
+      }
+      default -> throw new IllegalArgumentException();
+    };
   }
 }
