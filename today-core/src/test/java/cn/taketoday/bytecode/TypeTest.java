@@ -203,7 +203,7 @@ public class TypeTest implements Opcodes {
   public void testGetTypeFromConstructor() throws NoSuchMethodException, SecurityException {
     Type type = Type.fromConstructor(ClassReader.class.getConstructor(byte[].class, int.class));
 
-    assertEquals("([BII)V", type.getDescriptor());
+    assertEquals("([BI)V", type.getDescriptor());
   }
 
   @Test
