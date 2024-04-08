@@ -261,7 +261,7 @@ public interface EntityManager {
    * @return delete rows
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int delete(Object entity) throws DataAccessException;
+  int delete(Object entityOrExample) throws DataAccessException;
 
   /**
    * @throws IllegalEntityException entityClass is legal entity

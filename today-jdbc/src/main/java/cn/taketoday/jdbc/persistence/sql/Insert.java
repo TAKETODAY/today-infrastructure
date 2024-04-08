@@ -17,12 +17,13 @@
 
 package cn.taketoday.jdbc.persistence.sql;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
+import cn.taketoday.core.Pair;
 import cn.taketoday.jdbc.persistence.StatementSequence;
 import cn.taketoday.jdbc.persistence.dialect.Platform;
+import cn.taketoday.lang.Nullable;
 
 /**
  * An SQL <tt>INSERT</tt> statement
@@ -33,25 +34,20 @@ import cn.taketoday.jdbc.persistence.dialect.Platform;
  */
 public class Insert implements StatementSequence {
 
-  protected String tableName;
+  protected final String tableName;
 
+  @Nullable
   protected String comment;
 
-  protected Map<String, String> columns = new LinkedHashMap<>();
+  public final ArrayList<Pair<String, String>> columns = new ArrayList<>();
 
-  private final Platform platform;
-
-  public Insert(Platform platform) {
-    this.platform = platform;
+  public Insert(String tableName) {
+    this.tableName = tableName;
   }
 
-  public Insert setComment(String comment) {
+  public Insert setComment(@Nullable String comment) {
     this.comment = comment;
     return this;
-  }
-
-  public Map<String, String> getColumns() {
-    return columns;
   }
 
   public Insert addColumn(String columnName) {
@@ -65,31 +61,8 @@ public class Insert implements StatementSequence {
     return this;
   }
 
-  public Insert addColumns(String[] columnNames, boolean[] insertable) {
-    for (int i = 0; i < columnNames.length; i++) {
-      if (insertable[i]) {
-        addColumn(columnNames[i]);
-      }
-    }
-    return this;
-  }
-
-  public Insert addColumns(String[] columnNames, boolean[] insertable, String[] valueExpressions) {
-    for (int i = 0; i < columnNames.length; i++) {
-      if (insertable[i]) {
-        addColumn(columnNames[i], valueExpressions[i]);
-      }
-    }
-    return this;
-  }
-
   public Insert addColumn(String columnName, String valueExpression) {
-    columns.put(columnName, valueExpression);
-    return this;
-  }
-
-  public Insert setTableName(String tableName) {
-    this.tableName = tableName;
+    columns.add(Pair.of(columnName, valueExpression));
     return this;
   }
 
@@ -103,12 +76,12 @@ public class Insert implements StatementSequence {
     buf.append("INSERT INTO ").append(tableName);
 
     if (columns.isEmpty()) {
-      buf.append(' ').append(this.platform.getNoColumnsInsertString());
+      buf.append(' ').append(platform.getNoColumnsInsertString());
     }
     else {
       buf.append(" (");
       renderInsertionSpec(buf);
-      buf.append(") values (");
+      buf.append(") VALUES (");
       renderRowValues(buf);
       buf.append(')');
     }
@@ -116,19 +89,20 @@ public class Insert implements StatementSequence {
   }
 
   private void renderInsertionSpec(StringBuilder buf) {
-    final Iterator<String> itr = columns.keySet().iterator();
+    buf.append('`');
+    final Iterator<Pair<String, String>> itr = columns.iterator();
     while (itr.hasNext()) {
-      buf.append(itr.next());
+      buf.append(itr.next().first).append('`');
       if (itr.hasNext()) {
-        buf.append(", ");
+        buf.append(", `");
       }
     }
   }
 
   private void renderRowValues(StringBuilder buf) {
-    final Iterator<String> itr = columns.values().iterator();
+    final Iterator<Pair<String, String>> itr = columns.iterator();
     while (itr.hasNext()) {
-      buf.append(itr.next());
+      buf.append(itr.next().second);
       if (itr.hasNext()) {
         buf.append(", ");
       }

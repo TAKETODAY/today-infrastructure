@@ -177,9 +177,9 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
   }
 
   /**
-   * Sets a value indicating if this instance of RepositoryManager is case sensitive when
+   * Sets a value indicating if this instance of RepositoryManager is case-sensitive when
    * mapping between columns names and property names. This should almost always
-   * be false, because most relational databases are not case sensitive.
+   * be false, because most relational databases are not case-sensitive.
    */
   public void setDefaultCaseSensitive(boolean defaultCaseSensitive) {
     this.defaultCaseSensitive = defaultCaseSensitive;
@@ -484,6 +484,23 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
   }
 
   /**
+   * Begins a transaction with isolation level
+   * {@link Connection#TRANSACTION_READ_COMMITTED}. Every statement
+   * executed on the return {@link JdbcConnection} instance, will be executed in the
+   * transaction. It is very important to always call either the
+   * {@link JdbcConnection#commit()} method or the
+   * {@link JdbcConnection#rollback()} method to close the transaction. Use
+   * proper try-catch logic.
+   *
+   * @return the {@link JdbcConnection} instance to use to run statements in the
+   * transaction.
+   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
+   */
+  public JdbcConnection beginTransaction() {
+    return beginTransaction(Connection.TRANSACTION_READ_COMMITTED);
+  }
+
+  /**
    * Begins a transaction with the given isolation level. Every statement executed
    * on the return {@link JdbcConnection} instance, will be executed in the
    * transaction. It is very important to always call either the
@@ -525,7 +542,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * {@link JdbcConnection#rollback()} method to close the transaction. Use
    * proper try-catch logic.
    *
-   * @param definition the options of the transaction
+   * @param definition the TransactionDefinition instance (can be {@code null} for defaults),
+   * describing propagation behavior, isolation level, timeout etc.
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
@@ -544,7 +562,8 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    *
    * @param source the {@link DataSource} implementation substitution, that
    * will be used instead of one from {@link RepositoryManager} instance.
-   * @param definition the options of the transaction
+   * @param definition the TransactionDefinition instance (can be {@code null} for defaults),
+   * describing propagation behavior, isolation level, timeout etc.
    * @return the {@link JdbcConnection} instance to use to run statements in the
    * transaction.
    * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
@@ -554,23 +573,6 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
     connection.beginTransaction(definition);
     connection.createConnection();
     return connection;
-  }
-
-  /**
-   * Begins a transaction with isolation level
-   * {@link Connection#TRANSACTION_READ_COMMITTED}. Every statement
-   * executed on the return {@link JdbcConnection} instance, will be executed in the
-   * transaction. It is very important to always call either the
-   * {@link JdbcConnection#commit()} method or the
-   * {@link JdbcConnection#rollback()} method to close the transaction. Use
-   * proper try-catch logic.
-   *
-   * @return the {@link JdbcConnection} instance to use to run statements in the
-   * transaction.
-   * @throws CannotGetJdbcConnectionException Could not acquire a connection from connection-source
-   */
-  public JdbcConnection beginTransaction() {
-    return beginTransaction(Connection.TRANSACTION_READ_COMMITTED);
   }
 
   /**
@@ -616,7 +618,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * throwing an exception. If an exception is thrown within the
    * {@link StatementRunnable#run(JdbcConnection, Object) run} method, the transaction
    * will automatically be rolled back.
-   *
+   * <p>
    * The isolation level of the transaction will be set to
    * {@link Connection#TRANSACTION_READ_COMMITTED}
    *
@@ -637,7 +639,7 @@ public class RepositoryManager extends JdbcAccessor implements QueryProducer, Tr
    * throwing an exception. If an exception is thrown within the
    * {@link StatementRunnable#run(JdbcConnection, Object) run} method, the transaction
    * will automatically be rolled back.
-   *
+   * <p>
    * The isolation level of the transaction will be set to
    * {@link Connection#TRANSACTION_READ_COMMITTED}
    *

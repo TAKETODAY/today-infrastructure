@@ -224,6 +224,7 @@ public final class JdbcConnection implements Closeable, QueryProducer {
     if (transaction != null) {
       throw new InvalidDataAccessApiUsageException("Transaction require commit or rollback");
     }
+    setRollbackOnClose(false);
     return this.transaction = manager.getTransactionManager().getTransaction(definition);
   }
 

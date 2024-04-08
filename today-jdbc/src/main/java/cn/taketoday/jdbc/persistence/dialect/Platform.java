@@ -75,7 +75,7 @@ public abstract class Platform {
    * @return The appropriate empty values clause.
    */
   public String getNoColumnsInsertString() {
-    return "values ( )";
+    return "VALUES ( )";
   }
 
   /**

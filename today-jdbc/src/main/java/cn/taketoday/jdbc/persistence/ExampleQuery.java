@@ -64,6 +64,11 @@ final class ExampleQuery extends SimpleSelectQueryHandler implements ConditionHa
   @Nullable
   private OrderByClause orderByClause;
 
+  ExampleQuery(Object example, EntityMetadata exampleMetadata) {
+    this.example = example;
+    this.exampleMetadata = exampleMetadata;
+  }
+
   ExampleQuery(EntityMetadataFactory factory, Object example) {
     this.example = example;
     this.exampleMetadata = factory.getEntityMetadata(example.getClass());
@@ -73,6 +78,10 @@ final class ExampleQuery extends SimpleSelectQueryHandler implements ConditionHa
   protected void renderInternal(EntityMetadata metadata, SimpleSelect select) {
     scan(condition -> select.addRestriction(condition.restriction));
     select.orderBy(example instanceof OrderBySource source ? source.getOrderByClause() : orderByClause);
+  }
+
+  public void renderWhereClause(StringBuilder sql) {
+    Restriction.render(scan(null), sql);
   }
 
   @Override

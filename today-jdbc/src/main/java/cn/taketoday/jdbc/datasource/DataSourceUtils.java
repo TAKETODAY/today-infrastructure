@@ -403,7 +403,7 @@ public abstract class DataSourceUtils {
    * @see SmartDataSource#shouldClose(Connection)
    */
   public static void doCloseConnection(Connection con, @Nullable DataSource dataSource) throws SQLException {
-    if (!(dataSource instanceof SmartDataSource smartDataSource) || smartDataSource.shouldClose(con)) {
+    if (!(dataSource instanceof SmartDataSource smart) || smart.shouldClose(con)) {
       con.close();
     }
   }

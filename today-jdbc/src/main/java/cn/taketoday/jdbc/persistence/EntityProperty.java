@@ -96,7 +96,7 @@ public class EntityProperty {
    * <p>Note that this method may be used to pass database-
    * specific abstract data types, by using a driver-specific Java
    * type.
-   *
+   * <p>
    * If the object is of a class implementing the interface {@code SQLData},
    * the JDBC driver should call the method {@code SQLData.writeSQL}
    * to write it to the SQL data stream.
