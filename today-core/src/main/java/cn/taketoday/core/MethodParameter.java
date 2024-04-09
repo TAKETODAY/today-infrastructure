@@ -761,8 +761,7 @@ public class MethodParameter implements AnnotatedElement {
   @Override
   public String toString() {
     Method method = getMethod();
-    return (method != null ? "method '" + method.getName() + "'" : "constructor") +
-            " parameter " + this.parameterIndex;
+    return "%s parameter %d".formatted(method != null ? "method '%s'".formatted(method.getName()) : "constructor", this.parameterIndex);
   }
 
   @Override

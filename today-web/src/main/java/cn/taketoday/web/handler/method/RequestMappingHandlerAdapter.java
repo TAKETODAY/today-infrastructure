@@ -28,6 +28,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -39,7 +40,6 @@ import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Extension of {@link AbstractHandlerMethodAdapter} that supports
@@ -282,9 +282,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
    */
   @Nullable
   protected Object invokeHandlerMethod(RequestContext request, HandlerMethod handlerMethod) throws Throwable {
-    BindingContext binding = new InitBinderBindingContext(
-            modelHandler, getWebBindingInitializer(), methodResolver, handlerMethod);
-
+    BindingContext binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, handlerMethod);
     request.setBinding(binding);
 
     // add last RedirectModel to this request

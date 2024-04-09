@@ -19,6 +19,8 @@
  */
 package cn.taketoday.web.handler.method;
 
+import java.io.Serial;
+
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
@@ -29,21 +31,17 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
  * @author TODAY 2020/9/26 20:06
  * @since 3.0
  */
-@SuppressWarnings("serial")
-public class ParameterResolverMethodParameter extends ResolvableMethodParameter {
+final class ParameterResolverMethodParameter extends ResolvableMethodParameter {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
+
   private final ParameterResolvingRegistry resolvers;
 
   @Nullable
   private ParameterResolvingStrategy strategy;
 
-  public ParameterResolverMethodParameter(
-          ResolvableMethodParameter other, ParameterResolvingRegistry resolvers) {
-    super(other);
-    this.resolvers = resolvers;
-  }
-
-  public ParameterResolverMethodParameter(
-          MethodParameter parameter, ParameterResolvingRegistry resolvers) {
+  ParameterResolverMethodParameter(MethodParameter parameter, ParameterResolvingRegistry resolvers) {
     super(parameter);
     this.resolvers = resolvers;
   }

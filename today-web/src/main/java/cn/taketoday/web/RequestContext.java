@@ -72,8 +72,6 @@ import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelManager;
 
 import static cn.taketoday.lang.Constant.DEFAULT_CHARSET;
 

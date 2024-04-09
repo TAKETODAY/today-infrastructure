@@ -41,13 +41,13 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
+import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Resolves {@link HttpEntity} and {@link RequestEntity} method argument values

@@ -126,14 +126,13 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @return {@link MethodInvoker} sub object
    * @throws ReflectionException Thrown when a particular method cannot be found.
    */
-  public static MethodInvoker fromMethod(
-          Class<?> beanClass, String name, Class<?>... parameters) {
+  public static MethodInvoker fromMethod(Class<?> beanClass, String name, Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
       return new MethodInvokerGenerator(targetMethod, beanClass).create();
     }
     catch (NoSuchMethodException e) {
-      throw new ReflectionException("No such method: '" + name + "' in " + beanClass, e);
+      throw new ReflectionException("No such method: '%s' in %s".formatted(name, beanClass), e);
     }
   }
 

@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.context.MessageSource;
@@ -49,7 +47,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MapCache;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.annotation.ResponseBody;
@@ -197,7 +194,7 @@ public class HandlerMethod implements AsyncHandler {
     this.messageSource = messageSource;
     Class<?> beanType = beanFactory.getType(beanName);
     if (beanType == null) {
-      throw new IllegalStateException("Cannot resolve bean type for bean with name '" + beanName + "'");
+      throw new IllegalStateException("Cannot resolve bean type for bean with name '%s'".formatted(beanName));
     }
     this.beanType = ClassUtils.getUserClass(beanType);
     this.bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
@@ -263,8 +260,8 @@ public class HandlerMethod implements AsyncHandler {
     if (annotation != null) {
       String reason = annotation.reason();
       String resolvedReason = StringUtils.hasText(reason) && messageSource != null
-                              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
-                              : reason;
+              ? messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale())
+              : reason;
 
       this.responseStatus = annotation.code();
       this.responseStatusReason = resolvedReason;
@@ -464,8 +461,7 @@ public class HandlerMethod implements AsyncHandler {
    * @since 4.0
    */
   public String getShortLogMessage() {
-    return getBeanType().getName() + "#" + this.method.getName() +
-            "[" + this.method.getParameterCount() + " args]";
+    return "%s#%s[%d args]".formatted(getBeanType().getName(), this.method.getName(), this.method.getParameterCount());
   }
 
   private ArrayList<Annotation[][]> getInterfaceParameterAnnotations() {
@@ -523,56 +519,6 @@ public class HandlerMethod implements AsyncHandler {
   @Override
   public String toString() {
     return description;
-  }
-
-  // Support methods for use in "InvocableHandlerMethod" sub-class variants..
-
-  @Nullable
-  protected static Object findProvidedArgument(MethodParameter parameter, @Nullable Object... providedArgs) {
-    if (ObjectUtils.isNotEmpty(providedArgs)) {
-      for (Object providedArg : providedArgs) {
-        if (parameter.getParameterType().isInstance(providedArg)) {
-          return providedArg;
-        }
-      }
-    }
-    return null;
-  }
-
-  protected static String formatArgumentError(ResolvableMethodParameter param, String message) {
-    return "Could not resolve parameter [" + param.getParameterIndex() + "] in " +
-            param.getMethod().toGenericString() + (StringUtils.hasText(message) ? ": " + message : "");
-  }
-
-  /**
-   * Assert that the target bean class is an instance of the class where the given
-   * method is declared. In some cases the actual controller instance at request-
-   * processing time may be a JDK dynamic proxy (lazy initialization, prototype
-   * beans, and others). {@code @Controller}'s that require proxying should prefer
-   * class-based proxy mechanisms.
-   */
-  protected void assertTargetBean(Method method, Object targetBean, Object[] args) {
-    Class<?> methodDeclaringClass = method.getDeclaringClass();
-    Class<?> targetBeanClass = targetBean.getClass();
-    if (!methodDeclaringClass.isAssignableFrom(targetBeanClass)) {
-      String text = "The mapped handler method class '" + methodDeclaringClass.getName() +
-              "' is not an instance of the actual controller bean class '" +
-              targetBeanClass.getName() + "'. If the controller requires proxying " +
-              "(e.g. due to @Transactional), please use class-based proxying.";
-      throw new IllegalStateException(formatInvokeError(text, args));
-    }
-  }
-
-  protected String formatInvokeError(String text, Object[] args) {
-    String formattedArgs = IntStream.range(0, args.length)
-            .mapToObj(i -> (args[i] != null ?
-                            "[" + i + "] [type=" + args[i].getClass().getName() + "] [value=" + args[i] + "]" :
-                            "[" + i + "] [null]"))
-            .collect(Collectors.joining(",\n", " ", " "));
-    return text + "\n" +
-            "Controller [" + getBeanType().getName() + "]\n" +
-            "Method [" + getBridgedMethod().toGenericString() + "] " +
-            "with argument values:\n" + formattedArgs;
   }
 
   // ResponseStatus
@@ -690,8 +636,8 @@ public class HandlerMethod implements AsyncHandler {
       super(-1);
       this.returnValue = returnValue;
       this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list
-                        ? list.getReturnType()
-                        : ResolvableType.forType(super.getGenericParameterType()).getGeneric();
+              ? list.getReturnType()
+              : ResolvableType.forType(super.getGenericParameterType()).getGeneric();
     }
 
     public ConcurrentResultMethodParameter(ConcurrentResultMethodParameter original) {

@@ -34,20 +34,15 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 public class RegistryResolvableParameterFactory extends ResolvableParameterFactory {
   private final ParameterResolvingRegistry resolvingRegistry;
 
-  public RegistryResolvableParameterFactory() {
-    this(new ParameterResolvingRegistry(), ParameterNameDiscoverer.getSharedInstance());
-  }
-
   public RegistryResolvableParameterFactory(ParameterResolvingRegistry resolvingRegistry) {
     Assert.notNull(resolvingRegistry, "ParameterResolvingRegistry is required");
     this.resolvingRegistry = resolvingRegistry;
   }
 
-  public RegistryResolvableParameterFactory(
-          ParameterResolvingRegistry resolvingRegistry, ParameterNameDiscoverer parameterNameDiscoverer) {
-    super(parameterNameDiscoverer);
-    Assert.notNull(resolvingRegistry, "ParameterResolvingRegistry is required");
-    this.resolvingRegistry = resolvingRegistry;
+  public RegistryResolvableParameterFactory(ParameterResolvingRegistry registry, ParameterNameDiscoverer discoverer) {
+    super(discoverer);
+    Assert.notNull(registry, "ParameterResolvingRegistry is required");
+    this.resolvingRegistry = registry;
   }
 
   @Override

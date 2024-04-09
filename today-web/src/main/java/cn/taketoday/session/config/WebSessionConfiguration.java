@@ -54,7 +54,7 @@ import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.view.RedirectModelManager;
-import cn.taketoday.web.view.SessionRedirectModelManager;
+import cn.taketoday.session.SessionRedirectModelManager;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
