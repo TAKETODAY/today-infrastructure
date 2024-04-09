@@ -71,10 +71,10 @@ public interface GetterMethod {
    *
    * @param method java reflect {@link Method}
    * @return GetterMethod
-   * @see MethodInvoker#fromMethod(Method)
+   * @see MethodInvoker#forMethod(Method)
    */
   static GetterMethod fromMethod(final Method method) {
-    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
+    final MethodInvoker accessor = MethodInvoker.forMethod(method);
     return fromMethod(accessor);
   }
 
@@ -83,7 +83,7 @@ public interface GetterMethod {
    *
    * @param invoker fast MethodInvoker
    * @return GetterMethod
-   * @see MethodInvoker#fromMethod(Method)
+   * @see MethodInvoker#forMethod(Method)
    */
   static GetterMethod fromMethod(final MethodInvoker invoker) {
     return new MethodAccessorGetterMethod(invoker);

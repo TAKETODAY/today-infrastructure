@@ -76,10 +76,10 @@ public interface SetterMethod {
    *
    * @param method java reflect {@link Method}
    * @return SetterMethod
-   * @see MethodInvoker#fromMethod(Method)
+   * @see MethodInvoker#forMethod(Method)
    */
   static SetterMethod fromMethod(final Method method) {
-    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
+    final MethodInvoker accessor = MethodInvoker.forMethod(method);
     return fromMethod(accessor);
   }
 
@@ -88,7 +88,7 @@ public interface SetterMethod {
    *
    * @param invoker fast MethodInvoker
    * @return SetterMethod
-   * @see MethodInvoker#fromMethod(Method)
+   * @see MethodInvoker#forMethod(Method)
    */
   static SetterMethod fromMethod(final MethodInvoker invoker) {
     return new MethodAccessorSetterMethod(invoker);

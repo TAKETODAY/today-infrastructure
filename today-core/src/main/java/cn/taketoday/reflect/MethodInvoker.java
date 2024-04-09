@@ -99,7 +99,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @param executable Target Method to invoke
    * @return {@link MethodInvoker} sub object
    */
-  public static MethodInvoker fromMethod(Method executable) {
+  public static MethodInvoker forMethod(Method executable) {
     Assert.notNull(executable, "method is required");
     return new MethodInvokerGenerator(executable).create();
   }
@@ -112,7 +112,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @return {@link MethodInvoker} sub object
    * @since 3.0
    */
-  public static MethodInvoker fromMethod(Method executable, Class<?> targetClass) {
+  public static MethodInvoker forMethod(Method executable, Class<?> targetClass) {
     Assert.notNull(executable, "method is required");
     return new MethodInvokerGenerator(executable, targetClass).create();
   }
@@ -126,7 +126,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
    * @return {@link MethodInvoker} sub object
    * @throws ReflectionException Thrown when a particular method cannot be found.
    */
-  public static MethodInvoker fromMethod(Class<?> beanClass, String name, Class<?>... parameters) {
+  public static MethodInvoker forMethod(Class<?> beanClass, String name, Class<?>... parameters) {
     try {
       Method targetMethod = beanClass.getDeclaredMethod(name, parameters);
       return new MethodInvokerGenerator(targetMethod, beanClass).create();
@@ -136,11 +136,11 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
     }
   }
 
-  public static MethodInvoker formReflective(Method method) {
-    return formReflective(method, true);
+  public static MethodInvoker forReflective(Method method) {
+    return forReflective(method, true);
   }
 
-  public static MethodInvoker formReflective(Method method, boolean handleReflectionException) {
+  public static MethodInvoker forReflective(Method method, boolean handleReflectionException) {
     Assert.notNull(method, "Method is required");
     ReflectionUtils.makeAccessible(method);
     return new ReflectiveMethodAccessor(method, handleReflectionException);
@@ -241,7 +241,7 @@ public abstract class MethodInvoker implements MethodAccessor, Invoker {
 
     @Override
     protected MethodInvoker fallbackInstance() {
-      return formReflective(targetMethod);
+      return forReflective(targetMethod);
     }
 
     @Override

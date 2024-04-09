@@ -121,7 +121,7 @@ public abstract class BeanInstantiator {
    * @return MethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromMethod(Method method, Object obj) {
-    return fromMethod(MethodInvoker.fromMethod(method), obj);
+    return fromMethod(MethodInvoker.forMethod(method), obj);
   }
 
   /**
@@ -142,7 +142,7 @@ public abstract class BeanInstantiator {
    * @return MethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromMethod(Method method, Supplier<Object> obj) {
-    return fromMethod(MethodInvoker.fromMethod(method), obj);
+    return fromMethod(MethodInvoker.forMethod(method), obj);
   }
 
   /**
@@ -163,7 +163,7 @@ public abstract class BeanInstantiator {
    * @return StaticMethodAccessorBeanInstantiator to construct target T
    */
   public static BeanInstantiator fromStaticMethod(Method method) {
-    return fromStaticMethod(MethodInvoker.fromMethod(method));
+    return fromStaticMethod(MethodInvoker.forMethod(method));
   }
 
   /**
