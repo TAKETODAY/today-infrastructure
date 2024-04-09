@@ -31,7 +31,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.PostMapping;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 import jakarta.validation.Valid;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;

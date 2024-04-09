@@ -61,9 +61,9 @@ import cn.taketoday.test.web.servlet.result.MockMvcResultHandlers;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 import jakarta.servlet.http.Cookie;
 import reactor.core.publisher.Mono;
 

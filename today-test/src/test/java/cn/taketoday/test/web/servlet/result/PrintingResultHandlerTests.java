@@ -40,7 +40,7 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 import jakarta.servlet.http.Cookie;
 
 import static java.nio.charset.StandardCharsets.UTF_16;

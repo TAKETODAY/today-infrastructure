@@ -23,7 +23,7 @@ package cn.taketoday.test.web.servlet.result;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.test.web.servlet.StubMvcResult;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 

@@ -17,6 +17,10 @@
 
 package cn.taketoday.test.context.hint;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.List;
+
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
@@ -24,10 +28,6 @@ import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
 import cn.taketoday.aot.hint.TypeHint;
 import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.util.ClassUtils;
-
-import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * {@link RuntimeHintsRegistrar} implementation that makes types and annotations

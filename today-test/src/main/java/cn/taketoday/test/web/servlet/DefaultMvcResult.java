@@ -29,10 +29,10 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.View;
 
 /**

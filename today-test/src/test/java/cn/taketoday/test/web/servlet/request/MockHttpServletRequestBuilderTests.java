@@ -45,7 +45,7 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.Cookie;
 

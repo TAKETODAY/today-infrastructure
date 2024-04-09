@@ -40,10 +40,10 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.Errors;
 import cn.taketoday.web.HandlerInterceptor;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -117,7 +117,7 @@ public class PrintingResultHandler implements ResultHandler {
    */
   protected void printRequest(MockHttpServletRequest request) throws Exception {
     String body = (request.getCharacterEncoding() != null ?
-                   request.getContentAsString() : MISSING_CHARACTER_ENCODING);
+            request.getContentAsString() : MISSING_CHARACTER_ENCODING);
 
     this.printer.printValue("HTTP Method", request.getMethod());
     this.printer.printValue("Request URI", request.getRequestURI());
@@ -255,7 +255,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printValue("Headers", getResponseHeaders(response));
     this.printer.printValue("Content type", response.getContentType());
     String body = (MediaType.APPLICATION_JSON_VALUE.equals(response.getContentType()) ?
-                   response.getContentAsString(StandardCharsets.UTF_8) : response.getContentAsString());
+            response.getContentAsString(StandardCharsets.UTF_8) : response.getContentAsString());
     this.printer.printValue("Body", body);
     this.printer.printValue("Forwarded URL", response.getForwardedUrl());
     this.printer.printValue("Redirected URL", response.getRedirectedUrl());

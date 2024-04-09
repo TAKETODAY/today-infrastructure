@@ -40,7 +40,7 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
 import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncListener;
 import jakarta.servlet.FilterChain;

@@ -20,11 +20,11 @@
 
 package cn.taketoday.test.context.aot;
 
+import java.util.Map;
+
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-
-import java.util.Map;
 
 /**
  * Default implementation of {@link AotTestAttributes} backed by a {@link Map}.

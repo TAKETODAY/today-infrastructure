@@ -21,11 +21,11 @@
 package cn.taketoday.test.context.web;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
 import cn.taketoday.test.context.TestContextBootstrapper;
+import cn.taketoday.test.context.support.DefaultTestContextBootstrapper;
 
 /**
  * Web-specific implementation of the {@link TestContextBootstrapper} SPI.

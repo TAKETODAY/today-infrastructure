@@ -27,7 +27,7 @@ import java.net.URL;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.annotation.PostMapping;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.flash;
