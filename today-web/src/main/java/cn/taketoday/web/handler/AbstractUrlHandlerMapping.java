@@ -248,9 +248,8 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     Object mappedHandler = handlerMap.get(urlPath);
     if (mappedHandler != null) {
       if (mappedHandler != resolvedHandler) {
-        throw new IllegalStateException(
-                "Cannot map " + getHandlerDescription(handler) + " to URL path [" + urlPath +
-                        "]: There is already " + getHandlerDescription(mappedHandler) + " mapped.");
+        throw new IllegalStateException("Cannot map %s to URL path [%s]: There is already %s mapped."
+                .formatted(getHandlerDescription(handler), urlPath, getHandlerDescription(mappedHandler)));
       }
     }
     else {
@@ -286,7 +285,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
   }
 
   private String getHandlerDescription(Object handler) {
-    return handler instanceof String ? "'" + handler + "'" : handler.toString();
+    return handler instanceof String ? "'%s'".formatted(handler) : handler.toString();
   }
 
   /**

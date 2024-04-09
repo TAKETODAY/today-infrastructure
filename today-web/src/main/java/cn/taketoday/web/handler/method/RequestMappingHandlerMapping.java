@@ -92,8 +92,8 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
    */
   public void setPathPrefixes(Map<String, Predicate<Class<?>>> prefixes) {
     this.pathPrefixes = prefixes.isEmpty()
-                        ? Collections.emptyMap()
-                        : Collections.unmodifiableMap(new LinkedHashMap<>(prefixes));
+            ? Collections.emptyMap()
+            : Collections.unmodifiableMap(new LinkedHashMap<>(prefixes));
   }
 
   /**
@@ -320,7 +320,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
   private static HttpMethod[] toMethodArray(String method) {
     return StringUtils.hasText(method) ?
-           new HttpMethod[] { HttpMethod.valueOf(method) } : EMPTY_REQUEST_METHOD_ARRAY;
+            new HttpMethod[] { HttpMethod.valueOf(method) } : EMPTY_REQUEST_METHOD_ARRAY;
   }
 
   /**
@@ -432,8 +432,9 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
       config.setAllowCredentials(false);
     }
     else if (!allowCredentials.isEmpty()) {
-      throw new IllegalStateException("@CrossOrigin's allowCredentials value must be \"true\", \"false\", " +
-              "or an empty string (\"\"): current value is [" + allowCredentials + "]");
+      throw new IllegalStateException(
+              "@CrossOrigin's allowCredentials value must be \"true\", \"false\", or an empty string (\"\"): current value is [%s]"
+                      .formatted(allowCredentials));
     }
 
     if (annotation.maxAge() >= 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,8 +143,7 @@ final class ServletMultipartFile extends AbstractMultipartFile implements Multip
   @Override
   public boolean equals(Object obj) {
     return this == obj
-            || (obj instanceof ServletMultipartFile
-            && Objects.equals(part, ((ServletMultipartFile) obj).part));
+            || (obj instanceof ServletMultipartFile && Objects.equals(part, ((ServletMultipartFile) obj).part));
   }
 
 }

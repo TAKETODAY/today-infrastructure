@@ -32,11 +32,6 @@ class SingletonActionMappingAnnotationHandler extends ActionMappingAnnotationHan
     this.handlerBean = handlerBean;
   }
 
-  SingletonActionMappingAnnotationHandler(SingletonActionMappingAnnotationHandler handler) {
-    super(handler);
-    this.handlerBean = handler.handlerBean;
-  }
-
   @Override
   public Object getHandlerObject() {
     return handlerBean;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet;
@@ -38,11 +35,10 @@ import jakarta.servlet.ServletContext;
  * in case of {@link ServletContext} access etc typically being needed.
  *
  * @author Juergen Hoeller
- * @author TODAY <br>
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-12-27 09:36
  */
-public class WebApplicationObjectSupport
-        extends ApplicationObjectSupport implements ServletContextAware {
+public class WebApplicationObjectSupport extends ApplicationObjectSupport implements ServletContextAware {
 
   @Nullable
   private ServletContext servletContext;
@@ -138,8 +134,9 @@ public class WebApplicationObjectSupport
       servletContext = wac.getServletContext();
     }
     if (servletContext == null && isContextRequired()) {
-      throw new IllegalStateException("WebApplicationObjectSupport instance [" + this +
-              "] does not run within a ServletContext. Make sure the object is fully configured!");
+      throw new IllegalStateException(
+              "WebApplicationObjectSupport instance [%s] does not run within a ServletContext. Make sure the object is fully configured!"
+                      .formatted(this));
     }
     return servletContext;
   }

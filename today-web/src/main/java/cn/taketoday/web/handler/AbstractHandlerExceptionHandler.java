@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,8 +94,8 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
   public void addMappedHandlerClass(Class<?> mappedHandlerClass) {
     this.mappedHandlerClasses =
             (this.mappedHandlerClasses != null ?
-             ObjectUtils.addObjectToArray(this.mappedHandlerClasses, mappedHandlerClass) :
-             new Class<?>[] { mappedHandlerClass });
+                    ObjectUtils.addObjectToArray(this.mappedHandlerClasses, mappedHandlerClass) :
+                    new Class<?>[] { mappedHandlerClass });
   }
 
   /**
@@ -242,7 +242,7 @@ public abstract class AbstractHandlerExceptionHandler extends OrderedSupport imp
    * @return the log message to use
    */
   protected String buildLogMessage(Throwable ex, RequestContext request) {
-    return "Resolved [" + LogFormatUtils.formatValue(ex, -1, true) + "]";
+    return "Resolved [%s]".formatted(LogFormatUtils.formatValue(ex, -1, true));
   }
 
   /**

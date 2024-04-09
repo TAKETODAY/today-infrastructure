@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -118,8 +118,8 @@ public class DefaultServletHttpRequestHandler implements HttpRequestHandler, Ser
     Assert.state(this.servletContext != null, "No ServletContext set");
     RequestDispatcher rd = this.servletContext.getNamedDispatcher(this.defaultServletName);
     if (rd == null) {
-      throw new IllegalStateException("A RequestDispatcher could not be located for the default servlet '" +
-              this.defaultServletName + "'");
+      throw new IllegalStateException("A RequestDispatcher could not be located for the default servlet '%s'"
+              .formatted(this.defaultServletName));
     }
 
     HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);

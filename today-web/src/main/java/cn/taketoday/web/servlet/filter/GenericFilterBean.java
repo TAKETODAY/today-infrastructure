@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet.filter;
@@ -225,8 +225,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
         bw.setPropertyValues(pvs, true);
       }
       catch (BeansException ex) {
-        String msg = "Failed to set bean properties on filter '" +
-                filterConfig.getFilterName() + "': " + ex.getMessage();
+        String msg = "Failed to set bean properties on filter '%s': %s".formatted(filterConfig.getFilterName(), ex.getMessage());
         logger.error(msg, ex);
         throw new ServletException(msg, ex);
       }
@@ -333,7 +332,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
           FilterConfig config, Set<String> requiredProperties) throws ServletException {
     PropertyValues propertyValues = new PropertyValues();
     Set<String> missingProps = CollectionUtils.isNotEmpty(requiredProperties)
-                               ? new HashSet<>(requiredProperties) : null;
+            ? new HashSet<>(requiredProperties) : null;
 
     Enumeration<String> paramNames = config.getInitParameterNames();
     while (paramNames.hasMoreElements()) {
@@ -348,9 +347,8 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
     // Fail if we are still missing properties.
     if (CollectionUtils.isNotEmpty(missingProps)) {
       throw new ServletException(
-              "Initialization from FilterConfig for filter '" + config.getFilterName() +
-                      "' failed; the following required properties were missing: " +
-                      StringUtils.collectionToDelimitedString(missingProps, ", "));
+              "Initialization from FilterConfig for filter '%s' failed; the following required properties were missing: %s"
+                      .formatted(config.getFilterName(), StringUtils.collectionToDelimitedString(missingProps, ", ")));
     }
     return propertyValues;
   }

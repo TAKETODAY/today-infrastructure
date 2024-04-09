@@ -247,8 +247,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected Set<String> getCandidateBeanNames() {
     return detectHandlerMethodsInAncestorContexts ?
-           BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :
-           obtainApplicationContext().getBeanNamesForType(Object.class);
+            BeanFactoryUtils.beanNamesForTypeIncludingAncestors(obtainApplicationContext(), Object.class) :
+            obtainApplicationContext().getBeanNamesForType(Object.class);
   }
 
   /**
@@ -284,8 +284,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
    */
   protected void detectHandlerMethods(Object handler) {
     Class<?> handlerType = handler instanceof String beanName
-                           ? obtainApplicationContext().getType(beanName)
-                           : handler.getClass();
+            ? obtainApplicationContext().getType(beanName)
+            : handler.getClass();
 
     if (handlerType != null) {
       detectHandlerMethods(handlerType, handler);
@@ -308,7 +308,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
               }
               catch (Throwable ex) {
                 throw new IllegalStateException(
-                        "Invalid mapping on handler class [" + userType.getName() + "]: " + method, ex);
+                        "Invalid mapping on handler class [%s]: %s".formatted(userType.getName(), method), ex);
               }
             });
     if (logger.isTraceEnabled()) {
@@ -333,7 +333,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
                       .collect(Collectors.joining(",", "(", ")"));
             })
             .collect(Collectors.joining("\n\t",
-                    "\n\t" + userType.getName() + ":" + "\n\t", ""));
+                    "\n\t%s:\n\t".formatted(userType.getName()), ""));
   }
 
   /**
@@ -451,7 +451,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
             Method m2 = secondBestMatch.getHandlerMethod().getMethod();
             String uri = request.getRequestURI();
             throw new IllegalStateException(
-                    "Ambiguous handler methods mapped for '" + uri + "': {" + m1 + ", " + m2 + "}");
+                    "Ambiguous handler methods mapped for '%s': {%s, %s}".formatted(uri, m1, m2));
           }
         }
       }
@@ -612,7 +612,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
         ret.add(handlerInterceptor);
       }
       else {
-        throw new IllegalStateException("The bean '" + includeName + "' is not a HandlerInterceptor");
+        throw new IllegalStateException("The bean '%s' is not a HandlerInterceptor".formatted(includeName));
       }
     }
   }
@@ -626,7 +626,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
     }
     catch (BeanDefinitionStoreException e) {
       throw new InfraConfigurationException(
-              "Interceptor: [" + interceptor.getName() + "] register error", e);
+              "Interceptor: [%s] register error".formatted(interceptor.getName()), e);
     }
   }
 
@@ -757,9 +757,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
       HandlerMethod existingHandlerMethod = registration != null ? registration.handlerMethod : null;
       if (existingHandlerMethod != null && !existingHandlerMethod.equals(handlerMethod)) {
         throw new IllegalStateException(
-                "Ambiguous mapping. Cannot map '" + handlerMethod.getBean() + "' method \n" +
-                        handlerMethod + "\nto " + mapping + ": There is already '" +
-                        existingHandlerMethod.getBean() + "' bean method\n" + existingHandlerMethod + " mapped.");
+                "Ambiguous mapping. Cannot map '%s' method \n%s\nto %s: There is already '%s' bean method\n%s mapped."
+                        .formatted(handlerMethod.getBean(), handlerMethod, mapping, existingHandlerMethod.getBean(), existingHandlerMethod));
       }
     }
 

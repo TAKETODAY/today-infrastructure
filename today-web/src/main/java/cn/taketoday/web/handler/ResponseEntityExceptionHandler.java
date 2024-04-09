@@ -400,7 +400,7 @@ public class ResponseEntityExceptionHandler {
           ConversionNotSupportedException ex, HttpStatusCode status, RequestContext request) {
 
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status,
-            "Failed to convert '" + ex.getPropertyName() + "' with value: '" + ex.getValue() + "'");
+            "Failed to convert '%s' with value: '%s'".formatted(ex.getPropertyName(), ex.getValue()));
 
     return handleExceptionInternal(ex, body, null, status, request);
   }
@@ -438,7 +438,7 @@ public class ResponseEntityExceptionHandler {
   @Nullable
   protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpStatusCode status, RequestContext request) {
     ProblemDetail body = ProblemDetail.forStatusAndDetail(status,
-            "Unexpected type for '" + ex.getPropertyName() + "' with value: '" + ex.getValue() + "'");
+            "Unexpected type for '%s' with value: '%s'".formatted(ex.getPropertyName(), ex.getValue()));
 
     return handleExceptionInternal(ex, body, null, status, request);
   }

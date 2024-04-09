@@ -230,7 +230,7 @@ public class ParameterizableViewController extends AbstractController {
 
   @Override
   public String toString() {
-    return "ParameterizableViewController [" + formatStatusAndView() + "]";
+    return "ParameterizableViewController [%s]".formatted(formatStatusAndView());
   }
 
   private String formatStatusAndView() {

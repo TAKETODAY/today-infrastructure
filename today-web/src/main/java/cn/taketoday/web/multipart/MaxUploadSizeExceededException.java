@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.multipart;
@@ -58,7 +58,7 @@ public class MaxUploadSizeExceededException extends MultipartException implement
    * @param ex root cause from multipart parsing API in use
    */
   public MaxUploadSizeExceededException(long maxUploadSize, @Nullable Throwable ex) {
-    super("Maximum upload size " + (maxUploadSize >= 0 ? "of " + maxUploadSize + " bytes " : "") + "exceeded", ex);
+    super("Maximum upload size %sexceeded".formatted(maxUploadSize >= 0 ? "of %d bytes ".formatted(maxUploadSize) : ""), ex);
     this.maxUploadSize = maxUploadSize;
   }
 

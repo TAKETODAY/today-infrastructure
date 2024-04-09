@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -197,8 +197,8 @@ public class ResponseBodyEmitter {
    */
   public synchronized void send(Object object, @Nullable MediaType mediaType) throws IOException {
     if (complete) {
-      throw new IllegalStateException("ResponseBodyEmitter has already completed" +
-              (this.failure != null ? " with error: " + this.failure : ""));
+      throw new IllegalStateException("ResponseBodyEmitter has already completed%s"
+              .formatted(this.failure != null ? " with error: " + this.failure : ""));
     }
     if (this.handler != null) {
       try {
@@ -228,8 +228,8 @@ public class ResponseBodyEmitter {
    */
   public synchronized void send(Collection<DataWithMediaType> items) throws IOException {
     if (complete) {
-      throw new IllegalStateException("ResponseBodyEmitter has already completed" +
-              (this.failure != null ? " with error: " + this.failure : ""));
+      throw new IllegalStateException("ResponseBodyEmitter has already completed%s"
+              .formatted(this.failure != null ? " with error: " + this.failure : ""));
     }
     sendInternal(items);
   }

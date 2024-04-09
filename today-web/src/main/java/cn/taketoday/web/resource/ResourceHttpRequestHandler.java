@@ -468,10 +468,10 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         }
         Resource resource = applicationContext.getResource(location);
         if (location.equals("/")) {
-          throw new IllegalStateException(
-                  "The String-based location \"/\" should be relative to the web application root " +
-                          "but resolved to a Resource of type: " + resource.getClass() + ". " +
-                          "If this is intentional, please pass it as a pre-configured Resource via setLocations.");
+          throw new IllegalStateException("""
+                  The String-based location \\"/\\" should be relative to the web application root but \
+                  resolved to a Resource of type: %s. If this is intentional, please pass it as a pre-configured \
+                  Resource via setLocations.""".formatted(resource.getClass()));
         }
         result.add(resource);
         if (charset != null) {
@@ -730,7 +730,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     if (path.contains("WEB-INF") || path.contains("META-INF")) {
       if (log.isWarnEnabled()) {
         log.warn(LogFormatUtils.formatValue(
-                "Path with \"WEB-INF\" or \"META-INF\": [" + path + "]", -1, true));
+                "Path with \"WEB-INF\" or \"META-INF\": [%s]".formatted(path), -1, true));
       }
       return true;
     }
@@ -739,7 +739,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
       if (ResourceUtils.isUrl(relativePath) || relativePath.startsWith("url:")) {
         if (log.isWarnEnabled()) {
           log.warn(LogFormatUtils.formatValue(
-                  "Path represents URL or has \"url:\" prefix: [" + path + "]", -1, true));
+                  "Path represents URL or has \"url:\" prefix: [%s]".formatted(path), -1, true));
         }
         return true;
       }
@@ -747,7 +747,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     if (path.contains("..") && StringUtils.cleanPath(path).contains("../")) {
       if (log.isWarnEnabled()) {
         log.warn(LogFormatUtils.formatValue(
-                "Path contains \"../\" after call to StringUtils#cleanPath: [" + path + "]", -1, true));
+                "Path contains \"../\" after call to StringUtils#cleanPath: [%s]".formatted(path), -1, true));
       }
       return true;
     }

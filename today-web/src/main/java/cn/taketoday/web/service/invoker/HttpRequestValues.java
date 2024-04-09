@@ -76,26 +76,12 @@ public class HttpRequestValues {
   private final Object bodyValue;
 
   /**
-   * Constructor without UriBuilderFactory.
-   */
-  @Deprecated(since = "6.1", forRemoval = true)
-  protected HttpRequestValues(@Nullable HttpMethod httpMethod,
-          @Nullable URI uri, @Nullable String uriTemplate,
-          Map<String, String> uriVariables,
-          HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
-          @Nullable Object bodyValue) {
-
-    this(httpMethod, uri, null, uriTemplate, uriVariables, headers, cookies, attributes, bodyValue);
-  }
-
-  /**
    * Construct {@link HttpRequestValues}.
    */
-  protected HttpRequestValues(@Nullable HttpMethod httpMethod,
-          @Nullable URI uri, @Nullable UriBuilderFactory uriBuilderFactory,
-          @Nullable String uriTemplate, Map<String, String> uriVariables,
-          HttpHeaders headers, MultiValueMap<String, String> cookies, Map<String, Object> attributes,
-          @Nullable Object bodyValue) {
+  protected HttpRequestValues(@Nullable HttpMethod httpMethod, @Nullable URI uri,
+          @Nullable UriBuilderFactory uriBuilderFactory, @Nullable String uriTemplate,
+          Map<String, String> uriVariables, HttpHeaders headers, MultiValueMap<String, String> cookies,
+          Map<String, Object> attributes, @Nullable Object bodyValue) {
 
     Assert.isTrue(uri != null || uriTemplate != null, "Neither URI nor URI template");
 
@@ -412,10 +398,10 @@ public class HttpRequestValues {
 
       MultiValueMap<String, String> cookies =
               this.cookies != null ?
-              new LinkedMultiValueMap<>(this.cookies) : EMPTY_COOKIES_MAP;
+                      new LinkedMultiValueMap<>(this.cookies) : EMPTY_COOKIES_MAP;
 
       Map<String, Object> attributes = (this.attributes != null ?
-                                        new HashMap<>(this.attributes) : Collections.emptyMap());
+              new HashMap<>(this.attributes) : Collections.emptyMap());
 
       return createRequestValues(
               this.httpMethod, uri, uriBuilderFactory, uriTemplate, uriVars,
@@ -440,17 +426,16 @@ public class HttpRequestValues {
               MediaType.APPLICATION_FORM_URLENCODED.equals(this.headers.getContentType()));
     }
 
-    private String appendQueryParams(
-            String uriTemplate, Map<String, String> uriVars, MultiValueMap<String, String> requestParams) {
-
+    private String appendQueryParams(String uriTemplate, Map<String, String> uriVars, MultiValueMap<String, String> requestParams) {
       UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(uriTemplate);
       int i = 0;
       for (Map.Entry<String, List<String>> entry : requestParams.entrySet()) {
         String nameVar = "queryParam" + i;
         uriVars.put(nameVar, entry.getKey());
-        for (int j = 0; j < entry.getValue().size(); j++) {
+        List<String> value = entry.getValue();
+        for (int j = 0; j < value.size(); j++) {
           String valueVar = nameVar + "[" + j + "]";
-          uriVars.put(valueVar, entry.getValue().get(j));
+          uriVars.put(valueVar, value.get(j));
           uriComponentsBuilder.queryParam("{" + nameVar + "}", "{" + valueVar + "}");
         }
         i++;

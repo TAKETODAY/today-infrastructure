@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -68,6 +65,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Brian Clozel
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see VersionStrategy
  * @since 4.0
  */
@@ -76,7 +74,7 @@ public class VersionResourceResolver extends AbstractResourceResolver {
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
   /** Map from path pattern -> VersionStrategy. */
-  private final Map<String, VersionStrategy> versionStrategyMap = new LinkedHashMap<>();
+  private final LinkedHashMap<String, VersionStrategy> versionStrategyMap = new LinkedHashMap<>();
 
   /**
    * Set a Map with URL paths as keys and {@code VersionStrategy} as values.
@@ -165,9 +163,8 @@ public class VersionResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected Resource resolveResourceInternal(
-          @Nullable RequestContext request, String requestPath,
-          List<? extends Resource> locations, ResourceResolvingChain chain) {
+  protected Resource resolveResourceInternal(@Nullable RequestContext request,
+          String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);
     if (resolved != null) {
@@ -359,8 +356,8 @@ public class VersionResourceResolver extends AbstractResourceResolver {
     @Override
     public HttpHeaders getResponseHeaders() {
       HttpHeaders headers = (this.original instanceof HttpResource httpResource
-                             ? httpResource.getResponseHeaders() : HttpHeaders.forWritable());
-      headers.setETag("W/\"" + this.version + "\"");
+              ? httpResource.getResponseHeaders() : HttpHeaders.forWritable());
+      headers.setETag("W/\"%s\"".formatted(this.version));
       return headers;
     }
   }

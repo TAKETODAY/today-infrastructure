@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -70,9 +67,8 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected Resource resolveResourceInternal(
-          @Nullable RequestContext request, String requestPath,
-          List<? extends Resource> locations, ResourceResolvingChain chain) {
+  protected Resource resolveResourceInternal(@Nullable RequestContext request,
+          String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     Resource resolved = chain.resolveResource(request, requestPath, locations);
     if (resolved == null) {
@@ -85,9 +81,7 @@ public class WebJarsResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected String resolveUrlPathInternal(
-          String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
-
+  protected String resolveUrlPathInternal(String resourceUrlPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
     String path = chain.resolveUrlPath(resourceUrlPath, locations);
     if (path == null) {
       String webJarResourcePath = findWebJarResourcePath(resourceUrlPath);

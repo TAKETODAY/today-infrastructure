@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -41,6 +38,7 @@ import cn.taketoday.util.ObjectUtils;
  * request header, path variable, cookie, and others.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public abstract class AbstractNamedValueArgumentResolver implements HttpServiceArgumentResolver {
@@ -73,9 +71,7 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean resolve(
-          @Nullable Object argument, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
-
+  public boolean resolve(@Nullable Object argument, MethodParameter parameter, HttpRequestValues.Builder requestValues) {
     NamedValueInfo info = getNamedValueInfo(parameter);
     if (info == null) {
       return false;
@@ -128,8 +124,8 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
       name = parameter.getParameterName();
       if (name == null) {
         throw new IllegalArgumentException(
-                "Name for argument of type [" + parameter.getParameterType().getName() + "] " +
-                        "not specified, and parameter name information not found in class file either.");
+                "Name for argument of type [%s] not specified, and parameter name information not found in class file either."
+                        .formatted(parameter.getParameterType().getName()));
       }
     }
     boolean required = (info.required && !parameter.getParameterType().equals(Optional.class));
@@ -137,10 +133,9 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     return info.update(name, required, defaultValue);
   }
 
-  private void addSingleOrMultipleValues(
-          String name, @Nullable Object value, boolean required, @Nullable Object defaultValue,
-          String valueLabel, boolean supportsMultiValues, MethodParameter parameter,
-          HttpRequestValues.Builder requestValues) {
+  private void addSingleOrMultipleValues(String name, @Nullable Object value, boolean required,
+          @Nullable Object defaultValue, String valueLabel, boolean supportsMultiValues,
+          MethodParameter parameter, HttpRequestValues.Builder requestValues) {
 
     if (supportsMultiValues) {
       if (ObjectUtils.isArray(value)) {
@@ -165,9 +160,8 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
     addSingleValue(name, value, required, defaultValue, valueLabel, parameter, requestValues);
   }
 
-  private void addSingleValue(String name,
-          @Nullable Object value, boolean required,
-          @Nullable Object defaultValue, String valueLabel,
+  private void addSingleValue(String name, @Nullable Object value,
+          boolean required, @Nullable Object defaultValue, String valueLabel,
           MethodParameter parameter, HttpRequestValues.Builder requestValues) {
 
     if (value instanceof Optional<?> optionalValue) {
@@ -182,13 +176,13 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
       parameter = parameter.nestedIfOptional();
       Class<?> type = parameter.getNestedParameterType();
       value = (type != Object.class && !type.isArray() ?
-               this.conversionService.convert(value, new TypeDescriptor(parameter), STRING_TARGET_TYPE) :
-               this.conversionService.convert(value, String.class));
+              this.conversionService.convert(value, new TypeDescriptor(parameter), STRING_TARGET_TYPE) :
+              this.conversionService.convert(value, String.class));
     }
 
     if (value == null) {
       if (required) {
-        throw new IllegalArgumentException("Missing " + valueLabel + " value '" + name + "'");
+        throw new IllegalArgumentException("Missing %s value '%s'".formatted(valueLabel, name));
       }
       return;
     }
@@ -211,8 +205,8 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
    * @param parameter the method parameter type, nested if Map, List/array, or Optional
    * @param requestValues builder to add the request value to
    */
-  protected abstract void addRequestValue(
-          String name, Object value, MethodParameter parameter, HttpRequestValues.Builder requestValues);
+  protected abstract void addRequestValue(String name, Object value,
+          MethodParameter parameter, HttpRequestValues.Builder requestValues);
 
   /**
    * Info about a request value, typically extracted from a method parameter annotation.
@@ -238,9 +232,8 @@ public abstract class AbstractNamedValueArgumentResolver implements HttpServiceA
      * @param defaultValue fallback value, possibly {@link Constant#DEFAULT_NONE}
      * @param label how it should appear in error messages, e.g. "path variable", "request header"
      */
-    public NamedValueInfo(
-            String name, boolean required, @Nullable String defaultValue, String label, boolean multiValued) {
-
+    public NamedValueInfo(String name, boolean required,
+            @Nullable String defaultValue, String label, boolean multiValued) {
       this.name = name;
       this.required = required;
       this.defaultValue = defaultValue;

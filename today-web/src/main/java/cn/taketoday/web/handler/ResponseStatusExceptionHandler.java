@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -54,8 +54,7 @@ import cn.taketoday.web.annotation.ResponseStatus;
  * @see ResponseStatusException
  * @since 4.0 2022/3/2 21:41
  */
-public class ResponseStatusExceptionHandler
-        extends AbstractHandlerExceptionHandler implements MessageSourceAware {
+public class ResponseStatusExceptionHandler extends AbstractHandlerExceptionHandler implements MessageSourceAware {
 
   @Nullable
   private MessageSource messageSource;
@@ -138,8 +137,7 @@ public class ResponseStatusExceptionHandler
    * @param statusCode the HTTP status code
    * @param reason the associated reason (may be {@code null} or empty)
    */
-  protected Object applyStatusAndReason(int statusCode,
-          @Nullable String reason, RequestContext request) throws IOException {
+  protected Object applyStatusAndReason(int statusCode, @Nullable String reason, RequestContext request) throws IOException {
     if (StringUtils.hasText(reason)) {
       if (messageSource != null) {
         reason = messageSource.getMessage(reason, null, reason, LocaleContextHolder.getLocale());

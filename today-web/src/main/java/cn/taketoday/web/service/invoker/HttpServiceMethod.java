@@ -87,8 +87,8 @@ final class HttpServiceMethod {
 
     this.responseFunction =
             isReactorAdapter
-            ? ReactorExchangeResponseFunction.create((ReactorHttpExchangeAdapter) adapter, method)
-            : ExchangeResponseFunction.create(adapter, method);
+                    ? ReactorExchangeResponseFunction.create((ReactorHttpExchangeAdapter) adapter, method)
+                    : ExchangeResponseFunction.create(adapter, method);
   }
 
   private static MethodParameter[] initMethodParameters(Method method) {
@@ -130,8 +130,8 @@ final class HttpServiceMethod {
         }
       }
       if (!resolved) {
-        throw new IllegalStateException("Could not resolve parameter [" + this.parameters[i].getParameterIndex() + "] in " +
-                this.parameters[i].getExecutable().toGenericString() + ": No suitable resolver");
+        throw new IllegalStateException("Could not resolve parameter [%d] in %s: No suitable resolver"
+                .formatted(this.parameters[i].getParameterIndex(), this.parameters[i].getExecutable().toGenericString()));
       }
 
     }
@@ -432,8 +432,8 @@ final class HttpServiceMethod {
               ParameterizedTypeReference.forType(methodParam.getNestedGenericParameterType());
 
       return reactiveAdapter != null && reactiveAdapter.isMultiValue()
-             ? request -> client.exchangeForBodyFlux(request, bodyType)
-             : request -> client.exchangeForBodyMono(request, bodyType);
+              ? request -> client.exchangeForBodyFlux(request, bodyType)
+              : request -> client.exchangeForBodyMono(request, bodyType);
     }
   }
 

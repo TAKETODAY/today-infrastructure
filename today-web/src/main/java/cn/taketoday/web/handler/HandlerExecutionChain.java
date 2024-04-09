@@ -92,8 +92,8 @@ public class HandlerExecutionChain implements HandlerWrapper, HandlerAdapterAwar
    */
   @Override
   public String toString() {
-    return "HandlerExecutionChain with [" + handler + "] and "
-            + (interceptors != null ? interceptors.length : 0) + " interceptors";
+    return "HandlerExecutionChain with [%s] and %d interceptors"
+            .formatted(handler, interceptors != null ? interceptors.length : 0);
   }
 
   @Nullable

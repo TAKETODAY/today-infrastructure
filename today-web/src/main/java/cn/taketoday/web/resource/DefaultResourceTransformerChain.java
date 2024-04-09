@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -35,6 +32,7 @@ import cn.taketoday.web.RequestContext;
  * Default immutable implementation of {@link ResourceTransformerChain}.
  *
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class DefaultResourceTransformerChain implements ResourceTransformerChain {
@@ -47,8 +45,7 @@ class DefaultResourceTransformerChain implements ResourceTransformerChain {
   @Nullable
   private final ResourceTransformerChain nextChain;
 
-  public DefaultResourceTransformerChain(
-          ResourceResolvingChain resolverChain, @Nullable List<ResourceTransformer> transformers) {
+  public DefaultResourceTransformerChain(ResourceResolvingChain resolverChain, @Nullable List<ResourceTransformer> transformers) {
     Assert.notNull(resolverChain, "ResourceResolverChain is required");
     this.resolverChain = resolverChain;
     transformers = transformers != null ? transformers : Collections.emptyList();
@@ -67,8 +64,7 @@ class DefaultResourceTransformerChain implements ResourceTransformerChain {
     return chain;
   }
 
-  public DefaultResourceTransformerChain(
-          ResourceResolvingChain resolverChain,
+  public DefaultResourceTransformerChain(ResourceResolvingChain resolverChain,
           @Nullable ResourceTransformer transformer, @Nullable ResourceTransformerChain chain) {
     Assert.isTrue((transformer == null && chain == null) || (transformer != null && chain != null),
             "Both transformer and transformer chain must be null, or neither is");
@@ -85,7 +81,7 @@ class DefaultResourceTransformerChain implements ResourceTransformerChain {
   @Override
   public Resource transform(RequestContext request, Resource resource) throws IOException {
     return transformer != null && nextChain != null
-           ? transformer.transform(request, resource, nextChain) : resource;
+            ? transformer.transform(request, resource, nextChain) : resource;
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -51,6 +48,7 @@ import cn.taketoday.web.util.UriUtils;
  * @author Jeremy Grelle
  * @author Rossen Stoyanchev
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class PathResourceResolver extends AbstractResourceResolver {
@@ -123,23 +121,21 @@ public class PathResourceResolver extends AbstractResourceResolver {
   }
 
   @Override
-  protected Resource resolveResourceInternal(
-          @Nullable RequestContext request, String requestPath,
-          List<? extends Resource> locations, ResourceResolvingChain chain) {
+  protected Resource resolveResourceInternal(@Nullable RequestContext request,
+          String requestPath, List<? extends Resource> locations, ResourceResolvingChain chain) {
 
     return getResource(requestPath, request, locations);
   }
 
   @Override
-  protected String resolveUrlPathInternal(
-          String resourcePath, List<? extends Resource> locations, ResourceResolvingChain chain) {
+  protected String resolveUrlPathInternal(String resourcePath,
+          List<? extends Resource> locations, ResourceResolvingChain chain) {
     return StringUtils.hasText(resourcePath)
-                   && getResource(resourcePath, null, locations) != null ? resourcePath : null;
+            && getResource(resourcePath, null, locations) != null ? resourcePath : null;
   }
 
   @Nullable
-  private Resource getResource(
-          String resourcePath, @Nullable RequestContext request, List<? extends Resource> locations) {
+  private Resource getResource(String resourcePath, @Nullable RequestContext request, List<? extends Resource> locations) {
     for (Resource location : locations) {
       try {
         String pathToUse = encodeOrDecodeIfNecessary(resourcePath, request, location);
@@ -150,7 +146,7 @@ public class PathResourceResolver extends AbstractResourceResolver {
       }
       catch (IOException ex) {
         if (logger.isDebugEnabled()) {
-          String error = "Skip location [" + location + "] due to error";
+          String error = "Skip location [%s] due to error".formatted(location);
           if (logger.isTraceEnabled()) {
             logger.trace(error, ex);
           }
@@ -182,10 +178,9 @@ public class PathResourceResolver extends AbstractResourceResolver {
       else if (logger.isWarnEnabled()) {
         Resource[] allowed = getAllowedLocations();
         logger.warn(LogFormatUtils.formatValue(
-                "Resource path \"" + resourcePath + "\" was successfully resolved " +
-                        "but resource \"" + resource.getURL() + "\" is neither under " +
-                        "the current location \"" + location.getURL() + "\" nor under any of " +
-                        "the allowed locations " + (allowed != null ? Arrays.asList(allowed) : "[]"), -1, true));
+                "Resource path \"%s\" was successfully resolved but resource \"%s\" is neither under the current location \"%s\" nor under any of the allowed locations %s"
+                        .formatted(resourcePath, resource.getURL(), location.getURL(),
+                                allowed != null ? Arrays.asList(allowed) : "[]"), -1, true));
       }
     }
     return null;

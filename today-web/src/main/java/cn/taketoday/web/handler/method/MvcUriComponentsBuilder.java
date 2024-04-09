@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -461,7 +461,7 @@ public class MvcUriComponentsBuilder {
       throw new IllegalArgumentException("Mapping not found: " + name);
     }
     else if (handlerMethods.size() != 1) {
-      throw new IllegalArgumentException("No unique match for mapping " + name + ": " + handlerMethods);
+      throw new IllegalArgumentException("No unique match for mapping %s: %s".formatted(name, handlerMethods));
     }
     else {
       HandlerMethod handlerMethod = handlerMethods.get(0);
@@ -544,12 +544,12 @@ public class MvcUriComponentsBuilder {
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
     if (ServletDetector.isPresent) {
       return baseUrl == null ?
-             ServletUriComponentsBuilder.fromCurrentServletMapping() :
-             baseUrl.cloneBuilder();
+              ServletUriComponentsBuilder.fromCurrentServletMapping() :
+              baseUrl.cloneBuilder();
     }
     return baseUrl == null ?
-           UriComponentsBuilder.fromHttpRequest(RequestContextHolder.getRequired()) :
-           baseUrl.cloneBuilder();
+            UriComponentsBuilder.fromHttpRequest(RequestContextHolder.getRequired()) :
+            baseUrl.cloneBuilder();
   }
 
   private static String getPathPrefix(Class<?> controllerType) {
@@ -615,8 +615,8 @@ public class MvcUriComponentsBuilder {
               methodName, Arrays.asList(args), controllerType.getName(), methods));
     }
     else {
-      throw new IllegalArgumentException("No method named '" + methodName + "' with " + args.length +
-              " arguments found in controller " + controllerType.getName());
+      throw new IllegalArgumentException("No method named '%s' with %d arguments found in controller %s"
+              .formatted(methodName, args.length, controllerType.getName()));
     }
   }
 
@@ -626,8 +626,8 @@ public class MvcUriComponentsBuilder {
     int paramCount = method.getParameterCount();
     int argCount = args.length;
     if (paramCount != argCount) {
-      throw new IllegalArgumentException("Number of method parameters " + paramCount +
-              " does not match number of argument values " + argCount);
+      throw new IllegalArgumentException("Number of method parameters %d does not match number of argument values %d"
+              .formatted(paramCount, argCount));
     }
 
     final Map<String, Object> uriVars = new HashMap<>();
