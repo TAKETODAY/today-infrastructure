@@ -353,7 +353,7 @@ public abstract class Assert {
    */
   public static void doesNotContain(String textToSearch, String substring) {
     doesNotContain(textToSearch, substring,
-                   () -> "[Assertion failed] - this String argument must not contain the substring [" + substring + "]");
+                   () -> "[Assertion failed] - this String argument must not contain the substring [%s]".formatted(substring));
   }
 
   /**
@@ -683,7 +683,7 @@ public abstract class Assert {
       }
     }
     if (defaultMessage) {
-      result = result + ("Object of class [" + className + "] must be an instance of " + type);
+      result = result + ("Object of class [%s] must be an instance of %s".formatted(className, type));
     }
     throw new IllegalArgumentException(result);
   }

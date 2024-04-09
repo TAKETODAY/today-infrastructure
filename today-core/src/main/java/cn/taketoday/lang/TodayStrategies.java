@@ -268,7 +268,7 @@ public class TodayStrategies {
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
    * an {@code Integer} object representing this value is returned.
-   *
+   * <p>
    * in summary:
    *
    * <ul><li>If the property value begins with the two ASCII characters
@@ -399,7 +399,7 @@ public class TodayStrategies {
    * method. The string value of this property is then interpreted as an integer
    * value using the grammar supported by {@link Integer#decode decode} and
    * an {@code Integer} object representing this value is returned.
-   *
+   * <p>
    * in summary:
    *
    * <ul>

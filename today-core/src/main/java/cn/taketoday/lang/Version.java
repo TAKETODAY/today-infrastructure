@@ -26,9 +26,9 @@ import java.util.Objects;
  * @author TODAY 2021/10/11 23:28
  * @since 4.0
  */
-public record Version(
-        int major, int minor, int micro, String type, int step,
+public record Version(int major, int minor, int micro, String type, int step,
         @Nullable String extension, String implementationVersion) {
+
   public static final String Draft = "Draft";
   public static final String Alpha = "Alpha";
   public static final String Beta = "Beta";

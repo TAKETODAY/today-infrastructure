@@ -29,10 +29,11 @@ import cn.taketoday.util.CollectionUtils;
 /**
  * Logger From slf4j
  *
- * @author TODAY <br>
- * 2019-11-03 13:15
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-11-03 13:15
  */
 public abstract class Logger implements Serializable {
+
   @Serial
   private static final long serialVersionUID = 1L;
 

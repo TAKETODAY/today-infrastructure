@@ -179,9 +179,9 @@ public sealed class BeanProperty extends Property implements Member, AnnotatedEl
   protected PropertyAccessor createAccessor() {
     Field field = getField();
     if (field == null) {
-      return PropertyAccessor.fromMethod(readMethod, writeMethod);
+      return PropertyAccessor.forMethod(readMethod, writeMethod);
     }
-    return PropertyAccessor.fromField(field, readMethod, writeMethod);
+    return PropertyAccessor.forField(field, readMethod, writeMethod);
   }
 
   public PropertyAccessor getPropertyAccessor() {

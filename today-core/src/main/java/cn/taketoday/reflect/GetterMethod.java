@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see [http://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.reflect;
 
 import java.lang.reflect.Field;
@@ -28,8 +29,8 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * Fast call bean's getter Method {@link java.lang.reflect.Method Method}
  *
- * @author TODAY <br>
- * 2020-08-13 19:46
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2020-08-13 19:46
  */
 public interface GetterMethod {
 
@@ -58,12 +59,12 @@ public interface GetterMethod {
    * @param field given java reflect property
    * @return GetterMethod
    */
-  static GetterMethod fromField(final Field field) {
+  static GetterMethod forField(final Field field) {
     final Method readMethod = ReflectionUtils.getReadMethod(field);
     if (readMethod == null) {
-      return fromReflective(field); // fallback to Reflective
+      return forReflective(field); // fallback to Reflective
     }
-    return fromMethod(readMethod);
+    return forMethod(readMethod);
   }
 
   /**
@@ -73,9 +74,9 @@ public interface GetterMethod {
    * @return GetterMethod
    * @see MethodInvoker#forMethod(Method)
    */
-  static GetterMethod fromMethod(final Method method) {
+  static GetterMethod forMethod(final Method method) {
     final MethodInvoker accessor = MethodInvoker.forMethod(method);
-    return fromMethod(accessor);
+    return forMethod(accessor);
   }
 
   /**
@@ -85,7 +86,7 @@ public interface GetterMethod {
    * @return GetterMethod
    * @see MethodInvoker#forMethod(Method)
    */
-  static GetterMethod fromMethod(final MethodInvoker invoker) {
+  static GetterMethod forMethod(final MethodInvoker invoker) {
     return new MethodAccessorGetterMethod(invoker);
   }
 
@@ -97,7 +98,7 @@ public interface GetterMethod {
    * @see Field#get(Object)
    * @see ReflectionUtils#getField(Field, Object)
    */
-  static GetterMethod fromReflective(final Field field) {
+  static GetterMethod forReflective(final Field field) {
     ReflectionUtils.makeAccessible(field);
     return new ReflectiveGetterMethod(field);
   }

@@ -186,7 +186,7 @@ class BenchmarkTests {
   @Test
   void testProperty() throws IllegalAccessException {
     Field field = ReflectionUtils.findField(PropertyTestBean.class, "value");
-    PropertyAccessor propertyAccessor = PropertyAccessor.fromField(field);
+    PropertyAccessor propertyAccessor = PropertyAccessor.forField(field);
 
     field.trySetAccessible();
 

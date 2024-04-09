@@ -46,7 +46,7 @@ public final class FieldBeanProperty extends BeanProperty {
 
   @Override
   protected PropertyAccessor createAccessor() {
-    return PropertyAccessor.fromField(field);
+    return PropertyAccessor.forField(field);
   }
 
   protected TypeDescriptor createDescriptor() {
