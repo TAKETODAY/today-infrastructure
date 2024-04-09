@@ -155,10 +155,10 @@ public class InvocableHandlerMethod extends HandlerMethod {
     }
 
     try {
-      return getBridgedMethod().invoke(getBean(), args);
+      return bridgedMethod.invoke(getBean(), args);
     }
     catch (IllegalArgumentException ex) {
-      assertTargetBean(getBridgedMethod(), getBean(), args);
+      assertTargetBean(bridgedMethod, getBean(), args);
       String text = (ex.getMessage() == null || ex.getCause() instanceof NullPointerException)
               ? "Illegal argument" : ex.getMessage();
       throw new IllegalStateException(formatInvokeError(text, args), ex);
@@ -247,7 +247,7 @@ public class InvocableHandlerMethod extends HandlerMethod {
                     : "[%d] [type=%s] [value=%s]".formatted(i, args[i].getClass().getName(), args[i])))
             .collect(Collectors.joining(",\n", " ", " "));
     return "%s\nController [%s]\nMethod [%s] with argument values:\n%s"
-            .formatted(text, getBeanType().getName(), getBridgedMethod().toGenericString(), formattedArgs);
+            .formatted(text, getBeanType().getName(), bridgedMethod.toGenericString(), formattedArgs);
   }
 
   private static String formatArgumentError(ResolvableMethodParameter param, String message) {

@@ -93,7 +93,11 @@ public class HandlerMethod implements AsyncHandler {
   /** action **/
   private final Method method;
 
-  private final Method bridgedMethod;
+  /**
+   * If the bean method is a bridge method, this method is the bridged
+   * (user-defined) method. Otherwise, it returns the same method as {@link #getMethod()}.
+   */
+  protected final Method bridgedMethod;
 
   /** parameter list **/
   private final MethodParameter[] parameters;
@@ -302,14 +306,6 @@ public class HandlerMethod implements AsyncHandler {
    */
   public Class<?> getBeanType() {
     return this.beanType;
-  }
-
-  /**
-   * If the bean method is a bridge method, this method returns the bridged
-   * (user-defined) method. Otherwise, it returns the same method as {@link #getMethod()}.
-   */
-  protected final Method getBridgedMethod() {
-    return this.bridgedMethod;
   }
 
   /**
