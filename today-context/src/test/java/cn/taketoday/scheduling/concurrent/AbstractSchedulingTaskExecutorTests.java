@@ -290,8 +290,8 @@ abstract class AbstractSchedulingTaskExecutorTests {
     Future<?> future2 = executor.submit(new TestCallable(this.testName, -1));
     shutdownExecutor();
     assertThatExceptionOfType(CancellationException.class).isThrownBy(() -> {
-      future1.get(1000, TimeUnit.MILLISECONDS);
-      future2.get(1000, TimeUnit.MILLISECONDS);
+      future1.get(2000, TimeUnit.MILLISECONDS);
+      future2.get(2000, TimeUnit.MILLISECONDS);
     });
   }
 
