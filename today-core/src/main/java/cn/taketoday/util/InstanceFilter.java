@@ -122,11 +122,7 @@ public class InstanceFilter<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(getClass().getSimpleName());
-    sb.append(": includes=").append(this.includes);
-    sb.append(", excludes=").append(this.excludes);
-    sb.append(", matchIfEmpty=").append(this.matchIfEmpty);
-    return sb.toString();
+    return "%s: includes=%s, excludes=%s, matchIfEmpty=%s".formatted(getClass().getSimpleName(), this.includes, this.excludes, this.matchIfEmpty);
   }
 
 }

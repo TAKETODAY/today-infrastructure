@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.util.backoff;
 
 /**
@@ -208,8 +209,8 @@ public class ExponentialBackOff implements BackOff {
 
   private void checkMultiplier(double multiplier) {
     if (multiplier < 1) {
-      throw new IllegalArgumentException("Invalid multiplier '" + multiplier + "'. Should be greater than " +
-              "or equal to 1. A multiplier of 1 is equivalent to a fixed interval.");
+      throw new IllegalArgumentException("Invalid multiplier '%s'. Should be greater than or equal to 1. A multiplier of 1 is equivalent to a fixed interval."
+              .formatted(multiplier));
     }
   }
 
@@ -256,11 +257,8 @@ public class ExponentialBackOff implements BackOff {
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("ExponentialBackOff{");
-      sb.append("currentInterval=").append(this.currentInterval < 0 ? "n/a" : this.currentInterval + "ms");
-      sb.append(", multiplier=").append(getMultiplier());
-      sb.append('}');
-      return sb.toString();
+      return "ExponentialBackOff{currentInterval=%s, multiplier=%s}"
+              .formatted(this.currentInterval < 0 ? "n/a" : this.currentInterval + "ms", getMultiplier());
     }
   }
 

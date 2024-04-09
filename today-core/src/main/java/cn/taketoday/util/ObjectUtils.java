@@ -374,8 +374,7 @@ public abstract class ObjectUtils {
       }
     }
     throw new IllegalArgumentException(
-            "Constant [" + constant + "] does not exist in enum type " +
-                    enumValues.getClass().getComponentType().getName());
+            "Constant [%s] does not exist in enum type %s".formatted(constant, enumValues.getClass().getComponentType().getName()));
   }
 
   /**

@@ -222,7 +222,7 @@ public abstract class StreamUtils {
 
     long skipped = in.skip(start);
     if (skipped < start) {
-      throw new IOException("Skipped only " + skipped + " bytes out of " + start + " required");
+      throw new IOException("Skipped only %d bytes out of %d required".formatted(skipped, start));
     }
 
     long bytesToCopy = end - start + 1;

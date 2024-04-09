@@ -252,7 +252,7 @@ public class MimeType implements Comparable<MimeType>, Serializable {
     for (int i = 0; i < length; i++) {
       char ch = token.charAt(i);
       if (!TOKEN.get(ch)) {
-        throw new IllegalArgumentException("Invalid token character '" + ch + "' in token \"" + token + "\"");
+        throw new IllegalArgumentException("Invalid token character '%s' in token \"%s\"".formatted(ch, token));
       }
     }
   }

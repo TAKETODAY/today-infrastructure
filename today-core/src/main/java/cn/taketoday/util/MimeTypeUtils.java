@@ -23,7 +23,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,9 +52,6 @@ public abstract class MimeTypeUtils {
           'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
           'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
   };
-
-  /** Comparator used by {@link #sortBySpecificity(List)}. */
-  public static final Comparator<MimeType> SPECIFICITY_COMPARATOR = new MimeType.SpecificityComparator<>();
 
   /**
    * Public constant mime type that includes all media ranges (i.e.
@@ -217,7 +213,7 @@ public abstract class MimeTypeUtils {
       return new MimeType(type, subtype, parameters);
     }
     catch (UnsupportedCharsetException ex) {
-      throw new InvalidMimeTypeException(mimeType, "unsupported charset '" + ex.getCharsetName() + "'");
+      throw new InvalidMimeTypeException(mimeType, "unsupported charset '%s'".formatted(ex.getCharsetName()));
     }
     catch (IllegalArgumentException ex) {
       throw new InvalidMimeTypeException(mimeType, ex.getMessage());

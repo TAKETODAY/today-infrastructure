@@ -188,14 +188,14 @@ public final class DataSize implements Comparable<DataSize>, Serializable {
       CharSequence trimmedText = StringUtils.trimAllWhitespace(text);
       Matcher matcher = DataSizeUtils.PATTERN.matcher(trimmedText);
       if (!matcher.matches()) {
-        throw new IllegalStateException("'" + text + "' does not match data size pattern");
+        throw new IllegalStateException("'%s' does not match data size pattern".formatted(text));
       }
       DataUnit unit = DataSizeUtils.determineDataUnit(matcher.group(2), defaultUnit);
       long amount = Long.parseLong(trimmedText, matcher.start(1), matcher.end(1), 10);
       return DataSize.of(amount, unit);
     }
     catch (Exception ex) {
-      throw new IllegalArgumentException("'" + text + "' is not a valid data size", ex);
+      throw new IllegalArgumentException("'%s' is not a valid data size".formatted(text), ex);
     }
   }
 

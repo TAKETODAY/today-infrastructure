@@ -42,6 +42,7 @@ import cn.taketoday.lang.Nullable;
 public abstract class NumberUtils {
 
   private static final BigInteger LONG_MIN = BigInteger.valueOf(Long.MIN_VALUE);
+
   private static final BigInteger LONG_MAX = BigInteger.valueOf(Long.MAX_VALUE);
 
   /**
@@ -142,8 +143,8 @@ public abstract class NumberUtils {
       return (T) new BigDecimal(number.toString());
     }
     else {
-      throw new IllegalArgumentException("Could not convert number [" + number + "] of type [" +
-              number.getClass().getName() + "] to unsupported target class [" + targetClass.getName() + "]");
+      throw new IllegalArgumentException("Could not convert number [%s] of type [%s] to unsupported target class [%s]"
+              .formatted(number, number.getClass().getName(), targetClass.getName()));
     }
   }
 
@@ -180,8 +181,8 @@ public abstract class NumberUtils {
    * @throws IllegalArgumentException if there is an overflow
    */
   private static void raiseOverflowException(Number number, Class<?> targetClass) {
-    throw new IllegalArgumentException("Could not convert number [" + number + "] of type [" +
-            number.getClass().getName() + "] to target class [" + targetClass.getName() + "]: overflow");
+    throw new IllegalArgumentException("Could not convert number [%s] of type [%s] to target class [%s]: overflow"
+            .formatted(number, number.getClass().getName(), targetClass.getName()));
   }
 
   /**
@@ -237,7 +238,7 @@ public abstract class NumberUtils {
     }
     else {
       throw new IllegalArgumentException(
-              "Cannot convert String [" + text + "] to target class [" + targetClass.getName() + "]");
+              "Cannot convert String [%s] to target class [%s]".formatted(text, targetClass.getName()));
     }
   }
 
@@ -257,9 +258,7 @@ public abstract class NumberUtils {
    * @see #convertNumberToTargetClass
    * @see #parseNumber(String, Class)
    */
-  public static <T extends Number> T parseNumber(
-          String text, Class<T> targetClass, @Nullable NumberFormat numberFormat) {
-
+  public static <T extends Number> T parseNumber(String text, Class<T> targetClass, @Nullable NumberFormat numberFormat) {
     if (numberFormat != null) {
       Assert.notNull(text, "Text is required");
       Assert.notNull(targetClass, "Target class is required");

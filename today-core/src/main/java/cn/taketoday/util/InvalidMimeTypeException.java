@@ -38,7 +38,7 @@ public class InvalidMimeTypeException extends IllegalArgumentException {
    * @param message a detail message indicating the invalid part
    */
   public InvalidMimeTypeException(String mimeType, String message) {
-    super("Invalid mime type \"" + mimeType + "\": " + message);
+    super("Invalid mime type \"%s\": %s".formatted(mimeType, message));
     this.mimeType = mimeType;
   }
 
