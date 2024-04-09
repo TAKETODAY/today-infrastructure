@@ -28,13 +28,16 @@ import cn.taketoday.core.NestedException;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * Utility methods for Exception
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-11-13 21:25
  */
 public abstract class ExceptionUtils {
 
   /**
-   * Unwrap
+   * Unwrap first level {@link InvocationTargetException} and
+   * {@link UndeclaredThrowableException}
    *
    * @param ex target {@link Throwable}
    * @return unwrapped {@link Throwable}
