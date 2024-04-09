@@ -50,8 +50,6 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Decorating RequestContext

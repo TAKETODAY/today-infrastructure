@@ -33,7 +33,6 @@ import cn.taketoday.web.bind.support.SimpleSessionStatus;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
 import cn.taketoday.web.view.BindingAwareModelMap;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 
 /**
  * Context to assist with binding request data onto Objects and provide access

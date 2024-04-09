@@ -44,8 +44,6 @@ import cn.taketoday.web.context.support.SessionScope;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
-import cn.taketoday.web.view.RedirectModel;
-import cn.taketoday.web.view.RedirectModelManager;
 
 /**
  * Parameter extraction methods, for an approach distinct from data binding,

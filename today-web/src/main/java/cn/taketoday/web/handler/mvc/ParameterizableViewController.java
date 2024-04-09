@@ -24,9 +24,9 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 import cn.taketoday.web.view.View;
 
 /**

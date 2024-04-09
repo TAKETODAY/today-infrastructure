@@ -31,6 +31,7 @@ import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.ui.Model;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
@@ -43,7 +44,6 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

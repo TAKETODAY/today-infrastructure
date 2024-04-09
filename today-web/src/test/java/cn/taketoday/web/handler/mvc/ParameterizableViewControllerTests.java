@@ -28,7 +28,7 @@ import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.view.RedirectView;
 import cn.taketoday.web.view.View;
 

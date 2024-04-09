@@ -40,6 +40,7 @@ import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ContextExposingRequestContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.WebApplicationObjectSupport;
