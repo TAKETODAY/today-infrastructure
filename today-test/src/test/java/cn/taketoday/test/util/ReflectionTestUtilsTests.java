@@ -164,6 +164,11 @@ class ReflectionTestUtilsTests {
     return ReflectionTestUtils.getField(targetObject, name);
   }
 
+  @Nullable
+  static Object getField(Class<?> targetClass, String name) {
+    return ReflectionTestUtils.getField(targetClass, name);
+  }
+
   private static void assertSetFieldAndGetFieldBehaviorForProxy(Person proxy, Person target) {
     assertSetFieldAndGetFieldBehavior(proxy);
 
