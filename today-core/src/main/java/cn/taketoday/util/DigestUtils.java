@@ -124,7 +124,7 @@ public abstract class DigestUtils {
       return MessageDigest.getInstance(algorithm);
     }
     catch (NoSuchAlgorithmException ex) {
-      throw new IllegalStateException("Could not find MessageDigest with algorithm \"" + algorithm + "\"", ex);
+      throw new IllegalStateException("Could not find MessageDigest with algorithm \"%s\"".formatted(algorithm), ex);
     }
   }
 

@@ -34,6 +34,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.context.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AsyncHandler;
@@ -350,6 +351,7 @@ public class DispatcherHandler extends InfraHandler {
       handler = wrapper.getRawHandler();
     }
     if (exception != null) {
+      exception = ExceptionUtils.unwrapIfNecessary(exception);
       returnValue = processHandlerException(request, handler, exception);
       handler = null;
     }

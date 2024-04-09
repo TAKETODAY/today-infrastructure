@@ -56,6 +56,6 @@ public interface TransactionCallback<T> {
    * @see CallbackPreferringPlatformTransactionManager#execute
    */
   @Nullable
-  T doInTransaction(TransactionStatus status) throws Throwable;
+  T doInTransaction(TransactionStatus status);
 
 }

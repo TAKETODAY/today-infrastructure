@@ -309,7 +309,7 @@ public abstract class ClassUtils {
     }
     catch (IllegalAccessError err) {
       throw new IllegalStateException(
-              "Readability mismatch in inheritance hierarchy of class [" + className + "]: " + err.getMessage(), err);
+              "Readability mismatch in inheritance hierarchy of class [%s]: %s".formatted(className, err.getMessage()), err);
     }
     catch (Throwable ex) {
       // Typically, ClassNotFoundException or NoClassDefFoundError...
@@ -465,15 +465,14 @@ public abstract class ClassUtils {
     }
     catch (IllegalAccessError err) {
       throw new IllegalStateException(
-              "Readability mismatch in inheritance hierarchy of class ["
-                      + className + "]: " + err.getMessage(), err);
+              "Readability mismatch in inheritance hierarchy of class [%s]: %s".formatted(className, err.getMessage()), err);
     }
     catch (LinkageError err) {
       throw new IllegalArgumentException(
-              "Unresolvable class definition for class [" + className + "]", err);
+              "Unresolvable class definition for class [%s]".formatted(className), err);
     }
     catch (ClassNotFoundException ex) {
-      throw new IllegalArgumentException("Could not find class [" + className + "]", ex);
+      throw new IllegalArgumentException("Could not find class [%s]".formatted(className), ex);
     }
   }
 
@@ -1273,7 +1272,7 @@ public abstract class ClassUtils {
     }
     if (enumType == null) {
       throw new IllegalArgumentException(
-              "The target " + targetType + " does not refer to an enum");
+              "The target %s does not refer to an enum".formatted(targetType));
     }
     return enumType;
   }

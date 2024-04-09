@@ -31,10 +31,10 @@ import cn.taketoday.beans.BeanMetadata;
 import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.NoSuchPropertyException;
 import cn.taketoday.beans.NotWritablePropertyException;
+import cn.taketoday.core.Pair;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.reflect.SetterMethod;
-import cn.taketoday.util.KeyValueHolder;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -78,10 +78,10 @@ public final class BeanMapping<T> extends AbstractMap<String, Object> implements
     for (BeanProperty property : metadata) {
       if (property.isReadable()) {
         Object value = property.getValue(target);
-        entrySet.add(new KeyValueHolder<>(property.getName(), value));
+        entrySet.add(Pair.of(property.getName(), value));
       }
       else {
-        entrySet.add(new KeyValueHolder<>(property.getName(), null));
+        entrySet.add(Pair.of(property.getName(), null));
       }
     }
     return entrySet;

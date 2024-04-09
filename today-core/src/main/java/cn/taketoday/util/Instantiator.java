@@ -51,7 +51,7 @@ public class Instantiator<T> {
 
   private static final FailureHandler throwingFailureHandler = (type, implementationName, failure) -> {
     throw new IllegalArgumentException(
-            "Unable to instantiate " + implementationName + " [" + type.getName() + "]", failure);
+            "Unable to instantiate %s [%s]".formatted(implementationName, type.getName()), failure);
   };
 
   private final Class<?> type;
@@ -78,8 +78,7 @@ public class Instantiator<T> {
    * @param failureHandler a {@link FailureHandler} that will be called in case of
    * failure when instantiating objects
    */
-  public Instantiator(Class<?> type, Consumer<AvailableParameters> availableParameters,
-          FailureHandler failureHandler) {
+  public Instantiator(Class<?> type, Consumer<AvailableParameters> availableParameters, FailureHandler failureHandler) {
     this.type = type;
     this.failureHandler = failureHandler;
     this.availableParameters = getAvailableParameters(availableParameters);
@@ -172,7 +171,7 @@ public class Instantiator<T> {
         return (T) constructor.newInstance(args);
       }
     }
-    throw new IllegalAccessException("Class [" + type.getName() + "] has no suitable constructor");
+    throw new IllegalAccessException("Class [%s] has no suitable constructor".formatted(type.getName()));
   }
 
   @Nullable

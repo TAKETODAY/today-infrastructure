@@ -23,11 +23,11 @@ package cn.taketoday.web.bind.resolver;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.view.RedirectModel;
 
 /**
  * Resolves {@link Model} arguments and handles {@link Model} return values.

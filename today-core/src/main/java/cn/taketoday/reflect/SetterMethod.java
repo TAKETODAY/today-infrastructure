@@ -29,8 +29,8 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * Fast call bean's setter Method {@link java.lang.reflect.Method Method}
  *
- * @author TODAY <br>
- * 2020-08-14 00:29
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2020-08-14 00:29
  */
 public interface SetterMethod {
 
@@ -63,12 +63,12 @@ public interface SetterMethod {
    * @param field given java reflect property
    * @return SetterMethod
    */
-  static SetterMethod fromField(final Field field) {
+  static SetterMethod forField(final Field field) {
     final Method writeMethod = ReflectionUtils.getWriteMethod(field);
     if (writeMethod == null) {
-      return fromReflective(field); // fallback to Reflective
+      return forReflective(field); // fallback to Reflective
     }
-    return fromMethod(writeMethod);
+    return forMethod(writeMethod);
   }
 
   /**
@@ -76,11 +76,11 @@ public interface SetterMethod {
    *
    * @param method java reflect {@link Method}
    * @return SetterMethod
-   * @see MethodInvoker#fromMethod(Method)
+   * @see MethodInvoker#forMethod(Method)
    */
-  static SetterMethod fromMethod(final Method method) {
-    final MethodInvoker accessor = MethodInvoker.fromMethod(method);
-    return fromMethod(accessor);
+  static SetterMethod forMethod(final Method method) {
+    final MethodInvoker accessor = MethodInvoker.forMethod(method);
+    return forMethod(accessor);
   }
 
   /**
@@ -88,9 +88,9 @@ public interface SetterMethod {
    *
    * @param invoker fast MethodInvoker
    * @return SetterMethod
-   * @see MethodInvoker#fromMethod(Method)
+   * @see MethodInvoker#forMethod(Method)
    */
-  static SetterMethod fromMethod(final MethodInvoker invoker) {
+  static SetterMethod forMethod(final MethodInvoker invoker) {
     return new MethodAccessorSetterMethod(invoker);
   }
 
@@ -102,7 +102,7 @@ public interface SetterMethod {
    * @see Field#set(Object, Object)
    * @see ReflectionUtils#setField(Field, Object, Object)
    */
-  static SetterMethod fromReflective(final Field field) {
+  static SetterMethod forReflective(final Field field) {
     ReflectionUtils.makeAccessible(field);
     return new ReflectiveSetterMethod(field);
   }

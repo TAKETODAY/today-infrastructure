@@ -115,7 +115,7 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
       synchronized(this) {
         handlerInvoker = this.handlerInvoker;
         if (handlerInvoker == null) {
-          handlerInvoker = MethodInvoker.fromMethod(handlerMethod.getMethod());
+          handlerInvoker = MethodInvoker.forMethod(handlerMethod.getMethod());
           this.handlerInvoker = handlerInvoker;
         }
       }
@@ -147,7 +147,7 @@ public abstract class ActionMappingAnnotationHandler extends InterceptableReques
       synchronized(this) {
         handlerInvoker = this.handlerInvoker;
         if (handlerInvoker == null) {
-          handlerInvoker = MethodInvoker.fromMethod(handlerMethod.getMethod());
+          handlerInvoker = MethodInvoker.forMethod(handlerMethod.getMethod());
           this.handlerInvoker = handlerInvoker;
         }
       }

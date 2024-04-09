@@ -22,6 +22,9 @@ package cn.taketoday.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -46,4 +49,21 @@ class ExceptionUtilsTests {
     })).isEmpty();
 
   }
+
+  @Test
+  void unwrapIfNecessary() {
+    Exception exception = new Exception();
+    assertThat(ExceptionUtils.unwrapIfNecessary(exception)).isSameAs(exception);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new InvocationTargetException(exception))).isSameAs(exception);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new UndeclaredThrowableException(exception))).isSameAs(exception);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new InvocationTargetException(new InvocationTargetException(exception)))).isSameAs(exception);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new InvocationTargetException(new UndeclaredThrowableException(exception)))).isSameAs(exception);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new UndeclaredThrowableException(new InvocationTargetException(exception)))).isSameAs(exception);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new UndeclaredThrowableException(new UndeclaredThrowableException(exception)))).isSameAs(exception);
+
+    //
+    assertThat(ExceptionUtils.unwrapIfNecessary(new IllegalStateException(new UndeclaredThrowableException(exception)))).isInstanceOf(IllegalStateException.class);
+    assertThat(ExceptionUtils.unwrapIfNecessary(new IllegalStateException(new InvocationTargetException(exception)))).isInstanceOf(IllegalStateException.class);
+  }
+
 }

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.aop.framework.ProxyFactory;
 import cn.taketoday.aop.support.AopUtils;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.util.subpackage.Component;
 import cn.taketoday.test.util.subpackage.LegacyEntity;
 import cn.taketoday.test.util.subpackage.Person;
@@ -30,7 +31,6 @@ import cn.taketoday.test.util.subpackage.PersonEntity;
 import cn.taketoday.test.util.subpackage.StaticFields;
 import cn.taketoday.test.util.subpackage.StaticMethods;
 
-import static cn.taketoday.test.util.ReflectionTestUtils.getField;
 import static cn.taketoday.test.util.ReflectionTestUtils.invokeGetterMethod;
 import static cn.taketoday.test.util.ReflectionTestUtils.invokeMethod;
 import static cn.taketoday.test.util.ReflectionTestUtils.invokeSetterMethod;
@@ -71,21 +71,21 @@ class ReflectionTestUtilsTests {
   @Test
   void getFieldWithNullTargetObject() throws Exception {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> getField((Object) null, "id"))
+            .isThrownBy(() -> getField(null, "id"))
             .withMessageStartingWith("Either targetObject or targetClass");
   }
 
   @Test
   void setFieldWithNullTargetClass() throws Exception {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> setField((Class<?>) null, "id", Long.valueOf(99)))
+            .isThrownBy(() -> setField(null, "id", Long.valueOf(99)))
             .withMessageStartingWith("Either targetObject or targetClass");
   }
 
   @Test
   void getFieldWithNullTargetClass() throws Exception {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> getField((Class<?>) null, "id"))
+            .isThrownBy(() -> getField(null, "id"))
             .withMessageStartingWith("Either targetObject or targetClass");
   }
 
@@ -143,12 +143,12 @@ class ReflectionTestUtilsTests {
     setField(person, "favoriteNumber", PI, Number.class);
 
     // Get reflectively
-    assertThat((Object) getField(person, "id")).isEqualTo(Long.valueOf(99));
-    assertThat((Object) getField(person, "name")).isEqualTo("Tom");
-    assertThat((Object) getField(person, "age")).isEqualTo(Integer.valueOf(42));
-    assertThat((Object) getField(person, "eyeColor")).isEqualTo("blue");
-    assertThat((Object) getField(person, "likesPets")).isEqualTo(Boolean.TRUE);
-    assertThat((Object) getField(person, "favoriteNumber")).isEqualTo(PI);
+    assertThat(getField(person, "id")).isEqualTo(Long.valueOf(99));
+    assertThat(getField(person, "name")).isEqualTo("Tom");
+    assertThat(getField(person, "age")).isEqualTo(Integer.valueOf(42));
+    assertThat(getField(person, "eyeColor")).isEqualTo("blue");
+    assertThat(getField(person, "likesPets")).isEqualTo(Boolean.TRUE);
+    assertThat(getField(person, "favoriteNumber")).isEqualTo(PI);
 
     // Get directly
     assertThat(person.getId()).as("ID (private field in a superclass)").isEqualTo(99);
@@ -157,6 +157,11 @@ class ReflectionTestUtilsTests {
     assertThat(person.getEyeColor()).as("eye color (package private field)").isEqualTo("blue");
     assertThat(person.likesPets()).as("'likes pets' flag (package private boolean field)").isTrue();
     assertThat(person.getFavoriteNumber()).as("'favorite number' (package field)").isEqualTo(PI);
+  }
+
+  @Nullable
+  static Object getField(Object targetObject, String name) {
+    return ReflectionTestUtils.getField(targetObject, name);
   }
 
   private static void assertSetFieldAndGetFieldBehaviorForProxy(Person proxy, Person target) {
@@ -236,15 +241,15 @@ class ReflectionTestUtilsTests {
 
   @Test
   void getStaticFieldViaClass() throws Exception {
-    assertThat((Object) getField(StaticFields.class, "publicField")).as("public static field").isEqualTo("public");
-    assertThat((Object) getField(StaticFields.class, "privateField")).as("private static field").isEqualTo("private");
+    assertThat(getField(StaticFields.class, "publicField")).as("public static field").isEqualTo("public");
+    assertThat(getField(StaticFields.class, "privateField")).as("private static field").isEqualTo("private");
   }
 
   @Test
   void getStaticFieldViaInstance() throws Exception {
     StaticFields staticFields = new StaticFields();
-    assertThat((Object) getField(staticFields, "publicField")).as("public static field").isEqualTo("public");
-    assertThat((Object) getField(staticFields, "privateField")).as("private static field").isEqualTo("private");
+    assertThat(getField(staticFields, "publicField")).as("public static field").isEqualTo("public");
+    assertThat(getField(staticFields, "privateField")).as("private static field").isEqualTo("private");
   }
 
   @Test
@@ -432,7 +437,7 @@ class ReflectionTestUtilsTests {
   @Test
   void invokeStaticMethodWithNullTargetClass() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> invokeMethod((Class<?>) null, null))
+            .isThrownBy(() -> invokeMethod(null, null))
             .withMessage("Target class is required");
   }
 
@@ -487,7 +492,7 @@ class ReflectionTestUtilsTests {
   @Test
   void invokeStaticMethodWithNullTargetObjectAndNullTargetClass() {
     assertThatIllegalArgumentException()
-            .isThrownBy(() -> invokeMethod((Object) null, (Class<?>) null, "id"))
+            .isThrownBy(() -> invokeMethod(null, (Class<?>) null, "id"))
             .withMessage("Either 'targetObject' or 'targetClass' for the method must be specified");
   }
 

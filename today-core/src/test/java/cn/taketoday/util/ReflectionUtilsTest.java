@@ -39,7 +39,6 @@ import cn.taketoday.reflect.ReflectionException;
 import cn.taketoday.reflect.SetterMethod;
 import cn.taketoday.tests.sample.objects.TestObject;
 import cn.taketoday.util.ReflectionUtils.MethodFilter;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -250,7 +249,7 @@ public class ReflectionUtilsTest {
       for (Field field : declaredFields) {
         final String name = field.getName();
         if (name.charAt(0) == '_') {
-          final SetterMethod setter = SetterMethod.fromField(field);
+          final SetterMethod setter = SetterMethod.forField(field);
 
           Object val1 = field.get(pojo1);
           Object val2 = field.get(pojo2);
@@ -279,7 +278,7 @@ public class ReflectionUtilsTest {
         Field field = pojo1.getClass()
                 .getDeclaredField(method.getName().substring(3));
 
-        SetterMethod setter = SetterMethod.fromMethod(method);
+        SetterMethod setter = SetterMethod.forMethod(method);
         Object val1 = field.get(pojo1);
         Object val2 = field.get(pojo2);
 
@@ -298,7 +297,7 @@ public class ReflectionUtilsTest {
           continue;
 
         Field field = pojo1.getClass().getDeclaredField(method.getName().substring(3));
-        SetterMethod setter = SetterMethod.fromMethod(method);
+        SetterMethod setter = SetterMethod.forMethod(method);
         Object val1 = field.get(pojo1);
         assertNotNull(val1);
 
@@ -449,7 +448,7 @@ public class ReflectionUtilsTest {
       for (Field field : declaredFields) {
         final String name = field.getName();
         if (name.charAt(0) == '_') {
-          final GetterMethod getter = GetterMethod.fromField(field);
+          final GetterMethod getter = GetterMethod.forField(field);
 
           Object val1 = field.get(pojo);
           assertEquals(val1, getter.get(pojo));
@@ -463,7 +462,7 @@ public class ReflectionUtilsTest {
 
         Field field = pojo.getClass().getDeclaredField(method.getName().substring(3));
 
-        GetterMethod getter = GetterMethod.fromMethod(method);
+        GetterMethod getter = GetterMethod.forMethod(method);
 
         Object val1 = field.get(pojo);
         assertEquals(val1, getter.get(pojo));
@@ -488,21 +487,21 @@ public class ReflectionUtilsTest {
     final PropertyBean propertyBean = new PropertyBean();
 
     final Field declaredField = PropertyBean.class.getDeclaredField("static_pro");
-    final PropertyAccessor staticProAccessor = PropertyAccessor.fromField(declaredField);
+    final PropertyAccessor staticProAccessor = PropertyAccessor.forField(declaredField);
 
     assertEquals(staticProAccessor.get(null), 0);
     staticProAccessor.set(null, 2);
     assertEquals(staticProAccessor.get(null), 2);
 
     final Field boolField = PropertyBean.class.getDeclaredField("bool");
-    final PropertyAccessor boolAccessor = PropertyAccessor.fromField(boolField);
+    final PropertyAccessor boolAccessor = PropertyAccessor.forField(boolField);
 
     assertEquals(boolAccessor.get(propertyBean), false);
     boolAccessor.set(propertyBean, true);
     assertEquals(boolAccessor.get(propertyBean), true);
 
     final Field finalProField = PropertyBean.class.getDeclaredField("finalPro");
-    final PropertyAccessor finalProAccessor = PropertyAccessor.fromField(finalProField);
+    final PropertyAccessor finalProAccessor = PropertyAccessor.forField(finalProField);
     assertEquals(finalProAccessor.get(propertyBean), 10L);
 
     try {
@@ -512,7 +511,7 @@ public class ReflectionUtilsTest {
       assertEquals(finalProAccessor.get(propertyBean), 10L);
     }
     final Field staticFinalProField = PropertyBean.class.getDeclaredField("staticFinalPro");
-    final PropertyAccessor staticFinalProAccessor = PropertyAccessor.fromField(staticFinalProField);
+    final PropertyAccessor staticFinalProAccessor = PropertyAccessor.forField(staticFinalProField);
     assertEquals(staticFinalProAccessor.get(propertyBean), (short) 100);
 
     try {

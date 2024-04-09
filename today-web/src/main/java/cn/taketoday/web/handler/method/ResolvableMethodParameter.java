@@ -433,7 +433,7 @@ public class ResolvableMethodParameter extends AttributeAccessorSupport {
 
   @Override
   public String toString() {
-    return "method '" + getMethod().getName() + "'" + " parameter " + getParameterIndex();
+    return "method '%s' parameter %d".formatted(getMethod().getName(), getParameterIndex());
   }
 
   @Override

@@ -37,6 +37,7 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
 import cn.taketoday.web.accept.ContentNegotiationManager;
@@ -58,7 +59,6 @@ import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
 import cn.taketoday.web.view.BeanNameViewResolver;
-import cn.taketoday.web.view.RedirectModelManager;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 
@@ -124,7 +124,7 @@ public class ReturnValueHandlerManager extends ApplicationObjectSupport
   public void setReactiveAdapterRegistry(@Nullable ReactiveAdapterRegistry reactiveAdapterRegistry) {
     this.reactiveAdapterRegistry =
             reactiveAdapterRegistry == null
-            ? ReactiveAdapterRegistry.getSharedInstance() : reactiveAdapterRegistry;
+                    ? ReactiveAdapterRegistry.getSharedInstance() : reactiveAdapterRegistry;
   }
 
   /**

@@ -17,9 +17,9 @@
 
 package cn.taketoday.web.handler.mvc;
 
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.RedirectModel;
 
 /**
  * Abstract base class for {@code Controllers} that return a view name

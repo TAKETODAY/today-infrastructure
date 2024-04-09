@@ -142,7 +142,7 @@ class BenchmarkTests {
   void testMethod() throws Throwable {
 
     Method test = ReflectionUtils.findMethod(ITest.class, "test", String.class);
-    MethodAccessor methodAccessor = MethodInvoker.fromMethod(test);
+    MethodAccessor methodAccessor = MethodInvoker.forMethod(test);
     test.setAccessible(true);
     final ITest testBean = new MethodTestBean();
 
@@ -186,7 +186,7 @@ class BenchmarkTests {
   @Test
   void testProperty() throws IllegalAccessException {
     Field field = ReflectionUtils.findField(PropertyTestBean.class, "value");
-    PropertyAccessor propertyAccessor = PropertyAccessor.fromField(field);
+    PropertyAccessor propertyAccessor = PropertyAccessor.forField(field);
 
     field.trySetAccessible();
 
@@ -272,10 +272,10 @@ class BenchmarkTests {
     void testMethodAccessor() throws Throwable {
 
       MethodInvoker[] ma = new MethodInvoker[] {
-              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func0")),
-              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func1")),
-              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func2")),
-              MethodInvoker.fromMethod(Bench1.class.getDeclaredMethod("func3")),
+              MethodInvoker.forMethod(Bench1.class.getDeclaredMethod("func0")),
+              MethodInvoker.forMethod(Bench1.class.getDeclaredMethod("func1")),
+              MethodInvoker.forMethod(Bench1.class.getDeclaredMethod("func2")),
+              MethodInvoker.forMethod(Bench1.class.getDeclaredMethod("func3")),
       };
       Bench1 self = this;
       long t = System.nanoTime();
@@ -331,7 +331,7 @@ class BenchmarkTests {
 
     void testMethodAccessor() throws Throwable {
 
-      MethodInvoker ma = MethodInvoker.fromMethod(Bench2.class.getDeclaredMethod("func0"));
+      MethodInvoker ma = MethodInvoker.forMethod(Bench2.class.getDeclaredMethod("func0"));
 
       Bench2 self = this;
       long t = System.nanoTime();

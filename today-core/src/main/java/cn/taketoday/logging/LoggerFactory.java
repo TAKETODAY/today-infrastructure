@@ -17,16 +17,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package cn.taketoday.logging;
 
 /**
  * Factory that creates {@link Logger} instances.
  *
- * @author TODAY <br>
- * 2019-11-04 19:06
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2019-11-04 19:06
  */
 public abstract class LoggerFactory {
+
   public static final String LOG_TYPE_SYSTEM_PROPERTY = "logger.factory";
+
   private static final LoggerFactory factory = createFactory();
 
   protected abstract Logger createLogger(String name);
@@ -54,9 +57,7 @@ public abstract class LoggerFactory {
         }
         catch (Throwable e) {
           e.printStackTrace();
-          System.err.println(
-                  "Could not find valid log-type from system property '" +
-                          LOG_TYPE_SYSTEM_PROPERTY + "', value '" + type + "'");
+          System.err.printf("Could not find valid log-type from system property '%s', value '%s'%n", LOG_TYPE_SYSTEM_PROPERTY, type);
         }
       }
       try {

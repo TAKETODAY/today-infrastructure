@@ -28,25 +28,28 @@ import cn.taketoday.core.NestedException;
 import cn.taketoday.lang.Nullable;
 
 /**
+ * Utility methods for Exception
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-11-13 21:25
  */
 public abstract class ExceptionUtils {
 
   /**
-   * Unwrap
+   * Unwrap first level {@link InvocationTargetException} and
+   * {@link UndeclaredThrowableException}
    *
    * @param ex target {@link Throwable}
    * @return unwrapped {@link Throwable}
+   * @see InvocationTargetException
+   * @see UndeclaredThrowableException
    */
-  public static Throwable unwrapThrowable(Throwable ex) {
+  public static Throwable unwrapIfNecessary(Throwable ex) {
     Throwable unwrapped = ex;
     while (true) {
-      if (unwrapped instanceof InvocationTargetException) {
-        unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
-      }
-      else if (unwrapped instanceof UndeclaredThrowableException) {
-        unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
+      if (unwrapped instanceof InvocationTargetException
+              || unwrapped instanceof UndeclaredThrowableException) {
+        unwrapped = unwrapped.getCause();
       }
       else {
         return unwrapped;

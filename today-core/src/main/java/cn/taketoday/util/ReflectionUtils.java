@@ -42,8 +42,8 @@ import cn.taketoday.lang.Nullable;
  * Simple utility class for working with the reflection API and handling
  * reflection exceptions.
  *
- * @author TODAY 2020-08-13 18:45
- * @since 2.1.7
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2.1.7 2020-08-13 18:45
  */
 @SuppressWarnings("rawtypes")
 public abstract class ReflectionUtils {
@@ -261,8 +261,7 @@ public abstract class ReflectionUtils {
    * @since 4.0
    */
   @Nullable
-  public static Method getMethodIfAvailable(
-          Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
+  public static Method getMethodIfAvailable(Class<?> clazz, String methodName, @Nullable Class<?>... paramTypes) {
     Assert.notNull(clazz, "Class is required");
     Assert.notNull(methodName, "Method name is required");
     if (paramTypes != null) {
@@ -642,7 +641,7 @@ public abstract class ReflectionUtils {
         mc.doWith(method);
       }
       catch (IllegalAccessException ex) {
-        throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
+        throw new IllegalStateException("Not allowed to access method '%s': %s".formatted(method.getName(), ex));
       }
     }
   }
@@ -689,7 +688,7 @@ public abstract class ReflectionUtils {
         mc.doWith(method);
       }
       catch (IllegalAccessException ex) {
-        throw new IllegalStateException("Not allowed to access method '" + method.getName() + "': " + ex);
+        throw new IllegalStateException("Not allowed to access method '%s': %s".formatted(method.getName(), ex));
       }
     }
     // Keep backing up the inheritance hierarchy.
@@ -755,9 +754,8 @@ public abstract class ReflectionUtils {
         DECLARED_METHODS_CACHE.put(targetClass, (result.length == 0 ? EMPTY_METHOD_ARRAY : result));
       }
       catch (Throwable ex) {
-        throw new IllegalStateException(
-                "Failed to introspect Class [" + targetClass.getName() +
-                        "] from ClassLoader [" + targetClass.getClassLoader() + "]", ex);
+        throw new IllegalStateException("Failed to introspect Class [%s] from ClassLoader [%s]"
+                .formatted(targetClass.getName(), targetClass.getClassLoader()), ex);
       }
     }
     return (result.length == 0 || !defensive) ? result : result.clone();
@@ -1076,7 +1074,7 @@ public abstract class ReflectionUtils {
         fc.doWith(field);
       }
       catch (IllegalAccessException ex) {
-        throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
+        throw new IllegalStateException("Not allowed to access field '%s': %s".formatted(field.getName(), ex));
       }
     }
   }
@@ -1115,7 +1113,7 @@ public abstract class ReflectionUtils {
           fc.doWith(field);
         }
         catch (IllegalAccessException ex) {
-          throw new IllegalStateException("Not allowed to access field '" + field.getName() + "': " + ex);
+          throw new IllegalStateException("Not allowed to access field '%s': %s".formatted(field.getName(), ex));
         }
       }
       targetClass = targetClass.getSuperclass();
@@ -1142,9 +1140,8 @@ public abstract class ReflectionUtils {
         DECLARED_FIELDS_CACHE.put(clazz, (result.length == 0 ? EMPTY_FIELD_ARRAY : result));
       }
       catch (Throwable ex) {
-        throw new IllegalStateException(
-                "Failed to introspect Class [" + clazz.getName() +
-                        "] from ClassLoader [" + clazz.getClassLoader() + "]", ex);
+        throw new IllegalStateException("Failed to introspect Class [%s] from ClassLoader [%s]"
+                .formatted(clazz.getName(), clazz.getClassLoader()), ex);
       }
     }
     return result;
@@ -1161,9 +1158,8 @@ public abstract class ReflectionUtils {
     Assert.notNull(src, "Source for field copy cannot be null");
     Assert.notNull(dest, "Destination for field copy cannot be null");
     if (!src.getClass().isAssignableFrom(dest.getClass())) {
-      throw new IllegalArgumentException(
-              "Destination class [" + dest.getClass().getName() +
-                      "] must be same or subclass as source class [" + src.getClass().getName() + "]");
+      throw new IllegalArgumentException("Destination class [%s] must be same or subclass as source class [%s]"
+              .formatted(dest.getClass().getName(), src.getClass().getName()));
     }
 
     doWithFields(src.getClass(), field -> copyField(field, src, dest), COPYABLE_FIELDS);
@@ -1407,10 +1403,9 @@ public abstract class ReflectionUtils {
       }
     }
     if (numMethodsFoundWithCurrentMinimumArgs > 1) {
-      throw new IllegalArgumentException("Cannot resolve method '" + methodName +
-              "' to a unique method. Attempted to resolve to overloaded method with " +
-              "the least number of parameters but there were " +
-              numMethodsFoundWithCurrentMinimumArgs + " candidates.");
+      throw new IllegalArgumentException("""
+              Cannot resolve method '%s' to a unique method. Attempted to resolve to overloaded method with the least \
+              number of parameters but there were %d candidates.""".formatted(methodName, numMethodsFoundWithCurrentMinimumArgs));
     }
     return targetMethod;
   }
@@ -1646,7 +1641,7 @@ public abstract class ReflectionUtils {
       }
     }
     throw new IllegalArgumentException(
-            "Given parameter [" + parameter + "] does not match any parameter in the declaring executable");
+            "Given parameter [%s] does not match any parameter in the declaring executable".formatted(parameter));
   }
 
   /**

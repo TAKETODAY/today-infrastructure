@@ -46,7 +46,7 @@ public class WebSocketHandlerMethod {
           Method method, ResolvableParameterFactory parameterBuilder) {
     this.method = method;
     this.supplier = supplier;
-    this.handlerInvoker = MethodInvoker.fromMethod(method);
+    this.handlerInvoker = MethodInvoker.forMethod(method);
     this.parameters = parameterBuilder.createArray(method);
   }
 

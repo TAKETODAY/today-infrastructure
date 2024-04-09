@@ -20,9 +20,9 @@
 
 package cn.taketoday.test.context.event;
 
-import cn.taketoday.test.context.event.annotation.PrepareTestInstance;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
+import cn.taketoday.test.context.event.annotation.PrepareTestInstance;
 
 /**
  * {@link TestContextEvent} published by the {@link EventPublishingTestExecutionListener} when

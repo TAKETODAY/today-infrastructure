@@ -29,11 +29,11 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.view.RedirectModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

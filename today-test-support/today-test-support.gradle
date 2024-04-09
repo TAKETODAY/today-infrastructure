@@ -11,8 +11,8 @@ dependencies {
   optional "org.junit.jupiter:junit-jupiter-api"
   optional 'jakarta.servlet:jakarta.servlet-api'
 
-  implementation 'org.testcontainers:cassandra'
-  implementation 'org.testcontainers:testcontainers'
+  optional 'org.testcontainers:cassandra'
+  optional 'org.testcontainers:testcontainers'
 
   implementation("org.apache.maven.resolver:maven-resolver-connector-basic")
   implementation("org.apache.maven.resolver:maven-resolver-impl")

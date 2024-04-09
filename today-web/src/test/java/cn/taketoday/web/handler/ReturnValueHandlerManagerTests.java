@@ -33,7 +33,7 @@ import cn.taketoday.web.handler.result.HttpHeadersReturnValueHandler;
 import cn.taketoday.web.handler.result.HttpStatusReturnValueHandler;
 import cn.taketoday.web.handler.result.ObjectHandlerMethodReturnValueHandler;
 import cn.taketoday.web.handler.result.VoidReturnValueHandler;
-import cn.taketoday.web.view.SessionRedirectModelManager;
+import cn.taketoday.session.SessionRedirectModelManager;
 import cn.taketoday.web.view.ViewReturnValueHandler;
 import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
 

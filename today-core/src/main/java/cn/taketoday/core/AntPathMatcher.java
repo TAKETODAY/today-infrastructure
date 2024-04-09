@@ -551,14 +551,14 @@ public class AntPathMatcher implements PathMatcher {
     if (doMatch(pattern, path, true, variables)) {
       return variables;
     }
-    throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
+    throw new IllegalStateException("Pattern \"%s\" is not a match for \"%s\"".formatted(pattern, path));
   }
 
   @Override
   public String[] extractVariables(String pattern, String path) {
     final String[] variables = getStringMatcher(pattern).extractVariables(path);
     if (variables == null) {
-      throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
+      throw new IllegalStateException("Pattern \"%s\" is not a match for \"%s\"".formatted(pattern, path));
     }
     return variables;
   }
@@ -713,7 +713,7 @@ public class AntPathMatcher implements PathMatcher {
     final boolean ext1All = (ext1.equals(".*") || ext1.isEmpty());
     final boolean ext2All = (ext2.equals(".*") || ext2.isEmpty());
     if (!ext1All && !ext2All) {
-      throw new IllegalArgumentException("Cannot combine patterns: " + pattern1 + " vs " + pattern2);
+      throw new IllegalArgumentException("Cannot combine patterns: %s vs %s".formatted(pattern1, pattern2));
     }
     return file2.concat(ext1All ? ext2 : ext1);
   }
@@ -863,8 +863,8 @@ public class AntPathMatcher implements PathMatcher {
 
     protected void throwIllegalArgumentException() {
       throw new IllegalArgumentException(
-              "The number of capturing groups in the pattern segment " + this.pattern
-                      + " does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead.");
+              "The number of capturing groups in the pattern segment %s does not match the number of URI template variables it defines, which can occur if capturing groups are used in a URI template regex. Use non-capturing groups instead."
+                      .formatted(this.pattern));
     }
 
     /**
@@ -890,8 +890,8 @@ public class AntPathMatcher implements PathMatcher {
             for (int i = 1; i <= matcher.groupCount(); i++) {
               String name = this.variableNames.get(i - 1);
               if (name.startsWith("*")) {
-                throw new IllegalArgumentException("Capturing patterns (" + name + ") are not " +
-                        "supported by the AntPathMatcher. Use the PathPatternParser instead.");
+                throw new IllegalArgumentException("Capturing patterns (%s) are not supported by the AntPathMatcher. Use the PathPatternParser instead."
+                        .formatted(name));
               }
               String value = matcher.group(i);
               uriTemplateVariables.put(name, value);
@@ -1070,7 +1070,7 @@ public class AntPathMatcher implements PathMatcher {
         final Integer length = this.length;
         if (length == null) {
           return this.length = (this.pattern != null
-                                ? VARIABLE_PATTERN.matcher(this.pattern).replaceAll("#").length() : 0);
+                  ? VARIABLE_PATTERN.matcher(this.pattern).replaceAll("#").length() : 0);
         }
         return length;
       }
@@ -1082,8 +1082,9 @@ public class AntPathMatcher implements PathMatcher {
    */
   private static final class PathSeparatorPatternCache {
 
-    private final String endsOnWildCard;
-    private final String endsOnDoubleWildCard;
+    public final String endsOnWildCard;
+
+    public final String endsOnDoubleWildCard;
 
     private PathSeparatorPatternCache(String pathSeparator) {
       this.endsOnWildCard = pathSeparator + '*';

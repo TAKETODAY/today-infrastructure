@@ -30,7 +30,7 @@ import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.ResultActions;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.web.annotation.PostMapping;
-import cn.taketoday.web.view.RedirectModel;
+import cn.taketoday.web.RedirectModel;
 
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;

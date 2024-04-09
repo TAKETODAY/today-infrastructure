@@ -95,8 +95,19 @@ public class Proxy implements Serializable {
     return enhancer.createClass();
   }
 
+  /**
+   * Returns true if the given class is a proxy class.
+   *
+   * @param cl the class to test
+   * @return {@code true} if the class is a proxy class and
+   * {@code false} otherwise
+   * @throws NullPointerException if {@code cl} is {@code null}
+   * @implNote The reliability of this method is important for the ability
+   * to use it to make security decisions, so its implementation should
+   * not just test if the class in question extends {@code Proxy}.
+   */
   public static boolean isProxyClass(Class<?> cl) {
-    return cl.getSuperclass().equals(ProxyImpl.class);
+    return ProxyImpl.class.isAssignableFrom(cl);
   }
 
   /**

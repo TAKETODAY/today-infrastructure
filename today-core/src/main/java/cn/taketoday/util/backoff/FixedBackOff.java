@@ -26,6 +26,7 @@ package cn.taketoday.util.backoff;
  * between two attempts and a maximum number of retries.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class FixedBackOff implements BackOff {
@@ -112,11 +113,8 @@ public class FixedBackOff implements BackOff {
     @Override
     public String toString() {
       String attemptValue = (FixedBackOff.this.maxAttempts == Long.MAX_VALUE ?
-                             "unlimited" : String.valueOf(FixedBackOff.this.maxAttempts));
-      return "FixedBackOff{interval=" + FixedBackOff.this.interval +
-              ", currentAttempts=" + this.currentAttempts +
-              ", maxAttempts=" + attemptValue +
-              '}';
+              "unlimited" : String.valueOf(FixedBackOff.this.maxAttempts));
+      return "FixedBackOff{interval=%d, currentAttempts=%d, maxAttempts=%s}".formatted(FixedBackOff.this.interval, this.currentAttempts, attemptValue);
     }
   }
 

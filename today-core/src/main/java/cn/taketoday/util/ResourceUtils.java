@@ -277,7 +277,7 @@ public abstract class ResourceUtils {
    * @see ResourceLoader#CLASSPATH_URL_PREFIX
    * @see java.net.URL
    */
-  public static boolean isUrl(String resourceLocation) {
+  public static boolean isUrl(@Nullable String resourceLocation) {
     if (resourceLocation == null) {
       return false;
     }
@@ -362,9 +362,7 @@ public abstract class ResourceUtils {
       ClassLoader cl = ClassUtils.getDefaultClassLoader();
       URL url = (cl != null ? cl.getResource(path) : ClassLoader.getSystemResource(path));
       if (url == null) {
-        String description = "class path resource [" + path + "]";
-        throw new FileNotFoundException(description +
-                " cannot be resolved to URL because it does not exist");
+        throw new FileNotFoundException("class path resource [%s] cannot be resolved to URL because it does not exist".formatted(path));
       }
       return url;
     }
@@ -378,8 +376,7 @@ public abstract class ResourceUtils {
         return new File(resourceLocation).toURI().toURL();
       }
       catch (MalformedURLException ex2) {
-        throw new FileNotFoundException("Resource location [" + resourceLocation +
-                "] is neither a URL not a well-formed file path");
+        throw new FileNotFoundException("Resource location [%s] is neither a URL not a well-formed file path".formatted(resourceLocation));
       }
     }
   }
@@ -401,7 +398,7 @@ public abstract class ResourceUtils {
     Assert.notNull(resourceLocation, "Resource location is required");
     if (resourceLocation.startsWith(CLASSPATH_URL_PREFIX)) {
       String path = resourceLocation.substring(CLASSPATH_URL_PREFIX.length());
-      String description = "class path resource [" + path + "]";
+      String description = "class path resource [%s]".formatted(path);
       ClassLoader cl = ClassUtils.getDefaultClassLoader();
       URL url = (cl != null ? cl.getResource(path) : ClassLoader.getSystemResource(path));
       if (url == null) {
@@ -449,9 +446,8 @@ public abstract class ResourceUtils {
   public static File getFile(URL resourceUrl, String description) throws FileNotFoundException {
     Assert.notNull(resourceUrl, "Resource URL is required");
     if (!URL_PROTOCOL_FILE.equals(resourceUrl.getProtocol())) {
-      throw new FileNotFoundException(
-              description + " cannot be resolved to absolute file path " +
-                      "because it does not reside in the file system: " + resourceUrl);
+      throw new FileNotFoundException("%s cannot be resolved to absolute file path because it does not reside in the file system: %s"
+              .formatted(description, resourceUrl));
     }
     try {
       return new File(toURI(resourceUrl).getSchemeSpecificPart());
@@ -491,9 +487,8 @@ public abstract class ResourceUtils {
   public static File getFile(URI resourceUri, String description) throws FileNotFoundException {
     Assert.notNull(resourceUri, "Resource URI is required");
     if (!URL_PROTOCOL_FILE.equals(resourceUri.getScheme())) {
-      throw new FileNotFoundException(
-              description + " cannot be resolved to absolute file path " +
-                      "because it does not reside in the file system: " + resourceUri);
+      throw new FileNotFoundException("%s cannot be resolved to absolute file path because it does not reside in the file system: %s"
+              .formatted(description, resourceUri));
     }
     return new File(resourceUri.getSchemeSpecificPart());
   }

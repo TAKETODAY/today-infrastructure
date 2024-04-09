@@ -103,9 +103,8 @@ public abstract class GenericTypeResolver {
   @SuppressWarnings("unchecked")
   @Nullable
   private static <T> Class<T> getSingleGeneric(ResolvableType resolvableType) {
-    Assert.isTrue(resolvableType.getGenerics().length == 1,
-            () -> "Expected 1 type argument on generic interface [" + resolvableType +
-                    "] but found " + resolvableType.getGenerics().length);
+    Assert.isTrue(resolvableType.getGenerics().length == 1, () -> "Expected 1 type argument on generic interface [%s] but found %d"
+            .formatted(resolvableType, resolvableType.getGenerics().length));
     return (Class<T>) resolvableType.getGeneric().resolve();
   }
 

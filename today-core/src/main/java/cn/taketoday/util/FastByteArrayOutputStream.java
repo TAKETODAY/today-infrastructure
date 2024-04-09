@@ -457,7 +457,7 @@ public class FastByteArrayOutputStream extends OutputStream {
     @Override
     public long skip(long n) throws IOException {
       if (n > Integer.MAX_VALUE) {
-        throw new IllegalArgumentException("n exceeds maximum (" + Integer.MAX_VALUE + "): " + n);
+        throw new IllegalArgumentException("n exceeds maximum (%d): %d".formatted(Integer.MAX_VALUE, n));
       }
       else if (n == 0) {
         return 0;

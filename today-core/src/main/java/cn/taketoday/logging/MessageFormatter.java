@@ -233,7 +233,7 @@ public final class MessageFormatter {
       sbuf.append(o.toString());
     }
     catch (Throwable t) {
-      System.err.println("LOGGER: Failed toString() invocation on an object of type [" + o.getClass().getName() + "]");
+      System.err.printf("LOGGER: Failed toString() invocation on an object of type [%s]%n", o.getClass().getName());
       System.err.println("Reported exception:");
       t.printStackTrace();
 

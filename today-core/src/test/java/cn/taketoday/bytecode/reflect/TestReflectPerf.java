@@ -47,7 +47,7 @@ public class TestReflectPerf {
 
     IndexOf fast = MethodDelegate.create(test, "indexOf", IndexOf.class);
 
-    MethodInvoker methodInvoker = MethodInvoker.fromMethod(indexOf);
+    MethodInvoker methodInvoker = MethodInvoker.forMethod(indexOf);
 
     int result;
     long t0 = System.currentTimeMillis();

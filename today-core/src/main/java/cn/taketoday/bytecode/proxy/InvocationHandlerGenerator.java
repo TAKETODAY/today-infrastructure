@@ -19,16 +19,17 @@
  */
 package cn.taketoday.bytecode.proxy;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
 
 import cn.taketoday.bytecode.Opcodes;
 import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.commons.MethodSignature;
 import cn.taketoday.bytecode.core.Block;
 import cn.taketoday.bytecode.core.ClassEmitter;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
 import cn.taketoday.bytecode.core.MethodInfo;
-import cn.taketoday.bytecode.commons.MethodSignature;
 
 /**
  * @author TODAY <br>
