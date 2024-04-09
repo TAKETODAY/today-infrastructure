@@ -210,8 +210,8 @@ final class DefaultRestClient implements RestClient {
       else {
         cause = ex;
       }
-      throw new RestClientException("Error while extracting response for type [" +
-              ResolvableType.forType(bodyType) + "] and content type [" + contentType + "]", cause);
+      throw new RestClientException("Error while extracting response for type [%s] and content type [%s]"
+              .formatted(ResolvableType.forType(bodyType), contentType), cause);
     }
   }
 
@@ -386,7 +386,7 @@ final class DefaultRestClient implements RestClient {
       }
       String message = "No HttpMessageConverter for " + bodyClass.getName();
       if (contentType != null) {
-        message += " and content type \"" + contentType + "\"";
+        message += " and content type \"%s\"".formatted(contentType);
       }
       throw new RestClientException(message);
     }

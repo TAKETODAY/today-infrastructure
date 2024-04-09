@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function.support;
@@ -92,7 +92,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
     asyncManager.clearConcurrentResult();
     LogFormatUtils.traceDebug(logger, traceOn -> {
       String formatted = LogFormatUtils.formatValue(result, !traceOn);
-      return "Resume with async result [" + formatted + "]";
+      return "Resume with async result [%s]".formatted(formatted);
     });
     if (result instanceof ServerResponse) {
       return (ServerResponse) result;
@@ -104,7 +104,7 @@ public class HandlerFunctionAdapter implements HandlerAdapter, Ordered {
       return null;
     }
     else {
-      throw new IllegalArgumentException("Unknown result from WebAsyncManager: [" + result + "]");
+      throw new IllegalArgumentException("Unknown result from WebAsyncManager: [%s]".formatted(result));
     }
   }
 

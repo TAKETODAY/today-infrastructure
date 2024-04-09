@@ -132,9 +132,8 @@ public class CompositeRequestCondition extends AbstractRequestCondition<Composit
   private void assertNumberOfConditions(CompositeRequestCondition other) {
     if (getLength() != other.getLength()) {
       throw new IllegalArgumentException(
-              "Cannot combine CompositeRequestConditions with a different number of conditions. " +
-                      ObjectUtils.nullSafeToString(requestConditions) + " and  " +
-                      ObjectUtils.nullSafeToString(other.requestConditions));
+              "Cannot combine CompositeRequestConditions with a different number of conditions. %s and  %s"
+                      .formatted(ObjectUtils.nullSafeToString(requestConditions), ObjectUtils.nullSafeToString(other.requestConditions)));
     }
   }
 

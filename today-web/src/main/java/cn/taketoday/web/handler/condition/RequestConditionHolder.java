@@ -101,7 +101,7 @@ public final class RequestConditionHolder extends AbstractRequestCondition<Reque
     Class<?> clazz = thisCondition.getClass();
     Class<?> otherClazz = otherCondition.getClass();
     if (!clazz.equals(otherClazz)) {
-      throw new ClassCastException("Incompatible request conditions: " + clazz + " and " + otherClazz);
+      throw new ClassCastException("Incompatible request conditions: %s and %s".formatted(clazz, otherClazz));
     }
   }
 

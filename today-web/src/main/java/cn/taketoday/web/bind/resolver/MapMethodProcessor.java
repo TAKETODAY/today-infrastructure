@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -91,8 +88,8 @@ public class MapMethodProcessor implements ParameterResolvingStrategy, HandlerMe
       // should not happen
       HandlerMethod handlerMethod = HandlerMethod.unwrap(handler);
       if (handlerMethod != null) {
-        throw new UnsupportedOperationException("Unexpected return type [" +
-                handlerMethod.getReturnType().getParameterType().getName() + "] in method: " + handlerMethod.getMethod());
+        throw new UnsupportedOperationException("Unexpected return type [%s] in method: %s"
+                .formatted(handlerMethod.getReturnType().getParameterType().getName(), handlerMethod.getMethod()));
       }
     }
   }

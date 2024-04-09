@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -355,7 +355,7 @@ public class ProblemDetail {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "[" + initToStringContent() + "]";
+    return "%s[%s]".formatted(getClass().getSimpleName(), initToStringContent());
   }
 
   /**
@@ -363,12 +363,8 @@ public class ProblemDetail {
    * Subclasses can override this to append additional fields.
    */
   protected String initToStringContent() {
-    return "type='" + getType() + "'" +
-            ", title='" + getTitle() + "'" +
-            ", status=" + getStatus() +
-            ", detail='" + getDetail() + "'" +
-            ", instance='" + getInstance() + "'" +
-            ", properties='" + getProperties() + "'";
+    return "type='%s', title='%s', status=%d, detail='%s', instance='%s', properties='%s'"
+            .formatted(getType(), getTitle(), getStatus(), getDetail(), getInstance(), getProperties());
   }
 
   // Static factory methods

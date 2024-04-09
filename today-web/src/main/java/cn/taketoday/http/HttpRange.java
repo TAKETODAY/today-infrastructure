@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -61,7 +61,7 @@ public abstract class HttpRange {
     // Don't try to determine contentLength on InputStreamResource - cannot be read afterwards...
     // Note: custom InputStreamResource subclasses could provide a pre-calculated content length!
     Assert.isTrue(resource.getClass() != InputStreamResource.class,
-        "Cannot convert an InputStreamResource to a ResourceRegion");
+            "Cannot convert an InputStreamResource to a ResourceRegion");
     long contentLength = getLengthFor(resource);
     long start = getRangeStart(contentLength);
     long end = getRangeEnd(contentLength);
@@ -136,7 +136,7 @@ public abstract class HttpRange {
       return Collections.emptyList();
     }
     if (!ranges.startsWith(BYTE_RANGE_PREFIX)) {
-      throw new IllegalArgumentException("Range '" + ranges + "' does not start with 'bytes='");
+      throw new IllegalArgumentException("Range '%s' does not start with 'bytes='".formatted(ranges));
     }
     ranges = ranges.substring(BYTE_RANGE_PREFIX.length());
 
@@ -169,7 +169,7 @@ public abstract class HttpRange {
       return new SuffixByteRange(suffixLength);
     }
     else {
-      throw new IllegalArgumentException("Range '" + range + "' does not contain \"-\"");
+      throw new IllegalArgumentException("Range '%s' does not contain \"-\"".formatted(range));
     }
   }
 
@@ -198,7 +198,7 @@ public abstract class HttpRange {
       }
       if (total >= length) {
         throw new IllegalArgumentException(
-            "The sum of all ranges (" + total + ") should be less than the resource length (" + length + ")");
+                "The sum of all ranges (%d) should be less than the resource length (%d)".formatted(total, length));
       }
     }
     return regions;
@@ -256,9 +256,8 @@ public abstract class HttpRange {
         throw new IllegalArgumentException("Invalid first byte position: " + firstBytePos);
       }
       if (lastBytePos != null && lastBytePos < firstBytePos) {
-        throw new IllegalArgumentException(
-            "firstBytePosition=" + firstBytePos
-                + " should be less then or equal to lastBytePosition=" + lastBytePos);
+        throw new IllegalArgumentException("firstBytePosition=%d should be less then or equal to lastBytePosition=%d"
+                .formatted(firstBytePos, lastBytePos));
       }
     }
 
@@ -286,13 +285,13 @@ public abstract class HttpRange {
         return false;
       }
       return (this.firstPos == otherRange.firstPos
-          && ObjectUtils.nullSafeEquals(this.lastPos, otherRange.lastPos));
+              && ObjectUtils.nullSafeEquals(this.lastPos, otherRange.lastPos));
     }
 
     @Override
     public int hashCode() {
       return (ObjectUtils.nullSafeHashCode(this.firstPos) * 31
-          + ObjectUtils.nullSafeHashCode(this.lastPos));
+              + ObjectUtils.nullSafeHashCode(this.lastPos));
     }
 
     @Override

@@ -1679,7 +1679,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     }
     if (rejectInvalid) {
       throw new IllegalArgumentException(
-              "Cannot parse date value \"" + headerValue + "\" for \"" + headerName + "\" header");
+              "Cannot parse date value \"%s\" for \"%s\" header".formatted(headerValue, headerName));
     }
     return null;
   }
@@ -1790,7 +1790,7 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
             }
           }
           if (result.isEmpty()) {
-            throw new IllegalArgumentException("Could not parse header '" + headerName + "' with value '" + value + "'");
+            throw new IllegalArgumentException("Could not parse header '%s' with value '%s'".formatted(headerName, value));
           }
         }
       }
@@ -1923,10 +1923,9 @@ public abstract class HttpHeaders implements /*Iterable<String>,*/ MultiValueMap
     return headers.entrySet().stream()
             .map(entry -> {
               List<String> values = entry.getValue();
-              return entry.getKey() + ":"
-                      + (values.size() == 1
-                      ? "\"" + values.get(0) + "\""
-                      : values.stream().map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")));
+              return "%s:%s".formatted(entry.getKey(), values.size() == 1
+                      ? "\"%s\"".formatted(values.get(0))
+                      : values.stream().map("\"%s\""::formatted).collect(Collectors.joining(", ")));
             })
             .collect(Collectors.joining(", ", "[", "]"));
   }

@@ -57,7 +57,7 @@ public class HeaderContentNegotiationStrategy implements ContentNegotiationStrat
     }
     catch (InvalidMediaTypeException ex) {
       throw new HttpMediaTypeNotAcceptableException(
-              "Could not parse 'Accept' header " + headerValues + ": " + ex.getMessage());
+              "Could not parse 'Accept' header %s: %s".formatted(headerValues, ex.getMessage()));
     }
   }
 

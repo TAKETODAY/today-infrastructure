@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -71,7 +68,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
       HttpSession session = request.getSession();
       if (session != null && !paramType.isInstance(session)) {
         throw new IllegalStateException(
-                "Current session is not of type [" + paramType.getName() + "]: " + session);
+                "Current session is not of type [%s]: %s".formatted(paramType.getName(), session));
       }
       return session;
     }
@@ -79,7 +76,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
       PushBuilder pushBuilder = request.newPushBuilder();
       if (pushBuilder != null && !paramType.isInstance(pushBuilder)) {
         throw new IllegalStateException(
-                "Current push builder is not of type [" + paramType.getName() + "]: " + pushBuilder);
+                "Current push builder is not of type [%s]: %s".formatted(paramType.getName(), pushBuilder));
       }
       return pushBuilder;
     }
@@ -87,7 +84,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
       Principal userPrincipal = request.getUserPrincipal();
       if (userPrincipal != null && !paramType.isInstance(userPrincipal)) {
         throw new IllegalStateException(
-                "Current user principal is not of type [" + paramType.getName() + "]: " + userPrincipal);
+                "Current user principal is not of type [%s]: %s".formatted(paramType.getName(), userPrincipal));
       }
       return userPrincipal;
     }

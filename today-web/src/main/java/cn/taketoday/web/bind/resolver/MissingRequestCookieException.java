@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -65,14 +62,14 @@ public class MissingRequestCookieException extends MissingRequestValueException 
     super("", missingAfterConversion);
     this.cookieName = cookieName;
     this.parameter = parameter;
-    setDetail("Required cookie '" + this.cookieName + "' is not present.");
+    setDetail("Required cookie '%s' is not present.".formatted(this.cookieName));
   }
 
   @Override
   public String getMessage() {
-    return "Required cookie '" + this.cookieName + "' for method parameter type " +
-            this.parameter.getNestedParameterType().getSimpleName() + " is " +
-            (isMissingAfterConversion() ? "present but converted to null" : "not present");
+    return "Required cookie '%s' for method parameter type %s is %s"
+            .formatted(this.cookieName, this.parameter.getNestedParameterType().getSimpleName(),
+                    isMissingAfterConversion() ? "present but converted to null" : "not present");
   }
 
   /**

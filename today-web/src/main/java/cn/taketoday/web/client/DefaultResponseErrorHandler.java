@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
@@ -130,7 +130,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   private String getErrorMessage(
       int rawStatusCode, String statusText, @Nullable byte[] responseBody, @Nullable Charset charset) {
 
-    String preface = rawStatusCode + " " + statusText + ": ";
+    String preface = "%d %s: ".formatted(rawStatusCode, statusText);
 
     if (ObjectUtils.isEmpty(responseBody)) {
       return preface + "[no body]";
@@ -202,7 +202,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
       }
       catch (IOException ex) {
         throw new RestClientException(
-            "Error while extracting response for type [" + resolvableType + "]", ex);
+                "Error while extracting response for type [%s]".formatted(resolvableType), ex);
       }
     };
   }

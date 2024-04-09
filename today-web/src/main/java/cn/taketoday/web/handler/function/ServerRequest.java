@@ -256,7 +256,7 @@ public interface ServerRequest extends ServerResponse.Context {
       return pathVariables.get(name);
     }
     else {
-      throw new IllegalArgumentException("No path variable with name \"" + name + "\" available");
+      throw new IllegalArgumentException("No path variable with name \"%s\" available".formatted(name));
     }
   }
 
@@ -411,7 +411,7 @@ public interface ServerRequest extends ServerResponse.Context {
     ServerRequest serverRequest = find(context);
     if (serverRequest == null) {
       throw new IllegalStateException(
-              "Required attribute '" + RouterFunctions.REQUEST_ATTRIBUTE + "' is missing");
+              "Required attribute '%s' is missing".formatted(RouterFunctions.REQUEST_ATTRIBUTE));
     }
     return serverRequest;
   }

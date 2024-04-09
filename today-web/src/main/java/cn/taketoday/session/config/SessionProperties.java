@@ -190,11 +190,11 @@ public class SessionProperties {
 
   private static void assertDirectory(boolean mkdirs, File dir) {
     if (mkdirs && !dir.exists()) {
-      throw new IllegalStateException("Session dir " + dir + " does not exist");
+      throw new IllegalStateException("Session dir %s does not exist".formatted(dir));
     }
 
     if (dir.isFile()) {
-      throw new IllegalStateException("Session dir " + dir + " points to a file");
+      throw new IllegalStateException("Session dir %s points to a file".formatted(dir));
     }
 
   }

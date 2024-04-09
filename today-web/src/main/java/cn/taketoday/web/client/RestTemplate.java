@@ -721,9 +721,8 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
       String resource = url.toString();
       String query = url.getRawQuery();
       resource = query != null ? resource.substring(0, resource.indexOf('?')) : resource;
-      throw new ResourceAccessException(
-              "I/O error on " + method.name() +
-                      " request for \"" + resource + "\": " + ex.getMessage(), ex);
+      throw new ResourceAccessException("I/O error on %s request for \"%s\": %s"
+              .formatted(method.name(), resource, ex.getMessage()), ex);
     }
     finally {
       if (response != null) {
@@ -938,7 +937,7 @@ public class RestTemplate extends InterceptingHttpAccessor implements RestOperat
 
         String message = "No HttpMessageConverter for " + requestBodyClass.getName();
         if (requestContentType != null) {
-          message += " and content type \"" + requestContentType + "\"";
+          message += " and content type \"%s\"".formatted(requestContentType);
         }
         throw new RestClientException(message);
       }

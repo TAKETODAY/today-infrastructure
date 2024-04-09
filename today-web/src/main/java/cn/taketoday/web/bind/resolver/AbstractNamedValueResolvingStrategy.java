@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
       Object resolvedName = resolveEmbeddedValuesAndExpressions(namedValueInfo.name);
       if (resolvedName == null) {
         throw new IllegalArgumentException(
-                "Specified name must not resolve to null: [" + namedValueInfo.name + "]");
+                "Specified name must not resolve to null: [%s]".formatted(namedValueInfo.name));
       }
       arg = resolveName(resolvedName.toString(), resolvable, context);
     }
@@ -215,8 +215,8 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
    * @param parameter the method parameter
    */
   protected void handleMissingValue(String name, MethodParameter parameter) {
-    throw new RequestBindingException("Missing argument '" + name +
-            "' for method parameter of type " + parameter.getNestedParameterType().getSimpleName());
+    throw new RequestBindingException("Missing argument '%s' for method parameter of type %s"
+            .formatted(name, parameter.getNestedParameterType().getSimpleName()));
   }
 
   /**
@@ -241,9 +241,10 @@ public abstract class AbstractNamedValueResolvingStrategy implements ParameterRe
         return Boolean.FALSE;
       }
       else if (paramType.isPrimitive()) {
-        throw new IllegalStateException("Optional " + paramType.getSimpleName() + " parameter '" + name +
-                "' is present but cannot be translated into a null value due to being declared as a " +
-                "primitive type. Consider declaring it as object wrapper for the corresponding primitive type.");
+        throw new IllegalStateException("""
+                Optional %s parameter '%s' is present but cannot be translated into a null value \
+                due to being declared as a primitive type. Consider declaring it as object wrapper \
+                for the corresponding primitive type.""".formatted(paramType.getSimpleName(), name));
       }
     }
     return value;

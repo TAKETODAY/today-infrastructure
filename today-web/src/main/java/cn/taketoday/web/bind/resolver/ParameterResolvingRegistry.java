@@ -203,10 +203,8 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     ParameterResolvingStrategy resolver = findStrategy(parameter);
     if (resolver == null) {
       throw new ParameterResolverNotFoundException(
-              parameter,
-              "There isn't have a parameter resolver to resolve parameter: ["
-                      + parameter.getParameterType() + "] called: ["
-                      + parameter.getName() + "] on " + parameter.getMethod());
+              parameter, "There isn't have a parameter resolver to resolve parameter: [%s] called: [%s] on %s"
+              .formatted(parameter.getParameterType(), parameter.getName(), parameter.getMethod()));
     }
     return resolver;
   }
@@ -439,14 +437,14 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
     @Nullable
     @Override
-    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
+    protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) {
       return context.getAttribute(name);
     }
 
     @Override
     protected void handleMissingValue(String name, MethodParameter parameter) {
-      throw new RequestBindingException("Missing request attribute '" + name +
-              "' of type " + parameter.getNestedParameterType().getSimpleName());
+      throw new RequestBindingException("Missing request attribute '%s' of type %s"
+              .formatted(name, parameter.getNestedParameterType().getSimpleName()));
     }
 
   }

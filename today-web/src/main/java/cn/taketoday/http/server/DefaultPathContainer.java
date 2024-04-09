@@ -93,7 +93,7 @@ final class DefaultPathContainer extends PathContainer {
     char separator = options.separator();
     DefaultSeparator separatorElement = SEPARATORS.get(separator);
     if (separatorElement == null) {
-      throw new IllegalArgumentException("Unexpected separator: '" + separator + "'");
+      throw new IllegalArgumentException("Unexpected separator: '%s'".formatted(separator));
     }
     ArrayList<Element> elements = new ArrayList<>();
     int begin;
@@ -203,7 +203,7 @@ final class DefaultPathContainer extends PathContainer {
     }
 
     if (fromIndex >= toIndex) {
-      throw new IllegalArgumentException("fromIndex: " + fromIndex + " should be < toIndex " + toIndex);
+      throw new IllegalArgumentException("fromIndex: %d should be < toIndex %d".formatted(fromIndex, toIndex));
     }
 
     List<Element> subList = elements.subList(fromIndex, toIndex);
@@ -312,7 +312,7 @@ final class DefaultPathContainer extends PathContainer {
 
     @Override
     public String toString() {
-      return "[value='" + this.value + "']";
+      return "[value='%s']".formatted(this.value);
     }
   }
 

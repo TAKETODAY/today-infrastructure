@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,7 +88,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
         return request;
       }
       throw new IllegalStateException(
-              "Current request is not of type [" + paramType.getName() + "]: " + request);
+              "Current request is not of type [%s]: %s".formatted(paramType.getName(), request));
     }
     if (MultipartRequest.class.isAssignableFrom(paramType)) {
       MultipartRequest multipartRequest = request.getMultipartRequest();
@@ -96,13 +96,13 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
         return multipartRequest;
       }
       throw new IllegalStateException(
-              "Current multipart request is not of type [" + paramType.getName() + "]: " + multipartRequest);
+              "Current multipart request is not of type [%s]: %s".formatted(paramType.getName(), multipartRequest));
     }
     if (InputStream.class.isAssignableFrom(paramType)) {
       InputStream inputStream = request.getInputStream();
       if (inputStream != null && !paramType.isInstance(inputStream)) {
         throw new IllegalStateException(
-                "Request input stream is not of type [" + paramType.getName() + "]: " + inputStream);
+                "Request input stream is not of type [%s]: %s".formatted(paramType.getName(), inputStream));
       }
       return inputStream;
     }
@@ -110,7 +110,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
       OutputStream outputStream = request.getOutputStream();
       if (outputStream != null && !paramType.isInstance(outputStream)) {
         throw new IllegalStateException(
-                "Response output stream is not of type [" + paramType.getName() + "]: " + outputStream);
+                "Response output stream is not of type [%s]: %s".formatted(paramType.getName(), outputStream));
       }
       return outputStream;
     }
@@ -118,7 +118,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
       Reader reader = request.getReader();
       if (reader != null && !paramType.isInstance(reader)) {
         throw new IllegalStateException(
-                "Request body reader is not of type [" + paramType.getName() + "]: " + reader);
+                "Request body reader is not of type [%s]: %s".formatted(paramType.getName(), reader));
       }
       return reader;
     }
@@ -126,7 +126,7 @@ public class RequestContextMethodArgumentResolver implements ParameterResolvingS
       PrintWriter writer = request.getWriter();
       if (writer != null && !paramType.isInstance(writer)) {
         throw new IllegalStateException(
-                "Request body writer is not of type [" + paramType.getName() + "]: " + writer);
+                "Request body writer is not of type [%s]: %s".formatted(paramType.getName(), writer));
       }
       return writer;
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http;
@@ -314,7 +311,7 @@ public final class ResponseCookie extends HttpCookie {
         }
         if (SEPARATOR_CHARS.indexOf(c) >= 0) {
           throw new IllegalArgumentException(
-                  name + ": RFC2616 token cannot have separator chars such as '" + c + "'");
+                  "%s: RFC2616 token cannot have separator chars such as '%s'".formatted(name, c));
         }
         if (c >= 0x80) {
           throw new IllegalArgumentException(
@@ -337,7 +334,7 @@ public final class ResponseCookie extends HttpCookie {
         char c = value.charAt(i);
         if (c < 0x21 || c == 0x22 || c == 0x2c || c == 0x3b || c == 0x5c || c == 0x7f) {
           throw new IllegalArgumentException(
-                  "RFC2616 cookie value cannot have '" + c + "'");
+                  "RFC2616 cookie value cannot have '%s'".formatted(c));
         }
         if (c >= 0x80) {
           throw new IllegalArgumentException(
@@ -372,7 +369,7 @@ public final class ResponseCookie extends HttpCookie {
       for (int i = 0; i < path.length(); i++) {
         char c = path.charAt(i);
         if (c < 0x20 || c > 0x7E || c == ';') {
-          throw new IllegalArgumentException(path + ": Invalid cookie path char '" + c + "'");
+          throw new IllegalArgumentException("%s: Invalid cookie path char '%s'".formatted(path, c));
         }
       }
     }

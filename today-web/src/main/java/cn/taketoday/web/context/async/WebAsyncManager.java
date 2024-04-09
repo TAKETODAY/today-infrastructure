@@ -424,8 +424,7 @@ public final class WebAsyncManager {
     }
 
     if (logger.isDebugEnabled()) {
-      logger.debug("Async " + (this.errorHandlingInProgress ? "error" : "result set") +
-              ", dispatch to " + formatRequestUri());
+      logger.debug("Async %s, dispatch to %s".formatted(this.errorHandlingInProgress ? "error" : "result set", formatRequestUri()));
     }
     asyncRequest.dispatch(result);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -94,8 +94,8 @@ public class MatrixParamMethodArgumentResolver extends AbstractNamedValueResolvi
           if (found) {
             String paramType = parameter.getNestedParameterType().getName();
             throw new RequestBindingException(
-                    "Found more than one match for URI path parameter '" + name +
-                            "' for parameter type [" + paramType + "]. Use 'pathVar' attribute to disambiguate.");
+                    "Found more than one match for URI path parameter '%s' for parameter type [%s]. Use 'pathVar' attribute to disambiguate."
+                            .formatted(name, paramType));
           }
           paramValues.addAll(params.get(name));
           found = true;

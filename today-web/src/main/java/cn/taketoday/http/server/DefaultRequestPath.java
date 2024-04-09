@@ -70,26 +70,23 @@ class DefaultRequestPath extends RequestPath {
     }
 
     // Should not happen..
-    throw new IllegalStateException(
-            "Failed to initialize contextPath '" + contextPath + "'" +
-                    " for requestPath '" + path.value() + "'");
+    throw new IllegalStateException("Failed to initialize contextPath '%s' for requestPath '%s'"
+            .formatted(contextPath, path.value()));
   }
 
   private static void validateContextPath(String fullPath, String contextPath) {
     int length = contextPath.length();
     if (contextPath.charAt(0) != '/' || contextPath.charAt(length - 1) == '/') {
       throw new IllegalArgumentException(
-              "Invalid contextPath: '" + contextPath + "': " + "must start with '/' and not end with '/'");
+              "Invalid contextPath: '%s': must start with '/' and not end with '/'".formatted(contextPath));
     }
     if (!fullPath.startsWith(contextPath)) {
-      throw new IllegalArgumentException(
-              "Invalid contextPath '" + contextPath + "': " +
-                      "must match the start of requestPath: '" + fullPath + "'");
+      throw new IllegalArgumentException("Invalid contextPath '%s': must match the start of requestPath: '%s'"
+              .formatted(contextPath, fullPath));
     }
     if (fullPath.length() > length && fullPath.charAt(length) != '/') {
-      throw new IllegalArgumentException(
-              "Invalid contextPath '" + contextPath + "': " +
-                      "must match to full path segments for requestPath: '" + fullPath + "'");
+      throw new IllegalArgumentException("Invalid contextPath '%s': must match to full path segments for requestPath: '%s'"
+              .formatted(contextPath, fullPath));
     }
   }
 
