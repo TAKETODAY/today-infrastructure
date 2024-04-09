@@ -87,7 +87,7 @@ public final class SunReflectionFactoryInstantiator extends BeanInstantiator {
               reflectionFactory, type, constructor);
     }
     catch (Throwable e) {
-      Throwable throwable = ExceptionUtils.unwrapThrowable(e);
+      Throwable throwable = ExceptionUtils.unwrapIfNecessary(e);
       throw new IllegalStateException(
               "Serialization Constructor for '%s' created failed".formatted(type), throwable);
     }

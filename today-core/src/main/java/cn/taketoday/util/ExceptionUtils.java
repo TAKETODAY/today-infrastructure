@@ -38,15 +38,15 @@ public abstract class ExceptionUtils {
    *
    * @param ex target {@link Throwable}
    * @return unwrapped {@link Throwable}
+   * @see InvocationTargetException
+   * @see UndeclaredThrowableException
    */
-  public static Throwable unwrapThrowable(Throwable ex) {
+  public static Throwable unwrapIfNecessary(Throwable ex) {
     Throwable unwrapped = ex;
     while (true) {
-      if (unwrapped instanceof InvocationTargetException) {
-        unwrapped = ((InvocationTargetException) unwrapped).getTargetException();
-      }
-      else if (unwrapped instanceof UndeclaredThrowableException) {
-        unwrapped = ((UndeclaredThrowableException) unwrapped).getUndeclaredThrowable();
+      if (unwrapped instanceof InvocationTargetException
+              || unwrapped instanceof UndeclaredThrowableException) {
+        unwrapped = unwrapped.getCause();
       }
       else {
         return unwrapped;
