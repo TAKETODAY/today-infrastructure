@@ -154,12 +154,11 @@ public class InvocableHandlerMethod extends HandlerMethod {
       log.trace("Arguments: {}", Arrays.toString(args));
     }
 
-    Method method = getBridgedMethod();
     try {
-      return method.invoke(getBean(), args);
+      return getBridgedMethod().invoke(getBean(), args);
     }
     catch (IllegalArgumentException ex) {
-      assertTargetBean(method, getBean(), args);
+      assertTargetBean(getBridgedMethod(), getBean(), args);
       String text = (ex.getMessage() == null || ex.getCause() instanceof NullPointerException)
               ? "Illegal argument" : ex.getMessage();
       throw new IllegalStateException(formatInvokeError(text, args), ex);
