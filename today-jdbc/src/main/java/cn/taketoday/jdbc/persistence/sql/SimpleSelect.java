@@ -145,7 +145,7 @@ public class SimpleSelect implements StatementSequence {
    *
    * @see #addRestriction(String)
    */
-  public SimpleSelect addRestriction(String... columnNames) {
+  public SimpleSelect addRestrictions(String... columnNames) {
     for (String columnName : columnNames) {
       if (columnName != null) {
         addRestriction(columnName);

@@ -63,7 +63,7 @@ class SimpleSelectTests {
             .addColumn("user_id", "id")
             .addColumn("user_id", "id")
             .addWhereToken("id = 1")
-            .addRestriction("name", "gender")
+            .addRestrictions("name", "gender")
             .addRestriction(Restriction.notEqual("age", "1"))
             .setTableName("t_user");
 

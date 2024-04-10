@@ -17,6 +17,8 @@
 
 package cn.taketoday.jdbc.persistence.sql;
 
+import java.util.Objects;
+
 /**
  * A binary-comparison restriction
  *
@@ -45,6 +47,28 @@ class ComparisonRestriction implements Restriction {
             .append('`')
             .append(operator)
             .append(rhs);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
+    ComparisonRestriction that = (ComparisonRestriction) o;
+    return Objects.equals(lhs, that.lhs)
+            && Objects.equals(operator, that.operator)
+            && Objects.equals(rhs, that.rhs);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(lhs, operator, rhs);
+  }
+
+  @Override
+  public String toString() {
+    return "%s %s %s".formatted(lhs, operator, rhs);
   }
 
 }

@@ -97,6 +97,8 @@ public class DefaultEntityManager implements EntityManager {
   @Nullable
   private TransactionDefinition transactionConfig = TransactionDefinition.withDefaults();
 
+  private QueryHandlerFactories handlerFactories = new QueryHandlerFactories(entityMetadataFactory);
+
   private final DataSource dataSource;
 
   public DefaultEntityManager(RepositoryManager repositoryManager) {
@@ -121,6 +123,7 @@ public class DefaultEntityManager implements EntityManager {
   public void setEntityMetadataFactory(EntityMetadataFactory entityMetadataFactory) {
     Assert.notNull(entityMetadataFactory, "entityMetadataFactory is required");
     this.entityMetadataFactory = entityMetadataFactory;
+    this.handlerFactories = new QueryHandlerFactories(entityMetadataFactory);
   }
 
   /**
@@ -711,7 +714,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Number count(Class<T> entityClass, Object example) throws DataAccessException {
-    return count(entityClass, new ExampleQuery(entityMetadataFactory, example));
+    return count(entityClass, handlerFactories.createCondition(example));
   }
 
   @Override
@@ -737,7 +740,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Page<T> page(Class<T> entityClass, Object example, @Nullable Pageable pageable) throws DataAccessException {
-    return page(entityClass, new ExampleQuery(entityMetadataFactory, example), pageable);
+    return page(entityClass, handlerFactories.createCondition(example), pageable);
   }
 
   @Override
@@ -769,7 +772,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> EntityIterator<T> iterate(Class<T> entityClass, Object example) throws DataAccessException {
-    return iterate(entityClass, new ExampleQuery(entityMetadataFactory, example));
+    return iterate(entityClass, handlerFactories.createQuery(example));
   }
 
   @Override
