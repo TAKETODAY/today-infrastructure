@@ -135,6 +135,7 @@ final class ExampleQuery extends SimpleSelectQueryStatement implements Condition
                 consumer.accept(condition);
               }
               conditions.add(condition);
+              break;
             }
           }
         }
