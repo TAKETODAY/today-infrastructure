@@ -20,6 +20,8 @@ package cn.taketoday.jdbc.persistence;
 import cn.taketoday.core.style.ToStringBuilder;
 
 /**
+ * for Pageable
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 15:09
  */
@@ -30,38 +32,44 @@ public interface Pageable {
    *
    * @return the current page to be returned.
    */
-  int current();
+  int pageNumber();
 
   /**
    * Returns the number of items to be returned.
    *
    * @return the number of items of that page
    */
-  int size();
+  int pageSize();
 
   default int offset() {
-    return (current() - 1) * size();
+    return (pageNumber() - 1) * pageSize();
   }
 
   default int offset(int max) {
-    return (current() - 1) * size(max);
+    return (pageNumber() - 1) * pageSize(max);
   }
 
-  default int size(int max) {
-    return Math.min(size(), max);
+  default int pageSize(int max) {
+    return Math.min(pageSize(), max);
   }
 
+  /**
+   * Create Simple pageable instance
+   *
+   * @param size page size
+   * @param current current page number
+   */
   static Simple of(int size, int current) {
     return new Simple(size, current);
   }
 
-  record Simple(int size, int current) implements Pageable {
+  record Simple(int pageSize, int pageNumber) implements Pageable {
 
     @Override
     public String toString() {
       return ToStringBuilder.from(this)
-              .append("size", size)
-              .append("current", current)
+              .append("pageSize", pageSize)
+              .append("pageNumber", pageNumber)
               .toString();
     }
   }

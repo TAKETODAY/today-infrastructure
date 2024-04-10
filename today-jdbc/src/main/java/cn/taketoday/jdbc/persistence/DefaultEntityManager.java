@@ -857,7 +857,7 @@ public class DefaultEntityManager implements EntityManager {
       }
 
       return new Page<>(pageable, count,
-              new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.size()));
+              new DefaultEntityIterator<T>(con, stmt, entityClass, metadata).list(pageable.pageSize()));
     }
     catch (Throwable ex) {
       closeResource(con, stmt);

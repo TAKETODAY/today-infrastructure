@@ -95,7 +95,7 @@ public class Page<T> {
    * @param rows rows data
    */
   public Page(Pageable pageable, Number total, List<T> rows) {
-    this(total, pageable.current(), pageable.size(), rows);
+    this(total, pageable.pageNumber(), pageable.pageSize(), rows);
   }
 
   public Page(Number total, int pageNumber, int limit, List<T> rows) {

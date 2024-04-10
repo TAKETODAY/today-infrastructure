@@ -70,7 +70,7 @@ public class SimpleSelect implements StatementSequence {
   }
 
   public SimpleSelect pageable(Pageable pageable) {
-    this.limit = pageable.size();
+    this.limit = pageable.pageSize();
     this.offset = pageable.offset();
     return this;
   }
