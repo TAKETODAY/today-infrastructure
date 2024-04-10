@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import cn.taketoday.core.style.ToStringBuilder;
 
 /**
- * Page holder
+ * Page result
  *
  * @param <T> content type
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -715,9 +715,8 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> Page<T> page(T example) throws DataAccessException {
-    return page((Class<T>) example.getClass(), example);
+    return page(example, Pageable.unwrap(example));
   }
 
   @Override
@@ -733,7 +732,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Page<T> page(Class<T> entityClass, Object example) throws DataAccessException {
-    return page(entityClass, new ExampleQuery(entityMetadataFactory, example), null);
+    return page(entityClass, example, Pageable.unwrap(example));
   }
 
   @Override
@@ -743,7 +742,7 @@ public class DefaultEntityManager implements EntityManager {
 
   @Override
   public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler) throws DataAccessException {
-    return page(entityClass, handler, null);
+    return page(entityClass, handler, Pageable.unwrap(handler));
   }
 
   @Override

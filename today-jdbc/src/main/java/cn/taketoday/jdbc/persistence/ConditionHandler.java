@@ -29,6 +29,7 @@ import cn.taketoday.lang.Nullable;
  * Condition Render
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see Pageable
  * @since 4.0 2024/3/31 15:51
  */
 public interface ConditionHandler extends DescriptiveHandler {

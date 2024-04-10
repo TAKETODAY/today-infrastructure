@@ -17,11 +17,14 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import cn.taketoday.lang.Nullable;
+
 /**
- * for Pageable
+ * for page query
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/31 15:09
+ * @see Page
  */
 public interface Pageable {
 
@@ -74,6 +77,14 @@ public interface Pageable {
    */
   static Pageable of(int pageNumber, int pageSize) {
     return new SimplePageable(pageNumber, pageSize);
+  }
+
+  /**
+   * unwrap
+   */
+  @Nullable
+  static Pageable unwrap(@Nullable Object source) {
+    return source instanceof Pageable pageable ? pageable : null;
   }
 
 }
