@@ -605,7 +605,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> T findFirst(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+  public <T> T findFirst(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).first();
   }
 
@@ -623,13 +623,13 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> T findUnique(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+  public <T> T findUnique(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).unique();
   }
 
   @Override
   public <T> List<T> find(Class<T> entityClass) throws DataAccessException {
-    return find(entityClass, (QueryHandler) null);
+    return find(entityClass, (QueryStatement) null);
   }
 
   @Override
@@ -662,7 +662,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> List<T> find(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+  public <T> List<T> find(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     return iterate(entityClass, handler).list();
   }
 
@@ -678,7 +678,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, String mapKey) throws DataAccessException {
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement handler, String mapKey) throws DataAccessException {
     return iterate(entityClass, handler).toMap(mapKey);
   }
 
@@ -694,7 +694,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryHandler handler, Function<T, K> keyMapper) throws DataAccessException {
+  public <K, T> Map<K, T> find(Class<T> entityClass, @Nullable QueryStatement handler, Function<T, K> keyMapper) throws DataAccessException {
     return iterate(entityClass, handler).toMap(keyMapper);
   }
 
@@ -741,7 +741,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler) throws DataAccessException {
+  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionStatement handler) throws DataAccessException {
     return page(entityClass, handler, Pageable.unwrap(handler));
   }
 
@@ -757,7 +757,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> void iterate(Class<T> entityClass, @Nullable QueryHandler handler, Consumer<T> entityConsumer) throws DataAccessException {
+  public <T> void iterate(Class<T> entityClass, @Nullable QueryStatement handler, Consumer<T> entityConsumer) throws DataAccessException {
     iterate(entityClass, handler).consume(entityConsumer);
   }
 
@@ -773,7 +773,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryHandler handler) throws DataAccessException {
+  public <T> EntityIterator<T> iterate(Class<T> entityClass, @Nullable QueryStatement handler) throws DataAccessException {
     if (handler == null) {
       handler = NoConditionsQuery.instance;
     }
@@ -799,7 +799,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Number count(Class<T> entityClass, @Nullable ConditionHandler handler) throws DataAccessException {
+  public <T> Number count(Class<T> entityClass, @Nullable ConditionStatement handler) throws DataAccessException {
     if (handler == null) {
       handler = NoConditionsQuery.instance;
     }
@@ -818,7 +818,7 @@ public class DefaultEntityManager implements EntityManager {
   }
 
   @Override
-  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionHandler handler, @Nullable Pageable pageable) throws DataAccessException {
+  public <T> Page<T> page(Class<T> entityClass, @Nullable ConditionStatement handler, @Nullable Pageable pageable) throws DataAccessException {
     if (handler == null) {
       handler = NoConditionsQuery.instance;
     }
@@ -867,7 +867,7 @@ public class DefaultEntityManager implements EntityManager {
     }
   }
 
-  private Number doQueryCount(EntityMetadata metadata, ConditionHandler handler, ArrayList<Restriction> restrictions, Connection con) throws DataAccessException {
+  private Number doQueryCount(EntityMetadata metadata, ConditionStatement handler, ArrayList<Restriction> restrictions, Connection con) throws DataAccessException {
     StringBuilder countSql = new StringBuilder(restrictions.size() * 10 + 25 + metadata.tableName.length());
     countSql.append("SELECT COUNT(*) FROM `")
             .append(metadata.tableName)

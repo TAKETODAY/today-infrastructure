@@ -17,20 +17,35 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import cn.taketoday.lang.Descriptive;
-import cn.taketoday.logging.LogMessage;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
+ * Query condition builder
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2024/3/31 16:47
+ * @since 1.0 2024/2/16 14:45
  */
-interface DescriptiveHandler extends Descriptive {
+public interface QueryStatement extends DebugDescriptive {
+
+  /**
+   * prepare select statement
+   *
+   * @param metadata entity info
+   */
+  StatementSequence render(EntityMetadata metadata);
+
+  /**
+   * apply statement parameters
+   *
+   * @param metadata entity info
+   * @param statement JDBC statement
+   */
+  void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
 
   @Override
-  String getDescription();
-
-  default Object getDebugLogMessage() {
-    return LogMessage.format(getDescription());
+  default String getDescription() {
+    return "Query entities";
   }
 
 }

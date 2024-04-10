@@ -25,7 +25,7 @@ import cn.taketoday.jdbc.persistence.sql.Select;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/16 18:10
  */
-public abstract class AbstractColumnsQueryHandler implements QueryHandler {
+public abstract class AbstractColumnsQueryStatement implements QueryStatement {
 
   @Override
   public StatementSequence render(EntityMetadata metadata) {

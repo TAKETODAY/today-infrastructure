@@ -42,7 +42,7 @@ import cn.taketoday.logging.LogMessage;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/19 19:56
  */
-final class ExampleQuery extends SimpleSelectQueryHandler implements ConditionHandler {
+final class ExampleQuery extends SimpleSelectQueryStatement implements ConditionStatement {
 
   static final List<PropertyConditionStrategy> strategies;
 

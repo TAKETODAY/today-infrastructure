@@ -27,7 +27,7 @@ import cn.taketoday.jdbc.persistence.sql.Select;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/16 22:39
  */
-class NoConditionsOrderByQuery extends AbstractColumnsQueryHandler implements QueryHandler {
+class NoConditionsOrderByQuery extends AbstractColumnsQueryStatement implements QueryStatement {
 
   private final OrderByClause clause;
 

@@ -17,41 +17,20 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
-
-import cn.taketoday.jdbc.persistence.sql.OrderByClause;
-import cn.taketoday.jdbc.persistence.sql.Restriction;
-import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Descriptive;
+import cn.taketoday.logging.LogMessage;
 
 /**
- * Condition Render
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see Pageable
- * @since 4.0 2024/3/31 15:51
+ * @since 4.0 2024/3/31 16:47
  */
-public interface ConditionHandler extends DescriptiveHandler {
-
-  void renderWhereClause(EntityMetadata metadata, List<Restriction> restrictions);
-
-  @Nullable
-  default OrderByClause getOrderByClause(EntityMetadata metadata) {
-    return null;
-  }
-
-  /**
-   * apply statement parameters
-   *
-   * @param metadata entity info
-   * @param statement JDBC statement
-   */
-  void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
+interface DebugDescriptive extends Descriptive {
 
   @Override
-  default String getDescription() {
-    return "Query Condition";
+  String getDescription();
+
+  default Object getDebugLogMessage() {
+    return LogMessage.format(getDescription());
   }
 
 }

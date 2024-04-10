@@ -17,35 +17,26 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import cn.taketoday.jdbc.persistence.sql.SimpleSelect;
 
 /**
- * Query condition builder
- *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0 2024/2/16 14:45
+ * @since 4.0 2024/2/28 22:19
  */
-public interface QueryHandler extends DescriptiveHandler {
-
-  /**
-   * prepare select statement
-   *
-   * @param metadata entity info
-   */
-  StatementSequence render(EntityMetadata metadata);
-
-  /**
-   * apply statement parameters
-   *
-   * @param metadata entity info
-   * @param statement JDBC statement
-   */
-  void setParameter(EntityMetadata metadata, PreparedStatement statement) throws SQLException;
+public abstract class SimpleSelectQueryStatement implements QueryStatement {
 
   @Override
-  default String getDescription() {
-    return "Query entities";
+  public StatementSequence render(EntityMetadata metadata) {
+    SimpleSelect select = new SimpleSelect(Arrays.asList(metadata.columnNames), new ArrayList<>());
+    select.setTableName(metadata.tableName);
+
+    renderInternal(metadata, select);
+    return select;
   }
+
+  protected abstract void renderInternal(EntityMetadata metadata, SimpleSelect select);
 
 }
