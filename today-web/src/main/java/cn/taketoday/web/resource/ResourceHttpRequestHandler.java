@@ -469,7 +469,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
         Resource resource = applicationContext.getResource(location);
         if (location.equals("/")) {
           throw new IllegalStateException("""
-                  The String-based location \\"/\\" should be relative to the web application root but \
+                  The String-based location "/" should be relative to the web application root but \
                   resolved to a Resource of type: %s. If this is intentional, please pass it as a pre-configured \
                   Resource via setLocations.""".formatted(resource.getClass()));
         }
