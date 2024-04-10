@@ -417,6 +417,20 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
   }
 
   @ParameterizedRepositoryManagerTest
+  void findByExampleMap(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel example = new UserModel();
+    example.setName("TODAY");
+    assertThat(entityManager.find(UserModel.class, example)).isNotEmpty().hasSize(11);
+
+    assertThat(entityManager.find(UserModel.class, Map.of("name", "TODAY")))
+            .isEqualTo(entityManager.find(UserModel.class, example))
+            .isEqualTo(entityManager.find(example));
+  }
+
+  @ParameterizedRepositoryManagerTest
   void findSortBy(RepositoryManager repositoryManager) {
     DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
     createData(entityManager);

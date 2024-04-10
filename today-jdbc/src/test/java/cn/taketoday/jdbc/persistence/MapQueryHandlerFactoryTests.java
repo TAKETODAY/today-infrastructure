@@ -46,6 +46,9 @@ class MapQueryHandlerFactoryTests {
     ArrayList<Restriction> restrictions = new ArrayList<>();
     condition.renderWhereClause(entityMetadata, restrictions);
     assertThat(restrictions).hasSize(1).contains(Restriction.equal("name"));
+
+    //
+    assertThat(factory.createCondition(null)).isNull();
   }
 
   @Test
@@ -56,6 +59,8 @@ class MapQueryHandlerFactoryTests {
 
     StatementSequence sequence = queryStatement.render(entityMetadata);
     assertThat(sequence.toStatementString(Platform.forClasspath())).endsWith("FROM t_user WHERE `name` = ?");
+
+    assertThat(factory.createQuery(null)).isNull();
   }
 
 }
