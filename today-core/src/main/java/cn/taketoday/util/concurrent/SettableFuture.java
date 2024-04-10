@@ -40,7 +40,7 @@ public class SettableFuture<V> extends AbstractFuture<V> {
    * @param executor the {@link Executor} which is used to notify
    * the SettableFuture once it is complete.
    */
-  SettableFuture(@Nullable Executor executor) {
+  protected SettableFuture(@Nullable Executor executor) {
     super(executor);
   }
 

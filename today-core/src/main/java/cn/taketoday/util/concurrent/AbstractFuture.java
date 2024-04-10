@@ -35,7 +35,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/3/26 22:10
  */
-abstract class AbstractFuture<V> extends Future<V> {
+public abstract class AbstractFuture<V> extends Future<V> {
 
   protected static final int NEW = 0;
   protected static final int COMPLETING = 1;
