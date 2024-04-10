@@ -31,7 +31,7 @@ import cn.taketoday.logging.LogMessage;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 1.0 2024/2/20 17:03
  */
-final class NoConditionsQuery extends AbstractColumnsQueryStatement implements ConditionStatement {
+final class NoConditionsQuery extends ColumnsQueryStatement implements ConditionStatement {
 
   static final NoConditionsQuery instance = new NoConditionsQuery();
 
