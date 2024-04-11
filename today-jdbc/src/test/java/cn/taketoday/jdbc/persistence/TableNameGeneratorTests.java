@@ -20,10 +20,28 @@
 
 package cn.taketoday.jdbc.persistence;
 
+import org.junit.jupiter.api.Test;
+
+import cn.taketoday.jdbc.persistence.model.UserModel;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/8/16 22:56
  */
 class TableNameGeneratorTests {
+
+  @Test
+  void forAnnotation() {
+    TableNameGenerator generator = TableNameGenerator.forTableAnnotation();
+    assertThat(generator.generateTableName(UserModel.class)).isEqualTo("t_user");
+    assertThat(generator.generateTableName(UpdateUserName.class)).isEqualTo("t_user");
+  }
+
+  @EntityRef(UserModel.class)
+  static class UpdateUserName {
+
+  }
 
 }

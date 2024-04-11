@@ -21,7 +21,6 @@
 package cn.taketoday.jdbc.persistence;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
 
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
@@ -61,25 +60,7 @@ public interface TableNameGenerator {
     };
   }
 
-  // static
-
-  static TableNameGenerator composite(TableNameGenerator... discovers) {
-    Assert.notNull(discovers, "TableNameGenerator is required");
-    return composite(List.of(discovers));
-  }
-
-  static TableNameGenerator composite(List<TableNameGenerator> generators) {
-    Assert.notNull(generators, "TableNameGenerator is required");
-    return entityClass -> {
-      for (TableNameGenerator generator : generators) {
-        String name = generator.generateTableName(entityClass);
-        if (name != null) {
-          return name;
-        }
-      }
-      return null;
-    };
-  }
+  // Static Factory Methods
 
   /**
    *
@@ -117,16 +98,29 @@ public interface TableNameGenerator {
   static TableNameGenerator forAnnotation(Class<? extends Annotation> annotationType, String attributeName) {
     Assert.notNull(attributeName, "attributeName is required");
     Assert.notNull(annotationType, "annotationType is required");
-    return entityClass -> {
-      var annotation = MergedAnnotations.from(entityClass).get(annotationType);
-      if (annotation.isPresent()) {
-        String name = annotation.getString(attributeName);
-        if (StringUtils.hasText(name)) {
-          return name;
-        }
-      }
 
-      return null;
-    };
+    class ForAnnotation implements TableNameGenerator {
+
+      @Override
+      public String generateTableName(Class<?> entityClass) {
+        MergedAnnotations annotations = MergedAnnotations.from(entityClass);
+        var annotation = annotations.get(annotationType);
+        if (annotation.isPresent()) {
+          String name = annotation.getString(attributeName);
+          if (StringUtils.hasText(name)) {
+            return name;
+          }
+        }
+
+        var ref = annotations.get(EntityRef.class);
+        if (ref.isPresent()) {
+          Class<?> classValue = ref.getClassValue();
+          return generateTableName(classValue);
+        }
+        return null;
+      }
+    }
+
+    return new ForAnnotation();
   }
 }
