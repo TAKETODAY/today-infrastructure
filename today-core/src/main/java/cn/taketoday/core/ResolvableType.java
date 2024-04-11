@@ -1502,23 +1502,22 @@ public class ResolvableType implements Serializable {
    * @return a {@link ResolvableType} for the specific class and generics
    * @see #forClassWithGenerics(Class, Class...)
    */
-  public static ResolvableType forClassWithGenerics(Class<?> clazz, ResolvableType... generics) {
+  public static ResolvableType forClassWithGenerics(Class<?> clazz, @Nullable ResolvableType... generics) {
     Assert.notNull(clazz, "Class is required");
-    Assert.notNull(generics, "Generics array is required");
     TypeVariable<?>[] variables = clazz.getTypeParameters();
-    if (variables.length != generics.length) {
+    if (generics != null && variables.length != generics.length) {
       throw new IllegalArgumentException("Mismatched number of generics specified for " + clazz.toGenericString());
     }
 
-    Type[] arguments = new Type[generics.length];
-    for (int i = 0; i < generics.length; i++) {
-      ResolvableType generic = generics[i];
+    Type[] arguments = new Type[variables.length];
+    for (int i = 0; i < variables.length; i++) {
+      ResolvableType generic = (generics != null ? generics[i] : null);
       Type argument = (generic != null ? generic.getType() : null);
       arguments[i] = (argument != null && !(argument instanceof TypeVariable) ? argument : variables[i]);
     }
 
-    ParameterizedType syntheticType = new SyntheticParameterizedType(clazz, arguments);
-    return forType(syntheticType, new TypeVariablesVariableResolver(variables, generics));
+    return forType(new SyntheticParameterizedType(clazz, arguments),
+            (generics != null ? new TypeVariablesVariableResolver(variables, generics) : null));
   }
 
   /**
@@ -1633,7 +1632,7 @@ public class ResolvableType implements Serializable {
    */
   public static ResolvableType forArrayComponent(ResolvableType componentType) {
     Assert.notNull(componentType, "Component type is required");
-    Class<?> arrayType = componentType.resolve().arrayType();
+    Class<?> arrayType = componentType.toClass().arrayType();
     return new ResolvableType(arrayType, null, null, componentType);
   }
 
