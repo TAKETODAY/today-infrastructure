@@ -31,7 +31,7 @@ import cn.taketoday.beans.BeanProperty;
 import cn.taketoday.beans.support.BeanInstantiator;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
-import cn.taketoday.jdbc.persistence.Column;
+import cn.taketoday.persistence.Column;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ConcurrentReferenceHashMap;
 import cn.taketoday.util.MapCache;

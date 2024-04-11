@@ -22,9 +22,9 @@ import org.junit.jupiter.api.TestInstance;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.jdbc.persistence.AbstractRepositoryManagerTests;
-import cn.taketoday.jdbc.persistence.DefaultEntityManager;
-import cn.taketoday.jdbc.persistence.model.UserModel;
+import cn.taketoday.persistence.AbstractRepositoryManagerTests;
+import cn.taketoday.persistence.DefaultEntityManager;
+import cn.taketoday.persistence.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

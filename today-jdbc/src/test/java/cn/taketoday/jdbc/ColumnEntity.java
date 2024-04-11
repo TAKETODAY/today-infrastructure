@@ -20,7 +20,7 @@
 
 package cn.taketoday.jdbc;
 
-import cn.taketoday.jdbc.persistence.Column;
+import cn.taketoday.persistence.Column;
 
 public class ColumnEntity {
 
