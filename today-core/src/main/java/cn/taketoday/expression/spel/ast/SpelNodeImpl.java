@@ -149,8 +149,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
    * @throws EvaluationException if any problem occurs evaluating the expression or
    * setting the new value
    */
-  public TypedValue setValueInternal(ExpressionState state,
-          Supplier<TypedValue> valueSupplier) throws EvaluationException {
+  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier) throws EvaluationException {
     throw new SpelEvaluationException(getStartPosition(), SpelMessage.SETVALUE_NOT_SUPPORTED, getClass().getName());
   }
 
@@ -181,6 +180,16 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
   @Override
   public int getEndPosition() {
     return this.endPos;
+  }
+
+  /**
+   * Determine if this node is the target of a null-safe navigation operation.
+   * <p>The default implementation returns {@code false}.
+   *
+   * @return {@code true} if this node is the target of a null-safe operation
+   */
+  public boolean isNullSafe() {
+    return false;
   }
 
   /**

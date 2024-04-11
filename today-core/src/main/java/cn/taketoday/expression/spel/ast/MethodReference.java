@@ -75,6 +75,7 @@ public class MethodReference extends SpelNodeImpl {
   /**
    * Does this node represent a null-safe method reference?
    */
+  @Override
   public final boolean isNullSafe() {
     return this.nullSafe;
   }
@@ -247,8 +248,8 @@ public class MethodReference extends SpelNodeImpl {
         throw runtimeException;
       }
       throw new ExpressionInvocationTargetException(getStartPosition(),
-              "A problem occurred when trying to execute method '" + this.name +
-                      "' on object of type [" + value.getClass().getName() + "]", rootCause);
+              "A problem occurred when trying to execute method '%s' on object of type [%s]"
+                      .formatted(this.name, value.getClass().getName()), rootCause);
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.ast;
@@ -25,7 +25,6 @@ import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.ExpressionState;
 import cn.taketoday.expression.spel.SpelEvaluationException;
-import cn.taketoday.expression.spel.SpelNode;
 
 /**
  * Represents a DOT separated expression sequence, such as
@@ -103,9 +102,7 @@ public class CompoundExpression extends SpelNodeImpl {
   }
 
   @Override
-  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier)
-          throws EvaluationException {
-
+  public TypedValue setValueInternal(ExpressionState state, Supplier<TypedValue> valueSupplier) throws EvaluationException {
     TypedValue typedValue = valueSupplier.get();
     getValueRef(state).setValue(typedValue.getValue());
     return typedValue;
@@ -122,14 +119,13 @@ public class CompoundExpression extends SpelNodeImpl {
     for (int i = 0; i < getChildCount(); i++) {
       sb.append(getChild(i).toStringAST());
       if (i < getChildCount() - 1) {
-        SpelNode nextChild = getChild(i + 1);
+        SpelNodeImpl nextChild = this.children[i + 1];
+        if (nextChild.isNullSafe()) {
+          sb.append("?.");
+        }
         // Don't append a '.' if the next child is an Indexer.
         // For example, we want 'myVar[0]' instead of 'myVar.[0]'.
-        if (!(nextChild instanceof Indexer)) {
-          if ((nextChild instanceof MethodReference methodRef && methodRef.isNullSafe()) ||
-                  (nextChild instanceof PropertyOrFieldReference pofRef && pofRef.isNullSafe())) {
-            sb.append('?');
-          }
+        else if (!(nextChild instanceof Indexer)) {
           sb.append('.');
         }
       }
