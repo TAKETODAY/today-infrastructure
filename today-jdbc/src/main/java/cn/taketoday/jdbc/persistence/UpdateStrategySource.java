@@ -17,31 +17,15 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.jdbc.persistence.dialect.Platform;
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
+ * PropertyUpdateStrategy source
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @see PropertyUpdateStrategy
+ * @since 4.0 2024/4/11 10:24
  */
-class UpdateTests {
+public interface UpdateStrategySource {
 
-  private final Platform platform = Platform.forClasspath();
-
-  @Test
-  void sql() {
-    Update update = new Update("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
-
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
-
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
-  }
+  PropertyUpdateStrategy updateStrategy();
 
 }

@@ -17,31 +17,43 @@
 
 package cn.taketoday.jdbc.persistence;
 
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.jdbc.persistence.dialect.Platform;
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * Specifies the update by field or property
+ * <pre>{@code
+ *    // Example:
+ *
+ *    @UpdateBy
+ *    @Column(name = "name")
+ *    public String getName() {
+ *      return name;
+ *    }
+ * }</pre>
+ *
+ * <pre>{@code
+ *    // Example:
+ *
+ *    @UpdateBy
+ *    private String name;
+ *
+ *    public String getName() {
+ *      return name;
+ *    }
+ *
+ * }</pre>
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @see EntityManager#update
+ * @since 4.0 2024/4/11 10:43
  */
-class UpdateTests {
-
-  private final Platform platform = Platform.forClasspath();
-
-  @Test
-  void sql() {
-    Update update = new Update("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
-
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
-
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
-  }
+@Documented
+@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface UpdateBy {
 
 }

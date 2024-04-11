@@ -39,6 +39,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.util.CollectionUtils;
 
+import static cn.taketoday.jdbc.persistence.PropertyUpdateStrategy.always;
+import static cn.taketoday.jdbc.persistence.PropertyUpdateStrategy.noneNull;
 import static cn.taketoday.jdbc.persistence.QueryCondition.between;
 import static cn.taketoday.jdbc.persistence.QueryCondition.isEqualsTo;
 import static cn.taketoday.jdbc.persistence.QueryCondition.isNotNull;
@@ -351,7 +353,7 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
     assertThatThrownBy(() -> entityManager.updateById(userModel))
             .isInstanceOf(InvalidDataAccessApiUsageException.class)
-            .hasMessage("Updating an entity, ID property is required");
+            .hasMessage("Updating an entity, ID value is required");
 
     assertThatThrownBy(() -> entityManager.updateById(userModel, "errorId"))
             .isInstanceOf(IllegalArgumentException.class)
@@ -529,6 +531,47 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
 
   }
 
+  // update
+
+  @ParameterizedRepositoryManagerTest
+  void update(RepositoryManager repositoryManager) {
+    DefaultEntityManager entityManager = new DefaultEntityManager(repositoryManager);
+    createData(entityManager);
+
+    UserModel userModel = entityManager.findById(UserModel.class, 1);
+    assertThat(userModel).isNotNull();
+
+    String name = "TEST-UPDATE";
+    userModel.setName(name);
+
+    assertThat(entityManager.update(new UserName(1, name))).isEqualTo(1);
+
+    UserModel model = entityManager.findById(UserModel.class, 1);
+    assertThat(model).isNotNull();
+    assertThat(model.getName()).isEqualTo(name);
+    assertThat(userModel.getAge()).isEqualTo(model.getAge());
+    assertThat(userModel.getAvatar()).isEqualTo(model.getAvatar());
+    assertThat(userModel.getGender()).isEqualTo(model.getGender());
+
+    assertThat(entityManager.update(new UserAge(name, 10))).isEqualTo(1);
+
+    model = entityManager.findUnique(UserModel.class, new UserName(null, name));
+
+    assertThat(model).isNotNull();
+    assertThat(model.getName()).isEqualTo(name);
+    assertThat(model.getAge()).isEqualTo(10);
+
+    // throw
+
+    assertThatThrownBy(() -> entityManager.update(new UserFailed()))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("Updating an entity, There is no update properties");
+
+    assertThatThrownBy(() -> entityManager.update(new UserFailed(), always()))
+            .isInstanceOf(InvalidDataAccessApiUsageException.class)
+            .hasMessage("Updating an entity, There is no update by properties");
+  }
+
   public static void createData(DefaultEntityManager entityManager) {
     UserModel userModel = UserModel.male("TODAY", 9);
 
@@ -542,6 +585,49 @@ class EntityManagerTests extends AbstractRepositoryManagerTests {
     entityManager.persist(entities);
   }
 
+  @EntityRef(UserModel.class)
+  static class UserName implements UpdateStrategySource {
+
+    @Nullable
+    final Integer id;
+
+    final String name;
+
+    UserName(@Nullable Integer id, String name) {
+      this.id = id;
+      this.name = name;
+    }
+
+    @Override
+    public PropertyUpdateStrategy updateStrategy() {
+      return noneNull();
+    }
+
+  }
+
+  @EntityRef(UserModel.class)
+  static class UserAge implements PropertyUpdateStrategy {
+
+    @UpdateBy
+    final String name;
+
+    final int age;
+
+    UserAge(String name, int age) {
+      this.name = name;
+      this.age = age;
+    }
+
+    @Override
+    public boolean shouldUpdate(Object entity, EntityProperty property) {
+      return noneNull().shouldUpdate(entity, property);
+    }
+  }
+
+  @EntityRef(UserModel.class)
+  static class UserFailed {
+    String name;
+  }
 }
 
 

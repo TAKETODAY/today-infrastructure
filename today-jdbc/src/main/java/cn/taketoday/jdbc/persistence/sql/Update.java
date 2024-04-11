@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 @SuppressWarnings("UnusedReturnValue")
 public class Update implements StatementSequence {
 
-  protected String tableName;
+  protected final String tableName;
 
   @Nullable
   protected CharSequence comment;
@@ -43,13 +43,12 @@ public class Update implements StatementSequence {
 
   protected final LinkedHashMap<String, String> assignments = new LinkedHashMap<>();
 
-  public String getTableName() {
-    return tableName;
+  public Update(String tableName) {
+    this.tableName = tableName;
   }
 
-  public Update setTableName(String tableName) {
-    this.tableName = tableName;
-    return this;
+  public String getTableName() {
+    return tableName;
   }
 
   public Update setComment(@Nullable CharSequence comment) {

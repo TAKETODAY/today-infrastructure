@@ -21,6 +21,7 @@ package cn.taketoday.jdbc.persistence;
  * Property Update Strategy
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see UpdateStrategySource
  * @since 4.0 2022/12/18 22:20
  */
 public interface PropertyUpdateStrategy {
@@ -29,6 +30,26 @@ public interface PropertyUpdateStrategy {
    * Test input property should be updated?
    */
   boolean shouldUpdate(Object entity, EntityProperty property);
+
+  /**
+   * returns a new resolving chain
+   *
+   * @param next next resolver
+   * @return returns a new Strategy
+   */
+  default PropertyUpdateStrategy and(PropertyUpdateStrategy next) {
+    return (entity, property) -> shouldUpdate(entity, property) && next.shouldUpdate(entity, property);
+  }
+
+  /**
+   * returns a new chain
+   *
+   * @param next next resolver
+   * @return returns a new Strategy
+   */
+  default PropertyUpdateStrategy or(PropertyUpdateStrategy next) {
+    return (entity, property) -> shouldUpdate(entity, property) || next.shouldUpdate(entity, property);
+  }
 
   /**
    * Update the none null property

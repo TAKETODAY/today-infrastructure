@@ -163,7 +163,7 @@ public class EntityProperty {
   public String toString() {
     return ToStringBuilder.from(this)
             .append("property", property)
-            .append("typeHandler", typeHandler)
+            .append("columnName", columnName)
             .toString();
   }
 

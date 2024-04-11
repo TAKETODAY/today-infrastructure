@@ -176,11 +176,32 @@ public interface EntityManager {
   /**
    * Merge the state of the given entity into underlying repository
    *
-   * @param entity entity instance
+   * @param entityOrExample entity instance
+   * @return update count
+   * @throws IllegalEntityException entity metadata parsing failed
+   */
+  int update(Object entityOrExample) throws DataAccessException;
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entityOrExample entity instance
+   * @param strategy determine which property can update
+   * @return update count
+   * @throws IllegalEntityException entity metadata parsing failed
+   * @see UpdateBy
+   */
+  int update(Object entityOrExample, @Nullable PropertyUpdateStrategy strategy)
+          throws DataAccessException;
+
+  /**
+   * Merge the state of the given entity into underlying repository
+   *
+   * @param entityOrExample entity instance
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity) throws DataAccessException;
+  int updateById(Object entityOrExample) throws DataAccessException;
 
   /**
    * Merge the state of the given entity including ID into underlying repository
@@ -188,21 +209,22 @@ public interface EntityManager {
    * <p>
    * ID can be updated
    *
-   * @param entity entity instance
+   * @param entityOrExample entity instance
    * @param id entity id
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, Object id) throws DataAccessException;
+  int updateById(Object entityOrExample, Object id) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
    *
-   * @param entity entity instance
+   * @param entityOrExample entity instance
+   * @param strategy determine which property can update
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, @Nullable PropertyUpdateStrategy strategy)
+  int updateById(Object entityOrExample, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
 
   /**
@@ -210,33 +232,35 @@ public interface EntityManager {
    * <p>
    * ID can be updated
    *
-   * @param entity entity instance
+   * @param entityOrExample entity instance
    * @param id entity id
+   * @param strategy determine which property can update
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateById(Object entity, Object id, @Nullable PropertyUpdateStrategy strategy)
+  int updateById(Object entityOrExample, Object id, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
    *
-   * @param entity entity instance
+   * @param entityOrExample entity instance
    * @param where columnName or property name
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateBy(Object entity, String where) throws DataAccessException;
+  int updateBy(Object entityOrExample, String where) throws DataAccessException;
 
   /**
    * Merge the state of the given entity into underlying repository
    *
-   * @param entity entity instance
+   * @param entityOrExample entity instance
    * @param where columnName or property name
+   * @param strategy determine which property can update
    * @return update count
    * @throws IllegalEntityException entityClass is legal entity
    */
-  int updateBy(Object entity, String where, @Nullable PropertyUpdateStrategy strategy)
+  int updateBy(Object entityOrExample, String where, @Nullable PropertyUpdateStrategy strategy)
           throws DataAccessException;
 
   /**

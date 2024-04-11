@@ -19,6 +19,8 @@ package cn.taketoday.jdbc.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Objects;
+
 import cn.taketoday.jdbc.persistence.model.UserModel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class PropertyUpdateStrategyTests {
 
-  EntityMetadataFactory metadataFactory = new DefaultEntityMetadataFactory();
+  final EntityMetadataFactory metadataFactory = new DefaultEntityMetadataFactory();
+  final EntityMetadata entityMetadata = metadataFactory.getEntityMetadata(UserModel.class);
 
   @Test
   void updateNoneNull() {
@@ -43,7 +46,53 @@ class PropertyUpdateStrategyTests {
     userModel.setId(1);
     assertThat(propertyUpdateStrategy.shouldUpdate(userModel, entityMetadata.idProperty))
             .isTrue();
+  }
 
+  @Test
+  void always() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.always();
+    UserModel userModel = new UserModel();
+
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isTrue();
+
+    userModel.setId(1);
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isTrue();
+  }
+
+  @Test
+  void and() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull().and((entity, property) -> !property.isIdProperty);
+
+    UserModel userModel = new UserModel();
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isFalse();
+
+    userModel.setId(1);
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isFalse();
+
+    userModel.setName("name");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isTrue();
+  }
+
+  @Test
+  void or() {
+    PropertyUpdateStrategy strategy = PropertyUpdateStrategy.noneNull().or((entity, property) -> !property.isIdProperty);
+
+    UserModel userModel = new UserModel();
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isFalse();
+
+    userModel.setId(1);
+    assertThat(strategy.shouldUpdate(userModel, entityMetadata.idProperty()))
+            .isTrue();
+
+    userModel.setName("name");
+    assertThat(strategy.shouldUpdate(userModel, Objects.requireNonNull(entityMetadata.findProperty("name"))))
+            .isTrue();
   }
 
 }

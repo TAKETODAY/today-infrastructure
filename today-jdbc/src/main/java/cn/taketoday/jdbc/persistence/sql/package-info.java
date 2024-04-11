@@ -15,33 +15,13 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.jdbc.persistence;
-
-import org.junit.jupiter.api.Test;
-
-import cn.taketoday.jdbc.persistence.dialect.Platform;
-import cn.taketoday.jdbc.persistence.sql.Update;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/9/9 22:29
+ * @since 4.0 2024/4/8 16:41
  */
-class UpdateTests {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.jdbc.persistence.sql;
 
-  private final Platform platform = Platform.forClasspath();
-
-  @Test
-  void sql() {
-    Update update = new Update("t_user");
-    update.addAssignment("name");
-    update.addRestriction("id");
-
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=? WHERE `id` = ?");
-
-    update.addAssignment("name", ":name");
-    assertThat(update.toStatementString(platform)).isEqualTo("UPDATE t_user set `name`=:name WHERE `id` = ?");
-  }
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

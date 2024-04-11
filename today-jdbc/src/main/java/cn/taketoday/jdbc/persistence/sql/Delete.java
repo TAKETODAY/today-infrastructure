@@ -33,16 +33,15 @@ import cn.taketoday.lang.Nullable;
 @SuppressWarnings("UnusedReturnValue")
 public class Delete implements StatementSequence {
 
-  protected String tableName;
+  protected final String tableName;
 
   @Nullable
   protected CharSequence comment;
 
   protected final ArrayList<Restriction> restrictions = new ArrayList<>();
 
-  public Delete setTableName(String tableName) {
+  public Delete(String tableName) {
     this.tableName = tableName;
-    return this;
   }
 
   public Delete setComment(@Nullable CharSequence comment) {
@@ -75,7 +74,7 @@ public class Delete implements StatementSequence {
     return this;
   }
 
-  public Delete setVersionColumnName(String versionColumnName) {
+  public Delete setVersionColumnName(@Nullable String versionColumnName) {
     if (versionColumnName != null) {
       addColumnRestriction(versionColumnName);
     }
@@ -86,21 +85,15 @@ public class Delete implements StatementSequence {
   public String toStatementString(Platform platform) {
     final StringBuilder buf = new StringBuilder(tableName.length() + 10);
 
-    applyComment(buf);
-    buf.append("DELETE FROM ").append(tableName);
-    applyRestrictions(buf);
-
-    return buf.toString();
-  }
-
-  private void applyComment(StringBuilder buf) {
     if (comment != null) {
       buf.append("/* ").append(Platform.escapeComment(comment)).append(" */ ");
     }
-  }
 
-  private void applyRestrictions(StringBuilder buf) {
+    buf.append("DELETE FROM ").append(tableName);
+
     Restriction.render(restrictions, buf);
+
+    return buf.toString();
   }
 
 }
