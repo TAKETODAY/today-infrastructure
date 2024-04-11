@@ -23,6 +23,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.InvalidMimeTypeException;
 import cn.taketoday.util.MimeTypeUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
@@ -55,7 +56,7 @@ public class HeaderContentNegotiationStrategy implements ContentNegotiationStrat
       MimeTypeUtils.sortBySpecificity(mediaTypes);
       return CollectionUtils.isNotEmpty(mediaTypes) ? mediaTypes : MEDIA_TYPE_ALL_LIST;
     }
-    catch (InvalidMediaTypeException ex) {
+    catch (InvalidMediaTypeException | InvalidMimeTypeException ex) {
       throw new HttpMediaTypeNotAcceptableException(
               "Could not parse 'Accept' header %s: %s".formatted(headerValues, ex.getMessage()));
     }
