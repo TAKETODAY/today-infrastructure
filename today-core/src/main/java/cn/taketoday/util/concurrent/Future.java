@@ -781,7 +781,7 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
   }
 
   protected final void notifyListeners() {
-    safeExecute(executor, this::notifyListenersNow);
+    safeExecute(executor, new NotifyTask());
   }
 
   private void notifyListenersNow() {
@@ -830,6 +830,14 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
     catch (Throwable t) {
       LoggerFactory.getLogger(Future.class)
               .error("Failed to submit a listener notification task. Executor shutting-down?", t);
+    }
+  }
+
+  final class NotifyTask implements Runnable {
+
+    @Override
+    public void run() {
+      notifyListenersNow();
     }
   }
 
