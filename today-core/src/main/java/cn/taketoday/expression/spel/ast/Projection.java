@@ -54,6 +54,14 @@ public class Projection extends SpelNodeImpl {
     this.nullSafe = nullSafe;
   }
 
+  /**
+   * Does this node represent a null-safe projection operation?
+   */
+  @Override
+  public boolean isNullSafe() {
+    return nullSafe;
+  }
+
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
     return getValueRef(state).getValue();

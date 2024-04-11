@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  *
  * @author Andy Clement
  */
-public class ParsingTests {
+class ParsingTests {
 
   private final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -41,9 +41,24 @@ public class ParsingTests {
 
     @Test
     void compoundExpressions() {
+      parseCheck("#var1.methodOne().methodTwo(42)");
+      parseCheck("#func1().methodOne().methodTwo(42)");
+      parseCheck("#func2('enigma').methodOne().methodTwo(42)");
       parseCheck("property1.property2.methodOne()");
-      parseCheck("property1[0].property2['key'].methodOne()");
+      parseCheck("property1.methodOne('enigma').methodTwo(42)");
+      parseCheck("property1.methodOne().property2.methodTwo()");
+      parseCheck("property1[0].property2['key'].methodTwo()");
+      parseCheck("property1[0][1].property2['key'][42].methodTwo()");
+
+      // null-safe variants
+      parseCheck("#var1?.methodOne()?.methodTwo(42)");
+      parseCheck("#func1()?.methodOne()?.methodTwo(42)");
+      parseCheck("#func2('enigma')?.methodOne()?.methodTwo(42)");
+      parseCheck("property1?.property2?.methodOne()");
+      parseCheck("property1?.methodOne('enigma')?.methodTwo(42)");
       parseCheck("property1?.methodOne()?.property2?.methodTwo()");
+      parseCheck("property1?.[0]?.property2?.['key']?.methodTwo()");
+      parseCheck("property1?.[0]?.[1]?.property2?.['key']?.[42]?.methodTwo()");
     }
 
     @Test

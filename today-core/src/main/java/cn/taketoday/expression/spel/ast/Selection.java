@@ -78,6 +78,14 @@ public class Selection extends SpelNodeImpl {
     this.variant = variant;
   }
 
+  /**
+   * Does this node represent a null-safe selection operation?
+   */
+  @Override
+  public final boolean isNullSafe() {
+    return this.nullSafe;
+  }
+
   @Override
   public TypedValue getValueInternal(ExpressionState state) throws EvaluationException {
     return getValueRef(state).getValue();
