@@ -22,7 +22,10 @@ package cn.taketoday.jdbc.persistence;
 
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
+
 import cn.taketoday.jdbc.persistence.model.UserModel;
+import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,10 +34,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 4.0 2022/8/16 23:10
  */
 class DefaultTableNameGeneratorTests {
+  DefaultTableNameGenerator generator = new DefaultTableNameGenerator();
 
   @Test
   void generateTableName() {
-    DefaultTableNameGenerator generator = new DefaultTableNameGenerator();
+    ReflectionTestUtils.setField(generator, "annotationGenerator", new TableNameGenerator() {
+      @Nullable
+      @Override
+      public String generateTableName(Class<?> entityClass) {
+        return null;
+      }
+    });
+
     generator.setSuffixArrayToRemove("Model", "Entity");
     generator.setPrefixToAppend("t_");
 
@@ -61,4 +72,8 @@ class DefaultTableNameGeneratorTests {
 
   }
 
+  @Test
+  void annotationGenerator() {
+    assertThat(generator.generateTableName(UserModel.class)).isEqualTo("t_user");
+  }
 }

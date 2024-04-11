@@ -32,6 +32,8 @@ import cn.taketoday.util.StringUtils;
  */
 public class DefaultTableNameGenerator implements TableNameGenerator {
 
+  private final TableNameGenerator annotationGenerator = TableNameGenerator.forTableAnnotation();
+
   @Nullable
   private String prefixToAppend;
 
@@ -69,6 +71,11 @@ public class DefaultTableNameGenerator implements TableNameGenerator {
 
   @Override
   public String generateTableName(Class<?> entityClass) {
+    String name = annotationGenerator.generateTableName(entityClass);
+    if (name != null) {
+      return name;
+    }
+
     String simpleName = entityClass.getSimpleName();
 
     // append the prefix like "t_" -> t_user, t_order

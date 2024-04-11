@@ -48,8 +48,7 @@ public class DefaultEntityMetadataFactory extends EntityMetadataFactory {
   private PropertyFilter propertyFilter = PropertyFilter.filteredNames(Set.of("class"))
           .and(PropertyFilter.forTransientAnnotation());
 
-  private TableNameGenerator tableNameGenerator = TableNameGenerator.forTableAnnotation()
-          .and(TableNameGenerator.defaultStrategy());
+  private TableNameGenerator tableNameGenerator = TableNameGenerator.defaultStrategy();
 
   private IdPropertyDiscover idPropertyDiscover = IdPropertyDiscover.forIdAnnotation()
           .and(IdPropertyDiscover.forPropertyName(IdPropertyDiscover.DEFAULT_ID_PROPERTY));
