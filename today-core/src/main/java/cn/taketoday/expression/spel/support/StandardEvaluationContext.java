@@ -28,6 +28,7 @@ import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.expression.BeanResolver;
 import cn.taketoday.expression.ConstructorResolver;
 import cn.taketoday.expression.EvaluationContext;
+import cn.taketoday.expression.IndexAccessor;
 import cn.taketoday.expression.MethodFilter;
 import cn.taketoday.expression.MethodResolver;
 import cn.taketoday.expression.OperatorOverloader;
@@ -89,6 +90,9 @@ public class StandardEvaluationContext implements EvaluationContext {
 
   @Nullable
   private volatile List<MethodResolver> methodResolvers;
+
+  @Nullable
+  private volatile List<IndexAccessor> indexAccessors;
 
   @Nullable
   private volatile ReflectiveMethodResolver reflectiveMethodResolver;
@@ -293,6 +297,56 @@ public class StandardEvaluationContext implements EvaluationContext {
   }
 
   /**
+   * Set the list of index accessors to use in this evaluation context.
+   * <p>Replaces any previously configured index accessors.
+   *
+   * @see #getIndexAccessors()
+   * @see #addIndexAccessor(IndexAccessor)
+   * @see #removeIndexAccessor(IndexAccessor)
+   */
+  public void setIndexAccessors(List<IndexAccessor> indexAccessors) {
+    this.indexAccessors = indexAccessors;
+  }
+
+  /**
+   * Get the list of index accessors configured in this evaluation context.
+   *
+   * @see #setIndexAccessors(List)
+   * @see #addIndexAccessor(IndexAccessor)
+   * @see #removeIndexAccessor(IndexAccessor)
+   */
+  @Override
+  public List<IndexAccessor> getIndexAccessors() {
+    return initIndexAccessors();
+  }
+
+  /**
+   * Add the supplied index accessor to this evaluation context.
+   *
+   * @param indexAccessor the index accessor to add
+   * @see #getIndexAccessors()
+   * @see #setIndexAccessors(List)
+   * @see #removeIndexAccessor(IndexAccessor)
+   */
+  public void addIndexAccessor(IndexAccessor indexAccessor) {
+    initIndexAccessors().add(indexAccessor);
+  }
+
+  /**
+   * Remove the supplied index accessor from this evaluation context.
+   *
+   * @param indexAccessor the index accessor to remove
+   * @return {@code true} if the index accessor was removed, {@code false} if
+   * the index accessor was not configured in this evaluation context
+   * @see #getIndexAccessors()
+   * @see #setIndexAccessors(List)
+   * @see #addIndexAccessor(IndexAccessor)
+   */
+  public boolean removeIndexAccessor(IndexAccessor indexAccessor) {
+    return initIndexAccessors().remove(indexAccessor);
+  }
+
+  /**
    * Set a named variable in this evaluation context to a specified value.
    * <p>If the specified {@code name} is {@code null}, it will be ignored. If
    * the specified {@code value} is {@code null}, the named variable will be
@@ -404,6 +458,15 @@ public class StandardEvaluationContext implements EvaluationContext {
               "Method filter cannot be set as the reflective method resolver is not in use");
     }
     resolver.registerMethodFilter(type, filter);
+  }
+
+  private List<IndexAccessor> initIndexAccessors() {
+    List<IndexAccessor> accessors = this.indexAccessors;
+    if (accessors == null) {
+      accessors = new ArrayList<>(5);
+      this.indexAccessors = accessors;
+    }
+    return accessors;
   }
 
   private List<PropertyAccessor> initPropertyAccessors() {

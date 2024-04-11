@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -291,7 +291,7 @@ public class PropertyAccessTests extends AbstractExpressionTests {
     }
 
     @Override
-    public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
+    public boolean canRead(EvaluationContext context, Object target, String name) {
       if (!(target instanceof String)) {
         throw new RuntimeException("Assertion Failed! target should be String");
       }
@@ -299,7 +299,7 @@ public class PropertyAccessTests extends AbstractExpressionTests {
     }
 
     @Override
-    public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
+    public boolean canWrite(EvaluationContext context, Object target, String name) {
       if (!(target instanceof String)) {
         throw new RuntimeException("Assertion Failed! target should be String");
       }
@@ -307,7 +307,7 @@ public class PropertyAccessTests extends AbstractExpressionTests {
     }
 
     @Override
-    public TypedValue read(EvaluationContext context, Object target, String name) throws AccessException {
+    public TypedValue read(EvaluationContext context, Object target, String name) {
       if (!name.equals("flibbles")) {
         throw new RuntimeException("Assertion Failed! name should be flibbles");
       }

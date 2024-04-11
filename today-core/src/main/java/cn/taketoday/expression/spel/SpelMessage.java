@@ -280,7 +280,13 @@ public enum SpelMessage {
           "Assignment to variable ''{0}'' is not supported"),
 
   NEGATIVE_REPEATED_TEXT_COUNT(Kind.ERROR, 1081,
-          "Repeat count ''{0}'' must not be negative");
+          "Repeat count ''{0}'' must not be negative"),
+
+  EXCEPTION_DURING_INDEX_READ(Kind.ERROR, 1082,
+          "A problem occurred while attempting to read index ''{0}'' in ''{1}''"),
+
+  EXCEPTION_DURING_INDEX_WRITE(Kind.ERROR, 1083,
+          "A problem occurred while attempting to write index ''{0}'' in ''{1}''");
 
   private final Kind kind;
 

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression;
@@ -27,6 +24,7 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Andy Clement
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -54,7 +52,7 @@ public class ExpressionException extends RuntimeException {
    * @param message a descriptive message
    * @param cause the underlying cause of this exception
    */
-  public ExpressionException(String message, Throwable cause) {
+  public ExpressionException(String message, @Nullable Throwable cause) {
     super(message, cause);
     this.expressionString = null;
     this.position = 0;
@@ -104,7 +102,7 @@ public class ExpressionException extends RuntimeException {
    * @param message a descriptive message
    * @param cause the underlying cause of this exception
    */
-  public ExpressionException(int position, String message, Throwable cause) {
+  public ExpressionException(int position, String message, @Nullable Throwable cause) {
     super(message, cause);
     this.expressionString = null;
     this.position = position;
@@ -127,10 +125,10 @@ public class ExpressionException extends RuntimeException {
 
   /**
    * Return the exception message.
-   *  this method returns the same result as {@link #toDetailedString()}.
+   * this method returns the same result as {@link #toDetailedString()}.
    *
    * @see #getSimpleMessage()
-   * @see Throwable#getMessage()
+   * @see java.lang.Throwable#getMessage()
    */
   @Override
   public String getMessage() {
