@@ -23,6 +23,7 @@ package cn.taketoday.jdbc.persistence;
 import java.io.Serial;
 
 import cn.taketoday.jdbc.PersistenceException;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Entity definition is not legal
@@ -31,21 +32,16 @@ import cn.taketoday.jdbc.PersistenceException;
  * @since 4.0 2022/11/15 15:50
  */
 public class IllegalEntityException extends PersistenceException {
+
   @Serial
   private static final long serialVersionUID = 1L;
 
-  public IllegalEntityException() { }
-
-  public IllegalEntityException(String message) {
-    super(message);
+  public IllegalEntityException(@Nullable String message) {
+    this(message, null);
   }
 
-  public IllegalEntityException(String message, Throwable cause) {
+  public IllegalEntityException(@Nullable String message, @Nullable Throwable cause) {
     super(message, cause);
-  }
-
-  public IllegalEntityException(Throwable cause) {
-    super(cause);
   }
 
 }
