@@ -294,47 +294,18 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
   }
 
   /**
-   * Determines the set of property resolvers that should be used to try and access a property
-   * on the specified target type. The resolvers are considered to be in an ordered list,
-   * however in the returned list any that are exact matches for the input target type (as
-   * opposed to 'general' resolvers that could work for any type) are placed at the start of the
-   * list. In addition, there are specific resolvers that exactly name the class in question
-   * and resolvers that name a specific class but it is a supertype of the class we have.
-   * These are put at the end of the specific resolvers set and will be tried after exactly
-   * matching accessors but before generic accessors.
+   * Determine the set of property accessors that should be used to try to
+   * access a property on the specified context object.
+   * <p>Delegates to {@link AstUtils#getPropertyAccessorsToTry(Class, List)}.
    *
-   * @param contextObject the object upon which property access is being attempted
-   * @return a list of resolvers that should be tried in order to access the property
+   * @param targetObject the object upon which property access is being attempted
+   * @return a list of accessors that should be tried in order to access the
+   * property, or an empty list if no suitable accessor could be found
    */
-  private List<PropertyAccessor> getPropertyAccessorsToTry(
-          @Nullable Object contextObject, List<PropertyAccessor> propertyAccessors) {
+  private List<PropertyAccessor> getPropertyAccessorsToTry(@Nullable Object targetObject, List<PropertyAccessor> propertyAccessors) {
 
-    Class<?> targetType = (contextObject != null ? contextObject.getClass() : null);
-
-    ArrayList<PropertyAccessor> specificAccessors = new ArrayList<>();
-    ArrayList<PropertyAccessor> generalAccessors = new ArrayList<>();
-    for (PropertyAccessor resolver : propertyAccessors) {
-      Class<?>[] targets = resolver.getSpecificTargetClasses();
-      if (targets == null) {
-        // generic resolver that says it can be used for any type
-        generalAccessors.add(resolver);
-      }
-      else if (targetType != null) {
-        for (Class<?> clazz : targets) {
-          if (clazz == targetType) {
-            specificAccessors.add(resolver);
-            break;
-          }
-          else if (clazz.isAssignableFrom(targetType)) {
-            generalAccessors.add(resolver);
-          }
-        }
-      }
-    }
-    ArrayList<PropertyAccessor> resolvers = new ArrayList<>(specificAccessors);
-    generalAccessors.removeAll(specificAccessors);
-    resolvers.addAll(generalAccessors);
-    return resolvers;
+    Class<?> targetType = (targetObject != null ? targetObject.getClass() : null);
+    return AstUtils.getPropertyAccessorsToTry(targetType, propertyAccessors);
   }
 
   @Override
