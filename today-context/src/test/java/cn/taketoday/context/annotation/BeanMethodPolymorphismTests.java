@@ -198,7 +198,10 @@ public class BeanMethodPolymorphismTests {
    */
   @Test
   void beanMethodShadowing() {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ShadowConfig.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
+    ctx.register(ShadowConfig.class);
+    ctx.refresh();
 
     assertThat(ctx.getBean(String.class)).isEqualTo("shadow");
   }

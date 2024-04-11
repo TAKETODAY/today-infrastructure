@@ -182,6 +182,7 @@ public class ImportTests {
   @Test
   void testImportAnnotationWithMultipleArgumentsResultingInOverriddenBeanDefinition() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
+    beanFactory.setAllowBeanDefinitionOverriding(true);
     beanFactory.registerBeanDefinition("config", new RootBeanDefinition(
             WithMultipleArgumentsThatWillCauseDuplication.class));
     ConfigurationClassPostProcessor pp = new ConfigurationClassPostProcessor();

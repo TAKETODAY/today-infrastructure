@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.xml;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.core.io.ClassPathResource;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 
 /**
  * With , bean id attributes (and all other id attributes across the
@@ -43,22 +40,24 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
  * @see cn.taketoday.beans.factory.xml.XmlBeanFactoryTests#withDuplicateNameInAlias
  * @since 4.0
  */
-public class DuplicateBeanIdTests {
+class DuplicateBeanIdTests {
 
   @Test
-  public void duplicateBeanIdsWithinSameNestingLevelRaisesError() {
+  void duplicateBeanIdsWithinSameNestingLevelRaisesError() {
     StandardBeanFactory bf = new StandardBeanFactory();
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
-    assertThatExceptionOfType(Exception.class).as("duplicate ids in same nesting level").isThrownBy(() ->
+    assertThatException().as("duplicate ids in same nesting level").isThrownBy(() ->
             reader.loadBeanDefinitions(new ClassPathResource("DuplicateBeanIdTests-sameLevel-context.xml", this.getClass())));
   }
 
   @Test
-  public void duplicateBeanIdsAcrossNestingLevels() {
+  void duplicateBeanIdsAcrossNestingLevels() {
     StandardBeanFactory bf = new StandardBeanFactory();
+    bf.setAllowBeanDefinitionOverriding(true);
     XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(bf);
     reader.loadBeanDefinitions(new ClassPathResource("DuplicateBeanIdTests-multiLevel-context.xml", this.getClass()));
     TestBean testBean = bf.getBean(TestBean.class); // there should be only one
-    assertThat(testBean.getName()).isEqualTo("nested");
+    Assertions.assertThat(testBean.getName()).isEqualTo("nested");
   }
+
 }

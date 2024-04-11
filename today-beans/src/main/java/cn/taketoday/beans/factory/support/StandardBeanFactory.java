@@ -156,7 +156,8 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   private String serializationId;
 
   /** Whether to allow re-registration of a different definition with the same name. */
-  private boolean allowBeanDefinitionOverriding = true;
+  @Nullable
+  private Boolean allowBeanDefinitionOverriding;
 
   /** Whether to allow eager class loading even for lazy-init beans. */
   private boolean allowEagerClassLoading = true;
@@ -251,7 +252,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
    */
   @Override
   public boolean isAllowBeanDefinitionOverriding() {
-    return this.allowBeanDefinitionOverriding;
+    return !Boolean.FALSE.equals(this.allowBeanDefinitionOverriding);
   }
 
   /**
@@ -625,21 +626,10 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
       if (!isBeanDefinitionOverridable(beanName)) {
         throw new BeanDefinitionOverrideException(beanName, def, existBeanDef);
       }
-      else if (existBeanDef.getRole() < def.getRole()) {
-        // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
-        log.info("Overriding user-defined bean definition for bean '{}' with a " +
-                "framework-generated bean definition: replacing [{}] with [{}]", beanName, existBeanDef, def);
+      else {
+        logBeanDefinitionOverriding(beanName, def, existBeanDef);
       }
-      else if (!def.equals(existBeanDef)) {
-        if (log.isDebugEnabled()) {
-          log.debug("Overriding bean definition for bean '{}' with a different definition: replacing [{}] with [{}]",
-                  beanName, existBeanDef, def);
-        }
-      }
-      else if (log.isDebugEnabled()) {
-        log.trace("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
-                beanName, existBeanDef, def);
-      }
+
       beanDefinitionMap.put(beanName, def);
     }
     else {
@@ -692,6 +682,39 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     // Cache a primary marker for the given bean.
     if (def.isPrimary()) {
       primaryBeanNames.add(beanName);
+    }
+  }
+
+  private void logBeanDefinitionOverriding(String beanName, BeanDefinition beanDefinition,
+          BeanDefinition existingDefinition) {
+
+    boolean explicitBeanOverride = (this.allowBeanDefinitionOverriding != null);
+    if (existingDefinition.getRole() < beanDefinition.getRole()) {
+      // e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
+      if (log.isInfoEnabled()) {
+        log.info("Overriding user-defined bean definition for bean '{}' with a framework-generated bean definition: replacing [{}] with [{}]",
+                beanName, existingDefinition, beanDefinition);
+      }
+    }
+    else if (!beanDefinition.equals(existingDefinition)) {
+      if (explicitBeanOverride && log.isInfoEnabled()) {
+        log.info("Overriding bean definition for bean '{}' with a different definition: replacing [{}] with [{}]",
+                beanName, existingDefinition, beanDefinition);
+      }
+      if (log.isDebugEnabled()) {
+        log.debug("Overriding bean definition for bean '{}' with a different definition: replacing [{}] with [{}]",
+                beanName, existingDefinition, beanDefinition);
+      }
+    }
+    else {
+      if (explicitBeanOverride && log.isInfoEnabled()) {
+        log.info("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
+                beanName, existingDefinition, beanDefinition);
+      }
+      if (log.isTraceEnabled()) {
+        log.trace("Overriding bean definition for bean '{}' with an equivalent definition: replacing [{}] with [{}]",
+                beanName, existingDefinition, beanDefinition);
+      }
     }
   }
 

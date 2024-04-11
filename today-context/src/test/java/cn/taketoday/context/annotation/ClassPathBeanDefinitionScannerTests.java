@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -194,6 +194,7 @@ public class ClassPathBeanDefinitionScannerTests {
   @Test
   public void testSimpleScanWithDefaultFiltersAndOverridingBean() {
     GenericApplicationContext context = new GenericApplicationContext();
+    context.setAllowBeanDefinitionOverriding(true);
     context.registerBeanDefinition("stubFooDao", new RootBeanDefinition(TestBean.class));
     ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(context);
     scanner.setIncludeAnnotationConfig(false);

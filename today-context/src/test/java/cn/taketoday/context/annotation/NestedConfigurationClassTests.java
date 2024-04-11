@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.Collection;
 
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.stereotype.Component;
@@ -34,11 +32,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @since 4.0
  */
-public class NestedConfigurationClassTests {
+class NestedConfigurationClassTests {
 
   @Test
-  public void oneLevelDeep() {
+  void oneLevelDeep() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(L0Config.L1Config.class);
     ctx.refresh();
 
@@ -52,11 +51,13 @@ public class NestedConfigurationClassTests {
 
     // ensure that override order is correct
     assertThat(ctx.getBean("overrideBean", TestBean.class).getName()).isEqualTo("override-l1");
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsDeep() {
+  void twoLevelsDeep() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(L0Config.class);
     ctx.refresh();
 
@@ -65,8 +66,8 @@ public class NestedConfigurationClassTests {
     ctx.getBean("l0Bean");
 
     assertThat(ctx.getBeanFactory().containsSingleton(L0Config.L1Config.class.getName())).isTrue();
-    L0Config.L1Config bean = ctx.getBean(L0Config.L1Config.class);
-    Object l1Bean = ctx.getBean("l1Bean");
+    ctx.getBean(L0Config.L1Config.class);
+    ctx.getBean("l1Bean");
 
     assertThat(ctx.getBeanFactory().containsSingleton(L0Config.L1Config.L2Config.class.getName())).isFalse();
     ctx.getBean(L0Config.L1Config.L2Config.class);
@@ -74,11 +75,13 @@ public class NestedConfigurationClassTests {
 
     // ensure that override order is correct
     assertThat(ctx.getBean("overrideBean", TestBean.class).getName()).isEqualTo("override-l0");
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsInLiteMode() {
+  void twoLevelsInLiteMode() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(L0ConfigLight.class);
     ctx.refresh();
 
@@ -96,18 +99,20 @@ public class NestedConfigurationClassTests {
 
     // ensure that override order is correct
     assertThat(ctx.getBean("overrideBean", TestBean.class).getName()).isEqualTo("override-l0");
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsDeepWithInheritance() {
+  void twoLevelsDeepWithInheritance() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(S1Config.class);
     ctx.refresh();
 
     S1Config config = ctx.getBean(S1Config.class);
-    assertThat(config != ctx.getBean(S1Config.class)).isTrue();
+    assertThat(config).isNotSameAs(ctx.getBean(S1Config.class));
     TestBean tb = ctx.getBean("l0Bean", TestBean.class);
-    assertThat(tb == ctx.getBean("l0Bean", TestBean.class)).isTrue();
+    assertThat(tb).isSameAs(ctx.getBean("l0Bean", TestBean.class));
 
     ctx.getBean(L0Config.L1Config.class);
     ctx.getBean("l1Bean");
@@ -118,25 +123,26 @@ public class NestedConfigurationClassTests {
     // ensure that override order is correct and that it is a singleton
     TestBean ob = ctx.getBean("overrideBean", TestBean.class);
     assertThat(ob.getName()).isEqualTo("override-s1");
-    assertThat(ob == ctx.getBean("overrideBean", TestBean.class)).isTrue();
+    assertThat(ob).isSameAs(ctx.getBean("overrideBean", TestBean.class));
 
     TestBean pb1 = ctx.getBean("prototypeBean", TestBean.class);
     TestBean pb2 = ctx.getBean("prototypeBean", TestBean.class);
-    assertThat(pb1 != pb2).isTrue();
-    assertThat(pb1.getFriends().iterator().next() != pb2.getFriends().iterator().next()).isTrue();
+    assertThat(pb1).isNotSameAs(pb2);
+    assertThat(pb1.getFriends()).element(0).isNotSameAs(pb2.getFriends());
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsDeepWithInheritanceThroughImport() {
+  void twoLevelsDeepWithInheritanceThroughImport() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(S1Importer.class);
     ctx.refresh();
 
     S1Config config = ctx.getBean(S1Config.class);
-    assertThat(config != ctx.getBean(S1Config.class)).isTrue();
+    assertThat(config).isNotSameAs(ctx.getBean(S1Config.class));
     TestBean tb = ctx.getBean("l0Bean", TestBean.class);
-    TestBean l0Bean = ctx.getBean("l0Bean", TestBean.class);
-    assertThat(tb == l0Bean).isTrue();
+    assertThat(tb).isSameAs(ctx.getBean("l0Bean", TestBean.class));
 
     ctx.getBean(L0Config.L1Config.class);
     ctx.getBean("l1Bean");
@@ -147,26 +153,26 @@ public class NestedConfigurationClassTests {
     // ensure that override order is correct and that it is a singleton
     TestBean ob = ctx.getBean("overrideBean", TestBean.class);
     assertThat(ob.getName()).isEqualTo("override-s1");
-    assertThat(ob == ctx.getBean("overrideBean", TestBean.class)).isTrue();
+    assertThat(ob).isSameAs(ctx.getBean("overrideBean", TestBean.class));
 
     TestBean pb1 = ctx.getBean("prototypeBean", TestBean.class);
     TestBean pb2 = ctx.getBean("prototypeBean", TestBean.class);
-    assertThat(pb1 != pb2).isTrue();
-    Collection<? super Object> friends = pb1.getFriends();
-    Collection<? super Object> friends1 = pb2.getFriends();
-    assertThat(friends.iterator().next() != friends1.iterator().next()).isTrue();
+    assertThat(pb1).isNotSameAs(pb2);
+    assertThat(pb1.getFriends()).element(0).isNotSameAs(pb2.getFriends());
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsDeepWithInheritanceAndScopedProxy() {
+  void twoLevelsDeepWithInheritanceAndScopedProxy() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(S1ImporterWithProxy.class);
     ctx.refresh();
 
     S1ConfigWithProxy config = ctx.getBean(S1ConfigWithProxy.class);
-    assertThat(config != ctx.getBean(S1ConfigWithProxy.class)).isTrue();
+    assertThat(config).isSameAs(ctx.getBean(S1ConfigWithProxy.class));
     TestBean tb = ctx.getBean("l0Bean", TestBean.class);
-    assertThat(tb == ctx.getBean("l0Bean", TestBean.class)).isTrue();
+    assertThat(tb).isSameAs(ctx.getBean("l0Bean", TestBean.class));
 
     ctx.getBean(L0Config.L1Config.class);
     ctx.getBean("l1Bean");
@@ -177,16 +183,17 @@ public class NestedConfigurationClassTests {
     // ensure that override order is correct and that it is a singleton
     TestBean ob = ctx.getBean("overrideBean", TestBean.class);
     assertThat(ob.getName()).isEqualTo("override-s1");
-    assertThat(ob == ctx.getBean("overrideBean", TestBean.class)).isTrue();
+    assertThat(ob).isSameAs(ctx.getBean("overrideBean", TestBean.class));
 
     TestBean pb1 = ctx.getBean("prototypeBean", TestBean.class);
     TestBean pb2 = ctx.getBean("prototypeBean", TestBean.class);
-    assertThat(pb1 != pb2).isTrue();
-    assertThat(pb1.getFriends().iterator().next() != pb2.getFriends().iterator().next()).isTrue();
+    assertThat(pb1).isNotSameAs(pb2);
+    assertThat(pb1.getFriends()).element(0).isNotSameAs(pb2.getFriends());
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsWithNoBeanMethods() {
+  void twoLevelsWithNoBeanMethods() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0ConfigEmpty.class);
     ctx.refresh();
@@ -194,20 +201,21 @@ public class NestedConfigurationClassTests {
     assertThat(ctx.getBeanFactory().containsSingleton("l0ConfigEmpty")).isFalse();
     Object l0i1 = ctx.getBean(L0ConfigEmpty.class);
     Object l0i2 = ctx.getBean(L0ConfigEmpty.class);
-    assertThat(l0i1 == l0i2).isTrue();
+    assertThat(l0i1).isSameAs(l0i2);
 
     Object l1i1 = ctx.getBean(L0ConfigEmpty.L1ConfigEmpty.class);
     Object l1i2 = ctx.getBean(L0ConfigEmpty.L1ConfigEmpty.class);
-    assertThat(l1i1 != l1i2).isTrue();
+    assertThat(l1i1).isNotSameAs(l1i2);
 
     Object l2i1 = ctx.getBean(L0ConfigEmpty.L1ConfigEmpty.L2ConfigEmpty.class);
     Object l2i2 = ctx.getBean(L0ConfigEmpty.L1ConfigEmpty.L2ConfigEmpty.class);
-    assertThat(l2i1 != l2i2).isTrue();
+    assertThat(l2i1).isSameAs(l2i2);
     assertThat(l2i2.toString()).isNotEqualTo(l2i1.toString());
+    ctx.close();
   }
 
   @Test
-  public void twoLevelsOnNonAnnotatedBaseClass() {
+  void twoLevelsOnNonAnnotatedBaseClass() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(L0ConfigConcrete.class);
     ctx.refresh();
@@ -215,16 +223,17 @@ public class NestedConfigurationClassTests {
     assertThat(ctx.getBeanFactory().containsSingleton("l0ConfigConcrete")).isFalse();
     Object l0i1 = ctx.getBean(L0ConfigConcrete.class);
     Object l0i2 = ctx.getBean(L0ConfigConcrete.class);
-    assertThat(l0i1 == l0i2).isTrue();
+    assertThat(l0i1).isSameAs(l0i2);
 
     Object l1i1 = ctx.getBean(L0ConfigConcrete.L1ConfigEmpty.class);
     Object l1i2 = ctx.getBean(L0ConfigConcrete.L1ConfigEmpty.class);
-    assertThat(l1i1 != l1i2).isTrue();
+    assertThat(l1i1).isNotSameAs(l1i2);
 
     Object l2i1 = ctx.getBean(L0ConfigConcrete.L1ConfigEmpty.L2ConfigEmpty.class);
     Object l2i2 = ctx.getBean(L0ConfigConcrete.L1ConfigEmpty.L2ConfigEmpty.class);
-    assertThat(l2i1 != l2i2).isTrue();
+    assertThat(l2i1).isSameAs(l2i2);
     assertThat(l2i2.toString()).isNotEqualTo(l2i1.toString());
+    ctx.close();
   }
 
   @Configuration
@@ -343,7 +352,7 @@ public class NestedConfigurationClassTests {
   }
 
   @Configuration
-  @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+  @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
   static class S1ConfigWithProxy extends L0Config {
 
     @Override
@@ -378,7 +387,7 @@ public class NestedConfigurationClassTests {
     static class L1ConfigEmpty {
 
       @Component
-      @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+      @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
       protected static class L2ConfigEmpty {
       }
     }
@@ -391,7 +400,7 @@ public class NestedConfigurationClassTests {
     static class L1ConfigEmpty {
 
       @Component
-      @Scope(value = "prototype"/*, proxyMode = ScopedProxyMode.TARGET_CLASS*/)
+      @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
       protected static class L2ConfigEmpty {
       }
     }

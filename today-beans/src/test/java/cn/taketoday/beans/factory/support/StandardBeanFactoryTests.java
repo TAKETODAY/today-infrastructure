@@ -842,6 +842,7 @@ class StandardBeanFactoryTests {
 
   @Test
   void aliasCircle() {
+    lbf.setAllowBeanDefinitionOverriding(true);
     lbf.registerAlias("test", "test2");
     lbf.registerAlias("test2", "test3");
     assertThatIllegalStateException().isThrownBy(() ->
@@ -865,6 +866,8 @@ class StandardBeanFactoryTests {
 
   @Test
   void beanDefinitionOverriding() {
+    lbf.setAllowBeanDefinitionOverriding(true);
+
     lbf.registerBeanDefinition("test", new RootBeanDefinition(TestBean.class));
     lbf.registerBeanDefinition("test", new RootBeanDefinition(NestedTestBean.class));
     lbf.registerAlias("otherTest", "test2");
@@ -901,6 +904,7 @@ class StandardBeanFactoryTests {
 
   @Test
   void beanDefinitionOverridingWithAlias() {
+    lbf.setAllowBeanDefinitionOverriding(true);
     lbf.registerBeanDefinition("test", new RootBeanDefinition(TestBean.class));
     lbf.registerAlias("test", "testAlias");
     lbf.registerBeanDefinition("test", new RootBeanDefinition(NestedTestBean.class));
@@ -911,6 +915,7 @@ class StandardBeanFactoryTests {
 
   @Test
   void beanDefinitionOverridingWithConstructorArgumentMismatch() {
+    lbf.setAllowBeanDefinitionOverriding(true);
     RootBeanDefinition bd1 = new RootBeanDefinition(NestedTestBean.class);
     bd1.getConstructorArgumentValues().addIndexedArgumentValue(1, "value1");
     lbf.registerBeanDefinition("test", bd1);
@@ -1181,6 +1186,7 @@ class StandardBeanFactoryTests {
 
   @Test
   void reregisterBeanDefinition() {
+    lbf.setAllowBeanDefinitionOverriding(true);
     RootBeanDefinition bd1 = new RootBeanDefinition(TestBean.class);
     bd1.setScope(BeanDefinition.SCOPE_PROTOTYPE);
     lbf.registerBeanDefinition("testBean", bd1);
@@ -1290,6 +1296,8 @@ class StandardBeanFactoryTests {
   @Test
   @Disabled
   void withOverloadedSetters() {
+    lbf.setAllowBeanDefinitionOverriding(true);
+
     RootBeanDefinition rbd = new RootBeanDefinition(SetterOverload.class);
     rbd.getPropertyValues().add("object", "a String");
     lbf.registerBeanDefinition("overloaded", rbd);

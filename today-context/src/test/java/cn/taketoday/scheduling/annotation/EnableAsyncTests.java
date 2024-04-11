@@ -97,6 +97,7 @@ public class EnableAsyncTests {
   @Test
   public void properExceptionForExistingProxyDependencyMismatch() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(AsyncConfig.class, AsyncBeanWithInterface.class, AsyncBeanUser.class);
     assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(ctx::refresh)
             .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
@@ -106,6 +107,7 @@ public class EnableAsyncTests {
   @Test
   public void properExceptionForResolvedProxyDependencyMismatch() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.setAllowBeanDefinitionOverriding(true);
     ctx.register(AsyncConfig.class, AsyncBeanUser.class, AsyncBeanWithInterface.class);
     assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(ctx::refresh)
             .withCauseInstanceOf(BeanNotOfRequiredTypeException.class);
