@@ -39,7 +39,7 @@ public abstract class AbstractRepositoryManagerTests {
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.METHOD)
   @ParameterizedTest(name = "[{index}] {0}")
-  @MethodSource("cn.taketoday.jdbc.persistence.AbstractRepositoryManagerTests#data")
+  @MethodSource("cn.taketoday.persistence.AbstractRepositoryManagerTests#data")
   public @interface ParameterizedRepositoryManagerTest {
 
   }
