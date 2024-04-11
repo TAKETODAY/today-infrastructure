@@ -168,34 +168,36 @@ public class DefaultAliasRegistry implements AliasRegistry {
     synchronized(aliasMap) {
       for (final String alias : new ArrayList<>(this.aliasNames)) {
         String registeredName = aliasMap.get(alias);
-        String resolvedAlias = valueResolver.resolveStringValue(alias);
-        String resolvedName = valueResolver.resolveStringValue(registeredName);
-        if (resolvedAlias == null || resolvedName == null || resolvedAlias.equals(resolvedName)) {
-          aliasMap.remove(alias);
-          aliasNames.remove(alias);
-        }
-        else if (!resolvedAlias.equals(alias)) {
-          String existingName = aliasMap.get(resolvedAlias);
-          if (existingName != null) {
-            if (existingName.equals(resolvedName)) {
-              // Pointing to existing alias - just remove placeholder
-              aliasMap.remove(alias);
-              aliasNames.remove(alias);
-              return;
-            }
-            throw new IllegalStateException(
-                    "Cannot register resolved alias '%s' (original: '%s') for name '%s': It is already registered for name '%s'."
-                            .formatted(resolvedAlias, alias, resolvedName, existingName));
+        if (registeredName != null) {
+          String resolvedAlias = valueResolver.resolveStringValue(alias);
+          String resolvedName = valueResolver.resolveStringValue(registeredName);
+          if (resolvedAlias == null || resolvedName == null || resolvedAlias.equals(resolvedName)) {
+            aliasMap.remove(alias);
+            aliasNames.remove(alias);
           }
-          checkForAliasCircle(resolvedName, resolvedAlias);
-          aliasMap.remove(alias);
-          aliasNames.remove(alias);
-          aliasMap.put(resolvedAlias, resolvedName);
-          aliasNames.add(resolvedAlias);
-        }
-        else if (!registeredName.equals(resolvedName)) {
-          aliasMap.put(alias, resolvedName);
-          aliasNames.add(alias);
+          else if (!resolvedAlias.equals(alias)) {
+            String existingName = aliasMap.get(resolvedAlias);
+            if (existingName != null) {
+              if (existingName.equals(resolvedName)) {
+                // Pointing to existing alias - just remove placeholder
+                aliasMap.remove(alias);
+                aliasNames.remove(alias);
+                return;
+              }
+              throw new IllegalStateException(
+                      "Cannot register resolved alias '%s' (original: '%s') for name '%s': It is already registered for name '%s'."
+                              .formatted(resolvedAlias, alias, resolvedName, existingName));
+            }
+            checkForAliasCircle(resolvedName, resolvedAlias);
+            aliasMap.remove(alias);
+            aliasNames.remove(alias);
+            aliasMap.put(resolvedAlias, resolvedName);
+            aliasNames.add(resolvedAlias);
+          }
+          else if (!registeredName.equals(resolvedName)) {
+            aliasMap.put(alias, resolvedName);
+            aliasNames.add(alias);
+          }
         }
       }
     }
