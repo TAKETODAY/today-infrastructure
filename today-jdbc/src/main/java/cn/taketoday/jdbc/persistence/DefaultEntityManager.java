@@ -863,6 +863,9 @@ public class DefaultEntityManager implements EntityManager {
     }
     catch (Throwable ex) {
       closeResource(con, stmt);
+      if (ex instanceof DataAccessException dae) {
+        throw dae;
+      }
       if (ex instanceof SQLException) {
         throw translateException(handler.getDescription(), statement, (SQLException) ex);
       }
