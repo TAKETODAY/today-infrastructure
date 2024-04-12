@@ -26,7 +26,7 @@ import java.util.Map;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.BeanFactory;
-import cn.taketoday.beans.factory.config.BeanPostProcessor;
+import cn.taketoday.beans.factory.InitializationBeanPostProcessor;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.EnableCaching;
 import cn.taketoday.cache.interceptor.CacheInterceptor;
@@ -106,11 +106,13 @@ class CustomInterceptorTests {
 
   }
 
-  static class CacheInterceptorBeanPostProcessor implements BeanPostProcessor {
+  static class CacheInterceptorBeanPostProcessor implements InitializationBeanPostProcessor {
 
     private final BeanFactory beanFactory;
 
-    CacheInterceptorBeanPostProcessor(BeanFactory beanFactory) { this.beanFactory = beanFactory; }
+    CacheInterceptorBeanPostProcessor(BeanFactory beanFactory) {
+      this.beanFactory = beanFactory;
+    }
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
       if (beanName.equals("cacheInterceptor")) {
