@@ -290,7 +290,7 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
           bean.start();
         }
         catch (Throwable ex) {
-          throw new ApplicationContextException("Failed to start bean '" + beanName + "'", ex);
+          throw new ApplicationContextException("Failed to start bean '%s'".formatted(beanName), ex);
         }
         log.debug("Successfully started bean '{}'", beanName);
       }
@@ -487,9 +487,8 @@ public class DefaultLifecycleProcessor implements LifecycleProcessor, BeanFactor
       try {
         latch.await(timeout, TimeUnit.MILLISECONDS);
         if (latch.getCount() > 0 && !countDownBeanNames.isEmpty() && log.isInfoEnabled()) {
-          log.info("Shutdown phase " + this.phase + " ends with " + countDownBeanNames.size() +
-                  " bean" + (countDownBeanNames.size() > 1 ? "s" : "") +
-                  " still running after timeout of " + this.timeout + "ms: " + countDownBeanNames);
+          log.info("Shutdown phase %d ends with %d bean%s still running after timeout of %dms: %s"
+                  .formatted(this.phase, countDownBeanNames.size(), countDownBeanNames.size() > 1 ? "s" : "", this.timeout, countDownBeanNames));
         }
       }
       catch (InterruptedException ex) {

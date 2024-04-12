@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -245,7 +242,7 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
         Class<?> filterClass = ClassUtils.forName(expression, classLoader);
         if (!TypeFilter.class.isAssignableFrom(filterClass)) {
           throw new IllegalArgumentException(
-                  "Class is not assignable to [" + TypeFilter.class.getName() + "]: " + expression);
+                  "Class is not assignable to [%s]: %s".formatted(TypeFilter.class.getName(), expression));
         }
         return (TypeFilter) BeanUtils.newInstance(filterClass);
       default:
@@ -261,12 +258,11 @@ public class ComponentScanBeanDefinitionParser implements BeanDefinitionParser {
       result = ReflectionUtils.accessibleConstructor(ClassUtils.<T>forName(className, classLoader)).newInstance();
     }
     catch (ClassNotFoundException ex) {
-      throw new IllegalArgumentException("Class [" + className + "] for strategy [" +
-              strategyType.getName() + "] not found", ex);
+      throw new IllegalArgumentException("Class [%s] for strategy [%s] not found".formatted(className, strategyType.getName()), ex);
     }
     catch (Throwable ex) {
-      throw new IllegalArgumentException("Unable to instantiate class [" + className + "] for strategy [" +
-              strategyType.getName() + "]: a zero-argument constructor is required", ex);
+      throw new IllegalArgumentException("Unable to instantiate class [%s] for strategy [%s]: a zero-argument constructor is required"
+              .formatted(className, strategyType.getName()), ex);
     }
 
     if (!strategyType.isAssignableFrom(result.getClass())) {

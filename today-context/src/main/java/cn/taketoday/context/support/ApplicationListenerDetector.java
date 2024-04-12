@@ -45,6 +45,7 @@ import cn.taketoday.util.ObjectUtils;
  * defensively mark this post-processor's field state as {@code transient}.
  *
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class ApplicationListenerDetector

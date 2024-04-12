@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -164,8 +164,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   public void setCacheOperationSources(CacheOperationSource... cacheOperationSources) {
     Assert.notEmpty(cacheOperationSources, "At least 1 CacheOperationSource needs to be specified");
     this.cacheOperationSource = cacheOperationSources.length > 1 ?
-                                new CompositeCacheOperationSource(cacheOperationSources) :
-                                cacheOperationSources[0];
+            new CompositeCacheOperationSource(cacheOperationSources) :
+            cacheOperationSources[0];
   }
 
   /**
@@ -286,9 +286,9 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   protected Collection<? extends Cache> getCaches(CacheOperationInvocationContext<CacheOperation> context, CacheResolver cacheResolver) {
     Collection<? extends Cache> caches = cacheResolver.resolveCaches(context);
     if (caches.isEmpty()) {
-      throw new IllegalStateException("No cache could be resolved for '" +
-              context.getOperation() + "' using resolver '" + cacheResolver +
-              "'. At least one cache should be provided per cache operation.");
+      throw new IllegalStateException(
+              "No cache could be resolved for '%s' using resolver '%s'. At least one cache should be provided per cache operation."
+                      .formatted(context.getOperation(), cacheResolver));
     }
     return caches;
   }
@@ -356,7 +356,7 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
   protected <T> T getBean(String name, Class<T> serviceType) {
     if (this.beanFactory == null) {
       throw new IllegalStateException(
-              "BeanFactory must be set on cache aspect for " + serviceType.getSimpleName() + " retrieval");
+              "BeanFactory must be set on cache aspect for %s retrieval".formatted(serviceType.getSimpleName()));
     }
     return BeanFactoryAnnotationUtils.qualifiedBeanOfType(this.beanFactory, serviceType, name);
   }
@@ -787,8 +787,8 @@ public abstract class CacheAspectSupport extends AbstractCacheInvoker
       this.targetClass = targetClass;
       this.method = BridgeMethodResolver.findBridgedMethod(method);
       this.targetMethod = !Proxy.isProxyClass(targetClass)
-                          ? AopUtils.getMostSpecificMethod(method, targetClass)
-                          : this.method;
+              ? AopUtils.getMostSpecificMethod(method, targetClass)
+              : this.method;
       this.methodKey = new AnnotatedElementKey(this.targetMethod, targetClass);
       this.keyGenerator = keyGenerator;
       this.cacheResolver = cacheResolver;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.format.datetime.standard;
@@ -36,6 +33,7 @@ import cn.taketoday.format.Formatter;
  *
  * @author Juergen Hoeller
  * @author Andrei Nevedomskii
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Instant#parse
  * @see DateTimeFormatter#ISO_INSTANT
  * @see DateTimeFormatter#RFC_1123_DATE_TIME
@@ -49,7 +47,7 @@ public class InstantFormatter implements Formatter<Instant> {
       return Instant.ofEpochMilli(Long.parseLong(text));
     }
     catch (NumberFormatException ex) {
-      if (text.length() > 0 && Character.isAlphabetic(text.charAt(0))) {
+      if (!text.isEmpty() && Character.isAlphabetic(text.charAt(0))) {
         // assuming RFC-1123 value a la "Tue, 3 Jun 2008 11:05:30 GMT"
         return Instant.from(DateTimeFormatter.RFC_1123_DATE_TIME.parse(text));
       }

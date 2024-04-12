@@ -97,9 +97,7 @@ public abstract class AbstractFallbackCacheOperationSource implements CacheOpera
    * is not cacheable
    */
   @Nullable
-  private Collection<CacheOperation> getCacheOperations(
-          Method method, @Nullable Class<?> targetClass, boolean cacheNull) {
-
+  private Collection<CacheOperation> getCacheOperations(Method method, @Nullable Class<?> targetClass, boolean cacheNull) {
     if (ReflectionUtils.isObjectMethod(method)) {
       return null;
     }

@@ -157,7 +157,7 @@ class ConfigurationClassParser {
       }
       catch (Throwable ex) {
         throw new BeanDefinitionStoreException(
-                "Failed to parse configuration class [" + bd.getBeanClassName() + "]", ex);
+                "Failed to parse configuration class [%s]".formatted(bd.getBeanClassName()), ex);
       }
     }
 
@@ -238,7 +238,7 @@ class ConfigurationClassParser {
       }
       catch (IOException ex) {
         throw new BeanDefinitionStoreException(
-                "I/O failure while processing configuration class [" + sourceClass + "]", ex);
+                "I/O failure while processing configuration class [%s]".formatted(sourceClass), ex);
       }
 
       configurationClasses.put(configClass, configClass);
@@ -572,9 +572,8 @@ class ConfigurationClassParser {
         throw ex;
       }
       catch (Throwable ex) {
-        throw new BeanDefinitionStoreException(
-                "Failed to process import candidates for configuration class [" +
-                        configClass.metadata.getClassName() + "]: " + ex.getMessage(), ex);
+        throw new BeanDefinitionStoreException("Failed to process import candidates for configuration class [%s]: %s"
+                .formatted(configClass.metadata.getClassName(), ex.getMessage()), ex);
       }
       finally {
         importRegistry.pop();
@@ -652,7 +651,7 @@ class ConfigurationClassParser {
         return new SourceClass(ClassUtils.forName(className, bootstrapContext.getClassLoader()));
       }
       catch (ClassNotFoundException ex) {
-        throw new IOException("Failed to load class [" + className + "]", ex);
+        throw new IOException("Failed to load class [%s]".formatted(className), ex);
       }
     }
     return new SourceClass(bootstrapContext.getMetadataReader(className));
@@ -758,9 +757,8 @@ class ConfigurationClassParser {
             throw ex;
           }
           catch (Throwable ex) {
-            throw new BeanDefinitionStoreException(
-                    "Failed to process import candidates for configuration class [" +
-                            configurationClass.metadata.getClassName() + "]", ex);
+            throw new BeanDefinitionStoreException("Failed to process import candidates for configuration class [%s]"
+                    .formatted(configurationClass.metadata.getClassName()), ex);
           }
         }
       }
@@ -1000,7 +998,7 @@ class ConfigurationClassParser {
         catch (ClassNotFoundException ex) {
           // Ignore -> fall back to ASM next, except for core java types.
           if (className.startsWith("java")) {
-            throw new IOException("Failed to load class [" + className + "]", ex);
+            throw new IOException("Failed to load class [%s]".formatted(className), ex);
           }
           return new SourceClass(bootstrapContext.getMetadataReader(className));
         }

@@ -50,11 +50,10 @@ public abstract class InfraCondition implements Condition {
       return outcome.isMatch();
     }
     catch (NoClassDefFoundError ex) {
-      throw new IllegalStateException("Could not evaluate condition on " + classOrMethodName + " due to "
-              + ex.getMessage() + " not found. Make sure your own configuration does not rely on "
-              + "that class. This can also happen if you are "
-              + "@ComponentScanning a today-framework package (e.g. if you "
-              + "put a @ComponentScan in the default package by mistake)", ex);
+      throw new IllegalStateException("""
+              Could not evaluate condition on %s due to %s not found. Make sure your own configuration does not rely on that class. \
+              This can also happen if you are @ComponentScanning a today-framework package (e.g. if you put a @ComponentScan in the \
+              default package by mistake)""".formatted(classOrMethodName, ex.getMessage()), ex);
     }
     catch (RuntimeException ex) {
       throw new IllegalStateException("Error processing condition on " + getName(metadata), ex);

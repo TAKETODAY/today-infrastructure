@@ -32,7 +32,7 @@ import cn.taketoday.expression.ExpressionException;
 class VariableNotAvailableException extends ExpressionException {
 
   public VariableNotAvailableException(String name) {
-    super("Variable '" + name + "' not available");
+    super("Variable '%s' not available".formatted(name));
   }
 
 }

@@ -194,8 +194,8 @@ class ConfigurationClassBeanDefinitionReader {
     if (isOverriddenByExistingDefinition(componentMethod, beanName)) {
       if (beanName.equals(componentMethod.configurationClass.beanName)) {
         throw new BeanDefinitionStoreException(componentMethod.configurationClass.resource.toString(),
-                beanName, "Bean name derived from @Component method '" + componentMethod.metadata.getMethodName() +
-                "' clashes with bean name for containing configuration class; please make those names unique!");
+                beanName, ("Bean name derived from @Component method '%s' clashes with bean name for containing configuration class; " +
+                "please make those names unique!").formatted(componentMethod.metadata.getMethodName()));
       }
       return;
     }

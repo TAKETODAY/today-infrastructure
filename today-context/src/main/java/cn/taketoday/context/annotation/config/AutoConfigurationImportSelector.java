@@ -149,8 +149,8 @@ public class AutoConfigurationImportSelector implements DeferredImportSelector,
     AnnotationAttributes attributes = AnnotationAttributes.fromMap(
             metadata.getAnnotationAttributes(name, true));
     if (attributes == null) {
-      throw new IllegalArgumentException("No auto-configuration attributes found. Is " + metadata.getClassName()
-              + " annotated with " + ClassUtils.getShortName(name) + "?");
+      throw new IllegalArgumentException("No auto-configuration attributes found. Is %s annotated with %s?"
+              .formatted(metadata.getClassName(), ClassUtils.getShortName(name)));
     }
     return attributes;
   }

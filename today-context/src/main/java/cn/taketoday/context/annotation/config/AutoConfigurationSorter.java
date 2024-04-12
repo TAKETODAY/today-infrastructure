@@ -107,7 +107,7 @@ class AutoConfigurationSorter {
 
   private void checkForCycles(Set<String> processing, String current, String after) {
     if (processing.contains(after)) {
-      throw new IllegalStateException("AutoConfigure cycle detected between " + current + " and " + after);
+      throw new IllegalStateException("AutoConfigure cycle detected between %s and %s".formatted(current, after));
     }
   }
 

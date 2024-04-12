@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.annotation;
@@ -47,6 +44,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @author Stephane Nicoll
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -94,7 +92,7 @@ public class DefaultCacheAnnotationParser implements CacheAnnotationParser, Seri
 
     Collection<? extends Annotation> anns =
             localOnly ? AnnotatedElementUtils.getAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS)
-                      : AnnotatedElementUtils.findAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS);
+                    : AnnotatedElementUtils.findAllMergedAnnotations(ae, CACHE_OPERATION_ANNOTATIONS);
     if (anns.isEmpty()) {
       return null;
     }
@@ -209,13 +207,13 @@ public class DefaultCacheAnnotationParser implements CacheAnnotationParser, Seri
   private void validateCacheOperation(AnnotatedElement ae, CacheOperation operation) {
     if (StringUtils.hasText(operation.getKey()) && StringUtils.hasText(operation.getKeyGenerator())) {
       throw new IllegalStateException("Invalid cache annotation configuration on '" +
-              ae.toString() + "'. Both 'key' and 'keyGenerator' attributes have been set. " +
+              ae + "'. Both 'key' and 'keyGenerator' attributes have been set. " +
               "These attributes are mutually exclusive: either set the EL expression used to" +
               "compute the key at runtime or set the name of the KeyGenerator bean to use.");
     }
     if (StringUtils.hasText(operation.getCacheManager()) && StringUtils.hasText(operation.getCacheResolver())) {
       throw new IllegalStateException("Invalid cache annotation configuration on '" +
-              ae.toString() + "'. Both 'cacheManager' and 'cacheResolver' attributes have been set. " +
+              ae + "'. Both 'cacheManager' and 'cacheResolver' attributes have been set. " +
               "These attributes are mutually exclusive: the cache manager is used to configure a" +
               "default cache resolver if none is set. If a cache resolver is set, the cache manager" +
               "won't be used.");

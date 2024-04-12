@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.support;
@@ -73,13 +70,13 @@ import cn.taketoday.util.ClassUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Qimiao Chen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setBasenames
  * @see ReloadableResourceBundleMessageSource
  * @see java.util.ResourceBundle
  * @see java.text.MessageFormat
  */
-public class ResourceBundleMessageSource
-        extends AbstractResourceBasedMessageSource implements BeanClassLoaderAware {
+public class ResourceBundleMessageSource extends AbstractResourceBasedMessageSource implements BeanClassLoaderAware {
 
   @Nullable
   private ClassLoader bundleClassLoader;
@@ -94,7 +91,7 @@ public class ResourceBundleMessageSource
    * This allows for very efficient hash lookups, significantly faster
    * than the ResourceBundle class's own cache.
    */
-  private final Map<String, Map<Locale, ResourceBundle>> cachedResourceBundles =
+  private final ConcurrentHashMap<String, Map<Locale, ResourceBundle>> cachedResourceBundles =
           new ConcurrentHashMap<>();
 
   /**
@@ -106,7 +103,7 @@ public class ResourceBundleMessageSource
    *
    * @see #getMessageFormat
    */
-  private final Map<ResourceBundle, Map<String, Map<Locale, MessageFormat>>> cachedBundleMessageFormats =
+  private final ConcurrentHashMap<ResourceBundle, Map<String, Map<Locale, MessageFormat>>> cachedBundleMessageFormats =
           new ConcurrentHashMap<>();
 
   @Nullable
@@ -218,7 +215,7 @@ public class ResourceBundleMessageSource
       }
       catch (MissingResourceException ex) {
         if (logger.isWarnEnabled()) {
-          logger.warn("ResourceBundle [" + basename + "] not found for MessageSource: " + ex.getMessage());
+          logger.warn("ResourceBundle [{}] not found for MessageSource: {}", basename, ex.getMessage());
         }
         // Assume bundle not found
         // -> do NOT throw the exception to allow for checking parent message source.
@@ -251,11 +248,11 @@ public class ResourceBundleMessageSource
         this.control = null;
         String encoding = getDefaultEncoding();
         if (encoding != null && logger.isInfoEnabled()) {
-          logger.info("ResourceBundleMessageSource is configured to read resources with encoding '" +
-                  encoding + "' but ResourceBundle.Control not supported in current system environment: " +
-                  ex.getMessage() + " - falling back to plain ResourceBundle.getBundle retrieval with the " +
-                  "platform default encoding. Consider setting the 'defaultEncoding' property to 'null' " +
-                  "for participating in the platform default and therefore avoiding this log message.");
+          logger.info("""
+                  ResourceBundleMessageSource is configured to read resources with encoding '%s' but ResourceBundle.Control not supported \
+                  in current system environment: %s - falling back to plain ResourceBundle.getBundle retrieval with the platform default \
+                  encoding. Consider setting the 'defaultEncoding' property to 'null' for participating in the platform default and \
+                  therefore avoiding this log message.""".formatted(encoding, ex.getMessage()));
         }
       }
     }
@@ -451,9 +448,7 @@ public class ResourceBundleMessageSource
     }
 
     @Override
-    public boolean needsReload(
-            String baseName, Locale locale, String format, ClassLoader loader, ResourceBundle bundle, long loadTime) {
-
+    public boolean needsReload(String baseName, Locale locale, String format, ClassLoader loader, ResourceBundle bundle, long loadTime) {
       if (super.needsReload(baseName, locale, format, loader, bundle, loadTime)) {
         cachedBundleMessageFormats.remove(bundle);
         return true;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.validation;
@@ -36,6 +33,7 @@ import cn.taketoday.util.StringUtils;
  *
  * @author Juergen Hoeller
  * @author Dmitriy Kopylenko
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Validator
  * @see Errors
  * @since 4.0
@@ -83,7 +81,7 @@ public abstract class ValidationUtils {
     }
     if (!validator.supports(target.getClass())) {
       throw new IllegalArgumentException(
-              "Validator [" + validator.getClass() + "] does not support [" + target.getClass() + "]");
+              "Validator [%s] does not support [%s]".formatted(validator.getClass(), target.getClass()));
     }
 
     if (ObjectUtils.isNotEmpty(validationHints) && validator instanceof SmartValidator) {
@@ -256,9 +254,8 @@ public abstract class ValidationUtils {
    * (can be {@code null})
    * @param defaultMessage fallback default message
    */
-  public static void rejectIfEmptyOrWhitespace(
-          Errors errors, String field, String errorCode,
-          @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
+  public static void rejectIfEmptyOrWhitespace(Errors errors, String field,
+          String errorCode, @Nullable Object[] errorArgs, @Nullable String defaultMessage) {
 
     Assert.notNull(errors, "Errors object is required");
     Object value = errors.getFieldValue(field);

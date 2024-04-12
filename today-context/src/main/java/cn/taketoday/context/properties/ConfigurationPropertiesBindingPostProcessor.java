@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties;
@@ -94,9 +94,8 @@ public class ConfigurationPropertiesBindingPostProcessor
       return;
     }
     if (bean.asBindTarget().getBindMethod() == BindMethod.VALUE_OBJECT) {
-      throw new IllegalStateException(
-              "Cannot bind @ConfigurationProperties for bean '" + bean.getName() +
-                      "'. Ensure that @ConstructorBinding has not been applied to regular bean");
+      throw new IllegalStateException("Cannot bind @ConfigurationProperties for bean '%s'. Ensure that @ConstructorBinding has not been applied to regular bean"
+              .formatted(bean.getName()));
     }
     try {
       this.binder.bind(bean);

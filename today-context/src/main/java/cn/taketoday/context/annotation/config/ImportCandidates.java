@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.config;
@@ -37,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 
 /**
  * Contains {@code @Configuration} import candidates, usually auto-configurations.
- *
+ * <p>
  * The {@link #load(Class, ClassLoader)} method can be used to discover the import
  * candidates.
  *
@@ -75,7 +72,7 @@ public final class ImportCandidates implements Iterable<String> {
 
   /**
    * Loads the names of import candidates from the classpath.
-   *
+   * <p>
    * The names of the import candidates are stored in files named
    * {@code META-INF/config/full-qualified-annotation-name.import} on the classpath.
    * Every line contains the full qualified name of the candidate class. Comments are
@@ -111,7 +108,7 @@ public final class ImportCandidates implements Iterable<String> {
     }
     catch (IOException ex) {
       throw new IllegalArgumentException(
-              "Failed to load configurations from location [" + location + "]", ex);
+              "Failed to load configurations from location [%s]".formatted(location), ex);
     }
   }
 
@@ -131,7 +128,7 @@ public final class ImportCandidates implements Iterable<String> {
       return candidates;
     }
     catch (IOException ex) {
-      throw new IllegalArgumentException("Unable to load configurations from location [" + url + "]", ex);
+      throw new IllegalArgumentException("Unable to load configurations from location [%s]".formatted(url), ex);
     }
   }
 

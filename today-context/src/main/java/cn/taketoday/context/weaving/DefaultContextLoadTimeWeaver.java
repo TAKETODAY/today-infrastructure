@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.weaving;
@@ -24,8 +21,8 @@ import java.lang.instrument.ClassFileTransformer;
 
 import cn.taketoday.beans.factory.BeanClassLoaderAware;
 import cn.taketoday.beans.factory.DisposableBean;
-import cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver;
 import cn.taketoday.instrument.InstrumentationSavingAgent;
+import cn.taketoday.instrument.classloading.InstrumentationLoadTimeWeaver;
 import cn.taketoday.instrument.classloading.LoadTimeWeaver;
 import cn.taketoday.instrument.classloading.ReflectiveLoadTimeWeaver;
 import cn.taketoday.instrument.classloading.TomcatLoadTimeWeaver;
@@ -51,6 +48,7 @@ import cn.taketoday.logging.LoggerFactory;
  * @author Juergen Hoeller
  * @author Ramnivas Laddad
  * @author Costin Leau
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see cn.taketoday.context.ConfigurableApplicationContext#LOAD_TIME_WEAVER_BEAN_NAME
  * @since 4.0
  */

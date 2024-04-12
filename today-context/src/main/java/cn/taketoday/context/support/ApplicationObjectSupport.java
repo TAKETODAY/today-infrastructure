@@ -69,7 +69,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
       // Initialize with passed-in context.
       if (!requiredContextClass().isInstance(context)) {
         throw new ApplicationContextException(
-                "Invalid application context: needs to be of type [" + requiredContextClass().getName() + "]");
+                "Invalid application context: needs to be of type [%s]".formatted(requiredContextClass().getName()));
       }
       this.applicationContext = context;
       initApplicationContext(context);
@@ -77,9 +77,8 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
     else {
       // Ignore reinitialization if same context passed in.
       if (this.applicationContext != context) {
-        throw new ApplicationContextException(
-                "Cannot reinitialize with different application context: current one is [" +
-                        this.applicationContext + "], passed-in one is [" + context + "]");
+        throw new ApplicationContextException("Cannot reinitialize with different application context: current one is [%s], passed-in one is [%s]"
+                .formatted(this.applicationContext, context));
       }
     }
   }
@@ -124,7 +123,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
     ApplicationContext context = this.applicationContext;
     if (context == null && isContextRequired()) {
       throw new IllegalStateException(
-              "ApplicationContextSupport instance [" + this + "] does not run in an ApplicationContext");
+              "ApplicationContextSupport instance [%s] does not run in an ApplicationContext".formatted(this));
     }
     return context;
   }
@@ -176,7 +175,7 @@ public abstract class ApplicationObjectSupport implements ApplicationContextAwar
       if (context == null) {
         if (isContextRequired()) {
           throw new IllegalStateException(
-                  "ApplicationObjectSupport instance [" + this + "] does not run in an ApplicationContext");
+                  "ApplicationObjectSupport instance [%s] does not run in an ApplicationContext".formatted(this));
         }
         return null;
       }

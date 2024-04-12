@@ -431,8 +431,9 @@ public class ConfigurationClassPostProcessor implements PriorityOrdered, BeanCla
       }
       if (ConfigurationClassUtils.CONFIGURATION_CLASS_FULL.equals(configClassAttr)) {
         if (!(beanDef instanceof AbstractBeanDefinition abd)) {
-          throw new BeanDefinitionStoreException("Cannot enhance @Configuration bean definition '" +
-                  beanName + "' since it is not stored in an AbstractBeanDefinition subclass");
+          throw new BeanDefinitionStoreException(
+                  "Cannot enhance @Configuration bean definition '%s' since it is not stored in an AbstractBeanDefinition subclass"
+                          .formatted(beanName));
         }
         else if (beanFactory.containsSingleton(beanName)) {
           if (log.isWarnEnabled()) {

@@ -91,9 +91,7 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
    * @param arguments the array of arguments to be used to resolve this message
    * @param defaultMessage the default message to be used to resolve this message
    */
-  public DefaultMessageSourceResolvable(
-          @Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
-
+  public DefaultMessageSourceResolvable(@Nullable String[] codes, @Nullable Object[] arguments, @Nullable String defaultMessage) {
     this.codes = codes;
     this.arguments = arguments;
     this.defaultMessage = defaultMessage;
@@ -155,11 +153,9 @@ public class DefaultMessageSourceResolvable implements MessageSourceResolvable, 
    * including codes, arguments, and default message.
    */
   protected final String resolvableToString() {
-    StringBuilder result = new StringBuilder(64);
-    result.append("codes [").append(StringUtils.arrayToDelimitedString(this.codes, ","));
-    result.append("]; arguments [").append(StringUtils.arrayToDelimitedString(this.arguments, ","));
-    result.append("]; default message [").append(this.defaultMessage).append(']');
-    return result.toString();
+    return "codes [%s]; arguments [%s]; default message [%s]".formatted(
+            StringUtils.arrayToDelimitedString(this.codes, ","),
+            StringUtils.arrayToDelimitedString(this.arguments, ","), this.defaultMessage);
   }
 
   /**

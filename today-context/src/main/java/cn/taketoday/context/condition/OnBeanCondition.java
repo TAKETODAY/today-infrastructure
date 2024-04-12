@@ -150,7 +150,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
                   .noMatch(spec.message().found("multiple primary beans").items(Style.QUOTE, primaryBeans));
         }
         matchMessage = spec.message(matchMessage)
-                .found("a single primary bean '" + primaryBeans.get(0) + "' from beans")
+                .found("a single primary bean '%s' from beans".formatted(primaryBeans.get(0)))
                 .items(Style.QUOTE, allBeans);
       }
     }
@@ -651,9 +651,8 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     @Override
     protected void validate(BeanTypeDeductionException ex) {
       if (types.size() != 1) {
-        throw new IllegalArgumentException(
-                getAnnotationName() + " annotations must specify only one type (got "
-                        + StringUtils.collectionToCommaDelimitedString(types) + ")");
+        throw new IllegalArgumentException("%s annotations must specify only one type (got %s)"
+                .formatted(getAnnotationName(), StringUtils.collectionToCommaDelimitedString(types)));
       }
     }
 
@@ -723,7 +722,7 @@ class OnBeanCondition extends FilteringInfraCondition implements ConfigurationCo
     private static final long serialVersionUID = 1L;
 
     private BeanTypeDeductionException(String className, String beanMethodName, Throwable cause) {
-      super("Failed to deduce bean type for " + className + "." + beanMethodName, cause);
+      super("Failed to deduce bean type for %s.%s".formatted(className, beanMethodName), cause);
     }
 
   }

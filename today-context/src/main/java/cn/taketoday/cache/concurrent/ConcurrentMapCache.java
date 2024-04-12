@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.concurrent;
@@ -220,8 +220,8 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
         return this.serialization.serializeToByteArray(storeValue);
       }
       catch (Throwable ex) {
-        throw new IllegalArgumentException("Failed to serialize cache value '" + userValue +
-                "'. Does it implement Serializable?", ex);
+        throw new IllegalArgumentException("Failed to serialize cache value '%s'. Does it implement Serializable?"
+                .formatted(userValue), ex);
       }
     }
     else {
@@ -236,7 +236,7 @@ public class ConcurrentMapCache extends AbstractValueAdaptingCache {
         return super.fromStoreValue(this.serialization.deserializeFromByteArray((byte[]) storeValue));
       }
       catch (Throwable ex) {
-        throw new IllegalArgumentException("Failed to deserialize cache value '" + storeValue + "'", ex);
+        throw new IllegalArgumentException("Failed to deserialize cache value '%s'".formatted(storeValue), ex);
       }
     }
     else {

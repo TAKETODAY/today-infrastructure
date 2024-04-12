@@ -447,11 +447,8 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
    * @param message error message to append the HandlerMethod details to
    */
   protected String getDetailedErrorMessage(Object bean, String message) {
-    StringBuilder sb = new StringBuilder(message).append('\n');
-    sb.append("HandlerMethod details: \n");
-    sb.append("Bean [").append(bean.getClass().getName()).append("]\n");
-    sb.append("Method [").append(this.targetMethod.toGenericString()).append("]\n");
-    return sb.toString();
+    return "%s\nHandlerMethod details: \nBean [%s]\nMethod [%s]\n"
+            .formatted(message, bean.getClass().getName(), this.targetMethod.toGenericString());
   }
 
   /**
@@ -465,10 +462,9 @@ public class ApplicationListenerMethodAdapter implements GenericApplicationListe
     Class<?> methodDeclaringClass = method.getDeclaringClass();
     Class<?> targetBeanClass = targetBean.getClass();
     if (!methodDeclaringClass.isAssignableFrom(targetBeanClass)) {
-      String msg = "The event listener method class '" + methodDeclaringClass.getName() +
-              "' is not an instance of the actual bean class '" +
-              targetBeanClass.getName() + "'. If the bean requires proxying " +
-              "(e.g. due to @Transactional), please use class-based proxying.";
+      String msg = ("The event listener method class '%s' is not an instance of the actual bean class '%s'. " +
+              "If the bean requires proxying (e.g. due to @Transactional), please use class-based proxying.")
+              .formatted(methodDeclaringClass.getName(), targetBeanClass.getName());
       throw new IllegalStateException(getInvocationErrorMessage(targetBean, msg, args));
     }
   }

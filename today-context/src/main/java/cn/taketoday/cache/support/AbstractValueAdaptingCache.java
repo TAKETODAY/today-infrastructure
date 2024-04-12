@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.support;
@@ -67,7 +67,7 @@ public abstract class AbstractValueAdaptingCache implements Cache {
     Object value = fromStoreValue(lookup(key));
     if (value != null && type != null && !type.isInstance(value)) {
       throw new IllegalStateException(
-              "Cached value is not of required type [" + type.getName() + "]: " + value);
+              "Cached value is not of required type [%s]: %s".formatted(type.getName(), value));
     }
     return (T) value;
   }
@@ -109,7 +109,7 @@ public abstract class AbstractValueAdaptingCache implements Cache {
         return NullValue.INSTANCE;
       }
       throw new IllegalArgumentException(
-              "Cache '" + getName() + "' is configured to not allow null values but null was provided");
+              "Cache '%s' is configured to not allow null values but null was provided".formatted(getName()));
     }
     return userValue;
   }

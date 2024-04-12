@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -188,9 +188,9 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
           log.debug("Ignored incompatible class format in {}: {}", resource, ex.getMessage());
         }
         else {
-          throw new BeanDefinitionStoreException("Incompatible class format in " + resource +
-                  ": set system property 'spring.classformat.ignore' to 'true' " +
-                  "if you mean to ignore such files during classpath scanning", ex);
+          throw new BeanDefinitionStoreException(
+                  "Incompatible class format in %s: set system property 'infra.classformat.ignore' to 'true' if you mean to ignore such files during classpath scanning"
+                          .formatted(resource), ex);
         }
       }
     });

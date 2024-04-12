@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.event;
@@ -338,9 +338,7 @@ public abstract class AbstractApplicationEventMulticaster
    * @see #supportsEvent(Class, ResolvableType)
    * @see #supportsEvent(ApplicationListener, ResolvableType, Class)
    */
-  private boolean supportsEvent(
-          ConfigurableBeanFactory beanFactory, String listenerBeanName, ResolvableType eventType) {
-
+  private boolean supportsEvent(ConfigurableBeanFactory beanFactory, String listenerBeanName, ResolvableType eventType) {
     Class<?> listenerType = beanFactory.getType(listenerBeanName);
     if (listenerType == null
             || GenericApplicationListener.class.isAssignableFrom(listenerType)
@@ -395,7 +393,7 @@ public abstract class AbstractApplicationEventMulticaster
   protected boolean supportsEvent(ApplicationListener<?> listener, ResolvableType eventType, @Nullable Class<?> sourceType) {
     GenericApplicationListener smartListener
             = listener instanceof GenericApplicationListener
-              ? (GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener);
+            ? (GenericApplicationListener) listener : new GenericApplicationListenerAdapter(listener);
     return smartListener.supportsEventType(eventType) && smartListener.supportsSourceType(sourceType);
   }
 
