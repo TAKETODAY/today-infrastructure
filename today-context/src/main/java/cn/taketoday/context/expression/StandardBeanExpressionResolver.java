@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.expression;
@@ -35,6 +35,7 @@ import cn.taketoday.expression.spel.support.StandardTypeLocator;
 import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -54,6 +55,14 @@ import cn.taketoday.util.StringUtils;
  * @since 4.0 2021/12/25 15:01
  */
 public class StandardBeanExpressionResolver implements BeanExpressionResolver, ParserContext {
+
+  /**
+   * System property to configure the maximum length for SpEL expressions: {@value}.
+   * <p>Can also be configured via the {@link TodayStrategies} mechanism.
+   *
+   * @see SpelParserConfiguration#getMaximumExpressionLength()
+   */
+  public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "spel.context.max-length";
 
   /** Default expression prefix: "#{". */
   public static final String DEFAULT_EXPRESSION_PREFIX = "#{";
@@ -85,7 +94,9 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
    * @param beanClassLoader the factory's bean class loader
    */
   public StandardBeanExpressionResolver(@Nullable ClassLoader beanClassLoader) {
-    this.expressionParser = new SpelExpressionParser(new SpelParserConfiguration(null, beanClassLoader));
+    SpelParserConfiguration parserConfig = new SpelParserConfiguration(
+            null, beanClassLoader, false, false, Integer.MAX_VALUE, retrieveMaxExpressionLength());
+    this.expressionParser = new SpelExpressionParser(parserConfig);
   }
 
   /**
@@ -176,6 +187,26 @@ public class StandardBeanExpressionResolver implements BeanExpressionResolver, P
    */
   protected void customizeEvaluationContext(StandardEvaluationContext evalContext) {
 
+  }
+
+  private static int retrieveMaxExpressionLength() {
+    String value = TodayStrategies.getProperty(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME);
+    if (StringUtils.isBlank(value)) {
+      return SpelParserConfiguration.DEFAULT_MAX_EXPRESSION_LENGTH;
+    }
+
+    try {
+      int maxLength = Integer.parseInt(value.trim());
+      if (maxLength < 1) {
+        throw new IllegalArgumentException("Value [%d] for system property [%s] must be positive"
+                .formatted(maxLength, MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME));
+      }
+      return maxLength;
+    }
+    catch (NumberFormatException ex) {
+      throw new IllegalArgumentException("Failed to parse value for system property [%s]: %s"
+              .formatted(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, ex.getMessage()), ex);
+    }
   }
 
 }

@@ -79,7 +79,7 @@ public abstract class StatementCreatorUtils {
    * e.g. with connection pool issues in case of an exception thrown from {@code getParameterType}
    * (as reported on JBoss AS 7) or in case of performance problems (as reported on PostgreSQL).
    */
-  public static final String IGNORE_GETPARAMETERTYPE_PROPERTY_NAME = "today.jdbc.getParameterType.ignore";
+  public static final String IGNORE_GETPARAMETERTYPE_PROPERTY_NAME = "infra.jdbc.getParameterType.ignore";
 
   private static final Logger log = LoggerFactory.getLogger(StatementCreatorUtils.class);
 

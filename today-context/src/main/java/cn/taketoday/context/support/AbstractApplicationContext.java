@@ -697,7 +697,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     // Tell the internal bean factory to use the context's class loader etc.
     ClassLoader classLoader = getClassLoader();
     beanFactory.setBeanClassLoader(classLoader);
-    beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
+    beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
     // Configure the bean factory with context callbacks.
