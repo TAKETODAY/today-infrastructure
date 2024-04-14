@@ -1,0 +1,173 @@
+[[expressions-properties-arrays]]
+= Properties, Arrays, Lists, Maps, and Indexers
+
+The Spring Expression Language provides support for navigating object graphs and indexing
+into various structures.
+
+NOTE: Numerical index values are zero-based, such as when accessing the n^th^ element of
+an array in Java.
+
+TIP: See the xref:core/expressions/language-ref/operator-safe-navigation.adoc[Safe Navigation Operator]
+section for details on how to navigate object graphs and index into various structures
+using the null-safe operator.
+
+[[expressions-property-navigation]]
+== Property Navigation
+
+You can navigate property references within an object graph by using a period to indicate
+a nested property value. The instances of the `Inventor` class, `pupin` and `tesla`, were
+populated with data listed in the
+xref:core/expressions/example-classes.adoc[Classes used in the examples] section. To
+navigate _down_ the object graph and get Tesla's year of birth and Pupin's city of birth,
+we use the following expressions:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+// evaluates to 1856
+int year = (Integer) parser.parseExpression("birthdate.year + 1900").getValue(context);
+
+// evaluates to "Smiljan"
+String city = (String) parser.parseExpression("placeOfBirth.city").getValue(context);
+----
+======
+
+[NOTE]
+====
+Case insensitivity is allowed for the first letter of property names. Thus, the
+expressions in the above example may be written as `Birthdate.Year + 1900` and
+`PlaceOfBirth.City`, respectively. In addition, properties may optionally be accessed via
+method invocations -- for example, `getPlaceOfBirth().getCity()` instead of
+`placeOfBirth.city`.
+====
+
+[[expressions-indexing-arrays-and-collections]]
+== Indexing into Arrays and Collections
+
+The n^th^ element of an array or collection (for example, a `Set` or `List`) can be
+obtained by using square bracket notation, as the following example shows.
+
+[NOTE]
+====
+If the indexed collection is a `java.util.List`, the n^th^ element will be accessed
+directly via `list.get(n)`.
+
+For any other type of `Collection`, the n^th^ element will be accessed by iterating over
+the collection using its `Iterator` and returning the n^th^ element encountered.
+====
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+ExpressionParser parser = new SpelExpressionParser();
+EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+
+// Inventions Array
+
+// evaluates to "Induction motor"
+String invention = parser.parseExpression("inventions[3]").getValue(
+    context, tesla, String.class);
+
+// Members List
+
+// evaluates to "Nikola Tesla"
+String name = parser.parseExpression("members[0].name").getValue(
+    context, ieee, String.class);
+
+// List and Array Indexing
+
+// evaluates to "Wireless communication"
+String invention = parser.parseExpression("members[0].inventions[6]").getValue(
+    context, ieee, String.class);
+----
+
+======
+
+[[expressions-indexing-strings]]
+== Indexing into Strings
+
+The n^th^ character of a string can be obtained by specifying the index within square
+brackets, as demonstrated in the following example.
+
+NOTE: The n^th^ character of a string will evaluate to a `java.lang.String`, not a
+`java.lang.Character`.
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+// evaluates to "T" (8th letter of "Nikola Tesla")
+String character = parser.parseExpression("members[0].name[7]")
+    .getValue(societyContext, String.class);
+----
+
+======
+
+[[expressions-indexing-maps]]
+== Indexing into Maps
+
+The contents of maps are obtained by specifying the key value within square brackets. In
+the following example, because keys for the `officers` map are strings, we can specify
+string literals such as `'president'`:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+// Officer's Map
+
+// evaluates to Inventor("Pupin")
+Inventor pupin = parser.parseExpression("officers['president']")
+    .getValue(societyContext, Inventor.class);
+
+// evaluates to "Idvor"
+String city = parser.parseExpression("officers['president'].placeOfBirth.city")
+    .getValue(societyContext, String.class);
+
+String countryExpression = "officers['advisors'][0].placeOfBirth.country";
+
+// setting values
+parser.parseExpression(countryExpression)
+    .setValue(societyContext, "Croatia");
+
+// evaluates to "Croatia"
+String country = parser.parseExpression(countryExpression)
+    .getValue(societyContext, String.class);
+----
+
+======
+
+[[expressions-indexing-objects]]
+== Indexing into Objects
+
+A property of an object can be obtained by specifying the name of the property within
+square brackets. This is analogous to accessing the value of a map based on its key. The
+following example demonstrates how to _index_ into an object to retrieve a specific
+property.
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+// Create an inventor to use as the root context object.
+Inventor tesla = new Inventor("Nikola Tesla");
+
+// evaluates to "Nikola Tesla"
+String name = parser.parseExpression("#root['name']")
+    .getValue(context, tesla, String.class);
+----
+
+======
+

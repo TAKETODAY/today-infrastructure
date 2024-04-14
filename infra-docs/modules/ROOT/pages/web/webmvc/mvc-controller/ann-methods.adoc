@@ -1,0 +1,8 @@
+[[mvc-ann-methods]]
+= Handler Methods
+:page-section-summary-toc: 1
+
+`@RequestMapping` handler methods have a flexible signature and can choose from a range of
+supported controller method arguments and return values.
+
+

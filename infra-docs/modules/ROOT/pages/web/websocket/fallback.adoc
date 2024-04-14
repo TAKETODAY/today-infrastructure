@@ -1,0 +1,29 @@
+[[websocket-fallback]]
+= Fallback
+
+Over the public Internet, restrictive proxies outside your control may preclude WebSocket interactions, either because they are not configured to pass on the `Upgrade` header or because they close long-lived connections that appear to be idle.
+
+The solution to this problem is WebSocket emulation -- that is, attempting to use WebSocket first and then falling back on HTTP-based techniques that emulate a WebSocket interaction and expose the same application-level API.
+
+On the Servlet stack, the TODAY Framework provides both server (and also client) support for the SockJS protocol.
+
+
+
+[[websocket-fallback-cors]]
+== CORS
+
+If you allow cross-origin requests (see xref:web/websocket/server.adoc#websocket-server-allowed-origins[Allowed Origins]), the SockJS protocol uses CORS for cross-domain support in the XHR streaming and polling transports.
+Therefore, CORS headers are added automatically, unless the presence of CORS headers in the response is detected.
+So, if an application is already configured to provide CORS support (for example, through a Servlet Filter),
+
+* `Access-Control-Allow-Origin`: Initialized from the value of the `Origin` request header.
+* `Access-Control-Allow-Credentials`: Always set to `true`.
+* `Access-Control-Request-Headers`: Initialized from values from the equivalent request header.
+* `Access-Control-Allow-Methods`: The HTTP methods a transport supports (see `TransportType` enum).
+* `Access-Control-Max-Age`: Set to 31536000 (1 year).
+
+Alternatively, if the CORS configuration allows it, consider excluding URLs with the SockJS endpoint prefix, thus letting Infra `SockJsService` handle it.
+
+
+
+

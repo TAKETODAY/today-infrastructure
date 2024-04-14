@@ -1,0 +1,9 @@
+[[beans]]
+= 控制反转 IoC 容器
+:page-section-summary-toc: 1
+
+本章介绍控制反转 (IoC) 容器。
+
+
+
+

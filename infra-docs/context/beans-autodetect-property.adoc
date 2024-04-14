@@ -1,5 +1,0 @@
-[[beans-autodetect-properties]]
-
-= Bean 属性自动检测
-
-
