@@ -1,0 +1,82 @@
+[[mvc-ann-validation]]
+= Validation
+
+Web MVC has built-in xref:core/validation/validator.adoc[Validation] support for
+`@RequestMapping` methods, including the option to use
+xref:core/validation/beanvalidation.adoc[Java Bean Validation].
+The validation support works on two levels.
+
+First, resolvers for
+xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[@ModelAttribute],
+xref:web/webmvc/mvc-controller/ann-methods/requestbody.adoc[@RequestBody], and
+xref:web/webmvc/mvc-controller/ann-methods/multipart-forms.adoc[@RequestPart] method
+parameters perform validation if the parameter has Jakarta's `@Valid` or Spring's
+`@Validated` annotation, and raise `MethodArgumentNotValidException` if necessary.
+Alternatively, you can handle the errors in the controller method by adding an
+`Errors` or `BindingResult` method parameter immediately after the validated one.
+
+Second, if {bean-validation-site}[Java Bean Validation] is present _AND_ any method
+parameter has `@Constraint` annotations, then method validation is applied instead,
+raising `HandlerMethodValidationException` if necessary. For this case you can still add
+an `Errors` or `BindingResult` method parameter to handle validation errors within the
+controller method, but if other method arguments have validation errors then
+`HandlerMethodValidationException` is raised instead. Method validation can apply
+to the return value if the method is annotated with `@Valid` or with `@Constraint`
+annotations.
+
+You can configure a `Validator` globally through the
+xref:web/webmvc/mvc-config/validation.adoc[WebMvc config], or locally through an
+xref:web/webmvc/mvc-controller/ann-initbinder.adoc[@InitBinder] method in an
+`@Controller` or `@ControllerAdvice`. You can also use multiple validators.
+
+NOTE: If a controller has a class level `@Validated`, then
+xref:core/validation/beanvalidation.adoc#validation-beanvalidation-spring-method[method validation is applied]
+through an AOP proxy. In order to take advantage of the Web MVC built-in support for
+method validation added in TODAY Framework 6.1, you need to remove the class level
+`@Validated` annotation from the controller.
+
+The xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses] section provides further
+details on how `MethodArgumentNotValidException` and `HandlerMethodValidationException`
+are handled, and also how their rendering can be customized through a `MessageSource` and
+locale and language specific resource bundles.
+
+For further custom handling of method validation errors, you can extend
+`ResponseEntityExceptionHandler` or use an `@ExceptionHandler` method in a controller
+or in a `@ControllerAdvice`, and handle `HandlerMethodValidationException` directly.
+The exception contains a list of``ParameterValidationResult``s that group validation errors
+by method parameter. You can either iterate over those, or provide a visitor with callback
+methods by controller method parameter type:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+HandlerMethodValidationException ex = ... ;
+
+ex.visitResults(new HandlerMethodValidationException.Visitor() {
+
+  @Override
+  public void requestHeader(RequestHeader requestHeader, ParameterValidationResult result) {
+      // ...
+  }
+
+  @Override
+  public void requestParam(@Nullable RequestParam requestParam, ParameterValidationResult result) {
+      // ...
+  }
+
+  @Override
+  public void modelAttribute(@Nullable ModelAttribute modelAttribute, ParameterErrors errors) {
+
+  // ...
+
+  @Override
+  public void other(ParameterValidationResult result) {
+      // ...
+  }
+});
+----
+
+======

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -124,9 +124,9 @@ class PathMatchingPatternResourceLoaderTests {
       // When the log level for the resolver is set to at least INFO, we should see
       // a log entry similar to the following.
       //
-      // [main] INFO  o.s.c.i.s.PathMatchingResourcePatternResolver -
+      // [main] INFO  o.s.c.i.s.PathMatchingPatternResourceLoader -
       // Skipping search for files matching pattern [**]: directory
-      // [/<...>/spring-core/src/test/resources/example/bogus] does not exist
+      // [/<...>/today-core/src/test/resources/example/bogus] does not exist
     }
 
     @Test

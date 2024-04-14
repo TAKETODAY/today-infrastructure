@@ -31,3 +31,4 @@
 /buildSrc/build/*
 **/build/**
 publish.sh
+cached-antora-playbook.yml

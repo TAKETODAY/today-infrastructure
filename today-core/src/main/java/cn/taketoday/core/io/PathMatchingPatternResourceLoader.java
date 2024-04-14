@@ -144,7 +144,7 @@ import cn.taketoday.util.StringUtils;
  *
  * <h3>Other Notes</h3>
  *
- * <p>As of Spring Framework 6.0, if {@link #getResources(String)} is invoked with
+ * <p>if {@link #getResources(String)} is invoked with
  * a location pattern using the "{@code classpath*:}" prefix it will first search
  * all modules in the {@linkplain ModuleLayer#boot() boot layer}, excluding
  * {@linkplain ModuleFinder#ofSystem() system modules}. It will then search the
@@ -160,7 +160,7 @@ import cn.taketoday.util.StringUtils;
  * root of expanded directories. This originates from a limitation in the JDK's
  * {@code ClassLoader.getResources()} method which only returns file system
  * locations for a passed-in empty String (indicating potential roots to search).
- * This {@code ResourcePatternResolver} implementation tries to mitigate the
+ * This {@code PatternResourceLoader} implementation tries to mitigate the
  * jar root lookup limitation through {@link URLClassLoader} introspection and
  * "{@code java.class.path}" manifest evaluation; however, without portability
  * guarantees.
@@ -226,7 +226,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   private final ResourceLoader resourceLoader;
 
   /**
-   * Create a new PathMatchingResourcePatternResolver with a DefaultResourceLoader.
+   * Create a new PathMatchingPatternResourceLoader with a DefaultResourceLoader.
    * <p>ClassLoader access will happen via the thread context class loader.
    *
    * @see DefaultResourceLoader
@@ -236,7 +236,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   }
 
   /**
-   * Create a new PathMatchingResourcePatternResolver.
+   * Create a new PathMatchingPatternResourceLoader.
    * <p>ClassLoader access will happen via the thread context class loader.
    *
    * @param resourceLoader the ResourceLoader to load root directories and
@@ -248,7 +248,7 @@ public class PathMatchingPatternResourceLoader implements PatternResourceLoader 
   }
 
   /**
-   * Create a new PathMatchingResourcePatternResolver with a DefaultResourceLoader.
+   * Create a new PathMatchingPatternResourceLoader with a DefaultResourceLoader.
    *
    * @param classLoader the ClassLoader to load classpath resources with,
    * or {@code null} for using the thread context class loader

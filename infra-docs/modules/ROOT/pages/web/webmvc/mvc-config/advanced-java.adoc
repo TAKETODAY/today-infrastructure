@@ -1,0 +1,31 @@
+[[mvc-config-advanced-java]]
+= Advanced Java Config
+
+`@EnableWebMvc` imports `DelegatingWebMvcConfiguration`, which:
+
+* Provides default Spring configuration for Web MVC applications
+* Detects and delegates to `WebMvcConfigurer` implementations to customize that configuration.
+
+For advanced mode, you can remove `@EnableWebMvc` and extend directly from
+`DelegatingWebMvcConfiguration` instead of implementing `WebMvcConfigurer`,
+as the following example shows:
+
+[source,java]
+----
+@Configuration
+public class WebConfiguration extends DelegatingWebMvcConfiguration {
+
+  public WebConfiguration(List<WebMvcConfigurer> configurers) {
+    super(configurers);
+  }
+
+  // ...
+}
+----
+
+You can keep existing methods in `WebConfig`, but you can now also override bean declarations
+from the base class, and you can still have any number of other `WebMvcConfigurer` implementations on
+the classpath.
+
+
+

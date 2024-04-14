@@ -9,11 +9,9 @@ repositories {
   gradlePluginPortal()
 }
 
-ext {
-
-}
 
 dependencies {
+  implementation 'org.yaml:snakeyaml:1.33'
   implementation "me.champeau.gradle:japicmp-gradle-plugin:0.4.1"
   implementation "org.gradle:test-retry-gradle-plugin:1.4.1"
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
@@ -51,6 +49,10 @@ gradlePlugin {
     mavenPluginPlugin {
       id = "cn.taketoday.maven-plugin"
       implementationClass = "cn.taketoday.build.maven.MavenPluginPlugin"
+    }
+    generateAntoraYml {
+      id = 'cn.taketoday.generate-antora-yml'
+      implementationClass = 'cn.taketoday.build.antora.GenerateAntoraYmlPlugin'
     }
   }
 }

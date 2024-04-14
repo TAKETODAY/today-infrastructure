@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
@@ -33,20 +33,32 @@ import cn.taketoday.lang.TodayStrategies;
  */
 public class SpelParserConfiguration {
 
-  /** System property to configure the default compiler mode for SpEL expression parsers: {@value}. */
+  /**
+   * System property to configure the default compiler mode for SpEL expression parsers: {@value}.
+   *
+   * @see #getCompilerMode()
+   */
   public static final String SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME = "spel.compiler.mode";
+
+  /**
+   * System property to configure the maximum length for SpEL expressions: {@value}.
+   * <p>Can also be configured via the {@link TodayStrategies} mechanism.
+   *
+   * @see SpelParserConfiguration#getMaximumExpressionLength()
+   */
+  public static final String MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME = "spel.default.max-length";
 
   private static final SpelCompilerMode defaultCompilerMode;
 
   /**
    * Default maximum length permitted for a SpEL expression.
    */
-  private static final int DEFAULT_MAX_EXPRESSION_LENGTH = 10_000;
+  public static final int DEFAULT_MAX_EXPRESSION_LENGTH;
 
   static {
     String compilerMode = TodayStrategies.getProperty(SPRING_EXPRESSION_COMPILER_MODE_PROPERTY_NAME);
-    defaultCompilerMode = compilerMode != null
-                          ? SpelCompilerMode.valueOf(compilerMode.toUpperCase()) : SpelCompilerMode.OFF;
+    defaultCompilerMode = compilerMode != null ? SpelCompilerMode.valueOf(compilerMode.toUpperCase()) : SpelCompilerMode.OFF;
+    DEFAULT_MAX_EXPRESSION_LENGTH = TodayStrategies.getInt(MAX_SPEL_EXPRESSION_LENGTH_PROPERTY_NAME, 10_000);
   }
 
   private final SpelCompilerMode compilerMode;

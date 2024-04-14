@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
    * Create a new ResourceArrayPropertyEditor with the given {@link PatternResourceLoader}
    * and {@link PropertyResolver} (typically an {@link Environment}).
    *
-   * @param patternResourceLoader the ResourcePatternResolver to use
+   * @param patternResourceLoader the PatternResourceLoader to use
    * @param propertyResolver the PropertyResolver to use
    */
   public ResourceArrayPropertyEditor(
@@ -94,7 +94,7 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
    * Create a new ResourceArrayPropertyEditor with the given {@link PatternResourceLoader}
    * and {@link PropertyResolver} (typically an {@link Environment}).
    *
-   * @param patternResourceLoader the ResourcePatternResolver to use
+   * @param patternResourceLoader the PatternResourceLoader to use
    * @param propertyResolver the PropertyResolver to use
    * @param ignoreUnresolvablePlaceholders whether to ignore unresolvable placeholders
    * if no corresponding system property could be found
@@ -102,7 +102,7 @@ public class ResourceArrayPropertyEditor extends PropertyEditorSupport {
   public ResourceArrayPropertyEditor(PatternResourceLoader patternResourceLoader,
           @Nullable PropertyResolver propertyResolver, boolean ignoreUnresolvablePlaceholders) {
 
-    Assert.notNull(patternResourceLoader, "ResourcePatternResolver is required");
+    Assert.notNull(patternResourceLoader, "PatternResourceLoader is required");
     this.patternResourceLoader = patternResourceLoader;
     this.propertyResolver = propertyResolver;
     this.ignoreUnresolvablePlaceholders = ignoreUnresolvablePlaceholders;

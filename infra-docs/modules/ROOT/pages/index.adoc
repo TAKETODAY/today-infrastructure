@@ -1,0 +1,79 @@
+[[overview]]
+= Java Web 基础设施库 概述
+
+[[overview-introduce]]
+该框架起源于 2017 年。主要用于构建高性能 Web 应用程序的 Java 库。
+
+[[overview-background]]
+== 背景
+
+起源于大学的时候学习编程，后来用 Java Servlet 做了一个博客网站。在开发过程中发现有很多重复代码，
+我觉得这样的代码很不优雅，尽管那个时候刚学编程不久，于是在我学习 https://struts.apache.org[Struts2] 的时候自己尝试着写了一个类似的
+通过 `XML` 配置干掉了大量的重复代码的程序。于是初代的 https://gitee.com/I-TAKE-TODAY/today-web/tree/v1.1.1[today-web] 诞生并开源。
+
+后面学习了 `Java 注解` 又实现了通过注解配置的版本 https://gitee.com/I-TAKE-TODAY/today-web/tree/2.1.x[today-web 注解版]
+
+https://gitee.com/I-TAKE-TODAY/today-web/tree/2.1.x[today-web 注解版] 刚出来时也正在学 `Spring` 感觉没有 `IoC`
+容器感觉不是很方便。在网上看到很多自己写 什么 Mini Spring 之类，所以我大胆决定`我也要写一个`。有这个决心是因为我把 today-web 都写出来了，
+再写个 IoC 应该不难吧。刚开始参考了各种 mini-spring，该说不说现在看来正是那个时候参考了他们的代码才导致我有些认知错误。在2021年6月-2021年12月期间
+又去深入看 Spring 源码才纠正过来。事实证明写一个这样的东西确实不难，只是要优雅的话还是要点东西的。我自认为我的代码还是优雅的。不信？
+https://live.bilibili.com/22702726[我的B站直播间欢迎你]。（在2021年开始直播写这个库，后面工作比较忙了就没怎么直播，后面有时间就会直播）。
+
+刚开始写的时候（大概是2018年,我也是看的Git提交记录哈哈）有点无从下手，所以我去参考上文说到的各类 `Mini Spring`。 就这样又开启了一轮学习。
+学习如何扫描类文件、学习Java注解、Java字节码、动态代理、重新认识接口、一些设计模式、学习使用Git、渐渐明白了单元测试的重要性等。
+随着学习的深入框架经历了数次重构，自己也对依赖注入有了自己的看法。慢慢的就形成了这个库现在的样子。我发现我居然能看得明白 Spring 源码了。感觉 Spring 就是一个巨大的宝库。
+
+如果你问我怎么学习编程，我觉得造轮子是比较好的方式。自己还有很多要学的东西。比如分布式方面的知识，所以今后你定会看到诸如
+https://github.com/today-tech/today-cloud[today-cloud], `today-distributed-*` 等项目诞生。
+
+自己的博客网站 https://taketoday.cn 在使用这个框架（其实写的博客网站也是为了学习练习技术）。博客也开源了：https://github.com/TAKETODAY/today-blog
+
+== 名称
+
+起一个名字对我来说是一个比写代码还难的事。
+
+刚开始的时候每个模块都是一个单独的 Git 仓库，后来我发现不好维护所以将各个模块合并到了一个 Git 仓库，合并后叫 `today-framework`
+
+
+[[overview-getting-started]]
+== 开始
+
+[source,java]
+----
+@InfraApplication
+public class DemoApplication {
+
+  public static void main(String[] args) {
+    Application.run(DemoApplication.class, args);
+  }
+}
+----
+
+[[overview-build-with-gradle]]
+== 推荐使用 Gradle
+
+[source,groovy]
+----
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{infra-version}'
+}
+
+apply plugin: 'io.spring.dependency-management'  // 有了该插件可以自动导入 infra-dependencies
+
+repositories {
+  mavenLocal()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://maven.aliyun.com/repository/public" }
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'cn.taketoday:ip2region-java:1.0-SNAPSHOT'
+  implementation 'cn.taketoday:today-starter-netty'
+  implementation 'cn.taketoday:today-starter-json'
+  implementation 'cn.taketoday:today-starter-web'
+
+}
+
+----

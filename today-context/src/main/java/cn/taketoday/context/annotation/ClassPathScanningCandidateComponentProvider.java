@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -245,8 +245,8 @@ public class ClassPathScanningCandidateComponentProvider extends ClassPathScanni
   /**
    * Set the {@link ResourceLoader} to use for resource locations.
    * This will typically be a {@link PatternResourceLoader} implementation.
-   * <p>Default is a {@code PathMatchingResourcePatternResolver}, also capable of
-   * resource pattern resolving through the {@code ResourcePatternResolver} interface.
+   * <p>Default is a {@code PathMatchingPatternResourceLoader}, also capable of
+   * resource pattern resolving through the {@code PatternResourceLoader} interface.
    *
    * @see cn.taketoday.core.io.PatternResourceLoader
    * @see cn.taketoday.core.io.PathMatchingPatternResourceLoader

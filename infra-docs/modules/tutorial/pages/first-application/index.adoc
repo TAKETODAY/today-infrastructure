@@ -1,0 +1,345 @@
+[[getting-started.first-application]]
+// = Developing Your First Infra Application
+= 开发您的第一个基础设施应用程序
+
+本节介绍如何开发一个小型的 "`Hello World!`" Web 应用程序，该应用程序重点介绍了该框架的一些关键功能。
+您可以选择 Gradle 或 Maven 作为构建系统。
+
+[[getting-started.first-application.prerequisites]]
+== 准备
+
+在开始之前，打开终端并运行以下命令以确保您安装了有效版本的 Java：
+
+[source,shell]
+----
+$ java -version
+openjdk version "17.0.9" 2023-10-17 LTS
+OpenJDK Runtime Environment Zulu17.46+19-CA (build 17.0.9+8-LTS)
+OpenJDK 64-Bit Server VM Zulu17.46+19-CA (build 17.0.9+8-LTS, mixed mode, sharing)
+----
+
+[[getting-started.first-application.prerequisites.gradle]]
+=== Gradle
+
+如果您想使用 Gradle，请确保已安装 Gradle：
+
+[source,shell]
+----
+$ gradle --version
+
+------------------------------------------------------------
+Gradle 8.7
+------------------------------------------------------------
+
+Build time:   2024-03-22 15:52:46 UTC
+Revision:     650af14d7653aa949fce5e886e685efc9cf97c10
+
+Kotlin:       1.9.22
+Groovy:       3.0.17
+Ant:          Apache Ant(TM) version 1.10.13 compiled on January 4 2023
+JVM:          17.0.9 (Azul Systems, Inc. 17.0.9+8-LTS)
+OS:           Mac OS X 14.4.1 aarch64
+----
+
+
+[[getting-started.first-application.gradle]]
+== 使用 Gradle 构建
+
+We need to start by creating a Gradle `build.gradle` file.
+The `build.gradle` is the build script that is used to build your project.
+Open your favorite text editor and add the following:
+
+我们需要首先创建一个 Gradle `build.gradle` 文件。`build.gradle` 是用于构建项目的构建脚本。
+
+[source,groovy]
+----
+plugins {
+  id 'java'
+  id 'cn.taketoday.application' version '{infra-version}'
+}
+
+apply plugin: 'io.spring.dependency-management'  // 有了该插件可以自动导入 infra-dependencies
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+  mavenLocal()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven { url "https://maven.aliyun.com/repository/public" }
+  mavenCentral()
+}
+
+dependencies {
+  implementation 'cn.taketoday:ip2region-java:1.0-SNAPSHOT'
+  implementation 'cn.taketoday:today-starter-netty'
+  implementation 'cn.taketoday:today-starter-json'
+  implementation 'cn.taketoday:today-starter-web'
+
+}
+
+----
+
+The preceding listing should give you a working build.
+You can test it by running `gradle classes`.
+
+
+[[getting-started.first-application.dependencies]]
+== Adding Classpath Dependencies
+
+Infra provides a number of "`Starters`" that let you add jars to your classpath.
+"`Starters`" provide dependencies that you are likely to need when developing a specific type of application.
+
+[[getting-started.first-application.dependencies.gradle]]
+=== Gradle
+
+Most Infra applications use the `cn.taketoday.application` Gradle plugin.
+This plugin provides useful defaults and Gradle tasks.
+The `io.spring.dependency-management` Gradle plugin provides dependency management so that you can omit `version` tags for "`blessed`" dependencies.
+
+Since we are developing a web application, we add a `today-starter-web` dependency.
+Before that, we can look at what we currently have by running the following command:
+
+[source,shell]
+----
+$ gradle dependencies
+
+> Task :dependencies
+
+------------------------------------------------------------
+Root project 'myproject'
+------------------------------------------------------------
+----
+
+The `gradle dependencies` command prints a tree representation of your project dependencies.
+Right now, the project has no dependencies.
+To add the necessary dependencies, edit your `build.gradle` and add the `today-starter-web` dependency in the `dependencies` section:
+
+[source,gradle]
+----
+dependencies {
+  implementation 'cn.taketoday:today-starter-web'
+}
+----
+
+If you run `gradle dependencies` again, you see that there are now a number of additional dependencies, including the Tomcat web server and Infra itself.
+
+
+
+[[getting-started.first-application.code]]
+== Writing the Code
+
+To finish our application, we need to create a single Java file.
+By default, Maven and Gradle compile sources from `src/main/java`, so you need to create that directory structure and then add a file named `src/main/java/MyApplication.java` to contain the following code:
+
+[source,java]
+----
+@Slf4j
+@RestController
+@InfraApplication
+public class DemoApplication {
+
+  public static void main(String[] args) {
+    Application.run(DemoApplication.class, args);
+  }
+
+  @GET
+  public String home() {
+    return "Hello";
+  }
+
+  @GET("/body/{name}/{age}")
+  public Body body(String name, int age) {
+    return new Body(name, age);
+  }
+
+  @GET("/publish-event")
+  public void index(String name, @Autowired ApplicationEventPublisher publisher) {
+    publisher.publishEvent(new MyEvent(name));
+  }
+
+  @GET("/request-context")
+  public String context(RequestContext context) {
+    String requestURL = context.getRequestURL();
+    String queryString = context.getQueryString();
+    System.out.println(requestURL);
+    System.out.println(queryString);
+
+    return queryString;
+  }
+
+  record Body(String name, int age) {
+
+  }
+
+  @Configuration
+  static class AppConfig {
+
+    @EventListener(MyEvent.class)
+    public void event(MyEvent event) {
+      log.info("event :{}", event);
+    }
+  }
+
+  record MyEvent(String name) {
+
+  }
+
+  @ExceptionHandler(Throwable.class)
+  public void throwable(Throwable throwable) {
+    throwable.printStackTrace();
+  }
+
+}
+----
+
+Although there is not much code here, quite a lot is going on.
+We step through the important parts in the next few sections.
+
+[[getting-started.first-application.code.mvc-annotations]]
+=== The @RestController and @RequestMapping Annotations
+
+The first annotation on our `MyApplication` class is `@RestController`.
+This is known as a _stereotype_ annotation.
+It provides hints for people reading the code and for Infra that the class plays a specific role.
+In this case, our class is a web `@Controller`, so Infra considers it when handling incoming web requests.
+
+The `@RequestMapping` annotation provides "`routing`" information.
+It tells Infra that any HTTP request with the `/` path should be mapped to the `home` method.
+The `@RestController` annotation tells Infra to render the resulting string directly back to the caller.
+
+TIP: The `@RestController` and `@RequestMapping` annotations are Web MVC annotations (they are not specific to Infra).
+See the xref:ROOT:web/webmvc.adoc[MVC section] in the Infra Reference Documentation for more details.
+
+
+
+[[getting-started.first-application.code.infra-application]]
+=== The @InfraApplication Annotation
+
+The second class-level annotation is `@InfraApplication`.
+This annotation is known as a _meta-annotation_, it combines `@InfraConfiguration`, `@EnableAutoConfiguration` and `@ComponentScan`.
+
+Of those, the annotation we're most interested in here is `@EnableAutoConfiguration`.
+`@EnableAutoConfiguration` tells Infra to "`guess`" how you want to configure Infra, based on the jar dependencies that you have added.
+Since `today-starter-web` added Tomcat and Web MVC, the auto-configuration assumes that you are developing a web application and sets up Infra accordingly.
+
+.Starters and Auto-configuration
+****
+Auto-configuration is designed to work well with "`Starters`", but the two concepts are not directly tied.
+You are free to pick and choose jar dependencies outside of the starters.
+Infra still does its best to auto-configure your application.
+****
+
+
+
+[[getting-started.first-application.code.main-method]]
+=== The "`main`" Method
+
+The final part of our application is the `main` method.
+This is a standard method that follows the Java convention for an application entry point.
+Our main method delegates to Infra's `InfraApplication` class by calling `run`.
+`InfraApplication` bootstraps our application, starting Infra, which, in turn, starts the auto-configured Tomcat web server.
+We need to pass `MyApplication.class` as an argument to the `run` method to tell `InfraApplication` which is the primary Infra component.
+The `args` array is also passed through to expose any command-line arguments.
+
+
+
+[[getting-started.first-application.run]]
+== Running the Example
+
+
+[[getting-started.first-application.run.gradle]]
+=== Gradle
+
+At this point, your application should work.
+Since you used the `cn.taketoday.application` Gradle plugin, you have a useful `infraRun` goal that you can use to start the application.
+Type `gradle infraRun` from the root project directory to start the application.
+You should see output similar to the following:
+
+[source,shell,subs="verbatim,attributes"]
+----
+$ gradle infraRun
+
+ ______  ____    ___    ___  __  __        ____   _  __   ____   ___    ___
+/_  __/ / __ \  / _ \  / _ | \ \/ /       /  _/  / |/ /  / __/  / _ \  / _ |
+ / /   / /_/ / / // / / __ |  \  /       _/ /   /    /  / _/   / , _/ / __ |
+/_/    \____/ /____/ /_/ |_|  /_/       /___/  /_/|_/  /_/    /_/|_| /_/ |_| (v{infra-version})
+
+....... . . .
+....... . . . (log output here)
+....... . . .
+........ Started MyApplication in 0.906 seconds (process running for 6.514)
+----
+
+If you open a web browser to `http://localhost:8080`, you should see the following output:
+
+[source]
+----
+Hello World!
+----
+
+To gracefully exit the application, press `ctrl-c`.
+
+
+
+[[getting-started.first-application.executable-jar]]
+== Creating an Executable Jar
+
+We finish our example by creating a completely self-contained executable jar file that we could run in production.
+Executable jars (sometimes called "`uber jars`" or "`fat jars`") are archives containing your compiled classes along with all of the jar dependencies that your code needs to run.
+
+.Executable jars and Java
+****
+Java does not provide a standard way to load nested jar files (jar files that are themselves contained within a jar).
+This can be problematic if you are looking to distribute a self-contained application.
+
+To solve this problem, many developers use "`uber`" jars.
+An uber jar packages all the classes from all the application's dependencies into a single archive.
+The problem with this approach is that it becomes hard to see which libraries are in your application.
+It can also be problematic if the same filename is used (but with different content) in multiple jars.
+
+Infra takes a different approach and lets you actually nest jars directly.
+****
+
+[[getting-started.first-application.executable-jar.gradle]]
+=== Gradle
+
+To create an executable jar, we need to run `gradle infraJar` from the command line, as follows:
+
+[source,shell,subs="verbatim,attributes"]
+----
+$ gradle infraJar
+
+BUILD SUCCESSFUL in 639ms
+3 actionable tasks: 3 executed
+----
+
+If you look in the `build/libs` directory, you should see `myproject-0.0.1-SNAPSHOT.jar`.
+The file should be around 18 MB in size.
+If you want to peek inside, you can use `jar tvf`, as follows:
+
+[source,shell]
+----
+$ jar tvf build/libs/myproject-0.0.1-SNAPSHOT.jar
+----
+
+To run that application, use the `java -jar` command, as follows:
+
+[source,shell]
+----
+$ java -jar build/libs/myproject-0.0.1-SNAPSHOT.jar
+
+ ______  ____    ___    ___  __  __        ____   _  __   ____   ___    ___
+/_  __/ / __ \  / _ \  / _ | \ \/ /       /  _/  / |/ /  / __/  / _ \  / _ |
+ / /   / /_/ / / // / / __ |  \  /       _/ /   /    /  / _/   / , _/ / __ |
+/_/    \____/ /____/ /_/ |_|  /_/       /___/  /_/|_/  /_/    /_/|_| /_/ |_| (v{infra-version})
+
+....... . . .
+....... . . . (log output here)
+....... . . .
+........ Started MyApplication in 0.999 seconds (process running for 1.253)
+----
+
+As before, to exit the application, press `ctrl-c`.
+

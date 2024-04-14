@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -113,10 +110,10 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 
   /**
    * Set the ResourceLoader to use for resource locations.
-   * If specifying a ResourcePatternResolver, the bean definition reader
+   * If specifying a PatternResourceLoader, the bean definition reader
    * will be capable of resolving resource patterns to Resource arrays.
-   * <p>Default is PathMatchingResourcePatternResolver, also capable of
-   * resource pattern resolving through the ResourcePatternResolver interface.
+   * <p>Default is PathMatchingPatternResourceLoader, also capable of
+   * resource pattern resolving through the PatternResourceLoader interface.
    * <p>Setting this to {@code null} suggests that absolute resource loading
    * is not available for this bean definition reader.
    *
@@ -198,10 +195,10 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
   /**
    * Load bean definitions from the specified resource location.
    * <p>The location can also be a location pattern, provided that the
-   * ResourceLoader of this bean definition reader is a ResourcePatternResolver.
+   * ResourceLoader of this bean definition reader is a PatternResourceLoader.
    *
    * @param location the resource location, to be loaded with the ResourceLoader
-   * (or ResourcePatternResolver) of this bean definition reader
+   * (or PatternResourceLoader) of this bean definition reader
    * @param actualResources a Set to be filled with the actual Resource objects
    * that have been resolved during the loading process. May be {@code null}
    * to indicate that the caller is not interested in those Resource objects.

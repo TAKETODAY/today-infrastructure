@@ -1,0 +1,86 @@
+[[appendix]]
+= 附录
+
+参考文档的这一部分涵盖了适用于多个模块的主题在整个框架内。
+
+[[appendix-infra-properties]]
+== TODAY Properties
+
+{today-framework-api}/core/TodayStrategies.html[`TodayStrategies`] 是控制基础架构某些低级方面的属性的静态持有者。
+用户可以通过JVM系统属性配置这些属性，也可以通过 `TodayStrategies.setProperty(String key, String value)` 方法。
+如果部署环境不允许自定义JVM系统属性，则可能需要后者。作为一种选择，这些属性可以在 `today.properties` 文件。
+属性文件放在类路径的根目录中——例如，部署在应用程序的JAR文件中。
+
+下表列出了所有当前支持的 properties.
+
+[cols="1,1"]
+|===
+| 字段名称 | 描述
+
+| `infra.aot.enabled`
+| 表示应用程序应该使用AOT生成的组件运行. 详见
+xref:core/aot.adoc[Ahead of Time Optimizations] 和
+{today-framework-api}++/aot/AotDetector.html#AOT_ENABLED++[`AotDetector`].
+
+| `infra.cache.reactivestreams.ignore`
+| 缓存基础架构忽略响应式流的存在，特别是在@Cacheable方法返回类型声明中的反应器的Mono/Flux。
+详见 {today-framework-api}++/cache/interceptor/CacheAspectSupport.html#IGNORE_REACTIVESTREAMS_PROPERTY_NAME++[`CacheAspectSupport`]。
+
+| `infra.classformat.ignore`
+| 在类路径扫描期间忽略类格式异常，特别是对于不受支持的类文件版本。详情请参见
+{today-framework-api}++/context/annotation/ClassPathScanningCandidateComponentProvider.html#IGNORE_CLASSFORMAT_PROPERTY_NAME++[`ClassPathScanningCandidateComponentProvider`]。
+
+| `infra.context.checkpoint`
+| 该属性指定公共上下文检查点。详细信息请参见 xref:integration/checkpoint-restore.adoc#_automatic_checkpointrestore_at_startup[Automatic
+checkpoint/restore at startup] 和
+{today-framework-api}++/context/support/DefaultLifecycleProcessor.html#CHECKPOINT_PROPERTY_NAME++[`DefaultLifecycleProcessor`]。
+
+| `infra.context.exit`
+| 用于在上下文到达特定阶段时终止JVM。详细信息请参见 xref:integration/checkpoint-restore.adoc#_automatic_checkpointrestore_at_startup[Automatic checkpoint/restore at startup]
+和 {today-framework-api}++/context/support/DefaultLifecycleProcessor.html#EXIT_PROPERTY_NAME++[`DefaultLifecycleProcessor`]。
+
+| `spel.default.max-length`
+| xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Spring Expression Language] 全局 SpEL 表达式长度最大值
+
+| `spel.context.max-length`
+| IoC 容器内 xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Spring Expression Language] 的最大长度，
+该值将应用到 XML bean, `@Value`, etc.
+
+| `spel.compiler.mode`
+| 全局的 xref:core/expressions/evaluation.adoc#expressions-compiler-configuration[Spring Expression Language] 编译模式.
+
+| `infra.getenv.ignore`
+| 用于是否忽略系统环境变量的获取，开启之后，将不能获取系统变量，详见：
+{today-framework-api}++/core/env/AbstractEnvironment.html#IGNORE_GETENV_PROPERTY_NAME++[`AbstractEnvironment`]。
+
+| `infra.jdbc.getParameterType.ignore`
+| 用于 是否需要忽略完全 `java.sql.ParameterMetaData.getParameterType`。 详见：
+xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量操作].
+
+| `infra.jndi.ignore`
+| 忽略默认 JNDI 环境，作为场景的优化，此类 JNDI 后备搜索一开始就找不到任何内容，从而避免重复的 JNDI 查找开销。详见：
+{today-framework-api}++/jndi/JndiLocatorDelegate.html#IGNORE_JNDI_PROPERTY_NAME++[`JndiLocatorDelegate`]。
+
+| `infra.test.aot.processing.failOnError`
+| 一个标志，控制 AOT 处理期间是否遇到错误 _Infra TestContext Framework_ 应该会导致整个过程失败的异常。
+请参阅 xref:testing/testcontext-framework/aot.adoc[单元测试的 AOT 支持]。
+
+
+| `infra.test.constructor.autowire.mode`
+| 如果 `@TestConstructor` 不存在，则使用默认的 _test constructor autowire mode_。请参阅
+xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-testconstructor[更改默认测试构造函数自动装配模式]。
+
+
+| `infra.test.context.cache.maxSize`
+| 单元测试上下文缓存的最大大小 _Infra TestContext Framework_. 详见：
+xref:testing/testcontext-framework/ctx-management/caching.adoc[上下文缓存].
+
+| `infra.test.context.failure.threshold`
+| 尝试加载 `ApplicationContext` 时遇到的错误的失败阈值在里面 _Infra TestContext Framework_. 详见：
+xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[失败阈值].
+
+| `infra.test.enclosing.configuration`
+| 如果使用默认 _封闭配置继承模式_ 测试类中不存在 `@NestedTestConfiguration`. 详见：
+xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-nestedtestconfiguration[更改默认封闭配置继承模式].
+
+|===

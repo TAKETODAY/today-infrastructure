@@ -323,16 +323,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
   }
 
   /**
-   * Return the ResourcePatternResolver to use for resolving location patterns
+   * Return the PatternResourceLoader to use for resolving location patterns
    * into Resource instances. Default is a {@link PathMatchingPatternResourceLoader},
    * supporting Ant-style location patterns.
    * <p>Can be overridden in subclasses, for extended resolution strategies,
    * for example in a web environment.
    * <p><b>Do not call this when needing to resolve a location pattern.</b>
    * Call the context's {@code getResources} method instead, which
-   * will delegate to the ResourcePatternResolver.
+   * will delegate to the PatternResourceLoader.
    *
-   * @return the ResourcePatternResolver for this context
+   * @return the PatternResourceLoader for this context
    * @see #getResources
    * @see PathMatchingPatternResourceLoader
    */
@@ -697,7 +697,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     // Tell the internal bean factory to use the context's class loader etc.
     ClassLoader classLoader = getClassLoader();
     beanFactory.setBeanClassLoader(classLoader);
-    beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver());
+    beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver(beanFactory.getBeanClassLoader()));
     beanFactory.addPropertyEditorRegistrar(new ResourceEditorRegistrar(this, getEnvironment()));
 
     // Configure the bean factory with context callbacks.

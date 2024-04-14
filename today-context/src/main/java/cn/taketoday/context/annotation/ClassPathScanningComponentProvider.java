@@ -107,8 +107,8 @@ public class ClassPathScanningComponentProvider implements ResourceLoaderAware {
   /**
    * Set the {@link ResourceLoader} to use for resource locations.
    * This will typically be a {@link PatternResourceLoader} implementation.
-   * <p>Default is a {@code PathMatchingResourcePatternResolver}, also capable of
-   * resource pattern resolving through the {@code ResourcePatternResolver} interface.
+   * <p>Default is a {@code PathMatchingPatternResourceLoader}, also capable of
+   * resource pattern resolving through the {@code PatternResourceLoader} interface.
    *
    * @see cn.taketoday.core.io.PatternResourceLoader
    * @see cn.taketoday.core.io.PathMatchingPatternResourceLoader
