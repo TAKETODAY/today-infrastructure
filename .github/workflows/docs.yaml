@@ -36,7 +36,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-docs:
+  deploy-docs:
     if: github.repository_owner == 'TAKETODAY'
     runs-on: ubuntu-latest
     steps:
@@ -55,11 +55,24 @@ jobs:
       - name: Build Docs 🔧
         run: ./gradlew -DCI=true --no-daemon --max-workers=4 :infra-docs:antora
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: "${{ github.workspace }}/infra-docs/build/site"
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: site
+          path: "${{ github.workspace }}/infra-docs/build/site"
+
+      - name: Deploy to GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+#      - name: Deploy 🚀
+#        uses: JamesIves/github-pages-deploy-action@v4
+#        with:
+#          folder: "${{ github.workspace }}/infra-docs/build/site"
+#          target-folder: docs
 #
 #  # Deployment job
 #  deploy:
