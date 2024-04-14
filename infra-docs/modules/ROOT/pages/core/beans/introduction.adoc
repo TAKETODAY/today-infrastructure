@@ -1,0 +1,27 @@
+[[beans-introduction]]
+= IoC 容器和 Bean 简介
+
+本章详细介绍了TODAY框架如何实现控制反转（IoC）原则。依赖注入（DI）是IoC的一种特定实现方式，
+其中对象仅通过构造函数参数、工厂方法的参数或对象构造后或从工厂方法返回后设置的属性来定义它们所依赖的其他对象。
+然后，IoC容器在创建Bean实例时会自动注入这些依赖项。这个过程的核心思想是，
+与Bean自身通过直接实例化类或使用如服务定位器模式等方式来控制其依赖项的创建或定位相反，
+IoC容器负责管理和注入依赖项，从而实现了控制反转的概念。
+
+实现 IoC 容器的包主要是 `cn.taketoday.beans` 和 `cn.taketoday.context`
+{today-framework-api}/beans/factory/BeanFactory.html[`BeanFactory`]
+接口提供了能够管理任何类型对象的高级配置机制。
+{today-framework-api}/context/ApplicationContext.html[`ApplicationContext`] 继承自 `BeanFactory`。
+它添加了:
+
+* 更轻松地与 AOP 功能集成
+* 国际化（消息资源处理）
+* 事件驱动（观察者模式）
+* 应用程序层特定上下文，例如用于 Web 应用程序的 `WebApplicationContext`。
+
+简而言之，`BeanFactory` 提供了配置框架和基本功能，`ApplicationContext` 添加了更多企业特定的功能。这
+`ApplicationContext` 是 `BeanFactory` 的超集，并且专门使用本章中介绍了 Infra IoC 容器。有关更多的信息关于使用
+`BeanFactory` 替换 `ApplicationContext` 请参阅 xref:core/beans/beanfactory.adoc[BeanFactory API].
+
+在框架中，构成应用程序主题并受 IoC 容器管理的对象称为 beans。bean 作为一个对象它由 IoC 容器实例化、组装和管理。
+不受 IoC 管理的对象 bean 只是应用程序中的众多对象之一。Bean 及其之间的依赖关系反映在容器使用的配置元数据中。
+

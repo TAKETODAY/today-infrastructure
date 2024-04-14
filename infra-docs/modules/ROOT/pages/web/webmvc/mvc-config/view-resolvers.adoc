@@ -1,0 +1,43 @@
+[[mvc-config-view-resolvers]]
+= View Resolvers
+
+The MVC configuration simplifies the registration of view resolvers.
+
+The following example configures content negotiation view resolution by using JSP and Jackson as a
+default `View` for JSON rendering:
+
+[source,java]
+----
+@Configuration
+public class WebConfiguration implements WebMvcConfigurer {
+
+  @Override
+  public void configureViewResolvers(ViewResolverRegistry registry) {
+    registry.enableContentNegotiation(new MappingJackson2JsonView());
+    registry.jsp();
+  }
+}
+----
+
+Note, however, that FreeMarker, Groovy Markup, and script templates also require
+configuration of the underlying view technology. The following example works with FreeMarker:
+
+[source,java]
+----
+@Configuration
+public class FreeMarkerConfiguration implements WebMvcConfigurer {
+
+  @Override
+  public void configureViewResolvers(ViewResolverRegistry registry) {
+    registry.enableContentNegotiation(new MappingJackson2JsonView());
+    registry.freeMarker().cache(false);
+  }
+
+  @Bean
+  public FreeMarkerConfigurer freeMarkerConfigurer() {
+    FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
+    configurer.setTemplateLoaderPath("/freemarker");
+    return configurer;
+  }
+}
+----

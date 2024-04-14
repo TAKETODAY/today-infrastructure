@@ -35,7 +35,7 @@ import cn.taketoday.util.ExceptionUtils;
  * Abstract superaspect for AspectJ cache aspects. Concrete subaspects will implement the
  * {@link #cacheMethodExecution} pointcut using a strategy such as Java 5 annotations.
  *
- * <p>Suitable for use inside or outside the Spring IoC container. Set the
+ * <p>Suitable for use inside or outside the Infra IoC container. Set the
  * {@link #setCacheManager cacheManager} property appropriately, allowing use of any cache
  * implementation supported by Infra.
  *

@@ -93,7 +93,7 @@ dependencies {
 <dependency>
   <groupId>cn.taketoday</groupId>
   <artifactId>today-framework</artifactId>
-  <version>4.0.0-Draft.3</version>
+  <version>4.0.0-Draft.6</version>
 </dependency>
 ```
 

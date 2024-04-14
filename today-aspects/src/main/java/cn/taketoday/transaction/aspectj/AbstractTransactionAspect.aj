@@ -30,13 +30,13 @@ import cn.taketoday.util.ExceptionUtils;
  * subaspects will implement the {@code transactionalMethodExecution()}
  * pointcut using a strategy such as Java 5 annotations.
  *
- * <p>Suitable for use inside or outside the Spring IoC container.
+ * <p>Suitable for use inside or outside the Infra IoC container.
  * Set the "transactionManager" property appropriately, allowing
  * use of any transaction implementation supported by Infra.
  *
  * <p><b>NB:</b> If a method implements an interface that is itself
  * transactionally annotated, the relevant Spring transaction attribute
- * will <i>not</i> be resolved. This behavior will vary from that of Spring AOP
+ * will <i>not</i> be resolved. This behavior will vary from that of Infra AOP
  * if proxying an interface (but not when proxying a class). We recommend that
  * transaction annotations should be added to classes, rather than business
  * interfaces, as they are an implementation detail rather than a contract

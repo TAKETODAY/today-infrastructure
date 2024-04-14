@@ -1,0 +1,6 @@
+[[beans-java]]
+= 基于 Java 的容器配置
+:page-section-summary-toc: 1
+
+本节介绍如何在 Java 代码中使用注释来配置 IoC 容器。
+

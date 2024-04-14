@@ -1,10 +1,26 @@
 plugins {
   id 'java-library'
+  id 'org.antora' version '1.0.0'
+  id 'cn.taketoday.generate-antora-yml'
 }
 
 description = "Infrastructure Docs"
 
-//apply from: "${rootDir}/gradle/publications.gradle"
+apply from: "${rootDir}/gradle/publications.gradle"
+
+antora {
+  version = '3.2.0-alpha.4'
+//  version = '3.1.7'
+  playbook = 'antora-playbook.yml'
+  options = ['--clean', '--stacktrace']
+  dependencies = [
+      '@antora/atlas-extension'                  : '1.0.0-alpha.1',
+      '@antora/collector-extension'              : '1.0.0-alpha.3',
+      '@asciidoctor/tabs'                        : '1.0.0-beta.3',
+      '@opendevise/antora-release-line-extension': '1.0.0',
+      '@today-tech/antora-extensions'            : '1.0.0'
+  ]
+}
 
 jar {
   enabled = false
@@ -14,25 +30,21 @@ javadoc {
   enabled = false
 }
 
-repositories {
-  maven {
-    url "https://repo.spring.io/release"
-  }
+generateAntoraYml {
+  asciidocAttributes = project.provider({
+    return ["infra-version": project.version]
+  })
 }
 
-dependencies {
-  api(project(":today-context"))
-  api(project(":today-web"))
-  api("jakarta.servlet:jakarta.servlet-api")
-
-  implementation(project(":today-core-test"))
-  implementation("org.assertj:assertj-core")
+tasks.register("generateAntoraResources") {
+  dependsOn 'generateAntoraYml'
 }
+
 
 /**
  * Produce Javadoc for all Infrastructure modules in "build/docs/javadoc"
  */
-task api(type: Javadoc) {
+tasks.register('api', Javadoc) {
   group = "documentation"
   description = "Generates aggregated Javadoc API documentation."
   title = "${rootProject.description} ${version} API"
@@ -73,7 +85,8 @@ task api(type: Javadoc) {
 /**
  * Zip all Java docs (javadoc & kdoc) into a single archive
  */
-task docsZip(type: Zip, dependsOn: ['api']) {
+tasks.register('docsZip', Zip) {
+  dependsOn('api')
   group = "distribution"
   description = "Builds -${archiveClassifier} archive containing api and reference " +
       "for deployment at https://taketoday.cn/open-source/projects/today-infrastructure/docs."
@@ -91,7 +104,7 @@ task docsZip(type: Zip, dependsOn: ['api']) {
 /**
  * Zip all Infrastructure schemas into a single archive
  */
-task schemaZip(type: Zip) {
+tasks.register('schemaZip', Zip) {
   group = "distribution"
   archiveBaseName.set("today-infrastructure")
   archiveClassifier.set("schema")
@@ -126,7 +139,8 @@ task schemaZip(type: Zip) {
  * Create a distribution zip with everything:
  * docs, schemas, jars, source jars, javadoc jars
  */
-task distZip(type: Zip, dependsOn: [docsZip, schemaZip]) {
+tasks.register('distZip', Zip) {
+  dependsOn("docsZip", "schemaZip")
   group = "distribution"
   archiveBaseName.set("today-infrastructure")
   archiveClassifier.set("dist")

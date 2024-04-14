@@ -1,5 +1,0 @@
-[[annotation]]
-
-== @RequestParam
-
-该注解主要收集 `NamedValueInfo`

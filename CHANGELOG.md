@@ -115,7 +115,7 @@
 - :zap: 优化循环依赖问题
 - :sparkles: 实现 DestructionBeanPostProcessor
 - :hammer: 重构 使用CandidateComponentScanner加载类
-- :sparkles: 新增PathMatchingResourcePatternResolver
+- :sparkles: 新增PathMatchingPatternResourceLoader
 - :sparkles: 添加ClassUtils#getQualifiedMethodName
 - :zap: 优化AnnotationAttributes
 - :zap: 优化ContextUtils
@@ -153,7 +153,7 @@
 - :zap: 优化RedissonCache
 - :memo: 优化部分Javadoc
 - :zap: 优化扫描日志
-- :zap: 优化PathMatchingResourcePatternResolver
+- :zap: 优化PathMatchingPatternResourceLoader
 - :zap: 优化AbstractAdvice代码
 - :zap: 优化cglib
 - :zap: 优化Environment初始化顺序

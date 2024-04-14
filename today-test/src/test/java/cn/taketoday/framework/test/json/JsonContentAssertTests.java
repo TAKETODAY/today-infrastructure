@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.entry;
 
 /**
- * Tests for {@link JsonContentAssert}. Some tests here are based on Spring Framework
+ * Tests for {@link JsonContentAssert}. Some tests here are based on TODAY Framework
  * tests for {@link JsonPathExpectationsHelper}.
  *
  * @author Phillip Webb

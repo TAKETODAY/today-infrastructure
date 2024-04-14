@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.reactive;
@@ -43,7 +40,7 @@ import reactor.core.publisher.Mono;
  *
  * <p><strong>Note:</strong> Transactional Publishers should avoid Subscription
  * cancellation. See the
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#tx-prog-operator-cancel">Cancel Signals</a>
+ * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/data-access.html#tx-prog-operator-cancel">Cancel Signals</a>
  * section of the Framework reference for more details.
  *
  * @author Mark Paluch

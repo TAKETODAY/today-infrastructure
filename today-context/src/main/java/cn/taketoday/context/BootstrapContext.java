@@ -429,8 +429,8 @@ public class BootstrapContext extends BeanDefinitionCustomizers implements Class
   /**
    * Set the {@link ResourceLoader} to use for resource locations.
    * This will typically be a {@link PatternResourceLoader} implementation.
-   * <p>Default is a {@code PathMatchingResourcePatternResolver}, also capable of
-   * resource pattern resolving through the {@code ResourcePatternResolver} interface.
+   * <p>Default is a {@code PathMatchingPatternResourceLoader}, also capable of
+   * resource pattern resolving through the {@code PatternResourceLoader} interface.
    *
    * @see PatternResourceLoader
    * @see PathMatchingPatternResourceLoader

@@ -9,7 +9,7 @@
   <summary>先不看</summary>
 <blockquote>
     <p>
-  本人大学生一枚，专业是电子信息工程，大三在读。大一开始学Java，准确的说是高三最后的几周开始的. 果然兴趣是最好的老师， 在大一下学期自己独自一人从前端到后台写了我的个人网站：<a href="https://taketoday.cn">TODAY BLOG</a> 。 从注册域名到备案再到网站成功上线，我遇到过的困难数不计其数。因为感兴趣所以我坚持了下来。第一个版本使用的纯Servlet写的。后来了解到Java有很多开源框架可以简化我的开发。于是又投入到新一轮的学习之中...... 学了Struts2后自己学着写了一个小框架：<a href="https://gitee.com/TAKETODAY/today_web/tree/v1.1.1/">TODAY WEB</a>，几百行搞定从解析xml定义的action到处理对应的请求。学了Spring MVC后，我写了此项目：<a href="https://gitee.com/TAKETODAY/today_web">TODAY WEB 2.0</a>。
+  本人大学生一枚，专业是电子信息工程，大三在读。大一开始学Java，准确的说是高三最后的几周开始的. 果然兴趣是最好的老师， 在大一下学期自己独自一人从前端到后台写了我的个人网站：<a href="https://taketoday.cn">TODAY BLOG</a> 。 从注册域名到备案再到网站成功上线，我遇到过的困难数不计其数。因为感兴趣所以我坚持了下来。第一个版本使用的纯Servlet写的。后来了解到Java有很多开源框架可以简化我的开发。于是又投入到新一轮的学习之中...... 学了Struts2后自己学着写了一个小框架：<a href="https://gitee.com/TAKETODAY/today_web/tree/v1.1.1/">TODAY WEB</a>，几百行搞定从解析xml定义的action到处理对应的请求。学了Web MVC后，我写了此项目：<a href="https://gitee.com/TAKETODAY/today_web">TODAY WEB 2.0</a>。
     </p>
 </blockquote>
  

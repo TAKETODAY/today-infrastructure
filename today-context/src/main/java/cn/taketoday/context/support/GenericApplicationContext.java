@@ -226,7 +226,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
    * The default behavior is to resolve such paths as class path locations.
    * To resolve resource paths as file system locations, specify a
    * FileSystemResourceLoader here.
-   * <p>You can also pass in a full ResourcePatternResolver, which will
+   * <p>You can also pass in a full PatternResourceLoader, which will
    * be autodetected by the context and used for {@code getResources}
    * calls as well. Else, default resource pattern matching will apply.
    *
@@ -240,7 +240,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
   }
 
   //---------------------------------------------------------------------
-  // ResourceLoader / ResourcePatternResolver override if necessary
+  // ResourceLoader / PatternResourceLoader override if necessary
   //---------------------------------------------------------------------
 
   /**
@@ -272,7 +272,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 
   /**
    * This implementation delegates to this context's ResourceLoader if it
-   * implements the ResourcePatternResolver interface, falling back to the
+   * implements the PatternResourceLoader interface, falling back to the
    * default superclass behavior else.
    *
    * @see #setResourceLoader
@@ -287,7 +287,7 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
 
   /**
    * This implementation delegates to this context's ResourceLoader if it
-   * implements the ResourcePatternResolver interface, falling back to the
+   * implements the PatternResourceLoader interface, falling back to the
    * default superclass behavior else.
    *
    * @see #setResourceLoader

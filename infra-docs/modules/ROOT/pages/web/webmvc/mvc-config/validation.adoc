@@ -1,0 +1,58 @@
+[[mvc-config-validation]]
+= Validation
+
+By default, if xref:core/validation/beanvalidation.adoc#validation-beanvalidation-overview[Bean Validation] is present
+on the classpath (for example, Hibernate Validator), the `LocalValidatorFactoryBean` is
+registered as a global xref:core/validation/validator.adoc[Validator] for use with `@Valid` and
+`@Validated` on controller method arguments.
+
+You can customize the global `Validator` instance, as the
+following example shows:
+
+[source,java]
+----
+@Configuration
+public class WebConfiguration implements WebMvcConfigurer {
+
+  @Override
+  public Validator getValidator() {
+    Validator validator = new OptionalValidatorFactoryBean();
+    // ...
+    return validator;
+  }
+}
+----
+
+Note that you can also register `Validator` implementations locally, as the following
+example shows:
+
+[source,java]
+----
+
+public class FooValidator implements Validator {
+
+  @Override
+  public boolean supports(Class<?> clazz) {
+    return false;
+  }
+
+  @Override
+  public void validate(Object target, Errors errors) {
+  }
+}
+
+@Controller
+public class MyController {
+
+  @InitBinder
+  public void initBinder(WebDataBinder binder) {
+    binder.addValidators(new FooValidator());
+  }
+}
+----
+
+TIP: If you need to have a `LocalValidatorFactoryBean` injected somewhere, create a bean and
+mark it with `@Primary` in order to avoid conflict with the one declared in the MVC configuration.
+
+
+

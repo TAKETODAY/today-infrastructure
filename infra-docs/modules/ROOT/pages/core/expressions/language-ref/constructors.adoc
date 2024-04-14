@@ -1,0 +1,25 @@
+[[expressions-constructors]]
+= Constructors
+
+You can invoke constructors by using the `new` operator. You should use the fully
+qualified class name for all types except those located in the `java.lang` package
+(`Integer`, `Float`, `String`, and so on). The following example shows how to use the
+`new` operator to invoke constructors:
+
+[tabs]
+======
+Java::
++
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+Inventor einstein = p.parseExpression(
+    "new spel.inventor.Inventor('Albert Einstein', 'German')").getValue(Inventor.class);
+
+// create new Inventor instance within the add() method of List
+p.parseExpression(
+    "Members.add(new spel.inventor.Inventor('Albert Einstein', 'German'))").getValue(societyContext);
+----
+======
+
+
+

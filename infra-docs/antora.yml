@@ -1,0 +1,70 @@
+name: framework
+version: true
+title: TODAY Infrastructure
+nav:
+  - modules/nav.adoc
+
+ext:
+  collector:
+    run:
+      command: gradlew -q -PbuildSrc.skipTests=true "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError" :infra-docs:generateAntoraResources
+      local: true
+    scan:
+      dir: ./build/generated-antora-resources
+
+asciidoc:
+  attributes:
+    attribute-missing: 'warn'
+    chomp: 'all'
+    fold: 'all'
+    table-stripes: 'odd'
+    today-tech-site: 'https://today-tech.cn'
+    today-tech-site-blog: '{today-tech-site}/blog'
+    today-tech-site-cve: "{today-tech-site}/security"
+    today-tech-site-guides: '{today-tech-site}/guides'
+    today-tech-site-projects: '{today-tech-site}/projects'
+    today-tech-site-tools: "{today-tech-site}/tools"
+    today-org: 'today-tech'
+    today-github-org: "https://github.com/today-tech"
+    today-framework-github: "https://github.com/taketoday/today-infrastructure"
+    today-framework-code: '{today-framework-github}/tree/main'
+    today-framework-issues: '{today-framework-github}/issues'
+    today-framework-wiki: '{today-framework-github}/wiki'
+
+    # Docs
+    docs-site: 'https://docs.today-tech.cn'
+    today-framework-docs-root: '{docs-site}/today-infrastructure/docs'
+    today-framework-api: '{today-framework-docs-root}/{infra-version}/javadoc-api/cn/taketoday'
+    today-framework-reference: '{today-framework-docs-root}/{infra-version}/reference'
+
+    # External projects URLs and related attributes
+    aspectj-site: 'https://www.eclipse.org/aspectj'
+    aspectj-docs: "{aspectj-site}/doc/released"
+    aspectj-api: "{aspectj-docs}/runtime-api"
+    aspectj-docs-devguide: "{aspectj-docs}/devguide"
+    aspectj-docs-progguide: "{aspectj-docs}/progguide"
+    assertj-docs: 'https://assertj.github.io/doc'
+    baeldung-blog: 'https://www.baeldung.com'
+    bean-validation-site: 'https://beanvalidation.org'
+    graalvm-docs: 'https://www.graalvm.org/22.3/reference-manual'
+    hibernate-validator-site: 'https://hibernate.org/validator/'
+    jackson-docs: 'https://fasterxml.github.io'
+    jackson-github-org: 'https://github.com/FasterXML'
+    java-api: 'https://docs.oracle.com/en/java/javase/17/docs/api'
+    java-tutorial: 'https://docs.oracle.com/javase/tutorial'
+    JSR: 'https://www.jcp.org/en/jsr/detail?id='
+    reactive-streams-site: 'https://www.reactive-streams.org'
+    reactive-streams-spec: 'https://github.com/reactive-streams/reactive-streams-jvm/blob/master/README.md#specification'
+    reactor-github-org: 'https://github.com/reactor'
+    reactor-site: 'https://projectreactor.io'
+    rsocket-github-org: 'https://github.com/rsocket'
+    rsocket-java: '{rsocket-github-org}/rsocket-java'
+    rsocket-java-code: '{rsocket-java}/tree/master/'
+    rsocket-protocol-extensions: '{rsocket-github-org}/rsocket/tree/master/Extensions'
+    rsocket-site: 'https://rsocket.io'
+    rfc-site: 'https://datatracker.ietf.org/doc/html'
+    sockjs-client: 'https://github.com/sockjs/sockjs-client'
+    sockjs-protocol: 'https://github.com/sockjs/sockjs-protocol'
+    sockjs-protocol-site: "https://sockjs.github.io/sockjs-protocol"
+    stackoverflow-site: 'https://stackoverflow.com'
+    testcontainers-site: 'https://www.testcontainers.org'
