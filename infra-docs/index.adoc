@@ -1,9 +1,0 @@
-:noheader:
-= TODAY Infrastructure 文档
-
-[horizontal]
-<<overview.adoc#overview, Overview>> :: getting started.
-<<core/core-tech.adoc#core-tech, Core Technologies>> :: IoC Container, Events, Resources, Type Conversion, EL, AOP.
-<<web/web-tech.adoc#web-tech, Web Technologies>> :: Web MVC, WebSocket.
-
-Copyright © 2017 - 2023 TODAY All Rights Reserved.
