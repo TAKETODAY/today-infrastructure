@@ -40,42 +40,42 @@ jobs:
     if: github.repository_owner == 'TAKETODAY'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout project sources
+      - name: Checkout 🛎️
         uses: actions/checkout@v4.1.2
 
-      - name: Set up JDK 17
+      - name: Set up JDK 17 🔧
         uses: actions/setup-java@v4.2.1
         with:
           java-version: 17
           distribution: adopt
 
-      - name: Setup Gradle
+      - name: Setup Gradle 🔧
         uses: gradle/gradle-build-action@v3.1.0
 
-      - name: Build Docs
-        run: ./gradlew -DCI=true --no-daemon --max-workers=4 :infra-docs:antora --scan
+      - name: Build Docs 🔧
+        run: ./gradlew -DCI=true --no-daemon --max-workers=4 :infra-docs:antora
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          name: site
-          path: "${{ github.workspace }}/infra-docs/build/site"
-
-  # Deployment job
-  deploy:
-    concurrency: ci-${{ github.ref }}
-    runs-on: ubuntu-latest
-    needs: build-docs
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v1
-        with:
-          name: site
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: 'site'
+          folder: "${{ github.workspace }}/infra-docs/build/site"
+
+#
+#  # Deployment job
+#  deploy:
+#    concurrency: ci-${{ github.ref }}
+#    runs-on: ubuntu-latest
+#    needs: build-docs
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Download Artifacts
+#        uses: actions/download-artifact@v1
+#        with:
+#          name: site
+#
+#      - name: Deploy to GitHub Pages
+#        uses: JamesIves/github-pages-deploy-action@v4
+#        with:
+#          folder: 'site'
