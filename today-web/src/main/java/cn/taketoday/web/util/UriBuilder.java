@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@ public interface UriBuilder {
    * {@link UriComponentsBuilder#encode()}, or otherwise if building URIs
    * indirectly via {@code WebClient} or {@code RestTemplate}, see its
    * {@link DefaultUriBuilderFactory#setEncodingMode encodingMode}.
-   * Also see the <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#web-uri-encoding">
+   * Also see the <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/web.html#web-uri-encoding">
    * URI Encoding</a> section of the reference docs.
    *
    * @param path the URI path
@@ -186,7 +186,7 @@ public interface UriBuilder {
    * to avoid its interpretation as an encoded space. Stricter encoding may
    * be applied by using a URI template variable along with stricter encoding
    * on variable values. For more details please read the
-   * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#web-uri-encoding">"URI Encoding"</a>
+   * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/web.html#web-uri-encoding">"URI Encoding"</a>
    * section of the Framework reference.
    *
    * @param name the query parameter name

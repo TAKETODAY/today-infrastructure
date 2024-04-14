@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context;
@@ -47,11 +44,11 @@ import cn.taketoday.core.io.ResourceLoader;
  * {@link PatternResourceLoader} interface
  * and cast accordingly, in order to resolve resource patterns into arrays of
  * {@code Resource} objects. This will always work when running in an ApplicationContext
- * (since the context interface extends the ResourcePatternResolver interface). Use a
+ * (since the context interface extends the PatternResourceLoader interface). Use a
  * {@link PathMatchingPatternResourceLoader} as
- * default; see also the {@code ResourcePatternUtils.getResourcePatternResolver} method.
+ * default; see also the {@code ResourcePatternUtils.getPatternResourceLoader} method.
  *
- * <p>As an alternative to a {@code ResourcePatternResolver} dependency, consider
+ * <p>As an alternative to a {@code PatternResourceLoader} dependency, consider
  * exposing bean properties of type {@code Resource[]} array, populated via pattern
  * Strings with automatic type conversion by the bean factory at binding time.
  *
@@ -67,9 +64,9 @@ public interface ResourceLoaderAware extends Aware {
 
   /**
    * Set the ResourceLoader that this object runs in.
-   * <p>This might be a ResourcePatternResolver, which can be checked
-   * through {@code instanceof ResourcePatternResolver}. See also the
-   * {@code ResourcePatternUtils.getResourcePatternResolver} method.
+   * <p>This might be a PatternResourceLoader, which can be checked
+   * through {@code instanceof PatternResourceLoader}. See also the
+   * {@code ResourcePatternUtils.getPatternResourceLoader} method.
    * <p>Invoked after population of normal bean properties but before an init callback
    * like InitializingBean's {@code afterPropertiesSet} or a custom init-method.
    * Invoked before ApplicationContextAware's {@code setApplicationContext}.

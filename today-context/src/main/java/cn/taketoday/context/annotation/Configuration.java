@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.context.annotation;
 
@@ -349,7 +349,7 @@ import cn.taketoday.stereotype.Component;
  * }</pre>
  *
  * <p>See the
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/testing.html#testcontext-framework">TestContext framework</a>
+ * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/testing.html#testcontext-framework">TestContext framework</a>
  * reference documentation for details.
  *
  * <h2>Enabling built-in Framework features using {@code @Enable} annotations</h2>

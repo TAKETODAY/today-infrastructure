@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
@@ -53,7 +50,7 @@ public interface BeanDefinitionReader {
 
   /**
    * Return the {@link ResourceLoader} to use for resource locations.
-   * <p>Can be checked for the {@code ResourcePatternResolver} interface and cast
+   * <p>Can be checked for the {@code PatternResourceLoader} interface and cast
    * accordingly, for loading multiple resources for a given resource pattern.
    * <p>A {@code null} return value suggests that absolute resource loading
    * is not available for this bean definition reader.
@@ -109,10 +106,10 @@ public interface BeanDefinitionReader {
    * Load bean definitions from the specified resource location.
    * <p>The location can also be a location pattern, provided that the
    * {@link ResourceLoader} of this bean definition reader is a
-   * {@code ResourcePatternResolver}.
+   * {@code PatternResourceLoader}.
    *
    * @param location the resource location, to be loaded with the {@code ResourceLoader}
-   * (or {@code ResourcePatternResolver}) of this bean definition reader
+   * (or {@code PatternResourceLoader}) of this bean definition reader
    * @return the number of bean definitions found
    * @throws BeanDefinitionStoreException in case of loading or parsing errors
    * @see #getResourceLoader()
@@ -125,7 +122,7 @@ public interface BeanDefinitionReader {
    * Load bean definitions from the specified resource locations.
    *
    * @param locations the resource locations, to be loaded with the {@code ResourceLoader}
-   * (or {@code ResourcePatternResolver}) of this bean definition reader
+   * (or {@code PatternResourceLoader}) of this bean definition reader
    * @return the number of bean definitions found
    * @throws BeanDefinitionStoreException in case of loading or parsing errors
    */

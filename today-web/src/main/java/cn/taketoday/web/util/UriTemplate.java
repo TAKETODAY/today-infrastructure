@@ -42,7 +42,7 @@ import cn.taketoday.util.CollectionUtils;
  * e.g. around URI encoding, consider using {@code UriComponentsBuilder} or the
  * higher level {@link DefaultUriBuilderFactory} which adds several encoding
  * modes on top of {@code UriComponentsBuilder}. See the
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#mvc-uri-building">reference docs</a>
+ * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/web.html#mvc-uri-building">reference docs</a>
  * for further details.
  *
  * @author Arjen Poutsma

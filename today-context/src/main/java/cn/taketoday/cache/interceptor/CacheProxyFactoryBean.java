@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.interceptor;
@@ -42,7 +39,7 @@ import cn.taketoday.cache.annotation.Cacheable;
  * <strong>Users should favor the {@code cache:} XML namespace
  * {@link Cacheable @Cacheable} annotation.</strong>
  * See the
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/integration.html#cache-annotations">declarative annotation-based caching</a>
+ * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/integration.html#cache-annotations">declarative annotation-based caching</a>
  * section of the Framework reference documentation for more information.
  *
  * @author Costin Leau
