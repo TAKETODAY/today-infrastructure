@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -31,6 +28,7 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.resource.CachingResourceResolver;
 import cn.taketoday.web.resource.CachingResourceTransformer;
 import cn.taketoday.web.resource.CssLinkResourceTransformer;
+import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
 import cn.taketoday.web.resource.PathResourceResolver;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
@@ -48,8 +46,11 @@ public class ResourceChainRegistration {
 
   private static final String DEFAULT_CACHE_NAME = "resource-chain-cache";
 
-  private static final boolean isWebJarsAssetLocatorPresent = ClassUtils.isPresent(
+  private static final boolean isWebJarAssetLocatorPresent = ClassUtils.isPresent(
           "org.webjars.WebJarAssetLocator", ResourceChainRegistration.class.getClassLoader());
+
+  private static final boolean isWebJarVersionLocatorPresent = ClassUtils.isPresent(
+          "org.webjars.WebJarVersionLocator", ResourceChainRegistration.class.getClassLoader());
 
   private final List<ResourceResolver> resolvers = new ArrayList<>(4);
 
@@ -90,7 +91,7 @@ public class ResourceChainRegistration {
     else if (resolver instanceof PathResourceResolver) {
       this.hasPathResolver = true;
     }
-    else if (resolver instanceof WebJarsResourceResolver) {
+    else if (resolver instanceof WebJarsResourceResolver || resolver instanceof LiteWebJarsResourceResolver) {
       this.hasWebjarsResolver = true;
     }
     return this;
@@ -113,8 +114,11 @@ public class ResourceChainRegistration {
 
   protected List<ResourceResolver> getResourceResolvers() {
     if (!this.hasPathResolver) {
-      List<ResourceResolver> result = new ArrayList<>(this.resolvers);
-      if (isWebJarsAssetLocatorPresent && !this.hasWebjarsResolver) {
+      ArrayList<ResourceResolver> result = new ArrayList<>(this.resolvers);
+      if (isWebJarVersionLocatorPresent && !this.hasWebjarsResolver) {
+        result.add(new LiteWebJarsResourceResolver());
+      }
+      else if (isWebJarAssetLocatorPresent && !this.hasWebjarsResolver) {
         result.add(new WebJarsResourceResolver());
       }
       result.add(new PathResourceResolver());

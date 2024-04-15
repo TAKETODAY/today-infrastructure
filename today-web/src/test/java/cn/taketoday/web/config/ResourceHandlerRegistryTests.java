@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -41,7 +38,7 @@ import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
-import cn.taketoday.web.resource.WebJarsResourceResolver;
+import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -141,7 +138,7 @@ class ResourceHandlerRegistryTests {
     CachingResourceResolver cachingResolver = (CachingResourceResolver) resolvers.get(0);
     assertThat(cachingResolver.getCache()).isInstanceOf(ConcurrentMapCache.class);
     assertThat(resolvers.get(1)).isEqualTo(mockResolver);
-    assertThat(resolvers.get(2)).isInstanceOf(WebJarsResourceResolver.class);
+    assertThat(resolvers.get(2)).isInstanceOf(LiteWebJarsResourceResolver.class);
     assertThat(resolvers.get(3)).isInstanceOf(PathResourceResolver.class);
 
     List<ResourceTransformer> transformers = handler.getResourceTransformers();
@@ -157,7 +154,7 @@ class ResourceHandlerRegistryTests {
     ResourceHttpRequestHandler handler = getHandler("/resources/**");
     List<ResourceResolver> resolvers = handler.getResourceResolvers();
     assertThat(resolvers).hasSize(2);
-    assertThat(resolvers.get(0)).isInstanceOf(WebJarsResourceResolver.class);
+    assertThat(resolvers.get(0)).isInstanceOf(LiteWebJarsResourceResolver.class);
     assertThat(resolvers.get(1)).isInstanceOf(PathResourceResolver.class);
 
     List<ResourceTransformer> transformers = handler.getResourceTransformers();
@@ -177,7 +174,7 @@ class ResourceHandlerRegistryTests {
     assertThat(resolvers).hasSize(4);
     assertThat(resolvers.get(0)).isInstanceOf(CachingResourceResolver.class);
     assertThat(resolvers.get(1)).isSameAs(versionResolver);
-    assertThat(resolvers.get(2)).isInstanceOf(WebJarsResourceResolver.class);
+    assertThat(resolvers.get(2)).isInstanceOf(LiteWebJarsResourceResolver.class);
     assertThat(resolvers.get(3)).isInstanceOf(PathResourceResolver.class);
 
     List<ResourceTransformer> transformers = handler.getResourceTransformers();
@@ -190,7 +187,7 @@ class ResourceHandlerRegistryTests {
   public void resourceChainWithOverrides() {
     CachingResourceResolver cachingResolver = mock(CachingResourceResolver.class);
     VersionResourceResolver versionResolver = mock(VersionResourceResolver.class);
-    WebJarsResourceResolver webjarsResolver = mock(WebJarsResourceResolver.class);
+    LiteWebJarsResourceResolver webjarsResolver = mock(LiteWebJarsResourceResolver.class);
     PathResourceResolver pathResourceResolver = new PathResourceResolver();
     CachingResourceTransformer cachingTransformer = mock(CachingResourceTransformer.class);
     CssLinkResourceTransformer cssLinkTransformer = new CssLinkResourceTransformer();

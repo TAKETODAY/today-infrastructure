@@ -64,6 +64,7 @@ dependencies {
   optional("org.apache.groovy:groovy")
   optional("org.freemarker:freemarker")
   optional("org.webjars:webjars-locator-core")
+  optional("org.webjars:webjars-locator-lite")
   optional("com.github.librepdf:openpdf")
   optional("org.apache.poi:poi-ooxml")
   optional("org.reactivestreams:reactive-streams")
