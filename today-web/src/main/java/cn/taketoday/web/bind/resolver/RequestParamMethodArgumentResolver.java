@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,6 +163,9 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
 
     Object arg = null;
     String[] paramValues = request.getParameters(name);
+    if (paramValues == null) {
+      paramValues = request.getParameters(name + "[]");
+    }
     if (paramValues != null) {
       arg = paramValues.length == 1 ? paramValues[0] : paramValues;
     }
@@ -224,7 +227,7 @@ public class RequestParamMethodArgumentResolver extends AbstractNamedValueResolv
 
     RequestParam requestParam = parameter.getParameterAnnotation(RequestParam.class);
     String name = requestParam != null && StringUtils.isNotEmpty(requestParam.name())
-                  ? requestParam.name() : parameter.getParameterName();
+            ? requestParam.name() : parameter.getParameterName();
     Assert.state(name != null, "Unresolvable parameter name");
 
     parameter = parameter.nestedIfOptional();

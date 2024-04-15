@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -51,6 +51,7 @@ import static cn.taketoday.web.bind.resolver.MvcAnnotationPredicates.requestPart
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.InstanceOfAssertFactories.array;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -160,6 +161,17 @@ class RequestParamMethodArgumentResolverTests {
     boolean condition = result instanceof String[];
     assertThat(condition).isTrue();
     assertThat((String[]) result).as("Invalid result").isEqualTo(expected);
+  }
+
+  @Test
+  void resolveStringArrayWithEmptyArraySuffix() throws Throwable {
+    String[] expected = new String[] { "foo", "bar" };
+    request.addParameter("name[]", expected[0]);
+    request.addParameter("name[]", expected[1]);
+
+    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(String[].class);
+    Object result = resolver.resolveArgument(webRequest, param);
+    assertThat(result).asInstanceOf(array(String[].class)).containsExactly(expected);
   }
 
   @Test
