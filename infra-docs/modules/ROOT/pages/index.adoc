@@ -36,9 +36,26 @@ https://github.com/TAKETODAY/today-blog[today-blog]
 刚开始的时候每个模块都是一个单独的 Git 仓库，名称都是以 `today-` 开头，后来我发现不好维护所以将各个模块合并到了一个 Git 仓库，
 合并后叫 `today-framework`。后来我感觉这些模块合起来就是用来开发 应用的基础设施嘛，后面更名 `today-infrastructure`
 
+== 系统要求
+需要至少 Java 17 兼容 Java 21。
+
+如果使用 Gradle 构建，则需要版本 8.0 以上，最好是最新版本。
+
 == 反馈和贡献
 
 如果您相当确定框架中存在问题或想要建议某个功能，
 请使用 https://github.com/TAKETODAY/today-infrastructure/issues/new[GitHub Issues]。
 
 如果您有解决方案或建议的修复方案，您可以在 Github 上提交 PR。
+
+== 🙏 鸣谢
+
+本项目的诞生离不开以下项目：
+
+* https://github.com/spring-projects/spring-framework[Spring Framework]
+* https://github.com/spring-projects/spring-boot[Spring Boot]
+* 感谢 https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure[Jetbrains] 提供免费 IDE 开源授权
+
+== 📄 开源协议
+
+使用 https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE[GPLv3] 开源协议
