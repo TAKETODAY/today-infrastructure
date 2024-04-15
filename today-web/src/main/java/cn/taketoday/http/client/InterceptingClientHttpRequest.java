@@ -91,7 +91,6 @@ final class InterceptingClientHttpRequest extends AbstractBufferingClientHttpReq
         delegate.getHeaders().addAll(request.getHeaders());
         if (body.length > 0) {
           StreamingHttpOutputMessage.writeBody(delegate, body);
-
         }
         return delegate.execute();
       }
