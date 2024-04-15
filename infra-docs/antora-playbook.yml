@@ -8,7 +8,7 @@ antora:
   - require: '@today-tech/antora-extensions/root-component-extension'
     root_component_name: 'framework'
 site:
-  title: TODAY Framework Reference
+  title: TODAY 框架文档手册
 content:
   sources:
   - url: ./..
@@ -33,5 +33,5 @@ runtime:
     failure_level: warn
 ui:
   bundle:
-    url: https://github.com/today-tech/antora-ui/releases/download/latest/ui-bundle.zip?v=1
+    url: https://github.com/today-tech/antora-ui/releases/download/latest/ui-bundle.zip?v=2
     snapshot: true
