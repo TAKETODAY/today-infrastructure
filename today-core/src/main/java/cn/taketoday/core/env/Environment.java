@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -167,16 +167,16 @@ public interface Environment extends PropertyResolver {
    * matches the {@linkplain #getDefaultProfiles() default profiles}.
    * <p>Profile expressions allow for complex, boolean profile logic to be
    * expressed &mdash; for example {@code "p1 & p2"}, {@code "(p1 & p2) | p3"},
-   * etc. See {@link Profiles#of(String...)} for details on the supported
+   * etc. See {@link Profiles#parse(String...)} for details on the supported
    * expression syntax.
    * <p>This method is a convenient shortcut for
    * {@code env.acceptsProfiles(Profiles.of(profileExpressions))}.
    *
-   * @see Profiles#of(String...)
+   * @see Profiles#parse(String...)
    * @see #acceptsProfiles(Profiles)
    */
   default boolean matchesProfiles(String... profileExpressions) {
-    return acceptsProfiles(Profiles.of(profileExpressions));
+    return acceptsProfiles(Profiles.parse(profileExpressions));
   }
 
   /**
@@ -188,7 +188,7 @@ public interface Environment extends PropertyResolver {
    * {@link #matchesProfiles(String...)} instead.
    *
    * @see #matchesProfiles(String...)
-   * @see Profiles#of(String...)
+   * @see Profiles#parse(String...)
    */
   boolean acceptsProfiles(Profiles profiles);
 

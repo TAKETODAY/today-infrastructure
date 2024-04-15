@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.core.env;
@@ -70,7 +67,7 @@ class CustomEnvironmentTests {
 
     Environment env = new CustomEnvironment();
     assertThat(env.acceptsProfiles(defaultProfile())).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("rd1"))).isTrue();
+    assertThat(env.acceptsProfiles(Profiles.parse("rd1"))).isTrue();
   }
 
   @Test
@@ -88,27 +85,27 @@ class CustomEnvironmentTests {
 
     ConfigurableEnvironment env = new CustomEnvironment();
     assertThat(env.acceptsProfiles(defaultProfile())).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("rd1 | rd2"))).isTrue();
+    assertThat(env.acceptsProfiles(Profiles.parse("rd1 | rd2"))).isTrue();
 
     // finally, issue additional assertions to cover all combinations of calling these
     // methods, however unlikely.
     env.setDefaultProfiles("d1");
-    assertThat(env.acceptsProfiles(Profiles.of("rd1 | rd2"))).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("d1"))).isTrue();
+    assertThat(env.acceptsProfiles(Profiles.parse("rd1 | rd2"))).isFalse();
+    assertThat(env.acceptsProfiles(Profiles.parse("d1"))).isTrue();
 
     env.setActiveProfiles("a1", "a2");
-    assertThat(env.acceptsProfiles(Profiles.of("d1"))).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("a1 | a2"))).isTrue();
+    assertThat(env.acceptsProfiles(Profiles.parse("d1"))).isFalse();
+    assertThat(env.acceptsProfiles(Profiles.parse("a1 | a2"))).isTrue();
 
     env.setActiveProfiles();
-    assertThat(env.acceptsProfiles(Profiles.of("d1"))).isTrue();
-    assertThat(env.acceptsProfiles(Profiles.of("a1 | a2"))).isFalse();
+    assertThat(env.acceptsProfiles(Profiles.parse("d1"))).isTrue();
+    assertThat(env.acceptsProfiles(Profiles.parse("a1 | a2"))).isFalse();
 
     env.setDefaultProfiles();
     assertThat(env.acceptsProfiles(defaultProfile())).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("rd1 | rd2"))).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("d1"))).isFalse();
-    assertThat(env.acceptsProfiles(Profiles.of("a1 | a2"))).isFalse();
+    assertThat(env.acceptsProfiles(Profiles.parse("rd1 | rd2"))).isFalse();
+    assertThat(env.acceptsProfiles(Profiles.parse("d1"))).isFalse();
+    assertThat(env.acceptsProfiles(Profiles.parse("a1 | a2"))).isFalse();
   }
 
   @Test
@@ -172,7 +169,7 @@ class CustomEnvironmentTests {
   }
 
   private Profiles defaultProfile() {
-    return Profiles.of(AbstractEnvironment.DEFAULT_PROFILE);
+    return Profiles.parse(AbstractEnvironment.DEFAULT_PROFILE);
   }
 
 }

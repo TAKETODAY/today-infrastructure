@@ -80,7 +80,7 @@ class ApplicationBuilderTests {
     this.context = application.run();
     assertThat(this.context).isInstanceOf(StaticApplicationContext.class);
     assertThat(this.context.getEnvironment().getProperty("foo")).isEqualTo("bucket");
-    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.of("foo"))).isTrue();
+    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.parse("foo"))).isTrue();
   }
 
   @Test
@@ -200,9 +200,9 @@ class ApplicationBuilderTests {
             .child(ChildConfig.class)
             .type(ApplicationType.NORMAL);
     this.context = application.run();
-    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.of("node"))).isTrue();
+    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.parse("node"))).isTrue();
     assertThat(this.context.getEnvironment().getProperty("transport")).isEqualTo("redis");
-    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.of("node"))).isTrue();
+    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.parse("node"))).isTrue();
     assertThat(this.context.getParent().getEnvironment().getProperty("transport")).isEqualTo("redis");
     // only defined in node profile
     assertThat(this.context.getEnvironment().getProperty("bar")).isEqualTo("spam");
@@ -216,8 +216,8 @@ class ApplicationBuilderTests {
             .profiles("admin")
             .type(ApplicationType.NORMAL);
     this.context = application.run();
-    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.of("node", "admin"))).isTrue();
-    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.of("admin"))).isFalse();
+    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.parse("node", "admin"))).isTrue();
+    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.parse("admin"))).isFalse();
   }
 
   @Test
@@ -229,9 +229,9 @@ class ApplicationBuilderTests {
             .type(ApplicationType.NORMAL);
     shared.profiles("parent");
     this.context = application.run();
-    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.of("node", "admin"))).isTrue();
-    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.of("node", "parent"))).isTrue();
-    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.of("admin"))).isFalse();
+    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.parse("node", "admin"))).isTrue();
+    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.parse("node", "parent"))).isTrue();
+    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.parse("admin"))).isFalse();
   }
 
   @Test
@@ -244,10 +244,10 @@ class ApplicationBuilderTests {
             .profiles("admin")
             .type(ApplicationType.NORMAL);
     this.context = application.run();
-    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.of("node", "admin"))).isTrue();
+    assertThat(this.context.getEnvironment().acceptsProfiles(Profiles.parse("node", "admin"))).isTrue();
     // Now they share an Environment explicitly so there's no way to keep the profiles
     // separate
-    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.of("admin"))).isTrue();
+    assertThat(this.context.getParent().getEnvironment().acceptsProfiles(Profiles.parse("admin"))).isTrue();
   }
 
   @Test

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -58,7 +55,7 @@ import cn.taketoday.util.MultiValueMap;
  * will be bypassed unless one or more of the specified profiles are active. A profile
  * string may contain a simple profile name (for example {@code "p1"}) or a profile
  * expression. A profile expression allows for more complicated profile logic to be
- * expressed, for example {@code "p1 & p2"}. See {@link Profiles#of(String...)} for more
+ * expressed, for example {@code "p1 & p2"}. See {@link Profiles#parse(String...)} for more
  * details about supported formats.
  *
  * <p>This is analogous to the behavior in XML: if the {@code profile} attribute of

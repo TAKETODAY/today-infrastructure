@@ -139,7 +139,7 @@ class ConfigDataProperties {
     }
 
     private boolean matchesActiveProfiles(Predicate<String> activeProfiles) {
-      return cn.taketoday.core.env.Profiles.of(this.onProfile).matches(activeProfiles);
+      return cn.taketoday.core.env.Profiles.parse(this.onProfile).matches(activeProfiles);
     }
 
   }
