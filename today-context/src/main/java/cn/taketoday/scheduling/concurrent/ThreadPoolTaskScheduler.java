@@ -52,7 +52,14 @@ import cn.taketoday.util.concurrent.ListenableFutureTask;
 /**
  * A standard implementation of Infra {@link TaskScheduler} interface, wrapping
  * a native {@link java.util.concurrent.ScheduledThreadPoolExecutor} and providing
- * all applicable configuration options for it.
+ * all applicable configuration options for it. The default number of scheduler
+ * threads is 1; a higher number can be configured through {@link #setPoolSize}.
+ *
+ * <p>This is Infra traditional scheduler variant, staying as close as possible to
+ * {@link java.util.concurrent.ScheduledExecutorService} semantics. Task execution happens
+ * on the scheduler thread(s) rather than on separate execution threads. As a consequence,
+ * a {@link ScheduledFuture} handle (e.g. from {@link #schedule(Runnable, Instant)})
+ * represents the actual completion of the provided task (or series of repeated tasks).
  *
  * @author Juergen Hoeller
  * @author Mark Fisher
