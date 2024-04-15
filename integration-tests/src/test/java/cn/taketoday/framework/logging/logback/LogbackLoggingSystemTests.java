@@ -164,7 +164,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     assertThat(getLineWithText(output, "Hello world")).contains("INFO");
     assertThat(file).exists();
     assertThat(getLineWithText(file, "Hello world")).contains("INFO");
-    assertThat((Object)ReflectionTestUtils.getField(getRollingPolicy(), "maxFileSize")).hasToString("10 MB");
+    assertThat((Object) ReflectionTestUtils.getField(getRollingPolicy(), "maxFileSize")).hasToString("10 MB");
     assertThat(getRollingPolicy().getMaxHistory()).isEqualTo(7);
   }
 
@@ -748,7 +748,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @Test
-  void applicationNameLoggingWhenHasApplicationName(CapturedOutput output) {
+  void applicationNameLoggingToConsoleWhenHasApplicationName(CapturedOutput output) {
     this.environment.setProperty("app.name", "myapp");
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
@@ -756,12 +756,51 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
   }
 
   @Test
-  void applicationNameLoggingWhenDisabled(CapturedOutput output) {
+  void applicationNameLoggingToConsoleWhenHasApplicationNameWithParenthesis(CapturedOutput output) {
+    this.environment.setProperty("app.name", "myapp (dev)");
+    initialize(this.initializationContext, null, null);
+    this.logger.info("Hello world");
+    assertThat(getLineWithText(output, "Hello world")).contains("[myapp (dev)] ");
+  }
+
+  @Test
+  void applicationNameLoggingToConsoleWhenDisabled(CapturedOutput output) {
     this.environment.setProperty("app.name", "myapp");
     this.environment.setProperty("logging.include-application-name", "false");
     initialize(this.initializationContext, null, null);
     this.logger.info("Hello world");
-    assertThat(getLineWithText(output, "Hello world")).doesNotContain("myapp");
+    assertThat(getLineWithText(output, "Hello world")).doesNotContain("myapp").doesNotContain("null");
+  }
+
+  @Test
+  void applicationNameLoggingToFileWhenHasApplicationName() {
+    this.environment.setProperty("app.name", "myapp");
+    File file = new File(tmpDir(), "logback-test.log");
+    LogFile logFile = getLogFile(file.getPath(), null);
+    initialize(this.initializationContext, null, logFile);
+    this.logger.info("Hello world");
+    assertThat(getLineWithText(file, "Hello world")).contains("[myapp] ");
+  }
+
+  @Test
+  void applicationNameLoggingToFileWhenHasApplicationNameWithParenthesis() {
+    this.environment.setProperty("app.name", "myapp (dev)");
+    File file = new File(tmpDir(), "logback-test.log");
+    LogFile logFile = getLogFile(file.getPath(), null);
+    initialize(this.initializationContext, null, logFile);
+    this.logger.info("Hello world");
+    assertThat(getLineWithText(file, "Hello world")).contains("[myapp (dev)] ");
+  }
+
+  @Test
+  void applicationNameLoggingToFileWhenDisabled(CapturedOutput output) {
+    this.environment.setProperty("app.name", "myapp");
+    this.environment.setProperty("logging.include-application-name", "false");
+    File file = new File(tmpDir(), "logback-test.log");
+    LogFile logFile = getLogFile(file.getPath(), null);
+    initialize(this.initializationContext, null, logFile);
+    this.logger.info("Hello world");
+    assertThat(getLineWithText(file, "Hello world")).doesNotContain("myapp").doesNotContain("null");
   }
 
   @Test

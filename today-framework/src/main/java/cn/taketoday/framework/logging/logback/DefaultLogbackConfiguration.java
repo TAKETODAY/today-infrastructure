@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging.logback;
@@ -72,6 +72,7 @@ class DefaultLogbackConfiguration {
   }
 
   private void defaults(LogbackConfigurator config) {
+    config.conversionRule("applicationName", ApplicationNameConverter.class);
     config.conversionRule("clr", ColorConverter.class);
     config.conversionRule("correlationId", CorrelationIdConverter.class);
     config.conversionRule("wex", WhitespaceThrowableProxyConverter.class);
@@ -79,7 +80,7 @@ class DefaultLogbackConfiguration {
     config.getContext()
             .putProperty("CONSOLE_LOG_PATTERN", resolve(config, "${CONSOLE_LOG_PATTERN:-"
                     + "%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) "
-                    + "%clr(${PID:- }){magenta} %clr(---){faint} %clr(${LOGGED_APPLICATION_NAME:-}[%15.15t]){faint} "
+                    + "%clr(${PID:- }){magenta} %clr(---){faint} %clr(%applicationName[%15.15t]){faint} "
                     + "%clr(${LOG_CORRELATION_PATTERN:-}){faint}%clr(%-40.40logger{39}){cyan} "
                     + "%clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"));
     String defaultCharset = Charset.defaultCharset().name();
@@ -88,7 +89,7 @@ class DefaultLogbackConfiguration {
     config.getContext().putProperty("CONSOLE_LOG_THRESHOLD", resolve(config, "${CONSOLE_LOG_THRESHOLD:-TRACE}"));
     config.getContext()
             .putProperty("FILE_LOG_PATTERN", resolve(config, "${FILE_LOG_PATTERN:-"
-                    + "%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- ${LOGGED_APPLICATION_NAME:-}[%t] "
+                    + "%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- %applicationName[%t] "
                     + "${LOG_CORRELATION_PATTERN:-}"
                     + "%-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"));
     config.getContext()
