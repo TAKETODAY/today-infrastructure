@@ -421,42 +421,72 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     boolean isFactoryDereference = BeanFactoryUtils.isFactoryDereference(name);
 
     if (beanInstance != null && beanInstance != NullValue.INSTANCE) {
-      if (beanInstance instanceof FactoryBean) {
+      // Determine target for FactoryBean match if necessary.
+      if (beanInstance instanceof FactoryBean<?> factoryBean) {
         if (!isFactoryDereference) {
-          Class<?> type = getTypeForFactoryBean((FactoryBean<?>) beanInstance);
-          return type != null && typeToMatch.isAssignableFrom(type);
-        }
-        else {
-          return typeToMatch.isInstance(beanInstance);
-        }
-      }
-      else if (!isFactoryDereference) {
-        if (typeToMatch.isInstance(beanInstance)) {
-          // Direct match for exposed instance?
-          return true;
-        }
-        else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
-          // Generics potentially only match on the target class, not on the proxy...
-          RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
-          Class<?> targetType = mbd.getTargetType();
-          if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance)) {
-            // Check raw class match as well, making sure it's exposed on the proxy.
-            Class<?> classToMatch = typeToMatch.resolve();
-            if (classToMatch != null && !classToMatch.isInstance(beanInstance)) {
+          Class<?> type = getTypeForFactoryBean(factoryBean);
+          if (type == null) {
+            return false;
+          }
+          if (typeToMatch.isAssignableFrom(type)) {
+            return true;
+          }
+          else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
+            RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+            ResolvableType targetType = mbd.targetType;
+            if (targetType == null) {
+              targetType = mbd.factoryMethodReturnType;
+            }
+            if (targetType == null) {
               return false;
             }
-            if (typeToMatch.isAssignableFrom(targetType)) {
-              return true;
+            Class<?> targetClass = targetType.resolve();
+            if (targetClass != null && FactoryBean.class.isAssignableFrom(targetClass)) {
+              Class<?> classToMatch = typeToMatch.resolve();
+              if (classToMatch != null && !FactoryBean.class.isAssignableFrom(classToMatch)
+                      && !classToMatch.isAssignableFrom(targetType.toClass())) {
+                return typeToMatch.isAssignableFrom(targetType.getGeneric());
+              }
+            }
+            else {
+              return typeToMatch.isAssignableFrom(targetType);
             }
           }
-          ResolvableType resolvableType = mbd.targetType;
-          if (resolvableType == null) {
-            resolvableType = mbd.factoryMethodReturnType;
-          }
-          return (resolvableType != null && typeToMatch.isAssignableFrom(resolvableType));
+          return false;
         }
       }
-      return false;
+      else if (isFactoryDereference) {
+        return false;
+      }
+
+      // Actual matching against bean instance...
+      if (typeToMatch.isInstance(beanInstance)) {
+        // Direct match for exposed instance?
+        return true;
+      }
+      else if (typeToMatch.hasGenerics() && containsBeanDefinition(beanName)) {
+        // Generics potentially only match on the target class, not on the proxy...
+        RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+        Class<?> targetType = mbd.getTargetType();
+        if (targetType != null && targetType != ClassUtils.getUserClass(beanInstance)) {
+          // Check raw class match as well, making sure it's exposed on the proxy.
+          Class<?> classToMatch = typeToMatch.resolve();
+          if (classToMatch != null && !classToMatch.isInstance(beanInstance)) {
+            return false;
+          }
+          if (typeToMatch.isAssignableFrom(targetType)) {
+            return true;
+          }
+        }
+        ResolvableType resolvableType = mbd.targetType;
+        if (resolvableType == null) {
+          resolvableType = mbd.factoryMethodReturnType;
+        }
+        return (resolvableType != null && typeToMatch.isAssignableFrom(resolvableType));
+      }
+      else {
+        return false;
+      }
     }
     else if (containsSingleton(beanName) && !containsBeanDefinition(beanName)) {
       // null instance registered

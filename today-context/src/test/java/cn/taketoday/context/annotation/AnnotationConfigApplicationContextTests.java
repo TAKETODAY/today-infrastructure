@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -387,15 +384,17 @@ public class AnnotationConfigApplicationContextTests {
     bd2.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, Integer.class)));
     bd2.setLazyInit(true);
     context.registerBeanDefinition("fb2", bd2);
-    context.registerBeanDefinition("ip", new RootBeanDefinition(FactoryBeanInjectionPoints.class));
+    RootBeanDefinition bd3 = new RootBeanDefinition(FactoryBeanInjectionPoints.class);
+    bd3.setScope(RootBeanDefinition.SCOPE_PROTOTYPE);
+    context.registerBeanDefinition("ip", bd3);
     context.refresh();
 
+    assertThat(context.getBean("ip", FactoryBeanInjectionPoints.class).factoryBean).isSameAs(context.getBean("&fb1"));
+    assertThat(context.getBean("ip", FactoryBeanInjectionPoints.class).factoryResult).isSameAs(context.getBean("fb1"));
     assertThat(context.getType("&fb1")).isEqualTo(GenericHolderFactoryBean.class);
     assertThat(context.getType("fb1")).isEqualTo(GenericHolder.class);
     assertThat(context.getBeanNamesForType(FactoryBean.class)).hasSize(2);
     assertThat(context.getBeanNamesForType(GenericHolderFactoryBean.class)).hasSize(1);
-    assertThat(context.getBean("ip", FactoryBeanInjectionPoints.class).factoryBean).isSameAs(context.getBean("&fb1"));
-    assertThat(context.getBean("ip", FactoryBeanInjectionPoints.class).factoryResult).isSameAs(context.getBean("fb1"));
   }
 
   @Test
@@ -403,7 +402,7 @@ public class AnnotationConfigApplicationContextTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     RootBeanDefinition bd1 = new RootBeanDefinition();
     bd1.setBeanClass(GenericHolderFactoryBean.class);
-    bd1.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, Object.class)));
+    bd1.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, String.class)));
     bd1.setLazyInit(true);
     context.registerBeanDefinition("fb1", bd1);
     RootBeanDefinition bd2 = new RootBeanDefinition();
@@ -411,13 +410,19 @@ public class AnnotationConfigApplicationContextTests {
     bd2.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class, ResolvableType.forClassWithGenerics(GenericHolder.class, Integer.class)));
     bd2.setLazyInit(true);
     context.registerBeanDefinition("fb2", bd2);
-    context.registerBeanDefinition("ip", new RootBeanDefinition(FactoryResultInjectionPoint.class));
+    RootBeanDefinition bd3 = new RootBeanDefinition(FactoryBeanInjectionPoints.class);
+    bd3.setScope(RootBeanDefinition.SCOPE_PROTOTYPE);
+    context.registerBeanDefinition("ip", bd3);
     context.refresh();
 
+    assertThat(context.getBean("ip", FactoryResultInjectionPoint.class).factoryResult).isSameAs(context.getBean("fb1"));
+    assertThat(context.getBean("ip", FactoryResultInjectionPoint.class).factoryResult).isSameAs(context.getBean("fb1"));
     assertThat(context.getType("&fb1")).isEqualTo(GenericHolderFactoryBean.class);
     assertThat(context.getType("fb1")).isEqualTo(GenericHolder.class);
     assertThat(context.getBeanNamesForType(FactoryBean.class)).hasSize(2);
-    assertThat(context.getBean("ip", FactoryResultInjectionPoint.class).factoryResult).isSameAs(context.getBean("fb1"));
+    assertThat(context.getBeanNamesForType(FactoryBean.class)).hasSize(2);
+    assertThat(context.getBeanProvider(ResolvableType.forClassWithGenerics(GenericHolder.class, String.class)))
+            .containsOnly(context.getBean("fb1"));
   }
 
   @Test
@@ -431,14 +436,19 @@ public class AnnotationConfigApplicationContextTests {
     bd2.setBeanClass(UntypedFactoryBean.class);
     bd2.setTargetType(ResolvableType.forClassWithGenerics(GenericHolder.class, Integer.class));
     context.registerBeanDefinition("fb2", bd2);
-    context.registerBeanDefinition("ip", new RootBeanDefinition(FactoryResultInjectionPoint.class));
+    RootBeanDefinition bd3 = new RootBeanDefinition(FactoryResultInjectionPoint.class);
+    bd3.setScope(RootBeanDefinition.SCOPE_PROTOTYPE);
+    context.registerBeanDefinition("ip", bd3);
     context.refresh();
 
+    assertThat(context.getBean("ip", FactoryResultInjectionPoint.class).factoryResult).isSameAs(context.getBean("fb1"));
+    assertThat(context.getBean("ip", FactoryResultInjectionPoint.class).factoryResult).isSameAs(context.getBean("fb1"));
     assertThat(context.getType("&fb1")).isEqualTo(GenericHolderFactoryBean.class);
     assertThat(context.getType("fb1")).isEqualTo(GenericHolder.class);
     assertThat(context.getBeanNamesForType(FactoryBean.class)).hasSize(2);
     assertThat(context.getBeanNamesForType(GenericHolderFactoryBean.class)).hasSize(1);
-    assertThat(context.getBean("ip", FactoryResultInjectionPoint.class).factoryResult).isSameAs(context.getBean("fb1"));
+    assertThat(context.getBeanProvider(ResolvableType.forClassWithGenerics(GenericHolder.class, String.class)))
+            .containsOnly(context.getBean("fb1"));
   }
 
   @Test
@@ -458,6 +468,9 @@ public class AnnotationConfigApplicationContextTests {
     assertThat(context.getType("fb")).isEqualTo(String.class);
     assertThat(context.getBeanNamesForType(FactoryBean.class)).hasSize(1);
     assertThat(context.getBeanNamesForType(TypedFactoryBean.class)).hasSize(1);
+    assertThat(context.getBeanProvider(String.class)).containsOnly(context.getBean("fb", String.class));
+    assertThat(context.getBeanProvider(ResolvableType.forClassWithGenerics(FactoryBean.class, String.class)))
+            .containsOnly(context.getBean("&fb"));
   }
 
   @Test
