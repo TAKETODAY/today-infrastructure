@@ -1,6 +1,5 @@
 [[getting-started.first-application]]
-// = Developing Your First Infra Application
-= 开发您的第一个基础设施应用程序
+= 开发您的第一个 Web 应用程序
 
 本节介绍如何开发一个小型的 "`Hello World!`" Web 应用程序，该应用程序重点介绍了该框架的一些关键功能。
 您可以选择 Gradle 或 Maven 作为构建系统。
