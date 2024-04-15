@@ -1,5 +1,5 @@
 [[languages]]
-= Language Support
+= 语言支持
 :page-section-summary-toc: 1
 
 

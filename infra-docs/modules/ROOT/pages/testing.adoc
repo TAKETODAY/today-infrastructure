@@ -1,5 +1,5 @@
 [[testing]]
-= Testing
+= 测试
 :page-section-summary-toc: 1
 
 This chapter covers Spring's support for integration testing and best practices for unit

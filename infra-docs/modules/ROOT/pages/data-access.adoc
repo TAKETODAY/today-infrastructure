@@ -1,5 +1,5 @@
 [[spring-data-tier]]
-= Data Access
+= 数据存取
 :page-section-summary-toc: 1
 
 This part of the reference documentation is concerned with data access and the
