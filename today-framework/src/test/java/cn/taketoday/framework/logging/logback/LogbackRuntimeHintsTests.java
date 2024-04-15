@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,24 +12,29 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging.logback;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.pattern.SyslogStartConverter;
+import ch.qos.logback.core.pattern.Converter;
 import ch.qos.logback.core.rolling.helper.DateTokenConverter;
 import ch.qos.logback.core.rolling.helper.IntegerTokenConverter;
 import cn.taketoday.aot.hint.MemberCategory;
 import cn.taketoday.aot.hint.ReflectionHints;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.TypeHint;
+import cn.taketoday.core.io.PathMatchingPatternResourceLoader;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.logging.SLF4JBridgeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,11 +59,29 @@ class LogbackRuntimeHintsTests {
   }
 
   @Test
-  void registersHintsForInfraConverters() throws LinkageError {
+  void registersHintsForSpringBootConverters() throws IOException {
     ReflectionHints reflection = registerHints();
-    assertThat(List.of(ColorConverter.class, ExtendedWhitespaceThrowableProxyConverter.class,
-            WhitespaceThrowableProxyConverter.class))
-            .allSatisfy(registeredForPublicConstructorInvocation(reflection));
+    assertThat(converterClasses()).allSatisfy(registeredForPublicConstructorInvocation(reflection));
+  }
+
+  @SuppressWarnings("unchecked")
+  private Stream<Class<Converter<?>>> converterClasses() throws IOException {
+    PathMatchingPatternResourceLoader resolver = new PathMatchingPatternResourceLoader();
+    return resolver.getResources("classpath:cn/taketoday/framework/logging/logback/*.class").stream()
+            .filter(Resource::isFile)
+            .map(this::loadClass)
+            .filter(Converter.class::isAssignableFrom)
+            .map((type) -> (Class<Converter<?>>) type);
+  }
+
+  private Class<?> loadClass(Resource resource) {
+    try {
+      return getClass().getClassLoader()
+              .loadClass("cn.taketoday.framework.logging.logback." + resource.getName().replace(".class", ""));
+    }
+    catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   @Test
