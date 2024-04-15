@@ -4,7 +4,6 @@ plugins {
 
 repositories {
   mavenLocal()
-  maven { url "https://maven.aliyun.com/repository/public" }
   mavenCentral()
   gradlePluginPortal()
 }
@@ -17,7 +16,7 @@ dependencies {
   // implementation("org.asciidoctor:asciidoctor-gradle-jvm:3.3.2")
   implementation "io.spring.javaformat:spring-javaformat-gradle-plugin:${javaFormatVersion}"
   implementation "org.apache.maven:maven-artifact:3.6.3"
-  implementation 'cn.taketoday:today-core:4.0.0-Draft.3'
+  implementation 'cn.taketoday:today-core:4.0.0-Draft.6'
 }
 
 gradlePlugin {
