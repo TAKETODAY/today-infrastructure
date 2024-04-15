@@ -1,0 +1,64 @@
+[[overview]]
+= 概述
+
+[[overview-introduce]]
+该框架起源于 2017 年。主要用于构建高性能 Web 应用程序的 Java 库。
+
+[[overview-background]]
+== 背景
+
+起源于大学自学编程，后来用 Java Servlet 做了一个博客网站。在开发过程中发现有很多重复代码，
+我觉得这样的代码很不优雅，尽管那个时候刚学编程不久，于是在我学习 https://struts.apache.org[Struts2] 的时候自己尝试着写了一个类似的
+通过 `XML` 配置干掉了大量的重复代码的程序。于是初代的 https://gitee.com/I-TAKE-TODAY/today-web/tree/v1.1.1[today-web] 诞生并开源。
+
+后面学习了 `Java 注解` 又实现了通过注解配置的版本 https://gitee.com/I-TAKE-TODAY/today-web/tree/2.1.x[today-web 注解版]
+
+https://gitee.com/I-TAKE-TODAY/today-web/tree/2.1.x[today-web 注解版] 刚出来时也正在学 `Spring` 感觉没有 `IoC`
+容器感觉不是很方便。在网上看到很多自己写 什么 Mini Spring 之类，所以我大胆决定`我也要写一个`。有这个决心是因为我把 today-web 都写出来了，
+再写个 IoC 应该不难吧。刚开始参考了各种 mini-spring，该说不说现在看来正是那个时候参考了他们的代码才导致我有些认知错误。在2021年6月-2021年12月期间
+又去深入看 Spring 源码才纠正过来。事实证明写一个这样的东西确实不难，只是要优雅的话还是要点东西的。我自认为我的代码还是优雅的。不信？
+https://live.bilibili.com/22702726[我的B站直播间欢迎你]。（在2021年开始直播写这个库，后面工作比较忙了就没怎么直播，后面有时间就会直播）。
+
+刚开始写的时候（大概是2018年,我也是看的Git提交记录哈哈）有点无从下手，所以我去参考上文说到的各类 `Mini Spring`。 就这样又开启了一轮学习。
+学习如何扫描类文件、学习Java注解、Java字节码、动态代理、重新认识接口、一些设计模式、学习使用Git、渐渐明白了单元测试的重要性等。
+随着学习的深入框架经历了数次重构，自己也对依赖注入有了自己的看法。慢慢的就形成了这个库现在的样子。我发现我居然能看得明白 Spring 源码了。感觉 Spring 就是一个巨大的宝库。
+
+如果你问我怎么学习编程，我觉得造轮子是比较好的方式。自己还有很多要学的东西。比如分布式方面的知识，所以今后你定会看到诸如
+https://github.com/today-tech/today-cloud[today-cloud], `today-distributed-*` 等项目诞生。
+
+自己的博客网站 https://taketoday.cn 在使用这个框架（其实写的博客网站也是为了学习练习技术）。博客也开源了：
+https://github.com/TAKETODAY/today-blog[today-blog]
+
+== 名字
+
+我个人很喜欢 `TODAY` 这个单词，从高中开始一直是我的网名。
+
+刚开始的时候每个模块都是一个单独的 Git 仓库，名称都是以 `today-` 开头，后来我发现不好维护所以将各个模块合并到了一个 Git 仓库，
+合并后叫 `today-framework`。后来我感觉这些模块合起来就是用来开发 应用的基础设施嘛，后面更名 `today-infrastructure`，
+简写 INFRA 或者 TODAY。因此本文档提到的 类似 `TODAY` `Infra` `TODAY INFRA` 的词的时候基本上都是指的本框架。代码里面的
+有的关键性代码取名也带有上面的字样。
+
+
+== 系统要求
+需要至少 Java 17 兼容 Java 21。
+
+如果使用 Gradle 构建，则需要版本 8.0 以上，最好是最新版本。
+
+== 反馈和贡献
+
+如果您相当确定框架中存在问题或想要建议某个功能，
+请使用 https://github.com/TAKETODAY/today-infrastructure/issues/new[GitHub Issues]。
+
+如果您有解决方案或建议的修复方案，您可以在 Github 上提交 PR。
+
+== 🙏 鸣谢
+
+本项目的诞生离不开以下项目：
+
+* https://github.com/spring-projects/spring-framework[Spring Framework]
+* https://github.com/spring-projects/spring-boot[Spring Boot]
+* 感谢 https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure[Jetbrains] 提供免费 IDE 开源授权
+
+== 📄 开源协议
+
+使用 https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE[GPLv3] 开源协议
