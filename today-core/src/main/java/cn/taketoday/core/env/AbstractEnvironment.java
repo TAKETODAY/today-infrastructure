@@ -62,7 +62,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
 
   private final PropertySources propertySources;
 
-  private final ConfigurablePropertyResolver propertyResolver;
+  // subclasses can access
+  protected final ConfigurablePropertyResolver propertyResolver;
 
   /**
    * Create a new {@code Environment} instance, calling back to
@@ -95,20 +96,10 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
    * Factory method used to create the {@link ConfigurablePropertyResolver}
    * instance used by the Environment.
    *
-   * @see #getPropertyResolver()
+   * @see #propertyResolver
    */
   protected ConfigurablePropertyResolver createPropertyResolver(PropertySources propertySources) {
     return new PropertySourcesPropertyResolver(propertySources);
-  }
-
-  /**
-   * Return the {@link ConfigurablePropertyResolver} being used by the
-   * {@link Environment}.
-   *
-   * @see #createPropertyResolver(PropertySources)
-   */
-  protected final ConfigurablePropertyResolver getPropertyResolver() {
-    return this.propertyResolver;
   }
 
   /**
@@ -358,11 +349,11 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
   protected void validateProfile(String profile) {
     if (StringUtils.isBlank(profile)) {
       throw new IllegalArgumentException(
-              "Invalid profile [" + profile + "]: must contain text");
+              "Invalid profile [%s]: must contain text".formatted(profile));
     }
     if (profile.charAt(0) == '!') {
       throw new IllegalArgumentException(
-              "Invalid profile [" + profile + "]: must not begin with ! operator");
+              "Invalid profile [%s]: must not begin with ! operator".formatted(profile));
     }
   }
 
@@ -543,8 +534,8 @@ public abstract class AbstractEnvironment implements ConfigurableEnvironment, It
 
   @Override
   public String toString() {
-    return getClass().getSimpleName() + " {activeProfiles=" + this.activeProfiles +
-            ", defaultProfiles=" + this.defaultProfiles + ", propertySources=" + this.propertySources + "}";
+    return "%s {activeProfiles=%s, defaultProfiles=%s, propertySources=%s}"
+            .formatted(getClass().getSimpleName(), this.activeProfiles, this.defaultProfiles, this.propertySources);
   }
 
 }
