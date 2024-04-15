@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server;
@@ -196,7 +196,7 @@ public class ServletServerHttpRequestTests {
     assertThat(result).as("Invalid content returned").isEqualTo(content);
   }
 
-  @Test // gh-31327
+  @Test
   void getFormBodyWhenQueryParamsAlsoPresent() throws IOException {
     mockRequest.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
     mockRequest.setMethod("POST");
@@ -208,5 +208,18 @@ public class ServletServerHttpRequestTests {
     byte[] result = FileCopyUtils.copyToByteArray(request.getBody());
     byte[] content = "foo=bar".getBytes(StandardCharsets.UTF_8);
     assertThat(result).as("Invalid content returned").isEqualTo(content);
+  }
+
+  @Test
+  void getFormBodyWhenNotEncodedCharactersPresent() throws IOException {
+    mockRequest.setContentType("application/x-www-form-urlencoded; charset=UTF-8");
+    mockRequest.setMethod("POST");
+    mockRequest.addParameter("name", "Test");
+    mockRequest.addParameter("lastName", "Test@er");
+    mockRequest.addHeader("Content-Length", 26);
+
+    byte[] result = FileCopyUtils.copyToByteArray(request.getBody());
+    assertThat(result).isEqualTo("name=Test&lastName=Test%40er".getBytes(StandardCharsets.UTF_8));
+    assertThat(request.getHeaders().getContentLength()).isEqualTo(result.length);
   }
 }

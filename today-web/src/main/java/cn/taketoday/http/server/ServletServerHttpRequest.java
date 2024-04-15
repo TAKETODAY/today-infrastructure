@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server;
@@ -232,7 +232,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
    * from the body, which can fail if any other code has used the ServletRequest
    * to access a parameter, thus causing the input stream to be "consumed".
    */
-  private static InputStream getBodyFromServletRequestParameters(HttpServletRequest request) throws IOException {
+  private InputStream getBodyFromServletRequestParameters(HttpServletRequest request) throws IOException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
     OutputStreamWriter writer = new OutputStreamWriter(bos, FORM_CHARSET);
 
@@ -258,7 +258,12 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
     }
     writer.flush();
 
-    return new ByteArrayInputStream(bos.toByteArray());
+    byte[] bytes = bos.toByteArray();
+    if (bytes.length > 0 && getHeaders().containsKey(HttpHeaders.CONTENT_LENGTH)) {
+      getHeaders().setContentLength(bytes.length);
+    }
+
+    return new ByteArrayInputStream(bytes);
   }
 
 }
