@@ -228,6 +228,7 @@
 *** xref:data-access/orm/jpa.adoc[]
 ** xref:data-access/oxm.adoc[]
 ** xref:data-access/appendix.adoc[]
+
 * xref:web.adoc[]
 ** xref:web/webmvc.adoc[]
 *** xref:web/webmvc/mvc-servlet.adoc[]
@@ -304,12 +305,14 @@
 **** xref:web/webmvc/mvc-config/advanced-java.adoc[]
 **** xref:web/webmvc/mvc-config/advanced-xml.adoc[]
 *** xref:web/webmvc/mvc-http2.adoc[]
+** xref:web/session/index.adoc[]
 ** xref:web/webmvc-client.adoc[]
 ** xref:web/webmvc-test.adoc[]
 ** xref:web/websocket.adoc[]
 *** xref:web/websocket/server.adoc[]
 *** xref:web/websocket/fallback.adoc[]
 ** xref:web/integration.adoc[]
+
 * xref:integration.adoc[]
 ** xref:integration/rest-clients.adoc[]
 ** xref:integration/jmx.adoc[]
@@ -337,5 +340,6 @@
 ** xref:languages/groovy.adoc[]
 ** xref:languages/dynamic.adoc[]
 * xref:appendix.adoc[]
+
 * {today-framework-wiki}[Wiki]
 
