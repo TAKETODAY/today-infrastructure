@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.commons;
 
@@ -40,6 +37,8 @@ import cn.taketoday.bytecode.Type;
  *
  * @author Eugene Kuleshov
  * @author Eric Bruneton
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes {
 
@@ -96,11 +95,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type Type}).
    */
-  protected AdviceAdapter(
-          final MethodVisitor methodVisitor,
-          final int access,
-          final String name,
-          final String descriptor) {
+  protected AdviceAdapter(final MethodVisitor methodVisitor,
+          final int access, final String name, final String descriptor) {
     super(methodVisitor, access, name, descriptor);
     methodAccess = access;
     methodDesc = descriptor;
@@ -334,8 +330,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitFieldInsn(
-          final int opcode, final String owner, final String name, final String descriptor) {
+  public void visitFieldInsn(final int opcode, final String owner, final String name, final String descriptor) {
     super.visitFieldInsn(opcode, owner, name, descriptor);
     if (isConstructor && !superClassConstructorCalled) {
       char firstDescriptorChar = descriptor.charAt(0);
@@ -413,12 +408,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitMethodInsn(
-          final int opcodeAndSource,
-          final String owner,
-          final String name,
-          final String descriptor,
-          final boolean isInterface) {
+  public void visitMethodInsn(final int opcodeAndSource, final String owner,
+          final String name, final String descriptor, final boolean isInterface) {
     super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
     int opcode = opcodeAndSource & ~Opcodes.SOURCE_MASK;
     doVisitMethodInsn(opcode, name, descriptor);
@@ -458,11 +449,8 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitInvokeDynamicInsn(
-          final String name,
-          final String descriptor,
-          final Handle bootstrapMethodHandle,
-          final Object... bootstrapMethodArguments) {
+  public void visitInvokeDynamicInsn(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
     doVisitMethodInsn(Opcodes.INVOKEDYNAMIC, name, descriptor);
   }
@@ -497,8 +485,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitTableSwitchInsn(
-          final int min, final int max, final Label dflt, final Label... labels) {
+  public void visitTableSwitchInsn(final int min, final int max, final Label dflt, final Label... labels) {
     super.visitTableSwitchInsn(min, max, dflt, labels);
     if (isConstructor && !superClassConstructorCalled) {
       popValue();
@@ -508,8 +495,7 @@ public abstract class AdviceAdapter extends GeneratorAdapter implements Opcodes 
   }
 
   @Override
-  public void visitTryCatchBlock(
-          final Label start, final Label end, final Label handler, final String type) {
+  public void visitTryCatchBlock(final Label start, final Label end, final Label handler, final String type) {
     super.visitTryCatchBlock(start, end, handler, type);
     // By definition of 'forwardJumpStackFrames', 'handler' should be pushed only if there is an
     // instruction between 'start' and 'end' at which the super class constructor is not yet

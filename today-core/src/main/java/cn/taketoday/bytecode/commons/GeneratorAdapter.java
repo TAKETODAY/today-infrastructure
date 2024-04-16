@@ -31,44 +31,45 @@ import cn.taketoday.bytecode.Type;
  * A {@link MethodVisitor} with convenient methods to generate code. For example, using this
  * adapter, the class below
  *
- * <pre>
+ * <pre>{@code
  * public class Example {
  *   public static void main(String[] args) {
- *     System.out.println(&quot;Hello world!&quot;);
+ *     System.out.println("Hello world!");
  *   }
  * }
- * </pre>
+ * }</pre>
  *
  * <p>can be generated as follows:
  *
- * <pre>
+ * <pre>{@code
  * ClassWriter cw = new ClassWriter(0);
- * cw.visit(V1_1, ACC_PUBLIC, &quot;Example&quot;, null, &quot;java/lang/Object&quot;, null);
+ * cw.visit(V1_1, ACC_PUBLIC, "Example", null, "java/lang/Object", null);
  *
- * MethodSignature m = MethodSignature.from(&quot;void &lt;init&gt; ()&quot;);
+ * MethodSignature m = MethodSignature.from("void <init> ()");
  * GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
  * mg.loadThis();
  * mg.invokeConstructor(Type.getType(Object.class), m);
  * mg.returnValue();
  * mg.endMethod();
  *
- * m = MethodSignature.from(&quot;void main (String[])&quot;);
+ * m = MethodSignature.from("void main (String[])");
  * mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
- * mg.getStatic(Type.getType(System.class), &quot;out&quot;, Type.getType(PrintStream.class));
- * mg.push(&quot;Hello world!&quot;);
+ * mg.getStatic(Type.getType(System.class), "out", Type.getType(PrintStream.class));
+ * mg.push("Hello world!");
  * mg.invokeVirtual(Type.getType(PrintStream.class),
- *         MethodSignature.from(&quot;void println (String)&quot;));
+ *         MethodSignature.from("void println (String)"));
  * mg.returnValue();
  * mg.endMethod();
  *
  * cw.visitEnd();
- * </pre>
+ * }</pre>
  *
  * @author Juozas Baliuka
  * @author Chris Nokleberg
  * @author Eric Bruneton
  * @author Prashant Deva
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 public class GeneratorAdapter extends LocalVariablesSorter {
 
@@ -148,11 +149,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param name the method's name.
    * @param descriptor the method's descriptor (see {@link Type}).
    */
-  public GeneratorAdapter(
-          final MethodVisitor methodVisitor,
-          final int access,
-          final String name,
-          final String descriptor) {
+  public GeneratorAdapter(final MethodVisitor methodVisitor,
+          final int access, final String name, final String descriptor) {
     super(access, descriptor, methodVisitor);
     this.name = name;
     this.access = access;
@@ -175,8 +173,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param method the adapted method.
    * @param methodVisitor the method visitor to which this adapter delegates calls.
    */
-  public GeneratorAdapter(
-          final int access, final MethodSignature method, final MethodVisitor methodVisitor) {
+  public GeneratorAdapter(final int access, final MethodSignature method, final MethodVisitor methodVisitor) {
     this(methodVisitor, access, method.getName(), method.getDescriptor());
   }
 
@@ -189,20 +186,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param exceptions the exceptions thrown by the adapted method (may be {@literal null}).
    * @param classVisitor the class visitor to which this adapter delegates calls.
    */
-  public GeneratorAdapter(
-          final int access,
-          final MethodSignature method,
-          final String signature,
-          final Type[] exceptions,
-          final ClassVisitor classVisitor) {
-    this(access,
-            method,
-            classVisitor.visitMethod(
-                    access,
-                    method.getName(),
-                    method.getDescriptor(),
-                    signature,
-                    exceptions == null ? null : getInternalNames(exceptions)));
+  public GeneratorAdapter(final int access, final MethodSignature method,
+          final String signature, final Type[] exceptions, final ClassVisitor classVisitor) {
+    this(access, method, classVisitor.visitMethod(access, method.getName(), method.getDescriptor(),
+            signature, exceptions == null ? null : getInternalNames(exceptions)));
   }
 
   /**
@@ -767,33 +754,22 @@ public class GeneratorAdapter extends LocalVariablesSorter {
     Type boxedType = Type.TYPE_NUMBER;
     MethodSignature unboxMethod;
     switch (type.getSort()) {
-      case Type.VOID:
+      case Type.VOID -> {
         return;
-      case Type.CHAR:
+      }
+      case Type.CHAR -> {
         boxedType = Type.TYPE_CHARACTER;
         unboxMethod = MethodSignature.CHAR_VALUE;
-        break;
-      case Type.BOOLEAN:
+      }
+      case Type.BOOLEAN -> {
         boxedType = Type.TYPE_BOOLEAN;
         unboxMethod = MethodSignature.BOOLEAN_VALUE;
-        break;
-      case Type.DOUBLE:
-        unboxMethod = MethodSignature.DOUBLE_VALUE;
-        break;
-      case Type.FLOAT:
-        unboxMethod = MethodSignature.FLOAT_VALUE;
-        break;
-      case Type.LONG:
-        unboxMethod = MethodSignature.LONG_VALUE;
-        break;
-      case Type.INT:
-      case Type.SHORT:
-      case Type.BYTE:
-        unboxMethod = MethodSignature.INT_VALUE;
-        break;
-      default:
-        unboxMethod = null;
-        break;
+      }
+      case Type.DOUBLE -> unboxMethod = MethodSignature.DOUBLE_VALUE;
+      case Type.FLOAT -> unboxMethod = MethodSignature.FLOAT_VALUE;
+      case Type.LONG -> unboxMethod = MethodSignature.LONG_VALUE;
+      case Type.INT, Type.SHORT, Type.BYTE -> unboxMethod = MethodSignature.INT_VALUE;
+      default -> unboxMethod = null;
     }
     if (unboxMethod == null) {
       checkCast(type);
@@ -847,17 +823,10 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    */
   public void ifCmp(final Type type, final int mode, final Label label) {
     switch (type.getSort()) {
-      case Type.LONG:
-        mv.visitInsn(Opcodes.LCMP);
-        break;
-      case Type.DOUBLE:
-        mv.visitInsn(mode == GE || mode == GT ? Opcodes.DCMPL : Opcodes.DCMPG);
-        break;
-      case Type.FLOAT:
-        mv.visitInsn(mode == GE || mode == GT ? Opcodes.FCMPL : Opcodes.FCMPG);
-        break;
-      case Type.ARRAY:
-      case Type.OBJECT:
+      case Type.LONG -> mv.visitInsn(Opcodes.LCMP);
+      case Type.DOUBLE -> mv.visitInsn(mode == GE || mode == GT ? Opcodes.DCMPL : Opcodes.DCMPG);
+      case Type.FLOAT -> mv.visitInsn(mode == GE || mode == GT ? Opcodes.FCMPL : Opcodes.FCMPG);
+      case Type.ARRAY, Type.OBJECT -> {
         if (mode == EQ) {
           mv.visitJumpInsn(Opcodes.IF_ACMPEQ, label);
           return;
@@ -869,7 +838,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         else {
           throw new IllegalArgumentException("Bad comparison for type " + type);
         }
-      default:
+      }
+      default -> {
         int intOp = switch (mode) {
           case EQ -> Opcodes.IF_ICMPEQ;
           case NE -> Opcodes.IF_ICMPNE;
@@ -881,6 +851,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
         };
         mv.visitJumpInsn(intOp, label);
         return;
+      }
     }
     mv.visitJumpInsn(mode, label);
   }
@@ -977,8 +948,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param useTable {@literal true} to use a TABLESWITCH instruction, or {@literal false} to use a
    * LOOKUPSWITCH instruction.
    */
-  public void tableSwitch(
-          final int[] keys, final TableSwitchGenerator generator, final boolean useTable) {
+  public void tableSwitch(final int[] keys, final TableSwitchGenerator generator, final boolean useTable) {
     for (int i = 1; i < keys.length; ++i) {
       if (keys[i] < keys[i - 1]) {
         throw new IllegalArgumentException("keys must be sorted in ascending order");
@@ -1040,8 +1010,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param name the name of the field.
    * @param fieldType the type of the field.
    */
-  public void fieldInsn(
-          final int opcode, final Type ownerType, final String name, final Type fieldType) {
+  public void fieldInsn(final int opcode, final Type ownerType, final String name, final Type fieldType) {
     mv.visitFieldInsn(opcode, ownerType.getInternalName(), name, fieldType.getDescriptor());
   }
 
@@ -1101,8 +1070,7 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * @param method the method to be invoked.
    * @param isInterface whether the 'type' class is an interface or not.
    */
-  public void invokeInsn(
-          final int opcode, final Type type, final MethodSignature method, final boolean isInterface) {
+  public void invokeInsn(final int opcode, final Type type, final MethodSignature method, final boolean isInterface) {
     String owner = type.getSort() == Type.ARRAY ? type.getDescriptor() : type.getInternalName();
     mv.visitMethodInsn(opcode, owner, method.getName(), method.getDescriptor(), isInterface);
   }
@@ -1167,11 +1135,8 @@ public class GeneratorAdapter extends LocalVariablesSorter {
    * Type} or {@link Handle} value. This method is allowed to modify the content of the array so
    * a caller should expect that this array may change.
    */
-  public void invokeDynamic(
-          final String name,
-          final String descriptor,
-          final Handle bootstrapMethodHandle,
-          final Object... bootstrapMethodArguments) {
+  public void invokeDynamic(final String name, final String descriptor,
+          final Handle bootstrapMethodHandle, final Object... bootstrapMethodArguments) {
     mv.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
   }
 
