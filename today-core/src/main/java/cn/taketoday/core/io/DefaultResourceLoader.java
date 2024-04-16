@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,13 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
@@ -38,6 +40,9 @@ import cn.taketoday.util.StringUtils;
  * <p>Will return a {@link UrlResource} if the location value is a URL,
  * and a {@link ClassPathResource} if it is a non-URL path or a
  * "classpath:" pseudo-URL.
+ *
+ * <p> All the {@link ProtocolResolver ProtocolResolvers} registered in
+ * a {@code today.strategies} file applied to it.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -51,7 +56,8 @@ public class DefaultResourceLoader implements ResourceLoader {
   @Nullable
   private LinkedHashSet<ProtocolResolver> protocolResolvers;
 
-  private final ConcurrentHashMap<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
+  @Nullable
+  private ConcurrentHashMap<Class<?>, Map<Resource, ?>> resourceCaches;
 
   /**
    * Create a new DefaultResourceLoader.
@@ -61,7 +67,9 @@ public class DefaultResourceLoader implements ResourceLoader {
    *
    * @see java.lang.Thread#getContextClassLoader()
    */
-  public DefaultResourceLoader() { }
+  public DefaultResourceLoader() {
+    this(null);
+  }
 
   /**
    * Create a new DefaultResourceLoader.
@@ -71,6 +79,10 @@ public class DefaultResourceLoader implements ResourceLoader {
    */
   public DefaultResourceLoader(@Nullable ClassLoader classLoader) {
     this.classLoader = classLoader;
+    List<ProtocolResolver> resolvers = TodayStrategies.find(ProtocolResolver.class, classLoader);
+    if (!resolvers.isEmpty()) {
+      this.protocolResolvers = new LinkedHashSet<>(resolvers);
+    }
   }
 
   /**
@@ -131,7 +143,12 @@ public class DefaultResourceLoader implements ResourceLoader {
    */
   @SuppressWarnings("unchecked")
   public <T> Map<Resource, T> getResourceCache(Class<T> valueType) {
-    return (Map<Resource, T>) this.resourceCaches.computeIfAbsent(valueType, key -> new ConcurrentHashMap<>());
+    ConcurrentHashMap<Class<?>, Map<Resource, ?>> resourceCaches = this.resourceCaches;
+    if (resourceCaches == null) {
+      resourceCaches = new ConcurrentHashMap<>(4);
+      this.resourceCaches = resourceCaches;
+    }
+    return (Map<Resource, T>) resourceCaches.computeIfAbsent(valueType, key -> new ConcurrentHashMap<>());
   }
 
   /**
@@ -140,7 +157,9 @@ public class DefaultResourceLoader implements ResourceLoader {
    * @see #getResourceCache
    */
   public void clearResourceCaches() {
-    this.resourceCaches.clear();
+    if (resourceCaches != null) {
+      resourceCaches.clear();
+    }
   }
 
   @Override
@@ -169,8 +188,8 @@ public class DefaultResourceLoader implements ResourceLoader {
         // Try to parse the location as a URL...
         URL url = ResourceUtils.toURL(location);
         return ResourceUtils.isFileURL(url)
-               ? new FileUrlResource(url)
-               : new UrlResource(url);
+                ? new FileUrlResource(url)
+                : new UrlResource(url);
       }
       catch (MalformedURLException ex) {
         // No URL -> resolve as resource path.
