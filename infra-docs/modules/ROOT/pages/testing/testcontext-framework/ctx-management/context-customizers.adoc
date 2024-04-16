@@ -11,7 +11,7 @@ test class -- for example, based on the presence of a certain annotation. Factor
 invoked after `ContextLoaders` have processed context configuration attributes for a test
 class but before the `MergedContextConfiguration` is created.
 
-For example, Spring Framework provides the following `ContextCustomizerFactory`
+For example, TODAY Framework provides the following `ContextCustomizerFactory`
 implementation which is registered by default:
 
 `MockServerContainerContextCustomizerFactory`:: Creates a
@@ -40,14 +40,14 @@ Registering `ContextCustomizerFactory` implementations by using `@ContextCustomi
 suitable for custom factories that are used in limited testing scenarios. However, it can
 become cumbersome if a custom factory needs to be used across an entire test suite. This
 issue is addressed through support for automatic discovery of default
-`ContextCustomizerFactory` implementations through the `SpringFactoriesLoader` mechanism.
+`ContextCustomizerFactory` implementations through the `InfraFactoriesLoader` mechanism.
 
-For example, the modules that make up the testing support in Spring Framework and Spring
+For example, the modules that make up the testing support in TODAY Framework and Infra
 Boot declare all core default `ContextCustomizerFactory` implementations under the
 `cn.taketoday.test.context.ContextCustomizerFactory` key in their
 `META-INF/spring.factories` properties files. The `spring.factories` file for the
-`spring-test` module can be viewed
-{today-framework-code}/spring-test/src/main/resources/META-INF/spring.factories[here].
+`today-test` module can be viewed
+{today-framework-code}/today-test/src/main/resources/META-INF/spring.factories[here].
 Third-party frameworks and developers can contribute their own `ContextCustomizerFactory`
 implementations to the list of default factories in the same manner through their own
 `spring.factories` files.

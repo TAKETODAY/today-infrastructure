@@ -7,7 +7,7 @@ replacing the ones used by default, by overriding
 You can also customize the list of configured message converters at the end by overriding
 {today-framework-api}/web/servlet/config/annotation/WebMvcConfigurer.html#extendMessageConverters-java.util.List-[`extendMessageConverters()`].
 
-TIP: In a Spring Boot application, the `WebMvcAutoConfiguration` adds any
+TIP: In a Infra App application, the `WebMvcAutoConfiguration` adds any
 `HttpMessageConverter` beans it detects, in addition to default converters. Hence, in a
 Boot application, prefer to use the {today-framework-reference}/web.html#web.servlet.spring-mvc.message-converters[HttpMessageConverters]
 mechanism. Or alternatively, use `extendMessageConverters` to modify message converters

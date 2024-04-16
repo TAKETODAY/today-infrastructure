@@ -149,7 +149,7 @@ public class JndiDataConfig {
 --
 
 NOTE: As mentioned earlier, with `@Bean` methods, you typically choose to use programmatic
-JNDI lookups, by using either Spring's `JndiTemplate`/`JndiLocatorDelegate` helpers or the
+JNDI lookups, by using either Infra `JndiTemplate`/`JndiLocatorDelegate` helpers or the
 straight JNDI `InitialContext` usage shown earlier but not the `JndiObjectFactoryBean`
 variant, which would force you to declare the return type as the `FactoryBean` type.
 
@@ -243,7 +243,7 @@ overloading), a `@Profile` condition needs to be consistently declared on all
 overloaded methods. If the conditions are inconsistent, only the condition on the
 first declaration among the overloaded methods matters. Therefore, `@Profile` can
 not be used to select an overloaded method with a particular argument signature over
-another. Resolution between all factory methods for the same bean follows Spring's
+another. Resolution between all factory methods for the same bean follows Infra
 constructor resolution algorithm at creation time.
 
 If you want to define alternative beans with different profile conditions,
@@ -377,7 +377,7 @@ In addition, you can also declaratively activate profiles through the
 `infra.profiles.active` property, which may be specified through system environment
 variables, JVM system properties, servlet context parameters in `web.xml`, or even as an
 entry in JNDI (see xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` Abstraction]). In integration tests, active
-profiles can be declared by using the `@ActiveProfiles` annotation in the `spring-test`
+profiles can be declared by using the `@ActiveProfiles` annotation in the `today-test`
 module (see xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[context configuration with environment profiles]
 ).
 
@@ -446,7 +446,7 @@ declaratively, by using the `infra.profiles.default` property.
 [[beans-property-source-abstraction]]
 == `PropertySource` Abstraction
 
-Spring's `Environment` abstraction provides search operations over a configurable
+Infra `Environment` abstraction provides search operations over a configurable
 hierarchy of property sources. Consider the following listing:
 
 [tabs]
@@ -467,7 +467,7 @@ In the preceding snippet, we see a high-level way of asking Spring whether the `
 defined for the current environment. To answer this question, the `Environment` object performs
 a search over a set of {today-framework-api}/core/env/PropertySource.html[`PropertySource`]
 objects. A `PropertySource` is a simple abstraction over any source of key-value pairs, and
-Spring's {today-framework-api}/core/env/StandardEnvironment.html[`StandardEnvironment`]
+Infra {today-framework-api}/core/env/StandardEnvironment.html[`StandardEnvironment`]
 is configured with two PropertySource objects -- one representing the set of JVM system properties
 (`System.getProperties()`) and one representing the set of system environment variables
 (`System.getenv()`).
@@ -532,7 +532,7 @@ property sources.
 
 The {today-framework-api}/context/annotation/PropertySource.html[`@PropertySource`]
 annotation provides a convenient and declarative mechanism for adding a `PropertySource`
-to Spring's `Environment`.
+to Infra `Environment`.
 
 Given a file called `app.properties` that contains the key-value pair `testbean.name=myTestBean`,
 the following `@Configuration` class uses `@PropertySource` in such a way that

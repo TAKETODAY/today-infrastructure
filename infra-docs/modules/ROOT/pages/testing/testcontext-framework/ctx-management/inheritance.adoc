@@ -29,7 +29,7 @@ another and use both its own configuration file and the superclass's configurati
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from "/base-config.xml"
 // in the root of the classpath
 @ContextConfiguration("/base-config.xml") <1>
@@ -61,13 +61,13 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // ApplicationContext will be loaded from BaseConfig
-@SpringJUnitConfig(BaseConfig.class) // <1>
+@JUnitConfig(BaseConfig.class) // <1>
 class BaseTest {
   // class body...
 }
 
 // ApplicationContext will be loaded from BaseConfig and ExtendedConfig
-@SpringJUnitConfig(ExtendedConfig.class) // <2>
+@JUnitConfig(ExtendedConfig.class) // <2>
 class ExtendedTest extends BaseTest {
   // class body...
 }
@@ -80,21 +80,21 @@ class ExtendedTest extends BaseTest {
 In the next example, which uses context initializers, the `ApplicationContext` for
 `ExtendedTest` is initialized by using `BaseInitializer` and `ExtendedInitializer`. Note,
 however, that the order in which the initializers are invoked depends on whether they
-implement Spring's `Ordered` interface or are annotated with Spring's `@Order` annotation
+implement Infra `Ordered` interface or are annotated with Infra `@Order` annotation
 or the standard `@Priority` annotation. The following example shows how one class can
 extend another and use both its own initializer and the superclass's initializer:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // ApplicationContext will be initialized by BaseInitializer
-@SpringJUnitConfig(initializers = BaseInitializer.class) // <1>
+@JUnitConfig(initializers = BaseInitializer.class) // <1>
 class BaseTest {
   // class body...
 }
 
 // ApplicationContext will be initialized by BaseInitializer
 // and ExtendedInitializer
-@SpringJUnitConfig(initializers = ExtendedInitializer.class) // <2>
+@JUnitConfig(initializers = ExtendedInitializer.class) // <2>
 class ExtendedTest extends BaseTest {
   // class body...
 }

@@ -3,7 +3,7 @@
 
 As mentioned in the xref:core/beans/dependencies/factory-collaborators.adoc[previous section], you can define bean
 properties and constructor arguments as references to other managed beans (collaborators)
-or as values defined inline. Spring's XML-based configuration metadata supports
+or as values defined inline. Infra XML-based configuration metadata supports
 sub-element types within its `<property/>` and `<constructor-arg/>` elements for this
 purpose.
 
@@ -12,7 +12,7 @@ purpose.
 == Straight Values (Primitives, Strings, and so on)
 
 The `value` attribute of the `<property/>` element specifies a property or constructor
-argument as a human-readable string representation. Spring's
+argument as a human-readable string representation. Infra
 xref:core/validation/convert.adoc#core-convert-ConversionService-API[conversion service] is used to convert these
 values from a `String` to the actual type of the property or argument.
 The following example shows various values being set:
@@ -345,7 +345,7 @@ a parent collection definition is redundant and does not result in the desired m
 Thanks to Java's support for generic types, you can use strongly typed collections.
 That is, it is possible to declare a `Collection` type such that it can only contain
 (for example) `String` elements. If you use Spring to dependency-inject a
-strongly-typed `Collection` into a bean, you can take advantage of Spring's
+strongly-typed `Collection` into a bean, you can take advantage of Infra
 type-conversion support such that the elements of your strongly-typed `Collection`
 instances are converted to the appropriate type prior to being added to the `Collection`.
 The following Java class and bean definition show how to do so:
@@ -385,7 +385,7 @@ public class SomeClass {
 
 When the `accounts` property of the `something` bean is prepared for injection, the generics
 information about the element type of the strongly-typed `Map<String, Float>` is
-available by reflection. Thus, Spring's type conversion infrastructure recognizes the
+available by reflection. Thus, Infra type conversion infrastructure recognizes the
 various value elements as being of type `Float`, and the string values (`9.99`, `2.75`, and
 `3.99`) are converted into an actual `Float` type.
 

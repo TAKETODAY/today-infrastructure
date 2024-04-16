@@ -175,7 +175,7 @@ a context-wide `LoadTimeWeaver` by using the `@EnableLoadTimeWeaving` annotation
 `context:load-time-weaver` XML element. Such a global weaver is automatically picked up
 by all JPA `LocalContainerEntityManagerFactoryBean` instances. The following example
 shows the preferred way of setting up a load-time weaver, delivering auto-detection
-of the platform (e.g. Tomcat's weaving-capable class loader or Spring's JVM agent)
+of the platform (e.g. Tomcat's weaving-capable class loader or Infra JVM agent)
 and automatic propagation of the weaver to all weaver-aware beans:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -471,10 +471,10 @@ the persistence units via `@Autowired @Qualifier("...")`.
 == Spring-driven JPA Transactions
 
 NOTE: We strongly encourage you to read xref:data-access/transaction/declarative.adoc[Declarative Transaction Management],
-if you have not already done so, to get more detailed coverage of Spring's declarative transaction support.
+if you have not already done so, to get more detailed coverage of Infra declarative transaction support.
 
 The recommended strategy for JPA is local transactions through JPA's native transaction
-support. Spring's `JpaTransactionManager` provides many capabilities known from local
+support. Infra `JpaTransactionManager` provides many capabilities known from local
 JDBC transactions (such as transaction-specific isolation levels and resource-level
 read-only optimizations) against any regular JDBC connection pool, without requiring
 a JTA transaction coordinator and XA-capable resources.
@@ -503,14 +503,14 @@ features supported by Spring, usually in a vendor-specific manner:
 * Applying specific transaction semantics (such as custom isolation level or transaction
   timeout)
 * Retrieving the transactional JDBC `Connection` (for exposure to JDBC-based DAOs)
-* Advanced translation of `PersistenceException` to Spring's `DataAccessException`
+* Advanced translation of `PersistenceException` to Infra `DataAccessException`
 
 This is particularly valuable for special transaction semantics and for advanced
 translation of exception. The default implementation (`DefaultJpaDialect`) does
 not provide any special abilities and, if the features listed earlier are required, you have
 to specify the appropriate dialect.
 
-TIP: As an even broader provider adaptation facility primarily for Spring's full-featured
+TIP: As an even broader provider adaptation facility primarily for Infra full-featured
 `LocalContainerEntityManagerFactoryBean` setup, `JpaVendorAdapter` combines the
 capabilities of `JpaDialect` with other provider-specific defaults. Specifying a
 `HibernateJpaVendorAdapter` or `EclipseLinkJpaVendorAdapter` is the most convenient
@@ -520,7 +520,7 @@ Spring-driven transaction management (that is, for use with `JpaTransactionManag
 
 See the {today-framework-api}/orm/jpa/JpaDialect.html[`JpaDialect`] and
 {today-framework-api}/orm/jpa/JpaVendorAdapter.html[`JpaVendorAdapter`] javadoc for
-more details of its operations and how they are used within Spring's JPA support.
+more details of its operations and how they are used within Infra JPA support.
 
 
 [[orm-jpa-jta]]
@@ -528,7 +528,7 @@ more details of its operations and how they are used within Spring's JPA support
 
 As an alternative to `JpaTransactionManager`, Spring also allows for multi-resource
 transaction coordination through JTA, either in a Jakarta EE environment or with a
-stand-alone transaction coordinator, such as Atomikos. Aside from choosing Spring's
+stand-alone transaction coordinator, such as Atomikos. Aside from choosing Infra
 `JtaTransactionManager` instead of `JpaTransactionManager`, you need to take few further
 steps:
 
@@ -543,7 +543,7 @@ provider-specific, typically through special properties to be specified as `jpaP
 on `LocalContainerEntityManagerFactoryBean`. In the case of Hibernate, these properties
 are even version-specific. See your Hibernate documentation for details.
 
-* Spring's `HibernateJpaVendorAdapter` enforces certain Spring-oriented defaults, such
+* Infra `HibernateJpaVendorAdapter` enforces certain Spring-oriented defaults, such
 as the connection release mode, `on-close`, which matches Hibernate's own default in
 Hibernate 5.0 but not any more in Hibernate 5.1+. For a JTA setup, make sure to declare
 your persistence unit transaction type as "JTA". Alternatively, set Hibernate 5.2's
@@ -565,7 +565,7 @@ A native `LocalSessionFactoryBean` setup in combination with `HibernateTransacti
 allows for interaction with `@PersistenceContext` and other JPA access code. A Hibernate
 `SessionFactory` natively implements JPA's `EntityManagerFactory` interface now
 and a Hibernate `Session` handle natively is a JPA `EntityManager`.
-Spring's JPA support facilities automatically detect native Hibernate sessions.
+Infra JPA support facilities automatically detect native Hibernate sessions.
 
 Such native Hibernate setup can, therefore, serve as a replacement for a standard JPA
 `LocalContainerEntityManagerFactoryBean` and `JpaTransactionManager` combination
@@ -575,7 +575,7 @@ the same local transaction. Such a setup also provides stronger Hibernate integr
 and more configuration flexibility, because it is not constrained by JPA bootstrap contracts.
 
 You do not need `HibernateJpaVendorAdapter` configuration in such a scenario,
-since Spring's native Hibernate setup provides even more features
+since Infra native Hibernate setup provides even more features
 (for example, custom Hibernate Integrator setup, Hibernate 5.3 bean container integration,
 and stronger optimizations for read-only transactions). Last but not least, you can also
 express native Hibernate setup through `LocalSessionFactoryBuilder`,

@@ -24,7 +24,7 @@ connect to the database. That is the responsibility of the administrator who set
 the datasource. You most likely fill both roles as you develop and test code, but you
 do not necessarily have to know how the production data source is configured.
 
-When you use Spring's JDBC layer, you can obtain a data source from JNDI, or you can
+When you use Infra JDBC layer, you can obtain a data source from JNDI, or you can
 configure your own with a connection pool implementation provided by a third party.
 Traditional choices are Apache Commons DBCP and C3P0 with bean-style `DataSource` classes;
 for a modern JDBC connection pool, consider HikariCP with its builder-style API instead.
@@ -33,7 +33,7 @@ NOTE: You should use the `DriverManagerDataSource` and `SimpleDriverDataSource` 
 (as included in the Spring distribution) only for testing purposes! Those variants do not
 provide pooling and perform poorly when multiple requests for a connection are made.
 
-The following section uses Spring's `DriverManagerDataSource` implementation.
+The following section uses Infra `DriverManagerDataSource` implementation.
 Several other `DataSource` variants are covered later.
 
 To configure a `DriverManagerDataSource`:
@@ -135,7 +135,7 @@ operation. This usage is efficient when you know that you need to reuse a connec
 [[jdbc-AbstractDataSource]]
 == Extending `AbstractDataSource`
 
-`AbstractDataSource` is an `abstract` base class for Spring's `DataSource`
+`AbstractDataSource` is an `abstract` base class for Infra `DataSource`
 implementations. It implements code that is common to all `DataSource` implementations.
 You should extend the `AbstractDataSource` class if you write your own `DataSource`
 implementation.

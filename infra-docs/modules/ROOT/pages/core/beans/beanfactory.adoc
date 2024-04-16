@@ -1,7 +1,7 @@
 [[beans-beanfactory]]
 = The `BeanFactory` API
 
-The `BeanFactory` API provides the underlying basis for Spring's IoC functionality.
+The `BeanFactory` API provides the underlying basis for Infra IoC functionality.
 Its specific contracts are mostly used in integration with other parts of Spring and
 related third-party frameworks, and its `DefaultListableBeanFactory` implementation
 is a key delegate within the higher-level `GenericApplicationContext` container.
@@ -18,7 +18,7 @@ implementation do not make assumptions about the configuration format or any
 component annotations to be used. All of these flavors come in through extensions
 (such as `XmlBeanDefinitionReader` and `AutowiredAnnotationBeanPostProcessor`) and
 operate on shared `BeanDefinition` objects as a core metadata representation.
-This is the essence of what makes Spring's container so flexible and extensible.
+This is the essence of what makes Infra container so flexible and extensible.
 
 
 
@@ -31,7 +31,7 @@ This section explains the differences between the `BeanFactory` and
 You should use an `ApplicationContext` unless you have a good reason for not doing so, with
 `GenericApplicationContext` and its subclass `AnnotationConfigApplicationContext`
 as the common implementations for custom bootstrapping. These are the primary entry
-points to Spring's core container for all common purposes: loading of configuration
+points to Infra core container for all common purposes: loading of configuration
 files, triggering a classpath scan, programmatically registering bean definitions
 and annotated classes, and (as of 5.0) registering functional bean definitions.
 
@@ -138,6 +138,6 @@ container functionality in a typical enterprise setup.
 An `AnnotationConfigApplicationContext` has all common annotation post-processors
 registered and may bring in additional processors underneath the
 covers through configuration annotations, such as `@EnableTransactionManagement`.
-At the abstraction level of Spring's annotation-based configuration model,
+At the abstraction level of Infra annotation-based configuration model,
 the notion of bean post-processors becomes a mere internal container detail.
 ====

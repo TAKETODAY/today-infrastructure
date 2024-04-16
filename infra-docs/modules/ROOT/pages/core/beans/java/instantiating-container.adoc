@@ -1,7 +1,7 @@
 [[beans-java-instantiating-container]]
 = Instantiating the Spring Container by Using `AnnotationConfigApplicationContext`
 
-The following sections document Spring's `AnnotationConfigApplicationContext`, introduced in Spring
+The following sections document Infra `AnnotationConfigApplicationContext`, introduced in Spring
 3.0. This versatile `ApplicationContext` implementation is capable of accepting not only
 `@Configuration` classes as input but also plain `@Component` classes and classes
 annotated with JSR-330 metadata.
@@ -113,7 +113,7 @@ public class AppConfig  {
 [TIP]
 =====
 Experienced Spring users may be familiar with the XML declaration equivalent from
-Spring's `context:` namespace, shown in the following example:
+Infra `context:` namespace, shown in the following example:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----

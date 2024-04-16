@@ -1,13 +1,13 @@
 [[orm-introduction]]
 = Introduction to ORM with Spring
 
-The Spring Framework supports integration with the Java Persistence API (JPA) and
+The TODAY Framework supports integration with the Java Persistence API (JPA) and
 supports native Hibernate for resource management, data access object (DAO) implementations,
 and transaction strategies. For example, for Hibernate, there is first-class support with
 several convenient IoC features that address many typical Hibernate integration issues.
 You can configure all of the supported features for OR (object relational) mapping
-tools through Dependency Injection. They can participate in Spring's resource and
-transaction management, and they comply with Spring's generic transaction and DAO
+tools through Dependency Injection. They can participate in Infra resource and
+transaction management, and they comply with Infra generic transaction and DAO
 exception hierarchies. The recommended integration style is to code DAOs against plain
 Hibernate or JPA APIs.
 
@@ -19,9 +19,9 @@ library, regardless of technology, because everything is designed as a set of re
 JavaBeans. ORM in a Infra IoC container facilitates configuration and deployment. Thus,
 most examples in this section show configuration inside a Spring container.
 
-The benefits of using the Spring Framework to create your ORM DAOs include:
+The benefits of using the TODAY Framework to create your ORM DAOs include:
 
-* *Easier testing.* Spring's IoC approach makes it easy to swap the implementations
+* *Easier testing.* Infra IoC approach makes it easy to swap the implementations
   and configuration locations of Hibernate `SessionFactory` instances, JDBC `DataSource`
   instances, transaction managers, and mapped object implementations (if needed). This
   in turn makes it much easier to test each piece of persistence-related code in

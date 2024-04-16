@@ -1,24 +1,24 @@
 [[testcontext-support-classes]]
 = TestContext Framework Support Classes
 
-This section describes the various classes that support the Spring TestContext Framework.
+This section describes the various classes that support the Infra TestContext Framework.
 
 [[testcontext-junit4-runner]]
-== Spring JUnit 4 Runner
+== Infra JUnit 4 Runner
 
-The Spring TestContext Framework offers full integration with JUnit 4 through a custom
+The Infra TestContext Framework offers full integration with JUnit 4 through a custom
 runner (supported on JUnit 4.12 or higher). By annotating test classes with
-`@RunWith(SpringJUnit4ClassRunner.class)` or the shorter `@RunWith(SpringRunner.class)`
+`@RunWith(InfraJUnit4ClassRunner.class)` or the shorter `@RunWith(InfraRunner.class)`
 variant, developers can implement standard JUnit 4-based unit and integration tests and
 simultaneously reap the benefits of the TestContext framework, such as support for
 loading application contexts, dependency injection of test instances, transactional test
-method execution, and so on. If you want to use the Spring TestContext Framework with an
+method execution, and so on. If you want to use the Infra TestContext Framework with an
 alternative runner (such as JUnit 4's `Parameterized` runner) or third-party runners
 (such as the `MockitoJUnitRunner`), you can, optionally, use
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Spring's support for JUnit rules] instead.
+xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Infra support for JUnit rules] instead.
 
 The following code listing shows the minimal requirements for configuring a test class to
-run with the custom Spring `Runner`:
+run with the custom Infra `Runner`:
 
 [tabs]
 ======
@@ -26,7 +26,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@RunWith(SpringRunner.class)
+@RunWith(InfraRunner.class)
 @TestExecutionListeners({})
 public class SimpleTest {
 
@@ -43,25 +43,25 @@ disable the default listeners, which otherwise would require an `ApplicationCont
 be configured through `@ContextConfiguration`.
 
 [[testcontext-junit4-rules]]
-== Spring JUnit 4 Rules
+== Infra JUnit 4 Rules
 
 The `cn.taketoday.test.context.junit4.rules` package provides the following JUnit
 4 rules (supported on JUnit 4.12 or higher):
 
-* `SpringClassRule`
-* `SpringMethodRule`
+* `InfraClassRule`
+* `InfraMethodRule`
 
-`SpringClassRule` is a JUnit `TestRule` that supports class-level features of the Spring
-TestContext Framework, whereas `SpringMethodRule` is a JUnit `MethodRule` that supports
-instance-level and method-level features of the Spring TestContext Framework.
+`InfraClassRule` is a JUnit `TestRule` that supports class-level features of the Infra
+TestContext Framework, whereas `InfraMethodRule` is a JUnit `MethodRule` that supports
+instance-level and method-level features of the Infra TestContext Framework.
 
-In contrast to the `SpringRunner`, Spring's rule-based JUnit support has the advantage of
+In contrast to the `InfraRunner`, Infra rule-based JUnit support has the advantage of
 being independent of any `org.junit.runner.Runner` implementation and can, therefore, be
 combined with existing alternative runners (such as JUnit 4's `Parameterized`) or
 third-party runners (such as the `MockitoJUnitRunner`).
 
 To support the full functionality of the TestContext framework, you must combine a
-`SpringClassRule` with a `SpringMethodRule`. The following example shows the proper way
+`InfraClassRule` with a `InfraMethodRule`. The following example shows the proper way
 to declare these rules in an integration test:
 
 [tabs]
@@ -70,15 +70,15 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Optionally specify a non-Spring Runner via @RunWith(...)
+// Optionally specify a non-Infra Runner via @RunWith(...)
 @ContextConfiguration
 public class IntegrationTest {
 
   @ClassRule
-  public static final SpringClassRule springClassRule = new SpringClassRule();
+  public static final InfraClassRule springClassRule = new InfraClassRule();
 
   @Rule
-  public final SpringMethodRule springMethodRule = new SpringMethodRule();
+  public final InfraMethodRule springMethodRule = new InfraMethodRule();
 
   @Test
   public void testMethod() {
@@ -94,48 +94,48 @@ public class IntegrationTest {
 The `cn.taketoday.test.context.junit4` package provides the following support
 classes for JUnit 4-based test cases (supported on JUnit 4.12 or higher):
 
-* `AbstractJUnit4SpringContextTests`
-* `AbstractTransactionalJUnit4SpringContextTests`
+* `AbstractJUnit4InfraContextTests`
+* `AbstractTransactionalJUnit4InfraContextTests`
 
-`AbstractJUnit4SpringContextTests` is an abstract base test class that integrates the
-Spring TestContext Framework with explicit `ApplicationContext` testing support in a
-JUnit 4 environment. When you extend `AbstractJUnit4SpringContextTests`, you can access a
+`AbstractJUnit4InfraContextTests` is an abstract base test class that integrates the
+Infra TestContext Framework with explicit `ApplicationContext` testing support in a
+JUnit 4 environment. When you extend `AbstractJUnit4InfraContextTests`, you can access a
 `protected` `applicationContext` instance variable that you can use to perform explicit
 bean lookups or to test the state of the context as a whole.
 
-`AbstractTransactionalJUnit4SpringContextTests` is an abstract transactional extension of
-`AbstractJUnit4SpringContextTests` that adds some convenience functionality for JDBC
+`AbstractTransactionalJUnit4InfraContextTests` is an abstract transactional extension of
+`AbstractJUnit4InfraContextTests` that adds some convenience functionality for JDBC
 access. This class expects a `javax.sql.DataSource` bean and a
 `PlatformTransactionManager` bean to be defined in the `ApplicationContext`. When you
-extend `AbstractTransactionalJUnit4SpringContextTests`, you can access a `protected`
+extend `AbstractTransactionalJUnit4InfraContextTests`, you can access a `protected`
 `jdbcTemplate` instance variable that you can use to run SQL statements to query the
 database. You can use such queries to confirm database state both before and after
-running database-related application code, and Spring ensures that such queries run in
+running database-related application code, and Infra ensures that such queries run in
 the scope of the same transaction as the application code. When used in conjunction with
 an ORM tool, be sure to avoid xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[false positives].
 As mentioned in xref:testing/support-jdbc.adoc[JDBC Testing Support],
-`AbstractTransactionalJUnit4SpringContextTests` also provides convenience methods that
+`AbstractTransactionalJUnit4InfraContextTests` also provides convenience methods that
 delegate to methods in `JdbcTestUtils` by using the aforementioned `jdbcTemplate`.
 Furthermore, `AbstractTransactionalJUnit4SpringContextTests` provides an
 `executeSqlScript(..)` method for running SQL scripts against the configured `DataSource`.
 
 TIP: These classes are a convenience for extension. If you do not want your test classes
-to be tied to a Spring-specific class hierarchy, you can configure your own custom test
-classes by using `@RunWith(SpringRunner.class)` or xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Spring's JUnit rules]
+to be tied to a Infra-specific class hierarchy, you can configure your own custom test
+classes by using `@RunWith(SpringRunner.class)` or xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Infra JUnit rules]
 .
 
 [[testcontext-junit-jupiter-extension]]
 == SpringExtension for JUnit Jupiter
 
-The Spring TestContext Framework offers full integration with the JUnit Jupiter testing
+The Infra TestContext Framework offers full integration with the JUnit Jupiter testing
 framework, introduced in JUnit 5. By annotating test classes with
 `@ExtendWith(SpringExtension.class)`, you can implement standard JUnit Jupiter-based unit
 and integration tests and simultaneously reap the benefits of the TestContext framework,
 such as support for loading application contexts, dependency injection of test instances,
 transactional test method execution, and so on.
 
-Furthermore, thanks to the rich extension API in JUnit Jupiter, Spring provides the
-following features above and beyond the feature set that Spring supports for JUnit 4 and
+Furthermore, thanks to the rich extension API in JUnit Jupiter, Infra provides the
+following features above and beyond the feature set that Infra supports for JUnit 4 and
 TestNG:
 
 * Dependency injection for test constructors, test methods, and test lifecycle callback
@@ -143,8 +143,8 @@ TestNG:
 * Powerful support for link:https://junit.org/junit5/docs/current/user-guide/#extensions-conditions[conditional
   test execution] based on SpEL expressions, environment variables, system properties,
   and so on. See the documentation for `@EnabledIf` and `@DisabledIf` in
-  xref:testing/annotations/integration-junit-jupiter.adoc[Spring JUnit Jupiter Testing Annotations] for further details and examples.
-* Custom composed annotations that combine annotations from Spring and JUnit Jupiter. See
+  xref:testing/annotations/integration-junit-jupiter.adoc[Infra JUnit Jupiter Testing Annotations] for further details and examples.
+* Custom composed annotations that combine annotations from Infra and JUnit Jupiter. See
   the `@TransactionalDevTestConfig` and `@TransactionalIntegrationTest` examples in
   xref:testing/annotations/integration-meta.adoc[Meta-Annotation Support for Testing] for further details.
 
@@ -157,9 +157,9 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Instructs JUnit Jupiter to extend the test with Spring support.
+// Instructs JUnit Jupiter to extend the test with Infra support.
 @ExtendWith(SpringExtension.class)
-// Instructs Spring to load an ApplicationContext from TestConfig.class
+// Instructs Infra to load an ApplicationContext from TestConfig.class
 @ContextConfiguration(classes = TestConfig.class)
 class SimpleTests {
 
@@ -171,11 +171,11 @@ class SimpleTests {
 ----
 ======
 
-Since you can also use annotations in JUnit 5 as meta-annotations, Spring provides the
-`@SpringJUnitConfig` and `@SpringJUnitWebConfig` composed annotations to simplify the
+Since you can also use annotations in JUnit 5 as meta-annotations, Infra provides the
+`@JUnitConfig` and `@JUnitWebConfig` composed annotations to simplify the
 configuration of the test `ApplicationContext` and JUnit Jupiter.
 
-The following example uses `@SpringJUnitConfig` to reduce the amount of configuration
+The following example uses `@JUnitConfig` to reduce the amount of configuration
 used in the previous example:
 
 [tabs]
@@ -184,9 +184,9 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Instructs Spring to register the SpringExtension with JUnit
+// Instructs Infra to register the SpringExtension with JUnit
 // Jupiter and load an ApplicationContext from TestConfig.class
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class SimpleTests {
 
   @Test
@@ -198,7 +198,7 @@ class SimpleTests {
 
 ======
 
-Similarly, the following example uses `@SpringJUnitWebConfig` to create a
+Similarly, the following example uses `@JUnitWebConfig` to create a
 `WebApplicationContext` for use with JUnit Jupiter:
 
 [tabs]
@@ -207,9 +207,9 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Instructs Spring to register the SpringExtension with JUnit
+// Instructs Infra to register the SpringExtension with JUnit
 // Jupiter and load a WebApplicationContext from TestWebConfig.class
-@SpringJUnitWebConfig(TestWebConfig.class)
+@JUnitWebConfig(TestWebConfig.class)
 class SimpleWebTests {
 
   @Test
@@ -221,20 +221,20 @@ class SimpleWebTests {
 
 ======
 
-See the documentation for `@SpringJUnitConfig` and `@SpringJUnitWebConfig` in
-xref:testing/annotations/integration-junit-jupiter.adoc[Spring JUnit Jupiter Testing Annotations] for further details.
+See the documentation for `@JUnitConfig` and `@JUnitWebConfig` in
+xref:testing/annotations/integration-junit-jupiter.adoc[Infra JUnit Jupiter Testing Annotations] for further details.
 
 [[testcontext-junit-jupiter-di]]
 === Dependency Injection with the `SpringExtension`
 
 The `SpringExtension` implements the
 link:https://junit.org/junit5/docs/current/user-guide/#extensions-parameter-resolution[`ParameterResolver`]
-extension API from JUnit Jupiter, which lets Spring provide dependency injection for test
+extension API from JUnit Jupiter, which lets Infra provide dependency injection for test
 constructors, test methods, and test lifecycle callback methods.
 
 Specifically, the `SpringExtension` can inject dependencies from the test's
 `ApplicationContext` into test constructors and methods that are annotated with
-Spring's `@BeforeTransaction` and `@AfterTransaction` or JUnit's `@BeforeAll`,
+Infra `@BeforeTransaction` and `@AfterTransaction` or JUnit's `@BeforeAll`,
 `@AfterAll`, `@BeforeEach`, `@AfterEach`, `@Test`, `@RepeatedTest`, `@ParameterizedTest`,
 and others.
 
@@ -244,10 +244,10 @@ and others.
 
 If a specific parameter in a constructor for a JUnit Jupiter test class is of type
 `ApplicationContext` (or a sub-type thereof) or is annotated or meta-annotated with
-`@Autowired`, `@Qualifier`, or `@Value`, Spring injects the value for that specific
+`@Autowired`, `@Qualifier`, or `@Value`, Infra injects the value for that specific
 parameter with the corresponding bean or value from the test's `ApplicationContext`.
 
-Spring can also be configured to autowire all arguments for a test class constructor if
+Infra can also be configured to autowire all arguments for a test class constructor if
 the constructor is considered to be _autowirable_. A constructor is considered to be
 autowirable if one of the following conditions is met (in order of precedence).
 
@@ -259,7 +259,7 @@ autowirable if one of the following conditions is met (in order of precedence).
 See xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-testconstructor[`@TestConstructor`] for details on the use of
 `@TestConstructor` and how to change the global _test constructor autowire mode_.
 
-WARNING: If the constructor for a test class is considered to be _autowirable_, Spring
+WARNING: If the constructor for a test class is considered to be _autowirable_, Infra
 assumes the responsibility for resolving arguments for all parameters in the constructor.
 Consequently, no other `ParameterResolver` registered with JUnit Jupiter can resolve
 parameters for such a constructor.
@@ -278,12 +278,12 @@ once in such scenarios, dependency injection will not occur again, and subsequen
 will interact with beans from the closed `ApplicationContext` which may result in errors.
 
 To use `@DirtiesContext` with "before test method" or "after test method" modes in
-conjunction with `@TestInstance(PER_CLASS)`, one must configure dependencies from Spring
+conjunction with `@TestInstance(PER_CLASS)`, one must configure dependencies from Infra
 to be supplied via field or setter injection so that they can be re-injected between test
 method invocations.
 ====
 
-In the following example, Spring injects the `OrderService` bean from the
+In the following example, Infra injects the `OrderService` bean from the
 `ApplicationContext` loaded from `TestConfig.class` into the
 `OrderServiceIntegrationTests` constructor.
 
@@ -293,7 +293,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class OrderServiceIntegrationTests {
 
   private final OrderService orderService;
@@ -321,7 +321,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class OrderServiceIntegrationTests {
 
   private final OrderService orderService;
@@ -340,10 +340,10 @@ class OrderServiceIntegrationTests {
 
 If a parameter in a JUnit Jupiter test method or test lifecycle callback method is of
 type `ApplicationContext` (or a sub-type thereof) or is annotated or meta-annotated with
-`@Autowired`, `@Qualifier`, or `@Value`, Spring injects the value for that specific
+`@Autowired`, `@Qualifier`, or `@Value`, Infra injects the value for that specific
 parameter with the corresponding bean from the test's `ApplicationContext`.
 
-In the following example, Spring injects the `OrderService` from the `ApplicationContext`
+In the following example, Infra injects the `OrderService` from the `ApplicationContext`
 loaded from `TestConfig.class` into the `deleteOrder()` test method:
 
 [tabs]
@@ -352,7 +352,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class OrderServiceIntegrationTests {
 
   @Test
@@ -377,7 +377,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class OrderServiceIntegrationTests {
 
   @RepeatedTest(10)
@@ -399,11 +399,11 @@ to the `RepetitionInfo`.
 === `@Nested` test class configuration
 
 The _Spring TestContext Framework_ has supported the use of test-related annotations on
-`@Nested` test classes in JUnit Jupiter since Spring Framework 5.0; however, until Spring
+`@Nested` test classes in JUnit Jupiter since TODAY Framework 5.0; however, until Spring
 Framework 5.3 class-level test configuration annotations were not _inherited_ from
 enclosing classes like they are from superclasses.
 
-Spring Framework 5.3 introduced first-class support for inheriting test class
+TODAY Framework 5.3 introduced first-class support for inheriting test class
 configuration from enclosing classes, and such configuration will be inherited by
 default. To change from the default `INHERIT` mode to `OVERRIDE` mode, you may annotate
 an individual `@Nested` test class with
@@ -414,7 +414,7 @@ with `@NestedTestConfiguration`, and that will apply to all of its nested test c
 recursively.
 
 In order to allow development teams to change the default to `OVERRIDE` – for example,
-for compatibility with Spring Framework 5.0 through 5.2 – the default mode can be changed
+for compatibility with TODAY Framework 5.0 through 5.2 – the default mode can be changed
 globally via a JVM system property or a `spring.properties` file in the root of the
 classpath. See the xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-nestedtestconfiguration["Changing the default enclosing configuration inheritance mode"]
  note for details.
@@ -434,7 +434,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 class GreetingServiceTests {
 
   @Nested

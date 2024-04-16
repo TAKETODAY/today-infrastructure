@@ -4,7 +4,7 @@
 `WebTestClient` is an HTTP client designed for testing server applications. It wraps
 WebClient and uses it to perform requests
 but exposes a testing facade for verifying responses. `WebTestClient` can be used to
-perform end-to-end HTTP tests. It can also be used to test Web MVC and Spring WebFlux
+perform end-to-end HTTP tests. It can also be used to test Web MVC and Infra WebFlux
 applications without a running server via mock server request and response objects.
 
 
@@ -60,18 +60,18 @@ WebTestClient client =
 [[webtestclient-context-config]]
 === Bind to `ApplicationContext`
 
-This setup allows you to load Spring configuration with Web MVC or Spring WebFlux
+This setup allows you to load Infra configuration with Web MVC or Infra WebFlux
 infrastructure and controller declarations and use it to handle requests via mock request
 and response objects, without a running server.
 
-For Web MVC, use the following where the Spring `ApplicationContext` is passed to
+For Web MVC, use the following where the Infra `ApplicationContext` is passed to
 {today-framework-api}/test/web/servlet/setup/MockMvcBuilders.html#webAppContextSetup-cn.taketoday.web.context.WebApplicationContext-[MockMvcBuilders.webAppContextSetup]
 to create a xref:testing/spring-mvc-test-framework.adoc[MockMvc] instance to handle
 requests:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 @WebAppConfiguration("classpath:META-INF/web-resources") // <1>
 @ContextHierarchy({
   @ContextConfiguration(classes = RootConfig.class),

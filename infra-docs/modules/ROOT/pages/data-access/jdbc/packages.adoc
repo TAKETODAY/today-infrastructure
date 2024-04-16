@@ -1,7 +1,7 @@
 [[jdbc-packages]]
 = Package Hierarchy
 
-The Spring Framework's JDBC abstraction framework consists of four different packages:
+The TODAY Framework's JDBC abstraction framework consists of four different packages:
 
 * `core`: The `cn.taketoday.jdbc.core` package contains the `JdbcTemplate` class
 and its various callback interfaces, plus a variety of related classes. A subpackage

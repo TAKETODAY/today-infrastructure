@@ -55,9 +55,9 @@ to create a message, as the following example shows:
 ----
 	HtmlForm form = createMsgFormPage.getHtmlElementById("messageForm");
 	HtmlTextInput summaryInput = createMsgFormPage.getHtmlElementById("summary");
-	summaryInput.setValueAttribute("Spring Rocks");
+	summaryInput.setValueAttribute("Infra Rocks");
 	HtmlTextArea textInput = createMsgFormPage.getHtmlElementById("text");
-	textInput.setText("In case you didn't know, Spring Rocks!");
+	textInput.setText("In case you didn't know, Infra Rocks!");
 	HtmlSubmitInput submit = form.getOneHtmlElementByAttribute("input", "type", "submit");
 	HtmlPage newMessagePage = submit.click();
 ----

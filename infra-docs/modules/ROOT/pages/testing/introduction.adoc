@@ -1,5 +1,5 @@
 [[testing-introduction]]
-= Introduction to Spring Testing
+= Introduction to Infra Testing
 :page-section-summary-toc: 1
 
 Testing is an integral part of enterprise software development. This chapter focuses on

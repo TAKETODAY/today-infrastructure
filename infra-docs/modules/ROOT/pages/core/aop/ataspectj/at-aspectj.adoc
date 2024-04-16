@@ -42,7 +42,7 @@ via `@Bean` methods in `@Configuration` classes, or have Spring autodetect them 
 classpath scanning -- the same as any other Spring-managed bean. However, note that the
 `@Aspect` annotation is not sufficient for autodetection in the classpath. For that
 purpose, you need to add a separate `@Component` annotation (or, alternatively, a custom
-stereotype annotation that qualifies, as per the rules of Spring's component scanner).
+stereotype annotation that qualifies, as per the rules of Infra component scanner).
 
 .Advising aspects with other aspects?
 NOTE: In Infra AOP, aspects themselves cannot be the targets of advice from other

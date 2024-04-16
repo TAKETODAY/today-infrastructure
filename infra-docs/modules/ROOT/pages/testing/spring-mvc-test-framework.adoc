@@ -2,7 +2,7 @@
 = MockMvc
 :page-section-summary-toc: 1
 
-The Web MVC Test framework, also known as MockMvc, provides support for testing Spring
+The Web MVC Test framework, also known as MockMvc, provides support for testing Infra
 MVC applications. It performs full Web MVC request handling but via mock request and
 response objects instead of a running server.
 

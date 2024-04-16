@@ -237,7 +237,7 @@ public DataSource dataSource() throws NamingException {
 ======
 
 Also, with `@Bean` methods, you typically use programmatic JNDI lookups, either by
-using Spring's `JndiTemplate` or `JndiLocatorDelegate` helpers or straight JNDI
+using Infra `JndiTemplate` or `JndiLocatorDelegate` helpers or straight JNDI
 `InitialContext` usage but not the `JndiObjectFactoryBean` variant (which would force
 you to declare the return type as the `FactoryBean` type instead of the actual target
 type, making it harder to use for cross-reference calls in other `@Bean` methods that

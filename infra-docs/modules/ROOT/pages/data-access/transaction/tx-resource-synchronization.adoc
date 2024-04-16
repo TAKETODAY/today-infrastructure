@@ -14,7 +14,7 @@ relevant `TransactionManager`.
 [[tx-resource-synchronization-high]]
 == High-level Synchronization Approach
 
-The preferred approach is to use Spring's highest-level template-based persistence
+The preferred approach is to use Infra highest-level template-based persistence
 integration APIs or to use native ORM APIs with transaction-aware factory beans or
 proxies for managing the native resource factories. These transaction-aware solutions
 internally handle resource creation and reuse, cleanup, optional transaction
@@ -31,12 +31,12 @@ sections of this reference documentation.
 Classes such as `DataSourceUtils` (for JDBC), `EntityManagerFactoryUtils` (for JPA),
 `SessionFactoryUtils` (for Hibernate), and so on exist at a lower level. When you want the
 application code to deal directly with the resource types of the native persistence APIs,
-you use these classes to ensure that proper Spring Framework-managed instances are obtained,
+you use these classes to ensure that proper TODAY Framework-managed instances are obtained,
 transactions are (optionally) synchronized, and exceptions that occur in the process are
 properly mapped to a consistent API.
 
 For example, in the case of JDBC, instead of the traditional JDBC approach of calling
-the `getConnection()` method on the `DataSource`, you can instead use Spring's
+the `getConnection()` method on the `DataSource`, you can instead use Infra
 `cn.taketoday.jdbc.datasource.DataSourceUtils` class, as follows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -48,8 +48,8 @@ If an existing transaction already has a connection synchronized (linked) to it,
 instance is returned. Otherwise, the method call triggers the creation of a new
 connection, which is (optionally) synchronized to any existing transaction and made
 available for subsequent reuse in that same transaction. As mentioned earlier, any
-`SQLException` is wrapped in a Spring Framework `CannotGetJdbcConnectionException`, one
-of the Spring Framework's hierarchy of unchecked `DataAccessException` types. This approach
+`SQLException` is wrapped in a TODAY Framework `CannotGetJdbcConnectionException`, one
+of the TODAY Framework's hierarchy of unchecked `DataAccessException` types. This approach
 gives you more information than can be obtained easily from the `SQLException` and
 ensures portability across databases and even across different persistence technologies.
 
@@ -57,7 +57,7 @@ This approach also works without Spring transaction management (transaction
 synchronization is optional), so you can use it whether or not you use Spring for
 transaction management.
 
-Of course, once you have used Spring's JDBC support, JPA support, or Hibernate support,
+Of course, once you have used Infra JDBC support, JPA support, or Hibernate support,
 you generally prefer not to use `DataSourceUtils` or the other helper classes,
 because you are much happier working through the Spring abstraction than directly
 with the relevant APIs. For example, if you use the Spring `JdbcTemplate` or

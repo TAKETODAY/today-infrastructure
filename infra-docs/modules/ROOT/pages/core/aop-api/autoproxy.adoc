@@ -5,7 +5,7 @@ So far, we have considered explicit creation of AOP proxies by using a `ProxyFac
 similar factory bean.
 
 Spring also lets us use "`auto-proxy`" bean definitions, which can automatically
-proxy selected bean definitions. This is built on Spring's "`bean post processor`"
+proxy selected bean definitions. This is built on Infra "`bean post processor`"
 infrastructure, which enables modification of any bean definition as the container loads.
 
 In this model, you set up some special bean definitions in your XML bean definition file

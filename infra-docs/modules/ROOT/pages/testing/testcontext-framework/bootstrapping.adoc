@@ -1,12 +1,12 @@
 [[testcontext-bootstrapping]]
 = Bootstrapping the TestContext Framework
 
-The default configuration for the internals of the Spring TestContext Framework is
+The default configuration for the internals of the Infra TestContext Framework is
 sufficient for all common use cases. However, there are times when a development team or
 third party framework would like to change the default `ContextLoader`, implement a
 custom `TestContext` or `ContextCache`, augment the default sets of
 `ContextCustomizerFactory` and `TestExecutionListener` implementations, and so on. For
-such low-level control over how the TestContext framework operates, Spring provides a
+such low-level control over how the TestContext framework operates, Infra provides a
 bootstrapping strategy.
 
 `TestContextBootstrapper` defines the SPI for bootstrapping the TestContext framework. A

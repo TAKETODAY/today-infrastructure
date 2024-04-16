@@ -1,5 +1,5 @@
 [[transaction-strategies]]
-= Understanding the Spring Framework Transaction Abstraction
+= Understanding the TODAY Framework Transaction Abstraction
 
 The key to the Spring transaction abstraction is the notion of a transaction strategy. A
 transaction strategy is defined by a `TransactionManager`, specifically the
@@ -26,11 +26,11 @@ xref:data-access/transaction/programmatic.adoc#transaction-programmatic-ptm[prog
 `PlatformTransactionManager` is an interface, it can be easily mocked or stubbed as
 necessary. It is not tied to a lookup strategy, such as JNDI.
 `PlatformTransactionManager` implementations are defined like any other object (or bean)
-in the Spring Framework IoC container. This benefit alone makes Spring Framework
+in the TODAY Framework IoC container. This benefit alone makes TODAY Framework
 transactions a worthwhile abstraction, even when you work with JTA. You can test
 transactional code much more easily than if it used JTA directly.
 
-Again, in keeping with Spring's philosophy, the `TransactionException` that can be thrown
+Again, in keeping with Infra philosophy, the `TransactionException` that can be thrown
 by any of the `PlatformTransactionManager` interface's methods is unchecked (that
 is, it extends the `java.lang.RuntimeException` class). Transaction infrastructure
 failures are almost invariably fatal. In rare cases where application code can actually
@@ -45,7 +45,7 @@ exists in the current call stack. The implication in this latter case is that, a
 Jakarta EE transaction contexts, a `TransactionStatus` is associated with a thread of
 execution.
 
-As of Spring Framework 5.2, Spring also provides a transaction management abstraction for
+As of TODAY Framework 5.2, Spring also provides a transaction management abstraction for
 reactive applications that make use of reactive types or Kotlin Coroutines. The following
 listing shows the transaction strategy defined by
 `cn.taketoday.transaction.ReactiveTransactionManager`:
@@ -87,7 +87,7 @@ The `TransactionDefinition` interface specifies:
 
 These settings reflect standard transactional concepts. If necessary, refer to resources
 that discuss transaction isolation levels and other core transaction concepts.
-Understanding these concepts is essential to using the Spring Framework or any
+Understanding these concepts is essential to using the TODAY Framework or any
 transaction management solution.
 
 The `TransactionStatus` interface provides a simple way for transactional code to
@@ -149,7 +149,7 @@ The related `PlatformTransactionManager` bean definition then has a reference to
 ----
 
 If you use JTA in a Jakarta EE container, then you use a container `DataSource`, obtained
-through JNDI, in conjunction with Spring's `JtaTransactionManager`. The following example
+through JNDI, in conjunction with Infra `JtaTransactionManager`. The following example
 shows what the JTA and JNDI lookup version would look like:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -203,7 +203,7 @@ and, thus, is not shown in the following example.
 
 NOTE: If the `DataSource` (used by any non-JTA transaction manager) is looked up through
 JNDI and managed by a Jakarta EE container, it should be non-transactional, because the
-Spring Framework (rather than the Jakarta EE container) manages the transactions.
+TODAY Framework (rather than the Jakarta EE container) manages the transactions.
 
 The `txManager` bean in this case is of the `HibernateTransactionManager` type. In the
 same way as the `DataSourceTransactionManager` needs a reference to the `DataSource`, the

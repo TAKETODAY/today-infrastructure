@@ -39,7 +39,7 @@ When the `@RequestParam` annotation is declared as a `Map<String, MultipartFile>
 then the map is populated with the multipart files for each given parameter name.
 
 NOTE: With Servlet multipart parsing, you may also declare `jakarta.servlet.http.Part`
-instead of Spring's `MultipartFile`, as a method argument or collection value type.
+instead of Infra `MultipartFile`, as a method argument or collection value type.
 
 You can also use multipart content as part of data binding to a
 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[command object]. For example, the form field
@@ -121,7 +121,7 @@ public String handle(@RequestPart("meta-data") MetaData metadata,
 
 ======
 
-You can use `@RequestPart` in combination with `jakarta.validation.Valid` or use Spring's
+You can use `@RequestPart` in combination with `jakarta.validation.Valid` or use Infra
 `@Validated` annotation, both of which cause Standard Bean Validation to be applied.
 By default, validation errors cause a `MethodArgumentNotValidException`, which is turned
 into a 400 (BAD_REQUEST) response. Alternatively, you can handle validation errors locally

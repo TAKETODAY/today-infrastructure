@@ -15,7 +15,7 @@ framework uses the following configuration parameters to build the context cache
 * `classes` (from `@ContextConfiguration`)
 * `contextInitializerClasses` (from `@ContextConfiguration`)
 * `contextCustomizers` (from `ContextCustomizerFactory`) – this includes
-  `@DynamicPropertySource` methods as well as various features from Spring Boot's
+  `@DynamicPropertySource` methods as well as various features from Infra App's
   testing support such as `@MockBean` and `@SpyBean`.
 * `contextLoader` (from `@ContextConfiguration`)
 * `parent` (from `@ContextHierarchy`)
@@ -39,7 +39,7 @@ faster.
 .Test suites and forked processes
 [NOTE]
 ====
-The Spring TestContext framework stores application contexts in a static cache. This
+The Infra TestContext framework stores application contexts in a static cache. This
 means that the context is literally stored in a `static` variable. In other words, if
 tests run in separate processes, the static cache is cleared between each test
 execution, which effectively disables the caching mechanism.
@@ -60,7 +60,7 @@ maximum size is reached, a least recently used (LRU) eviction policy is used to 
 close stale contexts. You can configure the maximum size from the command line or a build
 script by setting a JVM system property named `spring.test.context.cache.maxSize`. As an
 alternative, you can set the same property via the
-xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism.
+xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 
 Since having a large number of application contexts loaded within a given test suite can
 cause the suite to take an unnecessarily long time to run, it is often beneficial to
@@ -71,8 +71,8 @@ the underlying context cache, you can set the log level for the
 In the unlikely case that a test corrupts the application context and requires reloading
 (for example, by modifying a bean definition or the state of an application object), you
 can annotate your test class or test method with `@DirtiesContext` (see the discussion of
-`@DirtiesContext` in xref:testing/annotations/integration-spring/annotation-dirtiescontext.adoc[Spring Testing Annotations]
-). This instructs Spring to remove the context from the cache and rebuild
+`@DirtiesContext` in xref:testing/annotations/integration-spring/annotation-dirtiescontext.adoc[Infra Testing Annotations]
+). This instructs Infra to remove the context from the cache and rebuild
 the application context before running the next test that requires the same application
 context. Note that support for the `@DirtiesContext` annotation is provided by the
 `DirtiesContextBeforeModesTestExecutionListener` and the
@@ -81,14 +81,14 @@ context. Note that support for the `@DirtiesContext` annotation is provided by t
 .ApplicationContext lifecycle and console logging
 [NOTE]
 ====
-When you need to debug a test executed with the Spring TestContext Framework, it can be
+When you need to debug a test executed with the Infra TestContext Framework, it can be
 useful to analyze the console output (that is, output to the `SYSOUT` and `SYSERR`
 streams). Some build tools and IDEs are able to associate console output with a given
 test; however, some console output cannot be easily associated with a given test.
 
-With regard to console logging triggered by the Spring Framework itself or by components
+With regard to console logging triggered by the TODAY Framework itself or by components
 registered in the `ApplicationContext`, it is important to understand the lifecycle of an
-`ApplicationContext` that has been loaded by the Spring TestContext Framework within a
+`ApplicationContext` that has been loaded by the Infra TestContext Framework within a
 test suite.
 
 The `ApplicationContext` for a test is typically loaded when an instance of the test

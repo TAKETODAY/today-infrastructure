@@ -8,7 +8,7 @@ that contains references to component classes. The following example shows how t
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from AppConfig and TestConfig
 @ContextConfiguration(classes = {AppConfig.class, TestConfig.class}) // <1>
 class MyTest {
@@ -28,9 +28,9 @@ The term "`component class`" can refer to any of the following:
 * A component (that is, a class annotated with `@Component`, `@Service`, `@Repository`, or other stereotype annotations).
 * A JSR-330 compliant class that is annotated with `jakarta.inject` annotations.
 * Any class that contains `@Bean`-methods.
-* Any other class that is intended to be registered as a Spring component (i.e., a Spring
+* Any other class that is intended to be registered as a Infra component (i.e., a Infra
   bean in the `ApplicationContext`), potentially taking advantage of automatic autowiring
-  of a single constructor without the use of Spring annotations.
+  of a single constructor without the use of Infra annotations.
 
 See the javadoc of
 {today-framework-api}/context/annotation/Configuration.html[`@Configuration`] and
@@ -53,7 +53,7 @@ class:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig <1>
+@JUnitConfig <1>
 // ApplicationContext will be loaded from the static nested Config class
 class OrderServiceTest {
 

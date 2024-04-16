@@ -10,7 +10,7 @@ First, resolvers for
 xref:web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.adoc[@ModelAttribute],
 xref:web/webmvc/mvc-controller/ann-methods/requestbody.adoc[@RequestBody], and
 xref:web/webmvc/mvc-controller/ann-methods/multipart-forms.adoc[@RequestPart] method
-parameters perform validation if the parameter has Jakarta's `@Valid` or Spring's
+parameters perform validation if the parameter has Jakarta's `@Valid` or Infra
 `@Validated` annotation, and raise `MethodArgumentNotValidException` if necessary.
 Alternatively, you can handle the errors in the controller method by adding an
 `Errors` or `BindingResult` method parameter immediately after the validated one.

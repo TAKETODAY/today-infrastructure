@@ -1,12 +1,12 @@
 [[beans-java-basic-concepts]]
 = Basic Concepts: `@Bean` and `@Configuration`
 
-The central artifacts in Spring's Java configuration support are
+The central artifacts in Infra Java configuration support are
 `@Configuration`-annotated classes and `@Bean`-annotated methods.
 
 The `@Bean` annotation is used to indicate that a method instantiates, configures, and
 initializes a new object to be managed by the Infra IoC container. For those familiar
-with Spring's `<beans/>` XML configuration, the `@Bean` annotation plays the same role as
+with Infra `<beans/>` XML configuration, the `@Bean` annotation plays the same role as
 the `<bean/>` element. You can use `@Bean`-annotated methods with any Spring
 `@Component`. However, they are most often used with `@Configuration` beans.
 

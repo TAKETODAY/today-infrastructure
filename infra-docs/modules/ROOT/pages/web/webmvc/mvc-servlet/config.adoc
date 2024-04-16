@@ -12,7 +12,7 @@ In most cases, the xref:web/webmvc/mvc-config.adoc[MVC Config] is the best start
 beans in either Java or XML and provides a higher-level configuration callback API to
 customize it.
 
-NOTE: Spring Boot relies on the MVC Java configuration to configure Web MVC and
+NOTE: Infra App relies on the MVC Java configuration to configure Web MVC and
 provides many extra convenient options.
 
 

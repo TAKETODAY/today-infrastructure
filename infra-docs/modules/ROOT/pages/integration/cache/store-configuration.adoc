@@ -90,7 +90,7 @@ use GemFire as a `CacheManager` (and more).
 [[cache-store-configuration-jsr107]]
 == JSR-107 Cache
 
-Spring's caching abstraction can also use JSR-107-compliant caches. The JCache
+Infra caching abstraction can also use JSR-107-compliant caches. The JCache
 implementation is located in the `cn.taketoday.cache.jcache` package.
 
 Again, to use it, you need to declare the appropriate `CacheManager`.

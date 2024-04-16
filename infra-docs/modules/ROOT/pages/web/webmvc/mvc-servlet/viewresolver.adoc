@@ -62,7 +62,7 @@ the only way to figure out if a JSP exists is to perform a dispatch through
 `RequestDispatcher`. Therefore, you must always configure an `InternalResourceViewResolver`
 to be last in the overall order of view resolvers.
 
-Configuring view resolution is as simple as adding `ViewResolver` beans to your Spring
+Configuring view resolution is as simple as adding `ViewResolver` beans to your Infra
 configuration. The xref:web/webmvc/mvc-config.adoc[MVC Config] provides a dedicated configuration API for
 xref:web/webmvc/mvc-config/view-resolvers.adoc[View Resolvers] and for adding logic-less
 xref:web/webmvc/mvc-config/view-controller.adoc[View Controllers] which are useful for HTML template

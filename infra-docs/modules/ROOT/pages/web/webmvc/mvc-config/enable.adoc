@@ -11,7 +11,7 @@ public class WebConfiguration {
 }
 ----
 
-NOTE: When using Spring Boot, you may want to use `@Configuration` classes of type `WebMvcConfigurer` but without `@EnableWebMvc` to keep Spring Boot MVC customizations. See more details in xref:web/webmvc/mvc-config/customize.adoc[the MVC Config API section] and in {today-framework-reference}/web.html#web.servlet.spring-mvc.auto-configuration[the dedicated Spring Boot documentation].
+NOTE: When using Infra App, you may want to use `@Configuration` classes of type `WebMvcConfigurer` but without `@EnableWebMvc` to keep Infra App MVC customizations. See more details in xref:web/webmvc/mvc-config/customize.adoc[the MVC Config API section] and in {today-framework-reference}/web.html#web.servlet.spring-mvc.auto-configuration[the dedicated Infra App documentation].
 
 The preceding example registers a number of Web MVC
 xref:web/webmvc/mvc-servlet/special-bean-types.adoc[infrastructure beans] and adapts to dependencies

@@ -86,7 +86,7 @@ proxy (which is bound to `target`).
 
 [NOTE]
 ====
-Due to the proxy-based nature of Spring's AOP framework, calls within the target object
+Due to the proxy-based nature of Infra AOP framework, calls within the target object
 are, by definition, not intercepted. For JDK proxies, only public interface method
 calls on the proxy can be intercepted. With CGLIB, public and protected method calls on
 the proxy are intercepted (and even package-visible methods, if necessary). However,
@@ -98,7 +98,7 @@ potential non-public interactions through proxies, it needs to be defined accord
 
 If your interception needs include method calls or even constructors within the target
 class, consider the use of Spring-driven xref:core/aop/using-aspectj.adoc#aop-aj-ltw[native AspectJ weaving] instead
-of Spring's proxy-based AOP framework. This constitutes a different mode of AOP usage
+of Infra proxy-based AOP framework. This constitutes a different mode of AOP usage
 with different characteristics, so be sure to make yourself familiar with weaving
 before making a decision.
 ====
@@ -126,7 +126,7 @@ AspectJ defines and is, therefore, not available for aspects declared in the `@A
 
 The `bean` PCD operates at the instance level (building on the Spring bean name
 concept) rather than at the type level only (to which weaving-based AOP is limited).
-Instance-based pointcut designators are a special capability of Spring's
+Instance-based pointcut designators are a special capability of Infra
 proxy-based AOP framework and its close integration with the Spring bean factory, where
 it is natural and straightforward to identify specific beans by name.
 ====

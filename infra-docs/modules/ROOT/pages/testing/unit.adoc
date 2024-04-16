@@ -4,9 +4,9 @@
 Dependency injection should make your code less dependent on the container than it would
 be with traditional J2EE / Java EE development. The POJOs that make up your application
 should be testable in JUnit or TestNG tests, with objects instantiated by using the `new`
-operator, without Spring or any other container. You can use xref:testing/unit.adoc#mock-objects[mock objects]
+operator, without Infra or any other container. You can use xref:testing/unit.adoc#mock-objects[mock objects]
 (in conjunction with other valuable testing techniques) to test your code in isolation.
-If you follow the architecture recommendations for Spring, the resulting clean layering
+If you follow the architecture recommendations for Infra, the resulting clean layering
 and componentization of your codebase facilitate easier unit testing. For example,
 you can test service layer objects by stubbing or mocking DAO or repository interfaces,
 without needing to access persistent data while running unit tests.
@@ -23,12 +23,12 @@ are described in this chapter.
 [[mock-objects]]
 == Mock Objects
 
-Spring includes a number of packages dedicated to mocking:
+Infra includes a number of packages dedicated to mocking:
 
 * xref:testing/unit.adoc#mock-objects-env[Environment]
 * xref:testing/unit.adoc#mock-objects-jndi[JNDI]
 * xref:testing/unit.adoc#mock-objects-servlet[Servlet API]
-* xref:testing/unit.adoc#mock-objects-web-reactive[Spring Web Reactive]
+* xref:testing/unit.adoc#mock-objects-web-reactive[Infra Web Reactive]
 
 
 [[mock-objects-env]]
@@ -61,7 +61,7 @@ parties such as https://github.com/h-thurow/Simple-JNDI[Simple-JNDI].
 
 The `cn.taketoday.mock.web` package contains a comprehensive set of Servlet API
 mock objects that are useful for testing web contexts, controllers, and filters. These
-mock objects are targeted at usage with Spring's Web MVC framework and are generally more
+mock objects are targeted at usage with Infra Web MVC framework and are generally more
 convenient to use than dynamic mock objects (such as https://easymock.org/[EasyMock])
 or alternative Servlet API mock objects (such as http://www.mockobjects.com[MockObjects]).
 
@@ -73,7 +73,7 @@ integration testing framework for Web MVC. See xref:testing/spring-mvc-test-fram
 
 
 [[mock-objects-web-reactive]]
-=== Spring Web Reactive
+=== Infra Web Reactive
 
 The `cn.taketoday.mock.http.server.reactive` package contains mock implementations
 of `ServerHttpRequest` and `ServerHttpResponse` for use in WebFlux applications. The
@@ -99,7 +99,7 @@ end-to-end tests with a running server.
 [[unit-testing-support-classes]]
 == Unit Testing Support Classes
 
-Spring includes a number of classes that can help with unit testing. They fall into two
+Infra includes a number of classes that can help with unit testing. They fall into two
 categories:
 
 * xref:testing/unit.adoc#unit-testing-utilities[General Testing Utilities]
@@ -114,10 +114,10 @@ for use in unit and integration testing.
 
 {today-framework-api}/test/util/AopTestUtils.html[`AopTestUtils`] is a collection of
 AOP-related utility methods. You can use these methods to obtain a reference to the
-underlying target object hidden behind one or more Spring proxies. For example, if you
+underlying target object hidden behind one or more Infra proxies. For example, if you
 have configured a bean as a dynamic mock by using a library such as EasyMock or Mockito,
-and the mock is wrapped in a Spring proxy, you may need direct access to the underlying
-mock to configure expectations on it and perform verifications. For Spring's core AOP
+and the mock is wrapped in a Infra proxy, you may need direct access to the underlying
+mock to configure expectations on it and perform verifications. For Infra core AOP
 utilities, see {today-framework-api}/aop/support/AopUtils.html[`AopUtils`] and
 {today-framework-api}/aop/framework/AopProxyUtils.html[`AopProxyUtils`].
 
@@ -129,7 +129,7 @@ callback method when testing application code for use cases such as the followin
 
 * ORM frameworks (such as JPA and Hibernate) that condone `private` or `protected` field
   access as opposed to `public` setter methods for properties in a domain entity.
-* Spring's support for annotations (such as `@Autowired`, `@Inject`, and `@Resource`),
+* Infra support for annotations (such as `@Autowired`, `@Inject`, and `@Resource`),
   that provide dependency injection for `private` or `protected` fields, setter methods,
   and configuration methods.
 * Use of annotations such as `@PostConstruct` and `@PreDestroy` for lifecycle callback
@@ -161,7 +161,7 @@ that deal with Web MVC `ModelAndView` objects.
 
 .Unit testing Web MVC Controllers
 TIP: To unit test your Web MVC `Controller` classes as POJOs, use `ModelAndViewAssert`
-combined with `MockHttpServletRequest`, `MockHttpSession`, and so on from Spring's
+combined with `MockHttpServletRequest`, `MockHttpSession`, and so on from Infra
 xref:testing/unit.adoc#mock-objects-servlet[Servlet API mocks]. For thorough integration testing of your
 Web MVC and REST `Controller` classes in conjunction with your `WebApplicationContext`
 configuration for Web MVC, use the

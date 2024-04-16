@@ -357,7 +357,7 @@ public class JdbcCorporateEventRepositoryConfiguration {
 }
 ----
 
-If you use Spring's `JdbcDaoSupport` class and your various JDBC-backed DAO classes
+If you use Infra `JdbcDaoSupport` class and your various JDBC-backed DAO classes
 extend from it, your sub-class inherits a `setDataSource(..)` method from the
 `JdbcDaoSupport` class. You can choose whether to inherit from this class. The
 `JdbcDaoSupport` class is provided as a convenience only.
@@ -627,7 +627,7 @@ also with `JdbcTemplate` and `NamedParameterJdbcTemplate` themselves.
 
 NOTE: `JdbcClient` is a flexible but simplified facade for JDBC query/update statements.
 Advanced capabilities such as batch inserts and stored procedure calls typically require
-extra customization: consider Spring's `SimpleJdbcInsert` and `SimpleJdbcCall` classes or
+extra customization: consider Infra `SimpleJdbcInsert` and `SimpleJdbcCall` classes or
 plain direct `JdbcTemplate` usage for any such capabilities not available in `JdbcClient`.
 
 
@@ -635,7 +635,7 @@ plain direct `JdbcTemplate` usage for any such capabilities not available in `Jd
 == Using `SQLExceptionTranslator`
 
 `SQLExceptionTranslator` is an interface to be implemented by classes that can translate
-between ``SQLException``s and Spring's own `cn.taketoday.dao.DataAccessException`,
+between ``SQLException``s and Infra own `cn.taketoday.dao.DataAccessException`,
 which is agnostic in regard to data access strategy. Implementations can be generic (for
 example, using SQLState codes for JDBC) or proprietary (for example, using Oracle error
 codes) for greater precision. This exception translation mechanism is used behind the

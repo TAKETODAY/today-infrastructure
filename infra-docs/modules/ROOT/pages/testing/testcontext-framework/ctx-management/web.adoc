@@ -16,9 +16,9 @@ directory structure of a web application in a Maven project, you know that
 override this default, you can provide an alternate path to the `@WebAppConfiguration`
 annotation (for example, `@WebAppConfiguration("src/test/webapp")`). If you wish to
 reference a base resource path from the classpath instead of the file system, you can use
-Spring's `classpath:` prefix.
+Infra `classpath:` prefix.
 
-Note that Spring's testing support for `WebApplicationContext` implementations is on par
+Note that Infra testing support for `WebApplicationContext` implementations is on par
 with its support for standard `ApplicationContext` implementations. When testing with a
 `WebApplicationContext`, you are free to declare XML configuration files, Groovy scripts,
 or `@Configuration` classes by using `@ContextConfiguration`. You are also free to use
@@ -35,7 +35,7 @@ Conventions::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 
 // defaults to "file:src/main/webapp"
 @WebAppConfiguration
@@ -53,7 +53,7 @@ class WacTests {
 If you annotate a test class with `@WebAppConfiguration` without specifying a resource
 base path, the resource path effectively defaults to `file:src/main/webapp`. Similarly,
 if you declare `@ContextConfiguration` without specifying resource `locations`, component
-`classes`, or context `initializers`, Spring tries to detect the presence of your
+`classes`, or context `initializers`, Infra tries to detect the presence of your
 configuration by using conventions (that is, `WacTests-context.xml` in the same package
 as the `WacTests` class or static nested `@Configuration` classes).
 
@@ -66,7 +66,7 @@ Default resource semantics::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 
 // file system resource
 @WebAppConfiguration("webapp")
@@ -85,7 +85,7 @@ annotations. By default, `@WebAppConfiguration` resource paths are file system b
 whereas `@ContextConfiguration` resource locations are classpath based.
 
 The following example shows that we can override the default resource semantics for both
-annotations by specifying a Spring resource prefix:
+annotations by specifying a Infra resource prefix:
 
 [tabs]
 ======
@@ -93,7 +93,7 @@ Explicit resource semantics::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 
 // classpath resource
 @WebAppConfiguration("classpath:test-web-resources")

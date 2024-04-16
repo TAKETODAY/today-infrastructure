@@ -69,7 +69,7 @@ return the cached object. The following image shows how the singleton scope work
 
 image::singleton.png[]
 
-Spring's concept of a singleton bean differs from the singleton pattern as defined in
+Infra concept of a singleton bean differs from the singleton pattern as defined in
 the Gang of Four (GoF) patterns book. The GoF singleton hard-codes the scope of an
 object such that one and only one instance of a particular class is created per
 ClassLoader. The scope of the Spring singleton is best described as being per-container
@@ -175,7 +175,7 @@ If you access scoped beans within Spring Web MVC, in effect, within a request th
 processed by the Spring `DispatcherServlet`, no special setup is necessary.
 `DispatcherServlet` already exposes all relevant state.
 
-If you use a Servlet web container, with requests processed outside of Spring's
+If you use a Servlet web container, with requests processed outside of Infra
 `DispatcherServlet` (for example, when using JSF), you need to register the
 `cn.taketoday.web.context.request.RequestContextListener` `ServletRequestListener`.
 This can be done programmatically by using the `WebApplicationInitializer` interface.
@@ -194,7 +194,7 @@ Alternatively, add the following declaration to your web application's `web.xml`
 </web-app>
 ----
 
-Alternatively, if there are issues with your listener setup, consider using Spring's
+Alternatively, if there are issues with your listener setup, consider using Infra
 `RequestContextFilter`. The filter mapping depends on the surrounding web
 application configuration, so you have to change it as appropriate. The following listing
 shows the filter part of a web application:

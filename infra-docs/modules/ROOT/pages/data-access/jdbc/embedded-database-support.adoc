@@ -182,7 +182,7 @@ process) -- for example, integration tests against embedded databases whose
 `ApplicationContext` configuration differs only with regard to which bean definition
 profiles are active.
 
-The root cause of such errors is the fact that Spring's `EmbeddedDatabaseFactory` (used
+The root cause of such errors is the fact that Infra `EmbeddedDatabaseFactory` (used
 internally by both the `<jdbc:embedded-database>` XML namespace element and the
 `EmbeddedDatabaseBuilder` for Java configuration) sets the name of the embedded database to
 `testdb` if not otherwise specified. For the case of `<jdbc:embedded-database>`, the
@@ -192,7 +192,7 @@ do not result in a new database. Instead, the same JDBC connection URL is reused
 and attempts to create a new embedded database actually point to an existing
 embedded database created from the same configuration.
 
-To address this common issue, Spring Framework 4.2 provides support for generating
+To address this common issue, TODAY Framework 4.2 provides support for generating
 unique names for embedded databases. To enable the use of generated names, use one of
 the following options.
 

@@ -2,7 +2,7 @@
 = Using the `ProxyFactoryBean` to Create AOP Proxies
 
 If you use the Infra IoC container (an `ApplicationContext` or `BeanFactory`) for your
-business objects (and you should be!), you want to use one of Spring's AOP
+business objects (and you should be!), you want to use one of Infra AOP
 `FactoryBean` implementations. (Remember that a factory bean introduces a layer of indirection, letting
 it create objects of a different type.)
 

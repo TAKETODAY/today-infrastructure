@@ -1,7 +1,7 @@
 [[mvc-localeresolver]]
 = Locale
 
-Most parts of Spring's architecture support internationalization, as the Spring web
+Most parts of Infra architecture support internationalization, as the Infra web
 MVC framework does. `DispatcherServlet` lets you automatically resolve messages
 by using the client's locale. This is done with `LocaleResolver` objects.
 
@@ -17,7 +17,7 @@ based on a parameter in the request).
 Locale resolvers and interceptors are defined in the
 `cn.taketoday.web.servlet.i18n` package and are configured in your application
 context in the normal way. The following selection of locale resolvers is included in
-Spring.
+Infra.
 
 * xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-timezone[Time Zone]
 * xref:web/webmvc/mvc-servlet/localeresolver.adoc#mvc-localeresolver-acceptheader[Header Resolver]
@@ -35,7 +35,7 @@ resolvers provide a richer `LocaleContext`, which may include time zone informat
 
 When available, the user's `TimeZone` can be obtained by using the
 `RequestContext.getTimeZone()` method. Time zone information is automatically used
-by any Date/Time `Converter` and `Formatter` objects that are registered with Spring's
+by any Date/Time `Converter` and `Formatter` objects that are registered with Infra
 `ConversionService`.
 
 
@@ -103,7 +103,7 @@ Servlet container's `HttpSession`. As a consequence, those settings are temporar
 for each session and are, therefore, lost when each session ends.
 
 Note that there is no direct relationship with external session management mechanisms,
-such as the Spring Session project. This `SessionLocaleResolver` evaluates and
+such as the Infra Session project. This `SessionLocaleResolver` evaluates and
 modifies the corresponding `HttpSession` attributes against the current `HttpServletRequest`.
 
 

@@ -2,7 +2,7 @@
 = Jackson
 
 
-Spring offers support for the Jackson JSON library.
+Infra offers support for the Jackson JSON library.
 
 
 

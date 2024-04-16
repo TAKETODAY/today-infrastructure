@@ -18,7 +18,7 @@ an `<aop:config>` element (you can have more than one `<aop:config>` element in 
 application context configuration). An `<aop:config>` element can contain pointcut,
 advisor, and aspect elements (note that these must be declared in that order).
 
-WARNING: The `<aop:config>` style of configuration makes heavy use of Spring's
+WARNING: The `<aop:config>` style of configuration makes heavy use of Infra
 xref:core/aop-api/autoproxy.adoc[auto-proxying] mechanism. This can cause issues (such as advice
 not being woven) if you already use explicit auto-proxying through the use of
 `BeanNameAutoProxyCreator` or something similar. The recommended usage pattern is to
@@ -506,7 +506,7 @@ preceding advice for a particular join point:
     http://www.springframework.org/schema/aop
     https://www.springframework.org/schema/aop/spring-aop.xsd">
 
-  <!-- this is the object that will be proxied by Spring's AOP infrastructure -->
+  <!-- this is the object that will be proxied by Infra AOP infrastructure -->
   <bean id="personService" class="com.xyz.service.DefaultPersonService"/>
 
   <!-- this is the actual advice itself -->

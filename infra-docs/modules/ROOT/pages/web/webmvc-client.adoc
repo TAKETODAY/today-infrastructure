@@ -20,7 +20,7 @@ See xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] for more de
 == `RestTemplate`
 
 `RestTemplate` is a synchronous client to perform HTTP requests. It is the original
-Spring REST client and exposes a simple, template-method API over underlying HTTP client
+Infra REST client and exposes a simple, template-method API over underlying HTTP client
 libraries.
 
 See xref:integration/rest-clients.adoc[REST Endpoints] for details.

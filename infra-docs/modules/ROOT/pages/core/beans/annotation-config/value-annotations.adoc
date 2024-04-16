@@ -79,7 +79,7 @@ placeholder could not be resolved. It is also possible to use methods like
 `setPlaceholderPrefix`, `setPlaceholderSuffix`, `setValueSeparator`, or
 `setEscapeCharacter` to customize placeholders.
 
-NOTE: Spring Boot configures by default a `PropertySourcesPlaceholderConfigurer` bean that
+NOTE: Infra App configures by default a `PropertySourcesPlaceholderConfigurer` bean that
 will get properties from `application.properties` and `application.yml` files.
 
 Built-in converter support provided by Spring allows simple type conversion (to `Integer`

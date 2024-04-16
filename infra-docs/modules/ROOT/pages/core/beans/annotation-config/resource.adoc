@@ -61,10 +61,10 @@ public class SimpleMovieLister {
 
 NOTE: The name provided with the annotation is resolved as a bean name by the
 `ApplicationContext` of which the `CommonAnnotationBeanPostProcessor` is aware.
-The names can be resolved through JNDI if you configure Spring's
+The names can be resolved through JNDI if you configure Infra
 {today-framework-api}/jndi/support/SimpleJndiBeanFactory.html[`SimpleJndiBeanFactory`]
 explicitly. However, we recommend that you rely on the default behavior and
-use Spring's JNDI lookup capabilities to preserve the level of indirection.
+use Infra JNDI lookup capabilities to preserve the level of indirection.
 
 In the exclusive case of `@Resource` usage with no explicit name specified, and similar
 to `@Autowired`, `@Resource` finds a primary type match instead of a specific named bean

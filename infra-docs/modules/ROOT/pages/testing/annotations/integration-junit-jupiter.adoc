@@ -1,29 +1,29 @@
 [[integration-testing-annotations-junit-jupiter]]
-= Spring JUnit Jupiter Testing Annotations
+= Infra JUnit Jupiter Testing Annotations
 
 The following annotations are supported when used in conjunction with the
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[`SpringExtension`] and JUnit Jupiter
+xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-extension[`InfraExtension`] and JUnit Jupiter
 (that is, the programming model in JUnit 5):
 
-* xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-springjunitconfig[`@SpringJUnitConfig`]
-* xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-springjunitwebconfig[`@SpringJUnitWebConfig`]
+* xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-junitconfig[`@JUnitConfig`]
+* xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-junitwebconfig[`@JUnitWebConfig`]
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-testconstructor[`@TestConstructor`]
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-nestedtestconfiguration[`@NestedTestConfiguration`]
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-enabledif[`@EnabledIf`]
 * xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-junit-jupiter-disabledif[`@DisabledIf`]
 * xref:testing/annotations/integration-spring/annotation-disabledinaotmode.adoc[`@DisabledInAotMode`]
 
-[[integration-testing-annotations-junit-jupiter-springjunitconfig]]
-== `@SpringJUnitConfig`
+[[integration-testing-annotations-junit-jupiter-junitconfig]]
+== `@JUnitConfig`
 
-`@SpringJUnitConfig` is a composed annotation that combines
-`@ExtendWith(SpringExtension.class)` from JUnit Jupiter with `@ContextConfiguration` from
-the Spring TestContext Framework. It can be used at the class level as a drop-in
+`@JUnitConfig` is a composed annotation that combines
+`@ExtendWith(InfraExtension.class)` from JUnit Jupiter with `@ContextConfiguration` from
+the Infra TestContext Framework. It can be used at the class level as a drop-in
 replacement for `@ContextConfiguration`. With regard to configuration options, the only
-difference between `@ContextConfiguration` and `@SpringJUnitConfig` is that component
-classes may be declared with the `value` attribute in `@SpringJUnitConfig`.
+difference between `@ContextConfiguration` and `@JUnitConfig` is that component
+classes may be declared with the `value` attribute in `@JUnitConfig`.
 
-The following example shows how to use the `@SpringJUnitConfig` annotation to specify a
+The following example shows how to use the `@JUnitConfig` annotation to specify a
 configuration class:
 
 [tabs]
@@ -32,8 +32,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class) // <1>
-class ConfigurationClassJUnitJupiterSpringTests {
+@JUnitConfig(TestConfig.class) // <1>
+class ConfigurationClassJUnitJupiterInfraTests {
   // class body...
 }
 ----
@@ -41,7 +41,7 @@ class ConfigurationClassJUnitJupiterSpringTests {
 ======
 
 
-The following example shows how to use the `@SpringJUnitConfig` annotation to specify the
+The following example shows how to use the `@JUnitConfig` annotation to specify the
 location of a configuration file:
 
 [tabs]
@@ -50,8 +50,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(locations = "/test-config.xml") // <1>
-class XmlJUnitJupiterSpringTests {
+@JUnitConfig(locations = "/test-config.xml") // <1>
+class XmlJUnitJupiterInfraTests {
   // class body...
 }
 ----
@@ -61,23 +61,23 @@ class XmlJUnitJupiterSpringTests {
 
 
 See xref:testing/testcontext-framework/ctx-management.adoc[Context Management] as well as the javadoc for
-{today-framework-api}/test/context/junit/jupiter/SpringJUnitConfig.html[`@SpringJUnitConfig`]
+{today-framework-api}/test/context/junit/jupiter/JUnitConfig.html[`@JUnitConfig`]
 and `@ContextConfiguration` for further details.
 
-[[integration-testing-annotations-junit-jupiter-springjunitwebconfig]]
-== `@SpringJUnitWebConfig`
+[[integration-testing-annotations-junit-jupiter-junitwebconfig]]
+== `@JUnitWebConfig`
 
-`@SpringJUnitWebConfig` is a composed annotation that combines
-`@ExtendWith(SpringExtension.class)` from JUnit Jupiter with `@ContextConfiguration` and
-`@WebAppConfiguration` from the Spring TestContext Framework. You can use it at the class
+`@JUnitWebConfig` is a composed annotation that combines
+`@ExtendWith(InfraExtension.class)` from JUnit Jupiter with `@ContextConfiguration` and
+`@WebAppConfiguration` from the Infra TestContext Framework. You can use it at the class
 level as a drop-in replacement for `@ContextConfiguration` and `@WebAppConfiguration`.
 With regard to configuration options, the only difference between `@ContextConfiguration`
-and `@SpringJUnitWebConfig` is that you can declare component classes by using the
-`value` attribute in `@SpringJUnitWebConfig`. In addition, you can override the `value`
+and `@JUnitWebConfig` is that you can declare component classes by using the
+`value` attribute in `@JUnitWebConfig`. In addition, you can override the `value`
 attribute from `@WebAppConfiguration` only by using the `resourcePath` attribute in
-`@SpringJUnitWebConfig`.
+`@JUnitWebConfig`.
 
-The following example shows how to use the `@SpringJUnitWebConfig` annotation to specify
+The following example shows how to use the `@JUnitWebConfig` annotation to specify
 a configuration class:
 
 [tabs]
@@ -86,8 +86,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitWebConfig(TestConfig.class) // <1>
-class ConfigurationClassJUnitJupiterSpringWebTests {
+@JUnitWebConfig(TestConfig.class) // <1>
+class ConfigurationClassJUnitJupiterInfraWebTests {
   // class body...
 }
 ----
@@ -96,7 +96,7 @@ class ConfigurationClassJUnitJupiterSpringWebTests {
 ======
 
 
-The following example shows how to use the `@SpringJUnitWebConfig` annotation to specify the
+The following example shows how to use the `@JUnitWebConfig` annotation to specify the
 location of a configuration file:
 
 [tabs]
@@ -105,8 +105,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitWebConfig(locations = "/test-config.xml") // <1>
-class XmlJUnitJupiterSpringWebTests {
+@JUnitWebConfig(locations = "/test-config.xml") // <1>
+class XmlJUnitJupiterInfraWebTests {
   // class body...
 }
 ----
@@ -116,7 +116,7 @@ class XmlJUnitJupiterSpringWebTests {
 
 
 See xref:testing/testcontext-framework/ctx-management.adoc[Context Management] as well as the javadoc for
-{today-framework-api}/test/context/junit/jupiter/web/SpringJUnitWebConfig.html[`@SpringJUnitWebConfig`],
+{today-framework-api}/test/context/junit/jupiter/web/JUnitWebConfig.html[`@JUnitWebConfig`],
 {today-framework-api}/test/context/ContextConfiguration.html[`@ContextConfiguration`], and
 {today-framework-api}/test/context/web/WebAppConfiguration.html[`@WebAppConfiguration`]
 for further details.
@@ -140,7 +140,7 @@ over both `@TestConstructor` and the default mode.
 The default _test constructor autowire mode_ can be changed by setting the
 `spring.test.constructor.autowire.mode` JVM system property to `all`. Alternatively, the
 default mode may be set via the
-xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism.
+xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 
 As of TODAY Framework 5.3, the default mode may also be configured as a
 https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params[JUnit Platform configuration parameter].
@@ -150,16 +150,16 @@ constructors will not be automatically autowired.
 =====
 
 NOTE: As of TODAY Framework 5.2, `@TestConstructor` is only supported in conjunction
-with the `SpringExtension` for use with JUnit Jupiter. Note that the `SpringExtension` is
+with the `InfraExtension` for use with JUnit Jupiter. Note that the `InfraExtension` is
 often automatically registered for you – for example, when using annotations such as
-`@SpringJUnitConfig` and `@SpringJUnitWebConfig` or various test-related annotations from
-Spring Boot Test.
+`@JUnitConfig` and `@JUnitWebConfig` or various test-related annotations from
+Infra App Test.
 
 [[integration-testing-annotations-nestedtestconfiguration]]
 == `@NestedTestConfiguration`
 
 `@NestedTestConfiguration` is a type-level annotation that is used to configure how
-Spring test configuration annotations are processed within enclosing class hierarchies
+Infra test configuration annotations are processed within enclosing class hierarchies
 for inner test classes.
 
 If `@NestedTestConfiguration` is not present or meta-present on a test class, in its
@@ -173,10 +173,10 @@ change the default mode.
 The default _enclosing configuration inheritance mode_ is `INHERIT`, but it can be
 changed by setting the `spring.test.enclosing.configuration` JVM system property to
 `OVERRIDE`. Alternatively, the default mode may be set via the
-xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism.
+xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 =====
 
-The xref:testing/testcontext-framework.adoc[Spring TestContext Framework] honors `@NestedTestConfiguration` semantics for the
+The xref:testing/testcontext-framework.adoc[Infra TestContext Framework] honors `@NestedTestConfiguration` semantics for the
 following annotations.
 
 * xref:testing/annotations/integration-spring/annotation-bootstrapwith.adoc[`@BootstrapWith`]
@@ -200,7 +200,7 @@ following annotations.
 
 NOTE: The use of `@NestedTestConfiguration` typically only makes sense in conjunction
 with `@Nested` test classes in JUnit Jupiter; however, there may be other testing
-frameworks with support for Spring and nested test classes that make use of this
+frameworks with support for Infra and nested test classes that make use of this
 annotation.
 
 See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] for an example and further
@@ -219,7 +219,7 @@ Expressions can be any of the following:
 
 * xref:core/expressions.adoc[Spring Expression Language] (SpEL) expression. For example:
   `@EnabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")`
-* Placeholder for a property available in the Spring xref:core/beans/environment.adoc[`Environment`].
+* Placeholder for a property available in the Infra xref:core/beans/environment.adoc[`Environment`].
   For example: `@EnabledIf("${smoke.tests.enabled}")`
 * Text literal. For example: `@EnabledIf("true")`
 
@@ -256,7 +256,7 @@ use case, please use the built-in `@EnabledOnOs(MAC)` support in JUnit Jupiter.
 [WARNING]
 ====
 Since JUnit 5.7, JUnit Jupiter also has a condition annotation named `@EnabledIf`. Thus,
-if you wish to use Spring's `@EnabledIf` support make sure you import the annotation type
+if you wish to use Infra `@EnabledIf` support make sure you import the annotation type
 from the correct package.
 ====
 
@@ -273,7 +273,7 @@ Expressions can be any of the following:
 
 * xref:core/expressions.adoc[Spring Expression Language] (SpEL) expression. For example:
   `@DisabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")`
-* Placeholder for a property available in the Spring xref:core/beans/environment.adoc[`Environment`].
+* Placeholder for a property available in the Infra xref:core/beans/environment.adoc[`Environment`].
   For example: `@DisabledIf("${smoke.tests.disabled}")`
 * Text literal. For example: `@DisabledIf("true")`
 
@@ -310,7 +310,7 @@ use case, please use the built-in `@DisabledOnOs(MAC)` support in JUnit Jupiter.
 [WARNING]
 ====
 Since JUnit 5.7, JUnit Jupiter also has a condition annotation named `@DisabledIf`. Thus,
-if you wish to use Spring's `@DisabledIf` support make sure you import the annotation type
+if you wish to use Infra `@DisabledIf` support make sure you import the annotation type
 from the correct package.
 ====
 

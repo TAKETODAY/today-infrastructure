@@ -2,7 +2,7 @@
 = Standard Annotation Support
 
 The following annotations are supported with standard semantics for all configurations of
-the Spring TestContext Framework. Note that these annotations are not specific to tests
+the Infra TestContext Framework. Note that these annotations are not specific to tests
 and can be used anywhere in the TODAY Framework.
 
 * `@Autowired`
@@ -20,7 +20,7 @@ and can be used anywhere in the TODAY Framework.
 .JSR-250 Lifecycle Annotations
 [NOTE]
 ====
-In the Spring TestContext Framework, you can use `@PostConstruct` and `@PreDestroy` with
+In the Infra TestContext Framework, you can use `@PostConstruct` and `@PreDestroy` with
 standard semantics on any application components configured in the `ApplicationContext`.
 However, these lifecycle annotations have limited usage within an actual test class.
 

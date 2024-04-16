@@ -8,8 +8,8 @@ NOTE: This is intended as a less risky alternative to the practice of registerin
 `@Bean` with the `DefaultListableBeanFactory` `setAllowBeanDefinitionOverriding` set to
 `true`.
 
-The Spring Testing Framework provides two sets of annotations presented below. One relies
-purely on Spring, while the second set relies on the Mockito third party library.
+The Infra Testing Framework provides two sets of annotations presented below. One relies
+purely on Infra, while the second set relies on the Mockito third party library.
 
 [[spring-testing-annotation-beanoverriding-testbean]]
 == `@TestBean`
@@ -108,10 +108,10 @@ To create an extension, the following is needed:
 - The `BeanOverrideProcessor` implementation itself.
 - One or more concrete `OverrideMetadata` implementations provided by the processor.
 
-The Spring TestContext Framework includes infrastructure classes that support bean
+The Infra TestContext Framework includes infrastructure classes that support bean
 overriding: a `BeanFactoryPostProcessor`, a `TestExecutionListener` and a
 `ContextCustomizerFactory`.
-The later two are automatically registered via the Spring TestContext Framework
+The later two are automatically registered via the Infra TestContext Framework
 `spring.factories` file, and are responsible for setting up the rest of the infrastructure.
 
 The test classes are parsed looking for any field meta-annotated with `@BeanOverride`,

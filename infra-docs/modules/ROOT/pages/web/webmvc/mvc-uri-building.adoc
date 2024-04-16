@@ -200,7 +200,7 @@ Given the preceding controller, you can prepare a link from a JSP, as follows:
 <a href="${s:mvcUrl('PAC#getAddress').arg(0,'US').buildAndExpand('123')}">Get Address</a>
 ----
 
-The preceding example relies on the `mvcUrl` function declared in the Spring tag library
+The preceding example relies on the `mvcUrl` function declared in the Infra tag library
 (that is, META-INF/spring.tld), but it is easy to define your own function or prepare a
 similar one for other templating technologies.
 

@@ -177,7 +177,7 @@ The resulting output from the invocation of the `execute()` method is as follows
 The userDao argument is required.
 ----
 
-With regard to internationalization ("`i18n`"), Spring's various `MessageSource`
+With regard to internationalization ("`i18n`"), Infra various `MessageSource`
 implementations follow the same locale resolution and fallback rules as the standard JDK
 `ResourceBundle`. In short, and continuing with the example `messageSource` defined
 previously, if you want to resolve messages against the British (`en-GB`) locale, you
@@ -222,7 +222,7 @@ You can also use the `MessageSourceAware` interface to acquire a reference to an
 `ApplicationContext` that implements the `MessageSourceAware` interface is injected with
 the application context's `MessageSource` when the bean is created and configured.
 
-NOTE: Because Spring's `MessageSource` is based on Java's `ResourceBundle`, it does not merge
+NOTE: Because Infra `MessageSource` is based on Java's `ResourceBundle`, it does not merge
 bundles with the same base name, but will only use the first bundle found.
 Subsequent message bundles with the same base name are ignored.
 
@@ -293,7 +293,7 @@ The following table describes the standard events that Spring provides:
 | `RequestHandledEvent`
 | A web-specific event telling all beans that an HTTP request has been serviced. This
   event is published after the request is complete. This event is only applicable to
-  web applications that use Spring's `DispatcherServlet`.
+  web applications that use Infra `DispatcherServlet`.
 
 | `ServletRequestHandledEvent`
 | A subclass of `RequestHandledEvent` that adds Servlet-specific context information.
@@ -301,7 +301,7 @@ The following table describes the standard events that Spring provides:
 |===
 
 You can also create and publish your own custom events. The following example shows a
-simple class that extends Spring's `ApplicationEvent` base class:
+simple class that extends Infra `ApplicationEvent` base class:
 
 [tabs]
 ======
@@ -401,7 +401,7 @@ This means that the `publishEvent()` method blocks until all listeners have fini
 One advantage of this synchronous and single-threaded approach is that, when a listener receives an event,
 it operates inside the transaction context of the publisher if a transaction context is available.
 If another strategy for event publication becomes necessary, e.g. asynchronous event processing by default,
-see the javadoc for Spring's {today-framework-api}/context/event/ApplicationEventMulticaster.html[`ApplicationEventMulticaster`] interface
+see the javadoc for Infra {today-framework-api}/context/event/ApplicationEventMulticaster.html[`ApplicationEventMulticaster`] interface
 and {today-framework-api}/context/event/SimpleApplicationEventMulticaster.html[`SimpleApplicationEventMulticaster`] implementation
 for configuration options which can be applied to a custom "applicationEventMulticaster" bean definition.
 In these cases, ThreadLocals and logging context are not propagated for the event processing.
@@ -440,7 +440,7 @@ called, if there are any email messages that should be blocked, a custom event o
 `ApplicationListener` and receives the `BlockedListEvent`, at which point it can
 notify appropriate parties.
 
-NOTE: Spring's eventing mechanism is designed for simple communication between Spring beans
+NOTE: Infra eventing mechanism is designed for simple communication between Spring beans
 within the same application context. However, for more sophisticated enterprise
 integration needs, the separately maintained
 {today-tech-site-projects}/spring-integration/[Infra Integration] project provides
@@ -711,7 +711,7 @@ ApplicationEventMulticaster applicationEventMulticaster() {
 == Convenient Access to Low-level Resources
 
 For optimal usage and understanding of application contexts, you should familiarize
-yourself with Spring's `Resource` abstraction, as described in Resources.
+yourself with Infra `Resource` abstraction, as described in Resources.
 
 An application context is a `ResourceLoader`, which can be used to load `Resource` objects.
 A `Resource` is essentially a more feature rich version of the JDK `java.net.URL` class.
@@ -850,9 +850,9 @@ RAR deployment is ideal for application contexts that do not need HTTP entry poi
 rather consist only of message endpoints and scheduled jobs. Beans in such a context can
 use application server resources such as the JTA transaction manager and JNDI-bound JDBC
 `DataSource` instances and JMS `ConnectionFactory` instances and can also register with
-the platform's JMX server -- all through Spring's standard transaction management and JNDI
+the platform's JMX server -- all through Infra standard transaction management and JNDI
 and JMX support facilities. Application components can also interact with the application
-server's JCA `WorkManager` through Spring's `TaskExecutor` abstraction.
+server's JCA `WorkManager` through Infra `TaskExecutor` abstraction.
 
 See the javadoc of the
 {today-framework-api}/jca/context/SpringContextResourceAdapter.html[`SpringContextResourceAdapter`]

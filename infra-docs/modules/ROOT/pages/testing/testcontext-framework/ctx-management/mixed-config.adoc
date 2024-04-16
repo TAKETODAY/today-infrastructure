@@ -5,14 +5,14 @@ It may sometimes be desirable to mix XML configuration files, Groovy scripts, an
 component classes (typically `@Configuration` classes) to configure an
 `ApplicationContext` for your tests. For example, if you use XML configuration in
 production, you may decide that you want to use `@Configuration` classes to configure
-specific Spring-managed components for your tests, or vice versa.
+specific Infra-managed components for your tests, or vice versa.
 
-Furthermore, some third-party frameworks (such as Spring Boot) provide first-class
+Furthermore, some third-party frameworks (such as Infra App) provide first-class
 support for loading an `ApplicationContext` from different types of resources
 simultaneously (for example, XML configuration files, Groovy scripts, and
-`@Configuration` classes). The Spring Framework, historically, has not supported this for
+`@Configuration` classes). The TODAY Framework, historically, has not supported this for
 standard deployments. Consequently, most of the `SmartContextLoader` implementations that
-the Spring Framework delivers in the `spring-test` module support only one resource type
+the TODAY Framework delivers in the `today-test` module support only one resource type
 for each test context. However, this does not mean that you cannot use both. One
 exception to the general rule is that the `GenericGroovyXmlContextLoader` and
 `GenericGroovyXmlWebContextLoader` support both XML configuration files and Groovy
@@ -23,7 +23,7 @@ the standard testing support in the TestContext framework, you have the followin
 If you want to use resource locations (for example, XML or Groovy) and `@Configuration`
 classes to configure your tests, you must pick one as the entry point, and that one must
 include or import the other. For example, in XML or Groovy scripts, you can include
-`@Configuration` classes by using component scanning or defining them as normal Spring
+`@Configuration` classes by using component scanning or defining them as normal Infra
 beans, whereas, in a `@Configuration` class, you can use `@ImportResource` to import XML
 configuration files or Groovy scripts. Note that this behavior is semantically equivalent
 to how you configure your application in production: In production configuration, you

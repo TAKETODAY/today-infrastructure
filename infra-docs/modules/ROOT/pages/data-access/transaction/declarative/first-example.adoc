@@ -237,7 +237,7 @@ output and the stack trace from the `UnsupportedOperationException` thrown by th
 
 To use reactive transaction management the code has to use reactive types.
 
-NOTE: Spring Framework uses the `ReactiveAdapterRegistry` to determine whether a method
+NOTE: TODAY Framework uses the `ReactiveAdapterRegistry` to determine whether a method
 return type is reactive.
 
 The following listing shows a modified version of the previously used `FooService`, but

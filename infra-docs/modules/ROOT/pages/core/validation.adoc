@@ -20,16 +20,16 @@ this is reference documentation, however, we feel that some explanation might be
 order. We explain the `BeanWrapper` in this chapter, since, if you are going to use it at
 all, you are most likely do so when trying to bind data to objects.
 
-Spring's `DataBinder` and the lower-level `BeanWrapper` both use `PropertyEditorSupport`
+Infra `DataBinder` and the lower-level `BeanWrapper` both use `PropertyEditorSupport`
 implementations to parse and format property values. The `PropertyEditor` and
 `PropertyEditorSupport` types are part of the JavaBeans specification and are also
-explained in this chapter. Spring's `core.convert` package provides a general type
+explained in this chapter. Infra `core.convert` package provides a general type
 conversion facility, as well as a higher-level `format` package for formatting UI field
 values. You can use these packages as simpler alternatives to `PropertyEditorSupport`
 implementations. They are also discussed in this chapter.
 
 Spring supports Java Bean Validation through setup infrastructure and an adaptor to
-Spring's own `Validator` contract. Applications can enable Bean Validation once globally,
+Infra own `Validator` contract. Applications can enable Bean Validation once globally,
 as described in xref:core/validation/beanvalidation.adoc[Java Bean Validation], and use it exclusively for all validation
 needs. In the web layer, applications can further register controller-local Spring
 `Validator` instances per `DataBinder`, as described in xref:core/validation/beanvalidation.adoc#validation-binder[Configuring a `DataBinder`], which can

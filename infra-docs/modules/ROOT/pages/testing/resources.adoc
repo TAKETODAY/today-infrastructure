@@ -4,10 +4,10 @@ See the following resources for more information about testing:
 
 * https://www.junit.org/[JUnit]: "A programmer-friendly testing framework for Java and the JVM".
   Used by the TODAY Framework in its test suite and supported in the
-  xref:testing/testcontext-framework.adoc[Spring TestContext Framework].
+  xref:testing/testcontext-framework.adoc[Infra TestContext Framework].
 * https://testng.org/[TestNG]: A testing framework inspired by JUnit with added support
   for test groups, data-driven testing, distributed testing, and other features. Supported
-  in the xref:testing/testcontext-framework.adoc[Spring TestContext Framework]
+  in the xref:testing/testcontext-framework.adoc[Infra TestContext Framework]
 * {assertj-docs}[AssertJ]: "Fluent assertions for Java",
   including support for Java 8 lambdas, streams, and numerous other features.
 * https://en.wikipedia.org/wiki/Mock_Object[Mock Objects]: Article in Wikipedia.
@@ -28,5 +28,3 @@ See the following resources for more information about testing:
   tests, providing lightweight, throwaway instances of common databases, Selenium web
   browsers, or anything else that can run in a Docker container.
 * https://sourceforge.net/projects/grinder/[The Grinder]: Java load testing framework.
-* https://github.com/Ninja-Squad/springmockk[SpringMockK]: Support for Spring Boot
-  integration tests written in Kotlin using https://mockk.io/[MockK] instead of Mockito.

@@ -34,9 +34,9 @@ already set.
 "application/problem+json" over "application/json" when rendering a `ProblemDetail`,
 and also falls back on it if no compatible media type is found.
 
-To enable RFC 7807 responses for Spring WebFlux exceptions and for any
+To enable RFC 7807 responses for Infra WebFlux exceptions and for any
 `ErrorResponseException`, extend `ResponseEntityExceptionHandler` and declare it as an
-xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice] in Spring configuration. The handler
+xref:web/webmvc/mvc-controller/ann-advice.adoc[@ControllerAdvice] in Infra configuration. The handler
 has an `@ExceptionHandler` method that handles any `ErrorResponse` exception, which
 includes all built-in web exceptions. You can add more exception handling methods, and
 use a protected method to map any exception to a `ProblemDetail`.

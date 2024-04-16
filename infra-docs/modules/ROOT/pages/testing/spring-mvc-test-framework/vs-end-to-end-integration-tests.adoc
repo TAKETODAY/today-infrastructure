@@ -2,7 +2,7 @@
 = MockMvc vs End-to-End Tests
 
 MockMVc is built on Servlet API mock implementations from the
-`spring-test` module and does not rely on a running container. Therefore, there are
+`today-test` module and does not rely on a running container. Therefore, there are
 some differences when compared to full end-to-end integration tests with an actual
 client and a live server running.
 
@@ -20,15 +20,15 @@ Thymeleaf and Freemarker, render HTML to the response body as expected. The same
 for rendering JSON, XML, and other formats through `@ResponseBody` methods.
 
 Alternatively, you may consider the full end-to-end integration testing support from
-Spring Boot with `@SpringBootTest`. See the
-{today-framework-reference}/spring-boot-features.html#boot-features-testing[Spring Boot Reference Guide].
+Infra App with `@InfraBootTest`. See the
+{today-framework-reference}/spring-boot-features.html#boot-features-testing[Infra App Reference Guide].
 
 There are pros and cons for each approach. The options provided in Web MVC Test are
 different stops on the scale from classic unit testing to full integration testing. To be
 certain, none of the options in Web MVC Test fall under the category of classic unit
 testing, but they are a little closer to it. For example, you can isolate the web layer
 by injecting mocked services into controllers, in which case you are testing the web
-layer only through the `DispatcherServlet` but with actual Spring configuration, as you
+layer only through the `DispatcherServlet` but with actual Infra configuration, as you
 might test the data access layer in isolation from the layers above it. Also, you can use
 the stand-alone setup, focusing on one controller at a time and manually providing the
 configuration required to make it work.

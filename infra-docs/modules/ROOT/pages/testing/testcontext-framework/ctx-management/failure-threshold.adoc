@@ -1,7 +1,7 @@
 [[testcontext-ctx-management-failure-threshold]]
 = Context Failure Threshold
 
-As of Spring Framework 6.1, a context _failure threshold_ policy is in place which helps
+As of TODAY Framework 6.1, a context _failure threshold_ policy is in place which helps
 avoid repeated attempts to load a failing `ApplicationContext`. By default, the failure
 threshold is set to `1` which means that only one attempt will be made to load an
 `ApplicationContext` for a given context cache key (see
@@ -16,7 +16,7 @@ external resource that prevents the context from loading in the current environm
 You can configure the context failure threshold from the command line or a build script
 by setting a JVM system property named `spring.test.context.failure.threshold` with a
 positive integer value. As an alternative, you can set the same property via the
-xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism.
+xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 
 NOTE: If you wish to effectively disable the context failure threshold, you can set the
 property to a very large value. For example, from the command line you could set the

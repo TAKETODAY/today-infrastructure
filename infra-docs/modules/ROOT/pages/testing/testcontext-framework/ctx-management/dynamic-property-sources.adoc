@@ -1,7 +1,7 @@
 [[testcontext-ctx-management-dynamic-property-sources]]
 = Context Configuration with Dynamic Property Sources
 
-As of Spring Framework 5.2.5, the TestContext framework provides support for _dynamic_
+As of TODAY Framework 5.2.5, the TestContext framework provides support for _dynamic_
 properties via the `@DynamicPropertySource` annotation. This annotation can be used in
 integration tests that need to add properties with dynamic values to the set of
 `PropertySources` in the `Environment` for the `ApplicationContext` loaded for the
@@ -12,7 +12,7 @@ integration test.
 The `@DynamicPropertySource` annotation and its supporting infrastructure were
 originally designed to allow properties from
 {testcontainers-site}[Testcontainers] based tests to be exposed easily to
-Spring integration tests. However, this feature may also be used with any form of
+Infra integration tests. However, this feature may also be used with any form of
 external resource whose lifecycle is maintained outside the test's `ApplicationContext`.
 ====
 
@@ -22,11 +22,11 @@ to a `static` method that accepts a single `DynamicPropertyRegistry` argument wh
 used to add _name-value_ pairs to the `Environment`. Values are dynamic and provided via
 a `Supplier` which is only invoked when the property is resolved. Typically, method
 references are used to supply values, as can be seen in the following example which uses
-the Testcontainers project to manage a Redis container outside of the Spring
+the Testcontainers project to manage a Redis container outside of the Infra
 `ApplicationContext`. The IP address and port of the managed Redis container are made
 available to components within the test's `ApplicationContext` via the `redis.host` and
-`redis.port` properties. These properties can be accessed via Spring's `Environment`
-abstraction or injected directly into Spring-managed components – for example, via
+`redis.port` properties. These properties can be accessed via Infra `Environment`
+abstraction or injected directly into Infra-managed components – for example, via
 `@Value("${redis.host}")` and `@Value("${redis.port}")`, respectively.
 
 [TIP]
@@ -40,7 +40,7 @@ properties.
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(/* ... */)
+@JUnitConfig(/* ... */)
 @Testcontainers
 class ExampleIntegrationTests {
 

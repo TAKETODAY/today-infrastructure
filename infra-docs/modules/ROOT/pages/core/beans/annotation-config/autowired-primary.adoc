@@ -2,7 +2,7 @@
 = Fine-tuning Annotation-based Autowiring with `@Primary` or `@Fallback`
 
 Because autowiring by type may lead to multiple candidates, it is often necessary to have
-more control over the selection process. One way to accomplish this is with Spring's
+more control over the selection process. One way to accomplish this is with Infra
 `@Primary` annotation. `@Primary` indicates that a particular bean should be given
 preference when multiple beans are candidates to be autowired to a single-valued
 dependency. If exactly one primary bean exists among the candidates, it becomes the

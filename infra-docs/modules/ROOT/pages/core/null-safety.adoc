@@ -48,6 +48,6 @@ like IDEA or Kotlin provide null-safety support in a generic way, without having
 hard-code support for Spring annotations.
 
 It is neither necessary nor recommended to add a JSR-305 dependency to the project classpath to
-take advantage of Spring's null-safe APIs. Only projects such as Spring-based libraries that use
+take advantage of Infra null-safe APIs. Only projects such as Spring-based libraries that use
 null-safety annotations in their codebase should add `com.google.code.findbugs:jsr305:3.0.2`
 with `compileOnly` Gradle configuration or Maven `provided` scope to avoid compiler warnings.

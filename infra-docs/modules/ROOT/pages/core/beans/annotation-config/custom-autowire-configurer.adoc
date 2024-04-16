@@ -3,7 +3,7 @@
 
 {today-framework-api}/beans/factory/annotation/CustomAutowireConfigurer.html[`CustomAutowireConfigurer`]
 is a `BeanFactoryPostProcessor` that lets you register your own custom qualifier
-annotation types, even if they are not annotated with Spring's `@Qualifier` annotation.
+annotation types, even if they are not annotated with Infra `@Qualifier` annotation.
 The following example shows how to use `CustomAutowireConfigurer`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

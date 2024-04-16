@@ -9,14 +9,14 @@ lookup semantics for Groovy scripts are the same as those described for
 xref:testing/testcontext-framework/ctx-management/xml.adoc[XML configuration files].
 
 .Enabling Groovy script support
-TIP: Support for using Groovy scripts to load an `ApplicationContext` in the Spring
+TIP: Support for using Groovy scripts to load an `ApplicationContext` in the Infra
 TestContext Framework is enabled automatically if Groovy is on the classpath.
 
 The following example shows how to specify Groovy configuration files:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from "/AppConfig.groovy" and
 // "/TestConfig.groovy" in the root of the classpath
 @ContextConfiguration({"/AppConfig.groovy", "/TestConfig.Groovy"}) <1>
@@ -37,7 +37,7 @@ the default:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from
 // "classpath:com/example/MyTestContext.groovy"
 @ContextConfiguration // <1>
@@ -61,7 +61,7 @@ The following listing shows how to combine both in an integration test:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from
 // "/app-config.xml" and "/TestConfig.groovy"
 @ContextConfiguration({ "/app-config.xml", "/TestConfig.groovy" })

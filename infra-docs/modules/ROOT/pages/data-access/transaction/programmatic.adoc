@@ -1,7 +1,7 @@
 [[transaction-programmatic]]
 = Programmatic Transaction Management
 
-The Spring Framework provides two means of programmatic transaction management, by using:
+The TODAY Framework provides two means of programmatic transaction management, by using:
 
 * The `TransactionTemplate` or `TransactionalOperator`.
 * A `TransactionManager` implementation directly.
@@ -22,7 +22,7 @@ code that is intention driven, in that your code focuses solely on what
 you want to do.
 
 NOTE: As the examples that follow show, using the `TransactionTemplate` absolutely
-couples you to Spring's transaction infrastructure and APIs. Whether or not programmatic
+couples you to Infra transaction infrastructure and APIs. Whether or not programmatic
 transaction management is suitable for your development needs is a decision that you
 have to make yourself.
 
@@ -172,7 +172,7 @@ boilerplate acquisition and release transactional resources) and results in code
 intention driven, in that your code focuses solely on what you want to do.
 
 NOTE: As the examples that follow show, using the `TransactionalOperator` absolutely
-couples you to Spring's transaction infrastructure and APIs. Whether or not programmatic
+couples you to Infra transaction infrastructure and APIs. Whether or not programmatic
 transaction management is suitable for your development needs is a decision that you have
 to make yourself.
 

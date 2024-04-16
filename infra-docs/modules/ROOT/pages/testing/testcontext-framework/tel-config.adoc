@@ -1,7 +1,7 @@
 [[testcontext-tel-config]]
 = `TestExecutionListener` Configuration
 
-Spring provides the following `TestExecutionListener` implementations that are registered
+Infra provides the following `TestExecutionListener` implementations that are registered
 by default, exactly in the following order:
 
 * `ServletTestExecutionListener`: Configures Servlet API mocks for a
@@ -67,11 +67,11 @@ Registering `TestExecutionListener` implementations by using `@TestExecutionList
 suitable for custom listeners that are used in limited testing scenarios. However, it can
 become cumbersome if a custom listener needs to be used across an entire test suite. This
 issue is addressed through support for automatic discovery of default
-`TestExecutionListener` implementations through the `SpringFactoriesLoader` mechanism.
+`TestExecutionListener` implementations through the `InfraFactoriesLoader` mechanism.
 
-For example, the `spring-test` module declares all core default `TestExecutionListener`
+For example, the `today-test` module declares all core default `TestExecutionListener`
 implementations under the `cn.taketoday.test.context.TestExecutionListener` key in
-its {today-framework-code}/spring-test/src/main/resources/META-INF/spring.factories[`META-INF/spring.factories`
+its {today-framework-code}/today-test/src/main/resources/META-INF/spring.factories[`META-INF/spring.factories`
 properties file]. Third-party frameworks and developers can contribute their own
 `TestExecutionListener` implementations to the list of default listeners in the same
 manner through their own `spring.factories` files.
@@ -81,10 +81,10 @@ manner through their own `spring.factories` files.
 
 When the TestContext framework discovers default `TestExecutionListener` implementations
 through the xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-automatic-discovery[aforementioned]
-`SpringFactoriesLoader` mechanism, the instantiated listeners are sorted by using
-Spring's `AnnotationAwareOrderComparator`, which honors Spring's `Ordered` interface and
+`InfraFactoriesLoader` mechanism, the instantiated listeners are sorted by using
+Infra `AnnotationAwareOrderComparator`, which honors Infra `Ordered` interface and
 `@Order` annotation for ordering. `AbstractTestExecutionListener` and all default
-`TestExecutionListener` implementations provided by Spring implement `Ordered` with
+`TestExecutionListener` implementations provided by Infra implement `Ordered` with
 appropriate values. Third-party frameworks and developers should therefore make sure that
 their default `TestExecutionListener` implementations are registered in the proper order
 by implementing `Ordered` or declaring `@Order`. See the javadoc for the `getOrder()`
@@ -125,9 +125,9 @@ class MyTest {
 The challenge with this approach is that it requires that the developer know exactly
 which listeners are registered by default. Moreover, the set of default listeners can
 change from release to release -- for example, `SqlScriptsTestExecutionListener` was
-introduced in Spring Framework 4.1, and `DirtiesContextBeforeModesTestExecutionListener`
-was introduced in Spring Framework 4.2. Furthermore, third-party frameworks like Spring
-Boot and Spring Security register their own default `TestExecutionListener`
+introduced in TODAY Framework 4.1, and `DirtiesContextBeforeModesTestExecutionListener`
+was introduced in TODAY Framework 4.2. Furthermore, third-party frameworks like Infra
+Boot and Infra Security register their own default `TestExecutionListener`
 implementations by using the aforementioned xref:testing/testcontext-framework/tel-config.adoc#testcontext-tel-config-automatic-discovery[automatic discovery mechanism]
 .
 

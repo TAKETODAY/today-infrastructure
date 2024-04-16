@@ -6,7 +6,7 @@
 [[oxm-introduction]]
 == Introduction
 
-This chapter, describes Spring's Object-XML Mapping support. Object-XML
+This chapter, describes Infra Object-XML Mapping support. Object-XML
 Mapping (O-X mapping for short) is the act of converting an XML document to and from
 an object. This conversion process is also known as XML Marshalling, or XML
 Serialization. This chapter uses these terms interchangeably.
@@ -26,7 +26,7 @@ Some of the benefits of using Spring for your O/X mapping needs are:
 [[oxm-ease-of-configuration]]
 === Ease of configuration
 
-Spring's bean factory makes it easy to configure marshallers, without needing to
+Infra bean factory makes it easy to configure marshallers, without needing to
 construct JAXB context, JiBX binding factories, and so on. You can configure the marshallers
 as you would any other bean in your application context. Additionally, XML namespace-based
 configuration is available for a number of marshallers, making the configuration even
@@ -36,7 +36,7 @@ simpler.
 [[oxm-consistent-interfaces]]
 === Consistent Interfaces
 
-Spring's O-X mapping operates through two global interfaces: {today-framework-api}/oxm/Marshaller.html[`Marshaller`] and
+Infra O-X mapping operates through two global interfaces: {today-framework-api}/oxm/Marshaller.html[`Marshaller`] and
 {today-framework-api}/oxm/Unmarshaller.html[`Unmarshaller`]. These abstractions let you switch O-X mapping frameworks
 with relative ease, with little or no change required on the classes that do the
 marshalling. This approach has the additional benefit of making it possible to do XML
@@ -167,7 +167,7 @@ image::oxm-exceptions.png[]
 [[oxm-usage]]
 == Using `Marshaller` and `Unmarshaller`
 
-You can use Spring's OXM for a wide variety of situations. In the following example, we
+You can use Infra OXM for a wide variety of situations. In the following example, we
 use it to marshal the settings of a Spring-managed application as an XML file. In the following example, we
 use a simple JavaBean to represent the settings:
 
@@ -337,7 +337,7 @@ package.
 [[oxm-jaxb2]]
 === Using `Jaxb2Marshaller`
 
-The `Jaxb2Marshaller` class implements both of Spring's `Marshaller` and `Unmarshaller`
+The `Jaxb2Marshaller` class implements both of Infra `Marshaller` and `Unmarshaller`
 interfaces. It requires a context path to operate. You can set the context path by setting the
 `contextPath` property. The context path is a list of colon-separated Java package
 names that contain schema derived classes. It also offers a `classesToBeBound` property,

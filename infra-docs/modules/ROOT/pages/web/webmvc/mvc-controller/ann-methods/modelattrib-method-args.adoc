@@ -137,9 +137,9 @@ public String processSubmit(@ModelAttribute("pet") Pet pet, BindingResult result
 ======
 
 You can automatically apply validation after data binding by adding the
-`jakarta.validation.Valid` annotation or Spring's `@Validated` annotation.
+`jakarta.validation.Valid` annotation or Infra `@Validated` annotation.
 See xref:core/validation/beanvalidation.adoc[Bean Validation] and
-xref:web/webmvc/mvc-config/validation.adoc[Spring validation]. For example:
+xref:web/webmvc/mvc-config/validation.adoc[Infra validation]. For example:
 
 [tabs]
 ======

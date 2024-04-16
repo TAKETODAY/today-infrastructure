@@ -3,7 +3,7 @@
 
 `@EnableWebMvc` imports `DelegatingWebMvcConfiguration`, which:
 
-* Provides default Spring configuration for Web MVC applications
+* Provides default Infra configuration for Web MVC applications
 * Detects and delegates to `WebMvcConfigurer` implementations to customize that configuration.
 
 For advanced mode, you can remove `@EnableWebMvc` and extend directly from

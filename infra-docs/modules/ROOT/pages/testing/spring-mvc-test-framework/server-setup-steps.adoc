@@ -18,7 +18,7 @@ MockMvc mockMvc = standaloneSetup(new MusicController())
 ----
 
 In addition, third-party frameworks (and applications) can pre-package setup
-instructions, such as those in a `MockMvcConfigurer`. The Spring Framework has one such
+instructions, such as those in a `MockMvcConfigurer`. The TODAY Framework has one such
 built-in implementation that helps to save and re-use the HTTP session across requests.
 You can use it as follows:
 

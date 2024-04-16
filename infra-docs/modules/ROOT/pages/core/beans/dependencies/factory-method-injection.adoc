@@ -207,7 +207,7 @@ public abstract class CommandManager {
 ======
 
 Note that you should typically declare such annotated lookup methods with a concrete
-stub implementation, in order for them to be compatible with Spring's component
+stub implementation, in order for them to be compatible with Infra component
 scanning rules where abstract classes get ignored by default. This limitation does not
 apply to explicitly registered or explicitly imported bean classes.
 

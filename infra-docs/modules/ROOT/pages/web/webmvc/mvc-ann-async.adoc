@@ -12,7 +12,7 @@ xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-sse[SSE] and xref:web/webmvc/mv
 * Controllers can use reactive clients and return
 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[reactive types] for response handling.
 
-For an overview of how this differs from Spring WebFlux, see the xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-vs-webflux[Async Web MVC compared to WebFlux] section below.
+For an overview of how this differs from Infra WebFlux, see the xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-vs-webflux[Async Web MVC compared to WebFlux] section below.
 
 [[mvc-ann-async-deferredresult]]
 == `DeferredResult`
@@ -160,12 +160,12 @@ the `DeferredResult` is set, an `ASYNC` dispatch (to the same URL) is made, duri
 controller is mapped again but, rather than invoking it, the `DeferredResult` value is used
 (as if the controller returned it) to resume processing.
 
-By contrast, Spring WebFlux is neither built on the Servlet API, nor does it need such an
+By contrast, Infra WebFlux is neither built on the Servlet API, nor does it need such an
 asynchronous request processing feature, because it is asynchronous by design. Asynchronous
 handling is built into all framework contracts and is intrinsically supported through all
 stages of request processing.
 
-From a programming model perspective, both Web MVC and Spring WebFlux support
+From a programming model perspective, both Web MVC and Infra WebFlux support
 asynchronous and xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-reactive-types[Reactive Types] as return values in controller methods.
 Web MVC even supports streaming, including reactive back pressure. However, individual
 writes to the response remain blocking (and are performed on a separate thread), unlike WebFlux,
@@ -174,7 +174,7 @@ which relies on non-blocking I/O and does not need an extra thread for each writ
 Another fundamental difference is that Web MVC does not support asynchronous or reactive
 types in controller method arguments (for example, `@RequestBody`, `@RequestPart`, and others),
 nor does it have any explicit support for asynchronous and reactive types as model attributes.
-Spring WebFlux does support all that.
+Infra WebFlux does support all that.
 
 Finally, from a configuration perspective the asynchronous request processing feature must be
 xref:web/webmvc/mvc-ann-async.adoc#mvc-ann-async-configuration[enabled at the Servlet container level].
@@ -266,7 +266,7 @@ emitter.complete();
 ======
 
 While SSE is the main option for streaming into browsers, note that Internet Explorer
-does not support Server-Sent Events. Consider using Spring's
+does not support Server-Sent Events. Consider using Infra
 xref:web/websocket.adoc[WebSocket messaging] with
 xref:web/websocket/fallback.adoc[SockJS fallback] transports (including SSE) that target
 a wide range of browsers.
@@ -309,7 +309,7 @@ customize the status and headers of the response.
 == Reactive Types
 
 Web MVC supports use of reactive client libraries in a controller .
-This includes the `WebClient` from `spring-webflux` and others, such as Spring Data
+This includes the `WebClient` from `spring-webflux` and others, such as Infra Data
 reactive data repositories. In such scenarios, it is convenient to be able to return
 reactive types from the controller method.
 

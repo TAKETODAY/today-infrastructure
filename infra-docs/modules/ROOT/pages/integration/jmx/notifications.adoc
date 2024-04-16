@@ -1,15 +1,15 @@
 [[jmx-notifications]]
 = Notifications
 
-Spring's JMX offering includes comprehensive support for JMX notifications.
+Infra JMX offering includes comprehensive support for JMX notifications.
 
 
 [[jmx-notifications-listeners]]
 == Registering Listeners for Notifications
 
-Spring's JMX support makes it easy to register any number of
+Infra JMX support makes it easy to register any number of
 `NotificationListeners` with any number of MBeans (this includes MBeans exported by
-Spring's `MBeanExporter` and MBeans registered through some other mechanism). For
+Infra `MBeanExporter` and MBeans registered through some other mechanism). For
 example, consider the scenario where one would like to be informed (through a
 `Notification`) each and every time an attribute of a target MBean changes. The following
 example writes notifications to the console:
@@ -236,7 +236,7 @@ NOTE: This section is really only relevant to Spring-managed beans that have
 been exposed as MBeans through an `MBeanExporter`. Any existing user-defined MBeans should
 use the standard JMX APIs for notification publication.
 
-The key interface in Spring's JMX notification publication support is the
+The key interface in Infra JMX notification publication support is the
 `NotificationPublisher` interface (defined in the
 `cn.taketoday.jmx.export.notification` package). Any bean that is going to be
 exported as an MBean through an `MBeanExporter` instance can implement the related
@@ -249,7 +249,7 @@ As stated in the javadoc of the
 {today-framework-api}/jmx/export/notification/NotificationPublisher.html[`NotificationPublisher`]
 interface, managed beans that publish events through the `NotificationPublisher`
 mechanism are not responsible for the state management of notification listeners.
-Spring's JMX support takes care of handling all the JMX infrastructure issues.
+Infra JMX support takes care of handling all the JMX infrastructure issues.
 All you need to do, as an application developer, is implement the
 `NotificationPublisherAware` interface and start publishing events by using the
 supplied `NotificationPublisher` instance. Note that the `NotificationPublisher`
@@ -299,7 +299,7 @@ public class JmxTestBean implements IJmxTestBean, NotificationPublisherAware {
 ----
 
 The `NotificationPublisher` interface and the machinery to get it all working is one of
-the nicer features of Spring's JMX support. It does, however, come with the price tag of
+the nicer features of Infra JMX support. It does, however, come with the price tag of
 coupling your classes to both Spring and JMX. As always, the advice here is to be
 pragmatic. If you need the functionality offered by the `NotificationPublisher` and
 you can accept the coupling to both Spring and JMX, then do so.

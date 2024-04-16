@@ -1,12 +1,12 @@
 [[mail]]
 = Email
 
-This section describes how to send email with the Spring Framework.
+This section describes how to send email with the TODAY Framework.
 
 .Library dependencies
 ****
 The following JAR needs to be on the classpath of your application in order to use the
-Spring Framework's email support:
+TODAY Framework's email support:
 
 * The https://jakartaee.github.io/mail-api/[Jakarta Mail] library
 
@@ -16,7 +16,7 @@ the `jakarta.mail` package namespace) rather than Jakarta Mail 1.6.x (which uses
 `javax.mail` package namespace).
 ****
 
-The Spring Framework provides a helpful utility library for sending email that shields
+The TODAY Framework provides a helpful utility library for sending email that shields
 you from the specifics of the underlying mailing system and is responsible for
 low-level resource handling on behalf of the client.
 
@@ -184,7 +184,7 @@ NOTE: The mail code is a crosscutting concern and could well be a candidate for
 refactoring into a xref:core/aop.adoc[custom Infra AOP aspect], which could then
 be run at appropriate joinpoints on the `OrderManager` target.
 
-The Spring Framework's mail support ships with the standard JavaMail implementation.
+The TODAY Framework's mail support ships with the standard JavaMail implementation.
 See the relevant javadoc for more information.
 
 
@@ -298,6 +298,6 @@ Typically, the approach taken to address these issues is to use a template libra
 as FreeMarker) to define the display structure of email content. This leaves your code
 tasked only with creating the data that is to be rendered in the email template and
 sending the email. It is definitely a best practice when the content of your email messages
-becomes even moderately complex, and, with the Spring Framework's support classes for
+becomes even moderately complex, and, with the TODAY Framework's support classes for
 FreeMarker, it becomes quite easy to do.
 

@@ -2,7 +2,7 @@
 = Filters
 
 
-The `spring-web` module provides some useful filters:
+The `today-web` module provides some useful filters:
 
 * xref:web/webmvc/filters.adoc#filters-http-put[Form Data]
 * xref:web/webmvc/filters.adoc#filters-shallow-etag[Shallow ETag]
@@ -17,7 +17,7 @@ Browsers can submit form data only through HTTP GET or HTTP POST but non-browser
 use HTTP PUT, PATCH, and DELETE. The Servlet API requires `ServletRequest.getParameter{asterisk}()`
 methods to support form field access only for HTTP POST.
 
-The `spring-web` module provides `FormContentFilter` to intercept HTTP PUT, PATCH, and DELETE
+The `today-web` module provides `FormContentFilter` to intercept HTTP PUT, PATCH, and DELETE
 requests with a content type of `application/x-www-form-urlencoded`, read the form data from
 the body of the request, and wrap the `ServletRequest` to make the form data
 available through the `ServletRequest.getParameter{asterisk}()` family of methods.
@@ -60,7 +60,7 @@ In order to support xref:web/webmvc/mvc-ann-async.adoc[asynchronous requests] an
 filter should be mapped with `DispatcherType.ASYNC` and also `DispatcherType.ERROR`.
 If using TODAY Framework's `AbstractAnnotationConfigDispatcherServletInitializer`
 (see xref:web/webmvc/mvc-servlet/container-config.adoc[Servlet Config]) all filters are automatically registered for all dispatch
-types. However if registering the filter via `web.xml` or in Spring Boot via a
+types. However if registering the filter via `web.xml` or in Infra App via a
 `FilterRegistrationBean` be sure to include `DispatcherType.ASYNC` and
 `DispatcherType.ERROR` in addition to `DispatcherType.REQUEST`.
 
@@ -89,7 +89,7 @@ with `DispatcherType.ASYNC` so that the filter can delay and successfully genera
 ETag to the end of the last async dispatch. If using TODAY Framework's
 `AbstractAnnotationConfigDispatcherServletInitializer` (see xref:web/webmvc/mvc-servlet/container-config.adoc[Servlet Config])
 all filters are automatically registered for all dispatch types. However if registering
-the filter via `web.xml` or in Spring Boot via a `FilterRegistrationBean` be sure to include
+the filter via `web.xml` or in Infra App via a `FilterRegistrationBean` be sure to include
 `DispatcherType.ASYNC`.
 
 
@@ -98,8 +98,8 @@ the filter via `web.xml` or in Spring Boot via a `FilterRegistrationBean` be sur
 == CORS
 
 Web MVC provides fine-grained support for CORS configuration through annotations on
-controllers. However, when used with Spring Security, we advise relying on the built-in
-`CorsFilter` that must be ordered ahead of Spring Security's chain of filters.
+controllers. However, when used with Infra Security, we advise relying on the built-in
+`CorsFilter` that must be ordered ahead of Infra Security's chain of filters.
 
 See the sections on xref:web/webmvc-cors.adoc[CORS] and the xref:web/webmvc-cors.adoc#mvc-cors-filter[CORS Filter] for more details.
 

@@ -69,7 +69,7 @@ That ensures content-based versions are always computed reliably, based on the u
 
 For https://www.webjars.org/documentation[WebJars], versioned URLs like
 `/webjars/jquery/1.2.0/jquery.min.js` are the recommended and most efficient way to use them.
-The related resource location is configured out of the box with Spring Boot (or can be configured
+The related resource location is configured out of the box with Infra App (or can be configured
 manually via `ResourceHandlerRegistry`) and does not require to add the
 `org.webjars:webjars-locator-core` dependency.
 

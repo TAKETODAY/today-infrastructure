@@ -280,7 +280,7 @@ xref:integration/jmx/naming.adoc#jmx-context-mbeanexport[Configuring Annotation-
 [[appendix.xsd-schemas-cache]]
 === The `cache` Schema
 
-You can use the `cache` elements to enable support for Spring's `@CacheEvict`, `@CachePut`,
+You can use the `cache` elements to enable support for Infra `@CacheEvict`, `@CachePut`,
 and `@Caching` annotations. It it also supports declarative XML-based caching. See
 xref:integration/cache/annotations.adoc#cache-annotation-enable[Enabling Caching Annotations] and
 xref:integration/cache/declarative-xml.adoc[Declarative XML-based Caching] for details.

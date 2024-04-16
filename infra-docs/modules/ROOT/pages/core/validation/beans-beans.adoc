@@ -218,7 +218,7 @@ A couple of examples where property editing is used in Spring:
   When you use `String` as the value of a property of some bean that you declare
   in an XML file, Spring (if the setter of the corresponding property has a `Class`
   parameter) uses `ClassEditor` to try to resolve the parameter to a `Class` object.
-* Parsing HTTP request parameters in Spring's MVC framework is done by using all kinds
+* Parsing HTTP request parameters in Infra MVC framework is done by using all kinds
   of `PropertyEditor` implementations that you can manually bind in all subclasses of the
   `CommandController`.
 
@@ -537,7 +537,7 @@ of our `CustomPropertyEditorRegistrar` into it:
 ----
 
 Finally (and in a bit of a departure from the focus of this chapter) for those of you
-using xref:web/webmvc.adoc#mvc[Spring's MVC web framework], using a `PropertyEditorRegistrar` in
+using xref:web/webmvc.adoc#mvc[Infra MVC web framework], using a `PropertyEditorRegistrar` in
 conjunction with data-binding web controllers can be very convenient. The following
 example uses a `PropertyEditorRegistrar` in the implementation of an `@InitBinder` method:
 

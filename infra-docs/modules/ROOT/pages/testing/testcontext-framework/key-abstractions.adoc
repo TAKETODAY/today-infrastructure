@@ -11,7 +11,7 @@ and delegates to `TestExecutionListener` implementations, which instrument the a
 test execution by providing dependency injection, managing transactions, and so on. A
 `SmartContextLoader` is responsible for loading an `ApplicationContext` for a given test
 class. See the {today-framework-api}/test/context/package-summary.html[javadoc] and the
-Spring test suite for further information and examples of various implementations.
+Infra test suite for further information and examples of various implementations.
 
 [[testcontext]]
 == `TestContext`
@@ -24,7 +24,7 @@ the test instance for which it is responsible. The `TestContext` also delegates 
 [[testcontextmanager]]
 == `TestContextManager`
 
-`TestContextManager` is the main entry point into the Spring TestContext Framework and is
+`TestContextManager` is the main entry point into the Infra TestContext Framework and is
 responsible for managing a single `TestContext` and signaling events to each registered
 `TestExecutionListener` at well-defined test execution points:
 
@@ -46,7 +46,7 @@ the `TestContextManager` with which the listener is registered. See xref:testing
 == Context Loaders
 
 `ContextLoader` is a strategy interface for loading an `ApplicationContext` for an
-integration test managed by the Spring TestContext Framework. You should implement
+integration test managed by the Infra TestContext Framework. You should implement
 `SmartContextLoader` instead of this interface to provide support for component classes,
 active bean definition profiles, test property sources, context hierarchies, and
 `WebApplicationContext` support.
@@ -57,7 +57,7 @@ process resource locations, component classes, or context initializers. Furtherm
 `SmartContextLoader` can set active bean definition profiles and test property sources in
 the context that it loads.
 
-Spring provides the following implementations:
+Infra provides the following implementations:
 
 * `DelegatingSmartContextLoader`: One of two default loaders, it delegates internally to
   an `AnnotationConfigContextLoader`, a `GenericXmlContextLoader`, or a

@@ -10,7 +10,7 @@ This chapter is not an introduction to JMX. It does not try to explain why you m
 to use JMX. If you are new to JMX, see xref:integration/jmx/resources.adoc[Further Resources] at the end of this chapter.
 ****
 
-Specifically, Spring's JMX support provides four core features:
+Specifically, Infra JMX support provides four core features:
 
 * The automatic registration of any Spring bean as a JMX MBean.
 * A flexible mechanism for controlling the management interface of your beans.

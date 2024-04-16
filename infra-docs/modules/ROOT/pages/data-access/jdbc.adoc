@@ -1,7 +1,7 @@
 [[jdbc]]
 = Data Access with JDBC
 
-The value provided by the Spring Framework JDBC abstraction is perhaps best shown by
+The value provided by the TODAY Framework JDBC abstraction is perhaps best shown by
 the sequence of actions outlined in the following table below. The table shows which actions Spring
 takes care of and which actions are your responsibility.
 
@@ -51,7 +51,7 @@ takes care of and which actions are your responsibility.
 |
 |===
 
-The Spring Framework takes care of all the low-level details that can make JDBC such a
+The TODAY Framework takes care of all the low-level details that can make JDBC such a
 tedious API.
 
 

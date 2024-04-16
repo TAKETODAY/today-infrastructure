@@ -33,7 +33,7 @@ Alternatively, for XML configuration, you can use the `context:load-time-weaver`
 Once configured for the `ApplicationContext`, any bean within that `ApplicationContext`
 may implement `LoadTimeWeaverAware`, thereby receiving a reference to the load-time
 weaver instance. This is particularly useful in combination with
-xref:data-access/orm/jpa.adoc[Spring's JPA support] where load-time weaving may be
+xref:data-access/orm/jpa.adoc[Infra JPA support] where load-time weaving may be
 necessary for JPA class transformation.
 Consult the
 {today-framework-api}/orm/jpa/LocalContainerEntityManagerFactoryBean.html[`LocalContainerEntityManagerFactoryBean`]

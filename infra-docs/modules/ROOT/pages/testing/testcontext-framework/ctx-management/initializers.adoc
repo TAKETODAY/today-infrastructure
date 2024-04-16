@@ -9,13 +9,13 @@ initialize the `ConfigurableApplicationContext` that is loaded for your tests. N
 the concrete `ConfigurableApplicationContext` type supported by each declared initializer
 must be compatible with the type of `ApplicationContext` created by the
 `SmartContextLoader` in use (typically a `GenericApplicationContext`). Furthermore, the
-order in which the initializers are invoked depends on whether they implement Spring's
-`Ordered` interface or are annotated with Spring's `@Order` annotation or the standard
+order in which the initializers are invoked depends on whether they implement Infra
+`Ordered` interface or are annotated with Infra `@Order` annotation or the standard
 `@Priority` annotation. The following example shows how to use initializers:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from TestConfig
 // and initialized by TestAppCtxInitializer
 @ContextConfiguration(
@@ -36,7 +36,7 @@ files or configuration classes. The following example shows how to do so:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be initialized by EntireAppInitializer
 // which presumably registers beans in the context
 @ContextConfiguration(initializers = EntireAppInitializer.class) <1>

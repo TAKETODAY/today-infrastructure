@@ -1,9 +1,9 @@
 [[mvc-ann-controller]]
 = Declaration
 
-You can define controller beans by using a standard Spring bean definition in the
+You can define controller beans by using a standard Infra bean definition in the
 Servlet's `WebApplicationContext`. The `@Controller` stereotype allows for auto-detection,
-aligned with Spring general support for detecting `@Component` classes in the classpath
+aligned with Infra general support for detecting `@Component` classes in the classpath
 and auto-registering bean definitions for them. It also acts as a stereotype for the
 annotated class, indicating its role as a web component.
 

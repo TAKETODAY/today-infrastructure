@@ -1,7 +1,7 @@
 [[checkpoint-restore]]
 = JVM Checkpoint Restore
 
-The Spring Framework integrates with checkpoint/restore as implemented by https://github.com/CRaC/docs[Project CRaC] in order to allow implementing systems capable of reducing the startup and warmup times of Spring-based Java applications with the JVM.
+The TODAY Framework integrates with checkpoint/restore as implemented by https://github.com/CRaC/docs[Project CRaC] in order to allow implementing systems capable of reducing the startup and warmup times of Spring-based Java applications with the JVM.
 
 Using this feature requires:
 

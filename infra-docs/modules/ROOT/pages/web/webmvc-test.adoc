@@ -1,13 +1,13 @@
 [[test]]
 = 测试
 
-This section summarizes the options available in `spring-test` for Web MVC applications.
+This section summarizes the options available in `today-test` for Web MVC applications.
 
 * Servlet API Mocks: Mock implementations of Servlet API contracts for unit testing controllers,
 filters, and other web components. See xref:testing/unit.adoc#mock-objects-servlet[Servlet API]
 mock objects for more details.
 
-* TestContext Framework: Support for loading Spring configuration in JUnit and TestNG tests,
+* TestContext Framework: Support for loading Infra configuration in JUnit and TestNG tests,
 including efficient caching of the loaded configuration across test methods and support for
 loading a `WebApplicationContext` with a `MockServletContext`.
 See xref:testing/testcontext-framework.adoc[TestContext Framework] for more details.
@@ -17,7 +17,7 @@ through the `DispatcherServlet` (that is, supporting annotations), complete with
 Web MVC infrastructure but without an HTTP server.
 See xref:testing/spring-mvc-test-framework.adoc[Web MVC Test] for more details.
 
-* Client-side REST: `spring-test` provides a `MockRestServiceServer` that you can use as
+* Client-side REST: `today-test` provides a `MockRestServiceServer` that you can use as
 a mock server for testing client-side code that internally uses the `RestTemplate`.
 See xref:testing/spring-mvc-test-client.adoc[Client REST Tests] for more details.
 

@@ -8,8 +8,8 @@ how to write your own custom XML bean definition parsers and
 integrate such parsers into the Infra IoC container.
 
 To facilitate authoring configuration files that use a schema-aware XML editor,
-Spring's extensible XML configuration mechanism is based on XML Schema. If you are not
-familiar with Spring's current XML configuration extensions that come with the standard
+Infra extensible XML configuration mechanism is based on XML Schema. If you are not
+familiar with Infra current XML configuration extensions that come with the standard
 Spring distribution, you should first read the previous section on xref:core/appendix/xsd-schemas.adoc[XML Schemas].
 
 
@@ -40,7 +40,7 @@ through the basic steps of making a custom extension.)
 [[xsd-custom-schema]]
 == Authoring the Schema
 
-Creating an XML configuration extension for use with Spring's IoC container starts with
+Creating an XML configuration extension for use with Infra IoC container starts with
 authoring an XML Schema to describe the extension. For our example, we use the following schema
 to configure `SimpleDateFormat` objects:
 

@@ -5,8 +5,8 @@ Each `TestContext` provides context management and caching support for the test 
 for which it is responsible. Test instances do not automatically receive access to the
 configured `ApplicationContext`. However, if a test class implements the
 `ApplicationContextAware` interface, a reference to the `ApplicationContext` is supplied
-to the test instance. Note that `AbstractJUnit4SpringContextTests` and
-`AbstractTestNGSpringContextTests` implement `ApplicationContextAware` and, therefore,
+to the test instance. Note that `AbstractJUnit4InfraContextTests` and
+`AbstractTestNGInfraContextTests` implement `ApplicationContextAware` and, therefore,
 provide access to the `ApplicationContext` automatically.
 
 .@Autowired ApplicationContext
@@ -22,7 +22,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig
+@JUnitConfig
 class MyTest {
 
   @Autowired // <1>
@@ -45,7 +45,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitWebConfig // <1>
+@JUnitWebConfig // <1>
 class MyWebAppTest {
 
   @Autowired // <2>
@@ -73,7 +73,7 @@ context from a default location or default configuration classes. In addition to
 resource locations and component classes, an application context can also be configured
 through application context initializers.
 
-The following sections explain how to use Spring's `@ContextConfiguration` annotation to
+The following sections explain how to use Infra `@ContextConfiguration` annotation to
 configure a test `ApplicationContext` by using XML configuration files, Groovy scripts,
 component classes (typically `@Configuration` classes), or context initializers.
 Alternatively, you can implement and configure your own custom `SmartContextLoader` for

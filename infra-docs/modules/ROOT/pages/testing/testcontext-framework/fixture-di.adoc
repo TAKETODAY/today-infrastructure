@@ -7,8 +7,8 @@ application context that you configured with `@ContextConfiguration` or related
 annotations. You may use setter injection, field injection, or both, depending on
 which annotations you choose and whether you place them on setter methods or fields.
 If you are using JUnit Jupiter you may also optionally use constructor injection
-(see xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-di[Dependency Injection with `SpringExtension`]). For consistency with Spring's annotation-based
-injection support, you may also use Spring's `@Autowired` annotation or the `@Inject`
+(see xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-di[Dependency Injection with `InfraExtension`]). For consistency with Infra annotation-based
+injection support, you may also use Infra `@Autowired` annotation or the `@Inject`
 annotation from JSR-330 for field and setter injection.
 
 TIP: For testing frameworks other than JUnit Jupiter, the TestContext framework does not
@@ -60,8 +60,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
-// specifies the Spring configuration to load for this test fixture
+@ExtendWith(InfraExtension.class)
+// specifies the Infra configuration to load for this test fixture
 @ContextConfiguration("repository-config.xml")
 class HibernateTitleRepositoryTests {
 
@@ -88,8 +88,8 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
-// specifies the Spring configuration to load for this test fixture
+@ExtendWith(InfraExtension.class)
+// specifies the Infra configuration to load for this test fixture
 @ContextConfiguration("repository-config.xml")
 class HibernateTitleRepositoryTests {
 
@@ -137,7 +137,7 @@ shows this configuration:
 
 [NOTE]
 =====
-If you are extending from a Spring-provided test base class that happens to use
+If you are extending from a Infra-provided test base class that happens to use
 `@Autowired` on one of its setter methods, you might have multiple beans of the affected
 type defined in your application context (for example, multiple `DataSource` beans). In
 such a case, you can override the setter method and use the `@Qualifier` annotation to

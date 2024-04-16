@@ -35,7 +35,7 @@ The following table lists the available `HandlerExceptionResolver` implementatio
 == Chain of Resolvers
 
 You can form an exception resolver chain by declaring multiple `HandlerExceptionResolver`
-beans in your Spring configuration and setting their `order` properties as needed.
+beans in your Infra configuration and setting their `order` properties as needed.
 The higher the order property, the later the exception resolver is positioned.
 
 The contract of `HandlerExceptionResolver` specifies that it can return:

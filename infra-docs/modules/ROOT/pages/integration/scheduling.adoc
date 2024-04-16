@@ -1,7 +1,7 @@
 [[scheduling]]
 = Task Execution and Scheduling
 
-The Spring Framework provides abstractions for the asynchronous execution and scheduling of
+The TODAY Framework provides abstractions for the asynchronous execution and scheduling of
 tasks with the `TaskExecutor` and `TaskScheduler` interfaces, respectively. Spring also
 features implementations of those interfaces that support thread pools or delegation to
 CommonJ within an application server environment. Ultimately, the use of these
@@ -18,10 +18,10 @@ https://www.quartz-scheduler.org/[Quartz Scheduler].
 
 Executors are the JDK name for the concept of thread pools. The "`executor`" naming is
 due to the fact that there is no guarantee that the underlying implementation is
-actually a pool. An executor may be single-threaded or even synchronous. Spring's
+actually a pool. An executor may be single-threaded or even synchronous. Infra
 abstraction hides implementation details between the Java SE and Jakarta EE environments.
 
-Spring's `TaskExecutor` interface is identical to the `java.util.concurrent.Executor`
+Infra `TaskExecutor` interface is identical to the `java.util.concurrent.Executor`
 interface. In fact, originally, its primary reason for existence was to abstract away
 the need for Java 5 when using thread pools. The interface has a single method
 (`execute(Runnable task)`) that accepts a task for execution based on the semantics
@@ -67,7 +67,7 @@ The variants that Spring provides are as follows:
   replacing a CommonJ WorkManager for that purpose.
 
 As of 6.1, `ThreadPoolTaskExecutor` provides a pause/resume capability and graceful
-shutdown through Spring's lifecycle management. There is also a new "virtualThreads"
+shutdown through Infra lifecycle management. There is also a new "virtualThreads"
 option on `SimpleAsyncTaskExecutor` which is aligned with JDK 21's Virtual Threads,
 as well as a graceful shutdown capability for `SimpleAsyncTaskExecutor` as well.
 
@@ -75,7 +75,7 @@ as well as a graceful shutdown capability for `SimpleAsyncTaskExecutor` as well.
 [[scheduling-task-executor-usage]]
 === Using a `TaskExecutor`
 
-Spring's `TaskExecutor` implementations are commonly used with dependency injection.
+Infra `TaskExecutor` implementations are commonly used with dependency injection.
 In the following example, we define a bean that uses the `ThreadPoolTaskExecutor`
 to asynchronously print out a set of messages:
 
@@ -235,7 +235,7 @@ such `Triggers` externally and, therefore, easily modify or extend them.
 [[scheduling-task-scheduler-implementations]]
 === `TaskScheduler` implementations
 
-As with Spring's `TaskExecutor` abstraction, the primary benefit of the `TaskScheduler`
+As with Infra `TaskExecutor` abstraction, the primary benefit of the `TaskScheduler`
 arrangement is that an application's scheduling needs are decoupled from the deployment
 environment. This abstraction level is particularly relevant when deploying to an
 application server environment where threads should not be created directly by the
@@ -244,14 +244,14 @@ that delegates to a JSR-236 `ManagedScheduledExecutorService` in a Jakarta EE en
 
 Whenever external thread management is not a requirement, a simpler alternative is
 a local `ScheduledExecutorService` setup within the application, which can be adapted
-through Spring's `ConcurrentTaskScheduler`. As a convenience, Spring also provides a
+through Infra `ConcurrentTaskScheduler`. As a convenience, Spring also provides a
 `ThreadPoolTaskScheduler`, which internally delegates to a `ScheduledExecutorService`
 to provide common bean-style configuration along the lines of `ThreadPoolTaskExecutor`.
 These variants work perfectly fine for locally embedded thread pool setups in lenient
 application server environments, as well -- in particular on Tomcat and Jetty.
 
 As of 6.1, `ThreadPoolTaskScheduler` provides a pause/resume capability and graceful
-shutdown through Spring's lifecycle management. There is also a new option called
+shutdown through Infra lifecycle management. There is also a new option called
 `SimpleAsyncTaskScheduler` which is aligned with JDK 21's Virtual Threads, using a
 single scheduler thread but firing up a new thread for every scheduled task execution
 (except for fixed-delay tasks which all operate on a single scheduler thread, so for
@@ -405,7 +405,7 @@ Please make sure that your specified cron expressions etc do not accidentally ov
 
 [NOTE]
 ====
-As of Spring Framework 4.3, `@Scheduled` methods are supported on beans of any scope.
+As of TODAY Framework 4.3, `@Scheduled` methods are supported on beans of any scope.
 
 Make sure that you are not initializing multiple instances of the same `@Scheduled`
 annotation class at runtime, unless you do want to schedule callbacks to each such
@@ -419,7 +419,7 @@ container and once through the `@Configurable` aspect), with the consequence of 
 [[scheduling-annotation-support-scheduled-reactive]]
 === The `@Scheduled` annotation on Reactive methods or Kotlin suspending functions
 
-As of Spring Framework 6.1, `@Scheduled` methods are also supported on several types
+As of TODAY Framework 6.1, `@Scheduled` methods are also supported on several types
 of reactive methods:
 
  - methods with a `Publisher` return type (or any concrete implementation of `Publisher`)
@@ -456,7 +456,7 @@ All these types of methods must be declared without any arguments. In the case o
 suspending functions, the `kotlinx.coroutines.reactor` bridge must also be present to allow
 the framework to invoke a suspending function as a `Publisher`.
 
-The Spring Framework will obtain a `Publisher` for the annotated method once and will
+The TODAY Framework will obtain a `Publisher` for the annotated method once and will
 schedule a `Runnable` in which it subscribes to said `Publisher`. These inner regular
 subscriptions occur according to the corresponding `cron`/`fixedDelay`/`fixedRate` configuration.
 
@@ -502,7 +502,7 @@ public Mono<Void> reactiveSomething() {
 
 [NOTE]
 ====
-When destroying the annotated bean or closing the application context, Spring Framework cancels
+When destroying the annotated bean or closing the application context, TODAY Framework cancels
 scheduled tasks, which includes the next scheduled subscription to the `Publisher` as well
 as any past subscription that is still currently active (e.g. for long-running publishers
 or even infinite publishers).
@@ -554,7 +554,7 @@ Future<String> returnSomething(int i) {
 ----
 
 TIP: `@Async` methods may not only declare a regular `java.util.concurrent.Future` return
-type but also Spring's `cn.taketoday.util.concurrent.ListenableFuture` or, as of
+type but also Infra `cn.taketoday.util.concurrent.ListenableFuture` or, as of
 Spring 4.2, JDK 8's `java.util.concurrent.CompletableFuture`, for richer interaction with
 the asynchronous task and for immediate composition with further processing steps.
 
@@ -592,7 +592,7 @@ public class SampleBeanInitializer {
 
 NOTE: There is no direct XML equivalent for `@Async`, since such methods should be designed
 for asynchronous execution in the first place, not externally re-declared to be asynchronous.
-However, you can manually set up Spring's `AsyncExecutionInterceptor` with Infra AOP,
+However, you can manually set up Infra `AsyncExecutionInterceptor` with Infra AOP,
 in combination with a custom pointcut.
 
 
@@ -616,7 +616,7 @@ void doSomething(String s) {
 
 In this case, `"otherExecutor"` can be the name of any `Executor` bean in the Spring
 container, or it may be the name of a qualifier associated with any `Executor` (for example,
-as specified with the `<qualifier>` element or Spring's `@Qualifier` annotation).
+as specified with the `<qualifier>` element or Infra `@Qualifier` annotation).
 
 
 [[scheduling-annotation-support-exception]]
@@ -758,7 +758,7 @@ The following example sets the `keep-alive` value to two minutes:
 [[scheduling-task-namespace-scheduled-tasks]]
 === The 'scheduled-tasks' Element
 
-The most powerful feature of Spring's task namespace is the support for configuring
+The most powerful feature of Infra task namespace is the support for configuring
 tasks to be scheduled within a Spring Application Context. This follows an approach
 similar to other "`method-invokers`" in Spring, such as that provided by the JMS namespace
 for configuring message-driven POJOs. Basically, a `ref` attribute can point to any

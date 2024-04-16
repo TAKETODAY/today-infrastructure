@@ -1,8 +1,8 @@
-[[spring-integration]]
+[[today-integration]]
 = 集成
 :page-section-summary-toc: 1
 
-This part of the reference documentation covers Spring Framework's integration with
+This part of the reference documentation covers TODAY Framework's integration with
 a number of technologies.
 
 

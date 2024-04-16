@@ -29,7 +29,7 @@ Fortunately the default Servlet mapping `"/"` is a good choice. However, there i
 an issue in that the `requestURI` needs to be decoded to make it possible to compare to
 controller mappings. This is again undesirable because of the potential to decode
 reserved characters that alter the path structure. If such characters are not expected,
-then you can reject them (like the Spring Security HTTP firewall), or you can configure
+then you can reject them (like the Infra Security HTTP firewall), or you can configure
 `UrlPathHelper` with `urlDecode=false` but controller mappings will need to match to the
 encoded path which may not always work well. Furthermore, sometimes the
 `DispatcherServlet` needs to share the URL space with another Servlet and may need to

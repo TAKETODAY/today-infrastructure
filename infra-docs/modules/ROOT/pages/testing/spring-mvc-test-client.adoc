@@ -150,5 +150,5 @@ configuration. Check for the support for code completion on static members.
 == Further Examples of Client-side REST Tests
 
 Web MVC Test's own tests include
-{today-framework-code}/spring-test/src/test/java/cn/taketoday/test/web/client/samples[example
+{today-framework-code}/today-test/src/test/java/cn/taketoday/test/web/client/samples[example
 tests] of client-side REST tests.

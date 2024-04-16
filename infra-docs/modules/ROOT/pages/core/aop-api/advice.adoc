@@ -108,7 +108,7 @@ public interface MethodBeforeAdvice extends BeforeAdvice {
 }
 ----
 
-(Spring's API design would allow for
+(Infra API design would allow for
 field before advice, although the usual objects apply to field interception and it is
 unlikely for Spring to ever implement it.)
 

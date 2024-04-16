@@ -34,7 +34,7 @@ such as a method to check for the existence of the resource being pointed to.
 [[resources-resource]]
 == The `Resource` Interface
 
-Spring's `Resource` interface located in the `cn.taketoday.core.io.` package is
+Infra `Resource` interface located in the `cn.taketoday.core.io.` package is
 meant to be a more capable interface for abstracting access to low-level resources. The
 following listing provides an overview of the `Resource` interface. See the
 {today-framework-api}/core/io/Resource.html[`Resource`] javadoc for further details.
@@ -192,7 +192,7 @@ creates a `ClassPathResource` in that case.
 === `FileSystemResource`
 
 This is a `Resource` implementation for `java.io.File` handles. It also supports
-`java.nio.file.Path` handles, applying Spring's standard String-based path
+`java.nio.file.Path` handles, applying Infra standard String-based path
 transformations but performing all operations via the `java.nio.file.Files` API. For pure
 `java.nio.path.Path` based support use a `PathResource` instead. `FileSystemResource`
 supports resolution as a `File` and as a `URL`.
@@ -397,7 +397,7 @@ populating `Resource[]` bean properties. `PathMatchingPatternResourceLoader` is 
 resolve a specified resource location path into one or more matching `Resource` objects.
 The source path may be a simple path which has a one-to-one mapping to a target
 `Resource`, or alternatively may contain the special `classpath*:` prefix and/or internal
-Ant-style regular expressions (matched using Spring's
+Ant-style regular expressions (matched using Infra
 `cn.taketoday.util.AntPathMatcher` utility). Both of the latter are effectively
 wildcards.
 
@@ -705,7 +705,7 @@ javadoc for details on the various constructors.
 The resource paths in application context constructor values may be simple paths (as
 shown earlier), each of which has a one-to-one mapping to a target `Resource` or,
 alternately, may contain the special `classpath*:` prefix or internal Ant-style patterns
-(matched by using Spring's `PathMatcher` utility). Both of the latter are effectively
+(matched by using Infra `PathMatcher` utility). Both of the latter are effectively
 wildcards.
 
 One use for this mechanism is when you need to do component-style application assembly. All
@@ -815,7 +815,7 @@ target files reside in the file system. This means that a pattern such as
 `classpath*:*.xml` might not retrieve files from the root of jar files but rather only
 from the root of expanded directories.
 
-Spring's ability to retrieve classpath entries originates from the JDK's
+Infra ability to retrieve classpath entries originates from the JDK's
 `ClassLoader.getResources()` method, which only returns file system locations for an
 empty string (indicating potential roots to search). Spring evaluates
 `URLClassLoader` runtime configuration and the `java.class.path` manifest in jar files
@@ -829,7 +829,7 @@ switch of the JAR task. Also, classpath directories may not get exposed based on
 policies in some environments -- for example, stand-alone applications on JDK 1.7.0_45
 and higher (which requires 'Trusted-Library' to be set up in your manifests.
 
-On JDK 9's module path (Jigsaw), Spring's classpath scanning generally works as expected.
+On JDK 9's module path (Jigsaw), Infra classpath scanning generally works as expected.
 Putting resources into a dedicated directory is highly recommendable here as well,
 avoiding the aforementioned portability problems with searching the jar file root level.
 ====

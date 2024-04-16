@@ -8,7 +8,7 @@ danger of undue coupling, because code that is meant to be used transactionally 
 almost always deployed that way anyway.
 
 NOTE: The standard `jakarta.transaction.Transactional` annotation is also supported as
-a drop-in replacement to Spring's own annotation. Please refer to the JTA documentation
+a drop-in replacement to Infra own annotation. Please refer to the JTA documentation
 for more details.
 
 The ease-of-use afforded by the use of the `@Transactional` annotation is best
@@ -220,10 +220,10 @@ is modified) to support `@Transactional` runtime behavior on any kind of method.
 | `mode`
 | `mode`
 | `proxy`
-| The default mode (`proxy`) processes annotated beans to be proxied by using Spring's AOP
+| The default mode (`proxy`) processes annotated beans to be proxied by using Infra AOP
   framework (following proxy semantics, as discussed earlier, applying to method calls
   coming in through the proxy only). The alternative mode (`aspectj`) instead weaves the
-  affected classes with Spring's AspectJ transaction aspect, modifying the target class
+  affected classes with Infra AspectJ transaction aspect, modifying the target class
   byte code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar`
   in the classpath as well as having load-time weaving (or compile-time weaving) enabled.
   (See xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Spring configuration] for details
@@ -382,7 +382,7 @@ For further customizations, `AnnotationTransactionAttributeSource` provides an
 
 Note that transaction-specific rollback rules override the default behavior but
 retain the chosen default for unspecified exceptions. This is the case for
-Spring's `@Transactional` as well as JTA's `jakarta.transaction.Transactional`
+Infra `@Transactional` as well as JTA's `jakarta.transaction.Transactional`
 annotation.
 
 Unless you rely on EJB-style business exceptions with commit behavior, it is
@@ -483,7 +483,7 @@ to be unique within a set of type-matching beans, not having to serve as an ID.
 == Custom Composed Annotations
 
 If you find you repeatedly use the same attributes with `@Transactional` on many different methods,
-xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[Spring's meta-annotation support]
+xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[Infra meta-annotation support]
 lets you define custom composed annotations for your specific use cases. For example, consider the
 following annotation definitions:
 

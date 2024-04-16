@@ -6,7 +6,7 @@ Class Data Sharing (CDS) is a https://docs.oracle.com/en/java/javase/17/vm/class
 that can help reduce the startup time and memory footprint of Java applications.
 
 To use this feature, a CDS archive should be created for the particular classpath of the
-application. The Spring Framework provides a hook-point to ease the creation of the
+application. The TODAY Framework provides a hook-point to ease the creation of the
 archive. Once the archive is available, users should opt in to use it via a JVM flag.
 
 == Creating the CDS Archive

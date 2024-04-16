@@ -473,12 +473,12 @@ automatically for a standard context implementation). The `phase` value and any
 
 [NOTE]
 ====
-This section applies only to non-web applications. Spring's web-based
+This section applies only to non-web applications. Infra web-based
 `ApplicationContext` implementations already have code in place to gracefully shut down
 the Infra IoC container when the relevant web application is shut down.
 ====
 
-If you use Spring's IoC container in a non-web application environment (for
+If you use Infra IoC container in a non-web application environment (for
 example, in a rich client desktop environment), register a shutdown hook with the
 JVM. Doing so ensures a graceful shutdown and calls the relevant destroy methods on your
 singleton beans so that all resources are released. You must still configure

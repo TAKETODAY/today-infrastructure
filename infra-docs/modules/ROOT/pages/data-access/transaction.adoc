@@ -2,7 +2,7 @@
 = Transaction Management
 
 Comprehensive transaction support is among the most compelling reasons to use the Spring
-Framework. The Spring Framework provides a consistent abstraction for transaction
+Framework. The TODAY Framework provides a consistent abstraction for transaction
 management that delivers the following benefits:
 
 * A consistent programming model across different transaction APIs, such as Java
@@ -10,14 +10,14 @@ management that delivers the following benefits:
 * Support for xref:data-access/transaction/declarative.adoc[declarative transaction management].
 * A simpler API for xref:data-access/transaction/programmatic.adoc[programmatic] transaction management
   than complex transaction APIs, such as JTA.
-* Excellent integration with Spring's data access abstractions.
+* Excellent integration with Infra data access abstractions.
 
-The following sections describe the Spring Framework's transaction features and technologies:
+The following sections describe the TODAY Framework's transaction features and technologies:
 
-* xref:data-access/transaction/motivation.adoc[Advantages of the Spring Framework's transaction support model]
-  describes why you would use the Spring Framework's transaction abstraction instead of EJB
+* xref:data-access/transaction/motivation.adoc[Advantages of the TODAY Framework's transaction support model]
+  describes why you would use the TODAY Framework's transaction abstraction instead of EJB
   Container-Managed Transactions (CMT) or choosing to drive transactions through a proprietary API.
-* xref:data-access/transaction/strategies.adoc[Understanding the Spring Framework transaction abstraction]
+* xref:data-access/transaction/strategies.adoc[Understanding the TODAY Framework transaction abstraction]
   outlines the core classes and describes how to configure and obtain `DataSource` instances
   from a variety of sources.
 * xref:data-access/transaction/tx-resource-synchronization.adoc[Synchronizing resources with transactions]

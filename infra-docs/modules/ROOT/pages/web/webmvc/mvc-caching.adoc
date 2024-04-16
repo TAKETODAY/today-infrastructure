@@ -9,7 +9,7 @@ to make a conditional request that may result in a 304 (NOT_MODIFIED) without a 
 if the content has not changed. `ETag` can be seen as a more sophisticated successor to
 the `Last-Modified` header.
 
-This section describes the HTTP caching-related options that are available in Spring Web MVC.
+This section describes the HTTP caching-related options that are available in Infra Web MVC.
 
 
 

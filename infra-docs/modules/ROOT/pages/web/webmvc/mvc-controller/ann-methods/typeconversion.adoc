@@ -9,7 +9,7 @@ For such cases, type conversion is automatically applied based on the configured
 By default, simple types (`int`, `long`, `Date`, and others) are supported. You can customize
 type conversion through a `WebDataBinder` (see xref:web/webmvc/mvc-controller/ann-initbinder.adoc[`DataBinder`]) or by registering
 `Formatters` with the `FormattingConversionService`.
-See xref:core/validation/format.adoc[Spring Field Formatting].
+See xref:core/validation/format.adoc[Infra Field Formatting].
 
 A practical issue in type conversion is the treatment of an empty String source value.
 Such a value is treated as missing if it becomes `null` as a result of type conversion.

@@ -8,18 +8,18 @@ fashion in XML configuration. For details on controlling rollback semantics decl
 with the `@Transactional` annotation, see
 xref:data-access/transaction/declarative/annotations.adoc#transaction-declarative-attransactional-settings[`@Transactional` Settings].
 
-The recommended way to indicate to the Spring Framework's transaction infrastructure
+The recommended way to indicate to the TODAY Framework's transaction infrastructure
 that a transaction's work is to be rolled back is to throw an `Exception` from code that
-is currently executing in the context of a transaction. The Spring Framework's
+is currently executing in the context of a transaction. The TODAY Framework's
 transaction infrastructure code catches any unhandled `Exception` as it bubbles up
 the call stack and makes a determination whether to mark the transaction for rollback.
 
-In its default configuration, the Spring Framework's transaction infrastructure code
+In its default configuration, the TODAY Framework's transaction infrastructure code
 marks a transaction for rollback only in the case of runtime, unchecked exceptions.
 That is, when the thrown exception is an instance or subclass of `RuntimeException`.
 (`Error` instances also, by default, result in a rollback).
 
-As of Spring Framework 5.2, the default configuration also provides support for
+As of TODAY Framework 5.2, the default configuration also provides support for
 Vavr's `Try` method to trigger transaction rollbacks when it returns a 'Failure'.
 This allows you to handle functional-style errors using Try and have the transaction
 automatically rolled back in case of a failure. For more information on Vavr's Try,
@@ -108,7 +108,7 @@ application-specific `Exception` type by supplying an _exception pattern_ via th
 ----
 
 If you do not want a transaction rolled back when an exception is thrown, you can also
-specify 'no rollback' rules. The following example tells the Spring Framework's
+specify 'no rollback' rules. The following example tells the TODAY Framework's
 transaction infrastructure to commit the attendant transaction even in the face of an
 unhandled `InstrumentNotFoundException`:
 
@@ -122,7 +122,7 @@ unhandled `InstrumentNotFoundException`:
 </tx:advice>
 ----
 
-When the Spring Framework's transaction infrastructure catches an exception and consults
+When the TODAY Framework's transaction infrastructure catches an exception and consults
 the configured rollback rules to determine whether to mark the transaction for rollback,
 the strongest matching rule wins. So, in the case of the following configuration, any
 exception other than an `InstrumentNotFoundException` results in a rollback of the
@@ -138,7 +138,7 @@ attendant transaction:
 ----
 
 You can also indicate a required rollback programmatically. Although simple, this process
-is quite invasive and tightly couples your code to the Spring Framework's transaction
+is quite invasive and tightly couples your code to the TODAY Framework's transaction
 infrastructure. The following example shows how to programmatically indicate a required
 rollback:
 

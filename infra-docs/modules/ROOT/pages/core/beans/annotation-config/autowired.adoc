@@ -3,7 +3,7 @@
 
 [NOTE]
 ====
-JSR 330's `@Inject` annotation can be used in place of Spring's `@Autowired` annotation in the
+JSR 330's `@Inject` annotation can be used in place of Infra `@Autowired` annotation in the
 examples included in this section. See xref:core/beans/standard-annotations.adoc[here] for more details.
 ====
 
@@ -265,7 +265,7 @@ that can be optionally overridden via dependency injection.
 
 [[beans-autowired-annotation-constructor-resolution]]
 Injected constructor and factory method arguments are a special case since the `required`
-attribute in `@Autowired` has a somewhat different meaning due to Spring's constructor
+attribute in `@Autowired` has a somewhat different meaning due to Infra constructor
 resolution algorithm that may potentially deal with multiple constructors. Constructor
 and factory method arguments are effectively required by default but with a few special
 rules in a single-constructor scenario, such as multi-element injection points (arrays,

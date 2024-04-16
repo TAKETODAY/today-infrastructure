@@ -1,7 +1,7 @@
 [[testcontext-web-scoped-beans]]
 = Testing Request- and Session-scoped Beans
 
-Spring has supported xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[Request- and session-scoped beans]
+Infra has supported xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[Request- and session-scoped beans]
  since the early years, and you can test your request-scoped and session-scoped
 beans by following these steps:
 
@@ -53,7 +53,7 @@ Request-scoped bean test::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitWebConfig
+@JUnitWebConfig
 class RequestScopedBeanTests {
 
   @Autowired UserService userService;
@@ -110,7 +110,7 @@ Session-scoped bean test::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitWebConfig
+@JUnitWebConfig
 class SessionScopedBeanTests {
 
   @Autowired UserService userService;

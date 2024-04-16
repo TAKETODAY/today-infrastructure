@@ -10,7 +10,7 @@ cover the other ORM technologies and show brief examples.
 
 [NOTE]
 ====
-As of Spring Framework 6.0, Spring requires Hibernate ORM 5.5+ for Spring's
+As of TODAY Framework 6.0, Spring requires Hibernate ORM 5.5+ for Infra
 `HibernateJpaVendorAdapter` as well as for a native Hibernate `SessionFactory` setup.
 We recommend Hibernate ORM 5.6 as the last feature branch in that Hibernate generation.
 
@@ -71,7 +71,7 @@ configuration, as the following example shows:
 </beans>
 ----
 
-You can also access a JNDI-located `SessionFactory`, using Spring's
+You can also access a JNDI-located `SessionFactory`, using Infra
 `JndiObjectFactoryBean` / `<jee:jndi-lookup>` to retrieve and expose it.
 However, that is typically not common outside of an EJB context.
 
@@ -87,7 +87,7 @@ On `LocalSessionFactoryBean`, this is available through the `bootstrapExecutor`
 property. On the programmatic `LocalSessionFactoryBuilder`, there is an overloaded
 `buildSessionFactory` method that takes a bootstrap executor argument.
 
-As of Spring Framework 5.1, such a native Hibernate setup can also expose a JPA
+As of TODAY Framework 5.1, such a native Hibernate setup can also expose a JPA
 `EntityManagerFactory` for standard JPA interaction next to native Hibernate access.
 See xref:data-access/orm/jpa.adoc#orm-jpa-hibernate[Native Hibernate Setup for JPA] for details.
 ====
@@ -97,7 +97,7 @@ See xref:data-access/orm/jpa.adoc#orm-jpa-hibernate[Native Hibernate Setup for J
 == Implementing DAOs Based on the Plain Hibernate API
 
 Hibernate has a feature called contextual sessions, wherein Hibernate itself manages
-one current `Session` per transaction. This is roughly equivalent to Spring's
+one current `Session` per transaction. This is roughly equivalent to Infra
 synchronization of one Hibernate `Session` per transaction. A corresponding DAO
 implementation resembles the following example, based on the plain Hibernate API:
 
@@ -133,7 +133,7 @@ Hibernate's CaveatEmptor sample application. (In general, do not keep any resour
 `static` variables unless absolutely necessary.)
 
 The preceding DAO example follows the dependency injection pattern. It fits nicely into a Infra IoC
-container, as it would if coded against Spring's `HibernateTemplate`.
+container, as it would if coded against Infra `HibernateTemplate`.
 You can also set up such a DAO in plain Java (for example, in unit tests). To do so,
 instantiate it and call `setSessionFactory(..)` with the desired factory reference. As a
 Spring bean definition, the DAO would resemble the following:
@@ -161,12 +161,12 @@ tying the caller to the implementation strategy. This trade off might be accepta
 applications that are strongly Hibernate-based, do not need any special exception
 treatment, or both.
 
-Fortunately, Spring's `LocalSessionFactoryBean` supports Hibernate's
+Fortunately, Infra `LocalSessionFactoryBean` supports Hibernate's
 `SessionFactory.getCurrentSession()` method for any Spring transaction strategy,
 returning the current Spring-managed transactional `Session`, even with
 `HibernateTransactionManager`. The standard behavior of that method remains
 to return the current `Session` associated with the ongoing JTA transaction, if any.
-This behavior applies regardless of whether you use Spring's
+This behavior applies regardless of whether you use Infra
 `JtaTransactionManager`, EJB container managed transactions (CMTs), or JTA.
 
 In summary, you can implement DAOs based on the plain Hibernate API, while still being
@@ -176,7 +176,7 @@ able to participate in Spring-managed transactions.
 [[orm-hibernate-tx-declarative]]
 == Declarative Transaction Demarcation
 
-We recommend that you use Spring's declarative transaction support, which lets you
+We recommend that you use Infra declarative transaction support, which lets you
 replace explicit transaction demarcation API calls in your Java code with an AOP
 transaction interceptor. You can configure this transaction interceptor in a Spring
 container by using either Java annotations or XML. This declarative transaction capability
@@ -314,7 +314,7 @@ public class ProductServiceImpl implements ProductService {
 
 ======
 
-Spring's `TransactionInterceptor` lets any checked application exception be thrown
+Infra `TransactionInterceptor` lets any checked application exception be thrown
 with the callback code, while `TransactionTemplate` is restricted to unchecked
 exceptions within the callback. `TransactionTemplate` triggers a rollback in case of
 an unchecked application exception or if the transaction is marked rollback-only by
@@ -333,7 +333,7 @@ JTA subsystem of the container) for Hibernate applications. You can even use a c
 `PlatformTransactionManager` implementation. Switching from native Hibernate transaction
 management to JTA (such as when facing distributed transaction requirements for certain
 deployments of your application) is only a matter of configuration. You can replace
-the Hibernate transaction manager with Spring's JTA transaction implementation. Both
+the Hibernate transaction manager with Infra JTA transaction implementation. Both
 transaction demarcation and data access code work without changes, because they
 use the generic transaction management APIs.
 
@@ -378,9 +378,9 @@ benefits. Deploying a `SessionFactory` through Hibernate's JCA connector provide
 added value of participating in the Jakarta EE server's management infrastructure, but does
 not add actual value beyond that.
 
-Spring's transaction support is not bound to a container. When configured with any strategy
+Infra transaction support is not bound to a container. When configured with any strategy
 other than JTA, transaction support also works in a stand-alone or test environment.
-Especially in the typical case of single-database transactions, Spring's single-resource
+Especially in the typical case of single-database transactions, Infra single-resource
 local transaction support is a lightweight and powerful alternative to JTA. When you use
 local EJB stateless session beans to drive transactions, you depend both on an EJB
 container and on JTA, even if you access only a single database and use only stateless
@@ -389,14 +389,14 @@ transactions. Direct use of JTA programmatically also requires a Jakarta EE envi
 
 Spring-driven transactions can work as well with a locally defined Hibernate
 `SessionFactory` as they do with a local JDBC `DataSource`, provided they access a
-single database. Thus, you need only use Spring's JTA transaction strategy when you
+single database. Thus, you need only use Infra JTA transaction strategy when you
 have distributed transaction requirements. A JCA connector requires container-specific
 deployment steps, and (obviously) JCA support in the first place. This configuration
 requires more work than deploying a simple web application with local resource
 definitions and Spring-driven transactions.
 
 All things considered, if you do not use EJBs, stick with local `SessionFactory` setup
-and Spring's `HibernateTransactionManager` or `JtaTransactionManager`. You get all of
+and Infra `HibernateTransactionManager` or `JtaTransactionManager`. You get all of
 the benefits, including proper transactional JVM-level caching and distributed
 transactions, without the inconvenience of container deployment. JNDI registration of a
 Hibernate `SessionFactory` through the JCA connector adds value only when used in
@@ -443,7 +443,7 @@ When Hibernate is not configured with any awareness of the JTA transaction manag
 the following events occur when a JTA transaction commits:
 
 * The JTA transaction commits.
-* Spring's `JtaTransactionManager` is synchronized to the JTA transaction, so it is
+* Infra `JtaTransactionManager` is synchronized to the JTA transaction, so it is
   called back through an `afterCompletion` callback by the JTA transaction manager.
 * Among other activities, this synchronization can trigger a callback by Spring to
   Hibernate, through Hibernate's `afterTransactionCompletion` callback (used to clear
@@ -457,7 +457,7 @@ When Hibernate is configured with awareness of the JTA transaction manager,
 the following events occur when a JTA transaction commits:
 
 * The JTA transaction is ready to commit.
-* Spring's `JtaTransactionManager` is synchronized to the JTA transaction, so the
+* Infra `JtaTransactionManager` is synchronized to the JTA transaction, so the
   transaction is called back through a `beforeCompletion` callback by the JTA
   transaction manager.
 * Spring is aware that Hibernate itself is synchronized to the JTA transaction and

@@ -9,7 +9,7 @@ This section describes solutions to some common problems.
 == Using the Wrong Transaction Manager for a Specific `DataSource`
 
 Use the correct `PlatformTransactionManager` implementation based on your choice of
-transactional technologies and requirements. Used properly, the Spring Framework merely
+transactional technologies and requirements. Used properly, the TODAY Framework merely
 provides a straightforward and portable abstraction. If you use global
 transactions, you must use the
 `cn.taketoday.transaction.jta.JtaTransactionManager` class (or an

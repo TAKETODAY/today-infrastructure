@@ -1,11 +1,11 @@
 [[spring-testing-annotation-dirtiescontext]]
 = `@DirtiesContext`
 
-`@DirtiesContext` indicates that the underlying Spring `ApplicationContext` has been
+`@DirtiesContext` indicates that the underlying Infra `ApplicationContext` has been
 dirtied during the execution of a test (that is, the test modified or corrupted it in
 some manner -- for example, by changing the state of a singleton bean) and should be
 closed. When an application context is marked as dirty, it is removed from the testing
-framework's cache and closed. As a consequence, the underlying Spring container is
+framework's cache and closed. As a consequence, the underlying Infra container is
 rebuilt for any subsequent test that requires a context with the same configuration
 metadata.
 
@@ -32,7 +32,7 @@ Java::
 ----
 @DirtiesContext(classMode = BEFORE_CLASS) // <1>
 class FreshContextTests {
-  // some tests that require a new Spring container
+  // some tests that require a new Infra container
 }
 ----
 <1> Dirty the context before the current test class.
@@ -49,7 +49,7 @@ Java::
 ----
 	@DirtiesContext // <1>
 	class ContextDirtyingTests {
-		// some tests that result in the Spring container being dirtied
+		// some tests that result in the Infra container being dirtied
 	}
 ----
 <1> Dirty the context after the current test class.
@@ -67,7 +67,7 @@ Java::
 ----
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD) // <1>
 class FreshContextTests {
-  // some tests that require a new Spring container
+  // some tests that require a new Infra container
 }
 ----
 <1> Dirty the context before each test method.
@@ -85,7 +85,7 @@ Java::
 ----
 @DirtiesContext(classMode = AFTER_EACH_TEST_METHOD) // <1>
 class ContextDirtyingTests {
-  // some tests that result in the Spring container being dirtied
+  // some tests that result in the Infra container being dirtied
 }
 ----
 <1> Dirty the context after each test method.
@@ -104,7 +104,7 @@ Java::
 @DirtiesContext(methodMode = BEFORE_METHOD) // <1>
 @Test
 void testProcessWhichRequiresFreshAppCtx() {
-  // some logic that requires a new Spring container
+  // some logic that requires a new Infra container
 }
 ----
 <1> Dirty the context before the current test method.
@@ -122,7 +122,7 @@ Java::
 @DirtiesContext // <1>
 @Test
 void testProcessWhichDirtiesAppCtx() {
-  // some logic that results in the Spring container being dirtied
+  // some logic that results in the Infra container being dirtied
 }
 ----
 <1> Dirty the context after the current test method.

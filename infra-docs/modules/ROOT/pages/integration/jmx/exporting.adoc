@@ -1,7 +1,7 @@
 [[jmx-exporting]]
 = Exporting Your Beans to JMX
 
-The core class in Spring's JMX framework is the `MBeanExporter`. This class is
+The core class in Infra JMX framework is the `MBeanExporter`. This class is
 responsible for taking your Spring beans and registering them with a JMX `MBeanServer`.
 For example, consider the following class:
 
@@ -223,7 +223,7 @@ instance has already been registered under that same `ObjectName`, the default b
 is to fail (and throw an `InstanceAlreadyExistsException`).
 
 You can control exactly what happens when an `MBean` is
-registered with an `MBeanServer`. Spring's JMX support allows for three different
+registered with an `MBeanServer`. Infra JMX support allows for three different
 registration behaviors to control the registration behavior when the registration
 process finds that an `MBean` has already been registered under the same `ObjectName`.
 The following table summarizes these registration behaviors:

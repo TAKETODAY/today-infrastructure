@@ -8,7 +8,7 @@ This section describes how Spring handles the crucial pointcut concept.
 [[aop-api-concepts]]
 == Concepts
 
-Spring's pointcut model enables pointcut reuse independent of advice types. You can
+Infra pointcut model enables pointcut reuse independent of advice types. You can
 target different advice with the same pointcut.
 
 The `cn.taketoday.aop.Pointcut` interface is the central interface, used to

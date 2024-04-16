@@ -1,7 +1,7 @@
 [[mvc-ann-jackson]]
 = Jackson JSON
 
-Spring offers support for the Jackson JSON library.
+Infra offers support for the Jackson JSON library.
 
 [[mvc-ann-jsonview]]
 == JSON Views

@@ -69,12 +69,12 @@ class PersonController {
 `PathContainer`. Designed for web use, this solution deals effectively with encoding and
 path parameters, and matches efficiently.
 * `AntPathMatcher` -- match String patterns against a String path. This is the original
-solution also used in Spring configuration to select resources on the classpath, on the
+solution also used in Infra configuration to select resources on the classpath, on the
 filesystem, and other locations. It is less efficient and the String path input is a
 challenge for dealing effectively with encoding and other issues with URLs.
 
 `PathPattern` is the recommended solution for web applications and it is the only choice in
-Spring WebFlux. It was enabled for use in Web MVC from version 5.3 and is enabled by
+Infra WebFlux. It was enabled for use in Web MVC from version 5.3 and is enabled by
 default from version 6.0. See xref:web/webmvc/mvc-config/path-matching.adoc[MVC config] for
 customizations of path matching options.
 
@@ -447,7 +447,7 @@ In addition to simplifying client code, there are also cases where an HTTP Inter
 may be a convenient way for servers to expose their API for client access. This leads
 to increased coupling between client and server and is often not a good choice,
 especially for public API's, but may be exactly the goal for an internal API.
-It is an approach commonly used in Spring Cloud, and it is why `@HttpExchange` is
+It is an approach commonly used in Infra Cloud, and it is why `@HttpExchange` is
 supported as an alternative to `@RequestMapping` for server side handling in
 controller classes.
 

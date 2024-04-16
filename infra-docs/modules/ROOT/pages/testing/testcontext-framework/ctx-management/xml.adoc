@@ -16,7 +16,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from "/app-config.xml" and
 // "/test-config.xml" in the root of the classpath
 @ContextConfiguration(locations = {"/app-config.xml", "/test-config.xml"}) // <1>
@@ -41,7 +41,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 @ContextConfiguration({"/app-config.xml", "/test-config.xml"}) <1>
 class MyTest {
   // class body...
@@ -65,7 +65,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from
 // "classpath:com/example/MyTest-context.xml"
 @ContextConfiguration // <1>

@@ -3,8 +3,8 @@
 
 When writing integration tests against a relational database, it is often beneficial to
 run SQL scripts to modify the database schema or insert test data into tables. The
-`spring-jdbc` module provides support for _initializing_ an embedded or existing database
-by executing SQL scripts when the Spring `ApplicationContext` is loaded. See
+`today-jdbc` module provides support for _initializing_ an embedded or existing database
+by executing SQL scripts when the Infra `ApplicationContext` is loaded. See
 xref:data-access/jdbc/embedded-database-support.adoc[Embedded database support] and
 xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-dao-testing[Testing data access logic with an embedded database]
  for details.
@@ -17,13 +17,13 @@ scripts programmatically and declaratively during integration tests.
 [[testcontext-executing-sql-programmatically]]
 == Executing SQL scripts programmatically
 
-Spring provides the following options for executing SQL scripts programmatically within
+Infra provides the following options for executing SQL scripts programmatically within
 integration test methods.
 
 * `cn.taketoday.jdbc.datasource.init.ScriptUtils`
 * `cn.taketoday.jdbc.datasource.init.ResourceDatabasePopulator`
-* `cn.taketoday.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests`
-* `cn.taketoday.test.context.testng.AbstractTransactionalTestNGSpringContextTests`
+* `cn.taketoday.test.context.junit4.AbstractTransactionalJUnit4InfraContextTests`
+* `cn.taketoday.test.context.testng.AbstractTransactionalTestNGInfraContextTests`
 
 `ScriptUtils` provides a collection of static utility methods for working with SQL
 scripts and is mainly intended for internal use within the framework. However, if you
@@ -68,8 +68,8 @@ void databaseTest() {
 
 Note that `ResourceDatabasePopulator` internally delegates to `ScriptUtils` for parsing
 and running SQL scripts. Similarly, the `executeSqlScript(..)` methods in
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4SpringContextTests`]
-and xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGSpringContextTests`]
+xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`]
+and xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`]
 internally use a `ResourceDatabasePopulator` to run SQL scripts. See the Javadoc for the
 various `executeSqlScript(..)` methods for further details.
 
@@ -77,7 +77,7 @@ various `executeSqlScript(..)` methods for further details.
 == Executing SQL scripts declaratively with @Sql
 
 In addition to the aforementioned mechanisms for running SQL scripts programmatically,
-you can declaratively configure SQL scripts in the Spring TestContext Framework.
+you can declaratively configure SQL scripts in the Infra TestContext Framework.
 Specifically, you can declare the `@Sql` annotation on a test class or test method to
 configure individual SQL statements or the resource paths to SQL scripts that should be
 run against a given database before or after an integration test class or test method.
@@ -100,7 +100,7 @@ in addition to any method-level scripts and statements.
 [[testcontext-executing-sql-declaratively-script-resources]]
 === Path Resource Semantics
 
-Each path is interpreted as a Spring `Resource`. A plain path (for example,
+Each path is interpreted as a Infra `Resource`. A plain path (for example,
 `"schema.sql"`) is treated as a classpath resource that is relative to the package in
 which the test class is defined. A path starting with a slash is treated as an absolute
 classpath resource (for example, `"/org/example/schema.sql"`). A path that references a
@@ -116,7 +116,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig
+@JUnitConfig
 @Sql("/test-schema.sql")
 class DatabaseTests {
 
@@ -243,7 +243,7 @@ void userTest() {
 NOTE: `ISOLATED` and `AFTER_TEST_METHOD` are statically imported from
 `Sql.TransactionMode` and `Sql.ExecutionPhase`, respectively.
 
-As of Spring Framework 6.1, it is possible to run a particular set of scripts before or
+As of TODAY Framework 6.1, it is possible to run a particular set of scripts before or
 after the test class by setting the `executionPhase` attribute in a class-level `@Sql`
 declaration to `BEFORE_TEST_CLASS` or `AFTER_TEST_CLASS`, as the following example shows:
 
@@ -253,7 +253,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig
+@JUnitConfig
 @Sql(scripts = "/test-schema.sql", executionPhase = BEFORE_TEST_CLASS)
 class DatabaseTests {
 
@@ -305,7 +305,7 @@ individual attributes in {today-framework-api}/test/context/jdbc/Sql.html[`@Sql`
 
 By default, the `SqlScriptsTestExecutionListener` infers the desired transaction
 semantics for scripts configured by using `@Sql`. Specifically, SQL scripts are run
-without a transaction, within an existing Spring-managed transaction (for example, a
+without a transaction, within an existing Infra-managed transaction (for example, a
 transaction managed by the `TransactionalTestExecutionListener` for a test annotated with
 `@Transactional`), or within an isolated transaction, depending on the configured value
 of the `transactionMode` attribute in `@SqlConfig` and the presence of a
@@ -331,7 +331,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestDatabaseConfig.class)
+@JUnitConfig(TestDatabaseConfig.class)
 @Transactional
 class TransactionalSqlScriptsTests {
 
@@ -372,7 +372,7 @@ details).
 [[testcontext-executing-sql-declaratively-script-merging]]
 === Merging and Overriding Configuration with `@SqlMergeMode`
 
-As of Spring Framework 5.2, it is possible to merge method-level `@Sql` declarations with
+As of TODAY Framework 5.2, it is possible to merge method-level `@Sql` declarations with
 class-level declarations. For example, this allows you to provide the configuration for a
 database schema or some common test data once per test class and then provide additional,
 use case specific test data per test method. To enable `@Sql` merging, annotate either

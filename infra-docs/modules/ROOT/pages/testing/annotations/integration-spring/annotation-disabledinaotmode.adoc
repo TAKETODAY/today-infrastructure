@@ -1,7 +1,7 @@
 [[spring-testing-annotation-disabledinaotmode]]
 = `@DisabledInAotMode`
 
-`@DisabledInAotMode` signals that an annotated test class is disabled in Spring AOT
+`@DisabledInAotMode` signals that an annotated test class is disabled in Infra AOT
 (ahead-of-time) mode, which means that the `ApplicationContext` for the test class will
 not be processed for AOT optimizations at build time.
 
@@ -11,7 +11,7 @@ specify configuration to load the same `ApplicationContext` must also be annotat
 exception, either at build time or run time.
 
 When used with JUnit Jupiter based tests, `@DisabledInAotMode` also signals that the
-annotated test class or test method is disabled when running the test suite in Spring AOT
+annotated test class or test method is disabled when running the test suite in Infra AOT
 mode. When applied at the class level, all test methods within that class will be
 disabled. In this sense, `@DisabledInAotMode` has semantics similar to those of JUnit
 Jupiter's `@DisabledInNativeImage` annotation.

@@ -100,7 +100,7 @@ In the latter scenario, you have several options:
 [[beans-factory-autowire-candidate]]
 == Excluding a Bean from Autowiring
 
-On a per-bean basis, you can exclude a bean from autowiring. In Spring's XML format, set
+On a per-bean basis, you can exclude a bean from autowiring. In Infra XML format, set
 the `autowire-candidate` attribute of the `<bean/>` element to `false`. The container
 makes that specific bean definition unavailable to the autowiring infrastructure
 (including annotation style configurations such as xref:core/beans/annotation-config/autowired.adoc[`@Autowired`]

@@ -8,7 +8,7 @@ This model is flexible and supports diverse workflows.
 
 The `DispatcherServlet`, as any `Servlet`, needs to be declared and mapped according
 to the Servlet specification by using Java configuration or in `web.xml`.
-In turn, the `DispatcherServlet` uses Spring configuration to discover
+In turn, the `DispatcherServlet` uses Infra configuration to discover
 the delegate components it needs for request mapping, view resolution, exception
 handling, xref:web/webmvc/mvc-servlet/special-bean-types.adoc[and more].
 
@@ -27,7 +27,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
   @Override
   public void onStartup(ServletContext servletContext) {
 
-    // Load Spring web application configuration
+    // Load Infra web application configuration
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.register(AppConfig.class);
 
@@ -84,12 +84,12 @@ The following example of `web.xml` configuration registers and initializes the `
 </web-app>
 ----
 
-NOTE: Spring Boot follows a different initialization sequence. Rather than hooking into
-the lifecycle of the Servlet container, Spring Boot uses Spring configuration to
+NOTE: Infra App follows a different initialization sequence. Rather than hooking into
+the lifecycle of the Servlet container, Infra App uses Infra configuration to
 bootstrap itself and the embedded Servlet container. `Filter` and `Servlet` declarations
-are detected in Spring configuration and registered with the Servlet container.
+are detected in Infra configuration and registered with the Servlet container.
 For more details, see the
-{today-framework-reference}/web.html#web.servlet.embedded-container[Spring Boot documentation].
+{today-framework-reference}/web.html#web.servlet.embedded-container[Infra App documentation].
 
 
 

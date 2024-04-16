@@ -37,7 +37,7 @@ An abstract base class implementation of `WebApplicationInitializer` named
 `DispatcherServlet` by overriding methods to specify the servlet mapping and the
 location of the `DispatcherServlet` configuration.
 
-This is recommended for applications that use Java-based Spring configuration, as the
+This is recommended for applications that use Java-based Infra configuration, as the
 following example shows:
 
 [tabs]
@@ -66,7 +66,7 @@ public class MyWebAppInitializer extends AbstractAnnotationConfigDispatcherServl
 ----
 ======
 
-If you use XML-based Spring configuration, you should extend directly from
+If you use XML-based Infra configuration, you should extend directly from
 `AbstractDispatcherServletInitializer`, as the following example shows:
 
 [tabs]

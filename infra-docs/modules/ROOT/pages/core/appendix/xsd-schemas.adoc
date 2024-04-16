@@ -48,7 +48,7 @@ Consider the following bean definition:
 The preceding configuration uses a Spring `FactoryBean` implementation (the
 `FieldRetrievingFactoryBean`) to set the value of the `isolation` property on a bean
 to the value of the `java.sql.Connection.TRANSACTION_SERIALIZABLE` constant. This is
-all well and good, but it is verbose and (unnecessarily) exposes Spring's internal
+all well and good, but it is verbose and (unnecessarily) exposes Infra internal
 plumbing to the end user.
 
 The following XML Schema-based version is more concise, clearly expresses the
@@ -481,8 +481,8 @@ If no `set-class` attribute is supplied, the container chooses a `Set` implement
 [[xsd-schemas-aop]]
 == The `aop` Schema
 
-The `aop` tags deal with configuring all things AOP in Spring, including Spring's
-own proxy-based AOP framework and Spring's integration with the AspectJ AOP framework.
+The `aop` tags deal with configuring all things AOP in Spring, including Infra
+own proxy-based AOP framework and Infra integration with the AspectJ AOP framework.
 These tags are comprehensively covered in the chapter entitled xref:core/aop.adoc[Aspect Oriented Programming with Spring]
 .
 
@@ -559,20 +559,20 @@ not create multiple properties placeholders. Rather, each module should contribu
 
 This element activates the Spring infrastructure to detect annotations in bean classes:
 
-* Spring's xref:core/beans/basics.adoc#beans-factory-metadata[`@Configuration`] model
+* Infra xref:core/beans/basics.adoc#beans-factory-metadata[`@Configuration`] model
 * xref:core/beans/annotation-config.adoc[`@Autowired`/`@Inject`], `@Value`, and `@Lookup`
 * JSR-250's `@Resource`, `@PostConstruct`, and `@PreDestroy` (if available)
 * JAX-WS's `@WebServiceRef` and EJB 3's `@EJB` (if available)
 * JPA's `@PersistenceContext` and `@PersistenceUnit` (if available)
-* Spring's xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[`@EventListener`]
+* Infra xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[`@EventListener`]
 
 Alternatively, you can choose to explicitly activate the individual `BeanPostProcessors`
 for those annotations.
 
-NOTE: This element does not activate processing of Spring's
+NOTE: This element does not activate processing of Infra
 xref:data-access/transaction/declarative/annotations.adoc[`@Transactional`] annotation;
 you can use the <<data-access.adoc#tx-decl-explained, `<tx:annotation-driven/>`>>
-element for that purpose. Similarly, Spring's
+element for that purpose. Similarly, Infra
 xref:integration/cache/annotations.adoc[caching annotations] need to be explicitly
 xref:integration/cache/annotations.adoc#cache-annotation-enable[enabled] as well.
 

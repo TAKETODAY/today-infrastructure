@@ -255,7 +255,7 @@ XML::
 ======
 
 To be eligible for Spring-driven method validation, target classes need to be annotated
-with Spring's `@Validated` annotation, which can optionally also declare the validation
+with Infra `@Validated` annotation, which can optionally also declare the validation
 groups to use. See
 {today-framework-api}/validation/beanvalidation/MethodValidationPostProcessor.html[`MethodValidationPostProcessor`]
 for setup details with the Hibernate Validator and Bean Validation providers.

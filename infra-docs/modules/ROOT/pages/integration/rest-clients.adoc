@@ -1,7 +1,7 @@
 [[rest-client-access]]
 = REST Clients
 
-The Spring Framework provides the following choices for making calls to REST endpoints:
+The TODAY Framework provides the following choices for making calls to REST endpoints:
 
 * xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] - synchronous client with a fluent API.
 * xref:integration/rest-clients.adoc#rest-webclient[`WebClient`] - non-blocking, reactive client with fluent API.
@@ -255,7 +255,7 @@ By default, this converter supports all media types (`{asterisk}/{asterisk}`) an
 You can override this by setting the `supportedMediaTypes` property and overriding `getContentType(byte[])`.
 
 | `MarshallingHttpMessageConverter`
-| An `HttpMessageConverter` implementation that can read and write XML by using Spring's `Marshaller` and `Unmarshaller` abstractions from the `cn.taketoday.oxm` package.
+| An `HttpMessageConverter` implementation that can read and write XML by using Infra `Marshaller` and `Unmarshaller` abstractions from the `cn.taketoday.oxm` package.
 This converter requires a `Marshaller` and `Unmarshaller` before it can be used.
 You can inject these through constructor or bean properties.
 By default, this converter supports `text/xml` and `application/xml`.
@@ -743,7 +743,7 @@ It can be used to migrate from the latter to the former.
 [[rest-http-interface]]
 == HTTP Interface
 
-The Spring Framework lets you define an HTTP service as a Java interface with
+The TODAY Framework lets you define an HTTP service as a Java interface with
 `@HttpExchange` methods.
 You can pass such an interface to `HttpServiceProxyFactory`
 to create a proxy which performs requests through an HTTP client such as `RestClient`

@@ -5,13 +5,13 @@ This section highlights considerations that apply to all ORM technologies.
 The xref:data-access/orm/hibernate.adoc[Hibernate] section provides more details and also show these features and
 configurations in a concrete context.
 
-The major goal of Spring's ORM integration is clear application layering (with any data
+The major goal of Infra ORM integration is clear application layering (with any data
 access and transaction technology) and for loose coupling of application objects -- no
 more business service dependencies on the data access or transaction strategy, no more
 hard-coded resource lookups, no more hard-to-replace singletons, no more custom service
 registries. The goal is to have one simple and consistent approach to wiring up application objects, keeping
 them as reusable and free from container dependencies as possible. All the individual
-data access features are usable on their own but integrate nicely with Spring's
+data access features are usable on their own but integrate nicely with Infra
 application context concept, providing XML-based configuration and cross-referencing of
 plain JavaBean instances that need not be Spring-aware. In a typical Spring application,
 many important objects are JavaBeans: data access templates, data access objects,
@@ -95,7 +95,7 @@ appropriate translation on the thrown exceptions.
 
 In summary, you can implement DAOs based on the plain persistence technology's API and
 annotations while still benefiting from Spring-managed transactions, dependency
-injection, and transparent exception conversion (if desired) to Spring's custom
+injection, and transparent exception conversion (if desired) to Infra custom
 exception hierarchies.
 
 

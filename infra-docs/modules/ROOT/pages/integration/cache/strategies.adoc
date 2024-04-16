@@ -39,7 +39,7 @@ The caching abstraction provides other cache-related operations, such as the abi
 to update the content of the cache or to remove one or all entries. These are useful if
 the cache deals with data that can change during the course of the application.
 
-As with other services in the Spring Framework, the caching service is an abstraction
+As with other services in the TODAY Framework, the caching service is an abstraction
 (not a cache implementation) and requires the use of actual storage to store the cache data --
 that is, the abstraction frees you from having to write the caching logic but does not
 provide the actual data store. This abstraction is materialized by the

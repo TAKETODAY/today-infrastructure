@@ -1,7 +1,7 @@
 [[cache-annotations]]
 = Declarative Annotation-based Caching
 
-For caching declaration, Spring's caching abstraction provides a set of Java annotations:
+For caching declaration, Infra caching abstraction provides a set of Java annotations:
 
 * `@Cacheable`: Triggers cache population.
 * `@CacheEvict`: Triggers cache eviction.
@@ -591,10 +591,10 @@ required to implement `CachingConfigurer`, see the
 | `mode`
 | `mode`
 | `proxy`
-| The default mode (`proxy`) processes annotated beans to be proxied by using Spring's AOP
+| The default mode (`proxy`) processes annotated beans to be proxied by using Infra AOP
   framework (following proxy semantics, as discussed earlier, applying to method calls
   coming in through the proxy only). The alternative mode (`aspectj`) instead weaves the
-  affected classes with Spring's AspectJ caching aspect, modifying the target class byte
+  affected classes with Infra AspectJ caching aspect, modifying the target class byte
   code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar`
   in the classpath as well as load-time weaving (or compile-time weaving) enabled. (See
   xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Spring configuration] for details on how to set up

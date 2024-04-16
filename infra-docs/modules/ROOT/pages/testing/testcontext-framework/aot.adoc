@@ -1,21 +1,21 @@
 [[testcontext-aot]]
 = Ahead of Time Support for Tests
 
-This chapter covers Spring's Ahead of Time (AOT) support for integration tests using the
-Spring TestContext Framework.
+This chapter covers Infra Ahead of Time (AOT) support for integration tests using the
+Infra TestContext Framework.
 
-The testing support extends Spring's xref:core/aot.adoc[core AOT support] with the
+The testing support extends Infra xref:core/aot.adoc[core AOT support] with the
 following features.
 
 * Build-time detection of all integration tests in the current project that use the
   TestContext framework to load an `ApplicationContext`.
   - Provides explicit support for test classes based on JUnit Jupiter and JUnit 4 as well
-    as implicit support for TestNG and other testing frameworks that use Spring's core
+    as implicit support for TestNG and other testing frameworks that use Infra core
     testing annotations -- as long as the tests are run using a JUnit Platform
     `TestEngine` that is registered for the current project.
 * Build-time AOT processing: each unique test `ApplicationContext` in the current project
   will be xref:core/aot.adoc#aot.refresh[refreshed for AOT processing].
-* Runtime AOT support: when executing in AOT runtime mode, a Spring integration test will
+* Runtime AOT support: when executing in AOT runtime mode, a Infra integration test will
   use an AOT-optimized `ApplicationContext` that participates transparently with the
   xref:testing/testcontext-framework/ctx-management/caching.adoc[context cache].
 
@@ -59,7 +59,7 @@ the following options.
   via {today-framework-api}/context/annotation/ImportRuntimeHints.html[`@ImportRuntimeHints`].
 * Annotate a test class with {today-framework-api}/aot/hint/annotation/Reflective.html[`@Reflective`] or
   {today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`].
-* See xref:core/aot.adoc#aot.hints[Runtime Hints] for details on Spring's core runtime hints
+* See xref:core/aot.adoc#aot.hints[Runtime Hints] for details on Infra core runtime hints
   and annotation support.
 
 [TIP]
@@ -74,9 +74,9 @@ If you implement a custom `ContextLoader`, it must implement
 {today-framework-api}/test/context/aot/AotContextLoader.html[`AotContextLoader`] in
 order to provide AOT build-time processing and AOT runtime execution support. Note,
 however, that all context loader implementations provided by the TODAY Framework and
-Spring Boot already implement `AotContextLoader`.
+Infra App already implement `AotContextLoader`.
 
 If you implement a custom `TestExecutionListener`, it must implement
 {today-framework-api}/test/context/aot/AotTestExecutionListener.html[`AotTestExecutionListener`]
 in order to participate in AOT processing. See the `SqlScriptsTestExecutionListener` in
-the `spring-test` module for an example.
+the `today-test` module for an example.

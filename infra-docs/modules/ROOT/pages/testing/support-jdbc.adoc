@@ -19,8 +19,8 @@ methods.
 
 [TIP]
 ====
-xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4SpringContextTests`]
-and xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGSpringContextTests`]
+xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-junit4[`AbstractTransactionalJUnit4InfraContextTests`]
+and xref:testing/testcontext-framework/support-classes.adoc#testcontext-support-classes-testng[`AbstractTransactionalTestNGInfraContextTests`]
 provide convenience methods that delegate to the aforementioned methods in
 `JdbcTestUtils`.
 ====
@@ -28,7 +28,7 @@ provide convenience methods that delegate to the aforementioned methods in
 [[integration-testing-support-jdbc-embedded-database]]
 == Embedded Databases
 
-The `spring-jdbc` module provides support for configuring and launching an embedded
+The `today-jdbc` module provides support for configuring and launching an embedded
 database, which you can use in integration tests that interact with a database.
 For details, see xref:data-access/jdbc/embedded-database-support.adoc[Embedded Database Support]
  and <<data-access.adoc#jdbc-embedded-database-dao-testing, Testing Data Access

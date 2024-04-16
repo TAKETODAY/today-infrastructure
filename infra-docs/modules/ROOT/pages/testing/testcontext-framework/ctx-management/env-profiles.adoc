@@ -60,7 +60,7 @@ Consider two examples with XML configuration and `@Configuration` classes:
 ----
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // ApplicationContext will be loaded from "classpath:/app-config.xml"
 @ContextConfiguration("/app-config.xml")
 @ActiveProfiles("dev")
@@ -83,7 +83,7 @@ When `TransferServiceTest` is run, its `ApplicationContext` is loaded from the
 `dataSource` is defined three times: in the `production` profile, in the `dev` profile,
 and in the `default` profile.
 
-By annotating `TransferServiceTest` with `@ActiveProfiles("dev")`, we instruct the Spring
+By annotating `TransferServiceTest` with `@ActiveProfiles("dev")`, we instruct the Infra
 TestContext Framework to load the `ApplicationContext` with the active profiles set to
 `{"dev"}`. As a result, an embedded database is created and populated with test data, and
 the `accountRepository` bean is wired with a reference to the development `DataSource`.
@@ -171,7 +171,7 @@ public class TransferServiceConfig {
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig({
+@JUnitConfig({
     TransferServiceConfig.class,
     StandaloneDataConfig.class,
     JndiDataConfig.class,
@@ -213,12 +213,12 @@ automatically inherit the `@ActiveProfiles` configuration from the base class. I
 following example, the declaration of `@ActiveProfiles` (as well as other annotations)
 has been moved to an abstract superclass, `AbstractIntegrationTest`:
 
-NOTE: As of Spring Framework 5.3, test configuration may also be inherited from enclosing
+NOTE: As of TODAY Framework 5.3, test configuration may also be inherited from enclosing
 classes. See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-nested-test-configuration[`@Nested` test class configuration] for details.
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig({
+@JUnitConfig({
     TransferServiceConfig.class,
     StandaloneDataConfig.class,
     JndiDataConfig.class,

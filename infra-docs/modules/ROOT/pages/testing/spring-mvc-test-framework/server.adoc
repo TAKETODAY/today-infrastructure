@@ -12,7 +12,7 @@ The Web MVC Test framework, also known as `MockMvc`, aims to provide more comple
 testing for Web MVC controllers without a running server. It does that by invoking
 the `DispatcherServlet` and passing
 xref:testing/unit.adoc#mock-objects-servlet["`mock`" implementations of the Servlet API] from the
-`spring-test` module which replicates the full Web MVC request handling without
+`today-test` module which replicates the full Web MVC request handling without
 a running server.
 
 MockMvc is a server side test framework that lets you verify most of the functionality

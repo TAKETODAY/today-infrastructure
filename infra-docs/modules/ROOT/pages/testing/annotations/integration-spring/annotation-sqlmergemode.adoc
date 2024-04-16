@@ -17,7 +17,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 @Sql("/test-schema.sql")
 @SqlMergeMode(MERGE) // <1>
 class UserTests {
@@ -40,7 +40,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@SpringJUnitConfig(TestConfig.class)
+@JUnitConfig(TestConfig.class)
 @Sql("/test-schema.sql")
 class UserTests {
 

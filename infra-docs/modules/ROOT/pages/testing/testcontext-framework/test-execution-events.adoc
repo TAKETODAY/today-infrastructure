@@ -1,7 +1,7 @@
 [[testcontext-test-execution-events]]
 = Test Execution Events
 
-The `EventPublishingTestExecutionListener` introduced in Spring Framework 5.2 offers an
+The `EventPublishingTestExecutionListener` introduced in TODAY Framework 5.2 offers an
 alternative approach to implementing a custom `TestExecutionListener`. Components in the
 test's `ApplicationContext` can listen to the following events published by the
 `EventPublishingTestExecutionListener`, each of which corresponds to a method in the
@@ -18,7 +18,7 @@ test's `ApplicationContext` can listen to the following events published by the
 These events may be consumed for various reasons, such as resetting mock beans or tracing
 test execution. One advantage of consuming test execution events rather than implementing
 a custom `TestExecutionListener` is that test execution events may be consumed by any
-Spring bean registered in the test `ApplicationContext`, and such beans may benefit
+Infra bean registered in the test `ApplicationContext`, and such beans may benefit
 directly from dependency injection and other features of the `ApplicationContext`. In
 contrast, a `TestExecutionListener` is not a bean in the `ApplicationContext`.
 
@@ -48,12 +48,12 @@ context cache after the last test method in a given test class, the `AfterTestCl
 will not be published for that test class.
 ====
 
-In order to listen to test execution events, a Spring bean may choose to implement the
+In order to listen to test execution events, a Infra bean may choose to implement the
 `cn.taketoday.context.ApplicationListener` interface. Alternatively, listener
 methods can be annotated with `@EventListener` and configured to listen to one of the
 particular event types listed above (see
 xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[Annotation-based Event Listeners]).
-Due to the popularity of this approach, Spring provides the following dedicated
+Due to the popularity of this approach, Infra provides the following dedicated
 `@EventListener` annotations to simplify registration of test execution event listeners.
 These annotations reside in the `cn.taketoday.test.context.event.annotation`
 package.
@@ -81,7 +81,7 @@ asynchronous exception handling, consult the class-level javadoc for `@EventList
 == Asynchronous Listeners
 
 If you want a particular test execution event listener to process events asynchronously,
-you can use Spring's xref:integration/scheduling.adoc#scheduling-annotation-support-async[regular `@Async` support]
+you can use Infra xref:integration/scheduling.adoc#scheduling-annotation-support-async[regular `@Async` support]
 . For further details, consult the class-level javadoc for
 `@EventListener`.
 

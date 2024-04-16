@@ -297,7 +297,7 @@ https://github.com/SeleniumHQ/selenium/wiki/Getting-Started[WebDriver documentat
 
 In the examples so far, we have used `MockMvcHtmlUnitDriverBuilder` in the simplest way
 possible, by building a `WebDriver` based on the `WebApplicationContext` loaded for us by
-the Spring TestContext Framework. This approach is repeated here, as follows:
+the Infra TestContext Framework. This approach is repeated here, as follows:
 
 [tabs]
 ======
@@ -326,7 +326,7 @@ WebDriver driver;
 @BeforeEach
 void setup() {
   driver = MockMvcHtmlUnitDriverBuilder
-      // demonstrates applying a MockMvcConfigurer (Spring Security)
+      // demonstrates applying a MockMvcConfigurer (Infra Security)
       .webAppContextSetup(context, springSecurity())
       // for illustration only - defaults to ""
       .contextPath("")

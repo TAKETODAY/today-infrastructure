@@ -2,7 +2,7 @@
 = Common Problems with Parameter and Data Value Handling
 
 Common problems with parameters and data values exist in the different approaches
-provided by Spring Framework's JDBC support. This section covers how to address them.
+provided by TODAY Framework's JDBC support. This section covers how to address them.
 
 
 [[jdbc-type-information]]

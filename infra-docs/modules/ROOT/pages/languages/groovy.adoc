@@ -6,7 +6,7 @@ Groovy is a powerful, optionally typed, and dynamic language, with static-typing
 compilation capabilities. It offers a concise syntax and integrates smoothly with any
 existing Java application.
 
-The Spring Framework provides a dedicated `ApplicationContext` that supports a Groovy-based
+The Infra Framework provides a dedicated `ApplicationContext` that supports a Groovy-based
 Bean Definition DSL. For more details, see
 xref:core/beans/basics.adoc#groovy-bean-definition-dsl[The Groovy Bean Definition DSL].
 

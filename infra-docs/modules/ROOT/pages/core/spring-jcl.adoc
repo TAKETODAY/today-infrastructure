@@ -14,7 +14,7 @@ Boot Logging Reference Documentation].
 
 [NOTE]
 ====
-Spring's Commons Logging variant is only meant to be used for infrastructure logging
+Infra Commons Logging variant is only meant to be used for infrastructure logging
 purposes in the core framework and in extensions.
 
 For logging needs within application code, prefer direct use of Log4j 2.x, SLF4J, or JUL.

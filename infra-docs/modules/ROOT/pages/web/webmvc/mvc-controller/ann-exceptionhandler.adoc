@@ -129,7 +129,7 @@ level, xref:web/webmvc/mvc-servlet/exceptionhandlers.adoc[HandlerExceptionResolv
 
 | `jakarta.servlet.ServletRequest`, `jakarta.servlet.ServletResponse`
 | Choose any specific request or response type (for example, `ServletRequest` or
-  `HttpServletRequest` or Spring's `MultipartRequest` or `MultipartHttpServletRequest`).
+  `HttpServletRequest` or Infra `MultipartRequest` or `MultipartHttpServletRequest`).
 
 | `jakarta.servlet.http.HttpSession`
 | Enforces the presence of a session. As a consequence, such an argument is never `null`. +
