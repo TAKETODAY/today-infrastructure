@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.bytecode.commons;
 
@@ -250,24 +247,16 @@ public class GeneratorAdapterTest {
   @Test
   public void testLoadArgArray() {
     assertEquals(
-            "BIPUSH 9 ANEWARRAY java/lang/Object "
-                    + "DUP ICONST_0 ILOAD 1 NEW java/lang/Boolean DUP_X1 SWAP"
-                    + " INVOKESPECIAL java/lang/Boolean.<init> (Z)V AASTORE "
-                    + "DUP ICONST_1 ILOAD 2 NEW java/lang/Byte DUP_X1 SWAP"
-                    + " INVOKESPECIAL java/lang/Byte.<init> (B)V AASTORE "
-                    + "DUP ICONST_2 ILOAD 3 NEW java/lang/Character DUP_X1 SWAP"
-                    + " INVOKESPECIAL java/lang/Character.<init> (C)V AASTORE "
-                    + "DUP ICONST_3 ILOAD 4 NEW java/lang/Short DUP_X1 SWAP"
-                    + " INVOKESPECIAL java/lang/Short.<init> (S)V AASTORE "
-                    + "DUP ICONST_4 ILOAD 5 NEW java/lang/Integer DUP_X1 SWAP"
-                    + " INVOKESPECIAL java/lang/Integer.<init> (I)V AASTORE "
-                    + "DUP ICONST_5 LLOAD 6 NEW java/lang/Long DUP_X2 DUP_X2 POP"
-                    + " INVOKESPECIAL java/lang/Long.<init> (J)V AASTORE "
-                    + "DUP BIPUSH 6 FLOAD 8 NEW java/lang/Float DUP_X1 SWAP"
-                    + " INVOKESPECIAL java/lang/Float.<init> (F)V AASTORE "
-                    + "DUP BIPUSH 7 DLOAD 9 NEW java/lang/Double DUP_X2 DUP_X2 POP"
-                    + " INVOKESPECIAL java/lang/Double.<init> (D)V AASTORE "
-                    + "DUP BIPUSH 8 ALOAD 11 AASTORE",
+            "BIPUSH 9 ANEWARRAY java/lang/Object " +
+                    "DUP ICONST_0 ILOAD 1 INVOKESTATIC java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean; " +
+                    "AASTORE DUP ICONST_1 ILOAD 2 INVOKESTATIC java/lang/Byte.valueOf (B)Ljava/lang/Byte; " +
+                    "AASTORE DUP ICONST_2 ILOAD 3 INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character; " +
+                    "AASTORE DUP ICONST_3 ILOAD 4 INVOKESTATIC java/lang/Short.valueOf (S)Ljava/lang/Short; " +
+                    "AASTORE DUP ICONST_4 ILOAD 5 INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer; " +
+                    "AASTORE DUP ICONST_5 LLOAD 6 INVOKESTATIC java/lang/Long.valueOf (J)Ljava/lang/Long; " +
+                    "AASTORE DUP BIPUSH 6 FLOAD 8 INVOKESTATIC java/lang/Float.valueOf (F)Ljava/lang/Float; " +
+                    "AASTORE DUP BIPUSH 7 DLOAD 9 INVOKESTATIC java/lang/Double.valueOf (D)Ljava/lang/Double; " +
+                    "AASTORE DUP BIPUSH 8 ALOAD 11 AASTORE",
             new Generator(Opcodes.ACC_PUBLIC, "m", "(ZBCSIJFDLjava/lang/Object;)V").loadArgArray());
   }
 
@@ -463,28 +452,28 @@ public class GeneratorAdapterTest {
     assertEquals("", new Generator().box(Type.fromInternalName("[I")));
     assertEquals("ACONST_NULL", new Generator().box(Type.VOID_TYPE));
     assertEquals(
-            "NEW java/lang/Boolean DUP_X1 SWAP INVOKESPECIAL java/lang/Boolean.<init> (Z)V",
+            "INVOKESTATIC java/lang/Boolean.valueOf (Z)Ljava/lang/Boolean;",
             new Generator().box(Type.BOOLEAN_TYPE));
     assertEquals(
-            "NEW java/lang/Byte DUP_X1 SWAP INVOKESPECIAL java/lang/Byte.<init> (B)V",
+            "INVOKESTATIC java/lang/Byte.valueOf (B)Ljava/lang/Byte;",
             new Generator().box(Type.BYTE_TYPE));
     assertEquals(
-            "NEW java/lang/Character DUP_X1 SWAP INVOKESPECIAL java/lang/Character.<init> (C)V",
+            "INVOKESTATIC java/lang/Character.valueOf (C)Ljava/lang/Character;",
             new Generator().box(Type.CHAR_TYPE));
     assertEquals(
-            "NEW java/lang/Short DUP_X1 SWAP INVOKESPECIAL java/lang/Short.<init> (S)V",
+            "INVOKESTATIC java/lang/Short.valueOf (S)Ljava/lang/Short;",
             new Generator().box(Type.SHORT_TYPE));
     assertEquals(
-            "NEW java/lang/Integer DUP_X1 SWAP INVOKESPECIAL java/lang/Integer.<init> (I)V",
+            "INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;",
             new Generator().box(Type.INT_TYPE));
     assertEquals(
-            "NEW java/lang/Long DUP_X2 DUP_X2 POP INVOKESPECIAL java/lang/Long.<init> (J)V",
+            "INVOKESTATIC java/lang/Long.valueOf (J)Ljava/lang/Long;",
             new Generator().box(Type.LONG_TYPE));
     assertEquals(
-            "NEW java/lang/Float DUP_X1 SWAP INVOKESPECIAL java/lang/Float.<init> (F)V",
+            "INVOKESTATIC java/lang/Float.valueOf (F)Ljava/lang/Float;",
             new Generator().box(Type.FLOAT_TYPE));
     assertEquals(
-            "NEW java/lang/Double DUP_X2 DUP_X2 POP INVOKESPECIAL java/lang/Double.<init> (D)V",
+            "INVOKESTATIC java/lang/Double.valueOf (D)Ljava/lang/Double;",
             new Generator().box(Type.DOUBLE_TYPE));
   }
 
