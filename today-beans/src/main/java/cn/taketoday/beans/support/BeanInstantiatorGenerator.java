@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.support;
@@ -32,9 +29,9 @@ import cn.taketoday.bytecode.core.ClassGenerator;
 import cn.taketoday.bytecode.core.CodeEmitter;
 import cn.taketoday.bytecode.core.EmitUtils;
 import cn.taketoday.bytecode.core.MethodInfo;
-import cn.taketoday.reflect.GeneratorSupport;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.reflect.GeneratorSupport;
 import cn.taketoday.util.ReflectionUtils;
 
 /**
@@ -42,12 +39,12 @@ import cn.taketoday.util.ReflectionUtils;
  *
  * @author TODAY 2020/9/11 16:51
  */
-public class BeanInstantiatorGenerator
-        extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
+class BeanInstantiatorGenerator extends GeneratorSupport<ConstructorAccessor> implements ClassGenerator {
 
   private static final String superType = "Lcn/taketoday/beans/support/ConstructorAccessor;";
   private static final MethodInfo newInstanceInfo = MethodInfo.from(
           ReflectionUtils.getMethod(ConstructorAccessor.class, "doInstantiate", Object[].class));
+
   /** @since 4.0 */
   private static final MethodSignature SIG_CONSTRUCTOR
           = new MethodSignature(MethodSignature.CONSTRUCTOR_NAME, "(Ljava/lang/reflect/Constructor;)V");

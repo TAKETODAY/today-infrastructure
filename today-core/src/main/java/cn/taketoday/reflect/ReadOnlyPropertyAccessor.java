@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.reflect;
 
 import java.lang.reflect.Method;
 
+import cn.taketoday.lang.VisibleForTesting;
 import cn.taketoday.util.ObjectUtils;
 
 /**
@@ -30,15 +28,16 @@ import cn.taketoday.util.ObjectUtils;
  * @author TODAY 2020/9/12 15:22
  * @see ReflectionException
  */
-abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
+public abstract class ReadOnlyPropertyAccessor extends PropertyAccessor {
 
   @Override
   public final void set(final Object obj, final Object value) {
     throw new ReflectionException(
-            "Can't set value '" + ObjectUtils.toHexString(value) + "' to '" + classToString(obj) + "' read only property");
+            "Can't set value '%s' to '%s' read only property".formatted(ObjectUtils.toHexString(value), classToString(obj)));
   }
 
-  private static Class<?> classToString(Object obj) {
+  @VisibleForTesting
+  static Class<?> classToString(Object obj) {
     return obj != null ? obj.getClass() : null;
   }
 

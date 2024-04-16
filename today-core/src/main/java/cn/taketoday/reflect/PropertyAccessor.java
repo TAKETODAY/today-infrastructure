@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.reflect;
@@ -24,6 +21,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
+import cn.taketoday.bytecode.ClassVisitor;
+import cn.taketoday.bytecode.Opcodes;
+import cn.taketoday.bytecode.Type;
+import cn.taketoday.bytecode.core.ClassEmitter;
+import cn.taketoday.bytecode.core.ClassGenerator;
+import cn.taketoday.bytecode.core.CodeEmitter;
+import cn.taketoday.bytecode.core.EmitUtils;
+import cn.taketoday.bytecode.core.MethodInfo;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.lang.Nullable;
@@ -32,13 +37,13 @@ import cn.taketoday.util.ReflectionUtils;
 /**
  * @author TODAY 2020/9/11 11:06
  */
-public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
+public abstract class PropertyAccessor implements SetterMethod, GetterMethod, Accessor {
 
   @Override
-  public abstract Object get(Object obj);
+  public abstract Object get(Object obj) throws ReflectionException;
 
   @Override
-  public abstract void set(Object obj, Object value);
+  public abstract void set(Object obj, Object value) throws ReflectionException;
 
   /**
    * read-only ?
@@ -58,8 +63,14 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
    * @return PropertyAccessor
    */
   public static PropertyAccessor forField(Field field) {
-    Method readMethod = ReflectionUtils.getReadMethod(field);
+    boolean isPublic = Modifier.isPublic(field.getModifiers());
     boolean isReadOnly = Modifier.isFinal(field.getModifiers());
+
+    if (isPublic) {
+      return new PublicPropertyAccessorGenerator(field, isReadOnly).create();
+    }
+
+    Method readMethod = ReflectionUtils.getReadMethod(field);
     if (isReadOnly && readMethod != null) {
       MethodInvoker invoker = MethodInvoker.forMethod(readMethod);
       return new ReadOnlyMethodAccessorPropertyAccessor(invoker);
@@ -251,6 +262,116 @@ public abstract class PropertyAccessor implements SetterMethod, GetterMethod {
       return new ReflectiveReadOnlyPropertyAccessor(field, readMethod);
     }
     return new ReflectivePropertyAccessor(field, readMethod, writeMethod);
+  }
+
+  //
+
+  static class PublicPropertyAccessorGenerator extends GeneratorSupport<PropertyAccessor> implements ClassGenerator {
+    private static final String superType = "Lcn/taketoday/reflect/PropertyAccessor;";
+
+    private static final String readOnlySuperType = "Lcn/taketoday/reflect/ReadOnlyPropertyAccessor;";
+
+    private static final MethodInfo getMethodInfo = MethodInfo.from(
+            ReflectionUtils.getMethod(PropertyAccessor.class, "get", Object.class));
+
+    private static final MethodInfo setMethodInfo = MethodInfo.from(
+            ReflectionUtils.getMethod(PropertyAccessor.class, "set", Object.class, Object.class));
+
+    private final Field field;
+
+    private final boolean isReadOnly;
+
+    protected PublicPropertyAccessorGenerator(Field field, boolean isReadOnly) {
+      super(field.getDeclaringClass());
+      this.field = field;
+      this.isReadOnly = isReadOnly;
+    }
+
+    @Override
+    protected Object cacheKey() {
+      return field;
+    }
+
+    @Override
+    public String getSuperType() {
+      return isReadOnly ? readOnlySuperType : superType;
+    }
+
+    @Override
+    protected PropertyAccessor fallbackInstance() {
+      return forReflective(field);
+    }
+
+    @Override
+    protected boolean cannotAccess() {
+      return Modifier.isPrivate(targetClass.getModifiers())
+              || Modifier.isPrivate(field.getModifiers());
+    }
+
+    @Override
+    protected ClassGenerator getClassGenerator() {
+      return this;
+    }
+
+    @Override
+    protected void appendClassName(StringBuilder builder) {
+      builder.append('$')
+              .append(field.getName());
+    }
+
+    @Override
+    public void generateClass(ClassVisitor v) throws Exception {
+      ClassEmitter classEmitter = beginClass(v);
+      Type owner = Type.fromClass(targetClass);
+      Type type = Type.fromClass(field.getType());
+      String fieldName = field.getName();
+
+      // get method
+      generateGetMethod(classEmitter, owner, fieldName, type);
+      if (!isReadOnly) {
+        // set method
+        generateSetMethod(classEmitter, owner, fieldName, type);
+      }
+      classEmitter.endClass();
+    }
+
+    private void generateGetMethod(ClassEmitter classEmitter, Type owner, String fieldName, Type type) {
+      CodeEmitter code = EmitUtils.beginMethod(classEmitter, getMethodInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+      if (Modifier.isStatic(field.getModifiers())) {
+        code.getStatic(owner, fieldName, type);
+      }
+      else {
+        code.loadArg(0);
+        code.checkCast(owner);
+        code.getField(owner, fieldName, type);
+      }
+
+      code.valueOf(type);
+
+      code.returnValue();
+      code.endMethod();
+    }
+
+    private void generateSetMethod(ClassEmitter classEmitter, Type owner, String fieldName, Type type) {
+      CodeEmitter code = EmitUtils.beginMethod(classEmitter, setMethodInfo, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+
+      if (Modifier.isStatic(field.getModifiers())) {
+        code.loadArg(1);
+        code.checkCast(type);
+        code.putStatic(owner, fieldName, type);
+      }
+      else {
+        code.loadArg(0);
+        code.checkCast(owner);
+        code.loadArg(1);
+        code.unbox(type);
+
+        code.putField(owner, fieldName, type);
+      }
+
+      code.returnValue();
+      code.endMethod();
+    }
   }
 
 }
