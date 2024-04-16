@@ -25,18 +25,15 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation which marks a {@link java.util.Collection} or {@link java.util.Map} type
- * as unmodifiable. A collection or a map is unmodifiable if any mutator methods
- * (e.g. {@link java.util.Collection#add(Object)}) throw exception or have no effect,
- * and the object references stored as collection elements, map keys, and map values
- * are never changed. The referenced objects themselves still could be changed if they
- * are mutable.
+ * can be modified.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/8/30 09:25
+ * @see Unmodifiable
+ * @since 4.0 2024/4/16 10:30
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-public @interface Unmodifiable {
+public @interface Modifiable {
 
 }
