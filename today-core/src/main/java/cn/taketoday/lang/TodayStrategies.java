@@ -509,6 +509,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
+  @Modifiable
   public <T> List<T> load(Class<T> strategyType) {
     return load(strategyType, (ArgumentResolver) null, null);
   }
@@ -528,6 +529,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
+  @Modifiable
   public <T> List<T> load(Class<T> strategyType, @Nullable ArgumentResolver argumentResolver) {
     return load(strategyType, argumentResolver, null);
   }
@@ -547,6 +549,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
+  @Modifiable
   public <T> List<T> load(Class<T> strategyType, ClassInstantiator instantiator) {
     return load(strategyType, instantiator, null);
   }
@@ -566,6 +569,7 @@ public class TodayStrategies {
    * @param failureHandler strategy used to handle strategy instantiation failures
    * @return Returns strategy object list that can be modified
    */
+  @Modifiable
   public <T> List<T> load(Class<T> strategyType, @Nullable FailureHandler failureHandler) {
     return load(strategyType, (ArgumentResolver) null, failureHandler);
   }
@@ -587,6 +591,7 @@ public class TodayStrategies {
    * @param failureHandler strategy used to handle strategy instantiation failures
    * @return Returns strategy object list that can be modified
    */
+  @Modifiable
   public <T> List<T> load(Class<T> strategyType, @Nullable ArgumentResolver resolver, @Nullable FailureHandler failureHandler) {
     var instantiator = new DefaultInstantiator(resolver);
     return load(strategyType, instantiator, failureHandler);
@@ -609,6 +614,7 @@ public class TodayStrategies {
    * @param failureHandler strategy used to handle strategy instantiation failures
    * @return Returns strategy object list that can be modified
    */
+  @Modifiable
   public <T> List<T> load(Class<T> strategyType, ClassInstantiator instantiator, @Nullable FailureHandler failureHandler) {
     Assert.notNull(strategyType, "'strategyType' is required");
     Assert.notNull(instantiator, "'instantiator' is required");
@@ -634,10 +640,12 @@ public class TodayStrategies {
 
   // private stuff
 
+  @Unmodifiable
   private List<String> getStrategyNames(String strategyKey) {
     return strategies.getOrDefault(strategyKey, Collections.emptyList());
   }
 
+  @Unmodifiable
   private List<String> getStrategyNames(Class<?> strategyType) {
     return getStrategyNames(strategyType.getName());
   }
@@ -693,6 +701,7 @@ public class TodayStrategies {
    * @param <T> target type
    * @return returns none repeatable strategies by given class
    */
+  @Modifiable
   public static <T> List<T> find(Class<T> strategyClass) {
     return find(strategyClass, (ClassLoader) null);
   }
@@ -714,6 +723,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
+  @Modifiable
   public static <T> List<T> find(Class<T> strategyType, @Nullable ClassLoader classLoader) {
     return forDefaultResourceLocation(classLoader).load(strategyType);
   }
@@ -735,6 +745,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
+  @Modifiable
   public static <T> List<T> find(Class<T> strategyType, @Nullable ClassLoader classLoader, ClassInstantiator instantiator) {
     return forDefaultResourceLocation(classLoader).load(strategyType, instantiator);
   }
@@ -754,6 +765,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if any strategy implementation class cannot
    * be loaded or if an error occurs while instantiating any strategy
    */
+  @Modifiable
   public static <T> List<T> find(Class<T> strategyType, ClassInstantiator instantiator) {
     return forDefaultResourceLocation().load(strategyType, instantiator);
   }
@@ -772,6 +784,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if an error occurs while loading strategy names
    * @see #findNames
    */
+  @Unmodifiable
   public static List<String> findNames(Class<?> strategyType) {
     return findNames(strategyType, null);
   }
@@ -790,6 +803,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if an error occurs while loading strategy names
    * @see #findNames
    */
+  @Unmodifiable
   public static List<String> findNames(Class<?> strategyType, @Nullable ClassLoader classLoader) {
     return forDefaultResourceLocation(classLoader).getStrategyNames(strategyType);
   }
@@ -806,6 +820,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if an error occurs while loading strategy names
    * @see #findNames
    */
+  @Unmodifiable
   public static List<String> findNames(String strategyKey) {
     return findNames(strategyKey, null);
   }
@@ -824,6 +839,7 @@ public class TodayStrategies {
    * @throws IllegalArgumentException if an error occurs while loading strategy names
    * @see #findNames
    */
+  @Unmodifiable
   public static List<String> findNames(String strategyKey, @Nullable ClassLoader classLoader) {
     return forDefaultResourceLocation(classLoader).getStrategyNames(strategyKey);
   }
@@ -933,7 +949,7 @@ public class TodayStrategies {
       throw new IllegalArgumentException(
               "Unable to load strategies from location [%s]".formatted(resourceLocation), ex);
     }
-    return Collections.unmodifiableMap(strategies);
+    return strategies.asReadOnly();
   }
 
   private static List<String> toDistinctUnmodifiableList(String strategyType, List<String> implementations) {
