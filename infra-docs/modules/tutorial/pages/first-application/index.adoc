@@ -46,7 +46,7 @@ OS:           Mac OS X 14.4.1 aarch64
 
 我们需要首先创建一个 Gradle `build.gradle` 文件。`build.gradle` 是用于构建项目的构建脚本。
 
-[source,groovy]
+[source,groovy,subs="verbatim,attributes"]
 ----
 plugins {
   id 'java'
@@ -62,12 +62,10 @@ sourceCompatibility = '17'
 repositories {
   mavenLocal()
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-  maven { url "https://maven.aliyun.com/repository/public" }
   mavenCentral()
 }
 
 dependencies {
-  implementation 'cn.taketoday:ip2region-java:1.0-SNAPSHOT'
   implementation 'cn.taketoday:today-starter-web'   // <1>
   implementation 'cn.taketoday:today-starter-netty' // <2>
 
@@ -82,10 +80,17 @@ dependencies {
 == 添加 Hello World 代码
 
 和 Spring Boot 一样我们也只需要一个文件就能完成这个简单的 Web 应用。
-在 `build.gradle` 文件所在的同级目录下创建 `src/main/java/DemoApplication.java` 文件。
+在 `build.gradle` 文件所在的同级目录下创建 `src/main/java/demo/DemoApplication.java` 文件。
 
 [source,java]
 ----
+package demo;
+
+import cn.taketoday.framework.Application;
+import cn.taketoday.framework.InfraApplication;
+import cn.taketoday.web.annotation.RestController;
+import cn.taketoday.web.annotation.GET;
+
 @RestController
 @InfraApplication
 public class DemoApplication {
@@ -121,17 +126,17 @@ TIP: 如果你用过 Spring 系列的框架 `@RestController` 你一定不陌生
 ****
 
 [[getting-started.first-application.code.main-method]]
-=== IDE 执行 "`main`" 方法
+=== 使用 IDE 执行 "`main`" 方法
 
 main 方法作为整个应用的入口。调用 `Application.run` 方法来启动初始化整个框架，包括自动配置应用中的 Bean，和 Web 服务器等。
 如果你使用像 `IntelliJ IDEA` 之类的开发工具。直接运行 main 方法即可启动你的 Hello World 应用程序。
 
 [[getting-started.first-application.run.gradle]]
-=== 使用 Gradle 运行
+== 使用 Gradle 运行
 
 可以直接使用 `gradle infraRun` 命令启动。
 
-[source,shell,subs="verbatim,attributes"]
+[source,text,subs="verbatim,attributes"]
 ----
 $ gradle infraRun
 
@@ -140,13 +145,17 @@ $ gradle infraRun
  / /   / /_/ / / // / / __ |  \  /       _/ /   /    /  / _/   / , _/ / __ |
 /_/    \____/ /____/ /_/ |_|  /_/       /___/  /_/|_/  /_/    /_/|_| /_/ |_| (v{infra-version})
 
-....... . . .
-....... . . .
-....... . . .
-........ Started MyApplication in 0.906 seconds (process running for 6.514)
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: Starting DemoApplication using Java 17.0.9 on xxx with PID 80362 (build/classes/java/main started by xx )
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: No active profile set, falling back to 1 default profile: "default"
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext: Starting application context at '1111-11-11 11:11:11.111'
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.web.bind.resolver.ParameterResolvingRegistry: RedirectModel disabled
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.netty.NettyChannelHandler: Completed initialization in 1 ms
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.netty.NettyWebServer: Netty web server started on port: '8080'
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext: Application context startup in 366 ms
+[1111-11-11 11:11:11.111] - 80362 INFO [main] --- demo.DemoApplication: Started DemoApplication in 5.544 seconds (process running for 5.621)
 ----
 
-If you open a web browser to `http://localhost:8080`, you should see the following output:
+打开浏览器输入 `http://localhost:8080`, 你会看到：
 
 [source]
 ----
@@ -172,7 +181,7 @@ BUILD SUCCESSFUL in 639ms
 
 使用 `java -jar` 命令运行:
 
-[source,shell]
+[source,text,subs="verbatim,attributes"]
 ----
 $ java -jar build/libs/xxx-0.0.1-SNAPSHOT.jar
 
