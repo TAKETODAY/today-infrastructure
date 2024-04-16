@@ -84,6 +84,7 @@ import cn.taketoday.core.annotation.MergedAnnotations.SearchStrategy;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.type.MethodMetadata;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.NullValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
@@ -1111,6 +1112,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  @Modifiable
   @SuppressWarnings("unchecked")
   public <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     Set<String> beanNames = getBeanNamesForType(requiredType, includeNonSingletons, allowEagerInit);
@@ -1150,6 +1152,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  @Modifiable
   public Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     if (!isConfigurationFrozen() || requiredType == null || !allowEagerInit) {
       return doGetBeanNamesForType(
@@ -1176,6 +1179,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
   }
 
   @Override
+  @Modifiable
   public Set<String> getBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
 
     Class<?> resolved = requiredType.resolve();
@@ -1187,6 +1191,7 @@ public class StandardBeanFactory extends AbstractAutowireCapableBeanFactory
     }
   }
 
+  @Modifiable
   private Set<String> doGetBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
 
     LinkedHashSet<String> beanNames = new LinkedHashSet<>();

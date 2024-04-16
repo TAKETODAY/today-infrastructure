@@ -20,6 +20,7 @@ package cn.taketoday.core.io;
 import java.io.IOException;
 import java.util.Set;
 
+import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 
@@ -48,12 +49,12 @@ import cn.taketoday.util.ResourceUtils;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY 2021/10/7 17:26
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see Resource
  * @see ResourceLoader
  * @see cn.taketoday.context.ApplicationContext
  * @see cn.taketoday.context.ResourceLoaderAware
- * @since 4.0
+ * @since 4.0 2021/10/7 17:26
  */
 public interface PatternResourceLoader extends ResourceLoader {
 
@@ -80,6 +81,7 @@ public interface PatternResourceLoader extends ResourceLoader {
    * @return a mutable Set of the corresponding {@code Resource} instances
    * @throws IOException in case of I/O errors
    */
+  @Modifiable
   Set<Resource> getResources(String locationPattern) throws IOException;
 
   /**

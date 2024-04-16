@@ -33,6 +33,7 @@ import cn.taketoday.beans.factory.support.DependencyInjectorProvider;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.MergedAnnotation;
+import cn.taketoday.lang.Modifiable;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -350,6 +351,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #getType(String, boolean)
    * @since 4.0
    */
+  @Modifiable
   <A extends Annotation> Set<A> findAllAnnotationsOnBean(String beanName, Class<A> annotationType, boolean allowFactoryBeanInit)
           throws NoSuchBeanDefinitionException;
 
@@ -497,6 +499,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #findSynthesizedAnnotation
    * @since 3.0
    */
+  @Modifiable
   @SuppressWarnings("unchecked")
   default <T> List<T> getAnnotatedBeans(Class<? extends Annotation> annotationType) throws BeansException {
     return (List<T>) new ArrayList<>(getBeansWithAnnotation(annotationType).values());
@@ -516,6 +519,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #findSynthesizedAnnotation
    * @since 3.0
    */
+  @Modifiable
   default Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) throws BeansException {
     return getBeansWithAnnotation(annotationType, true);
   }
@@ -536,6 +540,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #findSynthesizedAnnotation
    * @since 3.0
    */
+  @Modifiable
   Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType, boolean includeNonSingletons)
           throws BeansException;
 
@@ -546,6 +551,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @return A set of beans with given type, never be {@code null}
    * @since 2.1.2
    */
+  @Modifiable
   default <T> List<T> getBeans(Class<T> requiredType) {
     return new ArrayList<>(getBeansOfType(requiredType).values());
   }
@@ -579,6 +585,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class)
    * @since 2.1.6
    */
+  @Modifiable
   default <T> Map<String, T> getBeansOfType(Class<T> requiredType) {
     return getBeansOfType(requiredType, true, true);
   }
@@ -618,6 +625,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beansOfTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
+  @Modifiable
   default <T> Map<String, T> getBeansOfType(@Nullable Class<T> type, boolean includeNonSingletons, boolean allowEagerInit) throws BeansException {
     return getBeansOfType(ResolvableType.forClass(type), includeNonSingletons, allowEagerInit);
   }
@@ -647,6 +655,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see FactoryBean#getObjectType
    * @since 3.0
    */
+  @Modifiable
   <T> Map<String, T> getBeansOfType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
 
   //
@@ -662,6 +671,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see FactoryBean#getObjectType()
    * @since 3.0
    */
+  @Modifiable
   default Set<String> getBeanNamesForType(Class<?> requiredType) {
     return getBeanNamesForType(requiredType, true);
   }
@@ -682,6 +692,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see FactoryBean#getObjectType()
    * @since 3.0
    */
+  @Modifiable
   Set<String> getBeanNamesForType(Class<?> requiredType, boolean includeNonSingletons);
 
   /**
@@ -717,6 +728,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, Class, boolean, boolean)
    * @since 3.0
    */
+  @Modifiable
   default Set<String> getBeanNamesForType(@Nullable Class<?> requiredType, boolean includeNonSingletons, boolean allowEagerInit) {
     return getBeanNamesForType(ResolvableType.forClass(requiredType), includeNonSingletons, allowEagerInit);
   }
@@ -749,6 +761,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see BeanFactoryUtils#beanNamesForTypeIncludingAncestors(BeanFactory, ResolvableType)
    * @since 4.0
    */
+  @Modifiable
   Set<String> getBeanNamesForType(ResolvableType type);
 
   /**
@@ -769,6 +782,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see FactoryBean#getObjectType()
    * @since 4.0
    */
+  @Modifiable
   Set<String> getBeanNamesForType(ResolvableType requiredType, boolean includeNonSingletons, boolean allowEagerInit);
 
   /**
@@ -783,6 +797,7 @@ public interface BeanFactory extends DependencyInjectorProvider {
    * @see #findSynthesizedAnnotation(String, Class)
    * @since 4.0
    */
+  @Modifiable
   Set<String> getBeanNamesForAnnotation(Class<? extends Annotation> annotationType);
 
   /**
