@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.jackson;
@@ -38,17 +35,17 @@ import cn.taketoday.stereotype.Component;
  * {@link JsonDeserializer} or {@link KeyDeserializer} implementations to be registered
  * with Jackson when {@link JsonComponentModule} is in use. Can be used to annotate
  * implementations directly or a class that contains them as inner-classes. For example:
- * <pre class="code">
- * &#064;JsonComponent
+ * <pre>{@code
+ * @JsonComponent
  * public class CustomerJsonComponent {
  *
- *     public static class Serializer extends JsonSerializer&lt;Customer&gt; {
+ *     public static class Serializer extends JsonSerializer<Customer> {
  *
  *         // ...
  *
  *     }
  *
- *     public static class Deserializer extends JsonDeserializer&lt;Customer&gt; {
+ *     public static class Deserializer extends JsonDeserializer<Customer> {
  *
  *         // ...
  *
@@ -56,7 +53,7 @@ import cn.taketoday.stereotype.Component;
  *
  * }
  *
- * </pre>
+ * }</pre>
  *
  * @author Phillip Webb
  * @author Paul Aly

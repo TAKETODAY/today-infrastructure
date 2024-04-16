@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.jackson;
@@ -61,6 +58,7 @@ import cn.taketoday.util.ObjectUtils;
  *
  * @author Phillip Webb
  * @author Paul Aly
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see JsonComponent
  * @since 4.0
  */
@@ -83,7 +81,7 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
     while (beanFactory != null) {
       addJsonBeans(beanFactory);
       beanFactory = beanFactory instanceof HierarchicalBeanFactory hbf
-                    ? hbf.getParentBeanFactory() : null;
+              ? hbf.getParentBeanFactory() : null;
     }
   }
 
@@ -149,8 +147,7 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
   }
 
   @SuppressWarnings("unchecked")
-  private <E, T> void addBeanToModule(
-          E element, Class<T> baseType, Class<?>[] types, BiConsumer<Class<T>, E> consumer) {
+  private <E, T> void addBeanToModule(E element, Class<T> baseType, Class<?>[] types, BiConsumer<Class<T>, E> consumer) {
     if (ObjectUtils.isEmpty(types)) {
       consumer.accept(baseType, element);
       return;
@@ -164,10 +161,9 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
   static class JsonComponentBeanFactoryInitializationAotProcessor implements BeanFactoryInitializationAotProcessor {
 
     @Override
-    public BeanFactoryInitializationAotContribution processAheadOfTime(
-            ConfigurableBeanFactory beanFactory) {
+    public BeanFactoryInitializationAotContribution processAheadOfTime(ConfigurableBeanFactory beanFactory) {
       Set<String> jsonComponents = beanFactory.getBeanNamesForAnnotation(JsonComponent.class);
-      Map<Class<?>, List<Class<?>>> innerComponents = new HashMap<>();
+      HashMap<Class<?>, List<Class<?>>> innerComponents = new HashMap<>();
       for (String jsonComponent : jsonComponents) {
         Class<?> type = beanFactory.getType(jsonComponent, true);
         Assert.state(type != null, "Cannot determine JsonComponent bean type");
@@ -179,7 +175,6 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
       }
       return innerComponents.isEmpty() ? null : new JsonComponentAotContribution(innerComponents);
     }
-
   }
 
   private static final class JsonComponentAotContribution implements BeanFactoryInitializationAotContribution {
@@ -191,8 +186,7 @@ public class JsonComponentModule extends SimpleModule implements BeanFactoryAwar
     }
 
     @Override
-    public void applyTo(GenerationContext generationContext,
-            BeanFactoryInitializationCode beanFactoryInitializationCode) {
+    public void applyTo(GenerationContext generationContext, BeanFactoryInitializationCode code) {
       ReflectionHints reflection = generationContext.getRuntimeHints().reflection();
       this.innerComponents.forEach((outer, inners) -> {
         reflection.registerType(outer, MemberCategory.DECLARED_CLASSES);
