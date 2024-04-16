@@ -1,7 +1,7 @@
 * xref:ROOT:overview.adoc[概述]
 
 include::tutorial:partial$nav-tutorial.adoc[]
-include::api:partial$nav-java-api.adoc[]
 include::ROOT:partial$nav-root.adoc[]
+include::api:partial$nav-java-api.adoc[]
 
 

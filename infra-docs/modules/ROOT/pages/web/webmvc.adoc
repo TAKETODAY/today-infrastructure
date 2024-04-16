@@ -1,16 +1,6 @@
 [[mvc]]
 :chapter: mvc
-[[spring-web-mvc]]
-= Spring Web MVC
+[[infra-web-mvc]]
+= Web MVC
 :page-section-summary-toc: 1
-
-Spring Web MVC is the original web framework built on the Servlet API and has been included
-in the TODAY Framework from the very beginning. The formal name, "Spring Web MVC,"
-comes from the name of its source module
-({today-framework-code}/spring-webmvc[`spring-webmvc`]),
-but it is more commonly known as "Web MVC".
-
-For baseline information and compatibility with Servlet container and Jakarta EE version
-ranges, see the TODAY Framework
-{today-framework-wiki}/Infra-Versions[Wiki].
 

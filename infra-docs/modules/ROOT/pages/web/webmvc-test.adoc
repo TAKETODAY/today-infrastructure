@@ -1,5 +1,5 @@
 [[test]]
-= Testing
+= 测试
 
 This section summarizes the options available in `spring-test` for Web MVC applications.
 

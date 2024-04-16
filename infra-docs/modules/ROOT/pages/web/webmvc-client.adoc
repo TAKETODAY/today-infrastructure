@@ -1,5 +1,5 @@
 [[webmvc-client]]
-= REST Clients
+= REST 客户端
 
 This section describes options for client-side access to REST endpoints.
 
