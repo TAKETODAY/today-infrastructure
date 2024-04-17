@@ -9,33 +9,14 @@ configuration metadata is represented in XML, Java annotations, or Java code. It
 you express the objects that compose your application and the rich interdependencies
 between those objects.
 
-Several implementations of the `ApplicationContext` interface are supplied
-with Spring. In stand-alone applications, it is common to create an
-instance of
-{today-framework-api}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`]
-or {today-framework-api}/context/support/FileSystemXmlApplicationContext.html[`FileSystemXmlApplicationContext`].
-While XML has been the traditional format for defining configuration metadata, you can
-instruct the container to use Java annotations or code as the metadata format by
-providing a small amount of XML configuration to declaratively enable support for these
-additional metadata formats.
+`cn.taketoday.context.ApplicationContext` 接口代表 IoC 容器并负责实例化、配置和组装
+Bean 。容器通过获取 XML 配置或 Java 注解配置甚至是代码来实例化、配置和组装 Bean。
 
-In most application scenarios, explicit user code is not required to instantiate one or
-more instances of a Infra IoC container. For example, in a web application scenario, a
-simple eight (or so) lines of boilerplate web descriptor XML in the `web.xml` file
-of the application typically suffices (see
-xref:core/beans/context-introduction.adoc#context-create[Convenient ApplicationContext Instantiation for Web Applications]).
-If you use the {today-tech-site-tools}[Spring Tools for Eclipse] (an Eclipse-powered
-development environment), you can easily create this boilerplate configuration with a
-few mouse clicks or keystrokes.
 
-The following diagram shows a high-level view of how Spring works. Your application classes
-are combined with configuration metadata so that, after the `ApplicationContext` is
-created and initialized, you have a fully configured and executable system or
-application.
-
-.The Infra IoC container
-image::container-magic.png[]
-
+框架提供了几个 `ApplicationContext` 接口的实现，在单体应用中，当你要使用 XML 配置来描述和配置 Bean 时
+你可以使用 {today-framework-api}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`]
+或者 {today-framework-api}/context/support/FileSystemXmlApplicationContext.html[`FileSystemXmlApplicationContext`]。
+当然你也可以使用少量 XML 配置开启 Java 注解或代码作为元数据格式。
 
 
 [[beans-factory-metadata]]
@@ -43,7 +24,7 @@ image::container-magic.png[]
 
 As the preceding diagram shows, the Infra IoC container consumes a form of
 configuration metadata. This configuration metadata represents how you, as an
-application developer, tell the Spring container to instantiate, configure, and assemble
+application developer, tell the Infra container to instantiate, configure, and assemble
 the objects in your application.
 
 Configuration metadata is traditionally supplied in a simple and intuitive XML format,
@@ -53,9 +34,9 @@ Infra IoC container.
 NOTE: XML-based metadata is not the only allowed form of configuration metadata.
 The Infra IoC container itself is totally decoupled from the format in which this
 configuration metadata is actually written. These days, many developers choose
-xref:core/beans/java.adoc[Java-based configuration] for their Spring applications.
+xref:core/beans/java.adoc[Java-based configuration] for their Infra applications.
 
-For information about using other forms of metadata with the Spring container, see:
+For information about using other forms of metadata with the Infra container, see:
 
 * xref:core/beans/annotation-config.adoc[Annotation-based configuration]: define beans using
 annotation-based configuration metadata.
@@ -66,7 +47,7 @@ classes by using Java rather than XML files. To use these features, see the
 {today-framework-api}/context/annotation/Import.html[`@Import`],
 and {today-framework-api}/context/annotation/DependsOn.html[`@DependsOn`] annotations.
 
-Spring configuration consists of at least one and typically more than one bean
+Infra configuration consists of at least one and typically more than one bean
 definition that the container must manage. XML-based configuration metadata configures these
 beans as `<bean/>` elements inside a top-level `<beans/>` element. Java
 configuration typically uses `@Bean`-annotated methods within a `@Configuration` class.
@@ -227,7 +208,7 @@ same directory or classpath location as the file doing the importing, while
 location of the importing file. As you can see, a leading slash is ignored. However, given
 that these paths are relative, it is better form not to use the slash at all. The
 contents of the files being imported, including the top level `<beans/>` element, must
-be valid XML bean definitions, according to the Spring Schema.
+be valid XML bean definitions, according to the Infra Schema.
 
 [NOTE]
 ====
@@ -248,7 +229,7 @@ system properties at runtime.
 
 The namespace itself provides the import directive feature. Further
 configuration features beyond plain bean definitions are available in a selection
-of XML namespaces provided by Spring -- for example, the `context` and `util` namespaces.
+of XML namespaces provided by Infra -- for example, the `context` and `util` namespaces.
 
 
 [[groovy-bean-definition-dsl]]

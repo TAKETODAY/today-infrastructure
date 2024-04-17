@@ -22,14 +22,14 @@ for transactions. These tags are covered in the chapter entitled
 xref:data-access/transaction.adoc[Transaction Management].
 
 TIP: We strongly encourage you to look at the `'spring-tx.xsd'` file that ships with the
-Spring distribution. This file contains the XML Schema for Infra transaction
+Infra distribution. This file contains the XML Schema for Infra transaction
 configuration and covers all of the various elements in the `tx` namespace, including
 attribute defaults and similar information. This file is documented inline, and, thus,
 the information is not repeated here in the interests of adhering to the DRY (Don't
 Repeat Yourself) principle.
 
 In the interest of completeness, to use the elements in the `tx` schema, you need to have
-the following preamble at the top of your Spring XML configuration file. The text in the
+the following preamble at the top of your Infra XML configuration file. The text in the
 following snippet references the correct schema so that the tags in the `tx` namespace
 are available to you:
 
@@ -56,7 +56,7 @@ are available to you:
 <2> Specify the location (with other schema locations).
 
 NOTE: Often, when you use the elements in the `tx` namespace, you are also using the
-elements from the `aop` namespace (since the declarative transaction support in Spring is
+elements from the `aop` namespace (since the declarative transaction support in Infra is
 implemented by using AOP). The preceding XML snippet contains the relevant lines needed
 to reference the `aop` schema so that the elements in the `aop` namespace are available
 to you.
@@ -72,7 +72,7 @@ xref:data-access/jdbc/embedded-database-support.adoc[Embedded Database Support] 
 xref:data-access/jdbc/initializing-datasource.adoc[Initializing a DataSource], respectively.
 
 To use the elements in the `jdbc` schema, you need to have the following preamble at the
-top of your Spring XML configuration file. The text in the following snippet references
+top of your Infra XML configuration file. The text in the following snippet references
 the correct schema so that the elements in the `jdbc` namespace are available to you:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

@@ -2,19 +2,19 @@
 = Task Execution and Scheduling
 
 The TODAY Framework provides abstractions for the asynchronous execution and scheduling of
-tasks with the `TaskExecutor` and `TaskScheduler` interfaces, respectively. Spring also
+tasks with the `TaskExecutor` and `TaskScheduler` interfaces, respectively. Infra also
 features implementations of those interfaces that support thread pools or delegation to
 CommonJ within an application server environment. Ultimately, the use of these
 implementations behind the common interfaces abstracts away the differences between
 Java SE and Jakarta EE environments.
 
-Spring also features integration classes to support scheduling with the
+Infra also features integration classes to support scheduling with the
 https://www.quartz-scheduler.org/[Quartz Scheduler].
 
 
 
 [[scheduling-task-executor]]
-== The Spring `TaskExecutor` Abstraction
+== The Infra `TaskExecutor` Abstraction
 
 Executors are the JDK name for the concept of thread pools. The "`executor`" naming is
 due to the fact that there is no guarantee that the underlying implementation is
@@ -27,7 +27,7 @@ the need for Java 5 when using thread pools. The interface has a single method
 (`execute(Runnable task)`) that accepts a task for execution based on the semantics
 and configuration of the thread pool.
 
-The `TaskExecutor` was originally created to give other Spring components an abstraction
+The `TaskExecutor` was originally created to give other Infra components an abstraction
 for thread pooling where needed. Components such as the `ApplicationEventMulticaster`,
 JMS's `AbstractMessageListenerContainer`, and Quartz integration all use the
 `TaskExecutor` abstraction to pool threads. However, if your beans need thread pooling
@@ -37,9 +37,9 @@ behavior, you can also use this abstraction for your own needs.
 [[scheduling-task-executor-types]]
 === `TaskExecutor` Types
 
-Spring includes a number of pre-built implementations of `TaskExecutor`.
+Infra includes a number of pre-built implementations of `TaskExecutor`.
 In all likelihood, you should never need to implement your own.
-The variants that Spring provides are as follows:
+The variants that Infra provides are as follows:
 
 * `SyncTaskExecutor`:
   This implementation does not run invocations asynchronously. Instead, each
@@ -134,9 +134,9 @@ To configure the rules that the `TaskExecutor` uses, we expose simple bean prope
 
 
 [[scheduling-task-scheduler]]
-== The Spring `TaskScheduler` Abstraction
+== The Infra `TaskScheduler` Abstraction
 
-In addition to the `TaskExecutor` abstraction, Spring has a `TaskScheduler` SPI with a
+In addition to the `TaskExecutor` abstraction, Infra has a `TaskScheduler` SPI with a
 variety of methods for scheduling tasks to run at some point in the future. The following
 listing shows the `TaskScheduler` interface definition:
 
@@ -208,7 +208,7 @@ public interface TriggerContext {
 [[scheduling-trigger-implementations]]
 === `Trigger` Implementations
 
-Spring provides two implementations of the `Trigger` interface. The most interesting one
+Infra provides two implementations of the `Trigger` interface. The most interesting one
 is the `CronTrigger`. It enables the scheduling of tasks based on
 xref:integration/scheduling.adoc#scheduling-cron-expression[cron expressions].
 For example, the following task is scheduled to run 15 minutes past each hour but only
@@ -239,12 +239,12 @@ As with Infra `TaskExecutor` abstraction, the primary benefit of the `TaskSchedu
 arrangement is that an application's scheduling needs are decoupled from the deployment
 environment. This abstraction level is particularly relevant when deploying to an
 application server environment where threads should not be created directly by the
-application itself. For such scenarios, Spring provides a `DefaultManagedTaskScheduler`
+application itself. For such scenarios, Infra provides a `DefaultManagedTaskScheduler`
 that delegates to a JSR-236 `ManagedScheduledExecutorService` in a Jakarta EE environment.
 
 Whenever external thread management is not a requirement, a simpler alternative is
 a local `ScheduledExecutorService` setup within the application, which can be adapted
-through Infra `ConcurrentTaskScheduler`. As a convenience, Spring also provides a
+through Infra `ConcurrentTaskScheduler`. As a convenience, Infra also provides a
 `ThreadPoolTaskScheduler`, which internally delegates to a `ScheduledExecutorService`
 to provide common bean-style configuration along the lines of `ThreadPoolTaskExecutor`.
 These variants work perfectly fine for locally embedded thread pool setups in lenient
@@ -262,7 +262,7 @@ this virtual-thread-aligned option, fixed rates and cron triggers are recommende
 [[scheduling-annotation-support]]
 == Annotation Support for Scheduling and Asynchronous Execution
 
-Spring provides annotation support for both task scheduling and asynchronous method
+Infra provides annotation support for both task scheduling and asynchronous method
 execution.
 
 
@@ -410,7 +410,7 @@ As of TODAY Framework 4.3, `@Scheduled` methods are supported on beans of any sc
 Make sure that you are not initializing multiple instances of the same `@Scheduled`
 annotation class at runtime, unless you do want to schedule callbacks to each such
 instance. Related to this, make sure that you do not use `@Configurable` on bean
-classes that are annotated with `@Scheduled` and registered as regular Spring beans
+classes that are annotated with `@Scheduled` and registered as regular Infra beans
 with the container. Otherwise, you would get double initialization (once through the
 container and once through the `@Configurable` aspect), with the consequence of each
 `@Scheduled` method being invoked twice.
@@ -515,7 +515,7 @@ or even infinite publishers).
 You can provide the `@Async` annotation on a method so that invocation of that method
 occurs asynchronously. In other words, the caller returns immediately upon
 invocation, while the actual execution of the method occurs in a task that has been
-submitted to a Spring `TaskExecutor`. In the simplest case, you can apply the annotation
+submitted to a Infra `TaskExecutor`. In the simplest case, you can apply the annotation
 to a method that returns `void`, as the following example shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -555,12 +555,12 @@ Future<String> returnSomething(int i) {
 
 TIP: `@Async` methods may not only declare a regular `java.util.concurrent.Future` return
 type but also Infra `cn.taketoday.util.concurrent.ListenableFuture` or, as of
-Spring 4.2, JDK 8's `java.util.concurrent.CompletableFuture`, for richer interaction with
+Infra 4.2, JDK 8's `java.util.concurrent.CompletableFuture`, for richer interaction with
 the asynchronous task and for immediate composition with further processing steps.
 
 You can not use `@Async` in conjunction with lifecycle callbacks such as `@PostConstruct`.
-To asynchronously initialize Spring beans, you currently have to use a separate
-initializing Spring bean that then invokes the `@Async` annotated method on the target,
+To asynchronously initialize Infra beans, you currently have to use a separate
+initializing Infra bean that then invokes the `@Async` annotated method on the target,
 as the following example shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -648,7 +648,7 @@ by using `AsyncConfigurer` or the `<task:annotation-driven/>` XML element.
 [[scheduling-task-namespace]]
 == The `task` Namespace
 
-As of version 3.0, Spring includes an XML namespace for configuring `TaskExecutor` and
+As of version 3.0, Infra includes an XML namespace for configuring `TaskExecutor` and
 `TaskScheduler` instances. It also provides a convenient way to configure tasks to be
 scheduled with a trigger.
 
@@ -759,7 +759,7 @@ The following example sets the `keep-alive` value to two minutes:
 === The 'scheduled-tasks' Element
 
 The most powerful feature of Infra task namespace is the support for configuring
-tasks to be scheduled within a Spring Application Context. This follows an approach
+tasks to be scheduled within a Infra Application Context. This follows an approach
 similar to other "`method-invokers`" in Spring, such as that provided by the JMS namespace
 for configuring message-driven POJOs. Basically, a `ref` attribute can point to any
 Spring-managed object, and the `method` attribute provides the name of a method to be
@@ -803,7 +803,7 @@ The following example shows these other options:
 [[scheduling-cron-expression]]
 == Cron Expressions
 
-All Spring cron expressions have to conform to the same format, whether you are using them in
+All Infra cron expressions have to conform to the same format, whether you are using them in
 xref:integration/scheduling.adoc#scheduling-annotation-support-scheduled[`@Scheduled` annotations],
 xref:integration/scheduling.adoc#scheduling-task-namespace-scheduled-tasks[`task:scheduled-tasks` elements],
 or someplace else. A well-formed cron expression, such as `* * * * * *`, consists of six
@@ -873,7 +873,7 @@ Here are some examples:
 === Macros
 
 Expressions such as `0 0 * * * *` are hard for humans to parse and are, therefore,
-hard to fix in case of bugs. To improve readability, Spring supports the following
+hard to fix in case of bugs. To improve readability, Infra supports the following
 macros, which represent commonly used sequences. You can use these macros instead
 of the six-digit value, thus: `@Scheduled(cron = "@hourly")`.
 
@@ -1018,11 +1018,11 @@ NOTE: By default, jobs will run in a concurrent fashion.
 We have created job details and jobs. We have also reviewed the convenience bean that
 lets you invoke a method on a specific object. Of course, we still need to schedule the
 jobs themselves. This is done by using triggers and a `SchedulerFactoryBean`. Several
-triggers are available within Quartz, and Spring offers two Quartz `FactoryBean`
+triggers are available within Quartz, and Infra offers two Quartz `FactoryBean`
 implementations with convenient defaults: `CronTriggerFactoryBean` and
 `SimpleTriggerFactoryBean`.
 
-Triggers need to be scheduled. Spring offers a `SchedulerFactoryBean` that exposes
+Triggers need to be scheduled. Infra offers a `SchedulerFactoryBean` that exposes
 triggers to be set as properties. `SchedulerFactoryBean` schedules the actual jobs with
 those triggers.
 

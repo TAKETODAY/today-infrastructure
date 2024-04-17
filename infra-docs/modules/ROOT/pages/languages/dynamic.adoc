@@ -766,14 +766,14 @@ This last section contains some additional details related to the dynamic langua
 [[dynamic-language-final-notes-aop]]
 === AOP -- Advising Scripted Beans
 
-You can use the Infra AOP framework to advise scripted beans. The Spring AOP
+You can use the Infra AOP framework to advise scripted beans. The Infra AOP
 framework actually is unaware that a bean that is being advised might be a scripted
 bean, so all of the AOP use cases and functionality that you use (or aim to use)
 work with scripted beans. When you advise scripted beans, you cannot use class-based
 proxies. You must use xref:core/aop/proxying.adoc[interface-based proxies].
 
 You are not limited to advising scripted beans. You can also write aspects themselves
-in a supported dynamic language and use such beans to advise other Spring beans.
+in a supported dynamic language and use such beans to advise other Infra beans.
 This really would be an advanced use of the dynamic language support though.
 
 
@@ -818,15 +818,15 @@ for a full discussion of the scoping support in the TODAY Framework.
 [[xsd-schemas-lang]]
 === The `lang` XML schema
 
-The `lang` elements in Spring XML configuration deal with exposing objects that have been
-written in a dynamic language (such as Groovy or BeanShell) as beans in the Spring container.
+The `lang` elements in Infra XML configuration deal with exposing objects that have been
+written in a dynamic language (such as Groovy or BeanShell) as beans in the Infra container.
 
 These elements (and the dynamic language support) are comprehensively covered in
 xref:languages/dynamic.adoc[Dynamic Language Support]. See that section
 for full details on this support and the `lang` elements.
 
 To use the elements in the `lang` schema, you need to have the following preamble at the
-top of your Spring XML configuration file. The text in the following snippet references
+top of your Infra XML configuration file. The text in the following snippet references
 the correct schema so that the tags in the `lang` namespace are available to you:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

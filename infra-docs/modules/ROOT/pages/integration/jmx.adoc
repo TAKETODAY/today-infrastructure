@@ -1,8 +1,8 @@
 [[jmx]]
 = JMX
 
-The JMX (Java Management Extensions) support in Spring provides features that let you
-easily and transparently integrate your Spring application into a JMX infrastructure.
+The JMX (Java Management Extensions) support in Infra provides features that let you
+easily and transparently integrate your Infra application into a JMX infrastructure.
 
 .JMX?
 ****
@@ -12,15 +12,15 @@ to use JMX. If you are new to JMX, see xref:integration/jmx/resources.adoc[Furth
 
 Specifically, Infra JMX support provides four core features:
 
-* The automatic registration of any Spring bean as a JMX MBean.
+* The automatic registration of any Infra bean as a JMX MBean.
 * A flexible mechanism for controlling the management interface of your beans.
 * The declarative exposure of MBeans over remote, JSR-160 connectors.
 * The simple proxying of both local and remote MBean resources.
 
 These features are designed to work without coupling your application components to
-either Spring or JMX interfaces and classes. Indeed, for the most part, your application
-classes need not be aware of either Spring or JMX in order to take advantage of the
-Spring JMX features.
+either Infra or JMX interfaces and classes. Indeed, for the most part, your application
+classes need not be aware of either Infra or JMX in order to take advantage of the
+Infra JMX features.
 
 
 

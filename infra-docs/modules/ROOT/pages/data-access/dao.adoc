@@ -1,7 +1,7 @@
 [[dao]]
 = DAO Support
 
-The Data Access Object (DAO) support in Spring is aimed at making it easy to work with
+The Data Access Object (DAO) support in Infra is aimed at making it easy to work with
 data access technologies (such as JDBC, Hibernate, or JPA) in a consistent way. This
 lets you switch between the aforementioned persistence technologies fairly easily,
 and it also lets you code without worrying about catching exceptions that are
@@ -12,12 +12,12 @@ specific to each technology.
 [[dao-exceptions]]
 == Consistent Exception Hierarchy
 
-Spring provides a convenient translation from technology-specific exceptions, such as
+Infra provides a convenient translation from technology-specific exceptions, such as
 `SQLException` to its own exception class hierarchy, which has `DataAccessException` as
 the root exception. These exceptions wrap the original exception so that there is never
 any risk that you might lose any information about what might have gone wrong.
 
-In addition to JDBC exceptions, Spring can also wrap JPA- and Hibernate-specific exceptions,
+In addition to JDBC exceptions, Infra can also wrap JPA- and Hibernate-specific exceptions,
 converting them to a set of focused runtime exceptions. This lets you handle most
 non-recoverable persistence exceptions in only the appropriate layers, without having
 annoying boilerplate catch-and-throw blocks and exception declarations in your DAOs.
@@ -35,7 +35,7 @@ to exceptions that are compatible with the exceptions in the `cn.taketoday.dao`
 exception hierarchy. As `PersistenceExceptions` are unchecked, they can get thrown, too
 (sacrificing generic DAO abstraction in terms of exceptions, though).
 
-The following image shows the exception hierarchy that Spring provides.
+The following image shows the exception hierarchy that Infra provides.
 (Note that the class hierarchy detailed in the image shows only a subset of the entire
 `DataAccessException` hierarchy.)
 

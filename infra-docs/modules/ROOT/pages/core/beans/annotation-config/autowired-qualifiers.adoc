@@ -120,7 +120,7 @@ injected into a `Set<MovieCatalog>` annotated with `@Qualifier("action")`.
 Letting qualifier values select against target bean names, within the type-matching
 candidates, does not require a `@Qualifier` annotation at the injection point.
 If there is no other resolution indicator (such as a qualifier or a primary marker),
-for a non-unique dependency situation, Spring matches the injection point name
+for a non-unique dependency situation, Infra matches the injection point name
 (that is, the field name or parameter name) against the target bean names and chooses the
 same-named candidate, if any.
 

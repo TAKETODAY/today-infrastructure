@@ -1,7 +1,7 @@
 [[jmx-proxy]]
 = Accessing MBeans through Proxies
 
-Spring JMX lets you create proxies that re-route calls to MBeans that are registered in a
+Infra JMX lets you create proxies that re-route calls to MBeans that are registered in a
 local or remote `MBeanServer`. These proxies provide you with a standard Java interface,
 through which you can interact with your MBeans. The following code shows how to configure a
 proxy for an MBean running in a local `MBeanServer`:

@@ -53,14 +53,14 @@ of the TODAY Framework's hierarchy of unchecked `DataAccessException` types. Thi
 gives you more information than can be obtained easily from the `SQLException` and
 ensures portability across databases and even across different persistence technologies.
 
-This approach also works without Spring transaction management (transaction
-synchronization is optional), so you can use it whether or not you use Spring for
+This approach also works without Infra transaction management (transaction
+synchronization is optional), so you can use it whether or not you use Infra for
 transaction management.
 
 Of course, once you have used Infra JDBC support, JPA support, or Hibernate support,
 you generally prefer not to use `DataSourceUtils` or the other helper classes,
-because you are much happier working through the Spring abstraction than directly
-with the relevant APIs. For example, if you use the Spring `JdbcTemplate` or
+because you are much happier working through the Infra abstraction than directly
+with the relevant APIs. For example, if you use the Infra `JdbcTemplate` or
 `jdbc.object` package to simplify your use of JDBC, correct connection retrieval occurs
 behind the scenes and you need not write any special code.
 

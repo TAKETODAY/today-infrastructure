@@ -1,7 +1,7 @@
 [[jmx-jsr160]]
 = Using JSR-160 Connectors
 
-For remote access, Spring JMX module offers two `FactoryBean` implementations inside the
+For remote access, Infra JMX module offers two `FactoryBean` implementations inside the
 `cn.taketoday.jmx.support` package for creating both server- and client-side
 connectors.
 
@@ -9,7 +9,7 @@ connectors.
 [[jmx-jsr160-server]]
 == Server-side Connectors
 
-To have Spring JMX create, start, and expose a JSR-160 `JMXConnectorServer`, you can use the
+To have Infra JMX create, start, and expose a JSR-160 `JMXConnectorServer`, you can use the
 following configuration:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -38,7 +38,7 @@ as the following example shows:
 </bean>
 ----
 
-If the `ObjectName` property is set, Spring automatically registers your connector
+If the `ObjectName` property is set, Infra automatically registers your connector
 with the `MBeanServer` under that `ObjectName`. The following example shows the full set of
 parameters that you can pass to the `ConnectorServerFactoryBean` when creating a
 `JMXConnector`:

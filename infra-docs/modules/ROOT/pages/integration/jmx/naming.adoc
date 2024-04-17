@@ -6,7 +6,7 @@ Behind the scenes, the `MBeanExporter` delegates to an implementation of the
 By default, the default implementation, `KeyNamingStrategy` uses the key of the
 `beans` `Map` as the `ObjectName`. In addition, the `KeyNamingStrategy` can map the key
 of the `beans` `Map` to an entry in a `Properties` file (or files) to resolve the
-`ObjectName`. In addition to the `KeyNamingStrategy`, Spring provides two additional
+`ObjectName`. In addition to the `KeyNamingStrategy`, Infra provides two additional
 `ObjectNamingStrategy` implementations: the `IdentityNamingStrategy` (which builds an
 `ObjectName` based on the JVM identity of the bean) and the `MetadataNamingStrategy` (which
 uses source-level metadata to obtain the `ObjectName`).

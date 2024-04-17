@@ -28,7 +28,7 @@ on the lower-level abstraction in the `cn.taketoday.jdbc.core` package.
 * `support`: The `cn.taketoday.jdbc.support` package provides `SQLException`
 translation functionality and some utility classes. Exceptions thrown during JDBC processing
 are translated to exceptions defined in the `cn.taketoday.dao` package. This means
-that code using the Spring JDBC abstraction layer does not need to implement JDBC or
+that code using the Infra JDBC abstraction layer does not need to implement JDBC or
 RDBMS-specific error handling. All translated exceptions are unchecked, which gives you
 the option of catching the exceptions from which you can recover while letting other
 exceptions be propagated to the caller. See xref:data-access/jdbc/core.adoc#jdbc-SQLExceptionTranslator[Using `SQLExceptionTranslator`].

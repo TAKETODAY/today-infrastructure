@@ -1,7 +1,7 @@
 [[expressions-properties-arrays]]
 = Properties, Arrays, Lists, Maps, and Indexers
 
-The Spring Expression Language provides support for navigating object graphs and indexing
+The Infra Expression Language provides support for navigating object graphs and indexing
 into various structures.
 
 NOTE: Numerical index values are zero-based, such as when accessing the n^th^ element of

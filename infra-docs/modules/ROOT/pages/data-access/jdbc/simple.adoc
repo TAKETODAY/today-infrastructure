@@ -145,7 +145,7 @@ which columns to use.
 == Using `SqlParameterSource` to Provide Parameter Values
 
 Using a `Map` to provide parameter values works fine, but it is not the most convenient
-class to use. Spring provides a couple of implementations of the `SqlParameterSource`
+class to use. Infra provides a couple of implementations of the `SqlParameterSource`
 interface that you can use instead. The first one is `BeanPropertySqlParameterSource`,
 which is a very convenient class if you have a JavaBean-compliant class that contains
 your values. It uses the corresponding getter method to extract the parameter
@@ -303,7 +303,7 @@ data retrieved. Again, it is important to use the names of the `out` parameters 
 are declared in the stored procedure. Also, the case in the names of the `out`
 parameters stored in the results map matches that of the `out` parameter names in the
 database, which could vary between databases. To make your code more portable, you should
-do a case-insensitive lookup or instruct Spring to use a `LinkedCaseInsensitiveMap`.
+do a case-insensitive lookup or instruct Infra to use a `LinkedCaseInsensitiveMap`.
 To do the latter, you can create your own `JdbcTemplate` and set the `setResultsMapCaseInsensitive`
 property to `true`. Then you can pass this customized `JdbcTemplate` instance into
 the constructor of your `SimpleJdbcCall`. The following example shows this configuration:
@@ -344,7 +344,7 @@ the `declareParameters` method, which takes a variable number of `SqlParameter` 
 as input. See the xref:data-access/jdbc/simple.adoc#jdbc-params[next section] for details on how to define an `SqlParameter`.
 
 NOTE: Explicit declarations are necessary if the database you use is not a Spring-supported
-database. Currently, Spring supports metadata lookup of stored procedure calls for the
+database. Currently, Infra supports metadata lookup of stored procedure calls for the
 following databases: Apache Derby, DB2, MySQL, Microsoft SQL Server, Oracle, and Sybase.
 We also support metadata lookup of stored functions for MySQL, Microsoft SQL Server,
 and Oracle.

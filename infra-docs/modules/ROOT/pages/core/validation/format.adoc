@@ -1,11 +1,11 @@
 [[format]]
-= Spring Field Formatting
+= Infra Field Formatting
 
 As discussed in the previous section, xref:core/validation/convert.adoc[`core.convert`] is a
 general-purpose type conversion system. It provides a unified `ConversionService` API as
 well as a strongly typed `Converter` SPI for implementing conversion logic from one type
-to another. A Spring container uses this system to bind bean property values. In
-addition, both the Spring Expression Language (SpEL) and `DataBinder` use this system to
+to another. A Infra container uses this system to bind bean property values. In
+addition, both the Infra Expression Language (SpEL) and `DataBinder` use this system to
 bind field values. For example, when SpEL needs to coerce a `Short` to a `Long` to
 complete an `expression.setValue(Object bean, Object value)` attempt, the `core.convert`
 system performs the coercion.
@@ -15,7 +15,7 @@ web or desktop application. In such environments, you typically convert from `St
 to support the client postback process, as well as back to `String` to support the
 view rendering process. In addition, you often need to localize `String` values. The more
 general `core.convert` `Converter` SPI does not address such formatting requirements
-directly. To directly address them, Spring provides a convenient `Formatter` SPI that
+directly. To directly address them, Infra provides a convenient `Formatter` SPI that
 provides a simple and robust alternative to `PropertyEditor` implementations for client
 environments.
 
@@ -118,7 +118,7 @@ public final class DateFormatter implements Formatter<Date> {
 
 ======
 
-The Spring team welcomes community-driven `Formatter` contributions. See
+The Infra team welcomes community-driven `Formatter` contributions. See
 {today-framework-issues}[GitHub Issues] to contribute.
 
 
@@ -247,9 +247,9 @@ public class MyModel {
 The `FormatterRegistry` is an SPI for registering formatters and converters.
 `FormattingConversionService` is an implementation of `FormatterRegistry` suitable for
 most environments. You can programmatically or declaratively configure this variant
-as a Spring bean, e.g. by using `FormattingConversionServiceFactoryBean`. Because this
+as a Infra bean, e.g. by using `FormattingConversionServiceFactoryBean`. Because this
 implementation also implements `ConversionService`, you can directly configure it
-for use with Infra `DataBinder` and the Spring Expression Language (SpEL).
+for use with Infra `DataBinder` and the Infra Expression Language (SpEL).
 
 The following listing shows the `FormatterRegistry` SPI:
 

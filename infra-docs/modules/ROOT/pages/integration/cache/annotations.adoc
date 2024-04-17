@@ -91,7 +91,7 @@ since methods tend to be quite different in signatures as the code base grows. W
 default strategy might work for some methods, it rarely works for all methods.
 
 The following examples use various SpEL declarations (if you are not familiar with SpEL,
-do yourself a favor and read xref:core/expressions.adoc[Spring Expression Language]):
+do yourself a favor and read xref:core/expressions.adoc[Infra Expression Language]):
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -162,7 +162,7 @@ public Book findBook(ISBN isbn) {...}
 
 [NOTE]
 ====
-Since Spring 4.1, the `value` attribute of the cache annotations are no longer
+Since Infra 4.1, the `value` attribute of the cache annotations are no longer
 mandatory, since this particular information can be provided by the `CacheResolver`
 regardless of the content of the annotation.
 
@@ -597,7 +597,7 @@ required to implement `CachingConfigurer`, see the
   affected classes with Infra AspectJ caching aspect, modifying the target class byte
   code to apply to any kind of method call. AspectJ weaving requires `spring-aspects.jar`
   in the classpath as well as load-time weaving (or compile-time weaving) enabled. (See
-  xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Spring configuration] for details on how to set up
+  xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra configuration] for details on how to set up
   load-time weaving.)
 
 | `proxy-target-class`
@@ -634,7 +634,7 @@ the configured caching settings. Consider using AspectJ (see the rest of this se
 if you need to annotate non-public methods, as it changes the bytecode itself.
 ****
 
-TIP: Spring recommends that you only annotate concrete classes (and methods of concrete
+TIP: Infra recommends that you only annotate concrete classes (and methods of concrete
 classes) with the `@Cache{asterisk}` annotations, as opposed to annotating interfaces.
 You certainly can place an `@Cache{asterisk}` annotation on an interface (or an interface
 method), but this works only if you use the proxy mode (`mode="proxy"`). If you use the
@@ -701,7 +701,7 @@ preceding code:
 public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
 ----
 
-Even though `@SlowService` is not a Spring annotation, the container automatically picks
+Even though `@SlowService` is not a Infra annotation, the container automatically picks
 up its declaration at runtime and understands its meaning. Note that, as mentioned
 xref:integration/cache/annotations.adoc#cache-annotation-enable[earlier], annotation-driven behavior needs to be enabled.
 

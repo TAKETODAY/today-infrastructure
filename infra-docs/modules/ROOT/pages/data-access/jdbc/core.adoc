@@ -257,7 +257,7 @@ this state is not conversational state.
 
 A common practice when using the `JdbcTemplate` class (and the associated
 xref:data-access/jdbc/core.adoc#jdbc-NamedParameterJdbcTemplate[`NamedParameterJdbcTemplate`] class) is to
-configure a `DataSource` in your Spring configuration file and then dependency-inject
+configure a `DataSource` in your Infra configuration file and then dependency-inject
 that shared `DataSource` bean into your DAO classes. The `JdbcTemplate` is created in
 the setter for the `DataSource`. This leads to DAOs that resemble the following:
 

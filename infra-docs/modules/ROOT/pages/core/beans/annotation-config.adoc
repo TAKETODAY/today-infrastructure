@@ -13,11 +13,11 @@ code or recompiling them. Some developers prefer having the wiring close to the 
 while others argue that annotated classes are no longer POJOs and, furthermore, that the
 configuration becomes decentralized and harder to control.
 
-No matter the choice, Spring can accommodate both styles and even mix them together.
-It is worth pointing out that through its xref:core/beans/java.adoc[JavaConfig] option, Spring lets
+No matter the choice, Infra can accommodate both styles and even mix them together.
+It is worth pointing out that through its xref:core/beans/java.adoc[JavaConfig] option, Infra lets
 annotations be used in a non-invasive way, without touching the target components'
 source code and that, in terms of tooling, all configuration styles are supported by
-{today-tech-site-tools}[Spring Tools] for Eclipse, Visual Studio Code, and Theia.
+{today-tech-site-tools}[Infra Tools] for Eclipse, Visual Studio Code, and Theia.
 ****
 
 An alternative to XML setup is provided by annotation-based configuration, which relies
@@ -28,7 +28,7 @@ declaration. As mentioned in xref:core/beans/factory-extension.adoc#beans-factor
 `BeanPostProcessor` in conjunction with annotations is a common means of extending the
 Infra IoC container. For example, the xref:core/beans/annotation-config/autowired.adoc[`@Autowired`]
 annotation provides the same capabilities as described in xref:core/beans/dependencies/factory-autowire.adoc[Autowiring Collaborators] but
-with more fine-grained control and wider applicability. In addition, Spring provides
+with more fine-grained control and wider applicability. In addition, Infra provides
 support for JSR-250 annotations, such as `@PostConstruct` and `@PreDestroy`, as well as
 support for JSR-330 (Dependency Injection for Java) annotations contained in the
 `jakarta.inject` package such as `@Inject` and `@Named`. Details about those annotations

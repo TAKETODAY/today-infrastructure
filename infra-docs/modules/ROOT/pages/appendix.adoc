@@ -40,14 +40,14 @@ checkpoint/restore at startup] 和
 和 {today-framework-api}++/context/support/DefaultLifecycleProcessor.html#EXIT_PROPERTY_NAME++[`DefaultLifecycleProcessor`]。
 
 | `spel.default.max-length`
-| xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Spring Expression Language] 全局 SpEL 表达式长度最大值
+| xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Infra Expression Language] 全局 SpEL 表达式长度最大值
 
 | `spel.context.max-length`
-| IoC 容器内 xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Spring Expression Language] 的最大长度，
+| IoC 容器内 xref:core/expressions/evaluation.adoc#expressions-parser-configuration[Infra Expression Language] 的最大长度，
 该值将应用到 XML bean, `@Value`, etc.
 
 | `spel.compiler.mode`
-| 全局的 xref:core/expressions/evaluation.adoc#expressions-compiler-configuration[Spring Expression Language] 编译模式.
+| 全局的 xref:core/expressions/evaluation.adoc#expressions-compiler-configuration[Infra Expression Language] 编译模式.
 
 | `infra.getenv.ignore`
 | 用于是否忽略系统环境变量的获取，开启之后，将不能获取系统变量，详见：

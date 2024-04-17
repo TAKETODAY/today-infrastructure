@@ -9,7 +9,7 @@ procedures and run update, delete, and insert statements.
 
 [NOTE]
 ====
-Many Spring developers believe that the various RDBMS operation classes described below
+Many Infra developers believe that the various RDBMS operation classes described below
 (with the exception of the xref:data-access/jdbc/object.adoc#jdbc-StoredProcedure[`StoredProcedure`] class) can often
 be replaced with straight `JdbcTemplate` calls. Often, it is simpler to write a DAO
 method that calls a method on a `JdbcTemplate` directly (as opposed to

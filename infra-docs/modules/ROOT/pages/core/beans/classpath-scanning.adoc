@@ -2,7 +2,7 @@
 = Classpath Scanning and Managed Components
 
 Most examples in this chapter use XML to specify the configuration metadata that produces
-each `BeanDefinition` within the Spring container. The previous section
+each `BeanDefinition` within the Infra container. The previous section
 (xref:core/beans/annotation-config.adoc[Annotation-based Container Configuration]) demonstrates how to provide a lot of the configuration
 metadata through source-level annotations. Even in those examples, however, the "base"
 bean definitions are explicitly defined in the XML file, while the annotations drive only
@@ -31,7 +31,7 @@ _stereotype_ of a repository (also known as Data Access Object or DAO). Among th
 of this marker is the automatic translation of exceptions, as described in
 xref:data-access/orm/general.adoc#orm-exception-translation[Exception Translation].
 
-Spring provides further stereotype annotations: `@Component`, `@Service`, and
+Infra provides further stereotype annotations: `@Component`, `@Service`, and
 `@Controller`. `@Component` is a generic stereotype for any Spring-managed component.
 `@Repository`, `@Service`, and `@Controller` are specializations of `@Component` for
 more specific use cases (in the persistence, service, and presentation
@@ -50,7 +50,7 @@ supported as a marker for automatic exception translation in your persistence la
 [[beans-meta-annotations]]
 == Using Meta-annotations and Composed Annotations
 
-Many of the annotations provided by Spring can be used as meta-annotations in your
+Many of the annotations provided by Infra can be used as meta-annotations in your
 own code. A meta-annotation is an annotation that can be applied to another annotation.
 For example, the `@Service` annotation mentioned xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[earlier]
 is meta-annotated with `@Component`, as the following example shows:
@@ -128,7 +128,7 @@ wiki page.
 [[beans-scanning-autodetection]]
 == Automatically Detecting Classes and Registering Bean Definitions
 
-Spring can automatically detect stereotyped classes and register corresponding
+Infra can automatically detect stereotyped classes and register corresponding
 `BeanDefinition` instances with the `ApplicationContext`. For example, the following two classes
 are eligible for such autodetection:
 
@@ -194,7 +194,7 @@ TIP: The use of `<context:component-scan>` implicitly enables the functionality 
 `<context:annotation-config>` element when using `<context:component-scan>`.
 On JDK 9's module path (Jigsaw), Infra classpath scanning generally works as expected.
 However, make sure that your component classes are exported in your `module-info`
-descriptors. If you expect Spring to invoke non-public members of your classes, make
+descriptors. If you expect Infra to invoke non-public members of your classes, make
 sure that they are 'opened' (that is, that they use an `opens` declaration instead of an
 `exports` declaration in your `module-info` descriptor).
 
@@ -285,7 +285,7 @@ annotated or meta-annotated with `@Component`, `@Repository`, `@Service`, `@Cont
 [[beans-factorybeans-annotations]]
 == Defining Bean Metadata within Components
 
-Spring components can also contribute bean definition metadata to the container. You can do
+Infra components can also contribute bean definition metadata to the container. You can do
 this with the same `@Bean` annotation used to define bean metadata within `@Configuration`
 annotated classes. The following example shows how to do so:
 
@@ -306,7 +306,7 @@ public class FactoryMethodComponent {
 }
 ----
 
-The preceding class is a Spring component that has application-specific code in its
+The preceding class is a Infra component that has application-specific code in its
 `doWork()` method. However, it also contributes a bean definition that has a factory
 method referring to the method `publicInstance()`. The `@Bean` annotation identifies the
 factory method and other bean definition properties, such as a qualifier value through
@@ -361,7 +361,7 @@ public class FactoryMethodComponent {
 
 
 The example autowires the `String` method parameter `country` to the value of the `age`
-property on another bean named `privateInstance`. A Spring Expression Language element
+property on another bean named `privateInstance`. A Infra Expression Language element
 defines the value of the property through the notation `#{ <expression> }`. For `@Value`
 annotations, an expression resolver is preconfigured to look for bean names when
 resolving expression text.
@@ -390,8 +390,8 @@ public class FactoryMethodComponent {
 ----
 
 
-The `@Bean` methods in a regular Spring component are processed differently than their
-counterparts inside a Spring `@Configuration` class. The difference is that `@Component`
+The `@Bean` methods in a regular Infra component are processed differently than their
+counterparts inside a Infra `@Configuration` class. The difference is that `@Component`
 classes are not enhanced with CGLIB to intercept the invocation of methods and fields.
 CGLIB proxying is the means by which invoking methods or fields within `@Bean` methods
 in `@Configuration` classes creates bean metadata references to collaborating objects.
@@ -426,7 +426,7 @@ to be overridable -- that is, they must not be declared as `private` or `final`.
 configuration class, as well as on Java 8 default methods declared in interfaces
 implemented by the component or configuration class. This allows for a lot of
 flexibility in composing complex configuration arrangements, with even multiple
-inheritance being possible through Java 8 default methods as of Spring 4.2.
+inheritance being possible through Java 8 default methods as of Infra 4.2.
 
 Finally, a single class may hold multiple `@Bean` methods for the same
 bean, as an arrangement of multiple factory methods to use depending on available
@@ -448,7 +448,7 @@ By default, the `AnnotationBeanNameGenerator` is used. For Spring
 xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[stereotype annotations],
 if you supply a name via the annotation's `value` attribute that name will be used as
 the name in the corresponding bean definition. This convention also applies when the
-following JSR-250 and JSR-330 annotations are used instead of Spring stereotype
+following JSR-250 and JSR-330 annotations are used instead of Infra stereotype
 annotations: `@jakarta.annotation.ManagedBean`, `@javax.annotation.ManagedBean`,
 `@jakarta.inject.Named`, and `@javax.inject.Named`.
 
@@ -541,7 +541,7 @@ components) or the factory method (for `@Bean` methods). In contrast to XML bean
 definitions, there is no notion of bean definition inheritance, and inheritance
 hierarchies at the class level are irrelevant for metadata purposes.
 
-For details on web-specific scopes such as "`request`" or "`session`" in a Spring context,
+For details on web-specific scopes such as "`request`" or "`session`" in a Infra context,
 see xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[Request, Session, Application, and WebSocket Scopes]. As with the pre-built annotations for those scopes,
 you may also compose your own scoping annotations by using Infra meta-annotation
 approach: for example, a custom annotation meta-annotated with `@Scope("prototype")`,

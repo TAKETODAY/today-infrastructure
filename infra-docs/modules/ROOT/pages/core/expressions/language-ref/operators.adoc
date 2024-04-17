@@ -1,7 +1,7 @@
 [[expressions-operators]]
 = Operators
 
-The Spring Expression Language supports the following kinds of operators:
+The Infra Expression Language supports the following kinds of operators:
 
 * xref:core/expressions/language-ref/operators.adoc#expressions-operators-relational[Relational Operators]
 * xref:core/expressions/language-ref/operators.adoc#expressions-operators-logical[Logical Operators]

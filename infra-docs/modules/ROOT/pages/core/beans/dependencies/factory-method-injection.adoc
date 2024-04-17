@@ -83,7 +83,7 @@ dynamically generate a subclass that overrides the method.
 
 [NOTE]
 ====
-* For this dynamic subclassing to work, the class that the Spring bean container
+* For this dynamic subclassing to work, the class that the Infra bean container
   subclasses cannot be `final`, and the method to be overridden cannot be `final`, either.
 * Unit-testing a class that has an `abstract` method requires you to subclass the class
   yourself and to supply a stub implementation of the `abstract` method.
@@ -96,8 +96,8 @@ dynamically generate a subclass that overrides the method.
 ====
 
 In the case of the `CommandManager` class in the previous code snippet, the
-Spring container dynamically overrides the implementation of the `createCommand()`
-method. The `CommandManager` class does not have any Spring dependencies, as
+Infra container dynamically overrides the implementation of the `createCommand()`
+method. The `CommandManager` class does not have any Infra dependencies, as
 the reworked example shows:
 
 [tabs]
@@ -108,7 +108,7 @@ Java::
 ----
 package fiona.apple;
 
-// no more Spring imports!
+// no more Infra imports!
 
 public abstract class CommandManager {
 

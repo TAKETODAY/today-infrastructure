@@ -1,7 +1,7 @@
 [[validator]]
 = Validation by Using Infra Validator Interface
 
-Spring features a `Validator` interface that you can use to validate objects. The
+Infra features a `Validator` interface that you can use to validate objects. The
 `Validator` interface works by using an `Errors` object so that, while validating,
 validators can report validation failures to the `Errors` object.
 
@@ -126,7 +126,7 @@ public class CustomerValidator implements Validator {
 ======
 
 Validation errors are reported to the `Errors` object passed to the validator. In the case
-of Spring Web MVC, you can use the `<spring:bind/>` tag to inspect the error messages, but
+of Infra Web MVC, you can use the `<spring:bind/>` tag to inspect the error messages, but
 you can also inspect the `Errors` object yourself. More information about the
 methods it offers can be found in the {today-framework-api}/validation/Errors.html[javadoc].
 

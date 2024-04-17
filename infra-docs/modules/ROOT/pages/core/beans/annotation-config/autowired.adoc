@@ -133,7 +133,7 @@ implementation type, consider declaring the most specific return type on your fa
 method (at least as specific as required by the injection points referring to your bean).
 ====
 
-You can also instruct Spring to provide all beans of a particular type from the
+You can also instruct Infra to provide all beans of a particular type from the
 `ApplicationContext` by adding the `@Autowired` annotation to a field or method that
 expects an array of that type, as the following example shows:
 
@@ -283,7 +283,7 @@ only a single constructor may be annotated with `@Autowired`. If multiple constr
 declare the annotation, they will all have to declare `required=false` in order to be
 considered as candidates for autowiring (analogous to `autowire=constructor` in XML).
 The constructor with the greatest number of dependencies that can be satisfied by matching
-beans in the Spring container will be chosen. If none of the candidates can be satisfied,
+beans in the Infra container will be chosen. If none of the candidates can be satisfied,
 then a primary/default constructor (if present) will be used. Similarly, if a class
 declares multiple constructors but none of them is annotated with `@Autowired`, then a
 primary/default constructor (if present) will be used. If a class only declares a single
@@ -358,7 +358,7 @@ public class MovieRecommender {
 The `@Autowired`, `@Inject`, `@Value`, and `@Resource` annotations are handled by Spring
 `BeanPostProcessor` implementations. This means that you cannot apply these annotations
 within your own `BeanPostProcessor` or `BeanFactoryPostProcessor` types (if any).
-These types must be 'wired up' explicitly by using XML or a Spring `@Bean` method.
+These types must be 'wired up' explicitly by using XML or a Infra `@Bean` method.
 ====
 
 

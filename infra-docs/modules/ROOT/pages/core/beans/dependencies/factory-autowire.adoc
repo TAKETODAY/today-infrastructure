@@ -1,8 +1,8 @@
 [[beans-factory-autowire]]
 = Autowiring Collaborators
 
-The Spring container can autowire relationships between collaborating beans. You can
-let Spring resolve collaborators (other beans) automatically for your bean by
+The Infra container can autowire relationships between collaborating beans. You can
+let Infra resolve collaborators (other beans) automatically for your bean by
 inspecting the contents of the `ApplicationContext`. Autowiring has the following
 advantages:
 
@@ -35,10 +35,10 @@ four autowiring modes:
   documents the structure of a system.
 
 | `byName`
-| Autowiring by property name. Spring looks for a bean with the same name as the
+| Autowiring by property name. Infra looks for a bean with the same name as the
   property that needs to be autowired. For example, if a bean definition is set to
   autowire by name and it contains a `master` property (that is, it has a
-  `setMaster(..)` method), Spring looks for a bean definition named `master` and uses
+  `setMaster(..)` method), Infra looks for a bean definition named `master` and uses
   it to set the property.
 
 | `byType`
@@ -74,11 +74,11 @@ Consider the limitations and disadvantages of autowiring:
   `Strings`, and `Classes` (and arrays of such simple properties). This limitation is
   by-design.
 * Autowiring is less exact than explicit wiring. Although, as noted in the earlier table,
-  Spring is careful to avoid guessing in case of ambiguity that might have unexpected
+  Infra is careful to avoid guessing in case of ambiguity that might have unexpected
   results. The relationships between your Spring-managed objects are no longer
   documented explicitly.
 * Wiring information may not be available to tools that may generate documentation from
-  a Spring container.
+  a Infra container.
 * Multiple bean definitions within the container may match the type specified by the
   setter method or constructor argument to be autowired. For arrays, collections, or
   `Map` instances, this is not necessarily a problem. However, for dependencies that

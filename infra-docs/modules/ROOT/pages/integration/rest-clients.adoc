@@ -365,7 +365,7 @@ It was introduced in 5.0 and offers an alternative to the `RestTemplate`, with s
 [[rest-resttemplate]]
 == `RestTemplate`
 
-The `RestTemplate` provides a high-level API over HTTP client libraries in the form of a classic Spring Template class.
+The `RestTemplate` provides a high-level API over HTTP client libraries in the form of a classic Infra Template class.
 It exposes the following groups of overloaded methods:
 
 NOTE: The xref:integration/rest-clients.adoc#rest-restclient[`RestClient`] offers a more modern API for synchronous HTTP access.
@@ -866,7 +866,7 @@ an individual value. Type conversion is supported for non-String values.
 | `@RequestPart`
 | Add a request part, which may be a String (form field), `Resource` (file part),
 Object (entity to be encoded, e.g. as JSON), `HttpEntity` (part content and headers),
-a Spring `Part`, or Reactive Streams `Publisher` of any of the above.
+a Infra `Part`, or Reactive Streams `Publisher` of any of the above.
 
 | `MultipartFile`
 | Add a request part from a `MultipartFile`, typically used in a Web MVC controller

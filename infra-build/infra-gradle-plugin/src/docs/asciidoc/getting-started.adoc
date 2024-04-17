@@ -12,7 +12,7 @@ include::../gradle/getting-started/apply-plugin-release.gradle[]
 
 endif::[]
 ifeval::["{artifact-release-type}" == "milestone"]
-The plugin is published to the Spring milestones repository.
+The plugin is published to the Infra milestones repository.
 Gradle can be configured to use the milestones repository and the plugin can then be applied using the `plugins` block.
 To configure Gradle to use the milestones repository, add the following to your `settings.gradle` (Groovy) or `settings.gradle.kts` (Kotlin):
 

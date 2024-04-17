@@ -1,7 +1,7 @@
 [[orm-jpa]]
 = JPA
 
-The Spring JPA, available under the `cn.taketoday.orm.jpa` package, offers
+The Infra JPA, available under the `cn.taketoday.orm.jpa` package, offers
 comprehensive support for the
 https://www.oracle.com/technetwork/articles/javaee/jpa-137156.html[Java Persistence
 API] in a manner similar to the integration with Hibernate while being aware of
@@ -9,9 +9,9 @@ the underlying implementation in order to provide additional features.
 
 
 [[orm-jpa-setup]]
-== Three Options for JPA Setup in a Spring Environment
+== Three Options for JPA Setup in a Infra Environment
 
-The Spring JPA support offers three ways of setting up the JPA `EntityManagerFactory`
+The Infra JPA support offers three ways of setting up the JPA `EntityManagerFactory`
 that is used by the application to obtain an entity manager.
 
 * xref:data-access/orm/jpa.adoc#orm-jpa-setup-lemfb[Using `LocalEntityManagerFactoryBean`]
@@ -71,7 +71,7 @@ persistence units (in effect, `META-INF/persistence.xml` files in application ja
 In such a scenario, the entire persistence unit deployment, including the weaving
 (byte-code transformation) of persistent classes, is up to the Jakarta EE server. The JDBC
 `DataSource` is defined through a JNDI location in the `META-INF/persistence.xml` file.
-`EntityManager` transactions are integrated with the server's JTA subsystem. Spring merely
+`EntityManager` transactions are integrated with the server's JTA subsystem. Infra merely
 uses the obtained `EntityManagerFactory`, passing it on to application objects through
 dependency injection and managing transactions for the persistence unit (typically
 through `JtaTransactionManager`).
@@ -162,15 +162,15 @@ is typically not efficient. The agents work against the entire virtual machine a
 inspect every class that is loaded, which is usually undesirable in a production
 server environment.
 
-Spring provides a number of `LoadTimeWeaver` implementations for various environments,
+Infra provides a number of `LoadTimeWeaver` implementations for various environments,
 letting `ClassTransformer` instances be applied only for each class loader and not
 for each VM.
 
-See the xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Spring configuration] in the AOP chapter for
+See the xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra configuration] in the AOP chapter for
 more insight regarding the `LoadTimeWeaver` implementations and their setup, either
 generic or customized to various platforms (such as Tomcat, JBoss and WebSphere).
 
-As described in xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Spring configuration], you can configure
+As described in xref:core/aop/using-aspectj.adoc#aop-aj-ltw-spring[Infra configuration], you can configure
 a context-wide `LoadTimeWeaver` by using the `@EnableLoadTimeWeaving` annotation or the
 `context:load-time-weaver` XML element. Such a global weaver is automatically picked up
 by all JPA `LocalContainerEntityManagerFactoryBean` instances. The following example
@@ -209,7 +209,7 @@ are, thus, isolated from each other.
 === Dealing with Multiple Persistence Units
 
 For applications that rely on multiple persistence units locations (stored in various
-JARS in the classpath, for example), Spring offers the `PersistenceUnitManager` to act as
+JARS in the classpath, for example), Infra offers the `PersistenceUnitManager` to act as
 a central repository and to avoid the persistence units discovery process, which can be
 expensive. The default implementation lets multiple locations be specified. These locations are
 parsed and later retrieved through the persistence unit name. (By default, the classpath
@@ -270,7 +270,7 @@ proxy can be injected into other application components and is even able to resp
 `EntityManagerFactoryInfo` configuration inspection. However, once the actual JPA provider
 is being accessed by other components (for example, calling `createEntityManager`), those
 calls block until the background bootstrapping has completed. In particular, when you use
-Spring Data JPA, make sure to set up deferred bootstrapping for its repositories as well.
+Infra Data JPA, make sure to set up deferred bootstrapping for its repositories as well.
 
 As of 6.2, JPA initialization is enforced before context refresh completion, waiting for
 asynchronous bootstrapping to complete by then. This makes the availability of the fully
@@ -289,8 +289,8 @@ application server's JNDI environment, as defined by the JPA specification. It d
 all calls to the current transactional `EntityManager`, if any. Otherwise, it falls back
 to a newly created `EntityManager` per operation, in effect making its usage thread-safe.
 
-It is possible to write code against the plain JPA without any Spring dependencies, by
-using an injected `EntityManagerFactory` or `EntityManager`. Spring can understand the
+It is possible to write code against the plain JPA without any Infra dependencies, by
+using an injected `EntityManagerFactory` or `EntityManager`. Infra can understand the
 `@PersistenceUnit` and `@PersistenceContext` annotations both at the field and the method
 level if a `PersistenceAnnotationBeanPostProcessor` is enabled. The following example
 shows a plain JPA DAO implementation that uses the `@PersistenceUnit` annotation:
@@ -328,7 +328,7 @@ public class ProductDaoImpl implements ProductDao {
 
 ======
 
-The preceding DAO has no dependency on Spring and still fits nicely into a Spring
+The preceding DAO has no dependency on Infra and still fits nicely into a Spring
 application context. Moreover, the DAO takes advantage of annotations to require the
 injection of the default `EntityManagerFactory`, as the following example bean definition shows:
 
@@ -345,8 +345,8 @@ injection of the default `EntityManagerFactory`, as the following example bean d
 ----
 
 As an alternative to explicitly defining a `PersistenceAnnotationBeanPostProcessor`,
-consider using the Spring `context:annotation-config` XML element in your application
-context configuration. Doing so automatically registers all Spring standard
+consider using the Infra `context:annotation-config` XML element in your application
+context configuration. Doing so automatically registers all Infra standard
 post-processors for annotation-based configuration, including
 `CommonAnnotationBeanPostProcessor` and so on.
 
@@ -421,8 +421,8 @@ instead of an `EntityManagerFactory`, no change is required in the bean definiti
 due to annotation usage.
 
 The main advantage of this DAO style is that it depends only on the Java Persistence API.
-No import of any Spring class is required. Moreover, as the JPA annotations are understood,
-the injections are applied automatically by the Spring container. This is appealing from
+No import of any Infra class is required. Moreover, as the JPA annotations are understood,
+the injections are applied automatically by the Infra container. This is appealing from
 a non-invasiveness perspective and can feel more natural to JPA developers.
 
 [[orm-jpa-dao-autowired]]
@@ -479,13 +479,13 @@ JDBC transactions (such as transaction-specific isolation levels and resource-le
 read-only optimizations) against any regular JDBC connection pool, without requiring
 a JTA transaction coordinator and XA-capable resources.
 
-Spring JPA also lets a configured `JpaTransactionManager` expose a JPA transaction
+Infra JPA also lets a configured `JpaTransactionManager` expose a JPA transaction
 to JDBC access code that accesses the same `DataSource`, provided that the registered
-`JpaDialect` supports retrieval of the underlying JDBC `Connection`. Spring provides
+`JpaDialect` supports retrieval of the underlying JDBC `Connection`. Infra provides
 dialects for the EclipseLink and Hibernate JPA implementations. See the
 xref:data-access/orm/jpa.adoc#orm-jpa-dialect[next section] for details on `JpaDialect`.
 
-For JTA-style lazy retrieval of actual resource connections, Spring provides a
+For JTA-style lazy retrieval of actual resource connections, Infra provides a
 corresponding `DataSource` proxy class for the target connection pool: see
 {today-framework-api}/jdbc/datasource/LazyConnectionDataSourceProxy.html[`LazyConnectionDataSourceProxy`].
 This is particularly useful for JPA read-only transactions which can often
@@ -526,7 +526,7 @@ more details of its operations and how they are used within Infra JPA support.
 [[orm-jpa-jta]]
 == Setting up JPA with JTA Transaction Management
 
-As an alternative to `JpaTransactionManager`, Spring also allows for multi-resource
+As an alternative to `JpaTransactionManager`, Infra also allows for multi-resource
 transaction coordination through JTA, either in a Jakarta EE environment or with a
 stand-alone transaction coordinator, such as Atomikos. Aside from choosing Infra
 `JtaTransactionManager` instead of `JpaTransactionManager`, you need to take few further

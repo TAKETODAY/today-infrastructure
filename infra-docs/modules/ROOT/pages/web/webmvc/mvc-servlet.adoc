@@ -1,25 +1,17 @@
 [[mvc-servlet]]
 = DispatcherServlet
 
-Web MVC, as many other web frameworks, is designed around the front controller
-pattern where a central `Servlet`, the `DispatcherServlet`, provides a shared algorithm
-for request processing, while actual work is performed by configurable delegate components.
-This model is flexible and supports diverse workflows.
+Servlet API 实现的 Web MVC 使用中央 `Servlet` -> `DispatcherServlet`
+提供共享算法的模式用于请求处理，而实际工作由可配置的委托组件执行。该模型非常灵活，扩展性极强，支持多种工作流程。
 
-The `DispatcherServlet`, as any `Servlet`, needs to be declared and mapped according
-to the Servlet specification by using Java configuration or in `web.xml`.
-In turn, the `DispatcherServlet` uses Infra configuration to discover
-the delegate components it needs for request mapping, view resolution, exception
-handling, xref:web/webmvc/mvc-servlet/special-bean-types.adoc[and more].
+`DispatcherServlet` 与任何 `Servlet` 一样，需要根据通过使用 Java 配置或在 `web.xml` 中符合 Servlet 规范。
 
-The following example of the Java configuration registers and initializes
-the `DispatcherServlet`, which is auto-detected by the Servlet container
-(see xref:web/webmvc/mvc-servlet/container-config.adoc[Servlet Config]):
+反过来，`DispatcherServlet` 使用基础设施配置来发现请求映射、视图解析、异常所需的委托组件处理，
+xref:web/webmvc/mvc-servlet/special-bean-types.adoc[and more].
 
-[tabs]
-======
-Java::
-+
+以下 Java 配置注册和初始化 `DispatcherServlet` 示例，由 Servlet 容器自动检测
+(see xref:web/webmvc/mvc-servlet/container-config.adoc[Servlet 配置]):
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
@@ -27,8 +19,8 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
   @Override
   public void onStartup(ServletContext servletContext) {
 
-    // Load Infra web application configuration
-    AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+    // Load web application configuration
+    var context = new AnnotationConfigWebApplicationContext();
     context.register(AppConfig.class);
 
     // Create and register the DispatcherServlet
@@ -39,12 +31,6 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
   }
 }
 ----
-
-======
-
-NOTE: In addition to using the ServletContext API directly, you can also extend
-`AbstractAnnotationConfigDispatcherServletInitializer` and override specific methods
-(see the example under xref:web/webmvc/mvc-servlet/context-hierarchy.adoc[Context Hierarchy]).
 
 NOTE: For programmatic use cases, a `GenericWebApplicationContext` can be used as an
 alternative to `AnnotationConfigWebApplicationContext`. See the

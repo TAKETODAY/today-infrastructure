@@ -7,7 +7,7 @@ approach optimizes database metadata, and the RDBMS Object style results in a mo
 object-oriented approach. Once you start using one of these approaches, you can still mix
 and match to include a feature from a different approach.
 
-* `JdbcTemplate` is the classic and most popular Spring JDBC approach. This
+* `JdbcTemplate` is the classic and most popular Infra JDBC approach. This
   "`lowest-level`" approach and all others use a `JdbcTemplate` under the covers.
 * `NamedParameterJdbcTemplate` wraps a `JdbcTemplate` to provide named parameters
   instead of the traditional JDBC `?` placeholders. This approach provides better

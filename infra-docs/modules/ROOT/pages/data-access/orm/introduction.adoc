@@ -11,13 +11,13 @@ transaction management, and they comply with Infra generic transaction and DAO
 exception hierarchies. The recommended integration style is to code DAOs against plain
 Hibernate or JPA APIs.
 
-Spring adds significant enhancements to the ORM layer of your choice when you create
+Infra adds significant enhancements to the ORM layer of your choice when you create
 data access applications. You can leverage as much of the integration support as you
 wish, and you should compare this integration effort with the cost and risk of building
 a similar infrastructure in-house. You can use much of the ORM support as you would a
 library, regardless of technology, because everything is designed as a set of reusable
 JavaBeans. ORM in a Infra IoC container facilitates configuration and deployment. Thus,
-most examples in this section show configuration inside a Spring container.
+most examples in this section show configuration inside a Infra container.
 
 The benefits of using the TODAY Framework to create your ORM DAOs include:
 
@@ -26,7 +26,7 @@ The benefits of using the TODAY Framework to create your ORM DAOs include:
   instances, transaction managers, and mapped object implementations (if needed). This
   in turn makes it much easier to test each piece of persistence-related code in
   isolation.
-* *Common data access exceptions.* Spring can wrap exceptions from your ORM tool,
+* *Common data access exceptions.* Infra can wrap exceptions from your ORM tool,
   converting them from proprietary (potentially checked) exceptions to a common runtime
   `DataAccessException` hierarchy. This feature lets you handle most persistence
   exceptions, which are non-recoverable, only in the appropriate layers, without
@@ -34,13 +34,13 @@ The benefits of using the TODAY Framework to create your ORM DAOs include:
   and handle exceptions as necessary. Remember that JDBC exceptions (including
   DB-specific dialects) are also converted to the same hierarchy, meaning that you can
   perform some operations with JDBC within a consistent programming model.
-* *General resource management.* Spring application contexts can handle the location
+* *General resource management.* Infra application contexts can handle the location
   and configuration of Hibernate `SessionFactory` instances, JPA `EntityManagerFactory`
   instances, JDBC `DataSource` instances, and other related resources. This makes these
-  values easy to manage and change. Spring offers efficient, easy, and safe handling of
+  values easy to manage and change. Infra offers efficient, easy, and safe handling of
   persistence resources. For example, related code that uses Hibernate generally needs to
   use the same Hibernate `Session` to ensure efficiency and proper transaction handling.
-  Spring makes it easy to create and bind a `Session` to the current thread transparently,
+  Infra makes it easy to create and bind a `Session` to the current thread transparently,
   by exposing a current `Session` through the Hibernate `SessionFactory`. Thus, Spring
   solves many chronic problems of typical Hibernate usage, for any local or JTA
   transaction environment.
@@ -58,7 +58,7 @@ The benefits of using the TODAY Framework to create your ORM DAOs include:
 
 TIP: For more comprehensive ORM support, including support for alternative database
 technologies such as MongoDB, you might want to check out the
-{today-tech-site-projects}/spring-data/[Spring Data] suite of projects. If you are
+{today-tech-site-projects}/spring-data/[Infra Data] suite of projects. If you are
 a JPA user, the {today-tech-site-guides}/gs/accessing-data-jpa/[Getting Started Accessing
 Data with JPA] guide from https://spring.io provides a great introduction.
 

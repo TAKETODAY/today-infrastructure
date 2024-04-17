@@ -3,7 +3,7 @@
 
 Let us begin by defining some central AOP concepts and terminology. These terms are not
 Spring-specific. Unfortunately, AOP terminology is not particularly intuitive.
-However, it would be even more confusing if Spring used its own terminology.
+However, it would be even more confusing if Infra used its own terminology.
 
 * Aspect: A modularization of a concern that cuts across multiple classes.
   Transaction management is a good example of a crosscutting concern in enterprise Java
@@ -20,7 +20,7 @@ However, it would be even more confusing if Spring used its own terminology.
 * Pointcut: A predicate that matches join points. Advice is associated with a
   pointcut expression and runs at any join point matched by the pointcut (for example,
   the execution of a method with a certain name). The concept of join points as matched
-  by pointcut expressions is central to AOP, and Spring uses the AspectJ pointcut
+  by pointcut expressions is central to AOP, and Infra uses the AspectJ pointcut
   expression language by default.
 * Introduction: Declaring additional methods or fields on behalf of a type. Spring
   AOP lets you introduce new interfaces (and a corresponding implementation) to any

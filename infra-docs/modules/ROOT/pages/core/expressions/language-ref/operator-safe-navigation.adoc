@@ -62,7 +62,7 @@ For example, the expression `#calculator?.max(4, 2)` evaluates to `null` if the
 [[expressions-operator-safe-navigation-indexing]]
 == Safe Index Access
 
-Since TODAY Framework 6.2, the Spring Expression Language supports safe navigation for
+Since TODAY Framework 6.2, the Infra Expression Language supports safe navigation for
 indexing into the following types of structures.
 
 * xref:core/expressions/language-ref/properties-arrays.adoc#expressions-indexing-arrays-and-collections[arrays and collections]
@@ -101,7 +101,7 @@ Java::
 [[expressions-operator-safe-navigation-selection-and-projection]]
 == Safe Collection Selection and Projection
 
-The Spring Expression Language supports safe navigation for
+The Infra Expression Language supports safe navigation for
 xref:core/expressions/language-ref/collection-selection.adoc[collection selection] and
 xref:core/expressions/language-ref/collection-projection.adoc[collection projection] via
 the following operators.

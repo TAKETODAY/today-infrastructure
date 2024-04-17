@@ -126,12 +126,12 @@ Also, if you use Infra AOP, it helps a lot when applying advice to a set of bean
 related by name.
 ****
 
-NOTE: With component scanning in the classpath, Spring generates bean names for unnamed
+NOTE: With component scanning in the classpath, Infra generates bean names for unnamed
 components, following the rules described earlier: essentially, taking the simple class name
 and turning its initial character to lower-case. However, in the (unusual) special
 case when there is more than one character and both the first and second characters
 are upper case, the original casing gets preserved. These are the same rules as
-defined by `java.beans.Introspector.decapitalize` (which Spring uses here).
+defined by `java.beans.Introspector.decapitalize` (which Infra uses here).
 
 
 [[beans-beanname-alias]]
@@ -230,11 +230,11 @@ class should suffice. However, depending on what type of IoC you use for that sp
 bean, you may need a default (empty) constructor.
 
 The Infra IoC container can manage virtually any class you want it to manage. It is
-not limited to managing true JavaBeans. Most Spring users prefer actual JavaBeans with
+not limited to managing true JavaBeans. Most Infra users prefer actual JavaBeans with
 only a default (no-argument) constructor and appropriate setters and getters modeled
 after the properties in the container. You can also have more exotic non-bean-style
 classes in your container. If, for example, you need to use a legacy connection pool
-that absolutely does not adhere to the JavaBean specification, Spring can manage it as
+that absolutely does not adhere to the JavaBean specification, Infra can manage it as
 well.
 
 With XML-based configuration metadata you can specify your bean class as follows:
@@ -389,8 +389,8 @@ This approach shows that the factory bean itself can be managed and configured t
 dependency injection (DI). See xref:core/beans/dependencies/factory-properties-detailed.adoc[Dependencies and Configuration in Detail]
 .
 
-NOTE: In Spring documentation, "factory bean" refers to a bean that is configured in the
-Spring container and that creates objects through an
+NOTE: In Infra documentation, "factory bean" refers to a bean that is configured in the
+Infra container and that creates objects through an
 xref:core/beans/definition.adoc#beans-factory-class-instance-factory-method[instance] or
 xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[static] factory method. By contrast,
 `FactoryBean` (notice the capitalization) refers to a Spring-specific

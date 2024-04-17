@@ -311,7 +311,7 @@ class OrderServiceIntegrationTests {
 
 Note that this feature lets test dependencies be `final` and therefore immutable.
 
-If the `spring.test.constructor.autowire.mode` property is to `all` (see
+If the `infra.test.constructor.autowire.mode` property is to `all` (see
 xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-testconstructor[`@TestConstructor`]), we can omit the declaration of
 `@Autowired` on the constructor in the previous example, resulting in the following.
 
@@ -365,10 +365,10 @@ class OrderServiceIntegrationTests {
 ======
 
 Due to the robustness of the `ParameterResolver` support in JUnit Jupiter, you can also
-have multiple dependencies injected into a single method, not only from Spring but also
+have multiple dependencies injected into a single method, not only from Infra but also
 from JUnit Jupiter itself or other third-party extensions.
 
-The following example shows how to have both Spring and JUnit Jupiter inject dependencies
+The following example shows how to have both Infra and JUnit Jupiter inject dependencies
 into the `placeOrderRepeatedly()` test method simultaneously.
 
 [tabs]
@@ -398,7 +398,7 @@ to the `RepetitionInfo`.
 [[testcontext-junit-jupiter-nested-test-configuration]]
 === `@Nested` test class configuration
 
-The _Spring TestContext Framework_ has supported the use of test-related annotations on
+The _Infra TestContext Framework_ has supported the use of test-related annotations on
 `@Nested` test classes in JUnit Jupiter since TODAY Framework 5.0; however, until Spring
 Framework 5.3 class-level test configuration annotations were not _inherited_ from
 enclosing classes like they are from superclasses.
@@ -471,7 +471,7 @@ classes for TestNG based test cases:
 * `AbstractTransactionalTestNGSpringContextTests`
 
 `AbstractTestNGSpringContextTests` is an abstract base test class that integrates the
-Spring TestContext Framework with explicit `ApplicationContext` testing support in a
+Infra TestContext Framework with explicit `ApplicationContext` testing support in a
 TestNG environment. When you extend `AbstractTestNGSpringContextTests`, you can access a
 `protected` `applicationContext` instance variable that you can use to perform explicit
 bean lookups or to test the state of the context as a whole.
@@ -483,7 +483,7 @@ access. This class expects a `javax.sql.DataSource` bean and a
 extend `AbstractTransactionalTestNGSpringContextTests`, you can access a `protected`
 `jdbcTemplate` instance variable that you can use to run SQL statements to query the
 database. You can use such queries to confirm database state both before and after
-running database-related application code, and Spring ensures that such queries run in
+running database-related application code, and Infra ensures that such queries run in
 the scope of the same transaction as the application code. When used in conjunction with
 an ORM tool, be sure to avoid xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[false positives].
 As mentioned in xref:testing/support-jdbc.adoc[JDBC Testing Support],

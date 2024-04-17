@@ -11,11 +11,11 @@ Using this feature requires:
 
 WARNING: The files generated in the path specified by `-XX:CRaCCheckpointTo=PATH` when a checkpoint is requested contain a representation of the memory of the running JVM, which may contain secrets and other sensitive data. Using this feature should be done with the assumption that any value "seen" by the JVM, such as configuration properties coming from the environment, will be stored in those CRaC files. As a consequence, the security implications of where and how those files are generated, stored, and accessed should be carefully assessed.
 
-Conceptually, checkpoint and restore align with the xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-processor[Spring `Lifecycle` contract] for individual beans.
+Conceptually, checkpoint and restore align with the xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-processor[Infra `Lifecycle` contract] for individual beans.
 
 == On-demand checkpoint/restore of a running application
 
-A checkpoint can be created on demand, for example using a command like `jcmd application.jar JDK.checkpoint`. Before the creation of the checkpoint, Spring stops all the running beans, giving them a chance to close resources if needed by implementing `Lifecycle.stop`. After restore, the same beans are restarted, with `Lifecycle.start` allowing beans to reopen resources when relevant. For libraries that do not depend on Spring, custom checkpoint/restore integration can be provided by implementing `org.crac.Resource` and registering the related instance.
+A checkpoint can be created on demand, for example using a command like `jcmd application.jar JDK.checkpoint`. Before the creation of the checkpoint, Infra stops all the running beans, giving them a chance to close resources if needed by implementing `Lifecycle.stop`. After restore, the same beans are restarted, with `Lifecycle.start` allowing beans to reopen resources when relevant. For libraries that do not depend on Spring, custom checkpoint/restore integration can be provided by implementing `org.crac.Resource` and registering the related instance.
 
 WARNING: Leveraging checkpoint/restore of a running application typically requires additional lifecycle management to gracefully stop and start using resources like files or sockets and stop active threads.
 
@@ -28,8 +28,8 @@ startup during the `LifecycleProcessor.onRefresh` phase. After this phase has co
 `InitializingBean#afterPropertiesSet` callbacks have been invoked; but the lifecycle has not started, and the 
 `ContextRefreshedEvent` has not yet been published.
 
-For testing purposes, it is also possible to leverage the `-Dspring.context.exit=onRefresh` JVM system property which
-triggers similar behavior, but instead of creating a checkpoint, it exits your Spring application at the same lifecycle
+For testing purposes, it is also possible to leverage the `-Dinfra.context.exit=onRefresh` JVM system property which
+triggers similar behavior, but instead of creating a checkpoint, it exits your Infra application at the same lifecycle
 phase without requiring the Project CraC dependency/JVM or Linux. This can be useful to check if connections to remote
 services are required when the beans are not started, and potentially refine the configuration to avoid that.
 

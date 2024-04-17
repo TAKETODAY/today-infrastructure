@@ -1,5 +1,5 @@
 [[beans-java-instantiating-container]]
-= Instantiating the Spring Container by Using `AnnotationConfigApplicationContext`
+= Instantiating the Infra Container by Using `AnnotationConfigApplicationContext`
 
 The following sections document Infra `AnnotationConfigApplicationContext`, introduced in Spring
 3.0. This versatile `ApplicationContext` implementation is capable of accepting not only
@@ -18,10 +18,10 @@ used within those classes where necessary.
 [[beans-java-instantiating-container-constructor]]
 == Simple Construction
 
-In much the same way that Spring XML files are used as input when instantiating a
+In much the same way that Infra XML files are used as input when instantiating a
 `ClassPathXmlApplicationContext`, you can use `@Configuration` classes as input when
 instantiating an `AnnotationConfigApplicationContext`. This allows for completely
-XML-free usage of the Spring container, as the following example shows:
+XML-free usage of the Infra container, as the following example shows:
 
 [tabs]
 ======
@@ -112,7 +112,7 @@ public class AppConfig  {
 
 [TIP]
 =====
-Experienced Spring users may be familiar with the XML declaration equivalent from
+Experienced Infra users may be familiar with the XML declaration equivalent from
 Infra `context:` namespace, shown in the following example:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -124,7 +124,7 @@ Infra `context:` namespace, shown in the following example:
 =====
 
 In the preceding example, the `com.acme` package is scanned to look for any
-`@Component`-annotated classes, and those classes are registered as Spring bean
+`@Component`-annotated classes, and those classes are registered as Infra bean
 definitions within the container. `AnnotationConfigApplicationContext` exposes the
 `scan(String...)` method to allow for the same component-scanning functionality, as the
 following example shows:
@@ -157,7 +157,7 @@ methods are processed and registered as bean definitions within the container.
 
 A `WebApplicationContext` variant of `AnnotationConfigApplicationContext` is available
 with `AnnotationConfigWebApplicationContext`. You can use this implementation when
-configuring the Spring `ContextLoaderListener` servlet listener, Web MVC
+configuring the Infra `ContextLoaderListener` servlet listener, Web MVC
 `DispatcherServlet`, and so forth. The following `web.xml` snippet configures a typical
 Web MVC web application (note the use of the `contextClass` context-param and
 init-param):

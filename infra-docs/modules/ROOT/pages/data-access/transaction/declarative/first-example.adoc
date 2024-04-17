@@ -207,7 +207,7 @@ output and the stack trace from the `UnsupportedOperationException` thrown by th
 
 [source,logging,indent=0,subs="verbatim,quotes"]
 ----
-	<!-- the Spring container is starting up... -->
+	<!-- the Infra container is starting up... -->
 	[AspectJInvocationContextExposingAdvisorAutoProxyCreator] - Creating implicit proxy for bean 'fooService' with 0 common interceptors and 1 specific interceptors
 
 	<!-- the DefaultFooService is actually proxied -->

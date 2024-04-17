@@ -13,10 +13,6 @@ include::partial$web/web-uris.adoc[leveloffset=+1]
 You can use `ServletUriComponentsBuilder` to create URIs relative to the current request,
 as the following example shows:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 HttpServletRequest request = ...
@@ -27,8 +23,6 @@ URI uri = ServletUriComponentsBuilder.fromRequest(request)
     .replaceQueryParam("accountId", "{id}")
     .build("123");
 ----
-
-======
 
 You can create URIs relative to the context path, as the following example shows:
 

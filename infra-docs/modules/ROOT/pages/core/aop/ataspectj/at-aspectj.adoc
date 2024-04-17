@@ -3,7 +3,7 @@
 
 With @AspectJ support enabled, any bean defined in your application context with a
 class that is an @AspectJ aspect (has the `@Aspect` annotation) is automatically
-detected by Spring and used to configure Infra AOP. The next two examples show the
+detected by Infra and used to configure Infra AOP. The next two examples show the
 minimal steps required for a not-very-useful aspect.
 
 The first of the two examples shows a regular bean definition in the application context
@@ -37,8 +37,8 @@ other class. They can also contain pointcut, advice, and introduction (inter-typ
 declarations.
 
 .Autodetecting aspects through component scanning
-NOTE: You can register aspect classes as regular beans in your Spring XML configuration,
-via `@Bean` methods in `@Configuration` classes, or have Spring autodetect them through
+NOTE: You can register aspect classes as regular beans in your Infra XML configuration,
+via `@Bean` methods in `@Configuration` classes, or have Infra autodetect them through
 classpath scanning -- the same as any other Spring-managed bean. However, note that the
 `@Aspect` annotation is not sufficient for autodetection in the classpath. For that
 purpose, you need to add a separate `@Component` annotation (or, alternatively, a custom

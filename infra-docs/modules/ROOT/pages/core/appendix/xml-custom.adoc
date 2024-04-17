@@ -2,15 +2,15 @@
 = XML Schema Authoring
 
 [[xsd-custom-introduction]]
-Since version 2.0, Spring has featured a mechanism for adding schema-based extensions to the
-basic Spring XML format for defining and configuring beans. This section covers
+Since version 2.0, Infra has featured a mechanism for adding schema-based extensions to the
+basic Infra XML format for defining and configuring beans. This section covers
 how to write your own custom XML bean definition parsers and
 integrate such parsers into the Infra IoC container.
 
 To facilitate authoring configuration files that use a schema-aware XML editor,
 Infra extensible XML configuration mechanism is based on XML Schema. If you are not
 familiar with Infra current XML configuration extensions that come with the standard
-Spring distribution, you should first read the previous section on xref:core/appendix/xsd-schemas.adoc[XML Schemas].
+Infra distribution, you should first read the previous section on xref:core/appendix/xsd-schemas.adoc[XML Schemas].
 
 
 To create new XML configuration extensions:
@@ -112,29 +112,29 @@ defined in the enumeration.
 == Coding a `NamespaceHandler`
 
 In addition to the schema, we need a `NamespaceHandler` to parse all elements of
-this specific namespace that Spring encounters while parsing configuration files. For this example, the
+this specific namespace that Infra encounters while parsing configuration files. For this example, the
 `NamespaceHandler` should take care of the parsing of the `myns:dateformat`
 element.
 
 The `NamespaceHandler` interface features three methods:
 
 * `init()`: Allows for initialization of the `NamespaceHandler` and is called by
-  Spring before the handler is used.
-* `BeanDefinition parse(Element, ParserContext)`: Called when Spring encounters a
+  Infra before the handler is used.
+* `BeanDefinition parse(Element, ParserContext)`: Called when Infra encounters a
   top-level element (not nested inside a bean definition or a different namespace).
   This method can itself register bean definitions, return a bean definition, or both.
 * `BeanDefinitionHolder decorate(Node, BeanDefinitionHolder, ParserContext)`: Called
-  when Spring encounters an attribute or nested element of a different namespace.
+  when Infra encounters an attribute or nested element of a different namespace.
   The decoration of one or more bean definitions is used (for example) with the
-  xref:core/beans/factory-scopes.adoc[scopes that Spring supports].
+  xref:core/beans/factory-scopes.adoc[scopes that Infra supports].
   We start by highlighting a simple example, without using decoration, after which
   we show decoration in a somewhat more advanced example.
 
 Although you can code your own `NamespaceHandler` for the entire
 namespace (and hence provide code that parses each and every element in the namespace),
-it is often the case that each top-level XML element in a Spring XML configuration file
+it is often the case that each top-level XML element in a Infra XML configuration file
 results in a single bean definition (as in our case, where a single `<myns:dateformat/>`
-element results in a single `SimpleDateFormat` bean definition). Spring features a
+element results in a single `SimpleDateFormat` bean definition). Infra features a
 number of convenience classes that support this scenario. In the following example, we
 use the `NamespaceHandlerSupport` class:
 
@@ -232,7 +232,7 @@ is the extraction and setting of the bean definition's unique identifier.
 [[xsd-custom-registration]]
 == Registering the Handler and the Schema
 
-The coding is finished. All that remains to be done is to make the Spring XML
+The coding is finished. All that remains to be done is to make the Infra XML
 parsing infrastructure aware of our custom element. We do so by registering our custom
 `namespaceHandler` and custom XSD file in two special-purpose properties files. These
 properties files are both placed in a `META-INF` directory in your application and
@@ -266,9 +266,9 @@ attribute, as specified in your custom XSD schema.
 The properties file called `spring.schemas` contains a mapping of XML Schema locations
 (referred to, along with the schema declaration, in XML files that use the schema as part
 of the `xsi:schemaLocation` attribute) to classpath resources. This file is needed
-to prevent Spring from absolutely having to use a default `EntityResolver` that requires
+to prevent Infra from absolutely having to use a default `EntityResolver` that requires
 Internet access to retrieve the schema file. If you specify the mapping in this
-properties file, Spring searches for the schema (in this case,
+properties file, Infra searches for the schema (in this case,
 `myns.xsd` in the `cn.taketoday.samples.xml` package) on the classpath.
 The following snippet shows the line we need to add for our custom schema:
 
@@ -285,12 +285,12 @@ the `NamespaceHandler` and `BeanDefinitionParser` classes on the classpath.
 
 
 [[xsd-custom-using]]
-== Using a Custom Extension in Your Spring XML Configuration
+== Using a Custom Extension in Your Infra XML Configuration
 
 Using a custom extension that you yourself have implemented is no different from using
-one of the "`custom`" extensions that Spring provides. The following
+one of the "`custom`" extensions that Infra provides. The following
 example uses the custom `<dateformat/>` element developed in the previous steps
-in a Spring XML configuration file:
+in a Infra XML configuration file:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -444,8 +444,8 @@ public class ComponentFactoryBean implements FactoryBean<Component> {
 
 ======
 
-This works nicely, but it exposes a lot of Spring plumbing to the end user. What we are
-going to do is write a custom extension that hides away all of this Spring plumbing.
+This works nicely, but it exposes a lot of Infra plumbing to the end user. What we are
+going to do is write a custom extension that hides away all of this Infra plumbing.
 If we stick to xref:core/appendix/xml-custom.adoc#xsd-custom-introduction[the steps described previously], we start off
 by creating the XSD schema to define the structure of our custom tag, as the following
 listing shows:
@@ -555,7 +555,7 @@ public class ComponentBeanDefinitionParser extends AbstractBeanDefinitionParser 
 
 ======
 
-Finally, the various artifacts need to be registered with the Spring XML infrastructure,
+Finally, the various artifacts need to be registered with the Infra XML infrastructure,
 by modifying the `META-INF/spring.handlers` and `META-INF/spring.schemas` files, as follows:
 
 [literal,subs="verbatim,quotes"]
@@ -729,7 +729,7 @@ public class JCacheInitializingBeanDefinitionDecorator implements BeanDefinition
 
 ======
 
-Finally, we need to register the various artifacts with the Spring XML infrastructure
+Finally, we need to register the various artifacts with the Infra XML infrastructure
 by modifying the `META-INF/spring.handlers` and `META-INF/spring.schemas` files, as follows:
 
 [literal,subs="verbatim,quotes"]

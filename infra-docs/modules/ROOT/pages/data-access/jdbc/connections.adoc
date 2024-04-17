@@ -16,7 +16,7 @@ This section covers:
 [[jdbc-datasource]]
 == Using `DataSource`
 
-Spring obtains a connection to the database through a `DataSource`. A `DataSource` is
+Infra obtains a connection to the database through a `DataSource`. A `DataSource` is
 part of the JDBC specification and is a generalized connection factory. It lets a
 container or a framework hide connection pooling and transaction management issues
 from the application code. As a developer, you need not know details about how to
@@ -30,7 +30,7 @@ Traditional choices are Apache Commons DBCP and C3P0 with bean-style `DataSource
 for a modern JDBC connection pool, consider HikariCP with its builder-style API instead.
 
 NOTE: You should use the `DriverManagerDataSource` and `SimpleDriverDataSource` classes
-(as included in the Spring distribution) only for testing purposes! Those variants do not
+(as included in the Infra distribution) only for testing purposes! Those variants do not
 provide pooling and perform poorly when multiple requests for a connection are made.
 
 The following section uses Infra `DriverManagerDataSource` implementation.
@@ -185,7 +185,7 @@ is similar to a transactional JNDI `DataSource`, as provided by a Jakarta EE ser
 NOTE: It is rarely desirable to use this class, except when already existing code must be
 called and passed a standard JDBC `DataSource` interface implementation. In this case,
 you can still have this code be usable and, at the same time, have this code
-participating in Spring managed transactions. It is generally preferable to write your
+participating in Infra managed transactions. It is generally preferable to write your
 own new code by using the higher level abstractions for resource management, such as
 `JdbcTemplate` or `DataSourceUtils`.
 
@@ -220,7 +220,7 @@ provided you stick to the required connection lookup pattern. Note that JTA does
 savepoints or custom isolation levels and has a different timeout mechanism but otherwise
 exposes similar behavior in terms of JDBC resources and JDBC commit/rollback management.
 
-For JTA-style lazy retrieval of actual resource connections, Spring provides a
+For JTA-style lazy retrieval of actual resource connections, Infra provides a
 corresponding `DataSource` proxy class for the target connection pool: see
 {today-framework-api}/jdbc/datasource/LazyConnectionDataSourceProxy.html[`LazyConnectionDataSourceProxy`].
 This is particularly useful for potentially empty transactions without actual statement
@@ -233,7 +233,7 @@ pool to use during a read-only transaction, avoiding the overhead of switching t
 Connection's read-only flag at the beginning and end of every transaction when fetching
 it from the primary connection pool (which may be costly depending on the JDBC driver).
 
-NOTE: As of 5.3, Spring provides an extended `JdbcTransactionManager` variant which adds
+NOTE: As of 5.3, Infra provides an extended `JdbcTransactionManager` variant which adds
 exception translation capabilities on commit/rollback (aligned with `JdbcTemplate`).
 Where `DataSourceTransactionManager` will only ever throw `TransactionSystemException`
 (analogous to JTA), `JdbcTransactionManager` translates database locking failures etc to

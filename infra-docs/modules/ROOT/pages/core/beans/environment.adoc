@@ -78,7 +78,7 @@ public DataSource dataSource() throws Exception {
 ======
 
 The problem is how to switch between using these two variations based on the
-current environment. Over time, Spring users have devised a number of ways to
+current environment. Over time, Infra users have devised a number of ways to
 get this done, usually relying on a combination of system environment variables
 and XML `<import/>` statements containing pass:q[`${placeholder}`] tokens that resolve
 to the correct configuration file path depending on the value of an environment
@@ -350,10 +350,10 @@ In the preceding example, the `dataSource` bean is exposed if both the `producti
 [[beans-definition-profiles-enable]]
 === Activating a Profile
 
-Now that we have updated our configuration, we still need to instruct Spring which
+Now that we have updated our configuration, we still need to instruct Infra which
 profile is active. If we started our sample application right now, we would see
 a `NoSuchBeanDefinitionException` thrown, because the container could not find
-the Spring bean named `dataSource`.
+the Infra bean named `dataSource`.
 
 Activating a profile can be done in several ways, but the most straightforward is to do
 it programmatically against the `Environment` API which is available through an
@@ -463,7 +463,7 @@ System.out.println("Does my environment contain the 'my-property' property? " + 
 
 ======
 
-In the preceding snippet, we see a high-level way of asking Spring whether the `my-property` property is
+In the preceding snippet, we see a high-level way of asking Infra whether the `my-property` property is
 defined for the current environment. To answer this question, the `Environment` object performs
 a search over a set of {today-framework-api}/core/env/PropertySource.html[`PropertySource`]
 objects. A `PropertySource` is a simple abstraction over any source of key-value pairs, and

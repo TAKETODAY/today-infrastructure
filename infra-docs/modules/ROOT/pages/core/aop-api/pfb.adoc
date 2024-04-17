@@ -8,7 +8,7 @@ it create objects of a different type.)
 
 NOTE: The Infra AOP support also uses factory beans under the covers.
 
-The basic way to create an AOP proxy in Spring is to use the
+The basic way to create an AOP proxy in Infra is to use the
 `cn.taketoday.aop.framework.ProxyFactoryBean`. This gives complete control over
 the pointcuts, any advice that applies, and their ordering. However, there are simpler
 options that are preferable if you do not need such control.
@@ -18,7 +18,7 @@ options that are preferable if you do not need such control.
 [[aop-pfb-1]]
 == Basics
 
-The `ProxyFactoryBean`, like other Spring `FactoryBean` implementations, introduces a
+The `ProxyFactoryBean`, like other Infra `FactoryBean` implementations, introduces a
 level of indirection. If you define a `ProxyFactoryBean` named `foo`, objects that
 reference `foo` do not see the `ProxyFactoryBean` instance itself but an object
 created by the implementation of the `getObject()` method in the `ProxyFactoryBean` . This
@@ -265,7 +265,7 @@ What if you need to proxy a class, rather than one or more interfaces?
 
 Imagine that in our earlier example, there was no `Person` interface. We needed to advise
 a class called `Person` that did not implement any business interface. In this case, you
-can configure Spring to use CGLIB proxying rather than dynamic proxies. To do so, set the
+can configure Infra to use CGLIB proxying rather than dynamic proxies. To do so, set the
 `proxyTargetClass` property on the `ProxyFactoryBean` shown earlier to `true`. While it is best to
 program to interfaces rather than classes, the ability to advise classes that do not
 implement interfaces can be useful when working with legacy code. (In general, Spring

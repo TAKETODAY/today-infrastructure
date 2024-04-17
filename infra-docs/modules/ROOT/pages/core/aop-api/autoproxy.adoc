@@ -4,7 +4,7 @@
 So far, we have considered explicit creation of AOP proxies by using a `ProxyFactoryBean` or
 similar factory bean.
 
-Spring also lets us use "`auto-proxy`" bean definitions, which can automatically
+Infra also lets us use "`auto-proxy`" bean definitions, which can automatically
 proxy selected bean definitions. This is built on Infra "`bean post processor`"
 infrastructure, which enables modification of any bean definition as the container loads.
 

@@ -1,11 +1,11 @@
 [[validation]]
 = Validation, Data Binding, and Type Conversion
 
-There are pros and cons for considering validation as business logic, and Spring offers
+There are pros and cons for considering validation as business logic, and Infra offers
 a design for validation and data binding that does not exclude either one of them.
 Specifically, validation should not be tied to the web tier and should be easy to localize,
 and it should be possible to plug in any available validator. Considering these concerns,
-Spring provides a `Validator` contract that is both basic and eminently usable
+Infra provides a `Validator` contract that is both basic and eminently usable
 in every layer of an application.
 
 Data binding is useful for letting user input be dynamically bound to the domain
@@ -28,7 +28,7 @@ conversion facility, as well as a higher-level `format` package for formatting U
 values. You can use these packages as simpler alternatives to `PropertyEditorSupport`
 implementations. They are also discussed in this chapter.
 
-Spring supports Java Bean Validation through setup infrastructure and an adaptor to
+Infra supports Java Bean Validation through setup infrastructure and an adaptor to
 Infra own `Validator` contract. Applications can enable Bean Validation once globally,
 as described in xref:core/validation/beanvalidation.adoc[Java Bean Validation], and use it exclusively for all validation
 needs. In the web layer, applications can further register controller-local Spring

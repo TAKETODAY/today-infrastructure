@@ -112,7 +112,7 @@ The Infra TestContext Framework includes infrastructure classes that support bea
 overriding: a `BeanFactoryPostProcessor`, a `TestExecutionListener` and a
 `ContextCustomizerFactory`.
 The later two are automatically registered via the Infra TestContext Framework
-`spring.factories` file, and are responsible for setting up the rest of the infrastructure.
+`infra.factories` file, and are responsible for setting up the rest of the infrastructure.
 
 The test classes are parsed looking for any field meta-annotated with `@BeanOverride`,
 instantiating the relevant `BeanOverrideProcessor` in order to register an

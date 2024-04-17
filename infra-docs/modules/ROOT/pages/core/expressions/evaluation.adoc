@@ -151,7 +151,7 @@ boolean result = exp.getValue(tesla, Boolean.class);
 == Understanding `EvaluationContext`
 
 The `EvaluationContext` interface is used when evaluating an expression to resolve
-properties, methods, or fields and to help perform type conversion. Spring provides two
+properties, methods, or fields and to help perform type conversion. Infra provides two
 implementations.
 
 * `SimpleEvaluationContext`: Exposes a subset of essential SpEL language features and
@@ -178,7 +178,7 @@ one or some combination of the following.
 [[expressions-type-conversion]]
 === Type Conversion
 
-By default, SpEL uses the conversion service available in Spring core
+By default, SpEL uses the conversion service available in Infra core
 (`cn.taketoday.core.convert.ConversionService`). This conversion service comes
 with many built-in converters for common conversions, but is also fully extensible so
 that you can add custom conversions between types. Additionally, it is generics-aware.
@@ -269,15 +269,15 @@ programmatically, you can specify a custom `maxExpressionLength` when creating t
 `SpelParserConfiguration` that you provide to the `SpelExpressionParser`. If you wish to
 set the `maxExpressionLength` used for parsing SpEL expressions within an
 `ApplicationContext` -- for example, in XML bean definitions, `@Value`, etc. -- you can
-set a JVM system property or Spring property named `spring.context.expression.maxLength`
+set a JVM system property or Infra property named `infra.context.expression.maxLength`
 to the maximum expression length needed by your application (see
-xref:appendix.adoc#appendix-infra-properties[Supported Spring Properties]).
+xref:appendix.adoc#appendix-infra-properties[Supported Infra Properties]).
 
 
 [[expressions-spel-compilation]]
 == SpEL Compilation
 
-Spring provides a basic compiler for SpEL expressions. Expressions are usually
+Infra provides a basic compiler for SpEL expressions. Expressions are usually
 interpreted, which provides a lot of dynamic flexibility during evaluation but does not
 provide optimum performance. For occasional expression usage, this is fine, but, when
 used by other components such as Infra Integration, performance can be very important,
@@ -313,7 +313,7 @@ only 3ms using the compiled version of the expression.
 The compiler is not turned on by default, but you can turn it on in either of two
 different ways. You can turn it on by using the parser configuration process
 (xref:core/expressions/evaluation.adoc#expressions-parser-configuration[discussed
-earlier]) or by using a Spring property when SpEL usage is embedded inside another
+earlier]) or by using a Infra property when SpEL usage is embedded inside another
 component. This section discusses both of these options.
 
 The compiler can operate in one of three modes, which are captured in the
@@ -370,7 +370,7 @@ the thread that is running during expression evaluation).
 
 The second way to configure the compiler is for use when SpEL is embedded inside some
 other component and it may not be possible to configure it through a configuration
-object. In such cases, it is possible to set the `spring.expression.compiler.mode`
+object. In such cases, it is possible to set the `spel.compiler.mode`
 property via a JVM system property (or via the
 xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism) to one of the
 `SpelCompilerMode` enum values (`off`, `immediate`, or `mixed`).
@@ -379,7 +379,7 @@ xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism) to o
 [[expressions-compiler-limitations]]
 === Compiler Limitations
 
-Spring does not support compiling every kind of expression. The primary focus is on
+Infra does not support compiling every kind of expression. The primary focus is on
 common expressions that are likely to be used in performance-critical contexts. The
 following kinds of expressions cannot be compiled.
 

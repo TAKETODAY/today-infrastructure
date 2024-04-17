@@ -2,7 +2,7 @@
 = Exporting Your Beans to JMX
 
 The core class in Infra JMX framework is the `MBeanExporter`. This class is
-responsible for taking your Spring beans and registering them with a JMX `MBeanServer`.
+responsible for taking your Infra beans and registering them with a JMX `MBeanServer`.
 For example, consider the following class:
 
 [source,java,indent=0,subs="verbatim,quotes",chomp="-packages",chomp="-packages"]
@@ -85,7 +85,7 @@ the export happens or disable automatic registration by setting the `autoStartup
 
 The configuration shown in the xref:integration/jmx/exporting.adoc[preceding section] assumes that the
 application is running in an environment that has one (and only one) `MBeanServer`
-already running. In this case, Spring tries to locate the running `MBeanServer` and
+already running. In this case, Infra tries to locate the running `MBeanServer` and
 register your beans with that server (if any). This behavior is useful when your
 application runs inside a container (such as Tomcat or IBM WebSphere) that has its
 own `MBeanServer`.
@@ -217,7 +217,7 @@ as detailed in xref:integration/jmx/naming.adoc[Controlling  `ObjectName` Instan
 [[jmx-exporting-registration-behavior]]
 == Controlling the Registration Behavior
 
-Consider the scenario where a Spring `MBeanExporter` attempts to register an `MBean`
+Consider the scenario where a Infra `MBeanExporter` attempts to register an `MBean`
 with an `MBeanServer` by using the `ObjectName` `bean:name=testBean1`. If an `MBean`
 instance has already been registered under that same `ObjectName`, the default behavior
 is to fail (and throw an `InstanceAlreadyExistsException`).

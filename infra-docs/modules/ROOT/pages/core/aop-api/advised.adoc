@@ -38,7 +38,7 @@ boolean isFrozen();
 The `getAdvisors()` method returns an `Advisor` for every advisor, interceptor, or
 other advice type that has been added to the factory. If you added an `Advisor`, the
 returned advisor at this index is the object that you added. If you added an
-interceptor or other advice type, Spring wrapped this in an advisor with a
+interceptor or other advice type, Infra wrapped this in an advisor with a
 pointcut that always returns `true`. Thus, if you added a `MethodInterceptor`, the advisor
 returned for this index is a `DefaultPointcutAdvisor` that returns your
 `MethodInterceptor` and a pointcut that matches all classes and methods.

@@ -138,14 +138,14 @@ over both `@TestConstructor` and the default mode.
 [TIP]
 =====
 The default _test constructor autowire mode_ can be changed by setting the
-`spring.test.constructor.autowire.mode` JVM system property to `all`. Alternatively, the
+`infra.test.constructor.autowire.mode` JVM system property to `all`. Alternatively, the
 default mode may be set via the
 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 
 As of TODAY Framework 5.3, the default mode may also be configured as a
 https://junit.org/junit5/docs/current/user-guide/#running-tests-config-params[JUnit Platform configuration parameter].
 
-If the `spring.test.constructor.autowire.mode` property is not set, test class
+If the `infra.test.constructor.autowire.mode` property is not set, test class
 constructors will not be automatically autowired.
 =====
 
@@ -171,7 +171,7 @@ change the default mode.
 [TIP]
 =====
 The default _enclosing configuration inheritance mode_ is `INHERIT`, but it can be
-changed by setting the `spring.test.enclosing.configuration` JVM system property to
+changed by setting the `infra.test.enclosing.configuration` JVM system property to
 `OVERRIDE`. Alternatively, the default mode may be set via the
 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 =====
@@ -217,7 +217,7 @@ within that class are automatically enabled by default as well.
 
 Expressions can be any of the following:
 
-* xref:core/expressions.adoc[Spring Expression Language] (SpEL) expression. For example:
+* xref:core/expressions.adoc[Infra Expression Language] (SpEL) expression. For example:
   `@EnabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")`
 * Placeholder for a property available in the Infra xref:core/beans/environment.adoc[`Environment`].
   For example: `@EnabledIf("${smoke.tests.enabled}")`
@@ -271,7 +271,7 @@ test methods within that class are automatically disabled as well.
 
 Expressions can be any of the following:
 
-* xref:core/expressions.adoc[Spring Expression Language] (SpEL) expression. For example:
+* xref:core/expressions.adoc[Infra Expression Language] (SpEL) expression. For example:
   `@DisabledIf("#{systemProperties['os.name'].toLowerCase().contains('mac')}")`
 * Placeholder for a property available in the Infra xref:core/beans/environment.adoc[`Environment`].
   For example: `@DisabledIf("${smoke.tests.disabled}")`

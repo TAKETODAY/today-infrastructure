@@ -47,7 +47,7 @@ to the programming model.
 [[transaction-programming-model]]
 == TODAY Framework's Consistent Programming Model
 
-Spring resolves the disadvantages of global and local transactions. It lets
+Infra resolves the disadvantages of global and local transactions. It lets
 application developers use a consistent programming model in any environment.
 You write your code once, and it can benefit from different transaction management
 strategies in different environments. The TODAY Framework provides both declarative and

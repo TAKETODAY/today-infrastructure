@@ -6,7 +6,7 @@ The TODAY Framework provides two means of programmatic transaction management, b
 * The `TransactionTemplate` or `TransactionalOperator`.
 * A `TransactionManager` implementation directly.
 
-The Spring team generally recommends the `TransactionTemplate` for programmatic
+The Infra team generally recommends the `TransactionTemplate` for programmatic
 transaction management in imperative flows and `TransactionalOperator` for reactive code.
 The second approach is similar to using the JTA `UserTransaction` API, although exception
 handling is less cumbersome.
@@ -15,7 +15,7 @@ handling is less cumbersome.
 [[tx-prog-template]]
 == Using the `TransactionTemplate`
 
-The `TransactionTemplate` adopts the same approach as other Spring templates, such as
+The `TransactionTemplate` adopts the same approach as other Infra templates, such as
 the `JdbcTemplate`. It uses a callback approach (to free application code from having to
 do the boilerplate acquisition and release transactional resources) and results in
 code that is intention driven, in that your code focuses solely on what
@@ -142,7 +142,7 @@ public class SimpleService implements Service {
 ======
 
 The following example defines a `TransactionTemplate` with some custom transactional
-settings by using Spring XML configuration:
+settings by using Infra XML configuration:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----

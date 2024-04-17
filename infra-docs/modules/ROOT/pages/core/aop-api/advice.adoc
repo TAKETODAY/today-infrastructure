@@ -8,7 +8,7 @@ Now we can examine how Infra AOP handles advice.
 [[aop-api-advice-lifecycle]]
 == Advice Lifecycles
 
-Each advice is a Spring bean. An advice instance can be shared across all advised
+Each advice is a Infra bean. An advice instance can be shared across all advised
 objects or be unique to each advised object. This corresponds to per-class or
 per-instance advice.
 
@@ -26,16 +26,16 @@ You can use a mix of shared and per-instance advice in the same AOP proxy.
 [[aop-api-advice-types]]
 == Advice Types in Spring
 
-Spring provides several advice types and is extensible to support
+Infra provides several advice types and is extensible to support
 arbitrary advice types. This section describes the basic concepts and standard advice types.
 
 
 [[aop-api-advice-around]]
 === Interception Around Advice
 
-The most fundamental advice type in Spring is interception around advice.
+The most fundamental advice type in Infra is interception around advice.
 
-Spring is compliant with the AOP `Alliance` interface for around advice that uses method
+Infra is compliant with the AOP `Alliance` interface for around advice that uses method
 interception. Classes that implement `MethodInterceptor` and that implement around advice should also implement the
 following interface:
 
@@ -110,7 +110,7 @@ public interface MethodBeforeAdvice extends BeforeAdvice {
 
 (Infra API design would allow for
 field before advice, although the usual objects apply to field interception and it is
-unlikely for Spring to ever implement it.)
+unlikely for Infra to ever implement it.)
 
 Note that the return type is `void`. Before advice can insert custom behavior before the join
 point runs but cannot change the return value. If a before advice throws an
@@ -150,7 +150,7 @@ TIP: Before advice can be used with any pointcut.
 === Throws Advice
 
 Throws advice is invoked after the return of the join point if the join point threw
-an exception. Spring offers typed throws advice. Note that this means that the
+an exception. Infra offers typed throws advice. Note that this means that the
 `cn.taketoday.aop.ThrowsAdvice` interface does not contain any methods. It is a
 tag interface identifying that the given object implements one or more typed throws
 advice methods. These should be in the following form:
@@ -240,7 +240,7 @@ TIP: Throws advice can be used with any pointcut.
 [[aop-api-advice-after-returning]]
 === After Returning Advice
 
-An after returning advice in Spring must implement the
+An after returning advice in Infra must implement the
 `cn.taketoday.aop.AfterReturningAdvice` interface, which the following listing shows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -289,7 +289,7 @@ TIP: After returning advice can be used with any pointcut.
 [[aop-api-advice-introduction]]
 === Introduction Advice
 
-Spring treats introduction advice as a special kind of interception advice.
+Infra treats introduction advice as a special kind of interception advice.
 
 Introduction requires an `IntroductionAdvisor` and an `IntroductionInterceptor` that
 implement the following interface:
@@ -334,7 +334,7 @@ The `getInterfaces()` method returns the interfaces introduced by this advisor.
 The `validateInterfaces()` method is used internally to see whether or not the
 introduced interfaces can be implemented by the configured `IntroductionInterceptor`.
 
-Consider an example from the Spring test suite and suppose we want to
+Consider an example from the Infra test suite and suppose we want to
 introduce the following interface to one or more objects:
 
 [tabs]

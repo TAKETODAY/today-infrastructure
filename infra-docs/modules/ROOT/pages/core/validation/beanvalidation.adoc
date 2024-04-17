@@ -62,8 +62,8 @@ bean, keep reading.
 [[validation-beanvalidation-spring]]
 == Configuring a Bean Validation Provider
 
-Spring provides full support for the Bean Validation API including the bootstrapping of a
-Bean Validation provider as a Spring bean. This lets you inject a
+Infra provides full support for the Bean Validation API including the bootstrapping of a
+Bean Validation provider as a Infra bean. This lets you inject a
 `jakarta.validation.ValidatorFactory` or `jakarta.validation.Validator` wherever validation
 is needed in your application.
 
@@ -129,11 +129,11 @@ public class MyService {
 
 
 [[validation-beanvalidation-spring-inject-adapter]]
-=== Inject Spring Validator
+=== Inject Infra Validator
 
 In addition to implementing `jakarta.validation.Validator`, `LocalValidatorFactoryBean`
 also adapts to `cn.taketoday.validation.Validator`, so you can inject a reference
-to the latter if your bean requires the Spring Validation API.
+to the latter if your bean requires the Infra Validation API.
 
 For example:
 
@@ -177,11 +177,11 @@ references a corresponding `ConstraintValidator` implementation class. At runtim
 constraint annotation is encountered in your domain model.
 
 By default, the `LocalValidatorFactoryBean` configures a `SpringConstraintValidatorFactory`
-that uses Spring to create `ConstraintValidator` instances. This lets your custom
-`ConstraintValidators` benefit from dependency injection like any other Spring bean.
+that uses Infra to create `ConstraintValidator` instances. This lets your custom
+`ConstraintValidators` benefit from dependency injection like any other Infra bean.
 
 The following example shows a custom `@Constraint` declaration followed by an associated
-`ConstraintValidator` implementation that uses Spring for dependency injection:
+`ConstraintValidator` implementation that uses Infra for dependency injection:
 
 [tabs]
 ======
@@ -218,14 +218,14 @@ public class MyConstraintValidator implements ConstraintValidator {
 
 
 As the preceding example shows, a `ConstraintValidator` implementation can have its dependencies
-`@Autowired` as any other Spring bean.
+`@Autowired` as any other Infra bean.
 
 
 [[validation-beanvalidation-spring-method]]
 == Spring-driven Method Validation
 
 You can integrate the method validation feature of Bean Validation into a
-Spring context through a `MethodValidationPostProcessor` bean definition:
+Infra context through a `MethodValidationPostProcessor` bean definition:
 
 [tabs]
 ======
@@ -433,7 +433,7 @@ BindingResult results = binder.getBindingResult();
 
 You can also configure a `DataBinder` with multiple `Validator` instances through
 `dataBinder.addValidators` and `dataBinder.replaceValidators`. This is useful when
-combining globally configured bean validation with a Spring `Validator` configured
+combining globally configured bean validation with a Infra `Validator` configured
 locally on a DataBinder instance. See
 xref:web/webmvc/mvc-config/validation.adoc[Web MVC Validation Configuration].
 

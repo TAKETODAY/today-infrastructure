@@ -1,30 +1,22 @@
 [[mvc-controller]]
-= Annotated Controllers
+= 注解控制器
 
-Web MVC provides an annotation-based programming model where `@Controller` and
-`@RestController` components use annotations to express request mappings, request input,
-exception handling, and more. Annotated controllers have flexible method signatures and
-do not have to extend base classes nor implement specific interfaces.
-The following example shows a controller defined by annotations:
+Web 模块 提供了基于注解的编程模型，其中 `@Controller` 和 `@RestController` 组件使用注解来表达请求映射、请求输入、
+异常处理等等。 带注解的控制器支持非常灵活的方法签名（参数和返回值）和不必继承基类，也不必实现特定的接口。
+以下示例显示了通过注解定义的控制器：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Controller
 public class HelloController {
 
-  @GetMapping("/hello")
+  @GET("/hello")
   public String handle(Model model) {
     model.addAttribute("message", "Hello World!");
     return "index";
   }
 }
 ----
-
-======
 
 In the preceding example, the method accepts a `Model` and returns a view name as a `String`,
 but many other options exist and are explained later in this chapter.

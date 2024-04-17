@@ -41,7 +41,7 @@ public class SimpleMovieLister {
   // the SimpleMovieLister has a dependency on a MovieFinder
   private final MovieFinder movieFinder;
 
-  // a constructor so that the Spring container can inject a MovieFinder
+  // a constructor so that the Infra container can inject a MovieFinder
   public SimpleMovieLister(MovieFinder movieFinder) {
     this.movieFinder = movieFinder;
   }
@@ -103,7 +103,7 @@ need to specify the constructor argument indexes or types explicitly in the
 
 When another bean is referenced, the type is known, and matching can occur (as was the
 case with the preceding example). When a simple type is used, such as
-`<value>true</value>`, Spring cannot determine the type of the value, and so cannot match
+`<value>true</value>`, Infra cannot determine the type of the value, and so cannot match
 by type without help. Consider the following class:
 
 [tabs]
@@ -179,7 +179,7 @@ example shows:
 ----
 
 Keep in mind that, to make this work out of the box, your code must be compiled with the
-debug flag enabled so that Spring can look up the parameter name from the constructor.
+debug flag enabled so that Infra can look up the parameter name from the constructor.
 If you cannot or do not want to compile your code with the debug flag, you can use the
 https://download.oracle.com/javase/8/docs/api/java/beans/ConstructorProperties.html[@ConstructorProperties]
 JDK annotation to explicitly name your constructor arguments. The sample class would
@@ -231,7 +231,7 @@ public class SimpleMovieLister {
   // the SimpleMovieLister has a dependency on the MovieFinder
   private MovieFinder movieFinder;
 
-  // a setter method so that the Spring container can inject a MovieFinder
+  // a setter method so that the Infra container can inject a MovieFinder
   public void setMovieFinder(MovieFinder movieFinder) {
     this.movieFinder = movieFinder;
   }
@@ -247,7 +247,7 @@ The `ApplicationContext` supports constructor-based and setter-based DI for the 
 manages. It also supports setter-based DI after some dependencies have already been
 injected through the constructor approach. You configure the dependencies in the form of
 a `BeanDefinition`, which you use in conjunction with `PropertyEditor` instances to
-convert properties from one format to another. However, most Spring users do not work
+convert properties from one format to another. However, most Infra users do not work
 with these classes directly (that is, programmatically) but rather with XML `bean`
 definitions, annotated components (that is, classes annotated with `@Component`,
 `@Controller`, and so forth), or `@Bean` methods in Java-based `@Configuration` classes.
@@ -263,7 +263,7 @@ for optional dependencies. Note that use of the xref:core/beans/annotation-confi
 annotation on a setter method can be used to make the property be a required dependency;
 however, constructor injection with programmatic validation of arguments is preferable.
 
-The Spring team generally advocates constructor injection, as it lets you implement
+The Infra team generally advocates constructor injection, as it lets you implement
 application components as immutable objects and ensures that required dependencies
 are not `null`. Furthermore, constructor-injected components are always returned to the client
 (calling) code in a fully initialized state. As a side note, a large number of constructor
@@ -303,7 +303,7 @@ The container performs bean dependency resolution as follows:
   can convert a value supplied in string format to all built-in types, such as `int`,
   `long`, `String`, `boolean`, and so forth.
 
-The Spring container validates the configuration of each bean as the container is created.
+The Infra container validates the configuration of each bean as the container is created.
 However, the bean properties themselves are not set until the bean is actually created.
 Beans that are singleton-scoped and set to be pre-instantiated (the default) are created
 when the container is created. Scopes are defined in xref:core/beans/factory-scopes.adoc[Bean Scopes]. Otherwise,
@@ -333,10 +333,10 @@ between bean A and bean B forces one of the beans to be injected into the other 
 being fully initialized itself (a classic chicken-and-egg scenario).
 ****
 
-You can generally trust Spring to do the right thing. It detects configuration problems,
+You can generally trust Infra to do the right thing. It detects configuration problems,
 such as references to non-existent beans and circular dependencies, at container
-load-time. Spring sets properties and resolves dependencies as late as possible, when
-the bean is actually created. This means that a Spring container that has loaded
+load-time. Infra sets properties and resolves dependencies as late as possible, when
+the bean is actually created. This means that a Infra container that has loaded
 correctly can later generate an exception when you request an object if there is a
 problem creating that object or one of its dependencies -- for example, the bean throws an
 exception as a result of a missing or invalid property. This potentially delayed
@@ -362,7 +362,7 @@ are invoked.
 == Examples of Dependency Injection
 
 The following example uses XML-based configuration metadata for setter-based DI. A small
-part of a Spring XML configuration file specifies some bean definitions as follows:
+part of a Infra XML configuration file specifies some bean definitions as follows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -464,7 +464,7 @@ public class ExampleBean {
 The constructor arguments specified in the bean definition are used as arguments to
 the constructor of the `ExampleBean`.
 
-Now consider a variant of this example, where, instead of using a constructor, Spring is
+Now consider a variant of this example, where, instead of using a constructor, Infra is
 told to call a `static` factory method to return an instance of the object:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

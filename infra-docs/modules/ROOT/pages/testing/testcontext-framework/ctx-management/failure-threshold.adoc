@@ -14,7 +14,7 @@ that will never successfully load -- for example, due to a configuration error o
 external resource that prevents the context from loading in the current environment.
 
 You can configure the context failure threshold from the command line or a build script
-by setting a JVM system property named `spring.test.context.failure.threshold` with a
+by setting a JVM system property named `infra.test.context.failure.threshold` with a
 positive integer value. As an alternative, you can set the same property via the
 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 

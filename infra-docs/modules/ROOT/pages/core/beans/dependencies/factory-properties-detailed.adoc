@@ -51,7 +51,7 @@ XML configuration:
 
 The preceding XML is more succinct. However, typos are discovered at runtime rather than
 design time, unless you use an IDE (such as https://www.jetbrains.com/idea/[IntelliJ
-IDEA] or the {today-tech-site-tools}[Spring Tools for Eclipse])
+IDEA] or the {today-tech-site-tools}[Infra Tools for Eclipse])
 that supports automatic property completion when you create bean definitions. Such IDE
 assistance is highly recommended.
 
@@ -72,9 +72,9 @@ You can also configure a `java.util.Properties` instance, as follows:
 </bean>
 ----
 
-The Spring container converts the text inside the `<value/>` element into a
+The Infra container converts the text inside the `<value/>` element into a
 `java.util.Properties` instance by using the JavaBeans `PropertyEditor` mechanism. This
-is a nice shortcut, and is one of a few places where the Spring team do favor the use of
+is a nice shortcut, and is one of a few places where the Infra team do favor the use of
 the nested `<value/>` element over the `value` attribute style.
 
 [[beans-idref-element]]
@@ -119,7 +119,7 @@ NOTE: The `local` attribute on the `idref` element is no longer supported in the
 XSD, since it does not provide value over a regular `bean` reference any more. Change
 your existing `idref local` references to `idref bean` when upgrading to the 4.0 schema.
 
-A common place (at least in versions earlier than Spring 2.0) where the `<idref/>` element
+A common place (at least in versions earlier than Infra 2.0) where the `<idref/>` element
 brings value is in the configuration of xref:core/aop-api/pfb.adoc#aop-pfb-1[AOP interceptors] in a
 `ProxyFactoryBean` bean definition. Using `<idref/>` elements when you specify the
 interceptor names prevents you from misspelling an interceptor ID.
@@ -268,7 +268,7 @@ following elements:
 [[beans-collection-elements-merging]]
 === Collection Merging
 
-The Spring container also supports merging collections. An application
+The Infra container also supports merging collections. An application
 developer can define a parent `<list/>`, `<map/>`, `<set/>` or `<props/>` element
 and have child `<list/>`, `<map/>`, `<set/>` or `<props/>` elements inherit and
 override values from the parent collection. That is, the child collection's values are
@@ -344,7 +344,7 @@ a parent collection definition is redundant and does not result in the desired m
 
 Thanks to Java's support for generic types, you can use strongly typed collections.
 That is, it is possible to declare a `Collection` type such that it can only contain
-(for example) `String` elements. If you use Spring to dependency-inject a
+(for example) `String` elements. If you use Infra to dependency-inject a
 strongly-typed `Collection` into a bean, you can take advantage of Infra
 type-conversion support such that the elements of your strongly-typed `Collection`
 instances are converted to the appropriate type prior to being added to the `Collection`.
@@ -393,7 +393,7 @@ various value elements as being of type `Float`, and the string values (`9.99`, 
 [[beans-null-element]]
 == Null and Empty String Values
 
-Spring treats empty arguments for properties and the like as empty `Strings`. The
+Infra treats empty arguments for properties and the like as empty `Strings`. The
 following XML-based configuration metadata snippet sets the `email` property to the empty
 `String` value ("").
 
@@ -449,7 +449,7 @@ Java::
 The p-namespace lets you use the `bean` element's attributes (instead of nested
 `<property/>` elements) to describe your property values collaborating beans, or both.
 
-Spring supports extensible configuration formats xref:core/appendix/xsd-schemas.adoc[with namespaces],
+Infra supports extensible configuration formats xref:core/appendix/xsd-schemas.adoc[with namespaces],
 which are based on an XML Schema definition. The `beans` configuration format discussed in
 this chapter is defined in an XML Schema document. However, the p-namespace is not defined
 in an XSD file and exists only in the core of Spring.
@@ -475,7 +475,7 @@ standard XML format and the second uses the p-namespace) that resolve to the sam
 ----
 
 The example shows an attribute in the p-namespace called `email` in the bean definition.
-This tells Spring to include a property declaration. As previously mentioned, the
+This tells Infra to include a property declaration. As previously mentioned, the
 p-namespace does not have a schema definition, so you can set the name of the attribute
 to the property name.
 
@@ -559,7 +559,7 @@ xref:core/beans/dependencies/factory-collaborators.adoc#beans-constructor-inject
 The `c:` namespace uses the same conventions as the `p:` one (a trailing `-ref` for
 bean references) for setting the constructor arguments by their names. Similarly,
 it needs to be declared in the XML file even though it is not defined in an XSD schema
-(it exists inside the Spring core).
+(it exists inside the Infra core).
 
 For the rare cases where the constructor argument names are not available (usually if
 the bytecode was compiled without debugging information), you can use fallback to the

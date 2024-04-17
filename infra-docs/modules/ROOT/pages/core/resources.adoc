@@ -1,7 +1,7 @@
 [[resources]]
 = Resources
 
-This chapter covers how Spring handles resources and how you can work with resources in
+This chapter covers how Infra handles resources and how you can work with resources in
 Spring. It includes the following topics:
 
 * xref:core/resources.adoc#resources-introduction[Introduction]
@@ -107,14 +107,14 @@ Some implementations of the `Resource` interface also implement the extended
 {today-framework-api}/core/io/WritableResource.html[`WritableResource`] interface
 for a resource that supports writing to it.
 
-Spring itself uses the `Resource` abstraction extensively, as an argument type in
+Infra itself uses the `Resource` abstraction extensively, as an argument type in
 many method signatures when a resource is needed. Other methods in some Infra APIs
 (such as the constructors to various `ApplicationContext` implementations) take a
 `String` which in unadorned or simple form is used to create a `Resource` appropriate to
 that context implementation or, via special prefixes on the `String` path, let the
 caller specify that a specific `Resource` implementation must be created and used.
 
-While the `Resource` interface is used a lot with Spring and by Spring, it is actually
+While the `Resource` interface is used a lot with Infra and by Spring, it is actually
 very convenient to use as a general utility class by itself in your own code, for access
 to resources, even when your code does not know or care about any other parts of Spring.
 While this couples your code to Spring, it really only couples it to this small set of
@@ -131,7 +131,7 @@ work.
 [[resources-implementations]]
 == Built-in `Resource` Implementations
 
-Spring includes several built-in `Resource` implementations:
+Infra includes several built-in `Resource` implementations:
 
 * xref:core/resources.adoc#resources-implementations-urlresource[`UrlResource`]
 * xref:core/resources.adoc#resources-implementations-classpathresource[`ClassPathResource`]
@@ -431,7 +431,7 @@ shows the definition of the `ResourceLoaderAware` interface:
 When a class implements `ResourceLoaderAware` and is deployed into an application context
 (as a Spring-managed bean), it is recognized as `ResourceLoaderAware` by the application
 context. The application context then invokes `setResourceLoader(ResourceLoader)`,
-supplying itself as the argument (remember, all application contexts in Spring implement
+supplying itself as the argument (remember, all application contexts in Infra implement
 the `ResourceLoader` interface).
 
 Since an `ApplicationContext` is a `ResourceLoader`, the bean could also implement the
@@ -529,9 +529,9 @@ latter being used to access a file in the filesystem):
 
 If the `MyBean` class is refactored for use with annotation-driven configuration, the
 path to `myTemplate.txt` can be stored under a key named `template.path` -- for example,
-in a properties file made available to the Spring `Environment` (see
+in a properties file made available to the Infra `Environment` (see
 xref:core/beans/environment.adoc[Environment Abstraction]). The template path can then be referenced via the `@Value`
-annotation using a property placeholder (see xref:core/beans/annotation-config/value-annotations.adoc[Using `@Value`]). Spring will
+annotation using a property placeholder (see xref:core/beans/annotation-config/value-annotations.adoc[Using `@Value`]). Infra will
 retrieve the value of the template path as a string, and a special `PropertyEditor` will
 convert the string to a `Resource` object to be injected into the `MyBean` constructor.
 The following example demonstrates how to achieve this.
@@ -561,7 +561,7 @@ If we want to support multiple templates discovered under the same path in multi
 locations in the classpath -- for example, in multiple jars in the classpath -- we can
 use the special `classpath*:` prefix and wildcarding to define a `templates.path` key as
 `classpath*:/config/templates/*.txt`. If we redefine the `MyBean` class as follows,
-Spring will convert the template path pattern into an array of `Resource` objects that
+Infra will convert the template path pattern into an array of `Resource` objects that
 can be injected into the `MyBean` constructor.
 
 [tabs]
@@ -817,7 +817,7 @@ from the root of expanded directories.
 
 Infra ability to retrieve classpath entries originates from the JDK's
 `ClassLoader.getResources()` method, which only returns file system locations for an
-empty string (indicating potential roots to search). Spring evaluates
+empty string (indicating potential roots to search). Infra evaluates
 `URLClassLoader` runtime configuration and the `java.class.path` manifest in jar files
 as well, but this is not guaranteed to lead to portable behavior.
 

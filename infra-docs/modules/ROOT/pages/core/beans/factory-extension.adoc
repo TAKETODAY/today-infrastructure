@@ -14,7 +14,7 @@ integration interfaces.
 The `BeanPostProcessor` interface defines callback methods that you can implement to
 provide your own (or override the container's default) instantiation logic, dependency
 resolution logic, and so forth. If you want to implement some custom logic after the
-Spring container finishes instantiating, configuring, and initializing a bean, you can
+Infra container finishes instantiating, configuring, and initializing a bean, you can
 plug in one or more custom `BeanPostProcessor` implementations.
 
 You can configure multiple `BeanPostProcessor` instances, and you can control the order
@@ -98,12 +98,12 @@ eligible for getting processed by all BeanPostProcessor interfaces (for example:
 eligible for auto-proxying)`.
 
 If you have beans wired into your `BeanPostProcessor` by using autowiring or
-`@Resource` (which may fall back to autowiring), Spring might access unexpected beans
+`@Resource` (which may fall back to autowiring), Infra might access unexpected beans
 when searching for type-matching dependency candidates and, therefore, make them
 ineligible for auto-proxying or other kinds of bean post-processing. For example, if you
 have a dependency annotated with `@Resource` where the field or setter name does not
 directly correspond to the declared name of a bean and no name attribute is used,
-Spring accesses other beans for matching them by type.
+Infra accesses other beans for matching them by type.
 ====
 
 The following examples show how to write, register, and use `BeanPostProcessor` instances
@@ -175,7 +175,7 @@ The following `beans` element uses the `InstantiationTracingBeanPostProcessor`:
 Notice how the `InstantiationTracingBeanPostProcessor` is merely defined. It does not
 even have a name, and, because it is a bean, it can be dependency-injected as you would any
 other bean. (The preceding configuration also defines a bean that is backed by a Groovy
-script. The Spring dynamic language support is detailed in the chapter entitled
+script. The Infra dynamic language support is detailed in the chapter entitled
 xref:languages/dynamic.adoc[Dynamic Language Support].)
 
 The following Java application runs the preceding code and configuration:
@@ -218,7 +218,7 @@ cn.taketoday.scripting.groovy.GroovyMessenger@272961
 Using callback interfaces or annotations in conjunction with a custom `BeanPostProcessor`
 implementation is a common means of extending the Infra IoC container. An example is
 Infra `AutowiredAnnotationBeanPostProcessor` -- a `BeanPostProcessor` implementation
-that ships with the Spring distribution and autowires annotated fields, setter methods,
+that ships with the Infra distribution and autowires annotated fields, setter methods,
 and arbitrary config methods.
 
 
@@ -262,7 +262,7 @@ container, even if both containers are part of the same hierarchy.
 
 A bean factory post-processor is automatically run when it is declared inside an
 `ApplicationContext`, in order to apply changes to the configuration metadata that
-define the container. Spring includes a number of predefined bean factory
+define the container. Infra includes a number of predefined bean factory
 post-processors, such as `PropertyOverrideConfigurer` and
 `PropertySourcesPlaceholderConfigurer`. You can also use a custom `BeanFactoryPostProcessor`
 -- for example, to register custom property editors.
@@ -326,7 +326,7 @@ the same applies for other placeholder values that match keys in the properties 
 The `PropertySourcesPlaceholderConfigurer` checks for placeholders in most properties and
 attributes of a bean definition. Furthermore, you can customize the placeholder prefix and suffix.
 
-With the `context` namespace introduced in Spring 2.5, you can configure property placeholders
+With the `context` namespace introduced in Infra 2.5, you can configure property placeholders
 with a dedicated configuration element. You can provide one or more locations as a
 comma-separated list in the `location` attribute, as the following example shows:
 
@@ -337,7 +337,7 @@ comma-separated list in the `location` attribute, as the following example shows
 
 The `PropertySourcesPlaceholderConfigurer` not only looks for properties in the `Properties`
 file you specify. By default, if it cannot find a property in the specified properties files,
-it checks against Spring `Environment` properties and regular Java `System` properties.
+it checks against Infra `Environment` properties and regular Java `System` properties.
 
 [WARNING]
 =====
@@ -423,7 +423,7 @@ NOTE: Specified override values are always literal values. They are not translat
 bean references. This convention also applies when the original value in the XML bean
 definition specifies a bean reference.
 
-With the `context` namespace introduced in Spring 2.5, it is possible to configure
+With the `context` namespace introduced in Infra 2.5, it is possible to configure
 property overriding with a dedicated configuration element, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

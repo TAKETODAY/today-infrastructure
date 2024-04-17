@@ -1,6 +1,6 @@
 [[uricomponents]]
 = UriComponents
-[.small]#Web MVC and Spring WebFlux#
+[.small]#Web MVC and Infra WebFlux#
 
 `UriComponentsBuilder` helps to build URI's from URI templates with variables, as the following example shows:
 
@@ -81,7 +81,7 @@ URI uri = UriComponentsBuilder
 
 [[uribuilder]]
 == UriBuilder
-[.small]#Web MVC and Spring WebFlux#
+[.small]#Web MVC and Infra WebFlux#
 
 <<web-uricomponents, `UriComponentsBuilder`>> implements `UriBuilder`. You can create a
 `UriBuilder`, in turn, with a `UriBuilderFactory`. Together, `UriBuilderFactory` and
@@ -155,7 +155,7 @@ Java::
 
 [[uri-encoding]]
 == URI Encoding
-[.small]#Web MVC and Spring WebFlux#
+[.small]#Web MVC and Infra WebFlux#
 
 `UriComponentsBuilder` exposes encoding options at two levels:
 

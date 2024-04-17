@@ -1,9 +1,9 @@
 [[core-convert]]
-= Spring Type Conversion
+= Infra Type Conversion
 
 The `core.convert` package provides a general type conversion system. The system defines
 an SPI to implement type conversion logic and an API to perform type conversions at
-runtime. Within a Spring container, you can use this system as an alternative to
+runtime. Within a Infra container, you can use this system as an alternative to
 `PropertyEditor` implementations to convert externalized bean property value strings to
 the required property types. You can also use the public API anywhere in your application
 where type conversion is needed.
@@ -210,9 +210,9 @@ creating common `ConversionService` configurations.
 == Configuring a `ConversionService`
 
 A `ConversionService` is a stateless object designed to be instantiated at application
-startup and then shared between multiple threads. In a Spring application, you typically
-configure a `ConversionService` instance for each Spring container (or `ApplicationContext`).
-Spring picks up that `ConversionService` and uses it whenever a type
+startup and then shared between multiple threads. In a Infra application, you typically
+configure a `ConversionService` instance for each Infra container (or `ApplicationContext`).
+Infra picks up that `ConversionService` and uses it whenever a type
 conversion needs to be performed by the framework. You can also inject this
 `ConversionService` into any of your beans and invoke it directly.
 

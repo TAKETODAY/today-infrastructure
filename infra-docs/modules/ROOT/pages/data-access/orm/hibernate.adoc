@@ -1,8 +1,8 @@
 [[orm-hibernate]]
 = Hibernate
 
-We start with a coverage of https://hibernate.org/[Hibernate 5] in a Spring environment,
-using it to demonstrate the approach that Spring takes towards integrating OR mappers.
+We start with a coverage of https://hibernate.org/[Hibernate 5] in a Infra environment,
+using it to demonstrate the approach that Infra takes towards integrating OR mappers.
 This section covers many issues in detail and shows different variations of DAO
 implementations and transaction demarcation. Most of these patterns can be directly
 translated to all other supported ORM tools. The later sections in this chapter then
@@ -10,7 +10,7 @@ cover the other ORM technologies and show brief examples.
 
 [NOTE]
 ====
-As of TODAY Framework 6.0, Spring requires Hibernate ORM 5.5+ for Infra
+As of TODAY Framework 6.0, Infra requires Hibernate ORM 5.5+ for Infra
 `HibernateJpaVendorAdapter` as well as for a native Hibernate `SessionFactory` setup.
 We recommend Hibernate ORM 5.6 as the last feature branch in that Hibernate generation.
 
@@ -21,11 +21,11 @@ We recommend Hibernate ORM 6.1/6.2 with JPA-style setup for new development proj
 
 
 [[orm-session-factory-setup]]
-== `SessionFactory` Setup in a Spring Container
+== `SessionFactory` Setup in a Infra Container
 
 To avoid tying application objects to hard-coded resource lookups, you can define
 resources (such as a JDBC `DataSource` or a Hibernate `SessionFactory`) as beans in the
-Spring container. Application objects that need to access resources receive references
+Infra container. Application objects that need to access resources receive references
 to such predefined instances through bean references, as illustrated in the DAO
 definition in the xref:data-access/orm/hibernate.adoc#orm-hibernate-straight[next section].
 
@@ -77,7 +77,7 @@ However, that is typically not common outside of an EJB context.
 
 [NOTE]
 ====
-Spring also provides a `LocalSessionFactoryBuilder` variant, seamlessly integrating
+Infra also provides a `LocalSessionFactoryBuilder` variant, seamlessly integrating
 with `@Bean` style configuration and programmatic setup (no `FactoryBean` involved).
 
 Both `LocalSessionFactoryBean` and `LocalSessionFactoryBuilder` support background
@@ -136,7 +136,7 @@ The preceding DAO example follows the dependency injection pattern. It fits nice
 container, as it would if coded against Infra `HibernateTemplate`.
 You can also set up such a DAO in plain Java (for example, in unit tests). To do so,
 instantiate it and call `setSessionFactory(..)` with the desired factory reference. As a
-Spring bean definition, the DAO would resemble the following:
+Infra bean definition, the DAO would resemble the following:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -150,7 +150,7 @@ Spring bean definition, the DAO would resemble the following:
 ----
 
 The main advantage of this DAO style is that it depends on Hibernate API only. No import
-of any Spring class is required. This is appealing from a non-invasiveness
+of any Infra class is required. This is appealing from a non-invasiveness
 perspective and may feel more natural to Hibernate developers.
 
 However, the DAO throws plain `HibernateException` (which is unchecked, so it does not have
@@ -162,7 +162,7 @@ applications that are strongly Hibernate-based, do not need any special exceptio
 treatment, or both.
 
 Fortunately, Infra `LocalSessionFactoryBean` supports Hibernate's
-`SessionFactory.getCurrentSession()` method for any Spring transaction strategy,
+`SessionFactory.getCurrentSession()` method for any Infra transaction strategy,
 returning the current Spring-managed transactional `Session`, even with
 `HibernateTransactionManager`. The standard behavior of that method remains
 to return the current `Session` associated with the ongoing JTA transaction, if any.
@@ -187,7 +187,7 @@ NOTE: Before you continue, we are strongly encourage you to read xref:data-acces
 if you have not already done so.
 
 You can annotate the service layer with `@Transactional` annotations and instruct the
-Spring container to find these annotations and provide transactional semantics for
+Infra container to find these annotations and provide transactional semantics for
 these annotated methods. The following example shows how to do so:
 
 [tabs]
@@ -263,7 +263,7 @@ exist on the implementation of the surrounding business service. It needs only a
 `PlatformTransactionManager`. Again, the latter can come from anywhere, but preferably
 as a bean reference through a `setTransactionManager(..)` method. Also, the
 `productDAO` should be set by a `setProductDao(..)` method. The following pair of snippets show
-a transaction manager and a business service definition in a Spring application context
+a transaction manager and a business service definition in a Infra application context
 and an example for a business method implementation:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -359,7 +359,7 @@ exposes the Hibernate transaction as a JDBC transaction if you have set up the p
 `DataSource` for which the transactions are supposed to be exposed through the
 `dataSource` property of the `HibernateTransactionManager` class.
 
-For JTA-style lazy retrieval of actual resource connections, Spring provides a
+For JTA-style lazy retrieval of actual resource connections, Infra provides a
 corresponding `DataSource` proxy class for the target connection pool: see
 {today-framework-api}/jdbc/datasource/LazyConnectionDataSourceProxy.html[`LazyConnectionDataSourceProxy`].
 This is particularly useful for Hibernate read-only transactions which can often
@@ -427,10 +427,10 @@ sessions (and potentially underlying JDBC connections) not getting closed proper
 You can resolve such issues by making Hibernate aware of the JTA transaction manager,
 to which it synchronizes (along with Spring). You have two options for doing this:
 
-* Pass your Spring `JtaTransactionManager` bean to your Hibernate setup. The easiest
+* Pass your Infra `JtaTransactionManager` bean to your Hibernate setup. The easiest
   way is a bean reference into the `jtaTransactionManager` property for your
   `LocalSessionFactoryBean` bean (see xref:data-access/transaction/strategies.adoc#transaction-strategies-hibernate[Hibernate Transaction Setup]).
-  Spring then makes the corresponding JTA strategies available to Hibernate.
+  Infra then makes the corresponding JTA strategies available to Hibernate.
 * You may also configure Hibernate's JTA-related properties explicitly, in particular
   "hibernate.transaction.coordinator_class", "hibernate.connection.handling_mode"
   and potentially "hibernate.transaction.jta.platform" in your "hibernateProperties"
@@ -445,7 +445,7 @@ the following events occur when a JTA transaction commits:
 * The JTA transaction commits.
 * Infra `JtaTransactionManager` is synchronized to the JTA transaction, so it is
   called back through an `afterCompletion` callback by the JTA transaction manager.
-* Among other activities, this synchronization can trigger a callback by Spring to
+* Among other activities, this synchronization can trigger a callback by Infra to
   Hibernate, through Hibernate's `afterTransactionCompletion` callback (used to clear
   the Hibernate cache), followed by an explicit `close()` call on the Hibernate session,
   which causes Hibernate to attempt to `close()` the JDBC Connection.
@@ -460,7 +460,7 @@ the following events occur when a JTA transaction commits:
 * Infra `JtaTransactionManager` is synchronized to the JTA transaction, so the
   transaction is called back through a `beforeCompletion` callback by the JTA
   transaction manager.
-* Spring is aware that Hibernate itself is synchronized to the JTA transaction and
+* Infra is aware that Hibernate itself is synchronized to the JTA transaction and
   behaves differently than in the previous scenario. In particular, it aligns with
   Hibernate's transactional resource management.
 * The JTA transaction commits.

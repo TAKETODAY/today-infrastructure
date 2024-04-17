@@ -6,7 +6,7 @@ you had little control over the management interface of your bean. All of the `p
 properties and methods of each exported bean were exposed as JMX attributes and
 operations, respectively. To exercise finer-grained control over exactly which
 properties and methods of your exported beans are actually exposed as JMX attributes
-and operations, Spring JMX provides a comprehensive and extensible mechanism for
+and operations, Infra JMX provides a comprehensive and extensible mechanism for
 controlling the management interfaces of your beans.
 
 
@@ -19,7 +19,7 @@ responsible for defining the management interface of each bean that is exposed.
 The default implementation,
 `cn.taketoday.jmx.export.assembler.SimpleReflectiveMBeanInfoAssembler`,
 defines a management interface that exposes all public properties and methods
-(as you saw in the examples in the preceding sections). Spring provides two
+(as you saw in the examples in the preceding sections). Infra provides two
 additional implementations of the `MBeanInfoAssembler` interface that let you
 control the generated management interface by using either source-level metadata
 or any arbitrary interface.
@@ -31,7 +31,7 @@ or any arbitrary interface.
 By using the `MetadataMBeanInfoAssembler`, you can define the management interfaces
 for your beans by using source-level metadata. The reading of metadata is encapsulated
 by the `cn.taketoday.jmx.export.metadata.JmxAttributeSource` interface.
-Spring JMX provides a default implementation that uses Java annotations, namely
+Infra JMX provides a default implementation that uses Java annotations, namely
 `cn.taketoday.jmx.export.annotation.AnnotationJmxAttributeSource`.
 You must configure the `MetadataMBeanInfoAssembler` with an implementation instance of
 the `JmxAttributeSource` interface for it to function correctly (there is no default).
@@ -167,7 +167,7 @@ metadata-driven management interfaces for your Spring-exposed MBeans.
 [[jmx-interface-metadata-types]]
 == Source-level Metadata Types
 
-The following table describes the source-level metadata types that are available for use in Spring JMX:
+The following table describes the source-level metadata types that are available for use in Infra JMX:
 
 [[jmx-metadata-types]]
 .Source-level metadata types
@@ -253,7 +253,7 @@ metadata types:
 [[jmx-interface-autodetect]]
 == Using the `AutodetectCapableMBeanInfoAssembler` Interface
 
-To simplify configuration even further, Spring includes the
+To simplify configuration even further, Infra includes the
 `AutodetectCapableMBeanInfoAssembler` interface, which extends the `MBeanInfoAssembler`
 interface to add support for autodetection of MBean resources. If you configure the
 `MBeanExporter` with an instance of `AutodetectCapableMBeanInfoAssembler`, it is
@@ -299,7 +299,7 @@ creation as defined in xref:integration/jmx/naming.adoc[Controlling  `ObjectName
 [[jmx-interface-java]]
 == Defining Management Interfaces by Using Java Interfaces
 
-In addition to the `MetadataMBeanInfoAssembler`, Spring also includes the
+In addition to the `MetadataMBeanInfoAssembler`, Infra also includes the
 `InterfaceBasedMBeanInfoAssembler`, which lets you constrain the methods and
 properties that are exposed based on the set of methods defined in a collection of
 interfaces.
@@ -332,7 +332,7 @@ public interface IJmxTestBean {
 ----
 
 This interface defines the methods and properties that are exposed as operations and
-attributes on the JMX MBean. The following code shows how to configure Spring JMX to use
+attributes on the JMX MBean. The following code shows how to configure Infra JMX to use
 this interface as the definition for the management interface:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

@@ -8,7 +8,7 @@ the complexity of your configuration.
 [[beans-java-using-import]]
 == Using the `@Import` Annotation
 
-Much as the `<import/>` element is used within Spring XML files to aid in modularizing
+Much as the `<import/>` element is used within Infra XML files to aid in modularizing
 configurations, the `@Import` annotation allows for loading `@Bean` definitions from
 another configuration class, as the following example shows:
 
@@ -76,7 +76,7 @@ configuration classes as entry points to explicitly define all your components.
 The preceding example works but is simplistic. In most practical scenarios, beans have
 dependencies on one another across configuration classes. When using XML, this is not an
 issue, because no compiler is involved, and you can declare
-`ref="someBean"` and trust Spring to work it out during container initialization.
+`ref="someBean"` and trust Infra to work it out during container initialization.
 When using `@Configuration` classes, the Java compiler places constraints on
 the configuration model, in that references to other beans must be valid Java syntax.
 
@@ -219,7 +219,7 @@ modularity, but determining exactly where the autowired bean definitions are dec
 still somewhat ambiguous. For example, as a developer looking at `ServiceConfig`, how do
 you know exactly where the `@Autowired AccountRepository` bean is declared? It is not
 explicit in the code, and this may be just fine. Remember that the
-{today-tech-site-tools}[Spring Tools for Eclipse] provides tooling that
+{today-tech-site-tools}[Infra Tools for Eclipse] provides tooling that
 can render graphs showing how everything is wired, which may be all you need. Also,
 your Java IDE can easily find all declarations and uses of the `AccountRepository` type
 and quickly show you the location of `@Bean` methods that return that type.
@@ -365,7 +365,7 @@ thread pool which serves for other purposes as well.
 It is often useful to conditionally enable or disable a complete `@Configuration` class
 or even individual `@Bean` methods, based on some arbitrary system state. One common
 example of this is to use the `@Profile` annotation to activate beans only when a specific
-profile has been enabled in the Spring `Environment` (see xref:core/beans/environment.adoc#beans-definition-profiles[Bean Definition Profiles]
+profile has been enabled in the Infra `Environment` (see xref:core/beans/environment.adoc#beans-definition-profiles[Bean Definition Profiles]
 for details).
 
 The `@Profile` annotation is actually implemented by using a much more flexible annotation
@@ -410,7 +410,7 @@ javadoc for more detail.
 == Combining Java and XML Configuration
 
 Infra `@Configuration` class support does not aim to be a 100% complete replacement
-for Spring XML. Some facilities, such as Spring XML namespaces, remain an ideal way to
+for Infra XML. Some facilities, such as Infra XML namespaces, remain an ideal way to
 configure the container. In cases where XML is convenient or necessary, you have a
 choice: either instantiate the container in an "`XML-centric`" way by using, for example,
 `ClassPathXmlApplicationContext`, or instantiate it in a "`Java-centric`" way by using
@@ -420,13 +420,13 @@ as needed.
 [[beans-java-combining-xml-centric]]
 === XML-centric Use of `@Configuration` Classes
 
-It may be preferable to bootstrap the Spring container from XML and include
+It may be preferable to bootstrap the Infra container from XML and include
 `@Configuration` classes in an ad-hoc fashion. For example, in a large existing codebase
-that uses Spring XML, it is easier to create `@Configuration` classes on an
+that uses Infra XML, it is easier to create `@Configuration` classes on an
 as-needed basis and include them from the existing XML files. Later in this section, we cover the
 options for using `@Configuration` classes in this kind of "`XML-centric`" situation.
 
-.[[beans-java-combining-xml-centric-declare-as-bean]]Declaring `@Configuration` classes as plain Spring `<bean/>` elements
+.[[beans-java-combining-xml-centric-declare-as-bean]]Declaring `@Configuration` classes as plain Infra `<bean/>` elements
 --
 Remember that `@Configuration` classes are ultimately bean definitions in the
 container. In this series examples, we create a `@Configuration` class named `AppConfig` and

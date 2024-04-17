@@ -1,7 +1,7 @@
 [[aop-targetsource]]
 = Using `TargetSource` Implementations
 
-Spring offers the concept of a `TargetSource`, expressed in the
+Infra offers the concept of a `TargetSource`, expressed in the
 `cn.taketoday.aop.TargetSource` interface. This interface is responsible for
 returning the "`target object`" that implements the join point. The `TargetSource`
 implementation is asked for a target instance each time the AOP proxy handles a method
@@ -15,10 +15,10 @@ instance for each invocation, by using a pool to manage instances.
 If you do not specify a `TargetSource`, a default implementation is used to wrap a
 local object. The same target is returned for each invocation (as you would expect).
 
-The rest of this section describes the standard target sources provided with Spring and how you can use them.
+The rest of this section describes the standard target sources provided with Infra and how you can use them.
 
 TIP: When using a custom target source, your target will usually need to be a prototype
-rather than a singleton bean definition. This allows Spring to create a new target
+rather than a singleton bean definition. This allows Infra to create a new target
 instance when required.
 
 
@@ -78,11 +78,11 @@ Using a pooling target source provides a similar programming model to stateless 
 EJBs, in which a pool of identical instances is maintained, with method invocations
 going to free objects in the pool.
 
-A crucial difference between Spring pooling and SLSB pooling is that Spring pooling can
-be applied to any POJO. As with Spring in general, this service can be applied in a
+A crucial difference between Infra pooling and SLSB pooling is that Infra pooling can
+be applied to any POJO. As with Infra in general, this service can be applied in a
 non-invasive way.
 
-Spring provides support for Commons Pool 2.2, which provides a
+Infra provides support for Commons Pool 2.2, which provides a
 fairly efficient pooling implementation. You need the `commons-pool` Jar on your
 application's classpath to use this feature. You can also subclass
 `cn.taketoday.aop.target.AbstractPoolingTargetSource` to support any other
@@ -121,7 +121,7 @@ defined in the same IoC context. However, you need not specify interceptors to
 use pooling. If you want only pooling and no other advice, do not set the
 `interceptorNames` property at all.
 
-You can configure Spring to be able to cast any pooled object to the
+You can configure Infra to be able to cast any pooled object to the
 `cn.taketoday.aop.target.PoolingConfig` interface, which exposes information
 about the configuration and current size of the pool through an introduction. You
 need to define an advisor similar to the following:

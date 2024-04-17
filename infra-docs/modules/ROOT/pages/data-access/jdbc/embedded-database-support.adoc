@@ -42,7 +42,7 @@ public class JdbcEmbeddedDatabaseConfiguration {
 The preceding configuration creates an embedded H2 database that is populated with SQL from
 the `schema.sql` and `test-data.sql` resources in the root of the classpath. In addition, as
 a best practice, the embedded database is assigned a uniquely generated name. The
-embedded database is made available to the Spring container as a bean of type
+embedded database is made available to the Infra container as a bean of type
 `javax.sql.DataSource` that can then be injected into data access objects as needed.
 
 See the {today-framework-api}/jdbc/datasource/embedded/EmbeddedDatabaseBuilder.html[javadoc for `EmbeddedDatabaseBuilder`]
@@ -62,7 +62,7 @@ supports. It includes the following topics:
 [[jdbc-embedded-database-using-HSQL]]
 === Using HSQL
 
-Spring supports HSQL 1.8.0 and above. HSQL is the default embedded database if no type is
+Infra supports HSQL 1.8.0 and above. HSQL is the default embedded database if no type is
 explicitly specified. To specify HSQL explicitly, set the `type` attribute of the
 `embedded-database` tag to `HSQL`. If you use the builder API, call the
 `setType(EmbeddedDatabaseType)` method with `EmbeddedDatabaseType.HSQL`.
@@ -70,14 +70,14 @@ explicitly specified. To specify HSQL explicitly, set the `type` attribute of th
 [[jdbc-embedded-database-using-H2]]
 === Using H2
 
-Spring supports the H2 database. To enable H2, set the `type` attribute of the
+Infra supports the H2 database. To enable H2, set the `type` attribute of the
 `embedded-database` tag to `H2`. If you use the builder API, call the
 `setType(EmbeddedDatabaseType)` method with `EmbeddedDatabaseType.H2`.
 
 [[jdbc-embedded-database-using-Derby]]
 === Using Derby
 
-Spring supports Apache Derby 10.5 and above. To enable Derby, set the `type`
+Infra supports Apache Derby 10.5 and above. To enable Derby, set the `type`
 attribute of the `embedded-database` tag to `DERBY`. If you use the builder API,
 call the `setType(EmbeddedDatabaseType)` method with `EmbeddedDatabaseType.DERBY`.
 
@@ -128,8 +128,8 @@ Embedded databases provide a lightweight way to test data access code. The next 
 data access integration test template that uses an embedded database. Using such a template
 can be useful for one-offs when the embedded database does not need to be reused across test
 classes. However, if you wish to create an embedded database that is shared within a test suite,
-consider using the xref:testing/testcontext-framework.adoc[Spring TestContext Framework] and
-configuring the embedded database as a bean in the Spring `ApplicationContext` as described
+consider using the xref:testing/testcontext-framework.adoc[Infra TestContext Framework] and
+configuring the embedded database as a bean in the Infra `ApplicationContext` as described
 in xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database[Creating an Embedded Database].
 The following listing shows the test template:
 
@@ -204,13 +204,13 @@ the following options.
 [[jdbc-embedded-database-extension]]
 == Extending the Embedded Database Support
 
-You can extend Spring JDBC embedded database support in two ways:
+You can extend Infra JDBC embedded database support in two ways:
 
 * Implement `EmbeddedDatabaseConfigurer` to support a new embedded database type.
 * Implement `DataSourceFactory` to support a new `DataSource` implementation, such as a
 connection pool to manage embedded database connections.
 
-We encourage you to contribute extensions to the Spring community at
+We encourage you to contribute extensions to the Infra community at
 {today-framework-issues}[GitHub Issues].
 
 

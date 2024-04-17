@@ -67,7 +67,7 @@ moment, we apply the retry logic to each `businessService`. We try to proceed,
 and if we fail with a `PessimisticLockingFailureException`, we try again, unless
 we have exhausted all of our retry attempts.
 
-The corresponding Spring configuration follows:
+The corresponding Infra configuration follows:
 
 [source,java]
 ----

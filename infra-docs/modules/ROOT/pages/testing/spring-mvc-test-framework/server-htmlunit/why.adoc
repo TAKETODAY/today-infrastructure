@@ -11,8 +11,8 @@ With Web MVC Test, we can easily test if we are able to create a `Message`, as f
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 MockHttpServletRequestBuilder createMessage = post("/messages/")
-    .param("summary", "Spring Rocks")
-    .param("text", "In case you didn't know, Spring Rocks!");
+    .param("summary", "Infra Rocks")
+    .param("text", "In case you didn't know, Infra Rocks!");
 
 mockMvc.perform(createMessage)
     .andExpect(status().is3xxRedirection())
@@ -65,8 +65,8 @@ mockMvc.perform(get("/messages/form"))
     .andExpect(xpath("//textarea[@name='" + textParamName + "']").exists());
 
 MockHttpServletRequestBuilder createMessage = post("/messages/")
-    .param(summaryParamName, "Spring Rocks")
-    .param(textParamName, "In case you didn't know, Spring Rocks!");
+    .param(summaryParamName, "Infra Rocks")
+    .param(textParamName, "In case you didn't know, Infra Rocks!");
 
 mockMvc.perform(createMessage)
     .andExpect(status().is3xxRedirection())

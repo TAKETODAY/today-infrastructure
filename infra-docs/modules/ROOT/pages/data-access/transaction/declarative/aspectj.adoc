@@ -11,7 +11,7 @@ manager. You can use the TODAY Framework's IoC container to take care of
 dependency-injecting the aspect. The simplest way to configure the transaction
 management aspect is to use the `<tx:annotation-driven/>` element and specify the `mode`
 attribute to `aspectj` as described in xref:data-access/transaction/declarative/annotations.adoc[Using `@Transactional`]. Because
-we focus here on applications that run outside of a Spring container, we show
+we focus here on applications that run outside of a Infra container, we show
 you how to do it programmatically.
 
 NOTE: Prior to continuing, you may want to read xref:data-access/transaction/declarative/annotations.adoc[Using `@Transactional`] and

@@ -39,7 +39,7 @@ public class AppConfig {
 
 ======
 
-The preceding configuration is exactly equivalent to the following Spring XML:
+The preceding configuration is exactly equivalent to the following Infra XML:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -157,7 +157,7 @@ and can use the `@PostConstruct` and `@PreDestroy` annotations from JSR-250. See
 xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[JSR-250 annotations] for further
 details.
 
-The regular Spring xref:core/beans/factory-nature.adoc[lifecycle] callbacks are fully supported as
+The regular Infra xref:core/beans/factory-nature.adoc[lifecycle] callbacks are fully supported as
 well. If a bean implements `InitializingBean`, `DisposableBean`, or `Lifecycle`, their
 respective methods are called by the container.
 
@@ -167,7 +167,7 @@ xref:core/beans/context-introduction.adoc#context-functionality-messagesource[Me
 xref:core/beans/factory-nature.adoc#beans-factory-aware[ApplicationContextAware], and so on) are also fully supported.
 
 The `@Bean` annotation supports specifying arbitrary initialization and destruction
-callback methods, much like Spring XML's `init-method` and `destroy-method` attributes
+callback methods, much like Infra XML's `init-method` and `destroy-method` attributes
 on the `bean` element, as the following example shows:
 
 [tabs]
@@ -277,7 +277,7 @@ not always need to rely on the container lifecycle.
 [[beans-java-specifying-bean-scope]]
 == Specifying Bean Scope
 
-Spring includes the `@Scope` annotation so that you can specify the scope of a bean.
+Infra includes the `@Scope` annotation so that you can specify the scope of a bean.
 
 [[beans-java-available-scopes]]
 === Using the `@Scope` Annotation
@@ -311,7 +311,7 @@ public class MyConfiguration {
 [[beans-java-scoped-proxy]]
 === `@Scope` and `scoped-proxy`
 
-Spring offers a convenient way of working with scoped dependencies through
+Infra offers a convenient way of working with scoped dependencies through
 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[scoped proxies]. The easiest way to create
 such a proxy when using the XML configuration is the `<aop:scoped-proxy/>` element.
 Configuring your beans in Java with a `@Scope` annotation offers equivalent support

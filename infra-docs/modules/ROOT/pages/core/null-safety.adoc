@@ -22,9 +22,9 @@ Nullability declarations are expected to be fine-tuned between TODAY Framework r
 including minor ones. Nullability of types used inside method bodies is outside the
 scope of this feature.
 
-NOTE: Other common libraries such as Reactor and Spring Data provide null-safe APIs that
+NOTE: Other common libraries such as Reactor and Infra Data provide null-safe APIs that
 use a similar nullability arrangement, delivering a consistent overall experience for
-Spring application developers.
+Infra application developers.
 
 
 
@@ -42,10 +42,10 @@ warnings related to null-safety in order to avoid `NullPointerException` at runt
 [[jsr-305-meta-annotations]]
 == JSR-305 meta-annotations
 
-Spring annotations are meta-annotated with {JSR}305[JSR 305]
+Infra annotations are meta-annotated with {JSR}305[JSR 305]
 annotations (a dormant but widespread JSR). JSR-305 meta-annotations let tooling vendors
 like IDEA or Kotlin provide null-safety support in a generic way, without having to
-hard-code support for Spring annotations.
+hard-code support for Infra annotations.
 
 It is neither necessary nor recommended to add a JSR-305 dependency to the project classpath to
 take advantage of Infra null-safe APIs. Only projects such as Spring-based libraries that use

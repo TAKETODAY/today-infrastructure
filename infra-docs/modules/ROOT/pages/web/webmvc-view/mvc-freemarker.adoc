@@ -105,7 +105,7 @@ Some of the macros defined in the Infra templating libraries are considered inte
 (private), but no such scoping exists in the macro definitions, making all macros visible
 to calling code and user templates. The following sections concentrate only on the macros
 you need to directly call from within your templates. If you wish to view the macro code
-directly, the file is called `spring.ftl` and is in the
+directly, the file is called `infra.ftl` and is in the
 `cn.taketoday.web.servlet.view.freemarker` package.
 
 

@@ -22,7 +22,7 @@ Null ::
 
 [NOTE]
 ====
-Due to the design and implementation of the Spring Expression Language, literal numbers
+Due to the design and implementation of the Infra Expression Language, literal numbers
 are always stored internally as positive numbers.
 
 For example, `-2` is stored internally as a positive `2` which is then negated while

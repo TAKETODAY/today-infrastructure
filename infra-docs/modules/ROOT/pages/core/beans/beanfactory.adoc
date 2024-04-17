@@ -2,7 +2,7 @@
 = The `BeanFactory` API
 
 The `BeanFactory` API provides the underlying basis for Infra IoC functionality.
-Its specific contracts are mostly used in integration with other parts of Spring and
+Its specific contracts are mostly used in integration with other parts of Infra and
 related third-party frameworks, and its `DefaultListableBeanFactory` implementation
 is a key delegate within the higher-level `GenericApplicationContext` container.
 

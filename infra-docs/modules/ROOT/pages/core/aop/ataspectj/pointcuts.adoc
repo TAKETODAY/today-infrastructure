@@ -104,17 +104,17 @@ before making a decision.
 ====
 
 Infra AOP also supports an additional PCD named `bean`. This PCD lets you limit
-the matching of join points to a particular named Spring bean or to a set of named
-Spring beans (when using wildcards). The `bean` PCD has the following form:
+the matching of join points to a particular named Infra bean or to a set of named
+Infra beans (when using wildcards). The `bean` PCD has the following form:
 
 [source,indent=0,subs="verbatim"]
 ----
 	bean(idOrNameOfBean)
 ----
 
-The `idOrNameOfBean` token can be the name of any Spring bean. Limited wildcard
+The `idOrNameOfBean` token can be the name of any Infra bean. Limited wildcard
 support that uses the `*` character is provided, so, if you establish some naming
-conventions for your Spring beans, you can write a `bean` PCD expression
+conventions for your Infra beans, you can write a `bean` PCD expression
 to select them. As is the case with other pointcut designators, the `bean` PCD can
 be used with the `&&` (and), `||` (or), and `!` (negation) operators, too.
 
@@ -124,10 +124,10 @@ The `bean` PCD is supported only in Infra AOP and not in
 native AspectJ weaving. It is a Spring-specific extension to the standard PCDs that
 AspectJ defines and is, therefore, not available for aspects declared in the `@Aspect` model.
 
-The `bean` PCD operates at the instance level (building on the Spring bean name
+The `bean` PCD operates at the instance level (building on the Infra bean name
 concept) rather than at the type level only (to which weaving-based AOP is limited).
 Instance-based pointcut designators are a special capability of Infra
-proxy-based AOP framework and its close integration with the Spring bean factory, where
+proxy-based AOP framework and its close integration with the Infra bean factory, where
 it is natural and straightforward to identify specific beans by name.
 ====
 
@@ -229,7 +229,7 @@ public class CommonPointcuts {
    *
    * Alternatively, you can write the expression using the 'bean'
    * PCD, like so "bean(*Service)". (This assumes that you have
-   * named your Spring service beans in a consistent fashion.)
+   * named your Infra service beans in a consistent fashion.)
    */
   @Pointcut("execution(* com.xyz..service.*.*(..))")
   public void businessService() {}
@@ -436,7 +436,7 @@ and where the runtime type of the argument passed has the `@Classified` annotati
 NOTE: You can also use `@args` in a binding form. See the xref:core/aop/ataspectj/advice.adoc[Declaring Advice] section
 how to make the annotation object(s) available in the advice body.
 
-* Any join point (method execution only in Infra AOP) on a Spring bean named
+* Any join point (method execution only in Infra AOP) on a Infra bean named
 `tradeService`:
 +
 [literal,indent=0,subs="verbatim"]
@@ -444,7 +444,7 @@ how to make the annotation object(s) available in the advice body.
 	bean(tradeService)
 ----
 
-* Any join point (method execution only in Infra AOP) on Spring beans having names that
+* Any join point (method execution only in Infra AOP) on Infra beans having names that
 match the wildcard expression `*Service`:
 +
 [literal,indent=0,subs="verbatim"]

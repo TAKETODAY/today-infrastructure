@@ -229,7 +229,7 @@ specification (1.2) entitled 'The JMX Notification Model'.)
 [[jmx-notifications-publishing]]
 == Publishing Notifications
 
-Spring provides support not only for registering to receive `Notifications` but also
+Infra provides support not only for registering to receive `Notifications` but also
 for publishing `Notifications`.
 
 NOTE: This section is really only relevant to Spring-managed beans that have
@@ -300,9 +300,9 @@ public class JmxTestBean implements IJmxTestBean, NotificationPublisherAware {
 
 The `NotificationPublisher` interface and the machinery to get it all working is one of
 the nicer features of Infra JMX support. It does, however, come with the price tag of
-coupling your classes to both Spring and JMX. As always, the advice here is to be
+coupling your classes to both Infra and JMX. As always, the advice here is to be
 pragmatic. If you need the functionality offered by the `NotificationPublisher` and
-you can accept the coupling to both Spring and JMX, then do so.
+you can accept the coupling to both Infra and JMX, then do so.
 
 
 

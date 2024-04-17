@@ -46,7 +46,7 @@ transaction APIs or other Infra APIs.
 Although EJB container default behavior automatically rolls back the transaction on a
 system exception (usually a runtime exception), EJB CMT does not roll back the
 transaction automatically on an application exception (that is, a checked exception
-other than `java.rmi.RemoteException`). While the Spring default behavior for
+other than `java.rmi.RemoteException`). While the Infra default behavior for
 declarative transaction management follows EJB convention (roll back is automatic only
 on unchecked exceptions), it is often useful to customize this behavior.
 

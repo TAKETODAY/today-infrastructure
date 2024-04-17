@@ -18,7 +18,7 @@ The `jee` elements deal with issues related to Jakarta EE (Enterprise Edition) c
 such as looking up a JNDI object and defining EJB references.
 
 To use the elements in the `jee` schema, you need to have the following preamble at the top
-of your Spring XML configuration file. The text in the following snippet references the
+of your Infra XML configuration file. The text in the following snippet references the
 correct schema so that the elements in the `jee` namespace are available to you:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -51,7 +51,7 @@ The following example shows how to use JNDI to look up a data source without the
   <property name="jndiName" value="jdbc/MyDataSource"/>
 </bean>
 <bean id="userDao" class="com.foo.JdbcUserDao">
-  <!-- Spring will do the cast automatically (as usual) -->
+  <!-- Infra will do the cast automatically (as usual) -->
   <property name="dataSource" ref="dataSource"/>
 </bean>
 ----
@@ -64,7 +64,7 @@ schema:
 <jee:jndi-lookup id="dataSource" jndi-name="jdbc/MyDataSource"/>
 
 <bean id="userDao" class="com.foo.JdbcUserDao">
-  <!-- Spring will do the cast automatically (as usual) -->
+  <!-- Infra will do the cast automatically (as usual) -->
   <property name="dataSource" ref="dataSource"/>
 </bean>
 ----
@@ -286,7 +286,7 @@ xref:integration/cache/annotations.adoc#cache-annotation-enable[Enabling Caching
 xref:integration/cache/declarative-xml.adoc[Declarative XML-based Caching] for details.
 
 To use the elements in the `cache` schema, you need to have the following preamble at the
-top of your Spring XML configuration file. The text in the following snippet references
+top of your Infra XML configuration file. The text in the following snippet references
 the correct schema so that the elements in the `cache` namespace are available to you:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

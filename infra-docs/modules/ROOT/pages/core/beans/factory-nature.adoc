@@ -14,14 +14,14 @@ of a bean. This section groups them as follows:
 == Lifecycle Callbacks
 
 To interact with the container's management of the bean lifecycle, you can implement
-the Spring `InitializingBean` and `DisposableBean` interfaces. The container calls
+the Infra `InitializingBean` and `DisposableBean` interfaces. The container calls
 `afterPropertiesSet()` for the former and `destroy()` for the latter to let the bean
 perform certain actions upon initialization and destruction of your beans.
 
 [TIP]
 ====
 The JSR-250 `@PostConstruct` and `@PreDestroy` annotations are generally considered best
-practice for receiving lifecycle callbacks in a modern Spring application. Using these
+practice for receiving lifecycle callbacks in a modern Infra application. Using these
 annotations means that your beans are not coupled to Spring-specific interfaces.
 For details, see xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[Using `@PostConstruct` and `@PreDestroy`].
 
@@ -31,7 +31,7 @@ coupling, consider `init-method` and `destroy-method` bean definition metadata.
 
 Internally, the TODAY Framework uses `BeanPostProcessor` implementations to process any
 callback interfaces it can find and call the appropriate methods. If you need custom
-features or other lifecycle behavior Spring does not by default offer, you can
+features or other lifecycle behavior Infra does not by default offer, you can
 implement a `BeanPostProcessor` yourself. For more information, see
 xref:core/beans/factory-extension.adoc[Container Extension Points].
 
@@ -203,13 +203,13 @@ public class AnotherExampleBean implements DisposableBean {
 
 However, the first of the two preceding definitions does not couple the code to Spring.
 
-Note that Spring also supports inference of destroy methods, detecting a public `close` or
+Note that Infra also supports inference of destroy methods, detecting a public `close` or
 `shutdown` method. This is the default behavior for `@Bean` methods in Java configuration
 classes and automatically matches `java.lang.AutoCloseable` or `java.io.Closeable`
-implementations, not coupling the destruction logic to Spring either.
+implementations, not coupling the destruction logic to Infra either.
 
 TIP: For destroy method inference with XML, you may assign the `destroy-method` attribute
-of a `<bean>` element a special `(inferred)` value, which instructs Spring to automatically
+of a `<bean>` element a special `(inferred)` value, which instructs Infra to automatically
 detect a public `close` or `shutdown` method on the bean class for a specific bean definition.
 You can also set this special `(inferred)` value on the `default-destroy-method` attribute
 of a `<beans>` element to apply this behavior to an entire set of bean definitions (see
@@ -234,7 +234,7 @@ typically write methods with names such as `init()`, `initialize()`, `dispose()`
 and so on. Ideally, the names of such lifecycle callback methods are standardized across
 a project so that all developers use the same method names and ensure consistency.
 
-You can configure the Spring container to "`look`" for named initialization and destroy
+You can configure the Infra container to "`look`" for named initialization and destroy
 callback method names on every bean. This means that you, as an application developer,
 can write your application classes and use an initialization callback called `init()`,
 without having to configure an `init-method="init"` attribute with each bean definition.
@@ -298,7 +298,7 @@ with the convention, you can override the default by specifying (in XML, that is
 method name by using the `init-method` and `destroy-method` attributes of the `<bean/>`
 itself.
 
-The Spring container guarantees that a configured initialization callback is called
+The Infra container guarantees that a configured initialization callback is called
 immediately after a bean is supplied with all dependencies. Thus, the initialization
 callback is called on the raw bean reference, which means that AOP interceptors and so
 forth are not yet applied to the bean. A target bean is fully created first and
@@ -314,7 +314,7 @@ interacts directly with the raw target bean.
 [[beans-factory-lifecycle-combined-effects]]
 === Combining Lifecycle Mechanisms
 
-As of Spring 2.5, you have three options for controlling bean lifecycle behavior:
+As of Infra 2.5, you have three options for controlling bean lifecycle behavior:
 
 * The xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-initializingbean[`InitializingBean`] and
 xref:core/beans/factory-nature.adoc#beans-factory-lifecycle-disposablebean[`DisposableBean`] callback interfaces
@@ -518,7 +518,7 @@ public final class Boot {
 [[beans-factory-thread-safety]]
 === Thread Safety and Visibility
 
-The Spring core container publishes created singleton instances in a thread-safe manner,
+The Infra core container publishes created singleton instances in a thread-safe manner,
 guarding access through a singleton lock and guaranteeing visibility in other threads.
 
 As a consequence, application-provided bean classes do not have to be concerned about the
@@ -570,7 +570,7 @@ through the `ApplicationContext` interface or by casting the reference to a know
 subclass of this interface (such as `ConfigurableApplicationContext`, which exposes
 additional functionality). One use would be the programmatic retrieval of other beans.
 Sometimes this capability is useful. However, in general, you should avoid it, because
-it couples the code to Spring and does not follow the Inversion of Control style,
+it couples the code to Infra and does not follow the Inversion of Control style,
 where collaborators are provided to beans as properties. Other methods of the
 `ApplicationContext` provide access to file resources, publishing application events,
 and accessing a `MessageSource`. These additional features are described in
@@ -610,7 +610,7 @@ init-method.
 == Other `Aware` Interfaces
 
 Besides `ApplicationContextAware` and `BeanNameAware` (discussed xref:core/beans/factory-nature.adoc#beans-factory-aware[earlier]),
-Spring offers a wide range of `Aware` callback interfaces that let beans indicate to the container
+Infra offers a wide range of `Aware` callback interfaces that let beans indicate to the container
 that they require a certain infrastructure dependency. As a general rule, the name indicates the
 dependency type. The following table summarizes the most important `Aware` interfaces:
 
@@ -649,7 +649,7 @@ dependency type. The following table summarizes the most important `Aware` inter
 | xref:core/beans/context-introduction.adoc[Additional Capabilities of the `ApplicationContext`]
 
 | `NotificationPublisherAware`
-| Spring JMX notification publisher.
+| Infra JMX notification publisher.
 | xref:integration/jmx/notifications.adoc[Notifications]
 
 | `ResourceLoaderAware`

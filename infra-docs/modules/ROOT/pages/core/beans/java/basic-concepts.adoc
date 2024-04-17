@@ -33,7 +33,7 @@ public class AppConfig {
 
 ======
 
-The preceding `AppConfig` class is equivalent to the following Spring `<beans/>` XML:
+The preceding `AppConfig` class is equivalent to the following Infra `<beans/>` XML:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -68,7 +68,7 @@ to reduce subtle bugs that can be hard to track down when operating in "`lite`" 
 ****
 
 The `@Bean` and `@Configuration` annotations are discussed in depth in the following sections.
-First, however, we cover the various ways of creating a spring container by using
+First, however, we cover the various ways of creating a Infra container by using
 Java-based configuration.
 
 

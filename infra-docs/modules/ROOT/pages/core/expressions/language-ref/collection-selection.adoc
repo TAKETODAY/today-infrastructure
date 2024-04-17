@@ -48,7 +48,7 @@ expression, the syntax is `.$[selectionExpression]`.
 
 [NOTE]
 ====
-The Spring Expression Language also supports safe navigation for collection selection.
+The Infra Expression Language also supports safe navigation for collection selection.
 
 See
 xref:core/expressions/language-ref/operator-safe-navigation.adoc#expressions-operator-safe-navigation-selection-and-projection[Safe Collection Selection and Projection]

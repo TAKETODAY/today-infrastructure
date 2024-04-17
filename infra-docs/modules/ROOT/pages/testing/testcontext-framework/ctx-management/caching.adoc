@@ -58,7 +58,7 @@ significantly more slowly as a result.
 The size of the context cache is bounded with a default maximum size of 32. Whenever the
 maximum size is reached, a least recently used (LRU) eviction policy is used to evict and
 close stale contexts. You can configure the maximum size from the command line or a build
-script by setting a JVM system property named `spring.test.context.cache.maxSize`. As an
+script by setting a JVM system property named `infra.test.context.cache.maxSize`. As an
 alternative, you can set the same property via the
 xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism.
 
@@ -117,7 +117,7 @@ after a test class, any console logging triggered during the shutdown of the
 console logging triggered during the shutdown phase via a JVM shutdown hook cannot be
 associated with an individual test method.
 
-When a Spring `ApplicationContext` is closed via a JVM shutdown hook, callbacks executed
+When a Infra `ApplicationContext` is closed via a JVM shutdown hook, callbacks executed
 during the shutdown phase are executed on a thread named `SpringContextShutdownHook`. So,
 if you wish to disable console logging triggered when the `ApplicationContext` is closed
 via a JVM shutdown hook, you may be able to register a custom filter with your logging

@@ -38,7 +38,7 @@ you can disable the `failOnError` mode which results in errors being logged at `
 level or with greater detail at `DEBUG` level.
 
 The `failOnError` mode can be disabled from the command line or a build script by setting
-a JVM system property named `spring.test.aot.processing.failOnError` to `false`. As an
+a JVM system property named `infra.test.aot.processing.failOnError` to `false`. As an
 alternative, you can set the same property via the
 xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] mechanism.
 ====

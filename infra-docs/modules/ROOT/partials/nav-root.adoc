@@ -105,7 +105,7 @@
 ** xref:core/appendix.adoc[]
 *** xref:core/appendix/xsd-schemas.adoc[]
 *** xref:core/appendix/xml-custom.adoc[]
-*** xref:core/appendix/application-startup-steps.adoc[]
+
 * xref:testing.adoc[]
 ** xref:testing/introduction.adoc[]
 ** xref:testing/unit.adoc[]

@@ -13,7 +13,7 @@ determines which error codes the `Errors` interface registers. By default, the
 `DefaultMessageCodesResolver` is used, which (for example) not only registers a message
 with the code you gave but also registers messages that include the field name you passed
 to the reject method. So, if you reject a field by using `rejectValue("age", "too.darn.old")`,
-apart from the `too.darn.old` code, Spring also registers `too.darn.old.age` and
+apart from the `too.darn.old` code, Infra also registers `too.darn.old.age` and
 `too.darn.old.age.int` (the first includes the field name and the second includes the type
 of the field). This is done as a convenience to aid developers when targeting error messages.
 

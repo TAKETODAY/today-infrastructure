@@ -272,9 +272,9 @@ of arguments taken by the underlying join point), and the value passed to procee
 given argument position supplants the original value at the join point for the entity the
 value was bound to (do not worry if this does not make sense right now).
 
-The approach taken by Spring is simpler and a better match to its proxy-based,
+The approach taken by Infra is simpler and a better match to its proxy-based,
 execution-only semantics. You only need to be aware of this difference if you compile
-`@AspectJ` aspects written for Spring and use `proceed` with arguments with the AspectJ
+`@AspectJ` aspects written for Infra and use `proceed` with arguments with the AspectJ
 compiler and weaver. There is a way to write such aspects that is 100% compatible across
 both Infra AOP and AspectJ, and this is discussed in the
 xref:core/aop/ataspectj/advice.adoc#aop-ataspectj-advice-proceeding-with-the-call[following section on advice parameters].
@@ -324,7 +324,7 @@ public class AroundExample {
 [[aop-ataspectj-advice-params]]
 == Advice Parameters
 
-Spring offers fully typed advice, meaning that you declare the parameters you need in the
+Infra offers fully typed advice, meaning that you declare the parameters you need in the
 advice signature (as we saw earlier for the returning and throwing examples) rather than
 work with `Object[]` arrays all the time. We see how to make argument and other contextual
 values available to the advice body later in this section. First, we take a look at how to
@@ -641,7 +641,7 @@ In many cases, you do this binding anyway (as in the preceding example).
 == Advice Ordering
 
 What happens when multiple pieces of advice all want to run at the same join point?
-Spring AOP follows the same precedence rules as AspectJ to determine the order of advice
+Infra AOP follows the same precedence rules as AspectJ to determine the order of advice
 execution. The highest precedence advice runs first "on the way in" (so, given two pieces
 of before advice, the one with highest precedence runs first). "On the way out" from a
 join point, the highest precedence advice runs last (so, given two pieces of after
@@ -650,7 +650,7 @@ advice, the one with the highest precedence will run second).
 When two pieces of advice defined in different aspects both need to run at the same
 join point, unless you specify otherwise, the order of execution is undefined. You can
 control the order of execution by specifying precedence. This is done in the normal
-Spring way by either implementing the `cn.taketoday.core.Ordered` interface in
+Infra way by either implementing the `cn.taketoday.core.Ordered` interface in
 the aspect class or annotating it with the `@Order` annotation. Given two aspects, the
 aspect returning the lower value from `Ordered.getOrder()` (or the annotation value) has
 the higher precedence.

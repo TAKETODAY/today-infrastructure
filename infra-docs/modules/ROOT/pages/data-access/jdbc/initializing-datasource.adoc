@@ -8,7 +8,7 @@ an instance that runs on a server somewhere.
 
 
 [[jdbc-initializing-datasource-xml]]
-== Initializing a Database by Using Spring XML
+== Initializing a Database by Using Infra XML
 
 If you want to initialize a database and you can provide a reference to a `DataSource`
 bean, you can use the `initialize-database` tag in the `spring-jdbc` namespace:
@@ -24,7 +24,7 @@ bean, you can use the `initialize-database` tag in the `spring-jdbc` namespace:
 The preceding example runs the two specified scripts against the database. The first
 script creates a schema, and the second populates tables with a test data set. The script
 locations can also be patterns with wildcards in the usual Ant style used for resources
-in Spring (for example,
+in Infra (for example,
 `classpath{asterisk}:/com/foo/{asterisk}{asterisk}/sql/{asterisk}-data.sql`). If you use a
 pattern, the scripts are run in the lexical order of their URL or filename.
 
@@ -97,7 +97,7 @@ If you need more control than you get from the XML namespace, you can use the
 [[jdbc-client-component-initialization]]
 === Initialization of Other Components that Depend on the Database
 
-A large class of applications (those that do not use the database until after the Spring context has
+A large class of applications (those that do not use the database until after the Infra context has
 started) can use the database initializer with no further
 complications. If your application is not one of those, you might need to read the rest
 of this section.
@@ -124,14 +124,14 @@ Some suggestions for how to implement this include:
   automatically start a `SmartLifecycle` by setting its `autoStartup` flag, and you can
   manually start a `Lifecycle` by calling `ConfigurableApplicationContext.start()`
   on the enclosing context.
-* Use a Spring `ApplicationEvent` or similar custom observer mechanism to trigger the
+* Use a Infra `ApplicationEvent` or similar custom observer mechanism to trigger the
   cache initialization. `ContextRefreshedEvent` is always published by the context when
   it is ready for use (after all beans have been initialized), so that is often a useful
   hook (this is how the `SmartLifecycle` works by default).
 
 Ensuring that the database initializer is initialized first can also be easy. Some suggestions on how to implement this include:
 
-* Rely on the default behavior of the Spring `BeanFactory`, which is that beans are
+* Rely on the default behavior of the Infra `BeanFactory`, which is that beans are
   initialized in registration order. You can easily arrange that by adopting the common
   practice of a set of `<import/>` elements in XML configuration that order your
   application modules and ensuring that the database and database initialization are
@@ -139,7 +139,7 @@ Ensuring that the database initializer is initialized first can also be easy. So
 * Separate the `DataSource` and the business components that use it and control their
   startup order by putting them in separate `ApplicationContext` instances (for example, the
   parent context contains the `DataSource`, and the child context contains the business
-  components). This structure is common in Spring web applications but can be more
+  components). This structure is common in Infra web applications but can be more
   generally applied.
 
 

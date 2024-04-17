@@ -11,7 +11,7 @@ This part of the appendix lists XML schemas related to the core container.
 As the name implies, the `util` tags deal with common, utility configuration
 issues, such as configuring collections, referencing constants, and so forth.
 To use the tags in the `util` schema, you need to have the following preamble at the top
-of your Spring XML configuration file (the text in the snippet references the
+of your Infra XML configuration file (the text in the snippet references the
 correct schema so that the tags in the `util` namespace are available to you):
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -45,7 +45,7 @@ Consider the following bean definition:
  </bean>
 ----
 
-The preceding configuration uses a Spring `FactoryBean` implementation (the
+The preceding configuration uses a Infra `FactoryBean` implementation (the
 `FieldRetrievingFactoryBean`) to set the value of the `isolation` property on a bean
 to the value of the `java.sql.Connection.TRANSACTION_SERIALIZABLE` constant. This is
 all well and good, but it is verbose and (unnecessarily) exposes Infra internal
@@ -114,7 +114,7 @@ class.
 
 Injecting enumeration values into beans as either property or constructor arguments is
 easy to do in Spring. You do not actually have to do anything or know anything about
-the Spring internals (or even about classes such as the `FieldRetrievingFactoryBean`).
+the Infra internals (or even about classes such as the `FieldRetrievingFactoryBean`).
 The following example enumeration shows how easy injecting an enum value is:
 
 [tabs]
@@ -185,7 +185,7 @@ Consider the following example:
 <bean id="testBean.age" class="cn.taketoday.beans.factory.config.PropertyPathFactoryBean"/>
 ----
 
-The preceding configuration uses a Spring `FactoryBean` implementation (the
+The preceding configuration uses a Infra `FactoryBean` implementation (the
 `PropertyPathFactoryBean`) to create a bean (of type `int`) called `testBean.age` that
 has a value equal to the `age` property of the `testBean` bean.
 
@@ -299,7 +299,7 @@ Consider the following example:
 </bean>
 ----
 
-The preceding configuration uses a Spring `FactoryBean` implementation (the
+The preceding configuration uses a Infra `FactoryBean` implementation (the
 `PropertiesFactoryBean`) to instantiate a `java.util.Properties` instance with values
 loaded from the supplied `Resource` location).
 
@@ -332,7 +332,7 @@ Consider the following example:
 </bean>
 ----
 
-The preceding configuration uses a Spring `FactoryBean` implementation (the
+The preceding configuration uses a Infra `FactoryBean` implementation (the
 `ListFactoryBean`) to create a `java.util.List` instance and initialize it with values taken
 from the supplied `sourceList`.
 
@@ -387,7 +387,7 @@ Consider the following example:
 </bean>
 ----
 
-The preceding configuration uses a Spring `FactoryBean` implementation (the
+The preceding configuration uses a Infra `FactoryBean` implementation (the
 `MapFactoryBean`) to create a `java.util.Map` instance initialized with key-value pairs
 taken from the supplied `'sourceMap'`.
 
@@ -442,7 +442,7 @@ Consider the following example:
 </bean>
 ----
 
-The preceding configuration uses a Spring `FactoryBean` implementation (the
+The preceding configuration uses a Infra `FactoryBean` implementation (the
 `SetFactoryBean`) to create a `java.util.Set` instance initialized with values taken
 from the supplied `sourceSet`.
 
@@ -487,7 +487,7 @@ These tags are comprehensively covered in the chapter entitled xref:core/aop.ado
 .
 
 In the interest of completeness, to use the tags in the `aop` schema, you need to have
-the following preamble at the top of your Spring XML configuration file (the text in the
+the following preamble at the top of your Infra XML configuration file (the text in the
 snippet references the correct schema so that the tags in the `aop` namespace
 are available to you):
 
@@ -557,7 +557,7 @@ not create multiple properties placeholders. Rather, each module should contribu
 [[xsd-schemas-context-ac]]
 === Using `<annotation-config/>`
 
-This element activates the Spring infrastructure to detect annotations in bean classes:
+This element activates the Infra infrastructure to detect annotations in bean classes:
 
 * Infra xref:core/beans/basics.adoc#beans-factory-metadata[`@Configuration`] model
 * xref:core/beans/annotation-config.adoc[`@Autowired`/`@Inject`], `@Value`, and `@Lookup`
@@ -610,7 +610,7 @@ This element is detailed in the section on xref:integration/jmx/naming.adoc#jmx-
 == The Beans Schema
 
 Last but not least, we have the elements in the `beans` schema. These elements
-have been in Spring since the very dawn of the framework. Examples of the various elements
+have been in Infra since the very dawn of the framework. Examples of the various elements
 in the `beans` schema are not shown here because they are quite comprehensively covered
 in xref:core/beans/dependencies/factory-properties-detailed.adoc[dependencies and configuration in detail]
 (and, indeed, in that entire xref:web/webmvc-view/mvc-xslt.adoc#mvc-view-xslt-beandefs[chapter]).

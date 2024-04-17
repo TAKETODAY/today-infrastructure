@@ -10,9 +10,9 @@ Apart from the special case of introductions, any advisor can be used with any a
 advisor class. It can be used with a `MethodInterceptor`, `BeforeAdvice`, or
 `ThrowsAdvice`.
 
-It is possible to mix advisor and advice types in Spring in the same AOP proxy. For
+It is possible to mix advisor and advice types in Infra in the same AOP proxy. For
 example, you could use an interception around advice, throws advice, and before advice in
-one proxy configuration. Spring automatically creates the necessary interceptor
+one proxy configuration. Infra automatically creates the necessary interceptor
 chain.
 
 

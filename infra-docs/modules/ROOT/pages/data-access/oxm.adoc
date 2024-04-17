@@ -16,7 +16,7 @@ object (graph) to XML. In similar fashion, an unmarshaller deserializes the XML 
 an object graph. This XML can take the form of a DOM document, an input or output
 stream, or a SAX handler.
 
-Some of the benefits of using Spring for your O/X mapping needs are:
+Some of the benefits of using Infra for your O/X mapping needs are:
 
 * xref:data-access/oxm.adoc#oxm-ease-of-configuration[Ease of configuration]
 * xref:data-access/oxm.adoc#oxm-consistent-interfaces[Consistent Interfaces]
@@ -48,7 +48,7 @@ technology.
 [[oxm-consistent-exception-hierarchy]]
 === Consistent Exception Hierarchy
 
-Spring provides a conversion from exceptions from the underlying O-X mapping tool to its
+Infra provides a conversion from exceptions from the underlying O-X mapping tool to its
 own exception hierarchy with the `XmlMappingException` as the root exception.
 These runtime exceptions wrap the original exception so that no information is lost.
 
@@ -59,13 +59,13 @@ These runtime exceptions wrap the original exception so that no information is l
 
 As stated in the xref:data-access/oxm.adoc#oxm-introduction[introduction], a marshaller serializes an object
 to XML, and an unmarshaller deserializes XML stream to an object. This section describes
-the two Spring interfaces used for this purpose.
+the two Infra interfaces used for this purpose.
 
 
 [[oxm-marshaller]]
 === Understanding `Marshaller`
 
-Spring abstracts all marshalling operations behind the
+Infra abstracts all marshalling operations behind the
 `cn.taketoday.oxm.Marshaller` interface, the main method of which follows:
 
 [source,java,indent=0,subs="verbatim,quotes"]
@@ -150,7 +150,7 @@ marshaller and as an unmarshaller in your `applicationContext.xml`.
 [[oxm-xmlmappingexception]]
 === Understanding `XmlMappingException`
 
-Spring converts exceptions from the underlying O-X mapping tool to its own exception
+Infra converts exceptions from the underlying O-X mapping tool to its own exception
 hierarchy with the `XmlMappingException` as the root exception.
 These runtime exceptions wrap the original exception so that no information will be lost.
 
@@ -196,7 +196,7 @@ public class Settings {
 The application class uses this bean to store its settings. Besides a main method, the
 class has two methods: `saveSettings()` saves the settings bean to a file named
 `settings.xml`, and `loadSettings()` loads these settings again. The following `main()` method
-constructs a Spring application context and calls these two methods:
+constructs a Infra application context and calls these two methods:
 
 [tabs]
 ======
@@ -328,7 +328,7 @@ The JAXB binding compiler translates a W3C XML Schema into one or more Java clas
 `jaxb.properties` file, and possibly some resource files. JAXB also offers a way to
 generate a schema from annotated Java classes.
 
-Spring supports the JAXB 2.0 API as XML marshalling strategies, following the
+Infra supports the JAXB 2.0 API as XML marshalling strategies, following the
 `Marshaller` and `Unmarshaller` interfaces described in xref:data-access/oxm.adoc#oxm-marshaller-unmarshaller[`Marshaller` and `Unmarshaller`].
 The corresponding integration classes reside in the `cn.taketoday.oxm.jaxb`
 package.
@@ -411,7 +411,7 @@ enhances the class files and adds code to handle converting instances of the cla
 from or to XML.
 
 For more information on JiBX, see the http://jibx.sourceforge.net/[JiBX web
-site]. The Spring integration classes reside in the `cn.taketoday.oxm.jibx`
+site]. The Infra integration classes reside in the `cn.taketoday.oxm.jibx`
 package.
 
 
@@ -475,7 +475,7 @@ XStream is a simple library to serialize objects to XML and back again. It does 
 require any mapping and generates clean XML.
 
 For more information on XStream, see the https://x-stream.github.io/[XStream
-web site]. The Spring integration classes reside in the
+web site]. The Infra integration classes reside in the
 `cn.taketoday.oxm.xstream` package.
 
 

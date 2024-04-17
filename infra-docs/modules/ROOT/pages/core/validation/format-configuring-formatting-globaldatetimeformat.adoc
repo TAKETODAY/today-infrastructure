@@ -5,7 +5,7 @@ By default, date and time fields not annotated with `@DateTimeFormat` are conver
 strings by using the `DateFormat.SHORT` style. If you prefer, you can change this by
 defining your own global format.
 
-To do that, ensure that Spring does not register default formatters. Instead, register
+To do that, ensure that Infra does not register default formatters. Instead, register
 formatters manually with the help of:
 
 * `cn.taketoday.format.datetime.standard.DateTimeFormatterRegistrar`

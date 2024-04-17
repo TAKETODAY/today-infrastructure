@@ -71,9 +71,9 @@ assertions use the {assertj-docs}[AssertJ] library:
 	String id = newMessagePage.getHtmlElementById("id").getTextContent();
 	assertThat(id).isEqualTo("123");
 	String summary = newMessagePage.getHtmlElementById("summary").getTextContent();
-	assertThat(summary).isEqualTo("Spring Rocks");
+	assertThat(summary).isEqualTo("Infra Rocks");
 	String text = newMessagePage.getHtmlElementById("text").getTextContent();
-	assertThat(text).isEqualTo("In case you didn't know, Spring Rocks!");
+	assertThat(text).isEqualTo("In case you didn't know, Infra Rocks!");
 ----
 
 
@@ -95,7 +95,7 @@ additional information about using HtmlUnit.
 
 In the examples so far, we have used `MockMvcWebClientBuilder` in the simplest way
 possible, by building a `WebClient` based on the `WebApplicationContext` loaded for us by
-the Spring TestContext Framework. This approach is repeated in the following example:
+the Infra TestContext Framework. This approach is repeated in the following example:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -119,7 +119,7 @@ WebClient webClient;
 @BeforeEach
 void setup() {
   webClient = MockMvcWebClientBuilder
-    // demonstrates applying a MockMvcConfigurer (Spring Security)
+    // demonstrates applying a MockMvcConfigurer (Infra Security)
     .webAppContextSetup(context, springSecurity())
     // for illustration only - defaults to ""
     .contextPath("")

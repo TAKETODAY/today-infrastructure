@@ -28,7 +28,7 @@ expression against each map entry.
 
 [NOTE]
 ====
-The Spring Expression Language also supports safe navigation for collection projection.
+The Infra Expression Language also supports safe navigation for collection projection.
 
 See
 xref:core/expressions/language-ref/operator-safe-navigation.adoc#expressions-operator-safe-navigation-selection-and-projection[Safe Collection Selection and Projection]

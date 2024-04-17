@@ -16,13 +16,13 @@ you can switch to these standard annotations without changing your cache storage
 == Feature Summary
 
 For those who are familiar with Infra caching annotations, the following table
-describes the main differences between the Spring annotations and their JSR-107
+describes the main differences between the Infra annotations and their JSR-107
 counterparts:
 
-.Spring vs. JSR-107 caching annotations
+.Infra vs. JSR-107 caching annotations
 [cols="1,1,3"]
 |===
-| Spring | JSR-107 | Remark
+| Infra | JSR-107 | Remark
 
 | `@Cacheable`
 | `@CacheResult`
@@ -31,7 +31,7 @@ counterparts:
 
 | `@CachePut`
 | `@CachePut`
-| While Spring updates the cache with the result of the method invocation, JCache
+| While Infra updates the cache with the result of the method invocation, JCache
   requires that it be passed it as an argument that is annotated with `@CacheValue`.
   Due to this difference, JCache allows updating the cache before or after the
   actual method invocation.
@@ -67,7 +67,7 @@ to customize the factory for each cache operation, as the following example show
 ----
 <1> Customizing the factory for this operation.
 
-NOTE: For all referenced classes, Spring tries to locate a bean with the given type.
+NOTE: For all referenced classes, Infra tries to locate a bean with the given type.
 If more than one match exists, a new instance is created and can use the regular
 bean lifecycle callbacks, such as dependency injection.
 

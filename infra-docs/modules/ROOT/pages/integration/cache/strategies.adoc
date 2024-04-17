@@ -45,7 +45,7 @@ that is, the abstraction frees you from having to write the caching logic but do
 provide the actual data store. This abstraction is materialized by the
 `cn.taketoday.cache.Cache` and `cn.taketoday.cache.CacheManager` interfaces.
 
-Spring provides xref:integration/cache/store-configuration.adoc[a few implementations] of that abstraction:
+Infra provides xref:integration/cache/store-configuration.adoc[a few implementations] of that abstraction:
 JDK `java.util.concurrent.ConcurrentMap` based caches, Gemfire cache,
 https://github.com/ben-manes/caffeine/wiki[Caffeine], and JSR-107 compliant caches (such
 as Ehcache 3.x). See xref:integration/cache/plug.adoc[Plugging-in Different Back-end Caches] for more information on plugging in other cache

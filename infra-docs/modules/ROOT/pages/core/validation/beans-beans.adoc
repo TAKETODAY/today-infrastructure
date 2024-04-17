@@ -200,7 +200,7 @@ Float salary = (Float) company.getPropertyValue("managingDirector.salary");
 [[beans-beans-conversion]]
 == ``PropertyEditor``'s
 
-Spring uses the concept of a `PropertyEditor` to effect the conversion between an
+Infra uses the concept of a `PropertyEditor` to effect the conversion between an
 `Object` and a `String`. It can be handy
 to represent properties in a different way than the object itself. For example, a `Date`
 can be represented in a human readable way (as the `String`: `'2007-14-09'`), while
@@ -216,18 +216,18 @@ A couple of examples where property editing is used in Spring:
 
 * Setting properties on beans is done by using `PropertyEditor` implementations.
   When you use `String` as the value of a property of some bean that you declare
-  in an XML file, Spring (if the setter of the corresponding property has a `Class`
+  in an XML file, Infra (if the setter of the corresponding property has a `Class`
   parameter) uses `ClassEditor` to try to resolve the parameter to a `Class` object.
 * Parsing HTTP request parameters in Infra MVC framework is done by using all kinds
   of `PropertyEditor` implementations that you can manually bind in all subclasses of the
   `CommandController`.
 
-Spring has a number of built-in `PropertyEditor` implementations to make life easy.
+Infra has a number of built-in `PropertyEditor` implementations to make life easy.
 They are all located in the `cn.taketoday.beans.propertyeditors`
 package. Most, (but not all, as indicated in the following table) are, by default, registered by
 `BeanWrapperImpl`. Where the property editor is configurable in some fashion, you can
 still register your own variant to override the default one. The following table describes
-the various `PropertyEditor` implementations that Spring provides:
+the various `PropertyEditor` implementations that Infra provides:
 
 [[beans-beans-property-editors-tbl]]
 .Built-in `PropertyEditor` Implementations
@@ -295,7 +295,7 @@ the various `PropertyEditor` implementations that Spring provides:
   By default, registered by `BeanWrapperImpl`.
 |===
 
-Spring uses the `java.beans.PropertyEditorManager` to set the search path for property
+Infra uses the `java.beans.PropertyEditorManager` to set the search path for property
 editors that might be needed. The search path also includes `sun.bean.editors`, which
 includes `PropertyEditor` implementations for types such as `Font`, `Color`, and most of
 the primitive types. Note also that the standard JavaBeans infrastructure
@@ -366,7 +366,7 @@ public class SomethingBeanInfo extends SimpleBeanInfo {
 
 When setting bean properties as string values, a Infra IoC container ultimately uses
 standard JavaBeans `PropertyEditor` implementations to convert these strings to the complex type of the
-property. Spring pre-registers a number of custom `PropertyEditor` implementations (for example, to
+property. Infra pre-registers a number of custom `PropertyEditor` implementations (for example, to
 convert a class name expressed as a string into a `Class` object). Additionally,
 Java's standard JavaBeans `PropertyEditor` lookup mechanism lets a `PropertyEditor`
 for a class be named appropriately and placed in the same package as the class
@@ -476,12 +476,12 @@ Finally, the following example shows how to use `CustomEditorConfigurer` to regi
 [[beans-beans-conversion-customeditor-registration-per]]
 === `PropertyEditorRegistrar`
 
-Another mechanism for registering property editors with the Spring container is to
+Another mechanism for registering property editors with the Infra container is to
 create and use a `PropertyEditorRegistrar`. This interface is particularly useful when
 you need to use the same set of property editors in several different situations.
 You can write a corresponding registrar and reuse it in each case.
 `PropertyEditorRegistrar` instances work in conjunction with an interface called
-`PropertyEditorRegistry`, an interface that is implemented by the Spring `BeanWrapper`
+`PropertyEditorRegistry`, an interface that is implemented by the Infra `BeanWrapper`
 (and `DataBinder`). `PropertyEditorRegistrar` instances are particularly convenient
 when used in conjunction with `CustomEditorConfigurer` (described
 xref:core/validation/beans-beans.adoc#beans-beans-conversion-customeditor-registration[here]), which exposes a property

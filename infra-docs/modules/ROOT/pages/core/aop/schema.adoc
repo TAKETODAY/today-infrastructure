@@ -1,7 +1,7 @@
 [[aop-schema]]
 = Schema-based AOP Support
 
-If you prefer an XML-based format, Spring also offers support for defining aspects
+If you prefer an XML-based format, Infra also offers support for defining aspects
 using the `aop` namespace tags. The exact same pointcut expressions and advice kinds
 as when using the @AspectJ style are supported. Hence, in this section we focus on
 that syntax and refer the reader to the discussion in the previous section
@@ -13,7 +13,7 @@ To use the aop namespace tags described in this section, you need to import the
 . See xref:core/appendix/xsd-schemas.adoc#aop[the AOP schema]
 for how to import the tags in the `aop` namespace.
 
-Within your Spring configurations, all aspect and advisor elements must be placed within
+Within your Infra configurations, all aspect and advisor elements must be placed within
 an `<aop:config>` element (you can have more than one `<aop:config>` element in an
 application context configuration). An `<aop:config>` element can contain pointcut,
 advisor, and aspect elements (note that these must be declared in that order).
@@ -31,7 +31,7 @@ never mix them.
 == Declaring an Aspect
 
 When you use the schema support, an aspect is a regular Java object defined as a bean in
-your Spring application context. The state and behavior are captured in the fields and
+your Infra application context. The state and behavior are captured in the fields and
 methods of the object, and the pointcut and advice information are captured in the XML.
 
 You can declare an aspect by using the `<aop:aspect>` element, and reference the backing bean
@@ -51,7 +51,7 @@ by using the `ref` attribute, as the following example shows:
 ----
 
 The bean that backs the aspect (`aBean` in this case) can of course be configured and
-dependency injected just like any other Spring bean.
+dependency injected just like any other Infra bean.
 
 
 
@@ -674,7 +674,7 @@ self-contained aspect that has a single piece of advice. The advice itself is
 represented by a bean and must implement one of the advice interfaces described in
 xref:core/aop-api/advice.adoc#aop-api-advice-types[Advice Types in Spring]. Advisors can take advantage of AspectJ pointcut expressions.
 
-Spring supports the advisor concept with the `<aop:advisor>` element. You most
+Infra supports the advisor concept with the `<aop:advisor>` element. You most
 commonly see it used in conjunction with transactional advice, which also has its own
 namespace support in Spring. The following example shows an advisor:
 
@@ -778,7 +778,7 @@ unless we have exhausted all of our retry attempts.
 NOTE: This class is identical to the one used in the @AspectJ example, but with the
 annotations removed.
 
-The corresponding Spring configuration is as follows:
+The corresponding Infra configuration is as follows:
 
 [source,xml,indent=0,subs="verbatim"]
 ----

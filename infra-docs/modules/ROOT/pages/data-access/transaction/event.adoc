@@ -1,7 +1,7 @@
 [[transaction-event]]
 = Transaction-bound Events
 
-As of Spring 4.2, the listener of an event can be bound to a phase of the transaction.
+As of Infra 4.2, the listener of an event can be bound to a phase of the transaction.
 The typical example is to handle the event when the transaction has completed successfully.
 Doing so lets events be used with more flexibility when the outcome of the current
 transaction actually matters to the listener.

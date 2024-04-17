@@ -15,7 +15,7 @@ you can do so. However, you should consider the following issues:
 
 * With CGLIB, `final` methods cannot be advised, as they cannot be overridden in
   runtime-generated subclasses.
-* As of Spring 4.0, the constructor of your proxied object is NOT called twice anymore,
+* As of Infra 4.0, the constructor of your proxied object is NOT called twice anymore,
   since the CGLIB proxy instance is created through Objenesis. Only if your JVM does
   not allow for constructor bypassing, you might see double invocations and
   corresponding debug log entries from Infra AOP support.

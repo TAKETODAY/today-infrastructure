@@ -29,9 +29,9 @@ package also provides the following functionality:
 == Internationalization using `MessageSource`
 
 The `ApplicationContext` interface extends an interface called `MessageSource` and,
-therefore, provides internationalization ("`i18n`") functionality. Spring also provides the
+therefore, provides internationalization ("`i18n`") functionality. Infra also provides the
 `HierarchicalMessageSource` interface, which can resolve messages hierarchically.
-Together, these interfaces provide the foundation upon which Spring effects message
+Together, these interfaces provide the foundation upon which Infra effects message
 resolution. The methods defined on these interfaces include:
 
 * `String getMessage(String code, Object[] args, String default, Locale loc)`: The basic
@@ -55,7 +55,7 @@ bean with the same name. If it does, it uses that bean as the `MessageSource`. I
 `DelegatingMessageSource` is instantiated in order to be able to accept calls to the
 methods defined above.
 
-Spring provides three `MessageSource` implementations, `ResourceBundleMessageSource`, `ReloadableResourceBundleMessageSource`
+Infra provides three `MessageSource` implementations, `ResourceBundleMessageSource`, `ReloadableResourceBundleMessageSource`
 and `StaticMessageSource`. All of them implement `HierarchicalMessageSource` in order to do nested
 messaging. The `StaticMessageSource` is rarely used but provides programmatic ways to
 add messages to the source. The following example shows `ResourceBundleMessageSource`:
@@ -226,11 +226,11 @@ NOTE: Because Infra `MessageSource` is based on Java's `ResourceBundle`, it does
 bundles with the same base name, but will only use the first bundle found.
 Subsequent message bundles with the same base name are ignored.
 
-NOTE: As an alternative to `ResourceBundleMessageSource`, Spring provides a
+NOTE: As an alternative to `ResourceBundleMessageSource`, Infra provides a
 `ReloadableResourceBundleMessageSource` class. This variant supports the same bundle
 file format but is more flexible than the standard JDK based
 `ResourceBundleMessageSource` implementation. In particular, it allows for reading
-files from any Spring resource location (not only from the classpath) and supports hot
+files from any Infra resource location (not only from the classpath) and supports hot
 reloading of bundle property files (while efficiently caching them in between).
 See the {today-framework-api}/context/support/ReloadableResourceBundleMessageSource.html[`ReloadableResourceBundleMessageSource`]
 javadoc for details.
@@ -246,13 +246,13 @@ class and the `ApplicationListener` interface. If a bean that implements the
 `ApplicationEvent` gets published to the `ApplicationContext`, that bean is notified.
 Essentially, this is the standard Observer design pattern.
 
-TIP: As of Spring 4.2, the event infrastructure has been significantly improved and offers
+TIP: As of Infra 4.2, the event infrastructure has been significantly improved and offers
 an xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[annotation-based model] as well as the
 ability to publish any arbitrary event (that is, an object that does not necessarily
 extend from `ApplicationEvent`). When such an object is published, we wrap it in an
 event for you.
 
-The following table describes the standard events that Spring provides:
+The following table describes the standard events that Infra provides:
 
 [[beans-ctx-events-tbl]]
 .Built-in Events
@@ -328,7 +328,7 @@ public class BlockedListEvent extends ApplicationEvent {
 
 To publish a custom `ApplicationEvent`, call the `publishEvent()` method on an
 `ApplicationEventPublisher`. Typically, this is done by creating a class that implements
-`ApplicationEventPublisherAware` and registering it as a Spring bean. The following
+`ApplicationEventPublisherAware` and registering it as a Infra bean. The following
 example shows such a class:
 
 [tabs]
@@ -362,14 +362,14 @@ public class EmailService implements ApplicationEventPublisherAware {
 
 ======
 
-At configuration time, the Spring container detects that `EmailService` implements
+At configuration time, the Infra container detects that `EmailService` implements
 `ApplicationEventPublisherAware` and automatically calls
 `setApplicationEventPublisher()`. In reality, the parameter passed in is the Spring
 container itself. You are interacting with the application context through its
 `ApplicationEventPublisher` interface.
 
 To receive the custom `ApplicationEvent`, you can create a class that implements
-`ApplicationListener` and register it as a Spring bean. The following example
+`ApplicationListener` and register it as a Infra bean. The following example
 shows such a class:
 
 [tabs]
@@ -440,13 +440,13 @@ called, if there are any email messages that should be blocked, a custom event o
 `ApplicationListener` and receives the `BlockedListEvent`, at which point it can
 notify appropriate parties.
 
-NOTE: Infra eventing mechanism is designed for simple communication between Spring beans
+NOTE: Infra eventing mechanism is designed for simple communication between Infra beans
 within the same application context. However, for more sophisticated enterprise
 integration needs, the separately maintained
 {today-tech-site-projects}/spring-integration/[Infra Integration] project provides
 complete support for building lightweight,
 https://www.enterpriseintegrationpatterns.com[pattern-oriented], event-driven
-architectures that build upon the well-known Spring programming model.
+architectures that build upon the well-known Infra programming model.
 
 
 [[context-functionality-events-annotation]]
@@ -742,7 +742,7 @@ regardless of the actual context type.
 [[context-functionality-startup]]
 == Application Startup Tracking
 
-The `ApplicationContext` manages the lifecycle of Spring applications and provides a rich
+The `ApplicationContext` manages the lifecycle of Infra applications and provides a rich
 programming model around components. As a result, complex applications can have equally
 complex component graphs and startup phases.
 
@@ -777,10 +777,6 @@ scanPackages.end();
 
 ======
 
-The application context is already instrumented with multiple steps.
-Once recorded, these startup steps can be collected, displayed and analyzed with specific tools.
-For a complete list of existing startup steps, you can check out the
-xref:core/appendix/application-startup-steps.adoc[dedicated appendix section].
 
 The default `ApplicationStartup` implementation is a no-op variant, for minimal overhead.
 This means no metrics will be collected during application startup by default.
@@ -800,7 +796,7 @@ instance from the application context directly, make their component implement `
 or ask for the `ApplicationStartup` type on any injection point.
 
 NOTE: Developers should not use the `"spring.*"` namespace when creating custom startup steps.
-This namespace is reserved for internal Spring usage and is subject to change.
+This namespace is reserved for internal Infra usage and is subject to change.
 
 [[context-create]]
 == Convenient ApplicationContext Instantiation for Web Applications
@@ -836,9 +832,9 @@ Examples are `/WEB-INF/{asterisk}Context.xml` (for all files with names that end
 
 
 [[context-deploy-rar]]
-== Deploying a Spring `ApplicationContext` as a Jakarta EE RAR File
+== Deploying a Infra `ApplicationContext` as a Jakarta EE RAR File
 
-It is possible to deploy a Spring `ApplicationContext` as a RAR file, encapsulating the
+It is possible to deploy a Infra `ApplicationContext` as a RAR file, encapsulating the
 context and all of its required bean classes and library JARs in a Jakarta EE RAR deployment
 unit. This is the equivalent of bootstrapping a stand-alone `ApplicationContext` (only hosted
 in Jakarta EE environment) being able to access the Jakarta EE servers facilities. RAR deployment
@@ -858,7 +854,7 @@ See the javadoc of the
 {today-framework-api}/jca/context/SpringContextResourceAdapter.html[`SpringContextResourceAdapter`]
 class for the configuration details involved in RAR deployment.
 
-For a simple deployment of a Spring ApplicationContext as a Jakarta EE RAR file:
+For a simple deployment of a Infra ApplicationContext as a Jakarta EE RAR file:
 
 . Package
 all application classes into a RAR file (which is a standard JAR file with a different
@@ -866,7 +862,7 @@ file extension).
 . Add all required library JARs into the root of the RAR archive.
 . Add a
 `META-INF/ra.xml` deployment descriptor (as shown in the {today-framework-api}/jca/context/SpringContextResourceAdapter.html[javadoc for `SpringContextResourceAdapter`])
-and the corresponding Spring XML bean definition file(s) (typically
+and the corresponding Infra XML bean definition file(s) (typically
 `META-INF/applicationContext.xml`).
 . Drop the resulting RAR file into your
 application server's deployment directory.

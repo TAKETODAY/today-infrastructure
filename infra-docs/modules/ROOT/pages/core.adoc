@@ -1,30 +1,9 @@
 [[today-core]]
 = 核心技术
 
-This part of the reference documentation covers all the technologies that are
-absolutely integral to the TODAY Framework.
+这部分参考文档涵盖了所有的技术，这些技术绝对是框架不可或缺的一部分。
 
-Foremost amongst these is the TODAY Framework's Inversion of Control (IoC) container.
-A thorough treatment of the TODAY Framework's IoC container is closely followed by
-comprehensive coverage of Infra Aspect-Oriented Programming (AOP) technologies.
-The TODAY Framework has its own AOP framework, which is conceptually easy to
-understand and which successfully addresses the 80% sweet spot of AOP requirements
-in Java enterprise programming.
+其中最重要的是 控制反转 (IoC) 容器，切面编程 (AOP) 技术。集成了 AspectJ。
 
-Coverage of Infra integration with AspectJ (currently the richest -- in terms of
-features -- and certainly most mature AOP implementation in the Java enterprise space)
-is also provided.
-
-AOT processing can be used to optimize your application ahead-of-time. It is typically
-used for native image deployment using GraalVM.
-
-
-
-
-
-
-
-
-
-
+AOT 处理可用于提前优化您的应用程序。通常是用于使用 GraalVM 部署。
 

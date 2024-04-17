@@ -1,5 +1,5 @@
 [[filters]]
-= Filters
+= 过滤器 Filters
 
 
 The `today-web` module provides some useful filters:

@@ -3,7 +3,7 @@
 :page-section-summary-toc: 1
 
 Since version 3.1, the TODAY Framework provides support for transparently adding caching to
-an existing Spring application. Similar to the xref:data-access/transaction.adoc[transaction]
+an existing Infra application. Similar to the xref:data-access/transaction.adoc[transaction]
 support, the caching abstraction allows consistent use of various caching solutions with
 minimal impact on the code.
 

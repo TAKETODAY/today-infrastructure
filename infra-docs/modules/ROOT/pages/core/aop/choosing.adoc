@@ -3,7 +3,7 @@
 
 Once you have decided that an aspect is the best approach for implementing a given
 requirement, how do you decide between using Infra AOP or AspectJ and between the
-Aspect language (code) style, the @AspectJ annotation style, or the Spring XML style? These
+Aspect language (code) style, the @AspectJ annotation style, or the Infra XML style? These
 decisions are influenced by a number of factors including application requirements,
 development tools, and team familiarity with AOP.
 
@@ -16,7 +16,7 @@ Use the simplest thing that can work. Infra AOP is simpler than using full Aspec
 there is no requirement to introduce the AspectJ compiler / weaver into your development
 and build processes. If you only need to advise the execution of operations on Spring
 beans, Infra AOP is the right choice. If you need to advise objects not managed by
-the Spring container (such as domain objects, typically), you need to use
+the Infra container (such as domain objects, typically), you need to use
 AspectJ. You also need to use AspectJ if you wish to advise join points other than
 simple method executions (for example, field get or set join points and so on).
 
@@ -38,7 +38,7 @@ an aspect weaving phase to your build script.
 If you have chosen to use Infra AOP, you have a choice of @AspectJ or XML style.
 There are various tradeoffs to consider.
 
-The XML style may be most familiar to existing Spring users, and it is backed by genuine
+The XML style may be most familiar to existing Infra users, and it is backed by genuine
 POJOs. When using AOP as a tool to configure enterprise services, XML can be a good
 choice (a good test is whether you consider the pointcut expression to be a part of your
 configuration that you might want to change independently). With the XML style, it is
@@ -90,7 +90,7 @@ composition. It has the advantage of keeping the aspect as a modular unit. It al
 the advantage that the @AspectJ aspects can be understood (and thus consumed) both by
 Infra AOP and by AspectJ. So, if you later decide you need the capabilities of AspectJ
 to implement additional requirements, you can easily migrate to a classic AspectJ setup.
-In general, the Spring team prefers the @AspectJ style for custom aspects beyond simple
+In general, the Infra team prefers the @AspectJ style for custom aspects beyond simple
 configuration of enterprise services.
 
 

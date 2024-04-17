@@ -1,8 +1,8 @@
 [[beans-standard-annotations]]
 = Using JSR 330 Standard Annotations
 
-Spring offers support for JSR-330 standard annotations (Dependency Injection). Those
-annotations are scanned in the same way as the Spring annotations. To use them, you need
+Infra offers support for JSR-330 standard annotations (Dependency Injection). Those
+annotations are scanned in the same way as the Infra annotations. To use them, you need
 to have the relevant jars in your classpath.
 
 [NOTE]
@@ -209,7 +209,7 @@ public class SimpleMovieLister {
 ======
 
 When you use `@Named` or `@ManagedBean`, you can use component scanning in the
-exact same way as when you use Spring annotations, as the following example shows:
+exact same way as when you use Infra annotations, as the following example shows:
 
 [tabs]
 ======
@@ -239,7 +239,7 @@ When you work with standard annotations, you should know that some significant
 features are not available, as the following table shows:
 
 [[annotations-comparison]]
-.Spring component model elements versus JSR-330 variants
+.Infra component model elements versus JSR-330 variants
 |===
 | Spring| jakarta.inject.*| jakarta.inject restrictions / comments
 

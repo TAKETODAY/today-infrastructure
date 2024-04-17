@@ -6,7 +6,7 @@ the sequence of actions outlined in the following table below. The table shows w
 takes care of and which actions are your responsibility.
 
 [[jdbc-who-does-what]]
-.Spring JDBC - who does what?
+.Infra JDBC - who does what?
 |===
 | Action| Spring| You
 

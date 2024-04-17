@@ -1,7 +1,7 @@
 [[context-load-time-weaver]]
 = Registering a `LoadTimeWeaver`
 
-The `LoadTimeWeaver` is used by Spring to dynamically transform classes as they are
+The `LoadTimeWeaver` is used by Infra to dynamically transform classes as they are
 loaded into the Java virtual machine (JVM).
 
 To enable load-time weaving, you can add the `@EnableLoadTimeWeaving` to one of your

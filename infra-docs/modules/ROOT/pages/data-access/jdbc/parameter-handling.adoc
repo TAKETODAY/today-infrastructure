@@ -8,7 +8,7 @@ provided by TODAY Framework's JDBC support. This section covers how to address t
 [[jdbc-type-information]]
 == Providing SQL Type Information for Parameters
 
-Usually, Spring determines the SQL type of the parameters based on the type of parameter
+Usually, Infra determines the SQL type of the parameters based on the type of parameter
 passed in. It is possible to explicitly provide the SQL type to be used when setting
 parameter values. This is sometimes necessary to correctly set `NULL` values.
 
@@ -165,7 +165,7 @@ clause, such as `+++select * from T_ACTOR where (id, last_name) in ((1, 'Johnson
 == Handling Complex Types for Stored Procedure Calls
 
 When you call stored procedures, you can sometimes use complex types specific to the
-database. To accommodate these types, Spring provides a `SqlReturnType` for handling
+database. To accommodate these types, Infra provides a `SqlReturnType` for handling
 them when they are returned from the stored procedure call and `SqlTypeValue` when they
 are passed in as a parameter to the stored procedure.
 
