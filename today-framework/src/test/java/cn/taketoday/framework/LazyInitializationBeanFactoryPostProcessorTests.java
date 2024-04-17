@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -26,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.beans.factory.SmartInitializingSingleton;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +56,19 @@ class LazyInitializationBeanFactoryPostProcessorTests {
       BeanState beanState = context.getBean(BeanState.class);
       assertThat(beanState.initializedBeans).containsExactly(ExampleSmartInitializingSingleton.class);
       assertThat(context.getBean(ExampleSmartInitializingSingleton.class).callbackInvoked).isTrue();
+    }
+  }
+
+  @Test
+  void whenLazyInitializationIsEnabledThenInfrastructureRoleBeansAreInitializedDuringRefresh() {
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+      context.addBeanFactoryPostProcessor(new LazyInitializationBeanFactoryPostProcessor());
+      context.register(BeanState.class);
+      context.registerBean(ExampleBean.class,
+              (definition) -> definition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE));
+      context.refresh();
+      BeanState beanState = context.getBean(BeanState.class);
+      assertThat(beanState.initializedBeans).containsExactly(ExampleBean.class);
     }
   }
 

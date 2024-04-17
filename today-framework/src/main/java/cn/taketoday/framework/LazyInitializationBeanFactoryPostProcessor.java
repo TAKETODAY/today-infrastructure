@@ -66,6 +66,7 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
     var filters = new ArrayList<>(beanFactory.getBeansOfType(
             LazyInitializationExcludeFilter.class, false, false).values());
     filters.add(LazyInitializationExcludeFilter.forBeanTypes(SmartInitializingSingleton.class));
+    filters.add(new InfrastructureRoleLazyInitializationExcludeFilter());
     return filters;
   }
 
@@ -106,6 +107,19 @@ public final class LazyInitializationBeanFactoryPostProcessor implements BeanFac
   @Override
   public int getOrder() {
     return Ordered.HIGHEST_PRECEDENCE;
+  }
+
+  /**
+   * Excludes all {@link BeanDefinition bean definitions} which have the infrastructure
+   * role from lazy initialization.
+   */
+  private static final class InfrastructureRoleLazyInitializationExcludeFilter implements LazyInitializationExcludeFilter {
+
+    @Override
+    public boolean isExcluded(String beanName, BeanDefinition def, Class<?> beanType) {
+      return def.getRole() == BeanDefinition.ROLE_INFRASTRUCTURE;
+    }
+
   }
 
 }
