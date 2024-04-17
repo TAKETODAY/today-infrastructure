@@ -185,7 +185,7 @@ class ConfigDataEnvironmentContributorsTests {
     this.importer = mock(ConfigDataImporter.class);
     List<ConfigDataLocation> initialLocations = Collections.singletonList(LOCATION_1);
     MockPropertySource initialPropertySource = new MockPropertySource();
-    initialPropertySource.setProperty("spring.config.import", "location2");
+    initialPropertySource.setProperty("app.config.import", "location2");
     Map<ConfigDataResolutionResult, ConfigData> initialImported = new LinkedHashMap<>();
     initialImported.put(new ConfigDataResolutionResult(LOCATION_1, new TestConfigDataResource("a"), false),
             new ConfigData(List.of(initialPropertySource)));
@@ -292,7 +292,7 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenHasInactiveIgnoresInactive() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("test", "one");
-    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("test", "two");
     ConfigData configData = new ConfigData(Arrays.asList(firstPropertySource, secondPropertySource));
@@ -321,7 +321,7 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenHasPlaceholderAndInactiveResolvesPlaceholderOnlyFromActive() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("other", "one");
-    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("other", "two");
     secondPropertySource.setProperty("test", "${other}");
@@ -338,7 +338,7 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenFailOnBindToInactiveSourceWithFirstInactiveThrowsException() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("test", "one");
-    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("test", "two");
     ConfigData configData = new ConfigData(Arrays.asList(firstPropertySource, secondPropertySource));
@@ -356,7 +356,7 @@ class ConfigDataEnvironmentContributorsTests {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("test", "one");
     MockPropertySource secondPropertySource = new MockPropertySource();
-    secondPropertySource.setProperty("spring.config.activate.on-profile", "production");
+    secondPropertySource.setProperty("app.config.activate.on-profile", "production");
     secondPropertySource.setProperty("test", "two");
     ConfigData configData = new ConfigData(Arrays.asList(firstPropertySource, secondPropertySource));
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
@@ -372,7 +372,7 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenFailOnBindToInactiveSourceWithResolveToInactiveThrowsException() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("other", "one");
-    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("test", "${other}");
     secondPropertySource.setProperty("other", "one");
