@@ -1,40 +1,35 @@
 antora:
   extensions:
-    - '@today-tech/antora-extensions/partial-build-extension'
-    # atlas-extension must be before latest-version-extension so latest versions are applied to imported versions
-    - '@antora/atlas-extension'
-    - require: '@today-tech/antora-extensions/latest-version-extension'
-    - require: '@today-tech/antora-extensions/inject-collector-cache-config-extension'
     - '@antora/collector-extension'
-    - require: '@today-tech/antora-extensions/root-component-extension'
-      root_component_name: 'framework'
-    - '@today-tech/antora-extensions/static-page-extension'
+    - id: '@antora/atlas-extension'
+      require: '@antora/atlas-extension'
+      enabled: false
+    - '@today-tech/antora-extensions/latest-version-extension'
+#  - require: '@today-tech/antora-extensions/root-component-extension'
+#    root_component_name: 'framework'
 site:
   title: TODAY 框架文档手册
-  url: https://docs.today-tech.cn/today-infrastructure
-  robots: allow
 content:
   sources:
-  - url: ./..
-    branches: [ 'master', '{5..9}.+({0..9}).x' ]
-#    branches: HEAD
-    start_path: infra-docs
-    worktrees: true
+    - url: ./..
+      branches: HEAD
+      start_path: infra-docs
+      worktrees: true
 asciidoc:
   attributes:
     page-stackoverflow-url: https://stackoverflow.com/questions/tagged/today-infra
     hide-uri-scheme: '@'
     page-pagination: ''
-    primary-site-url: https://docs.today-tech.cn/today-infrastructure/
+    primary-site-url: https://docs.today-tech.cn/today-infrastructure
     tabs-sync-option: '@'
   extensions:
-  - '@asciidoctor/tabs'
+    - '@asciidoctor/tabs'
   sourcemap: true
 urls:
-  latest_version_segment_strategy: redirect:to
   latest_version_segment: ''
   redirect_facility: httpd
 runtime:
+  cache_dir: ./build/.cache/antora
   log:
     failure_level: warn
 ui:
