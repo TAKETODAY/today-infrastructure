@@ -5,8 +5,8 @@ antora:
       require: '@antora/atlas-extension'
       enabled: false
     - '@today-tech/antora-extensions/latest-version-extension'
-#  - require: '@today-tech/antora-extensions/root-component-extension'
-#    root_component_name: 'framework'
+    - require: '@today-tech/antora-extensions/root-component-extension'
+      root_component_name: 'framework'
 site:
   title: TODAY 框架文档手册
 content:
