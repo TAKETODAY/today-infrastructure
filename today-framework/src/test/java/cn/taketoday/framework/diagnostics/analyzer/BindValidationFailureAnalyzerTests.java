@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.diagnostics.analyzer;
@@ -64,9 +64,11 @@ class BindValidationFailureAnalyzerTests {
   @Test
   void bindExceptionWithFieldErrorsDueToValidationFailure() {
     FailureAnalysis analysis = performAnalysis(FieldValidationFailureConfiguration.class);
-    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "must not be null"));
-    assertThat(analysis.getDescription()).contains(failure("test.foo.value", "0", "at least five"));
-    assertThat(analysis.getDescription()).contains(failure("test.foo.nested.bar", "null", "must not be null"));
+    assertThat(analysis.getDescription()).contains(failure("test.foo.foo", "null", "must not be null"))
+            .contains(failure("test.foo.value", "0", "at least five"))
+            .contains(failure("test.foo.nested.bar", "null", "must not be null"))
+            .contains(
+                    "Binding to target cn.taketoday.framework.diagnostics.analyzer.BindValidationFailureAnalyzerTests$FieldValidationFailureProperties failed:");
   }
 
   @Test
