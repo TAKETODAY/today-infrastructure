@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
@@ -63,6 +65,8 @@ class ConfigDataEnvironmentTests {
   private ResourceLoader resourceLoader = new DefaultResourceLoader();
 
   private Collection<String> additionalProfiles = Collections.emptyList();
+
+  private final ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Test
   void createExposesEnvironmentBinderToConfigDataLocationResolvers() {
@@ -198,7 +202,7 @@ class ConfigDataEnvironmentTests {
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0));
+                mock(ConfigDataResource.class), false, data, 0, conversionService));
         return super.createContributors(contributors);
       }
 
@@ -222,7 +226,7 @@ class ConfigDataEnvironmentTests {
         source.put("infra.profiles." + property, "include");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0));
+                mock(ConfigDataResource.class), false, data, 0, conversionService));
         return super.createContributors(contributors);
       }
 
@@ -245,7 +249,7 @@ class ConfigDataEnvironmentTests {
         source.put(property, "included");
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)));
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0));
+                mock(ConfigDataResource.class), false, data, 0, conversionService));
         return super.createContributors(contributors);
       }
 
@@ -269,7 +273,7 @@ class ConfigDataEnvironmentTests {
         ConfigData data = new ConfigData(Collections.singleton(new MapPropertySource("test", source)),
                 ConfigData.Option.IGNORE_PROFILES);
         contributors.add(ConfigDataEnvironmentContributor.ofUnboundImport(ConfigDataLocation.valueOf("test"),
-                mock(ConfigDataResource.class), false, data, 0));
+                mock(ConfigDataResource.class), false, data, 0, conversionService));
         return super.createContributors(contributors);
       }
 

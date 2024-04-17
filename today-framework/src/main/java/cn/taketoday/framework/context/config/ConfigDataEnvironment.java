@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -153,8 +153,7 @@ class ConfigDataEnvironment {
     this.contributors = createContributors(binder);
   }
 
-  protected ConfigDataLocationResolvers createConfigDataLocationResolvers(
-          ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
+  protected ConfigDataLocationResolvers createConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
     return new ConfigDataLocationResolvers(bootstrapContext, binder, resourceLoader);
   }
 
@@ -173,7 +172,7 @@ class ConfigDataEnvironment {
         if (traceEnabled) {
           logger.trace("Creating wrapped config data contributor for '{}'", propertySource.getName());
         }
-        contributors.add(ConfigDataEnvironmentContributor.ofExisting(propertySource));
+        contributors.add(ConfigDataEnvironmentContributor.ofExisting(propertySource, environment.getConversionService()));
       }
     }
     contributors.addAll(getInitialImportContributors(binder));
@@ -181,13 +180,13 @@ class ConfigDataEnvironment {
       if (traceEnabled) {
         logger.trace("Creating wrapped config data contributor for default property source");
       }
-      contributors.add(ConfigDataEnvironmentContributor.ofExisting(defaultPropertySource));
+      contributors.add(ConfigDataEnvironmentContributor.ofExisting(defaultPropertySource, environment.getConversionService()));
     }
     return createContributors(contributors);
   }
 
   protected ConfigDataEnvironmentContributors createContributors(List<ConfigDataEnvironmentContributor> contributors) {
-    return new ConfigDataEnvironmentContributors(bootstrapContext, contributors);
+    return new ConfigDataEnvironmentContributors(bootstrapContext, contributors, environment.getConversionService());
   }
 
   ConfigDataEnvironmentContributors getContributors() {
@@ -206,8 +205,7 @@ class ConfigDataEnvironment {
     return Objects.requireNonNull(binder.bind(propertyName, CONFIG_DATA_LOCATION_ARRAY).orElse(other));
   }
 
-  private void addInitialImportContributors(
-          List<ConfigDataEnvironmentContributor> initialContributors, ConfigDataLocation[] locations) {
+  private void addInitialImportContributors(List<ConfigDataEnvironmentContributor> initialContributors, ConfigDataLocation[] locations) {
     for (int i = locations.length - 1; i >= 0; i--) {
       initialContributors.add(createInitialImportContributor(locations[i]));
     }
@@ -216,7 +214,7 @@ class ConfigDataEnvironment {
   private ConfigDataEnvironmentContributor createInitialImportContributor(ConfigDataLocation location) {
     if (traceEnabled)
       logger.trace("Adding initial config data import from location '{}'", location);
-    return ConfigDataEnvironmentContributor.ofInitialImport(location);
+    return ConfigDataEnvironmentContributor.ofInitialImport(location, environment.getConversionService());
   }
 
   /**
@@ -236,8 +234,7 @@ class ConfigDataEnvironment {
             importer.getLoadedLocations(), importer.getOptionalLocations());
   }
 
-  private ConfigDataEnvironmentContributors processInitial(
-          ConfigDataEnvironmentContributors contributors, ConfigDataImporter importer) {
+  private ConfigDataEnvironmentContributors processInitial(ConfigDataEnvironmentContributors contributors, ConfigDataImporter importer) {
     if (traceEnabled)
       logger.trace("Processing initial config data environment contributors without activation context");
     contributors = contributors.withProcessedImports(importer, null);
@@ -260,8 +257,7 @@ class ConfigDataEnvironment {
   }
 
   private ConfigDataEnvironmentContributors processWithoutProfiles(
-          ConfigDataEnvironmentContributors contributors,
-          ConfigDataImporter importer, ConfigDataActivationContext activationContext) {
+          ConfigDataEnvironmentContributors contributors, ConfigDataImporter importer, ConfigDataActivationContext activationContext) {
     if (traceEnabled)
       logger.trace("Processing config data environment contributors with initial activation context");
     contributors = contributors.withProcessedImports(importer, activationContext);
@@ -269,8 +265,7 @@ class ConfigDataEnvironment {
     return contributors;
   }
 
-  private ConfigDataActivationContext withProfiles(
-          ConfigDataEnvironmentContributors contributors, ConfigDataActivationContext activationContext) {
+  private ConfigDataActivationContext withProfiles(ConfigDataEnvironmentContributors contributors, ConfigDataActivationContext activationContext) {
     if (traceEnabled)
       logger.trace("Deducing profiles from current config data environment contributors");
     Binder binder = contributors.getBinder(activationContext,
@@ -290,10 +285,9 @@ class ConfigDataEnvironment {
     }
   }
 
-  private Collection<? extends String> getIncludedProfiles(
-          ConfigDataEnvironmentContributors contributors, ConfigDataActivationContext activationContext) {
+  private Collection<? extends String> getIncludedProfiles(ConfigDataEnvironmentContributors contributors, ConfigDataActivationContext activationContext) {
     var placeholdersResolver = new ConfigDataEnvironmentContributorPlaceholdersResolver(
-            contributors, activationContext, null, true);
+            contributors, activationContext, null, true, environment.getConversionService());
     LinkedHashSet<String> result = new LinkedHashSet<>();
     for (ConfigDataEnvironmentContributor contributor : contributors) {
       ConfigurationPropertySource source = contributor.configurationPropertySource;

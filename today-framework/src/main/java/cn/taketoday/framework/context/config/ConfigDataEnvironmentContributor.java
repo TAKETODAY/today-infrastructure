@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -30,6 +30,7 @@ import java.util.stream.StreamSupport;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.bind.PlaceholdersResolver;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.framework.context.config.ConfigData.Options;
@@ -98,6 +99,8 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    */
   public final Kind kind;
 
+  private final ConversionService conversionService;
+
   /**
    * Create a new {@link ConfigDataEnvironmentContributor} instance.
    *
@@ -112,12 +115,13 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param properties the config data properties or {@code null}
    * @param configDataOptions any config data options that should apply
    * @param children the children of this contributor at each {@link ImportPhase}
+   * @param conversionService the conversion service to use
    */
   ConfigDataEnvironmentContributor(Kind kind, @Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource,
           boolean fromProfileSpecificImport, @Nullable PropertySource<?> propertySource,
           @Nullable ConfigurationPropertySource configurationPropertySource,
           @Nullable ConfigDataProperties properties, @Nullable Options configDataOptions,
-          @Nullable Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children) {
+          @Nullable Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children, ConversionService conversionService) {
     this.kind = kind;
     this.location = location;
     this.resource = resource;
@@ -127,6 +131,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     this.configurationPropertySource = configurationPropertySource;
     this.children = children != null ? children : Collections.emptyMap();
     this.configDataOptions = configDataOptions != null ? configDataOptions : Options.NONE;
+    this.conversionService = conversionService;
   }
 
   /**
@@ -155,7 +160,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
   ConfigDataEnvironmentContributor withoutConfigDataOption(ConfigData.Option option) {
     return new ConfigDataEnvironmentContributor(this.kind, this.location, this.resource,
             this.fromProfileSpecificImport, this.propertySource, this.configurationPropertySource, this.properties,
-            this.configDataOptions.without(option), this.children);
+            this.configDataOptions.without(option), this.children, conversionService);
   }
 
   /**
@@ -225,7 +230,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
           @Nullable ConfigDataActivationContext activationContext) {
     Iterable<ConfigurationPropertySource> sources = Collections.singleton(configurationPropertySource);
     PlaceholdersResolver placeholdersResolver = new ConfigDataEnvironmentContributorPlaceholdersResolver(
-            contributors, activationContext, this, true);
+            contributors, activationContext, this, true, conversionService);
     Binder binder = new Binder(sources, placeholdersResolver, null, null, null);
     ConfigDataProperties properties = ConfigDataProperties.get(binder);
     if (properties != null && this.configDataOptions.contains(ConfigData.Option.IGNORE_IMPORTS)) {
@@ -233,7 +238,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     }
     return new ConfigDataEnvironmentContributor(Kind.BOUND_IMPORT, this.location, this.resource,
             this.fromProfileSpecificImport, this.propertySource, this.configurationPropertySource, properties,
-            this.configDataOptions, null);
+            this.configDataOptions, null, conversionService);
   }
 
   /**
@@ -252,7 +257,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
     }
     return new ConfigDataEnvironmentContributor(this.kind, this.location, this.resource,
             this.fromProfileSpecificImport, this.propertySource, this.configurationPropertySource, this.properties,
-            this.configDataOptions, updatedChildren);
+            this.configDataOptions, updatedChildren, conversionService);
   }
 
   private void moveProfileSpecific(Map<ImportPhase, List<ConfigDataEnvironmentContributor>> children) {
@@ -329,7 +334,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 
     return new ConfigDataEnvironmentContributor(this.kind, this.location, this.resource,
             this.fromProfileSpecificImport, this.propertySource, this.configurationPropertySource, this.properties,
-            this.configDataOptions, updatedChildren);
+            this.configDataOptions, updatedChildren, conversionService);
   }
 
   @Override
@@ -365,10 +370,11 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param contributors the immediate children of the root
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  static ConfigDataEnvironmentContributor of(List<ConfigDataEnvironmentContributor> contributors) {
+  static ConfigDataEnvironmentContributor of(List<ConfigDataEnvironmentContributor> contributors, ConversionService conversionService) {
     var children = new LinkedHashMap<ImportPhase, List<ConfigDataEnvironmentContributor>>();
     children.put(ImportPhase.BEFORE_PROFILE_ACTIVATION, Collections.unmodifiableList(contributors));
-    return new ConfigDataEnvironmentContributor(Kind.ROOT, null, null, false, null, null, null, null, children);
+    return new ConfigDataEnvironmentContributor(Kind.ROOT, null, null, false,
+            null, null, null, null, children, conversionService);
   }
 
   /**
@@ -379,11 +385,11 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param initialImport the initial import location (with placeholders resolved)
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  static ConfigDataEnvironmentContributor ofInitialImport(ConfigDataLocation initialImport) {
+  static ConfigDataEnvironmentContributor ofInitialImport(ConfigDataLocation initialImport, ConversionService conversionService) {
     List<ConfigDataLocation> imports = Collections.singletonList(initialImport);
     ConfigDataProperties properties = new ConfigDataProperties(imports, null);
     return new ConfigDataEnvironmentContributor(Kind.INITIAL_IMPORT, null, null,
-            false, null, null, properties, null, null);
+            false, null, null, properties, null, null, conversionService);
   }
 
   /**
@@ -394,9 +400,9 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param propertySource the property source to wrap
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  static ConfigDataEnvironmentContributor ofExisting(PropertySource<?> propertySource) {
+  static ConfigDataEnvironmentContributor ofExisting(PropertySource<?> propertySource, ConversionService conversionService) {
     return new ConfigDataEnvironmentContributor(Kind.EXISTING, null, null, false, propertySource,
-            ConfigurationPropertySource.from(propertySource), null, null, null);
+            ConfigurationPropertySource.from(propertySource), null, null, null, conversionService);
   }
 
   /**
@@ -411,13 +417,13 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param propertySourceIndex the index of the property source that should be used
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  static ConfigDataEnvironmentContributor ofUnboundImport(@Nullable ConfigDataLocation location,
-          @Nullable ConfigDataResource resource, boolean profileSpecific, ConfigData configData, int propertySourceIndex) {
+  static ConfigDataEnvironmentContributor ofUnboundImport(@Nullable ConfigDataLocation location, @Nullable ConfigDataResource resource,
+          boolean profileSpecific, ConfigData configData, int propertySourceIndex, ConversionService conversionService) {
     PropertySource<?> propertySource = configData.getPropertySources().get(propertySourceIndex);
     Options options = configData.getOptions(propertySource);
     ConfigurationPropertySource configurationPropertySource = ConfigurationPropertySource.from(propertySource);
     return new ConfigDataEnvironmentContributor(Kind.UNBOUND_IMPORT, location, resource, profileSpecific,
-            propertySource, configurationPropertySource, null, options, null);
+            propertySource, configurationPropertySource, null, options, null, conversionService);
   }
 
   /**
@@ -427,9 +433,9 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
    * @param profileSpecific if the contributor is from a profile specific import
    * @return a new {@link ConfigDataEnvironmentContributor} instance
    */
-  static ConfigDataEnvironmentContributor ofEmptyLocation(ConfigDataLocation location, boolean profileSpecific) {
+  static ConfigDataEnvironmentContributor ofEmptyLocation(ConfigDataLocation location, boolean profileSpecific, ConversionService conversionService) {
     return new ConfigDataEnvironmentContributor(Kind.EMPTY_LOCATION, location, null, profileSpecific,
-            null, null, null, EMPTY_LOCATION_OPTIONS, null);
+            null, null, null, EMPTY_LOCATION_OPTIONS, null, conversionService);
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -21,7 +21,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
@@ -33,6 +32,8 @@ import java.util.Map;
 
 import cn.taketoday.context.properties.bind.BindException;
 import cn.taketoday.context.properties.bind.Binder;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.framework.DefaultBootstrapContext;
 import cn.taketoday.framework.cloud.CloudPlatform;
@@ -44,6 +45,7 @@ import cn.taketoday.mock.env.MockPropertySource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.assertArg;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -62,39 +64,31 @@ class ConfigDataEnvironmentContributorsTests {
 
   private static final ConfigDataLocation LOCATION_2 = ConfigDataLocation.valueOf("location2");
 
-  private DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
+  private final DefaultBootstrapContext bootstrapContext = new DefaultBootstrapContext();
 
-  private MockEnvironment environment;
-
-  private Binder binder;
+  private final ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   private ConfigDataImporter importer;
 
   private ConfigDataActivationContext activationContext;
 
-  @Captor
-  private ArgumentCaptor<ConfigDataLocationResolverContext> locationResolverContext;
-
-  @Captor
-  private ArgumentCaptor<ConfigDataLoaderContext> loaderContext;
-
   @BeforeEach
   void setup() {
-    this.environment = new MockEnvironment();
-    this.binder = Binder.get(this.environment);
+    MockEnvironment environment = new MockEnvironment();
+    Binder binder = Binder.get(environment);
     ConfigDataLocationResolvers resolvers = new ConfigDataLocationResolvers(this.bootstrapContext,
-            this.binder, new DefaultResourceLoader(getClass().getClassLoader()));
-    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext,
-            getClass().getClassLoader());
+            binder, new DefaultResourceLoader(getClass().getClassLoader()));
+    ConfigDataLoaders loaders = new ConfigDataLoaders(this.bootstrapContext, getClass().getClassLoader());
     this.importer = new ConfigDataImporter(ConfigDataNotFoundAction.FAIL, resolvers, loaders);
     this.activationContext = new ConfigDataActivationContext(CloudPlatform.KUBERNETES, null);
   }
 
   @Test
   void createCreatesWithInitialContributors() {
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(contributor));
+            this.bootstrapContext, List.of(contributor), this.conversionService);
     Iterator<ConfigDataEnvironmentContributor> iterator = contributors.iterator();
     assertThat(iterator.next()).isSameAs(contributor);
     assertThat(iterator.next().kind).isEqualTo(Kind.ROOT);
@@ -103,9 +97,9 @@ class ConfigDataEnvironmentContributorsTests {
   @Test
   void withProcessedImportsWhenHasNoUnprocessedImportsReturnsSameInstance() {
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor
-            .ofExisting(new MockPropertySource());
+            .ofExisting(new MockPropertySource(), this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(contributor));
+            this.bootstrapContext, List.of(contributor), this.conversionService);
     ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer,
             this.activationContext);
     assertThat(withProcessedImports).isSameAs(contributors);
@@ -114,18 +108,16 @@ class ConfigDataEnvironmentContributorsTests {
   @Test
   void withProcessedImportsResolvesAndLoads() {
     this.importer = mock(ConfigDataImporter.class);
-    List<ConfigDataLocation> locations = Arrays.asList(LOCATION_1);
+    List<ConfigDataLocation> locations = Collections.singletonList(LOCATION_1);
     MockPropertySource propertySource = new MockPropertySource();
     Map<ConfigDataResolutionResult, ConfigData> imported = new LinkedHashMap<>();
     imported.put(new ConfigDataResolutionResult(LOCATION_1, new TestConfigDataResource("a"), false),
-            new ConfigData(Arrays.asList(propertySource)));
+            new ConfigData(List.of(propertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(locations)))
             .willReturn(imported);
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
-    ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(contributor));
-    ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer,
-            this.activationContext);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1, this.conversionService);
+    ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(this.bootstrapContext, List.of(contributor), this.conversionService);
+    ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer, this.activationContext);
     Iterator<ConfigDataEnvironmentContributor> iterator = withProcessedImports.iterator();
     assertThat(iterator.next().propertySource).isSameAs(propertySource);
     assertThat(iterator.next().kind).isEqualTo(Kind.INITIAL_IMPORT);
@@ -136,7 +128,7 @@ class ConfigDataEnvironmentContributorsTests {
   @Test
   void withProcessedImportsResolvesAndLoadsChainedImports() {
     this.importer = mock(ConfigDataImporter.class);
-    List<ConfigDataLocation> initialLocations = List.of(LOCATION_1);
+    List<ConfigDataLocation> initialLocations = Collections.singletonList(LOCATION_1);
     MockPropertySource initialPropertySource = new MockPropertySource();
     initialPropertySource.setProperty("app.config.import", "location2");
     Map<ConfigDataResolutionResult, ConfigData> initialImported = new LinkedHashMap<>();
@@ -144,18 +136,16 @@ class ConfigDataEnvironmentContributorsTests {
             new ConfigData(List.of(initialPropertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(initialLocations)))
             .willReturn(initialImported);
-    List<ConfigDataLocation> secondLocations = List.of(LOCATION_2);
+    List<ConfigDataLocation> secondLocations = Collections.singletonList(LOCATION_2);
     MockPropertySource secondPropertySource = new MockPropertySource();
     Map<ConfigDataResolutionResult, ConfigData> secondImported = new LinkedHashMap<>();
     secondImported.put(new ConfigDataResolutionResult(LOCATION_2, new TestConfigDataResource("b"), false),
             new ConfigData(List.of(secondPropertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(secondLocations)))
             .willReturn(secondImported);
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
-    ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, List.of(contributor));
-    ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer,
-            this.activationContext);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1, this.conversionService);
+    ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(this.bootstrapContext, List.of(contributor), this.conversionService);
+    ConfigDataEnvironmentContributors withProcessedImports = contributors.withProcessedImports(this.importer, this.activationContext);
     Iterator<ConfigDataEnvironmentContributor> iterator = withProcessedImports.iterator();
     assertThat(iterator.next().propertySource).isSameAs(secondPropertySource);
     assertThat(iterator.next().propertySource).isSameAs(initialPropertySource);
@@ -169,49 +159,55 @@ class ConfigDataEnvironmentContributorsTests {
     MockPropertySource existingPropertySource = new MockPropertySource();
     existingPropertySource.setProperty("test", "springboot");
     ConfigDataEnvironmentContributor existingContributor = ConfigDataEnvironmentContributor
-            .ofExisting(existingPropertySource);
+            .ofExisting(existingPropertySource, this.conversionService);
     this.importer = mock(ConfigDataImporter.class);
-    List<ConfigDataLocation> locations = Arrays.asList(LOCATION_1);
+    List<ConfigDataLocation> locations = Collections.singletonList(LOCATION_1);
     MockPropertySource propertySource = new MockPropertySource();
     Map<ConfigDataResolutionResult, ConfigData> imported = new LinkedHashMap<>();
     imported.put(new ConfigDataResolutionResult(LOCATION_1, new TestConfigDataResource("a'"), false),
-            new ConfigData(Arrays.asList(propertySource)));
+            new ConfigData(List.of(propertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(locations)))
             .willReturn(imported);
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(existingContributor, contributor));
+            this.bootstrapContext, Arrays.asList(existingContributor, contributor), this.conversionService);
     contributors.withProcessedImports(this.importer, this.activationContext);
-    then(this.importer).should().resolveAndLoad(any(), this.locationResolverContext.capture(), any(), any());
-    ConfigDataLocationResolverContext context = this.locationResolverContext.getValue();
-    assertThat(context.getBinder().bind("test", String.class).get()).isEqualTo("springboot");
+    then(this.importer).should()
+            .resolveAndLoad(any(),
+                    assertArg((context) -> assertThat(context.getBinder().bind("test", String.class).get())
+                            .isEqualTo("springboot")),
+                    any(), any());
   }
 
   @Test
   void withProcessedImportsProvidesLocationResolverContextWithAccessToParent() {
     this.importer = mock(ConfigDataImporter.class);
-    List<ConfigDataLocation> initialLocations = List.of(LOCATION_1);
+    List<ConfigDataLocation> initialLocations = Collections.singletonList(LOCATION_1);
     MockPropertySource initialPropertySource = new MockPropertySource();
-    initialPropertySource.setProperty("app.config.import", "location2");
+    initialPropertySource.setProperty("spring.config.import", "location2");
     Map<ConfigDataResolutionResult, ConfigData> initialImported = new LinkedHashMap<>();
     initialImported.put(new ConfigDataResolutionResult(LOCATION_1, new TestConfigDataResource("a"), false),
             new ConfigData(List.of(initialPropertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(initialLocations)))
             .willReturn(initialImported);
-    List<ConfigDataLocation> secondLocations = List.of(LOCATION_2);
+    List<ConfigDataLocation> secondLocations = Collections.singletonList(LOCATION_2);
     MockPropertySource secondPropertySource = new MockPropertySource();
     Map<ConfigDataResolutionResult, ConfigData> secondImported = new LinkedHashMap<>();
     secondImported.put(new ConfigDataResolutionResult(LOCATION_2, new TestConfigDataResource("b"), false),
             new ConfigData(List.of(secondPropertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(secondLocations)))
             .willReturn(secondImported);
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, List.of(contributor));
+            this.bootstrapContext, List.of(contributor), this.conversionService);
+    ArgumentCaptor<ConfigDataLocationResolverContext> locationResolverContext = ArgumentCaptor
+            .forClass(ConfigDataLocationResolverContext.class);
     contributors.withProcessedImports(this.importer, this.activationContext);
-    then(this.importer).should().resolveAndLoad(any(), this.locationResolverContext.capture(), any(),
-            eq(secondLocations));
-    ConfigDataLocationResolverContext context = this.locationResolverContext.getValue();
+    then(this.importer).should()
+            .resolveAndLoad(any(), locationResolverContext.capture(), any(), eq(secondLocations));
+    ConfigDataLocationResolverContext context = locationResolverContext.getValue();
     assertThat(context.getParent()).hasToString("a");
   }
 
@@ -220,22 +216,24 @@ class ConfigDataEnvironmentContributorsTests {
     MockPropertySource existingPropertySource = new MockPropertySource();
     existingPropertySource.setProperty("test", "springboot");
     ConfigDataEnvironmentContributor existingContributor = ConfigDataEnvironmentContributor
-            .ofExisting(existingPropertySource);
+            .ofExisting(existingPropertySource, this.conversionService);
     this.importer = mock(ConfigDataImporter.class);
-    List<ConfigDataLocation> locations = List.of(LOCATION_1);
+    List<ConfigDataLocation> locations = Collections.singletonList(LOCATION_1);
     MockPropertySource propertySource = new MockPropertySource();
     Map<ConfigDataResolutionResult, ConfigData> imported = new LinkedHashMap<>();
     imported.put(new ConfigDataResolutionResult(LOCATION_1, new TestConfigDataResource("a'"), false),
             new ConfigData(List.of(propertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(locations)))
             .willReturn(imported);
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(existingContributor, contributor));
+            this.bootstrapContext, Arrays.asList(existingContributor, contributor), this.conversionService);
     contributors.withProcessedImports(this.importer, this.activationContext);
-    then(this.importer).should().resolveAndLoad(any(), this.locationResolverContext.capture(), any(), any());
-    ConfigDataLocationResolverContext context = this.locationResolverContext.getValue();
-    assertThat(context.getBootstrapContext()).isSameAs(this.bootstrapContext);
+    then(this.importer).should()
+            .resolveAndLoad(any(),
+                    assertArg((context) -> assertThat(context.getBootstrapContext()).isSameAs(this.bootstrapContext)),
+                    any(), any());
   }
 
   @Test
@@ -243,31 +241,34 @@ class ConfigDataEnvironmentContributorsTests {
     MockPropertySource existingPropertySource = new MockPropertySource();
     existingPropertySource.setProperty("test", "springboot");
     ConfigDataEnvironmentContributor existingContributor = ConfigDataEnvironmentContributor
-            .ofExisting(existingPropertySource);
+            .ofExisting(existingPropertySource, this.conversionService);
     this.importer = mock(ConfigDataImporter.class);
-    List<ConfigDataLocation> locations = List.of(LOCATION_1);
+    List<ConfigDataLocation> locations = Collections.singletonList(LOCATION_1);
     MockPropertySource propertySource = new MockPropertySource();
     Map<ConfigDataResolutionResult, ConfigData> imported = new LinkedHashMap<>();
     imported.put(new ConfigDataResolutionResult(LOCATION_1, new TestConfigDataResource("a'"), false),
             new ConfigData(List.of(propertySource)));
     given(this.importer.resolveAndLoad(eq(this.activationContext), any(), any(), eq(locations)))
             .willReturn(imported);
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofInitialImport(LOCATION_1,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(existingContributor, contributor));
+            this.bootstrapContext, Arrays.asList(existingContributor, contributor), this.conversionService);
     contributors.withProcessedImports(this.importer, this.activationContext);
-    then(this.importer).should().resolveAndLoad(any(), any(), this.loaderContext.capture(), any());
-    ConfigDataLoaderContext context = this.loaderContext.getValue();
-    assertThat(context.getBootstrapContext()).isSameAs(this.bootstrapContext);
+    then(this.importer).should()
+            .resolveAndLoad(any(), any(),
+                    assertArg((context) -> assertThat(context.getBootstrapContext()).isSameAs(this.bootstrapContext)),
+                    any());
   }
 
   @Test
   void getBinderProvidesBinder() {
     MockPropertySource propertySource = new MockPropertySource();
     propertySource.setProperty("test", "springboot");
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, List.of(contributor));
+            this.bootstrapContext, List.of(contributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext);
     assertThat(binder.bind("test", String.class).get()).isEqualTo("springboot");
   }
@@ -282,7 +283,7 @@ class ConfigDataEnvironmentContributorsTests {
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
     ConfigDataEnvironmentContributor secondContributor = createBoundImportContributor(configData, 1);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor));
+            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext);
     assertThat(binder.bind("test", String.class).get()).isEqualTo("one");
   }
@@ -291,14 +292,14 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenHasInactiveIgnoresInactive() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("test", "one");
-    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("test", "two");
     ConfigData configData = new ConfigData(Arrays.asList(firstPropertySource, secondPropertySource));
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
     ConfigDataEnvironmentContributor secondContributor = createBoundImportContributor(configData, 1);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor));
+            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext);
     assertThat(binder.bind("test", String.class).get()).isEqualTo("two");
   }
@@ -308,9 +309,10 @@ class ConfigDataEnvironmentContributorsTests {
     MockPropertySource propertySource = new MockPropertySource();
     propertySource.setProperty("test", "${other}");
     propertySource.setProperty("other", "springboot");
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource,
+            this.conversionService);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, List.of(contributor));
+            this.bootstrapContext, List.of(contributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext);
     assertThat(binder.bind("test", String.class).get()).isEqualTo("springboot");
   }
@@ -319,7 +321,7 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenHasPlaceholderAndInactiveResolvesPlaceholderOnlyFromActive() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("other", "one");
-    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("other", "two");
     secondPropertySource.setProperty("test", "${other}");
@@ -327,7 +329,7 @@ class ConfigDataEnvironmentContributorsTests {
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
     ConfigDataEnvironmentContributor secondContributor = createBoundImportContributor(configData, 1);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor));
+            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext);
     assertThat(binder.bind("test", String.class).get()).isEqualTo("two");
   }
@@ -336,14 +338,14 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenFailOnBindToInactiveSourceWithFirstInactiveThrowsException() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("test", "one");
-    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("test", "two");
     ConfigData configData = new ConfigData(Arrays.asList(firstPropertySource, secondPropertySource));
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
     ConfigDataEnvironmentContributor secondContributor = createBoundImportContributor(configData, 1);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor));
+            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext, BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE);
     assertThatExceptionOfType(BindException.class).isThrownBy(() -> binder.bind("test", String.class))
             .satisfies((ex) -> assertThat(ex.getCause()).isInstanceOf(InactiveConfigDataAccessException.class));
@@ -354,13 +356,13 @@ class ConfigDataEnvironmentContributorsTests {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("test", "one");
     MockPropertySource secondPropertySource = new MockPropertySource();
-    secondPropertySource.setProperty("app.config.activate.on-profile", "production");
+    secondPropertySource.setProperty("spring.config.activate.on-profile", "production");
     secondPropertySource.setProperty("test", "two");
     ConfigData configData = new ConfigData(Arrays.asList(firstPropertySource, secondPropertySource));
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
     ConfigDataEnvironmentContributor secondContributor = createBoundImportContributor(configData, 1);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor));
+            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext, BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE);
     assertThatExceptionOfType(BindException.class).isThrownBy(() -> binder.bind("test", String.class))
             .satisfies((ex) -> assertThat(ex.getCause()).isInstanceOf(InactiveConfigDataAccessException.class));
@@ -370,7 +372,7 @@ class ConfigDataEnvironmentContributorsTests {
   void getBinderWhenFailOnBindToInactiveSourceWithResolveToInactiveThrowsException() {
     MockPropertySource firstPropertySource = new MockPropertySource();
     firstPropertySource.setProperty("other", "one");
-    firstPropertySource.setProperty("app.config.activate.on-profile", "production");
+    firstPropertySource.setProperty("spring.config.activate.on-profile", "production");
     MockPropertySource secondPropertySource = new MockPropertySource();
     secondPropertySource.setProperty("test", "${other}");
     secondPropertySource.setProperty("other", "one");
@@ -378,7 +380,7 @@ class ConfigDataEnvironmentContributorsTests {
     ConfigDataEnvironmentContributor firstContributor = createBoundImportContributor(configData, 0);
     ConfigDataEnvironmentContributor secondContributor = createBoundImportContributor(configData, 1);
     ConfigDataEnvironmentContributors contributors = new ConfigDataEnvironmentContributors(
-            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor));
+            this.bootstrapContext, Arrays.asList(firstContributor, secondContributor), this.conversionService);
     Binder binder = contributors.getBinder(this.activationContext, BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE);
     assertThatExceptionOfType(BindException.class).isThrownBy(() -> binder.bind("test", String.class))
             .satisfies((ex) -> assertThat(ex.getCause()).isInstanceOf(InactiveConfigDataAccessException.class));
@@ -387,7 +389,7 @@ class ConfigDataEnvironmentContributorsTests {
   private ConfigDataEnvironmentContributor createBoundImportContributor(ConfigData configData,
           int propertySourceIndex) {
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofUnboundImport(null, null,
-            false, configData, propertySourceIndex);
+            false, configData, propertySourceIndex, this.conversionService);
     return contributor.withBoundProperties(Collections.singleton(contributor), null);
   }
 

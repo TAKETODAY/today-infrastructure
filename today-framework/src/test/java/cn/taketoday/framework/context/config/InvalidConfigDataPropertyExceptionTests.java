@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -26,6 +23,8 @@ import cn.taketoday.context.properties.source.ConfigurationProperty;
 import cn.taketoday.context.properties.source.ConfigurationPropertyName;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.testfixture.origin.MockOrigin;
+import cn.taketoday.core.conversion.ConversionService;
+import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
 import cn.taketoday.mock.env.MockPropertySource;
 
@@ -48,6 +47,8 @@ class InvalidConfigDataPropertyExceptionTests {
   private ConfigurationPropertyName invalid = ConfigurationPropertyName.of("invalid");
 
   private ConfigurationProperty property = new ConfigurationProperty(this.invalid, "bad", MockOrigin.of("origin"));
+
+  private final ConversionService conversionService = DefaultConversionService.getSharedInstance();
 
   @Test
   void createHasCorrectMessage() {
@@ -107,7 +108,7 @@ class InvalidConfigDataPropertyExceptionTests {
   void throwOrWarnWhenHasInvalidPropertyThrowsException() {
     MockPropertySource propertySource = new MockPropertySource();
     propertySource.setProperty("infra.profiles", "a");
-    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource);
+    ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor.ofExisting(propertySource, conversionService);
     assertThatExceptionOfType(InvalidConfigDataPropertyException.class)
             .isThrownBy(() -> InvalidConfigDataPropertyException.throwIfPropertyFound(contributor))
             .withMessageStartingWith("Property 'infra.profiles' is invalid and should be replaced with "
@@ -141,14 +142,14 @@ class InvalidConfigDataPropertyExceptionTests {
     propertySource.setProperty(name, "a");
     ConfigDataEnvironmentContributor contributor = new ConfigDataEnvironmentContributor(Kind.BOUND_IMPORT, null,
             null, true, propertySource, ConfigurationPropertySource.from(propertySource), null,
-            ConfigData.Options.of(configDataOptions), null);
+            ConfigData.Options.of(configDataOptions), null, conversionService);
     return contributor;
   }
 
   @Test
   void throwOrWarnWhenHasNoInvalidPropertyDoesNothing() {
     ConfigDataEnvironmentContributor contributor = ConfigDataEnvironmentContributor
-            .ofExisting(new MockPropertySource());
+            .ofExisting(new MockPropertySource(), conversionService);
     InvalidConfigDataPropertyException.throwIfPropertyFound(contributor);
   }
 

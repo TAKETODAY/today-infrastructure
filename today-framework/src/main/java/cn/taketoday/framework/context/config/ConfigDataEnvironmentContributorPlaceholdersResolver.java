@@ -18,6 +18,7 @@
 package cn.taketoday.framework.context.config;
 
 import cn.taketoday.context.properties.bind.PlaceholdersResolver;
+import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.framework.context.config.ConfigDataEnvironmentContributor.Kind;
 import cn.taketoday.lang.Nullable;
@@ -48,13 +49,16 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
   @Nullable
   private final ConfigDataEnvironmentContributor activeContributor;
 
+  private final ConversionService conversionService;
+
   ConfigDataEnvironmentContributorPlaceholdersResolver(Iterable<ConfigDataEnvironmentContributor> contributors,
           @Nullable ConfigDataActivationContext activationContext, @Nullable ConfigDataEnvironmentContributor activeContributor,
-          boolean failOnResolveFromInactiveContributor) {
+          boolean failOnResolveFromInactiveContributor, ConversionService conversionService) {
     this.contributors = contributors;
     this.activationContext = activationContext;
     this.activeContributor = activeContributor;
     this.failOnResolveFromInactiveContributor = failOnResolveFromInactiveContributor;
+    this.conversionService = conversionService;
     this.helper = PropertyPlaceholderHandler.shared(true);
   }
 
@@ -81,7 +85,7 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
       }
       result = (result != null) ? result : value;
     }
-    return (result != null) ? String.valueOf(result) : null;
+    return result != null ? convertValueIfNecessary(result) : null;
   }
 
   private boolean isActive(ConfigDataEnvironmentContributor contributor) {
@@ -93,6 +97,11 @@ class ConfigDataEnvironmentContributorPlaceholdersResolver implements Placeholde
     }
     return contributor.withBoundProperties(this.contributors, this.activationContext)
             .isActive(this.activationContext);
+  }
+
+  @Nullable
+  private String convertValueIfNecessary(Object value) {
+    return value instanceof String string ? string : this.conversionService.convert(value, String.class);
   }
 
 }

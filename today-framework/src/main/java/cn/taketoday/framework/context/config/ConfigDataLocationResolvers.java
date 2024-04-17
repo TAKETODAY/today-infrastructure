@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.config;
@@ -38,6 +38,7 @@ import cn.taketoday.util.Instantiator;
  *
  * @author Phillip Webb
  * @author Madhura Bhave
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 class ConfigDataLocationResolvers {
@@ -51,8 +52,7 @@ class ConfigDataLocationResolvers {
    * @param binder a binder providing values from the initial {@link Environment}
    * @param resourceLoader {@link ResourceLoader} to load resource locations
    */
-  ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext,
-          Binder binder, ResourceLoader resourceLoader) {
+  ConfigDataLocationResolvers(ConfigurableBootstrapContext bootstrapContext, Binder binder, ResourceLoader resourceLoader) {
     this(bootstrapContext, binder, resourceLoader, TodayStrategies.findNames(
             ConfigDataLocationResolver.class, resourceLoader.getClassLoader()));
   }
@@ -95,9 +95,7 @@ class ConfigDataLocationResolvers {
     return Collections.unmodifiableList(reordered);
   }
 
-  List<ConfigDataResolutionResult> resolve(
-          ConfigDataLocationResolverContext context,
-          @Nullable ConfigDataLocation location, @Nullable Profiles profiles) {
+  List<ConfigDataResolutionResult> resolve(ConfigDataLocationResolverContext context, @Nullable ConfigDataLocation location, @Nullable Profiles profiles) {
     if (location == null) {
       return Collections.emptyList();
     }
