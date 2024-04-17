@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.buildpack.platform.docker.type;
@@ -30,12 +30,13 @@ import cn.taketoday.util.ObjectUtils;
  * @author Phillip Webb
  * @author Scott Frederick
  * @author Moritz Halbritter
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ImageName
  * @since 4.0
  */
 public final class ImageReference {
 
-  private static final Pattern JAR_VERSION_PATTERN = Pattern.compile("^(.*)(\\-\\d+)$");
+  private static final Pattern JAR_VERSION_PATTERN = Pattern.compile("^(.*)(-\\d+)$");
 
   private static final String LATEST = "latest";
 
@@ -157,7 +158,7 @@ public final class ImageReference {
    * @throws IllegalStateException if the image reference contains a digest
    */
   public ImageReference inTaggedForm() {
-    Assert.state(this.digest == null, () -> "Image reference '" + this + "' cannot contain a digest");
+    Assert.state(this.digest == null, () -> "Image reference '%s' cannot contain a digest".formatted(this));
     return new ImageReference(this.name, (this.tag != null) ? this.tag : LATEST, null);
   }
 
@@ -195,7 +196,7 @@ public final class ImageReference {
    */
   public static ImageReference forJarFile(File jarFile) {
     String filename = jarFile.getName();
-    Assert.isTrue(filename.toLowerCase().endsWith(".jar"), () -> "File '" + jarFile + "' is not a JAR");
+    Assert.isTrue(filename.toLowerCase().endsWith(".jar"), () -> "File '%s' is not a JAR".formatted(jarFile));
     filename = filename.substring(0, filename.length() - 4);
     int firstDot = filename.indexOf('.');
     if (firstDot == -1) {

@@ -205,7 +205,7 @@ class JavaPluginActionIntegrationTests {
   @TestTemplate
   void productionRuntimeClasspathIsConfiguredWithAttributesThatMatchRuntimeClasspath() {
     String output = this.gradleBuild.build("build").getOutput();
-    Matcher matcher = Pattern.compile("runtimeClasspath: (\\[.*\\])").matcher(output);
+    Matcher matcher = Pattern.compile("runtimeClasspath: (\\[.*])").matcher(output);
     assertThat(matcher.find()).as("%s found in %s", matcher, output).isTrue();
     String attributes = matcher.group(1);
     assertThat(output).contains("productionRuntimeClasspath: " + attributes);
