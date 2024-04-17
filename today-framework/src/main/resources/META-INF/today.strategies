@@ -116,3 +116,6 @@ cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider
 cn.taketoday.framework.logging.LoggingSystemFactory=\
   cn.taketoday.framework.logging.logback.LogbackLoggingSystem.Factory,\
   cn.taketoday.framework.logging.java.JavaLoggingSystem.Factory
+
+cn.taketoday.core.io.ProtocolResolver=\
+  cn.taketoday.framework.io.Base64ProtocolResolver

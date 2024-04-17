@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.logging.logback;
@@ -23,7 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.helpers.SubstituteLoggerFactory;
 
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.annotation.Order;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.Environment;
+import cn.taketoday.core.io.Resource;
+import cn.taketoday.framework.io.ApplicationResourceLoader;
 import cn.taketoday.framework.logging.AbstractLoggingSystem;
 import cn.taketoday.framework.logging.LogFile;
 import cn.taketoday.framework.logging.LogLevel;
@@ -65,7 +68,6 @@ import cn.taketoday.framework.logging.LoggingSystemProperties;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.SLF4JBridgeHandler;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
@@ -164,8 +166,7 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
   }
 
   @Override
-  public void initialize(LoggingStartupContext startupContext,
-          @Nullable String configLocation, @Nullable LogFile logFile) {
+  public void initialize(LoggingStartupContext startupContext, @Nullable String configLocation, @Nullable LogFile logFile) {
     LoggerContext loggerContext = getLoggerContext();
     if (isAlreadyInitialized(loggerContext)) {
       return;
@@ -216,15 +217,14 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
       new LogbackLoggingSystemProperties(environment, getDefaultValueResolver(environment), context::putProperty)
               .apply(logFile);
       LogbackConfigurator configurator = debug ? new DebugLogbackConfigurator(context)
-                                               : new LogbackConfigurator(context);
+              : new LogbackConfigurator(context);
       new DefaultLogbackConfiguration(logFile).apply(configurator);
       context.setPackagingDataEnabled(true);
     });
   }
 
   @Override
-  protected void loadConfiguration(@Nullable LoggingStartupContext context,
-          String location, @Nullable LogFile logFile) {
+  protected void loadConfiguration(@Nullable LoggingStartupContext context, String location, @Nullable LogFile logFile) {
     LoggerContext loggerContext = getLoggerContext();
     stopAndReset(loggerContext);
     withLoggingSuppressed(() -> {
@@ -232,7 +232,8 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
         applySystemProperties(context.getEnvironment(), logFile);
       }
       try {
-        configureByResourceUrl(context, loggerContext, ResourceUtils.getURL(location));
+        Resource resource = new ApplicationResourceLoader().getResource(location);
+        configureByResourceUrl(context, loggerContext, resource);
       }
       catch (Exception ex) {
         throw new IllegalStateException("Could not initialize Logback logging from " + location, ex);
@@ -260,24 +261,27 @@ public class LogbackLoggingSystem extends AbstractLoggingSystem implements BeanF
       }
       return;
     }
-    IllegalStateException ex = new IllegalStateException(
-            String.format("Logback configuration error detected: %n%s", errors));
+    IllegalStateException ex = new IllegalStateException(String.format("Logback configuration error detected: %n%s", errors));
     for (Throwable suppressedException : suppressedExceptions) {
       ex.addSuppressed(suppressedException);
     }
     throw ex;
   }
 
-  private void configureByResourceUrl(LoggingStartupContext startupContext,
-          LoggerContext loggerContext, URL url) throws JoranException {
-    if (url.getPath().endsWith(".xml")) {
+  private void configureByResourceUrl(LoggingStartupContext startupContext, LoggerContext loggerContext, Resource resource)
+          throws JoranException, IOException //
+  {
+    String name = resource.getName();
+    if (name != null && name.endsWith(".xml")) {
       JoranConfigurator configurator = new InfraJoranConfigurator(startupContext);
       configurator.setContext(loggerContext);
-      configurator.doConfigure(url);
+      try (InputStream inputStream = resource.getInputStream()) {
+        configurator.doConfigure(inputStream);
+      }
     }
     else {
       throw new IllegalArgumentException(
-              "Unsupported file extension in '" + url + "'. Only .xml is supported");
+              "Unsupported file extension in '%s'. Only .xml is supported".formatted(resource));
     }
   }
 
