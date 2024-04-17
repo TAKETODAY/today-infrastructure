@@ -25,7 +25,7 @@ dependencies {
   testImplementation 'org.teasoft:bee:1.9.5'
   testImplementation 'org.teasoft:honey:1.9.5'
   testImplementation 'org.mybatis:mybatis:3.5.9'
-  testImplementation 'ch.qos.logback:logback-classic:1.4.7'
+  testImplementation 'ch.qos.logback:logback-classic'
   testImplementation 'mysql:mysql-connector-java'
 
   compileOnly 'org.apache.tomcat:tomcat-jdbc:10.0.16'
