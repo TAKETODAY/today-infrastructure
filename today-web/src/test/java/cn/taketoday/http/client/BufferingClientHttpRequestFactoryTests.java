@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,16 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import cn.taketoday.http.HttpMethod;
@@ -40,30 +39,35 @@ class BufferingClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryT
 
   @Test
   void repeatableRead() throws Exception {
-    ClientHttpRequest request = factory.createRequest(new URI(baseUrl + "/echo"), HttpMethod.PUT);
+    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/echo"), HttpMethod.PUT);
     assertThat(request.getMethod()).as("Invalid HTTP method").isEqualTo(HttpMethod.PUT);
     String headerName = "MyHeader";
     String headerValue1 = "value1";
     request.getHeaders().add(headerName, headerValue1);
     String headerValue2 = "value2";
     request.getHeaders().add(headerName, headerValue2);
-    byte[] body = "Hello World".getBytes("UTF-8");
+    byte[] body = "Hello World".getBytes(StandardCharsets.UTF_8);
     request.getHeaders().setContentLength(body.length);
     FileCopyUtils.copy(body, request.getBody());
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
-      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
-
       assertThat(response.getHeaders().containsKey(headerName)).as("Header not found").isTrue();
-      assertThat(response.getHeaders().containsKey(headerName)).as("Header not found").isTrue();
-
-      assertThat(response.getHeaders().get(headerName)).as("Header value not found").isEqualTo(Arrays.asList(headerValue1, headerValue2));
       assertThat(response.getHeaders().get(headerName)).as("Header value not found").isEqualTo(Arrays.asList(headerValue1, headerValue2));
 
       byte[] result = FileCopyUtils.copyToByteArray(response.getBody());
       assertThat(Arrays.equals(body, result)).as("Invalid body").isTrue();
       FileCopyUtils.copyToByteArray(response.getBody());
       assertThat(Arrays.equals(body, result)).as("Invalid body").isTrue();
+    }
+  }
+
+  @Test
+  void shouldNotSetContentLengthWhenEmptyBody() throws Exception {
+    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/header/Content-Length"), HttpMethod.POST);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+      String result = FileCopyUtils.copyToString(new InputStreamReader(response.getBody()));
+      assertThat(result).as("Invalid body").isEqualTo("Content-Length:null");
     }
   }
 
