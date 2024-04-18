@@ -654,7 +654,7 @@ public final class DataSourceBuilder<T extends DataSource> {
 
     MappedDbcp2DataSource() {
       add(DataSourceProperty.URL, BasicDataSource::getUrl, BasicDataSource::setUrl);
-      add(DataSourceProperty.USERNAME, BasicDataSource::getUsername, BasicDataSource::setUsername);
+      add(DataSourceProperty.USERNAME, BasicDataSource::getUserName, BasicDataSource::setUsername);
       add(DataSourceProperty.PASSWORD, BasicDataSource::getPassword, BasicDataSource::setPassword);
       add(DataSourceProperty.DRIVER_CLASS_NAME, BasicDataSource::getDriverClassName, BasicDataSource::setDriverClassName);
     }
