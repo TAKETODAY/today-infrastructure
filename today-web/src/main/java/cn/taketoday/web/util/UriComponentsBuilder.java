@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.util;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -98,11 +97,9 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
           "^(" + SCHEME_PATTERN + ")?" + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN +
                   ")?" + ")?" + PATH_PATTERN + "(\\?" + QUERY_PATTERN + ")?" + "(#" + LAST_PATTERN + ")?");
 
-  private static final Pattern HTTP_URL_PATTERN = Pattern.compile(
-          "^" + HTTP_PATTERN + "(//(" + USERINFO_PATTERN + "@)?" + HOST_PATTERN + "(:" + PORT_PATTERN + ")?" + ")?" +
-                  PATH_PATTERN + "(\\?" + QUERY_PATTERN + ")?" + "(#" + LAST_PATTERN + ")?");
-
   private static final Object[] EMPTY_VALUES = new Object[0];
+
+  private static final UrlParser.UrlRecord EMPTY_URL_RECORD = new UrlParser.UrlRecord();
 
   @Nullable
   private String scheme;
@@ -219,101 +216,50 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    * @return the new {@code UriComponentsBuilder}
    */
   public static UriComponentsBuilder fromUriString(String uri) {
-    Assert.notNull(uri, "URI must not be null");
-    Matcher matcher = URI_PATTERN.matcher(uri);
-    if (matcher.matches()) {
-      UriComponentsBuilder builder = new UriComponentsBuilder();
-      String scheme = matcher.group(2);
-      String userInfo = matcher.group(5);
-      String host = matcher.group(6);
-      String port = matcher.group(8);
-      String path = matcher.group(9);
-      String query = matcher.group(11);
-      String fragment = matcher.group(13);
-      boolean opaque = false;
-      if (StringUtils.isNotEmpty(scheme)) {
-        String rest = uri.substring(scheme.length());
-        if (!rest.startsWith(":/")) {
-          opaque = true;
-        }
+    Assert.notNull(uri, "URI is required");
+
+    UriComponentsBuilder builder = new UriComponentsBuilder();
+    if (!uri.isEmpty()) {
+      UrlParser.UrlRecord urlRecord = UrlParser.parse(uri, EMPTY_URL_RECORD, null, null);
+      if (!urlRecord.scheme().isEmpty()) {
+        builder.scheme(urlRecord.scheme());
       }
-      builder.scheme(scheme);
-      if (opaque) {
-        String ssp = uri.substring(scheme.length() + 1);
-        if (StringUtils.isNotEmpty(fragment)) {
-          ssp = ssp.substring(0, ssp.length() - (fragment.length() + 1));
+      if (urlRecord.includesCredentials()) {
+        StringBuilder userInfo = new StringBuilder(urlRecord.username());
+        if (!urlRecord.password().isEmpty()) {
+          userInfo.append(':');
+          userInfo.append(urlRecord.password());
         }
-        builder.schemeSpecificPart(ssp);
+        builder.userInfo(userInfo.toString());
+      }
+      if (urlRecord.host() != null && !(urlRecord.host() instanceof UrlParser.EmptyHost)) {
+        builder.host(urlRecord.host().toString());
+      }
+      if (urlRecord.port() != null) {
+        builder.port(urlRecord.port().toString());
+      }
+      if (urlRecord.path().isOpaque()) {
+        builder.schemeSpecificPart(urlRecord.path().toString());
       }
       else {
-        checkSchemeAndHost(uri, scheme, host);
-        builder.userInfo(userInfo);
-        builder.host(host);
-        if (StringUtils.isNotEmpty(port)) {
-          builder.port(port);
+        builder.path(urlRecord.path().toString());
+        if (StringUtils.isNotEmpty(urlRecord.query())) {
+          builder.query(urlRecord.query());
         }
-        builder.path(path);
-        builder.query(query);
       }
-      if (StringUtils.hasText(fragment)) {
-        builder.fragment(fragment);
+      if (StringUtils.isNotEmpty(urlRecord.fragment())) {
+        builder.fragment(urlRecord.fragment());
       }
-      return builder;
     }
-    else {
-      throw new IllegalArgumentException("[" + uri + "] is not a valid URI");
-    }
-  }
-
-  /**
-   * Create a URI components builder from the given HTTP URL String.
-   * <p><strong>Note:</strong> The presence of reserved characters can prevent
-   * correct parsing of the URI string. For example if a query parameter
-   * contains {@code '='} or {@code '&'} characters, the query string cannot
-   * be parsed unambiguously. Such values should be substituted for URI
-   * variables to enable correct parsing:
-   * <pre class="code">
-   * String urlString = &quot;https://example.com/hotels/42?filter={value}&quot;;
-   * UriComponentsBuilder.fromHttpUrl(urlString).buildAndExpand(&quot;hot&amp;cold&quot;);
-   * </pre>
-   *
-   * @param httpUrl the source URI
-   * @return the URI components of the URI
-   */
-  public static UriComponentsBuilder fromHttpUrl(String httpUrl) {
-    Assert.notNull(httpUrl, "HTTP URL is required");
-    Matcher matcher = HTTP_URL_PATTERN.matcher(httpUrl);
-    if (matcher.matches()) {
-      UriComponentsBuilder builder = new UriComponentsBuilder();
-      String scheme = matcher.group(1);
-      builder.scheme(scheme != null ? scheme.toLowerCase() : null);
-      builder.userInfo(matcher.group(4));
-      String host = matcher.group(5);
-      checkSchemeAndHost(httpUrl, scheme, host);
-      builder.host(host);
-      String port = matcher.group(7);
-      if (StringUtils.isNotEmpty(port)) {
-        builder.port(port);
-      }
-      builder.path(matcher.group(8));
-      builder.query(matcher.group(10));
-      String fragment = matcher.group(12);
-      if (StringUtils.hasText(fragment)) {
-        builder.fragment(fragment);
-      }
-      return builder;
-    }
-    else {
-      throw new IllegalArgumentException("[" + httpUrl + "] is not a valid HTTP URL");
-    }
+    return builder;
   }
 
   private static void checkSchemeAndHost(String uri, @Nullable String scheme, @Nullable String host) {
     if (StringUtils.isNotEmpty(scheme) && scheme.startsWith("http") && !StringUtils.isNotEmpty(host)) {
-      throw new IllegalArgumentException("[" + uri + "] is not a valid HTTP URL");
+      throw new IllegalArgumentException("[%s] is not a valid HTTP URL".formatted(uri));
     }
     if (StringUtils.isNotEmpty(host) && host.startsWith("[") && !host.endsWith("]")) {
-      throw new IllegalArgumentException("Invalid IPV6 host in [" + uri + "]");
+      throw new IllegalArgumentException("Invalid IPV6 host in [%s]".formatted(uri));
     }
   }
 
@@ -329,23 +275,6 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    */
   public static UriComponentsBuilder fromHttpRequest(HttpRequest request) {
     return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
-  }
-
-  /**
-   * Parse the first "Forwarded: for=..." or "X-Forwarded-For" header value to
-   * an {@code InetSocketAddress} representing the address of the client.
-   *
-   * @param request a request with headers that may contain forwarded headers
-   * @param remoteAddress the current remoteAddress
-   * @return an {@code InetSocketAddress} with the extracted host and port, or
-   * {@code null} if the headers are not present.
-   */
-  @Nullable
-  public static InetSocketAddress parseForwardedFor(
-          HttpRequest request, @Nullable InetSocketAddress remoteAddress) {
-
-    return ForwardedHeaderUtils.parseForwardedFor(
-            request.getURI(), request.getHeaders(), remoteAddress);
   }
 
   /**
@@ -371,7 +300,7 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
       return builder;
     }
     else {
-      throw new IllegalArgumentException("[" + origin + "] is not a valid \"Origin\" header value");
+      throw new IllegalArgumentException("[%s] is not a valid \"Origin\" header value".formatted(origin));
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.util;
@@ -106,9 +106,9 @@ public abstract class ForwardedHeaderUtils {
       }
     }
     catch (NumberFormatException ex) {
-      throw new IllegalArgumentException("Failed to parse a port from \"forwarded\"-type headers. " +
-              "If not behind a trusted proxy, consider using ForwardedHeaderFilter " +
-              "with removeOnly=true. Request headers: " + headers);
+      throw new IllegalArgumentException(
+              "Failed to parse a port from \"forwarded\"-type headers. If not behind a trusted proxy, consider using ForwardedHeaderFilter with removeOnly=true. Request headers: %s"
+                      .formatted(headers));
     }
 
     uriComponentsBuilder.resetPortIfDefaultForScheme();
@@ -153,7 +153,7 @@ public abstract class ForwardedHeaderUtils {
           URI uri, HttpHeaders headers, @Nullable InetSocketAddress remoteAddress) {
 
     int port = (remoteAddress != null ?
-                remoteAddress.getPort() : "https".equals(uri.getScheme()) ? 443 : 80);
+            remoteAddress.getPort() : "https".equals(uri.getScheme()) ? 443 : 80);
 
     String forwardedHeader = headers.getFirst("Forwarded");
     if (StringUtils.hasText(forwardedHeader)) {

@@ -496,7 +496,7 @@ final class HierarchicalUriComponents extends UriComponents {
       if (this.host != null) {
         uriBuilder.append(this.host);
       }
-      if (getPort() != -1) {
+      if (StringUtils.hasText(this.port) && !this.port.equals("-1")) {
         uriBuilder.append(':').append(this.port);
       }
     }
@@ -671,6 +671,12 @@ final class HierarchicalUriComponents extends UriComponents {
       @Override
       public boolean isAllowed(int c) {
         return isUnreserved(c);
+      }
+    },
+    C0 {
+      @Override
+      public boolean isAllowed(int c) {
+        return !(c >= 0 && c <= 0x1f) && !(c > '~');
       }
     };
 
