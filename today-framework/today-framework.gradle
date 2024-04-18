@@ -20,7 +20,7 @@ dependencies {
   optional 'jakarta.transaction:jakarta.transaction-api'
   optional 'io.projectreactor.netty:reactor-netty-http'
   optional 'jakarta.servlet:jakarta.servlet-api'
-  optional 'mysql:mysql-connector-java'
+  optional 'com.mysql:mysql-connector-j'
   optional 'org.glassfish.external:opendmk_jmxremote_optional_jar'
   optional 'io.projectreactor:reactor-test'
   optional 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
@@ -126,7 +126,7 @@ dependencies {
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile'
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 
-  testImplementation 'mysql:mysql-connector-java'
+  testImplementation 'com.mysql:mysql-connector-j'
 
 
   testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'

@@ -43,7 +43,7 @@ bom {
       ]
     }
   }
-  library("AspectJ", "1.9.19") {
+  library("AspectJ", "1.9.22") {
     group("org.aspectj") {
       modules = [
           "aspectjrt",
@@ -52,14 +52,14 @@ bom {
       ]
     }
   }
-  library("AssertJ", "3.25.2") {
+  library("AssertJ", "3.25.3") {
     group("org.assertj") {
       imports = [
           "assertj-bom"
       ]
     }
   }
-  library("Awaitility", "4.2.0") {
+  library("Awaitility", "4.2.1") {
     group("org.awaitility") {
       modules = [
           "awaitility",
@@ -67,21 +67,21 @@ bom {
       ]
     }
   }
-  library("Brave", "5.16.0") {
+  library("Brave", "6.0.3") {
     group("io.zipkin.brave") {
       imports = [
           "brave-bom"
       ]
     }
   }
-  library("Build Helper Maven Plugin", "3.4.0") {
+  library("Build Helper Maven Plugin", "3.50") {
     group("org.codehaus.mojo") {
       plugins = [
           "build-helper-maven-plugin"
       ]
     }
   }
-  library("Byte Buddy", "1.14.5") {
+  library("Byte Buddy", "1.14.13") {
     group("net.bytebuddy") {
       modules = [
           "byte-buddy",
@@ -100,7 +100,7 @@ bom {
       ]
     }
   }
-  library("Caffeine", "3.1.6") {
+  library("Caffeine", "3.1.8") {
     group("com.github.ben-manes.caffeine") {
       modules = [
           "caffeine",
@@ -122,7 +122,7 @@ bom {
       ]
     }
   }
-  library("Commons DBCP2", "2.9.0") {
+  library("Commons DBCP2", "2.12.0") {
     group("org.apache.commons") {
       modules = [
           "commons-dbcp2" {
@@ -131,7 +131,7 @@ bom {
       ]
     }
   }
-  library("Commons Lang3", "3.12.0") {
+  library("Commons Lang3", "3.14.0") {
     group("org.apache.commons") {
       modules = [
           "commons-lang3"
@@ -145,7 +145,7 @@ bom {
       ]
     }
   }
-  library("Commons Pool2", "2.11.1") {
+  library("Commons Pool2", "2.12.0") {
     group("org.apache.commons") {
       modules = [
           "commons-pool2"
@@ -609,11 +609,11 @@ bom {
 }
 
 dependencies {
-  api(platform("com.fasterxml.jackson:jackson-bom:2.15.3"))
+  api(platform("com.fasterxml.jackson:jackson-bom:2.17.0"))
   api(platform("io.micrometer:micrometer-bom:1.12.3"))
-  api(platform("io.netty:netty-bom:4.1.107.Final"))
+  api(platform("io.netty:netty-bom:4.1.109.Final"))
   api(platform("io.netty:netty5-bom:5.0.0.Alpha5"))
-  api(platform("io.projectreactor:reactor-bom:2023.0.3"))
+  api(platform("io.projectreactor:reactor-bom:2023.0.5"))
   api(platform("io.rsocket:rsocket-bom:1.1.3"))
   api(platform("org.apache.groovy:groovy-bom:4.0.18"))
   api(platform("org.apache.logging.log4j:log4j-bom:2.21.1"))
@@ -621,7 +621,7 @@ dependencies {
   api(platform("org.eclipse.jetty:jetty-bom:12.0.6"))
   api(platform("org.eclipse.jetty.ee10:jetty-ee10-bom:12.0.6"))
   api(platform("org.junit:junit-bom:5.10.2"))
-  api(platform("org.mockito:mockito-bom:5.10.0"))
+  api(platform("org.mockito:mockito-bom:5.11.0"))
   api(platform("org.testcontainers:testcontainers-bom:1.18.3"))
 
   api(platform(project(":infra-bom")))
@@ -723,8 +723,9 @@ dependencies {
     api("org.seleniumhq.selenium:htmlunit-driver:4.8.1")
     api("org.seleniumhq.selenium:selenium-java:3.141.59")
     api("org.seleniumhq.selenium:selenium-bom:4.8.3")
-    api 'com.zaxxer:HikariCP:5.0.1'
-    api 'mysql:mysql-connector-java:8.0.28'
+    api 'com.zaxxer:HikariCP:5.1.0'
+    api 'mysql:mysql-connector-java:8.0.33'
+    api 'com.mysql:mysql-connector-j:8.3.0'
     api 'org.postgresql:postgresql:42.4.1'
     api("net.minidev:json-smart:2.4.10")
     api 'net.java.dev.jna:jna-platform:5.13.0'

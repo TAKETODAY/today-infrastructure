@@ -83,7 +83,7 @@ dependencies {
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile'
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 
-  testImplementation 'mysql:mysql-connector-java'
+  testImplementation 'com.mysql:mysql-connector-j'
 
   testImplementation 'io.undertow:undertow-websockets-jsr'
 
