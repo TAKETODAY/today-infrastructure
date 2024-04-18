@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.transaction.interceptor;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -34,11 +35,13 @@ import cn.taketoday.util.StringUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Mark Paluch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@SuppressWarnings("serial")
-public class DefaultTransactionAttribute
-        extends DefaultTransactionDefinition implements TransactionAttribute {
+public class DefaultTransactionAttribute extends DefaultTransactionDefinition implements TransactionAttribute {
+
+  @Serial
+  private static final long serialVersionUID = 1L;
 
   @Nullable
   private String descriptor;
@@ -207,7 +210,7 @@ public class DefaultTransactionAttribute
         }
         catch (RuntimeException ex) {
           throw new IllegalArgumentException(
-                  "Invalid timeoutString value \"" + timeoutString + "\" - cannot parse into int");
+                  "Invalid timeoutString value \"%s\" - cannot parse into int".formatted(timeoutString), ex);
         }
       }
     }

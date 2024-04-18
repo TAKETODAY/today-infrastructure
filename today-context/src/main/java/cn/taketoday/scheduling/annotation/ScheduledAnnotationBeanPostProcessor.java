@@ -344,8 +344,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
       task = createRunnable(bean, method, scheduled.scheduler());
     }
     catch (IllegalArgumentException ex) {
-      throw new IllegalStateException("Could not create recurring task for @Scheduled method '" +
-              method.getName() + "': " + ex.getMessage());
+      throw new IllegalStateException("Could not create recurring task for @Scheduled method '%s': %s"
+              .formatted(method.getName(), ex.getMessage()), ex);
     }
     processScheduledTask(scheduled, task, method, bean);
   }
@@ -372,8 +372,8 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
               this.reactiveSubscriptions.computeIfAbsent(bean, k -> new CopyOnWriteArrayList<>()));
     }
     catch (IllegalArgumentException ex) {
-      throw new IllegalStateException("Could not create recurring task for @Scheduled method '" +
-              method.getName() + "': " + ex.getMessage());
+      throw new IllegalStateException(
+              "Could not create recurring task for @Scheduled method '%s': %s".formatted(method.getName(), ex.getMessage()), ex);
     }
     processScheduledTask(scheduled, task, method, bean);
   }
@@ -410,7 +410,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
           }
           catch (RuntimeException ex) {
             throw new IllegalArgumentException(
-                    "Invalid initialDelayString value \"" + initialDelayString + "\" - cannot parse into long");
+                    "Invalid initialDelayString value \"%s\" - cannot parse into long".formatted(initialDelayString), ex);
           }
         }
       }
@@ -463,7 +463,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
           }
           catch (RuntimeException ex) {
             throw new IllegalArgumentException(
-                    "Invalid fixedDelayString value \"" + fixedDelayString + "\" - cannot parse into long");
+                    "Invalid fixedDelayString value \"%s\" - cannot parse into long".formatted(fixedDelayString), ex);
           }
           tasks.add(this.registrar.scheduleFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, delayToUse)));
         }
@@ -489,7 +489,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
           }
           catch (RuntimeException ex) {
             throw new IllegalArgumentException(
-                    "Invalid fixedRateString value \"" + fixedRateString + "\" - cannot parse into long");
+                    "Invalid fixedRateString value \"%s\" - cannot parse into long".formatted(fixedRateString), ex);
           }
           tasks.add(this.registrar.scheduleFixedRateTask(new FixedRateTask(runnable, fixedRate, delayToUse)));
         }
@@ -510,7 +510,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
     }
     catch (IllegalArgumentException ex) {
       throw new IllegalStateException(
-              "Encountered invalid @Scheduled method '" + method.getName() + "': " + ex.getMessage());
+              "Encountered invalid @Scheduled method '%s': %s".formatted(method.getName(), ex.getMessage()));
     }
   }
 
@@ -534,7 +534,7 @@ public class ScheduledAnnotationBeanPostProcessor implements ScheduledTaskHolder
     }
     catch (Exception ex) {
       throw new IllegalArgumentException(
-              "Unsupported unit " + timeUnit + " for value \"" + value + "\": " + ex.getMessage());
+              "Unsupported unit %s for value \"%d\": %s".formatted(timeUnit, value, ex.getMessage()), ex);
     }
   }
 
