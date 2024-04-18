@@ -1,0 +1,39 @@
+[[spring-jcl]]
+= Logging
+
+下面的例子通过 `cn.taketoday.logging.LoggerFactory` 获取 `Logger` 对象；
+
+[source,java,indent=0,subs="verbatim,quotes",role="primary"]
+----
+public class MyBean {
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+  // ...
+
+}
+----
+
+可以使用 `-Dlogger.factory` 参数替换 `cn.taketoday.logging.LoggerFactory` 实现
+
+[source,java]
+----
+
+class MyLoggerFactory extends LoggerFactory {
+
+    protected Logger createLogger(String name){
+      return new MyLogger(name);
+    }
+}
+
+----
+
+`-Dlogger.factory=xx.x.MyLoggerFactory`
+
+替换 所有的 `LoggerFactory.getLogger()` 返回的 `Logger`
+
+[NOTE]
+====
+Logger 仅用于基础设施内部日志记录。
+
+对于用户自己的应用程序代码中的日志记录需求，最好直接使用 Log4j 2.x、SLF4J 或 JUL。
+====
+

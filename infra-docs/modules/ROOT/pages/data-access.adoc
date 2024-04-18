@@ -1,14 +1,7 @@
 [[today-data-tier]]
-= 数据存取
+= 数据访问
 :page-section-summary-toc: 1
 
-This part of the reference documentation is concerned with data access and the
-interaction between the data access layer and the business or service layer.
+这一部分参考文档涉及数据访问和数据访问层和业务或服务层之间的交互。
 
-Infra comprehensive transaction management support is covered in some detail,
-followed by thorough coverage of the various data access frameworks and technologies
-with which the TODAY Framework integrates.
-
-
-
-
+详细介绍了综合事务管理支持，随后全面介绍了框架与各种数据访问框架和技术之间的集成。

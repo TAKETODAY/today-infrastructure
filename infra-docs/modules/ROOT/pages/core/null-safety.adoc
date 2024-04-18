@@ -1,53 +1,18 @@
 [[null-safety]]
 = Null-safety
 
-Although Java does not let you express null-safety with its type system, the TODAY Framework
-provides the following annotations in the `cn.taketoday.lang` package to let you
-declare nullability of APIs and fields:
+我们在 `cn.taketoday.lang` 包下提供了一些注解，能够帮助你声明 API 和字段的可为空性，可以在一定程度上减少 BUG ：
 
-* {today-framework-api}/lang/Nullable.html[`@Nullable`]: Annotation to indicate that a
-specific parameter, return value, or field can be `null`.
-* {today-framework-api}/lang/NonNull.html[`@NonNull`]: Annotation to indicate that a specific
-parameter, return value, or field cannot be `null` (not needed on parameters, return values,
-and fields where `@NonNullApi` and `@NonNullFields` apply, respectively).
-* {today-framework-api}/lang/NonNullApi.html[`@NonNullApi`]: Annotation at the package level
-that declares non-null as the default semantics for parameters and return values.
-* {today-framework-api}/lang/NonNullFields.html[`@NonNullFields`]: Annotation at the package
-level that declares non-null as the default semantics for fields.
+* {today-framework-api}/lang/Nullable.html[`@Nullable`]: 在特定参数、返回值或字段可以为 `null`。
+* {today-framework-api}/lang/NonNull.html[`@NonNull`]:
+在特定参数、返回值或字段不能为 `null`（参数、返回值、以及分别适用 `@NonNullApi` 和 `@NonNullFields` 的字段）。
+* {today-framework-api}/lang/NonNullApi.html[`@NonNullApi`]: 它是包级别的注解，默认情况下参数和返回值非空。
+* {today-framework-api}/lang/NonNullFields.html[`@NonNullFields`]: 它是包级别的注解，默认字段非空。
 
-The TODAY Framework itself leverages these annotations, but they can also be used in any
-Spring-based Java project to declare null-safe APIs and optionally null-safe fields.
-Nullability declarations for generic type arguments, varargs, and array elements are not supported yet.
-Nullability declarations are expected to be fine-tuned between TODAY Framework releases,
-including minor ones. Nullability of types used inside method bodies is outside the
-scope of this feature.
-
-NOTE: Other common libraries such as Reactor and Infra Data provide null-safe APIs that
-use a similar nullability arrangement, delivering a consistent overall experience for
-Infra application developers.
-
-
-
+框架代码本身利用了这些注解，但它们也可以用于任何基于该框架的 Java 项目，用于声明空安全 API 和可选的空安全字段。
+尚不支持泛型类型参数、可变参数和数组元素的可为空声明。
 
 [[use-cases]]
 == Use cases
 
-In addition to providing an explicit declaration for TODAY Framework API nullability,
-these annotations can be used by an IDE (such as IDEA or Eclipse) to provide useful
-warnings related to null-safety in order to avoid `NullPointerException` at runtime.
-
-
-
-
-[[jsr-305-meta-annotations]]
-== JSR-305 meta-annotations
-
-Infra annotations are meta-annotated with {JSR}305[JSR 305]
-annotations (a dormant but widespread JSR). JSR-305 meta-annotations let tooling vendors
-like IDEA or Kotlin provide null-safety support in a generic way, without having to
-hard-code support for Infra annotations.
-
-It is neither necessary nor recommended to add a JSR-305 dependency to the project classpath to
-take advantage of Infra null-safe APIs. Only projects such as Spring-based libraries that use
-null-safety annotations in their codebase should add `com.google.code.findbugs:jsr305:3.0.2`
-with `compileOnly` Gradle configuration or Maven `provided` scope to avoid compiler warnings.
+IDE（例如 IDEA 或 Eclipse）可以使用这些注解在编码阶段提示你与空安全相关的警告，以避免运行时出现 `NullPointerException`。

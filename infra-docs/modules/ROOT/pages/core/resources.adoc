@@ -1,44 +1,32 @@
 [[resources]]
-= Resources
+= 资源抽象（Resources）
 
-This chapter covers how Infra handles resources and how you can work with resources in
-Spring. It includes the following topics:
+本章介绍我们如何处理资源以及如何使用资源（Resource）：它包括以下主题：
 
-* xref:core/resources.adoc#resources-introduction[Introduction]
-* xref:core/resources.adoc#resources-resource[The `Resource` Interface]
-* xref:core/resources.adoc#resources-implementations[Built-in `Resource` Implementations]
-* xref:core/resources.adoc#resources-resourceloader[The `ResourceLoader` Interface]
-* xref:core/resources.adoc#resources-resourcepatternresolver[The `PatternResourceLoader` Interface]
-* xref:core/resources.adoc#resources-resourceloaderaware[The `ResourceLoaderAware` Interface]
-* xref:core/resources.adoc#resources-as-dependencies[Resources as Dependencies]
-* xref:core/resources.adoc#resources-app-ctx[Application Contexts and Resource Paths]
-
+* xref:core/resources.adoc#resources-introduction[介绍]
+* xref:core/resources.adoc#resources-resource[`Resource` 接口]
+* xref:core/resources.adoc#resources-implementations[内置 `Resource` 实现]
+* xref:core/resources.adoc#resources-resourceloader[`ResourceLoader` 接口]
+* xref:core/resources.adoc#resources-resourcepatternresolver[`PatternResourceLoader` 接口]
+* xref:core/resources.adoc#resources-resourceloaderaware[`ResourceLoaderAware` 接口]
+* xref:core/resources.adoc#resources-as-dependencies[资源作为依赖项]
+* xref:core/resources.adoc#resources-app-ctx[应用上下文和资源路径]
 
 
 
 [[resources-introduction]]
 == Introduction
 
-Java's standard `java.net.URL` class and standard handlers for various URL prefixes,
-unfortunately, are not quite adequate enough for all access to low-level resources. For
-example, there is no standardized `URL` implementation that may be used to access a
-resource that needs to be obtained from the classpath or relative to a
-`ServletContext`. While it is possible to register new handlers for specialized `URL`
-prefixes (similar to existing handlers for prefixes such as `http:`), this is generally
-quite complicated, and the `URL` interface still lacks some desirable functionality,
-such as a method to check for the existence of the resource being pointed to.
-
-
+在 Java 中 `java.net.URL` 用来描述资源，但是对于某些资源，例如：类路径下的资源的访问，需要注册一个处理器
+来处理，就像处理 `http:` 资源一样，之所以可以处理是因为 jdk 内置了。这种机制太复杂了。然而这种机制还缺少一些必要的
+功能，例如检查资源的存在与否。
 
 
 [[resources-resource]]
-== The `Resource` Interface
+== `Resource` 接口
 
-Infra `Resource` interface located in the `cn.taketoday.core.io.` package is
-meant to be a more capable interface for abstracting access to low-level resources. The
-following listing provides an overview of the `Resource` interface. See the
-{today-framework-api}/core/io/Resource.html[`Resource`] javadoc for further details.
-
+`Resource` 接口在 `cn.taketoday.core.io.` 包中。它的出现抽象各种资源成为可能。
+详细 API 可以查看 {today-framework-api}/core/io/Resource.html[`Resource`].
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -68,33 +56,23 @@ public interface Resource extends InputStreamSource {
 
   String getName();
 
-  String getDescription();
 }
 ----
 
-As the definition of the `Resource` interface shows, it extends the `InputStreamSource`
-interface. The following listing shows the definition of the `InputStreamSource`
-interface:
-
-[source,java,indent=0,subs="verbatim,quotes"]
-----
-public interface InputStreamSource {
-
-  InputStream getInputStream() throws IOException;
-}
-----
+`Resource` 接口中一些重要的方法如下：
 
 Some of the most important methods from the `Resource` interface are:
 
-* `getInputStream()`: Locates and opens the resource, returning an `InputStream` for
-  reading from the resource. It is expected that each invocation returns a fresh
-  `InputStream`. It is the responsibility of the caller to close the stream.
-* `exists()`: Returns a `boolean` indicating whether this resource actually exists in
-  physical form.
+* `getInputStream()`: 返回一个 `InputStream` 从资源中读取。每次调用都会返回一个新的
+  `InputStream`。调用者负责关闭流。
+
+* `exists()`: 指示该资源是否实际存在。
+
 * `isOpen()`: Returns a `boolean` indicating whether this resource represents a handle
   with an open stream. If `true`, the `InputStream` cannot be read multiple times and
   must be read once only and then closed to avoid resource leaks. Returns `false` for
   all usual resource implementations, with the exception of `InputStreamResource`.
+
 * `getDescription()`: Returns a description for this resource, to be used for error
   output when working with the resource. This is often the fully qualified file name or
   the actual URL of the resource.
@@ -461,7 +439,7 @@ application components instead of `ResourceLoader`.
 
 
 [[resources-as-dependencies]]
-== Resources as Dependencies
+== 资源作为依赖项（Resources as Dependencies）
 
 If the bean itself is going to determine and supply the resource path through some sort
 of dynamic process, it probably makes sense for the bean to use the `ResourceLoader` or

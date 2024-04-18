@@ -2,13 +2,4 @@
 = 集成
 :page-section-summary-toc: 1
 
-This part of the reference documentation covers TODAY Framework's integration with
-a number of technologies.
-
-
-
-
-
-
-
-
+本章节涵盖了框架与多项技术集成。
