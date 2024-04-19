@@ -64,52 +64,28 @@ public interface Resource extends InputStreamSource {
 Some of the most important methods from the `Resource` interface are:
 
 * `getInputStream()`: 返回一个 `InputStream` 从资源中读取。每次调用都会返回一个新的
-  `InputStream`。调用者负责关闭流。
+`InputStream`。调用者负责关闭流。
 
 * `exists()`: 指示该资源是否实际存在。
 
-* `isOpen()`: Returns a `boolean` indicating whether this resource represents a handle
-  with an open stream. If `true`, the `InputStream` cannot be read multiple times and
-  must be read once only and then closed to avoid resource leaks. Returns `false` for
-  all usual resource implementations, with the exception of `InputStreamResource`.
+* `isOpen()`: 返回一个布尔值，指示该资源是否表示具有打开流的句柄。如果为 `true`，则 `InputStream` 不能被多次读取，
+必须只能被读取一次，然后关闭以避免资源泄漏。对于所有通常的资源实现，返回 `false`，但 `InputStreamResource` 除外。
 
-* `getDescription()`: Returns a description for this resource, to be used for error
-  output when working with the resource. This is often the fully qualified file name or
-  the actual URL of the resource.
+* `toString()`: 返回对这个资源的描述，一般用于错误展示，包含的信息一般是 URL 地址，文件名之类的
 
-Other methods let you obtain an actual `URL` or `File` object representing the
-resource (if the underlying implementation is compatible and supports that
-functionality).
+其他方法让你获取代表资源的实际 `URL` 或 `File` 对象（如果底层实现兼容并支持该功能）。
 
-Some implementations of the `Resource` interface also implement the extended
-{today-framework-api}/core/io/WritableResource.html[`WritableResource`] interface
-for a resource that supports writing to it.
+`Resource` 接口的一些实现还实现了扩展的
+{today-framework-api}/core/io/WritableResource.html[`WritableResource`]
+接口，用于支持向其写入内容。
 
-Infra itself uses the `Resource` abstraction extensively, as an argument type in
-many method signatures when a resource is needed. Other methods in some Infra APIs
-(such as the constructors to various `ApplicationContext` implementations) take a
-`String` which in unadorned or simple form is used to create a `Resource` appropriate to
-that context implementation or, via special prefixes on the `String` path, let the
-caller specify that a specific `Resource` implementation must be created and used.
-
-While the `Resource` interface is used a lot with Infra and by Spring, it is actually
-very convenient to use as a general utility class by itself in your own code, for access
-to resources, even when your code does not know or care about any other parts of Spring.
-While this couples your code to Spring, it really only couples it to this small set of
-utility classes, which serves as a more capable replacement for `URL` and can be
-considered equivalent to any other library you would use for this purpose.
-
-NOTE: The `Resource` abstraction does not replace functionality. It wraps it where
-possible. For example, a `UrlResource` wraps a URL and uses the wrapped `URL` to do its
-work.
-
-
+框架本身广泛使用 `Resource` 接口，这些用例都可以作为最佳实践。你可以使用该接口在你的应用程序中用来访问资源尽管有耦合。
 
 
 [[resources-implementations]]
-== Built-in `Resource` Implementations
+== 内置的 `Resource` 直线
 
-Infra includes several built-in `Resource` implementations:
+框架内置了 `Resource` 的几个实现:
 
 * xref:core/resources.adoc#resources-implementations-urlresource[`UrlResource`]
 * xref:core/resources.adoc#resources-implementations-classpathresource[`ClassPathResource`]
@@ -119,122 +95,85 @@ Infra includes several built-in `Resource` implementations:
 * xref:core/resources.adoc#resources-implementations-inputstreamresource[`InputStreamResource`]
 * xref:core/resources.adoc#resources-implementations-bytearrayresource[`ByteArrayResource`]
 
-For a complete list of `Resource` implementations available in Spring, consult the
-"All Known Implementing Classes" section of the
-{today-framework-api}/core/io/Resource.html[`Resource`] javadoc.
-
-
 
 [[resources-implementations-urlresource]]
 === `UrlResource`
 
-`UrlResource` wraps a `java.net.URL` and can be used to access any object that is
-normally accessible with a URL, such as files, an HTTPS target, an FTP target, and
-others. All URLs have a standardized `String` representation, such that appropriate
-standardized prefixes are used to indicate one URL type from another. This includes
-`file:` for accessing filesystem paths, `https:` for accessing resources through the
-HTTPS protocol, `ftp:` for accessing resources through FTP, and others.
+`UrlResource` 包装了 `java.net.URL` 他能访问 URL 能够访问的所有资源。比如 文件， HTTP 资源，FTP等。
+所有 URL 都有标准化的字符串表示形式，以便适当的标准化前缀用于指示一种 URL 类型与另一种 URL 类型。 这包括
+`file:` 用于访问文件系统路径，`https:` 用于通过以下方式访问资源 HTTPS 协议、`ftp:` 用于通过 FTP 等访问资源。
 
-A `UrlResource` is created by Java code by explicitly using the `UrlResource` constructor
-but is often created implicitly when you call an API method that takes a `String`
-argument meant to represent a path. For the latter case, a JavaBeans `PropertyEditor`
-ultimately decides which type of `Resource` to create. If the path string contains a
-well-known (to property editor, that is) prefix (such as `classpath:`), it creates an
-appropriate specialized `Resource` for that prefix. However, if it does not recognize the
-prefix, it assumes the string is a standard URL string and creates a `UrlResource`.
+`UrlResource` 一般使用一个包含字符串的构造器构造。这个字符串一般是代表着一条路径。
 
-
+[source,java]
+----
+var resource = new UrlResource("http://localhost:9090");
+    resource = UrlResource.from("http://localhost:9090");
+----
 
 [[resources-implementations-classpathresource]]
 === `ClassPathResource`
 
-This class represents a resource that should be obtained from the classpath. It uses
-either the thread context class loader, a given class loader, or a given class for
-loading resources.
+这个实现代表着该资源是一个类路径下的资源。 它用线程上下文类加载器、给定的类加载器或给定的类加载资源。
 
-This `Resource` implementation supports resolution as a `java.io.File` if the class path
-resource resides in the file system but not for classpath resources that reside in a
-jar and have not been expanded (by the servlet engine or whatever the environment is)
-to the filesystem. To address this, the various `Resource` implementations always support
-resolution as a `java.net.URL`.
+它的实际底层可能是代表一个文件类型，或者是一个 URL 因为该资源可能存在 JAR 包中。在获取流 `getInputStream()`
+的时候统一使用底层类加载器获取。
 
-A `ClassPathResource` is created by Java code by explicitly using the `ClassPathResource`
-constructor but is often created implicitly when you call an API method that takes a
-`String` argument meant to represent a path. For the latter case, a JavaBeans
-`PropertyEditor` recognizes the special prefix, `classpath:`, on the string path and
-creates a `ClassPathResource` in that case.
-
+`ClassPathResource` 也是使用带有字符串的构造器构造，字符串标识类路径下的某个资源，一般不包含 `classpath:` 前缀。
+该前缀是使用在 `ResourceLoader#getResource` 的接口。用来表示我要查找类路径下的资源。
 
 
 [[resources-implementations-filesystemresource]]
 === `FileSystemResource`
 
-This is a `Resource` implementation for `java.io.File` handles. It also supports
-`java.nio.file.Path` handles, applying Infra standard String-based path
-transformations but performing all operations via the `java.nio.file.Files` API. For pure
-`java.nio.path.Path` based support use a `PathResource` instead. `FileSystemResource`
-supports resolution as a `File` and as a `URL`.
+该实现是代表着一个文件系统的 `java.io.File` 对象还支持 `java.nio.file.Path` 对象。对于纯 `java.nio.file.Path` 的
+操作可以使用 `PathResource`。
 
 
 
 [[resources-implementations-pathresource]]
 === `PathResource`
 
-This is a `Resource` implementation for `java.nio.file.Path` handles, performing all
-operations and transformations via the `Path` API. It supports resolution as a `File` and
-as a `URL` and also implements the extended `WritableResource` interface. `PathResource`
-is effectively a pure `java.nio.path.Path` based alternative to `FileSystemResource` with
-different `createRelative` behavior.
-
+该实现是包装了 `java.nio.file.Path` 。对资源所有的操作都将转到 `java.nio.file.Path` API。
+支持解析成 `File` 和 `URL`。它也实现了 `WritableResource` 接口。
 
 
 [[resources-implementations-servletcontextresource]]
 === `ServletContextResource`
 
-This is a `Resource` implementation for `ServletContext` resources that interprets
-relative paths within the relevant web application's root directory.
+该实现是为了适配 `ServletContext` 下的资源。依赖于 Servlet 容器。
 
-It always supports stream access and URL access but allows `java.io.File` access only
-when the web application archive is expanded and the resource is physically on the
-filesystem. Whether or not it is expanded and on the filesystem or accessed
-directly from the JAR or somewhere else like a database (which is conceivable) is actually
-dependent on the Servlet container.
-
+TIP: 5.0 版本计划移除 Servlet 支持。
 
 
 [[resources-implementations-inputstreamresource]]
 === `InputStreamResource`
 
-An `InputStreamResource` is a `Resource` implementation for a given `InputStream`. It
-should be used only if no specific `Resource` implementation is applicable. In
-particular, prefer `ByteArrayResource` or any of the file-based `Resource`
-implementations where possible.
-
-In contrast to other `Resource` implementations, this is a descriptor for an
-already-opened resource. Therefore, it returns `true` from `isOpen()`. Do not use it if
-you need to keep the resource descriptor somewhere or if you need to read a stream
-multiple times.
-
+该实现适配了一个现有的 `InputStream` 对象，将 `InputStream` 直接转换为资源使用。这个实现通常是
+一个已经打开了的资源。 `isOpen()` 方法返回 `true`。一般不能多次使用，除非底层传入的 `InputStream`
+支持。
 
 
 [[resources-implementations-bytearrayresource]]
 === `ByteArrayResource`
 
-This is a `Resource` implementation for a given byte array. It creates a
-`ByteArrayInputStream` for the given byte array.
+该实现是为了适配一个现有的 `字节数组`。`getInputStream()` 方法将返回一个 `ByteArrayInputStream`。
 
-It is useful for loading content from any given byte array without having to resort to a
-single-use `InputStreamResource`.
+[source,java]
+----
+@Override
+public InputStream getInputStream() throws IOException {
+  return new ByteArrayInputStream(this.byteArray);
+}
+----
 
-
+可以多次使用该资源。
 
 
 [[resources-resourceloader]]
 == The `ResourceLoader` Interface
 
-The `ResourceLoader` interface is meant to be implemented by objects that can return
-(that is, load) `Resource` instances. The following listing shows the `ResourceLoader`
-interface definition:
+`ResourceLoader` 接口用来获取查找 `Resource` 对象。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -246,106 +185,70 @@ public interface ResourceLoader {
 }
 ----
 
-All application contexts implement the `ResourceLoader` interface. Therefore, all
-application contexts may be used to obtain `Resource` instances.
+所有的 `ApplicationContext` 都实现了该接口，所以他们都有获取（查找）资源的能力。
 
-When you call `getResource()` on a specific application context, and the location path
-specified doesn't have a specific prefix, you get back a `Resource` type that is
-appropriate to that particular application context. For example, assume the following
-snippet of code was run against a `ClassPathXmlApplicationContext` instance:
+特定应用程序上下文上调用 `getResource()` 时，以及位置路径指定没有特定的前缀，您将返回一个 `Resource` 类型，即
+适合特定的应用程序上下文。 例如，假设以下情况针对 `ClassPathXmlApplicationContext` 实例运行代码片段：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-Resource template = ctx.getResource("some/resource/path/myTemplate.txt");
+Resource template = loader.getResource("some/resource/path/myTemplate.txt");
 ----
 
-======
+针对 `ClassPathXmlApplicationContext`，该代码返回 `ClassPathResource`。 如果
+对 `FileSystemXmlApplicationContext` 实例运行相同的方法，它会返回一个 `FileSystemResource`。
+对于 `WebApplicationContext`，它将返回 `ServletContextResource`。 它同样会为每个上下文返回适当的对象。
 
-Against a `ClassPathXmlApplicationContext`, that code returns a `ClassPathResource`. If
-the same method were run against a `FileSystemXmlApplicationContext` instance, it would
-return a `FileSystemResource`. For a `WebApplicationContext`, it would return a
-`ServletContextResource`. It would similarly return appropriate objects for each context.
+因此，你可以使用特定的加载器去获取不同类型的资源。
 
-As a result, you can load resources in a fashion appropriate to the particular application
-context.
+您也可以强制使用  `ClassPathResource`，无论加载器类型，通过指定特殊的 `classpath:` 前缀，如下所示
 
-On the other hand, you may also force `ClassPathResource` to be used, regardless of the
-application context type, by specifying the special `classpath:` prefix, as the following
-example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-Resource template = ctx.getResource("classpath:some/resource/path/myTemplate.txt");
+Resource template = loader.getResource("classpath:some/resource/path/myTemplate.txt");
 ----
 
-======
+用样的，一也可以使用其他带有 URL 性质的地址例如 `file` 和 `https`。
 
-Similarly, you can force a `UrlResource` to be used by specifying any of the standard
-`java.net.URL` prefixes. The following examples use the `file` and `https` prefixes:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-Resource template = ctx.getResource("file:///some/resource/path/myTemplate.txt");
+Resource template = loader.getResource("file:///some/resource/path/myTemplate.txt");
 ----
 
-======
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	Resource template = ctx.getResource("https://myhost.com/resource/path/myTemplate.txt");
+Resource template = loader.getResource("https://myhost.com/resource/path/myTemplate.txt");
 ----
-======
 
-The following table summarizes the strategy for converting `String` objects to `Resource`
-objects:
+下面的表总结了从字符串到 `Resource` 的对应策略。
 
 [[resources-resource-strings]]
 .Resource strings
 |===
-| Prefix| Example| Explanation
+| 前缀 | 举例 | 解释
 
 | classpath:
 | `classpath:com/myapp/config.xml`
-| Loaded from the classpath.
+| 从类路径加载。
 
 | file:
 | `\file:///data/config.xml`
-| Loaded as a `URL` from the filesystem. See also xref:core/resources.adoc#resources-filesystemresource-caveats[`FileSystemResource` Caveats].
+| 从文件系统加载。 xref:core/resources.adoc#resources-filesystemresource-caveats[`FileSystemResource` 注意事项].
 
 | https:
 | `\https://myserver/logo.png`
-| Loaded as a `URL`.
+| 从 `URL` 加载.
 
 | (none)
 | `/data/config.xml`
-| Depends on the underlying `ApplicationContext`.
+| 依赖底层实现.
 |===
-
-
-
 
 [[resources-resourcepatternresolver]]
 == The `PatternResourceLoader` Interface
 
-The `PatternResourceLoader` interface is an extension to the `ResourceLoader` interface
-which defines a strategy for resolving a location pattern (for example, an Ant-style path
-pattern) into  `Resource` objects.
+`PatternResourceLoader` 接口继承了（扩展了） `ResourceLoader` 接口。
+他支持 `ResourceLoader` 的功能以外还支持解析符合通配符的一系列资源。
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
@@ -353,299 +256,213 @@ public interface PatternResourceLoader extends ResourceLoader {
 
   String CLASSPATH_ALL_URL_PREFIX = "classpath*:";
 
+  void scan(String locationPattern, ResourceConsumer consumer) throws IOException;
+
+  Set<Resource> getResources(String locationPattern) throws IOException;
+
   Resource[] getResourcesArray(String locationPattern) throws IOException;
 }
+
+@FunctionalInterface
+public interface ResourceConsumer {
+
+  void accept(Resource t) throws IOException;
+}
+
 ----
 
-As can be seen above, this interface also defines a special `classpath*:` resource prefix
-for all matching resources from the class path. Note that the resource location is
-expected to be a path without placeholders in this case -- for example,
-`classpath*:/config/beans.xml`. JAR files or different directories in the class path can
-contain multiple files with the same path and the same name. See
-xref:core/resources.adoc#resources-app-ctx-wildcards-in-resource-paths[Wildcards in Application Context Constructor Resource Paths] and its subsections for further details
-on wildcard support with the `classpath*:` resource prefix.
+上面的定义中：`scan` 作为核心方法，其他的两个方法作为其变种。
 
-A passed-in `ResourceLoader` (for example, one supplied via
-xref:core/resources.adoc#resources-resourceloaderaware[`ResourceLoaderAware`] semantics) can be checked whether
-it implements this extended interface too.
+上面可以看出，这个接口还定义了一个特殊的 `classpath*:` 资源前缀，表示从类路径中匹配资源。
 
-`PathMatchingPatternResourceLoader` is a standalone implementation that is usable
-outside an `ApplicationContext` and is also used by `ResourceArrayPropertyEditor` for
-populating `Resource[]` bean properties. `PathMatchingPatternResourceLoader` is able to
-resolve a specified resource location path into one or more matching `Resource` objects.
-The source path may be a simple path which has a one-to-one mapping to a target
-`Resource`, or alternatively may contain the special `classpath*:` prefix and/or internal
-Ant-style regular expressions (matched using Infra
-`cn.taketoday.util.AntPathMatcher` utility). Both of the latter are effectively
-wildcards.
+`classpath*:/config/beans.xml` 表示将扫描类路径下所有 JAR 包中的 `/config/beans.xml` 资源。
+`classpath*:**/beans.xml` 表示将扫描类路径下所有 JAR 包中的 `beans.xml` 资源。
+
+传入的 `ResourceLoader`（例如，通过提供的一个
+xref:core/resources.adoc#resources-resourceloaderaware[`ResourceLoaderAware`]）可以检查是否
+它也实现了这个扩展接口。
+
+`PathMatchingPatternResourceLoader` 是一个可独立 `ApplicationContext` 之外使用，也用于 `ResourceArrayPropertyEditor`
+填充 `Resource[]` bean 属性。 `PathMatchingPatternResourceLoader` 能够将指定的资源位置路径解析为一个或多个匹配的 `Resource` 对象。
+源路径可以是与目标具有一对一映射的简单路径 `Resource`，或者可以包含特殊的 `classpath*:` 前缀和/或内部
+Ant 风格的正则表达式（使用 Infra 进行匹配 `cn.taketoday.util.AntPathMatcher` 实用程序）。后两者都有效通配符。
 
 [NOTE]
 ====
-The default `ResourceLoader` in any standard `ApplicationContext` is in fact an instance
-of `PathMatchingPatternResourceLoader` which implements the `PatternResourceLoader`
-interface. The same is true for the `ApplicationContext` instance itself which also
-implements the `PatternResourceLoader` interface and delegates to the default
-`PathMatchingPatternResourceLoader`.
+实现了 `PatternResourceLoader` 接口的 `ApplicationContext`，实际上是默认委托给了 `PathMatchingPatternResourceLoader`
 ====
 
 
-
-
 [[resources-resourceloaderaware]]
-== The `ResourceLoaderAware` Interface
+== `ResourceLoaderAware` 接口
 
-The `ResourceLoaderAware` interface is a special callback interface which identifies
-components that expect to be provided a `ResourceLoader` reference. The following listing
-shows the definition of the `ResourceLoaderAware` interface:
+`ResourceLoaderAware` 接口是一个特殊的回调接口，它标识期望提供 `ResourceLoader` 引用的组件。
+以下显示了 `ResourceLoaderAware` 接口的定义：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-	public interface ResourceLoaderAware {
+public interface ResourceLoaderAware {
 
-		void setResourceLoader(ResourceLoader resourceLoader);
-	}
+  void setResourceLoader(ResourceLoader resourceLoader);
+}
 ----
 
-When a class implements `ResourceLoaderAware` and is deployed into an application context
-(as a Spring-managed bean), it is recognized as `ResourceLoaderAware` by the application
-context. The application context then invokes `setResourceLoader(ResourceLoader)`,
-supplying itself as the argument (remember, all application contexts in Infra implement
-the `ResourceLoader` interface).
+当一个类实现了 `ResourceLoaderAware 接口，并且被 `ApplicationContext` 管理，`ApplicationContext` 将会
+在合适的时机调用 `setResourceLoader(ResourceLoader)` 把自己作为参数传递给该方法。
 
-Since an `ApplicationContext` is a `ResourceLoader`, the bean could also implement the
-`ApplicationContextAware` interface and use the supplied application context directly to
-load resources. However, in general, it is better to use the specialized `ResourceLoader`
-interface if that is all you need. The code would be coupled only to the resource loading
-interface (which can be considered a utility interface) and not to the whole Spring
-`ApplicationContext` interface.
+由于 `ApplicationContext` 是一个 `ResourceLoader` ，因此该 bean 还可以实现 `ApplicationContextAware` 接口
+并直接使用提供的应用程序上下文（`ApplicationContext`）加载资源。不过，一般来说，最好使用专门的 `ResourceLoader`
+接口。该代码仅与资源加载相关接口（可以被认为是实用程序接口）而不是整个 `ApplicationContext` 接口。
 
-In application components, you may also rely upon autowiring of the `ResourceLoader` as
-an alternative to implementing the `ResourceLoaderAware` interface. The _traditional_
-`constructor` and `byType` autowiring modes (as described in xref:core/beans/dependencies/factory-autowire.adoc[Autowiring Collaborators])
-are capable of providing a `ResourceLoader` for either a constructor argument or a
-setter method parameter, respectively. For more flexibility (including the ability to
-autowire fields and multiple parameter methods), consider using the annotation-based
-autowiring features. In that case, the `ResourceLoader` is autowired into a field,
-constructor argument, or method parameter that expects the `ResourceLoader` type as long
-as the field, constructor, or method in question carries the `@Autowired` annotation.
-For more information, see xref:core/beans/annotation-config/autowired.adoc[Using `@Autowired`].
+在应用程序组件中，您还可以依赖 `ResourceLoader` 的自动装配（实现 `ResourceLoaderAware` 接口的替代方案）。 _传统_
+的 `constructor` 和 `byType` 自动装配模式（如 xref:core/beans/dependencies/factory-autowire.adoc[自动装配] 中所述）
+能够作为构造器参数或 `setter` 方法参数。为了获得更大的灵活性（包括能够自动装配字段和多参数方法），考虑使用基于注释的
+自动装配功能。 在这种情况下 `ResourceLoader` 会自动注入到一个字段中。有关详细信息，请参阅
+xref:core/beans/annotation-config/autowired.adoc[使用 `@Autowired`]。
 
-NOTE: To load one or more `Resource` objects for a resource path that contains wildcards
-or makes use of the special `classpath*:` resource prefix, consider having an instance of
-xref:core/resources.adoc#resources-resourcepatternresolver[`PatternResourceLoader`] autowired into your
-application components instead of `ResourceLoader`.
-
-
+NOTE: 为了加载含有通配符或者包含特殊的 `classpath*:` 资源前缀的一个或多个 `Resource` 对象的时候，请考虑注入
+xref:core/resources.adoc#resources-resourcepatternresolver[`PatternResourceLoader`] 对象到你的应用中。
+而不是使用 `ResourceLoader`。
 
 
 [[resources-as-dependencies]]
-== 资源作为依赖项（Resources as Dependencies）
+== 当资源作为依赖项时
 
-If the bean itself is going to determine and supply the resource path through some sort
-of dynamic process, it probably makes sense for the bean to use the `ResourceLoader` or
-`PatternResourceLoader` interface to load resources. For example, consider the loading
-of a template of some sort, where the specific resource that is needed depends on the
-role of the user. If the resources are static, it makes sense to eliminate the use of the
-`ResourceLoader` interface (or `PatternResourceLoader` interface) completely, have the
-bean expose the `Resource` properties it needs, and expect them to be injected into it.
+如果 bean 本身依赖了某种资源，那么当然可以考虑使用 `ResourceLoader` 接口或者 `PatternResourceLoader` 接口去加载资源。
+但也可以直接注入一个 `Resource` 对象。这个资源对象将是动态的（
+对于静态的资源获取 使用 `ResourceLoader` 接口（或 `PatternResourceLoader` 接口）更好）。
 
-What makes it trivial to then inject these properties is that all application contexts
-register and use a special JavaBeans `PropertyEditor`, which can convert `String` paths
-to `Resource` objects. For example, the following `MyBean` class has a `template`
-property of type `Resource`.
+动态的资源底层使用 JavaBeans `PropertyEditor`，它可以转换 `String` 路径到 `Resource` 对象。
+例如，以下 `MyBean` 类有一个 `template`。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	package example;
+package example;
 
-	public class MyBean {
+public class MyBean {
 
-		private Resource template;
+  private Resource template;
 
-		public setTemplate(Resource template) {
-			this.template = template;
-		}
+  public setTemplate(Resource template) {
+    this.template = template;
+  }
 
-		// ...
-	}
+  // ...
+}
 ----
 
-======
-
-In an XML configuration file, the `template` property can be configured with a simple
-string for that resource, as the following example shows:
+在 XML 配置文件中 `template` 字段，只需配置一个字符串路径即可：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-	<bean id="myBean" class="example.MyBean">
-		<property name="template" value="some/resource/path/myTemplate.txt"/>
-	</bean>
+<bean id="myBean" class="example.MyBean">
+  <property name="template" value="some/resource/path/myTemplate.txt"/>
+</bean>
 ----
 
-Note that the resource path has no prefix. Consequently, because the application context
-itself is going to be used as the `ResourceLoader`, the resource is loaded through a
-`ClassPathResource`, a `FileSystemResource`, or a `ServletContextResource`, depending on
-the exact type of the application context.
+请注意，资源路径没有前缀。因此 `ApplicationContext` 本身将被用作 `ResourceLoader`，资源可能是
+`ClassPathResource`、`FileSystemResource` 或 `ServletContextResource`，具体取决于
+应用程序上下文的确切类型。
 
-If you need to force a specific `Resource` type to be used, you can use a prefix. The
-following two examples show how to force a `ClassPathResource` and a `UrlResource` (the
-latter being used to access a file in the filesystem):
+如果需要强制使用特定的 `Resource` 类型，可以使用前缀。这以下两个示例展示了如何强制使用 `ClassPathResource`
+和 `UrlResource`（后者用于访问文件系统中的文件）：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-	<property name="template" value="classpath:some/resource/path/myTemplate.txt">
+<property name="template" value="classpath:some/resource/path/myTemplate.txt">
 ----
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-	<property name="template" value="file:///some/resource/path/myTemplate.txt"/>
+<property name="template" value="file:///some/resource/path/myTemplate.txt"/>
 ----
 
-If the `MyBean` class is refactored for use with annotation-driven configuration, the
-path to `myTemplate.txt` can be stored under a key named `template.path` -- for example,
-in a properties file made available to the Infra `Environment` (see
-xref:core/beans/environment.adoc[Environment Abstraction]). The template path can then be referenced via the `@Value`
-annotation using a property placeholder (see xref:core/beans/annotation-config/value-annotations.adoc[Using `@Value`]). Infra will
-retrieve the value of the template path as a string, and a special `PropertyEditor` will
-convert the string to a `Resource` object to be injected into the `MyBean` constructor.
-The following example demonstrates how to achieve this.
+如果重构 `MyBean` 类需要使用注解的方式注入资源，则 `myTemplate.txt` 的路径可以存储在名为 `template.path` 的 - 例如，
+在可供基础设施 `Environment` 使用的属性文件中 (详见 xref:core/beans/environment.adoc[Environment 接口]).
+`template.path` 可以使用 `@Value` 注解，底层特殊的 `PropertyEditor` 将会转换字符串到 `Resource` 对象。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	@Component
-	public class MyBean {
+@Component
+public class MyBean {
 
-		private final Resource template;
+  private final Resource template;
 
-		public MyBean(@Value("${template.path}") Resource template) {
-			this.template = template;
-		}
+  public MyBean(@Value("${template.path}") Resource template) {
+    this.template = template;
+  }
 
-		// ...
-	}
+  // ...
+}
 ----
 
-======
+进一步，如果我们想要支持多个模板资源，例如这些资源在多个 JAR 包中，我们可以使用 `classpath*:` 前缀。
+定义 `templates.path = classpath*:/config/templates/*.txt` 然后就可以注入到以下代码中。
 
-If we want to support multiple templates discovered under the same path in multiple
-locations in the classpath -- for example, in multiple jars in the classpath -- we can
-use the special `classpath*:` prefix and wildcarding to define a `templates.path` key as
-`classpath*:/config/templates/*.txt`. If we redefine the `MyBean` class as follows,
-Infra will convert the template path pattern into an array of `Resource` objects that
-can be injected into the `MyBean` constructor.
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	@Component
-	public class MyBean {
+@Component
+public class MyBean {
 
-		private final Resource[] templates;
+  private final Resource[] templates;
 
-		public MyBean(@Value("${templates.path}") Resource[] templates) {
-			this.templates = templates;
-		}
+  public MyBean(@Value("${templates.path}") Resource[] templates) {
+    this.templates = templates;
+  }
 
-		// ...
-	}
+  // ...
+}
 ----
-
-======
-
-
 
 
 [[resources-app-ctx]]
-== Application Contexts and Resource Paths
+== Application Contexts 和资源路径
 
-This section covers how to create application contexts with resources, including shortcuts
-that work with XML, how to use wildcards, and other details.
-
-
+本节介绍如何使用 resources 创建 application contexts 包括使用 XML、如何使用通配符以及其他方式。
 
 [[resources-app-ctx-construction]]
-=== Constructing Application Contexts
+=== 构造 Application Contexts
 
-An application context constructor (for a specific application context type) generally
-takes a string or array of strings as the location paths of the resources, such as
-XML files that make up the definition of the context.
+一个 application context 构造器（针对特定应用程序上下文类型）通常是接受一个字符串或字符串数组作为资源的位置路径，
+例如构成上下文定义的 XML 文件。
 
-When such a location path does not have a prefix, the specific `Resource` type built from
-that path and used to load the bean definitions depends on and is appropriate to the
-specific application context. For example, consider the following example, which creates a
-`ClassPathXmlApplicationContext`:
+当这样的位置路径没有前缀时，得到的 `Resource` 用于加载 Bean 定义取决于具体的 application context 。
+例如以下示例，创建了一个 `ClassPathXmlApplicationContext`：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	ApplicationContext ctx = new ClassPathXmlApplicationContext("conf/appContext.xml");
+ApplicationContext ctx = new ClassPathXmlApplicationContext("conf/appContext.xml");
 ----
 
-======
+`Bean 定义` 从类路径下加载，因为 `ClassPathResource` 被使用。
+然而思考一下下面的例子，使用 `FileSystemXmlApplicationContext`:
 
-The bean definitions are loaded from the classpath, because a `ClassPathResource` is
-used. However, consider the following example, which creates a `FileSystemXmlApplicationContext`:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	ApplicationContext ctx =
-		new FileSystemXmlApplicationContext("conf/appContext.xml");
+ApplicationContext ctx =new FileSystemXmlApplicationContext("conf/appContext.xml");
 ----
 
-======
+上面的代码将从文件系统路径下加载（在这个例子中，从当前的相对路径开始加载）
 
-Now the bean definitions are loaded from a filesystem location (in this case, relative to
-the current working directory).
+值得注意的是如果使用特殊的 `classpath` 前缀或者是 标准的 URL 前缀，这将会覆盖之前的默认加载位置。
+例如：
 
-Note that the use of the special `classpath` prefix or a standard URL prefix on the
-location path overrides the default type of `Resource` created to load the bean
-definitions. Consider the following example:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	ApplicationContext ctx =
 		new FileSystemXmlApplicationContext("classpath:conf/appContext.xml");
 ----
 
-======
-
-Using `FileSystemXmlApplicationContext` loads the bean definitions from the classpath.
-However, it is still a `FileSystemXmlApplicationContext`. If it is subsequently used as a
-`ResourceLoader`, any unprefixed paths are still treated as filesystem paths.
-
+使用 `FileSystemXmlApplicationContext` 从类路径下去加载 `Bean 定义` 。然而它仍然是 `FileSystemXmlApplicationContext`。
+如果它被当做 `ResourceLoader` 接口来使用（使用 `getResource(String location)`）那么任何没有前缀的路径仍然当做文件系统路径。
 
 [[resources-app-ctx-classpathxml]]
-==== Constructing `ClassPathXmlApplicationContext` Instances -- Shortcuts
+==== 构造 `ClassPathXmlApplicationContext` 实例 -- 快捷方式
 
-The `ClassPathXmlApplicationContext` exposes a number of constructors to enable
-convenient instantiation. The basic idea is that you can supply merely a string array
-that contains only the filenames of the XML files themselves (without the leading path
-information) and also supply a `Class`. The `ClassPathXmlApplicationContext` then derives
-the path information from the supplied class.
+`ClassPathXmlApplicationContext` 提供了几个好用的构造器，基本思想是你可以仅提供一个字符串数组仅包含 XML 文件本身的文件名
+（没有前导路径信息）并提供一个 `Class`。
 
-Consider the following directory layout:
+一下是资源目录布局:
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -656,280 +473,171 @@ com/
     MessengerService.class
 ----
 
-The following example shows how a `ClassPathXmlApplicationContext` instance composed of
-the beans defined in files named `services.xml` and `repositories.xml` (which are on the
-classpath) can be instantiated:
+下面的 `ClassPathXmlApplicationContext` 实例，在类路径下定义了 `services.xml` 和 `repositories.xml`
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	ApplicationContext ctx = new ClassPathXmlApplicationContext(
-		new String[] {"services.xml", "repositories.xml"}, MessengerService.class);
+ApplicationContext ctx = new ClassPathXmlApplicationContext(
+  new String[] { "services.xml", "repositories.xml" }, MessengerService.class);
 ----
 
-======
-
-See the {today-framework-api}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`]
-javadoc for details on the various constructors.
-
+其他的构造器使用详见：{today-framework-api}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`]
 
 
 [[resources-app-ctx-wildcards-in-resource-paths]]
-=== Wildcards in Application Context Constructor Resource Paths
+=== Application Context 构造器资源路径中的通配符
 
-The resource paths in application context constructor values may be simple paths (as
-shown earlier), each of which has a one-to-one mapping to a target `Resource` or,
-alternately, may contain the special `classpath*:` prefix or internal Ant-style patterns
-(matched by using Infra `PathMatcher` utility). Both of the latter are effectively
-wildcards.
 
-One use for this mechanism is when you need to do component-style application assembly. All
-components can _publish_ context definition fragments to a well-known location path, and,
-when the final application context is created using the same path prefixed with
-`classpath*:`, all component fragments are automatically picked up.
+Application Context 构造函数值中的资源路径可以是简单路径（如前所示），每个都有一个到目标 `Resource` 的一对一映射，
+或者，可能包含特殊的 `classpath*:` 前缀或内部 Ant 样式模式（通过使用 `PathMatcher` 实用程序进行匹配）。
+后者实际上都是通配符。
 
-Note that this wildcarding is specific to the use of resource paths in application context
-constructors (or when you use the `PathMatcher` utility class hierarchy directly) and is
-resolved at construction time. It has nothing to do with the `Resource` type itself.
-You cannot use the `classpath*:` prefix to construct an actual `Resource`, as
-a resource points to just one resource at a time.
+此机制的用途之一是当您需要进行组件式应用程序组装时。 所有组件可以将 Context 定义片段发布到众所周知的位置，并且，
+当使用前缀相同的 `classpath*:` 路径创建 Application Context 时，所有组件片段都会自动读取。
 
+需要注意的是，此通配符特定于 application context 中资源路径构造函数的使用（或者当您直接使用 `PathMatcher` 实用程序类层次结构时）
+并且是构建时解析。 它与 `Resource` 类型本身无关。不能使用 `classpath*:` 前缀来构造实际的 `Resource`，如
+一个资源一次仅指向一个资源。
 
 [[resources-app-ctx-ant-patterns-in-paths]]
-==== Ant-style Patterns
+==== Ant 风格匹配
 
-Path locations can contain Ant-style patterns, as the following example shows:
+资源路径可以包含 Ant 样式匹配，如以下示例所示：
 
 [literal,subs="verbatim,quotes"]
 ----
 /WEB-INF/\*-context.xml
-com/mycompany/\**/applicationContext.xml
+com/mycompany/\**/beans.xml
 file:C:/some/path/\*-context.xml
-classpath:com/mycompany/**/applicationContext.xml
+classpath:com/mycompany/**/beans.xml
 ----
 
-When the path location contains an Ant-style pattern, the resolver follows a more complex
-procedure to try to resolve the wildcard. It produces a `Resource` for the path up to the
-last non-wildcard segment and obtains a URL from it. If this URL is not a `jar:` URL or
-container-specific variant (such as `zip:` in WebLogic, `wsjar` in WebSphere, and so on),
-a `java.io.File` is obtained from it and used to resolve the wildcard by traversing the
-filesystem. In the case of a jar URL, the resolver either gets a
-`java.net.JarURLConnection` from it or manually parses the jar URL and then traverses the
-contents of the jar file to resolve the wildcards.
+当路径包含 Ant 样式匹配时，解析器遵循更复杂的尝试解析通配符。直到最后一个非通配符段并从中获取 URL。如果此 URL 不是 `jar:` URL 或
+特定于容器的变体，从中获取一个 `java.io.File`，并通过遍历来解析通配符文件系统。对于 jar URL，解析器要么得到一个
+`java.net.JarURLConnection` 或者手动解析jar URL，然后遍历 jar 文件的内容来解析通配符。
 
 [[resources-app-ctx-portability]]
-===== Implications on Portability
+===== 对可移植性的影响
 
-If the specified path is already a `file` URL (either implicitly because the base
-`ResourceLoader` is a filesystem one or explicitly), wildcarding is guaranteed to
-work in a completely portable fashion.
+如果指定的路径已经是一个 `file` URL（无论是因为 `ResourceLoader` 是文件系统，还是明确指定的），通配符将以完全可移植的方式工作。
 
-If the specified path is a `classpath` location, the resolver must obtain the last
-non-wildcard path segment URL by making a `Classloader.getResource()` call. Since this
-is just a node of the path (not the file at the end), it is actually undefined (in the
-`ClassLoader` javadoc) exactly what sort of a URL is returned in this case. In practice,
-it is always a `java.io.File` representing the directory (where the classpath resource
-resolves to a filesystem location) or a jar URL of some sort (where the classpath resource
-resolves to a jar location). Still, there is a portability concern on this operation.
+如果指定的路径是一个 `classpath` 位置，解析器必须通过调用 `Classloader.getResource()` 来获取最后一个非通配符路径段的 URL。
+由于这只是路径的一个节点（而不是最后的文件），因此在这种情况下实际上是未定义的（在 `ClassLoader` 的javadoc中）返回的 URL 是什么样的。
+在实践中，它总是一个代表目录的 `java.io.File`（其中类路径资源解析为文件系统位置）或某种类型的 `jar` URL（其中类路径资源解析为jar位置）。
+然而，这个操作存在可移植性问题。
 
-If a jar URL is obtained for the last non-wildcard segment, the resolver must be able to
-get a `java.net.JarURLConnection` from it or manually parse the jar URL, to be able to
-walk the contents of the jar and resolve the wildcard. This does work in most environments
-but fails in others, and we strongly recommend that the wildcard resolution of resources
-coming from jars be thoroughly tested in your specific environment before you rely on it.
+如果获取了最后一个非通配符段的 `jar` URL，则解析器必须能够从中获取一个 `java.net.JarURLConnection`，或者手动解析 `jar` URL，
+以便能够遍历 `jar` 的内容并解析通配符。这在大多数环境中都有效，但在其他环境中可能失败，
+强烈建议在您的特定环境中充分测试来自 `jar` 的资源的通配符解析，然后再依赖它。
 
 
 [[resources-classpath-wildcards]]
-==== The `classpath*:` Prefix
+==== `classpath*:` 前缀
 
-When constructing an XML-based application context, a location string may use the
-special `classpath*:` prefix, as the following example shows:
+当构建基于 XML 的 application context 时，定位字符串可以使用特殊的 `classpath*:` 前缀，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	ApplicationContext ctx =
-		new ClassPathXmlApplicationContext("classpath*:conf/appContext.xml");
+ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath*:conf/appContext.xml");
 ----
 
-======
+这个特殊前缀指定了必须获取所有与给定名称匹配的类路径资源（内部实际上是通过调用 `ClassLoader.getResources(...)` 实现的），
+然后将它们合并以形成最终的 application context 定义。
 
-This special prefix specifies that all classpath resources that match the given name
-must be obtained (internally, this essentially happens through a call to
-`ClassLoader.getResources(...)`) and then merged to form the final application
-context definition.
+NOTE: 通配符类路径依赖于底层 `ClassLoader` 的 `getResources()` 方法。由于大多数应用服务器现在提供自己的 `ClassLoader` 实现，
+因此行为可能会有所不同，特别是在处理 JAR 文件时。一个简单的测试来检查 `classpath*:` 是否工作是使用 `ClassLoader`
+从类路径中的 JAR 文件中加载文件：`getClass().getClassLoader().getResources("<someFileInsideTheJar>")`。
+尝试使用位于不同位置的具有相同名称的文件进行此测试，例如，在类路径上的不同 JAR 文件中具有相同名称和相同路径的文件。
+如果返回了不适当的结果，请查看应用程序服务器文档以了解可能影响 `ClassLoader` 行为的设置。
 
-NOTE: The wildcard classpath relies on the `getResources()` method of the underlying
-`ClassLoader`. As most application servers nowadays supply their own `ClassLoader`
-implementation, the behavior might differ, especially when dealing with jar files. A
-simple test to check if `classpath*` works is to use the `ClassLoader` to load a file from
-within a jar on the classpath:
-`getClass().getClassLoader().getResources("<someFileInsideTheJar>")`. Try this test with
-files that have the same name but reside in two different locations -- for example, files
-with the same name and same path but in different jars on the classpath. In case an
-inappropriate result is returned, check the application server documentation for settings
-that might affect the `ClassLoader` behavior.
-
-You can also combine the `classpath*:` prefix with a `PathMatcher` pattern in the
-rest of the location path (for example, `classpath*:META-INF/*-beans.xml`). In this
-case, the resolution strategy is fairly simple: A `ClassLoader.getResources()` call is
-used on the last non-wildcard path segment to get all the matching resources in the
-class loader hierarchy and then, off each resource, the same `PathMatcher` resolution
-strategy described earlier is used for the wildcard subpath.
+另外，您还可以将 `classpath*:` 前缀与位置路径的其余部分结合使用 `PathMatcher` 模式（例如，`classpath*:META-INF/*-beans.xml`）。
+在这种情况下，解析策略相当简单：在最后一个非通配符路径段上使用 `ClassLoader.getResources()` 调用来获取类加载器层次结构中所有匹配的资源，
+然后对每个资源使用前面描述的相同 `PathMatcher` 解析策略来处理通配符子路径。
 
 
 [[resources-wildcards-in-path-other-stuff]]
-==== Other Notes Relating to Wildcards
+==== 其他与通配符相关的注意事项
 
-Note that `classpath*:`, when combined with Ant-style patterns, only works
-reliably with at least one root directory before the pattern starts, unless the actual
-target files reside in the file system. This means that a pattern such as
-`classpath*:*.xml` might not retrieve files from the root of jar files but rather only
-from the root of expanded directories.
+请注意，当与 Ant 样式模式结合使用时，`classpath*:` 只能可靠地与至少一个根目录配合使用，而不是匹配开始之前，除非实际的目标文件位于文件系统中。
+这意味着诸如 `classpath*:*.xml` 这样的匹配可能无法从 JAR 文件的根目录中检索文件，而只能从已展开的目录的根目录中检索。
 
-Infra ability to retrieve classpath entries originates from the JDK's
-`ClassLoader.getResources()` method, which only returns file system locations for an
-empty string (indicating potential roots to search). Infra evaluates
-`URLClassLoader` runtime configuration and the `java.class.path` manifest in jar files
-as well, but this is not guaranteed to lead to portable behavior.
+框架检索类路径条目的能力源自 JDK 的 `ClassLoader.getResources()` 方法，该方法仅对空字符串（表示要搜索的潜在根目录）返回文件系统位置。
+框架还会计算 `URLClassLoader` 的运行时配置和 JAR 文件中的 `java.class.path` 清单，但这并不能保证可移植性。
 
 [NOTE]
 ====
-The scanning of classpath packages requires the presence of corresponding directory
-entries in the classpath. When you build JARs with Ant, do not activate the `files-only`
-switch of the JAR task. Also, classpath directories may not get exposed based on security
-policies in some environments -- for example, stand-alone applications on JDK 1.7.0_45
-and higher (which requires 'Trusted-Library' to be set up in your manifests.
 
-On JDK 9's module path (Jigsaw), Infra classpath scanning generally works as expected.
-Putting resources into a dedicated directory is highly recommendable here as well,
-avoiding the aforementioned portability problems with searching the jar file root level.
+在扫描类路径包时，需要类路径中存在相应的目录条目。当您使用 Ant 构建 JAR 文件时，请不要激活 JAR 任务的 `files-only`开关。
+此外，基于某些环境中的安全策略，类路径目录可能不会被暴露出来，例如 JDK 1.7.0_45 及更高版本的独立应用程序（这需要在清单中设置 'Trusted-Library'）。
+
+在 JDK 9 的模块路径（Jigsaw）上，基础设施类路径扫描通常按预期工作。在这里，将资源放入专用目录也是非常推荐的，
+这样可以避免搜索 JAR 文件根目录时出现的可移植性问题。
 ====
 
-Ant-style patterns with `classpath:` resources are not guaranteed to find matching
-resources if the root package to search is available in multiple classpath locations.
-Consider the following example of a resource location:
+Ant 样式匹配与 `classpath:` 资源结合使用时，并不能保证在根包在多个类路径位置中都存在时能够找到匹配的资源。考虑以下资源位置的示例：
 
 [literal,subs="verbatim,quotes"]
 ----
 com/mycompany/package1/service-context.xml
 ----
 
-Now consider an Ant-style path that someone might use to try to find that file:
+可能使用的用于查找该文件的 Ant 样式路径：
 
 [literal,subs="verbatim,quotes"]
 ----
 classpath:com/mycompany/**/service-context.xml
 ----
 
-Such a resource may exist in only one location in the classpath, but when a path such as
-the preceding example is used to try to resolve it, the resolver works off the (first)
-URL returned by `getResource("com/mycompany");`. If this base package node exists in
-multiple `ClassLoader` locations, the desired resource may not exist in the first
-location found. Therefore, in such cases you should prefer using `classpath*:` with the
-same Ant-style pattern, which searches all classpath locations that contain the
-`com.mycompany` base package: `classpath*:com/mycompany/**/service-context.xml`.
-
+这样的资源可能只存在于类路径中的一个位置，但当尝试使用类似前面示例的路径来解析它时，解析器会基于 `getResource("com/mycompany")`
+返回的（第一个）URL 进行工作。如果此基本包节点存在于多个 `ClassLoader` 位置中，则所需资源可能不会存在于找到的第一个位置。
+因此，在这种情况下，您应该优先使用带有相同 Ant 样式匹配的 `classpath*:`，该模式会搜索所有包含 `com.mycompany`
+基本包的类路径位置：`classpath*:com/mycompany/**/service-context.xml`。
 
 
 [[resources-filesystemresource-caveats]]
-=== `FileSystemResource` Caveats
+=== `FileSystemResource` 注意事项
 
-A `FileSystemResource` that is not attached to a `FileSystemApplicationContext` (that
-is, when a `FileSystemApplicationContext` is not the actual `ResourceLoader`) treats
-absolute and relative paths as you would expect. Relative paths are relative to the
-current working directory, while absolute paths are relative to the root of the
-filesystem.
+一个未附加到 `FileSystemApplicationContext` 的 `FileSystemResource`
+（也就是说，当 `FileSystemApplicationContext` 不是实际的 `ResourceLoader` 时），
+会按照您所期望的方式处理绝对和相对路径。相对路径是相对于当前工作目录，而绝对路径是相对于文件系统的根目录。
 
-For backwards compatibility (historical) reasons however, this changes when the
-`FileSystemApplicationContext` is the `ResourceLoader`. The
-`FileSystemApplicationContext` forces all attached `FileSystemResource` instances
-to treat all location paths as relative, whether they start with a leading slash or not.
-In practice, this means the following examples are equivalent:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	ApplicationContext ctx =
-		new FileSystemXmlApplicationContext("conf/context.xml");
+	ApplicationContext ctx =new FileSystemXmlApplicationContext("conf/context.xml");
 ----
 
-======
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	ApplicationContext ctx =
-		new FileSystemXmlApplicationContext("/conf/context.xml");
+	ApplicationContext ctx = new FileSystemXmlApplicationContext("/conf/context.xml");
 ----
 
-======
+以下示例也是等价的（尽管它们应该是不同的才更合理，因为一个是相对路径，另一个是绝对路径）：
 
-The following examples are also equivalent (even though it would make sense for them to be different, as one
-case is relative and the other absolute):
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	FileSystemXmlApplicationContext ctx = ...;
-	ctx.getResource("some/resource/path/myTemplate.txt");
+FileSystemXmlApplicationContext ctx = ...;
+ctx.getResource("some/resource/path/myTemplate.txt");
 ----
 
-======
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-	FileSystemXmlApplicationContext ctx = ...;
-	ctx.getResource("/some/resource/path/myTemplate.txt");
+FileSystemXmlApplicationContext ctx = ...;
+ctx.getResource("/some/resource/path/myTemplate.txt");
 ----
 
-======
+实际上，如果您需要真正的绝对文件系统路径，应该避免在 `FileSystemResource` 或 `FileSystemXmlApplicationContext`
+中使用绝对路径，并通过使用 `file:` URL 前缀强制使用 `UrlResource`。以下示例展示了如何这样做：
 
-In practice, if you need true absolute filesystem paths, you should avoid using
-absolute paths with `FileSystemResource` or `FileSystemXmlApplicationContext` and
-force the use of a `UrlResource` by using the `file:` URL prefix. The following examples
-show how to do so:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	// actual context type doesn't matter, the Resource will always be UrlResource
 	ctx.getResource("file:///some/resource/path/myTemplate.txt");
 ----
 
-======
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 	// force this FileSystemXmlApplicationContext to load its definition via a UrlResource
 	ApplicationContext ctx =
 		new FileSystemXmlApplicationContext("file:///conf/context.xml");
 ----
-
-======
