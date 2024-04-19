@@ -1,65 +1,63 @@
 [[aot]]
 = Ahead of Time Optimizations
-:sourcedir: ../../../../src/main/java/cn/taketoday/docs/core/aot
 
-This chapter covers Infra Ahead of Time (AOT) optimizations.
+这一章涵盖了 Infra Ahead of Time (AOT) 优化。
 
-For AOT support specific to integration tests, see xref:testing/testcontext-framework/aot.adoc[Ahead of Time Support for Tests].
+对于集成测试特定的 AOT 支持, 参见 xref:testing/testcontext-framework/aot.adoc[AOT Support for Tests].
 
 [[aot.introduction]]
-== Introduction to Ahead of Time Optimizations
+== AOT 介绍
 
-Infra support for AOT optimizations is meant to inspect an `ApplicationContext` at build time and apply decisions and discovery logic that usually happens at runtime.
-Doing so allows building an application startup arrangement that is more straightforward and focused on a fixed set of features based mainly on the classpath and the `Environment`.
 
-Applying such optimizations early implies the following restrictions:
+基础设施支持 AOT 优化旨在在构建时检查 `ApplicationContext`，并应用通常在运行时发生的决策和发现逻辑。
+这样做可以构建一个更为简单且专注于基于类路径和 `Environment` 的固定功能集的应用程序启动排列。
 
-* The classpath is fixed and fully defined at build time.
-* The beans defined in your application cannot change at runtime, meaning:
-** `@Profile`, in particular profile-specific configuration, needs to be chosen at build time and is automatically enabled at runtime when AOT is enabled.
-** `Environment` properties that impact the presence of a bean (`@Conditional`) are only considered at build time.
-* Bean definitions with instance suppliers (lambdas or method references) cannot be transformed ahead-of-time.
-* Beans registered as singletons (using `registerSingleton`, typically from
-`ConfigurableListableBeanFactory`) cannot be transformed ahead-of-time either.
-* As we cannot rely on the instance, make sure that the bean type is as precise as possible.
+提前应用此类优化意味着以下限制：
 
-TIP: See also the xref:core/aot.adoc#aot.bestpractices[] section.
+* 类路径在构建时是固定和完全定义的。
+* 在你的应用程序中定义的bean在运行时不能更改，意味着：
+** 特别是 `@Profile` 尤其是特定配置文件的配置，需要在构建时选择，并且当启用 AOT 时会在运行时自动启用。
+** 影响 bean 存在的 `Environment` 属性（`@Conditional`）只在构建时考虑。
+* 具有实例提供者（lambda 或方法引用）的bean定义无法提前进行转换。
+* 使用 `registerSingleton`（通常来自 `ConfigurableBeanFactory`）注册为单例的 bean 也无法提前进行转换。
+* 由于我们无法依赖实例，确保 bean 类型尽可能精确。
 
-When these restrictions are in place, it becomes possible to perform ahead-of-time processing at build time and generate additional assets.
-A Infra AOT processed application typically generates:
+TIP: 也请参阅 xref:core/aot.adoc#aot.bestpractices[] 部分.
 
-* Java source code
-* Bytecode (usually for dynamic proxies)
-* {today-framework-api}/aot/hint/RuntimeHints.html[`RuntimeHints`] for the use of reflection, resource loading, serialization, and JDK proxies
+当存在这些限制时，可以在构建时执行预处理，并生成额外的资产。一个经过 AOT 处理的基础设施应用程序通常会生成：
 
-NOTE: At the moment, AOT is focused on allowing Infra applications to be deployed as native images using GraalVM.
-We intend to support more JVM-based use cases in future generations.
+* Java 源代码
+* 字节码（通常用于动态代理）。
+* {today-framework-api}/aot/hint/RuntimeHints.html[`RuntimeHints`] 使用反射、资源加载、序列化和 JDK 代理。
+
+NOTE: 目前，AOT 侧重于允许基础设施应用程序使用 GraalVM 部署为本机镜像。我们打算在未来的版本中支持更多基于 JVM 的用例。
+
 
 [[aot.basics]]
-== AOT engine overview
+== AOT 引擎概述
 
-The entry point of the AOT engine for processing an `ApplicationContext` is `ApplicationContextAotGenerator`.
-It takes care of the following steps, based on a `GenericApplicationContext` that represents the application to optimize and a {today-framework-api}/aot/generate/GenerationContext.html[`GenerationContext`]:
+AOT 引擎处理 `ApplicationContext` 的入口点是 `ApplicationContextAotGenerator`。
+它负责以下步骤，基于表示要优化的应用程序的 `GenericApplicationContext` 和
+{today-framework-api}/aot/generate/GenerationContext.html[`GenerationContext`]:
 
-* Refresh an `ApplicationContext` for AOT processing.
-Contrary to a traditional refresh, this version only creates bean definitions, not bean instances.
-* Invoke the available `BeanFactoryInitializationAotProcessor` implementations and apply their contributions against the `GenerationContext`.
-For instance, a core implementation iterates over all candidate bean definitions and generates the necessary code to restore the state of the `BeanFactory`.
+* 对于 AOT 处理，刷新 `ApplicationContext`。与传统的刷新相反，这个版本只创建 Bean 定义，而不是 Bean 实例。
+* 调用可用的 `BeanFactoryInitializationAotProcessor` 实现，并将它们的贡献应用于 `GenerationContext`。
+例如，核心实现会迭代所有候选 Bean 定义，并生成恢复 `BeanFactory` 状态所需的代码。
 
-Once this process completes, the `GenerationContext` will have been updated with the generated code, resources, and classes that are necessary for the application to run.
-The `RuntimeHints` instance can also be used to generate the relevant GraalVM native image configuration files.
+完成这个过程后，`GenerationContext` 将被更新为生成的代码、资源和类，这些对应用程序运行是必要的。
+`RuntimeHints` 实例还可以用于生成相关的 GraalVM 本机图像配置文件。
 
-`ApplicationContextAotGenerator#processAheadOfTime` returns the class name of the `ApplicationContextInitializer` entry point that allows the context to be started with AOT optimizations.
+`ApplicationContextAotGenerator#processAheadOfTime` 返回 `ApplicationContextInitializer` 入口点的类名，该入口点允许使用 AOT 优化启动上下文。
 
-Those steps are covered in greater detail in the sections below.
+下面的部分将更详细地介绍这些步骤。
 
 [[aot.refresh]]
-== Refresh for AOT Processing
+== AOT 处理的刷新
 
-Refresh for AOT processing is supported on all `GenericApplicationContext` implementations.
-An application context is created with any number of entry points, usually in the form of `@Configuration`-annotated classes.
+AOT 处理的刷新在所有 `GenericApplicationContext` 实现上都受支持。
+应用程序上下文是通过任意数量的入口点创建的，通常以 `@Configuration` 注解的类的形式。
 
-Let's look at a basic example:
+一个基本示例：
 
 [source,java,indent=0,role="primary"]
 ----
@@ -81,88 +79,82 @@ Starting this application with the regular runtime involves a number of steps in
 Refresh for AOT processing only applies a subset of what happens with a xref:core/beans/introduction.adoc[regular `refresh`].
 AOT processing can be triggered as follows:
 
+使用常规运行时启动此应用程序涉及许多步骤，包括类路径扫描、配置类解析、Bean 实例化和生命周期回调处理。
+AOT 处理的刷新仅适用于 xref:core/beans/introduction.adoc[常规 `refresh`] 所发生的部分。
+可以通过以下方式触发 AOT 处理：
+
 [source,java,indent=0,role="primary"]
 ----
-  public void createAotContext() {
-    RuntimeHints hints = new RuntimeHints();
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(MyApplication.class);
-    context.refreshForAotProcessing(hints);
-    // ...
-    context.close();
-  }
+public void createAotContext() {
+  RuntimeHints hints = new RuntimeHints();
+  AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+  context.register(MyApplication.class);
+  context.refreshForAotProcessing(hints);
+  // ...
+  context.close();
+}
 ----
 
-In this mode, xref:core/beans/factory-extension.adoc#beans-factory-extension-factory-postprocessors[`BeanFactoryPostProcessor` implementations] are invoked as usual.
-This includes configuration class parsing, import selectors, classpath scanning, etc.
-Such steps make sure that the `BeanRegistry` contains the relevant bean definitions for the application.
-If bean definitions are guarded by conditions (such as `@Profile`), these are evaluated, and bean definitions that don't match their conditions are discarded at this stage.
+在这种模式下，会像往常一样调用 xref:core/beans/factory-extension.adoc#beans-factory-extension-factory-postprocessors[`BeanFactoryPostProcessor` 实现]。
+这包括配置类解析、导入选择器、类路径扫描等。这些步骤确保 `BeanRegistry` 包含应用程序的相关 Bean 定义。
+如果 Bean 定义受到条件（如 `@Profile`）的保护，那么这些条件会在此阶段进行评估，并且不符合条件的 Bean 定义会被丢弃。
 
-If custom code needs to register extra beans programmatically, make sure that custom registration code uses `BeanDefinitionRegistry` instead of `BeanFactory` as only bean definitions are taken into account.
-A good pattern is to implement
-`ImportBeanDefinitionRegistrar` and register it via an `@Import` on one of your configuration classes.
+如果需要自定义代码以编程方式注册额外的 Bean，请确保自定义注册代码使用 `BeanDefinitionRegistry` 而不是 `BeanFactory`，
+因为只有 Bean 定义会被考虑。一个好的模式是实现 `ImportBeanDefinitionRegistrar` 并通过在您的配置类之一上使用 @Import 注册它。
 
-Because this mode does not actually create bean instances, `BeanPostProcessor` implementations are not invoked, except for specific variants that are relevant for AOT processing.
-These are:
+因为这种模式实际上不会创建 bean 实例，所以除了与 AOT 处理相关的特定变体之外，不会调用 `BeanPostProcessor` 实现。
+这些特定的变体包括：
 
-* `MergedBeanDefinitionPostProcessor` implementations post-process bean definitions to extract additional settings, such as `init` and `destroy` methods.
-* `SmartInstantiationAwareBeanPostProcessor` implementations determine a more precise bean type if necessary.
-This makes sure to create any proxy that will be required at runtime.
+* `MergedBeanDefinitionPostProcessor` 实现会后处理 Bean 定义，以提取额外的设置，例如 `init` 和 `destroy` 方法。
+* `SmartInstantiationAwareBeanPostProcessor` 实现在必要时确定更精确的 bean 类型。
+这确保在运行时创建任何所需的代理。
 
-Once this part completes, the `BeanFactory` contains the bean definitions that are necessary for the application to run.
-It does not trigger bean instantiation but allows the AOT engine to inspect the beans that will be created at runtime.
+一旦这部分完成，`BeanFactory` 包含了应用程序运行所必需的 Bean 定义。
+它不会触发 bean 实例化，但允许 AOT 引擎检查将在运行时创建的 Bean。
 
 [[aot.bean-factory-initialization-contributions]]
-== Bean Factory Initialization AOT Contributions
+== Bean 工厂初始化的 AOT Contributions
 
-Components that want to participate in this step can implement the {today-framework-api}/beans/factory/aot/BeanFactoryInitializationAotProcessor.html[`BeanFactoryInitializationAotProcessor`] interface.
-Each implementation can return an AOT contribution, based on the state of the bean factory.
+想要参与这一步骤的组件可以实现 {today-framework-api}/beans/factory/aot/BeanFactoryInitializationAotProcessor.html[`BeanFactoryInitializationAotProcessor`] 接口。
+每个实现都可以根据 bean 工厂的状态返回一个 AOT contribution。
 
-An AOT contribution is a component that contributes generated code which reproduces a particular behavior.
-It can also contribute `RuntimeHints` to indicate the need for reflection, resource loading, serialization, or JDK proxies.
+AOT contribution 是一个组件，它提供生成的代码，以复制特定的行为。它还可以贡献 `RuntimeHints`，以指示对反射、资源加载、序列化或 JDK 代理的需求。
 
-A `BeanFactoryInitializationAotProcessor` implementation can be registered in `META-INF/spring/aot.factories` with a key equal to the fully-qualified name of the interface.
+`BeanFactoryInitializationAotProcessor` 的实现可以在 `META-INF/config/aot.factories` 中注册，其键等于接口的完全限定名。
 
-The `BeanFactoryInitializationAotProcessor` interface can also be implemented directly by a bean.
-In this mode, the bean provides an AOT contribution equivalent to the feature it provides with a regular runtime.
-Consequently, such a bean is automatically excluded from the AOT-optimized context.
+`BeanFactoryInitializationAotProcessor` 接口也可以直接由一个 bean 实现。
+在这种模式下，该 bean 提供的 AOT 贡献等同于它在常规运行时提供的功能。
+因此，这样的 bean 会自动被排除在 AOT 优化的上下文之外。
 
 [NOTE]
 ====
-If a bean implements the `BeanFactoryInitializationAotProcessor` interface, the bean and **all** of its dependencies will be initialized during AOT processing.
-We generally recommend that this interface is only implemented by infrastructure beans such as `BeanFactoryPostProcessor` which have limited dependencies and are already initialized early in the bean factory lifecycle.
-If such a bean is registered using an `@Bean` factory method, ensure the method is `static` so that its enclosing `@Configuration` class does not have to be initialized.
+如果一个 bean 实现了 `BeanFactoryInitializationAotProcessor` 接口，那么该 bean 和 **所有** 它的依赖项都将在 AOT 处理期间初始化。
+我们通常建议只有基础设施 bean，如 `BeanFactoryPostProcessor`，才实现这个接口，这些 bean 的依赖性有限，并且在 bean 工厂的生命周期早期已经初始化。
+如果使用 `@Bean` 工厂方法注册这样的 bean，请确保该方法是 `static` 的，以便它的封闭 `@Configuration` 类不必被初始化。
 ====
 
 [[aot.bean-registration-contributions]]
 === Bean Registration AOT Contributions
 
-A core `BeanFactoryInitializationAotProcessor` implementation is responsible for collecting the necessary contributions for each candidate `BeanDefinition`.
-It does so using a dedicated `BeanRegistrationAotProcessor`.
+一个核心的 `BeanFactoryInitializationAotProcessor` 实现负责收集每个候选 `BeanDefinition` 的必要贡献。
+它使用专门的 `BeanRegistrationAotProcessor` 来实现这一点。
+这个接口的使用如下：
 
-This interface is used as follows:
-
-* Implemented by a `BeanPostProcessor` bean, to replace its runtime behavior.
-For instance xref:core/beans/factory-extension.adoc#beans-factory-extension-bpp-examples-aabpp[`AutowiredAnnotationBeanPostProcessor`] implements this interface to generate code that injects members annotated with `@Autowired`.
-* Implemented by a type registered in `META-INF/spring/aot.factories` with a key equal to the fully-qualified name of the interface.
-Typically used when the bean definition needs to be tuned for specific features of the core framework.
+* 由一个 `BeanPostProcessor` bean 实现，以替换它的运行时行为。例如，
+xref:core/beans/factory-extension.adoc#beans-factory-extension-bpp-examples-aabpp[`AutowiredAnnotationBeanPostProcessor`] 实现了这个接口，以生成代码，注入带有 `@Autowired` 注解的成员。
+* 由一个在 `META-INF/config/aot.factories` 中注册的类型实现，其键等于接口的完全限定名。通常在需要调整 bean 定义以适应核心框架特定特性时使用。
 
 [NOTE]
 ====
-If a bean implements the `BeanRegistrationAotProcessor` interface, the bean and **all** of its dependencies will be initialized during AOT processing.
-We generally recommend that this interface is only implemented by infrastructure beans such as `BeanFactoryPostProcessor` which have limited dependencies and are already initialized early in the bean factory lifecycle.
-If such a bean is registered using an `@Bean` factory method, ensure the method is `static` so that its enclosing `@Configuration` class does not have to be initialized.
+如果一个 bean 实现了 `BeanRegistrationAotProcessor` 接口，那么该 bean 和 **所有** 它的依赖项都将在 AOT 处理期间初始化。
+我们通常建议只有基础设施 bean，如 `BeanFactoryPostProcessor`，才实现这个接口，这些 bean 的依赖性有限，并且在 bean 工厂的生命周期早期已经初始化。
+如果使用 `@Bean` 工厂方法注册这样的 bean，请确保该方法是 static 的，以便它的封闭 `@Configuration` 类不必被初始化。
 ====
 
-If no `BeanRegistrationAotProcessor` handles a particular registered bean, a default implementation processes it.
-This is the default behavior, since tuning the generated code for a bean definition should be restricted to corner cases.
+如果没有 `BeanRegistrationAotProcessor` 处理特定注册的bean，将使用默认实现来处理它。这是默认行为，因为调整 bean 定义的生成代码应该限制在边缘情况下。
 
-Taking our previous example, let's assume that `DataSourceConfiguration` is as follows:
+以我们之前的例子为例，假设 `DataSourceConfiguration` 如下所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration(proxyBeanMethods = false)
@@ -176,17 +168,9 @@ public class DataSourceConfiguration {
 }
 ----
 
-======
+由于这个类上没有特定的条件，`dataSourceConfiguration` 和 `dataSource` 被确定为候选项。
+AOT 引擎将把上面的配置类转换为类似以下的代码：
 
-WARNING: Kotlin class names with backticks that use invalid Java identifiers (not starting with a letter, containing spaces, etc.) are not supported.
-
-Since there isn't any particular condition on this class, `dataSourceConfiguration` and `dataSource` are identified as candidates.
-The AOT engine will convert the configuration class above to code similar to the following:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,role="primary"]
 ----
 /**
@@ -223,63 +207,57 @@ public class DataSourceConfiguration__BeanDefinitions {
   }
 }
 ----
-======
 
-NOTE: The exact code generated may differ depending on the exact nature of your bean definitions.
+NOTE: 生成的确切代码可能会根据您的 bean 定义的具体特性而有所不同。
 
-TIP: Each generated class is annotated with `cn.taketoday.aot.generate.Generated` to identify them if they need to be excluded, for instance by static analysis tools.
+TIP: 每个生成的类都会用 `cn.taketoday.aot.generate.Generated` 进行注解，以便在需要排除它们时进行识别，例如通过静态分析工具。
 
-The generated code above creates bean definitions equivalent to the `@Configuration` class, but in a direct way and without the use of reflection if at all possible.
-There is a bean definition for `dataSourceConfiguration` and one for `dataSourceBean`.
-When a `datasource` instance is required, a `BeanInstanceSupplier` is called.
-This supplier invokes the `dataSource()` method on the `dataSourceConfiguration` bean.
+以上生成的代码创建了等效于 `@Configuration` 类的bean定义，但以直接方式进行，尽可能地避免使用反射。
+有一个用于 `dataSourceConfiguration` 的 bean 定义，以及一个用于 dataSourceBean 的 bean 定义。
+当需要一个 `datasource` 实例时，会调用一个 `BeanInstanceSupplier`。
+这个供应商会在 `dataSourceConfiguration` bean 上调用 `dataSource()` 方法。
 
 [[aot.running]]
-== Running with AOT optimizations
+== 使用 AOT 优化运行
 
-AOT is a mandatory step to transform a Infra application to a native executable, so it is automatically enabled when running in this mode.
-It is possible to use those optimizations on the JVM by setting the `infra.aot.enabled` System property to `true`.
+AOT 是将 Infra 应用程序转换为本机可执行文件的必需步骤，因此在此模式下运行时会自动启用它。
+可以通过将 `infra.aot.enabled` 系统属性设置为 `true` 来在 JVM 上使用这些优化。
 
-NOTE: When AOT optimizations are included, some decisions that have been taken at build-time are hard-coded in the application setup.
-For instance, profiles that have been enabled at build-time are automatically enabled at runtime as well.
+NOTE: 当包含 AOT 优化时，一些在构建时做出的决策会硬编码在应用程序设置中。
+例如，构建时启用的配置文件也会在运行时自动启用。
 
 [[aot.bestpractices]]
-== Best Practices
+== 最佳实践
 
-The AOT engine is designed to handle as many use cases as possible, with no code change in applications.
-However, keep in mind that some optimizations are made at build time based on a static definition of the beans.
-
-This section lists the best practices that make sure your application is ready for AOT.
+AOT 引擎旨在处理尽可能多的用例，而无需在应用程序中进行代码更改。
+但是，请记住，一些优化是根据静态定义的 bean 在构建时进行的。
+以下部分列出了确保您的应用程序准备好进行 AOT 的最佳实践。
 
 [[aot.bestpractices.bean-registration]]
-== Programmatic bean registration
+== 编程式 bean 注册
 
-The AOT engine takes care of the `@Configuration` model and any callback that might be invoked as part of processing your configuration.
-If you need to register additional beans programmatically, make sure to use a `BeanDefinitionRegistry` to register bean definitions.
+AOT 引擎负责 `@Configuration` 模型以及在处理配置时可能被调用的任何回调。
+如果您需要以编程方式注册额外的 bean，请确保使用 `BeanDefinitionRegistry` 来注册 bean 定义。
 
-This can typically be done via a `BeanDefinitionRegistryPostProcessor`.
-Note that, if it is registered itself as a bean, it will be invoked again at runtime unless you make sure to implement `BeanFactoryInitializationAotProcessor` as well.
-A more idiomatic way is to implement `ImportBeanDefinitionRegistrar` and register it using `@Import` on one of your configuration classes.
-This invokes your custom code as part of configuration class parsing.
+通常可以通过 `BeanDefinitionRegistryPostProcessor` 来完成此操作。
+请注意，如果将其自身注册为 bean，则在运行时将再次调用它，除非您确保还实现了 `BeanFactoryInitializationAotProcessor`。
+更符合惯例的方法是实现 `ImportBeanDefinitionRegistrar`，并在您的配置类之一上使用 `@Import` 注册它。
+这会将您的自定义代码作为配置类解析的一部分来调用。
 
-If you declare additional beans programmatically using a different callback, they are likely not going to be handled by the AOT engine, and therefore no hints are going to be generated for them.
-Depending on the environment, those beans may not be registered at all.
-For instance, classpath scanning does not work in a native image as there is no notion of a classpath.
-For cases like this, it is crucial that the scanning happens at build time.
+如果您使用不同的回调程序化地声明额外的 bean，那么这些 bean 可能不会被 AOT 引擎处理，因此不会为它们生成提示。
+根据环境不同，这些 bean 可能根本不会被注册。
+例如，类路径扫描在本机镜像中不起作用，因为没有类路径的概念。
+对于这种情况，关键是扫描在构建时发生。
 
 [[aot.bestpractices.bean-type]]
-=== Expose The Most Precise Bean Type
+=== 暴露最精确的 Bean 类型
 
-While your application may interact with an interface that a bean implements, it is still very important to declare the most precise type.
-The AOT engine performs additional checks on the bean type, such as detecting the presence of `@Autowired` members or lifecycle callback methods.
+尽管您的应用程序可能与一个 bean 实现的接口进行交互，但声明最精确的类型仍然非常重要。
+AOT 引擎对 bean 类型执行额外的检查，例如检测是否存在 `@Autowired` 成员或生命周期回调方法。
 
-For `@Configuration` classes, make sure that the return type of the factory `@Bean` method is as precise as possible.
-Consider the following example:
+对于 `@Configuration` 类，请确保工厂 `@Bean` 方法的返回类型尽可能精确。
+考虑以下示例：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration(proxyBeanMethods = false)
@@ -292,18 +270,13 @@ public class UserConfiguration {
 
 }
 ----
-======
 
-In the example above, the declared type for the `myInterface` bean is `MyInterface`.
-None of the usual post-processing will take `MyImplementation` into account.
-For instance, if there is an annotated handler method on `MyImplementation` that the context should register, it won’t be detected upfront.
+在上面的示例中，对于 `myInterface` bean，声明的类型是 `MyInterface`。
+通常的后处理不会考虑 `MyImplementation`。
+例如，如果 `MyImplementation` 上有一个带注解的处理方法，上下文应该注册它，那么它不会被预先检测到。
 
-The example above should be rewritten as follows:
+上面的示例应该重写如下：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration(proxyBeanMethods = false)
@@ -316,45 +289,38 @@ public class UserConfiguration {
 
 }
 ----
-======
 
-If you are registering bean definitions programmatically, consider using `RootBeanBefinition` as it allows to specify a `ResolvableType` that handles generics.
+如果您正在以编程方式注册 bean 定义，请考虑使用 `RootBeanDefinition`，因为它允许指定一个处理泛型的 `ResolvableType`。
+
 
 [[aot.bestpractices.constructors]]
-=== Avoid Multiple Constructors
+=== 避免多个构造函数
 
-The container is able to choose the most appropriate constructor to use based on several candidates.
-However, this is not a best practice and flagging the preferred constructor with `@Autowired` if necessary is preferred.
+容器能够根据多个候选项选择最合适的构造函数来使用。
+然而，这并不是最佳实践，如果必要的话，最好用 `@Autowired` 标记首选的构造函数。
 
-In case you are working on a code base that you cannot modify, you can set the {today-framework-api}/beans/factory/support/AbstractBeanDefinition.html#PREFERRED_CONSTRUCTORS_ATTRIBUTE[`preferredConstructors` attribute] on the related bean definition to indicate which constructor should be used.
+如果你正在处理一个无法修改的代码库，你可以在相关的bean定义上设置
+{today-framework-api}/beans/factory/support/AbstractBeanDefinition.html#PREFERRED_CONSTRUCTORS_ATTRIBUTE[`preferredConstructors` 属性] ，以指示应该使用哪个构造函数。
 
 [[aot.bestpractices.factory-bean]]
 === FactoryBean
 
-`FactoryBean` should be used with care as it introduces an intermediate layer in terms of bean type resolution that may not be conceptually necessary.
-As a rule of thumb, if the `FactoryBean` instance does not hold long-term state and is not needed at a later point in time at runtime, it should be replaced by a regular factory method, possibly with a `FactoryBean` adapter layer on top (for declarative configuration purposes).
+应谨慎使用 `FactoryBean`，因为它在bean类型解析方面引入了一个中间层，这在概念上可能并不必要。
+作为一个经验法则，如果 `FactoryBean` 实例不持有长期状态，并且在运行时不需要在以后的某个时间点使用它，那么它应该被一个普通的工厂方法替换，
+可能在顶部使用一个 `FactoryBean` 适配器层（用于声明性配置目的）。
 
-If your `FactoryBean` implementation does not resolve the object type (i.e. `T`), extra care is necessary.
-Consider the following example:
+如果你的 `FactoryBean` 实现不解析对象类型（即 `T`），则需要格外小心。
+考虑以下示例：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class ClientFactoryBean<T extends AbstractClient> implements FactoryBean<T> {
   // ...
 }
 ----
-======
 
-A concrete client declaration should provide a resolved generic for the client, as shown in the following example:
+一个具体的客户端声明应该为客户端提供一个解析的泛型，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration(proxyBeanMethods = false)
@@ -367,20 +333,15 @@ public class UserConfiguration {
 
 }
 ----
-======
 
-If the `FactoryBean` bean definition is registered programmatically, make sure to follow these steps:
+如果 `FactoryBean` 的 bean 定义是以编程式注册的，请确保按照以下步骤进行操作：
 
-1. Use `RootBeanDefinition`.
-2. Set the `beanClass` to the `FactoryBean` class so that AOT knows that it is an intermediate layer.
-3. Set the `ResolvableType` to a resolved generic, which makes sure the most precise type is exposed.
+1. 使用 `RootBeanDefinition`。
+2. 将 `beanClass` 设置为 `FactoryBean` 类，以便 AOT 知道它是一个中间层。
+3. 将 `ResolvableType` 设置为一个解析的泛型，以确保暴露最精确的类型。
 
-The following example showcases a basic definition:
+以下示例展示了一个基本的定义：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
   RootBeanDefinition beanDefinition = new RootBeanDefinition(ClientFactoryBean.class);
@@ -388,18 +349,16 @@ Java::
   // ...
   registry.registerBeanDefinition("myClient", beanDefinition);
 ----
-======
+
 
 [[aot.bestpractices.jpa]]
 === JPA
 
-The JPA persistence unit has to be known upfront for certain optimizations to apply.
-Consider the following basic example:
+WARNING: 5.0 将不在支持 JPA
 
-[tabs]
-======
-Java::
-+
+对于某些优化要应用，必须预先知道 JPA 持久化单元。
+考虑以下基本示例：
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Bean
@@ -410,14 +369,9 @@ LocalContainerEntityManagerFactoryBean customDBEntityManagerFactory(DataSource d
   return factoryBean;
 }
 ----
-======
 
-To make sure the scanning occurs ahead of time, a `PersistenceManagedTypes` bean must be declared and used by the factory bean definition, as shown by the following example:
+为了确保提前进行扫描，必须声明一个 `PersistenceManagedTypes` bean，并由工厂 bean 定义使用，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Bean
@@ -434,41 +388,35 @@ LocalContainerEntityManagerFactoryBean customDBEntityManagerFactory(DataSource d
   return factoryBean;
 }
 ----
-======
 
 [[aot.hints]]
 == Runtime Hints
 
-Running an application as a native image requires additional information compared to a regular JVM runtime.
-For instance, GraalVM needs to know ahead of time if a component uses reflection.
-Similarly, classpath resources are not included in a native image unless specified explicitly.
-Consequently, if the application needs to load a resource, it must be referenced from the corresponding GraalVM native image configuration file.
+在将应用程序作为本机镜像运行时，与常规 JVM 运行时相比，需要额外的信息。
+例如，GraalVM 需要提前知道组件是否使用了反射。
+同样，除非明确指定，否则类路径资源不会包含在本机镜像中。
+因此，如果应用程序需要加载资源，则必须从相应的 GraalVM 本机镜像配置文件中引用。
 
-The {today-framework-api}/aot/hint/RuntimeHints.html[`RuntimeHints`] API collects the need for reflection, resource loading, serialization, and JDK proxies at runtime.
-The following example makes sure that `config/app.properties` can be loaded from the classpath at runtime within a native image:
+{today-framework-api}/aot/hint/RuntimeHints.html[`RuntimeHints`] API 在运行时收集了反射、资源加载、序列化和 JDK 代理的需求。
+以下示例确保 `config/app.properties` 可以在本机镜像中的运行时从类路径加载：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 runtimeHints.resources().registerPattern("config/app.properties");
 ----
-======
 
-A number of contracts are handled automatically during AOT processing.
-For instance, the return type of a `@Controller` method is inspected, and relevant reflection hints are added if Infra detects that the type should be serialized (typically to JSON).
+在 AOT 处理期间，许多合同都会自动处理。
+例如，会检查 `@Controller` 方法的返回类型，如果基础设施检测到应该对该类型进行序列化（通常为 JSON），则会添加相关的反射提示。
 
-For cases that the core container cannot infer, you can register such hints programmatically.
-A number of convenient annotations are also provided for common use cases.
+对于核心容器无法推断的情况，您可以以编程方式注册此类提示。
+还提供了一些方便的注解，用于常见用例。
 
 [[aot.hints.import-runtime-hints]]
 === `@ImportRuntimeHints`
 
-`RuntimeHintsRegistrar` implementations allow you to get a callback to the `RuntimeHints` instance managed by the AOT engine.
-Implementations of this interface can be registered using `@ImportRuntimeHints` on any Infra bean or `@Bean` factory method.
-`RuntimeHintsRegistrar` implementations are detected and invoked at build time.
+`RuntimeHintsRegistrar` 实现允许您获取由 AOT 引擎管理的 `RuntimeHints` 实例的回调。
+可以使用 `@ImportRuntimeHints` 注解在任何 Infra bean 或 `@Bean` 工厂方法上注册此接口的实现。
+`RuntimeHintsRegistrar` 实现在构建时被检测并调用。
 
 [source,java]
 ----
@@ -492,39 +440,33 @@ public class SpellCheckService {
 }
 ----
 
-If at all possible, `@ImportRuntimeHints` should be used as close as possible to the component that requires the hints.
-This way, if the component is not contributed to the `BeanFactory`, the hints won't be contributed either.
+尽可能地，应该将 `@ImportRuntimeHints` 注解使用在尽可能靠近需要提示的组件上。
+这样，如果组件未被贡献给 `BeanFactory`，那么提示也不会被贡献。
 
-It is also possible to register an implementation statically by adding an entry in `META-INF/spring/aot.factories` with a key equal to the fully-qualified name of the `RuntimeHintsRegistrar` interface.
-
+也可以通过在 `META-INF/config/aot.factories` 中添加一个键等于 `RuntimeHintsRegistrar` 接口的完全限定名称的条目来静态注册一个实现。
 
 [[aot.hints.reflective]]
 === `@Reflective`
 
-{today-framework-api}/aot/hint/annotation/Reflective.html[`@Reflective`] provides an idiomatic way to flag the need for reflection on an annotated element.
-For instance, `@EventListener` is meta-annotated with `@Reflective` since the underlying implementation invokes the annotated method using reflection.
+{today-framework-api}/aot/hint/annotation/Reflective.html[`@Reflective`] 提供了一种标记对注释元素进行反射的成语化方式。
+例如，`@EventListener` 被元注释为 `@Reflective`，因为底层实现会使用反射调用注释方法。
 
-By default, only Infra beans are considered, and an invocation hint is registered for the annotated element.
-This can be tuned by specifying a custom `ReflectiveProcessor` implementation via the
-`@Reflective` annotation.
+默认情况下，只考虑 Infra bean，并为注释元素注册调用提示。
+可以通过指定自定义的 `ReflectiveProcessor` 实现来调整此设置，通过 `@Reflective` 注解。
 
-Library authors can reuse this annotation for their own purposes.
-If components other than Infra beans need to be processed, a `BeanFactoryInitializationAotProcessor` can detect the relevant types and use `ReflectiveRuntimeHintsRegistrar` to process them.
+库作者可以为自己的目的重用此注解。
+如果除 Infra bean 外的组件需要处理，则 `BeanFactoryInitializationAotProcessor` 可以检测相关类型并使用 `ReflectiveRuntimeHintsRegistrar` 对其进行处理。
 
 
 [[aot.hints.register-reflection-for-binding]]
 === `@RegisterReflectionForBinding`
 
-{today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`] is a specialization of `@Reflective` that registers the need for serializing arbitrary types.
-A typical use case is the use of DTOs that the container cannot infer, such as using a web client within a method body.
+{today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`]
+是 `@Reflective` 的一种特化，用于注册序列化任意类型的需求。典型用例是使用容器无法推断的 DTO，例如在方法体中使用 Web 客户端。
 
-`@RegisterReflectionForBinding` can be applied to any Infra bean at the class level, but it can also be applied directly to a method, field, or constructor to better indicate where the hints are actually required.
-The following example registers `Account` for serialization.
+`@RegisterReflectionForBinding` 可以应用于类级别的任何 Infra bean，但也可以直接应用于方法、字段或构造函数，以更好地指示实际需要提示的位置。
+以下示例注册 `Account` 进行序列化。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Component
@@ -537,14 +479,13 @@ public class OrderService {
 
 }
 ----
-======
 
 [[aot.hints.testing]]
 === Testing Runtime Hints
 
-Infra Core also ships `RuntimeHintsPredicates`, a utility for checking that existing hints match a particular use case.
-This can be used in your own tests to validate that a `RuntimeHintsRegistrar` contains the expected results.
-We can write a test for our `SpellCheckService` and ensure that we will be able to load a dictionary at runtime:
+Infra Core 还提供了 `RuntimeHintsPredicates`，这是一个用于检查现有提示是否与特定用例匹配的实用工具。
+您可以在自己的测试中使用它来验证 `RuntimeHintsRegistrar` 包含了预期的结果。
+我们可以为我们的 `SpellCheckService` 编写一个测试，并确保我们能够在运行时加载字典：
 
 [source,java]
 ----
@@ -570,15 +511,17 @@ class SpellCheckServiceTests {
 }
 ----
 
-With `RuntimeHintsPredicates`, we can check for reflection, resource, serialization, or proxy generation hints.
-This approach works well for unit tests but implies that the runtime behavior of a component is well known.
+使用 `RuntimeHintsPredicates`，我们可以检查反射、资源、序列化或代理生成提示。
+这种方法非常适合单元测试，但前提是组件的运行时行为是众所周知的。
 
-You can learn more about the global runtime behavior of an application by running its test suite (or the app itself) with the {graalvm-docs}/native-image/metadata/AutomaticMetadataCollection/[GraalVM tracing agent].
-This agent will record all relevant calls requiring GraalVM hints at runtime and write them out as JSON configuration files.
+您可以通过使用 {graalvm-docs}/native-image/metadata/AutomaticMetadataCollection/[GraalVM tracing agent]
+在运行测试套件（或应用程序本身）时来了解应用程序的全局运行时行为。
+该代理将记录在运行时需要 GraalVM 提示的所有相关调用，并将它们写出为 JSON 配置文件。
 
-For more targeted discovery and testing, Infra Framework ships a dedicated module with core AOT testing utilities, `"cn.taketoday:today-core-test"`.
-This module contains the RuntimeHints Agent, a Java agent that records all method invocations that are related to runtime hints and helps you to assert that a given `RuntimeHints` instance covers all recorded invocations.
-Let's consider a piece of infrastructure for which we'd like to test the hints we're contributing during the AOT processing phase.
+为了更有针对性地发现和测试，Infra Framework 提供了一个专用模块，核心 AOT 测试工具 `"cn.taketoday:today-core-test"`。
+该模块包含 RuntimeHints Agent，它是一个 Java 代理，记录了所有与运行时提示相关的方法调用，并帮助您断言给定的 `RuntimeHints` 实例是否覆盖了所有记录的调用。
+让我们考虑一个基础设施的例子，我们想要在 AOT 处理阶段测试我们正在贡献的提示。
+
 
 [source,java]
 ----
@@ -601,13 +544,13 @@ public class SampleReflection {
 }
 ----
 
-We can then write a unit test (no native compilation required) that checks our contributed hints:
+然后，我们可以编写一个单元测试（不需要本地编译），来检查我们贡献的提示：
 
 [source,java]
 ----
-// @EnabledIfRuntimeHintsAgent signals that the annotated test class or test
-// method is only enabled if the RuntimeHintsAgent is loaded on the current JVM.
-// It also tags tests with the "RuntimeHints" JUnit tag.
+// @EnabledIfRuntimeHintsAgent 表示标记了注释的测试类或测试方法仅在当前
+// JVM 上加载 RuntimeHintsAgent 时才启用。
+// 它还将测试标记为 "RuntimeHints" JUnit 标签。
 @EnabledIfRuntimeHintsAgent
 class SampleReflectionRuntimeHintsTests {
 
@@ -618,12 +561,12 @@ class SampleReflectionRuntimeHintsTests {
     runtimeHints.reflection().registerType(Version.class, typeHint ->
             typeHint.withMethod("getVersion", List.of(), ExecutableMode.INVOKE));
 
-    // Invoke the relevant piece of code we want to test within a recording lambda
+    // 在记录 Lambda 中调用我们想要测试的相关代码片段。
     RuntimeHintsInvocations invocations = RuntimeHintsRecorder.record(() -> {
       SampleReflection sample = new SampleReflection();
       sample.performReflection();
     });
-    // assert that the recorded invocations are covered by the contributed hints
+    // 使用断言来验证记录的调用是否被贡献的提示所覆盖。
     assertThat(invocations).match(runtimeHints);
   }
 
@@ -631,7 +574,7 @@ class SampleReflectionRuntimeHintsTests {
 
 ----
 
-If you forgot to contribute a hint, the test will fail and provide some details about the invocation:
+如果忘记贡献提示，测试将失败，并提供有关调用的一些详细信息。
 
 [source,txt,indent=0,subs="verbatim,quotes"]
 ----
@@ -648,6 +591,7 @@ cn.taketoday.runtimehintstesting.SampleReflection#performReflection, Line 19
 cn.taketoday.runtimehintstesting.SampleReflectionRuntimeHintsTests#lambda$shouldRegisterReflectionHints$0, Line 25
 ----
 
-There are various ways to configure this Java agent in your build, so please refer to the documentation of your build tool and test execution plugin.
-The agent itself can be configured to instrument specific packages (by default, only `cn.taketoday` is instrumented).
-You'll find more details in the {today-framework-code}/buildSrc/README.md[TODAY Framework `buildSrc` README] file.
+您可以通过各种方式配置此 Java 代理程序在构建中的使用，请参阅您的构建工具和测试执行插件的文档。
+代理程序本身可以配置为仪器化特定的包（默认情况下仅仪器化`cn.taketoday`）。
+您将在 {today-framework-code}/buildSrc/README.md[Framework `buildSrc` README] 文件中找到更多详细信息。
+

@@ -53,9 +53,9 @@ the following options.
 
 * Implement a custom
   {today-framework-api}/test/context/aot/TestRuntimeHintsRegistrar.html[`TestRuntimeHintsRegistrar`]
-  and register it globally via `META-INF/spring/aot.factories`.
+  and register it globally via `META-INF/config/aot.factories`.
 * Implement a custom {today-framework-api}/aot/hint/RuntimeHintsRegistrar.html[`RuntimeHintsRegistrar`]
-  and register it globally via `META-INF/spring/aot.factories` or locally on a test class
+  and register it globally via `META-INF/config/aot.factories` or locally on a test class
   via {today-framework-api}/context/annotation/ImportRuntimeHints.html[`@ImportRuntimeHints`].
 * Annotate a test class with {today-framework-api}/aot/hint/annotation/Reflective.html[`@Reflective`] or
   {today-framework-api}/aot/hint/annotation/RegisterReflectionForBinding.html[`@RegisterReflectionForBinding`].
