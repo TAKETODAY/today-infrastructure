@@ -97,22 +97,21 @@ public class MovieRecommender {
 }
 ----
 
-
 You can also refer to other bean properties by name, as the following example shows:
 
 [source,java]
 ----
 public class ShapeGuess {
 
-	private double initialShapeSeed;
+  private double initialShapeSeed;
 
-	@Value("#{ numberGuess.randomNumber }")
-	public void setInitialShapeSeed(double initialShapeSeed) {
-		this.initialShapeSeed = initialShapeSeed;
-	}
+  @Value("#{ numberGuess.randomNumber }")
+  public void setInitialShapeSeed(double initialShapeSeed) {
+    this.initialShapeSeed = initialShapeSeed;
+  }
 
-	public double getInitialShapeSeed() {
-		return initialShapeSeed;
-	}
+  public double getInitialShapeSeed() {
+    return initialShapeSeed;
+  }
 }
 ----

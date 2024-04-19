@@ -1,40 +1,25 @@
 [[validation]]
-= Validation, Data Binding, and Type Conversion
+= 验证、数据绑定和类型转换
 
-There are pros and cons for considering validation as business logic, and Infra offers
-a design for validation and data binding that does not exclude either one of them.
-Specifically, validation should not be tied to the web tier and should be easy to localize,
-and it should be possible to plug in any available validator. Considering these concerns,
-Infra provides a `Validator` contract that is both basic and eminently usable
-in every layer of an application.
+在考虑验证作为业务逻辑的利弊时，框架提供了一个不排除任何一方的验证和数据绑定设计。
+具体来说，验证不应该仅限于 Web 层，并且应该容易本地化，同时应该能够接入任何可用的验证器。
+鉴于这些考虑，框架提供了一个既基础又极具可用性的 `Validator` 合约，可在应用的每个层次中使用。
 
-Data binding is useful for letting user input be dynamically bound to the domain
-model of an application (or whatever objects you use to process user input). Spring
-provides the aptly named `DataBinder` to do exactly that. The `Validator` and the
-`DataBinder` make up the `validation` package, which is primarily used in but not
-limited to the web layer.
+数据绑定对于让用户输入动态地绑定到应用的领域模型（或任何用于处理用户输入的对象）非常有用。
+框架提供了恰当命名的 `DataBinder` 来做到这一点。`Validator` 和 `DataBinder`
+构成了主要用于但不限于 Web 层的 `validation` 包。
 
-The `BeanWrapper` is a fundamental concept in the TODAY Framework and is used in a lot
-of places. However, you probably do not need to use the `BeanWrapper` directly. Because
-this is reference documentation, however, we feel that some explanation might be in
-order. We explain the `BeanWrapper` in this chapter, since, if you are going to use it at
-all, you are most likely do so when trying to bind data to objects.
+`BeanWrapper` 是框架中的一个基本概念，被广泛使用。然而，您可能不需要直接使用 `BeanWrapper`。
+由于这是参考文档，我们认为可能需要一些解释。我们在本章中解释 `BeanWrapper`，因为如果您要使用它，
+最有可能的情况是在尝试将数据绑定到对象时。
 
-Infra `DataBinder` and the lower-level `BeanWrapper` both use `PropertyEditorSupport`
-implementations to parse and format property values. The `PropertyEditor` and
-`PropertyEditorSupport` types are part of the JavaBeans specification and are also
-explained in this chapter. Infra `core.convert` package provides a general type
-conversion facility, as well as a higher-level `format` package for formatting UI field
-values. You can use these packages as simpler alternatives to `PropertyEditorSupport`
-implementations. They are also discussed in this chapter.
+`DataBinder` 和更低级的 `BeanWrapper` 都使用 `PropertyEditorSupport` 实现来解析和格式化属性值。
+`PropertyEditor` 和 `PropertyEditorSupport` 类型是 JavaBeans 规范的一部分，
+在本章中也有解释。`core.conversion` 包提供了一个通用的类型转换设施，以及用于格式化 UI
+字段值的更高级别的 `format` 包。您可以使用这些包作为 `PropertyEditorSupport` 实现的更简单的替代品。
+它们也在本章中讨论。
 
-Infra supports Java Bean Validation through setup infrastructure and an adaptor to
-Infra own `Validator` contract. Applications can enable Bean Validation once globally,
-as described in xref:core/validation/beanvalidation.adoc[Java Bean Validation], and use it exclusively for all validation
-needs. In the web layer, applications can further register controller-local Spring
-`Validator` instances per `DataBinder`, as described in xref:core/validation/beanvalidation.adoc#validation-binder[Configuring a `DataBinder`], which can
-be useful for plugging in custom validation logic.
-
-
-
-
+通过设置基础设施和适配器支持 Java Bean验证。应用程序可以全局启用一次 Bean 验证，如
+xref:core/validation/beanvalidation.adoc[Java Bean Validation] 所述，并且专门用于所有验证需求。在Web层，应用程序还可以根据
+xref:core/validation/beanvalidation.adoc#validation-binder[配置一个 `DataBinder`] 的方式，为每个 `DataBinder`
+注册控制器本地的 `Validator` 实例，这对于插入自定义验证逻辑非常有用。
