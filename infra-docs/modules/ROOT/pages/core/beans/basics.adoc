@@ -1,66 +1,43 @@
 [[beans-basics]]
-= Container Overview
+= 容器概述
 
-The `cn.taketoday.context.ApplicationContext` interface represents the Infra IoC
-container and is responsible for instantiating, configuring, and assembling the
-beans. The container gets its instructions on what objects to
-instantiate, configure, and assemble by reading configuration metadata. The
-configuration metadata is represented in XML, Java annotations, or Java code. It lets
-you express the objects that compose your application and the rich interdependencies
-between those objects.
-
-`cn.taketoday.context.ApplicationContext` 接口代表 IoC 容器并负责实例化、配置和组装
-Bean 。容器通过获取 XML 配置或 Java 注解配置甚至是代码来实例化、配置和组装 Bean。
-
+`cn.taketoday.context.ApplicationContext` 接口代表了 IoC 容器，
+负责实例化、配置和组装 bean。容器通过读取配置元数据来获取实例化、配置和组装对象的指令。
+配置元数据可以用 XML、Java 注解或 Java 代码表示。它允许您表达组成应用程序的对象以及这些对象之间的丰富相互依赖关系。
 
 框架提供了几个 `ApplicationContext` 接口的实现，在单体应用中，当你要使用 XML 配置来描述和配置 Bean 时
 你可以使用 {today-framework-api}/context/support/ClassPathXmlApplicationContext.html[`ClassPathXmlApplicationContext`]
 或者 {today-framework-api}/context/support/FileSystemXmlApplicationContext.html[`FileSystemXmlApplicationContext`]。
 当然你也可以使用少量 XML 配置开启 Java 注解或代码作为元数据格式。
 
-
 [[beans-factory-metadata]]
 == Configuration Metadata
 
-As the preceding diagram shows, the Infra IoC container consumes a form of
-configuration metadata. This configuration metadata represents how you, as an
-application developer, tell the Infra container to instantiate, configure, and assemble
-the objects in your application.
+IoC 容器消耗一种形式的配置元数据。这些配置元数据代表您作为应用程序开发者告诉 Infra 容器如何实例化、配置和组装应用程序中的对象。
 
-Configuration metadata is traditionally supplied in a simple and intuitive XML format,
-which is what most of this chapter uses to convey key concepts and features of the
-Infra IoC container.
+传统上，配置元数据通常以简单直观的 XML 格式提供，这也是本章大部分内容用来传达 IoC 容器的关键概念和特性的方式。
 
-NOTE: XML-based metadata is not the only allowed form of configuration metadata.
-The Infra IoC container itself is totally decoupled from the format in which this
-configuration metadata is actually written. These days, many developers choose
-xref:core/beans/java.adoc[Java-based configuration] for their Infra applications.
+NOTE: XML 格式的元数据配置并不是唯一允许的配置元数据形式。IoC 容器本身与配置元数据的实际编写格式完全解耦。
+如今，许多开发者选择使用 xref:core/beans/java.adoc[Java-based configuration] 来配置他们的 Infra 应用程序。
 
-For information about using other forms of metadata with the Infra container, see:
+有关在 Infra 容器中使用其他形式的元数据的信息，请参阅：
 
-* xref:core/beans/annotation-config.adoc[Annotation-based configuration]: define beans using
-annotation-based configuration metadata.
-* xref:core/beans/java.adoc[Java-based configuration]: define beans external to your application
-classes by using Java rather than XML files. To use these features, see the
+* xref:core/beans/annotation-config.adoc[基于注解的配置]: 使用基于注解的配置元数据定义 bean。
+
+
+* xref:core/beans/java.adoc[基于 Java 的配置]: 使用 Java 而不是 XML 文件在应用程序类外部定义 bean。要使用这些功能，请参阅
 {today-framework-api}/context/annotation/Configuration.html[`@Configuration`],
 {today-framework-api}/context/annotation/Bean.html[`@Bean`],
 {today-framework-api}/context/annotation/Import.html[`@Import`],
-and {today-framework-api}/context/annotation/DependsOn.html[`@DependsOn`] annotations.
+和 {today-framework-api}/context/annotation/DependsOn.html[`@DependsOn`] 注解.
 
-Infra configuration consists of at least one and typically more than one bean
-definition that the container must manage. XML-based configuration metadata configures these
-beans as `<bean/>` elements inside a top-level `<beans/>` element. Java
-configuration typically uses `@Bean`-annotated methods within a `@Configuration` class.
+基础设施配置至少包括一个，通常是多个 bean 定义，容器必须管理这些定义。基于 XML 的配置元数据将这些 bean 配置为顶级
+`<beans/>` 元素内的 `<bean/>` 元素。Java 配置通常使用 `@Configuration` 类中的 `@Bean` 注释方法。
 
-These bean definitions correspond to the actual objects that make up your application.
-Typically, you define service layer objects, persistence layer objects such as
-repositories or data access objects (DAOs), presentation objects such as Web controllers,
-infrastructure objects such as a JPA `EntityManagerFactory`, JMS queues, and so forth.
-Typically, one does not configure fine-grained domain objects in the container, because
-it is usually the responsibility of repositories and business logic to create and load
-domain objects.
+这些 bean 定义对应于组成应用程序的实际对象。通常，您定义服务层对象、持久化层对象（如存储库或数据访问对象（DAO））、
+表示层对象（如 Web 控制器）、基础设施对象（如 JPA `EntityManagerFactory`、JMS 队列等）。通常，不会在容器中配置细
 
-The following example shows the basic structure of XML-based configuration metadata:
+以下示例显示了基于 XML 的配置元数据的基本结构：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -83,46 +60,32 @@ The following example shows the basic structure of XML-based configuration metad
 </beans>
 ----
 
-<1> The `id` attribute is a string that identifies the individual bean definition.
-<2> The `class` attribute defines the type of the bean and uses the fully qualified
-class name.
+<1> `id` 属性是一个字符串，用于标识单个 bean 定义。
+<2> `class` 属性定义了 bean 的类型，并使用完全限定的类名。
 
-The value of the `id` attribute can be used to refer to collaborating objects. The XML
-for referring to collaborating objects is not shown in this example. See
-xref:core/beans/dependencies.adoc[Dependencies] for more information.
+`id` 属性的值可用于引用协作对象。此示例中未显示用于引用协作对象的 XML。有关更多信息，
+请参阅 xref:core/beans/dependencies.adoc[Dependencies]。
 
 
 
 [[beans-factory-instantiation]]
-== Instantiating a Container
+== 实例化一个容器
 
-The location path or paths
-supplied to an `ApplicationContext` constructor are resource strings that let
-the container load configuration metadata from a variety of external resources, such
-as the local file system, the Java `CLASSPATH`, and so on.
+`ApplicationContext` 构造函数中提供的位置路径或路径是资源字符串，允许容器从各种外部资源加载配置元数据，例如本地文件系统、Java `CLASSPATH` 等等。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ApplicationContext context = new ClassPathXmlApplicationContext("services.xml", "daos.xml");
 ----
 
-======
-
 [NOTE]
 ====
-After you learn about Infra IoC container, you may want to know more about Infra
-`Resource` abstraction (as described in
-xref:core/resources.adoc[Resources])
-which provides a convenient mechanism for reading an InputStream from locations defined
-in a URI syntax. In particular, `Resource` paths are used to construct applications contexts,
-as described in xref:core/resources.adoc#resources-app-ctx[Application Contexts and Resource Paths].
+在了解了 Infra IoC 容器之后，您可能想进一步了解 Infra `Resource` 抽象（
+如 xref:core/resources.adoc[资源] 所述），它提供了一种方便的机制，用于从 URI 语法中定义的位置读取 InputStream。
+具体而言，`Resource` 路径用于构建应用程序上下文，如 xref:core/resources.adoc#resources-app-ctx[ApplicationContext 和资源路径] 中所述。
 ====
 
-The following example shows the service layer objects `(services.xml)` configuration file:
+下面的示例显示了服务层对象（`services.xml`）的配置文件：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -145,7 +108,7 @@ The following example shows the service layer objects `(services.xml)` configura
 </beans>
 ----
 
-The following example shows the data access objects `daos.xml` file:
+下面的示例显示了数据访问对象 `daos.xml` 文件：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -168,25 +131,19 @@ The following example shows the data access objects `daos.xml` file:
 </beans>
 ----
 
-In the preceding example, the service layer consists of the `PetStoreServiceImpl` class
-and two data access objects of the types `JpaAccountDao` and `JpaItemDao` (based
-on the JPA Object-Relational Mapping standard). The `property name` element refers to the
-name of the JavaBean property, and the `ref` element refers to the name of another bean
-definition. This linkage between `id` and `ref` elements expresses the dependency between
-collaborating objects. For details of configuring an object's dependencies, see
-xref:core/beans/dependencies.adoc[Dependencies].
+在前面的例子中，服务层由 `PetStoreServiceImpl` 类和两个数据访问对象 `JpaAccountDao`
+和 `JpaItemDao` 组成（基于 JPA 对象关系映射标准）。`property name` 元素引用了 `JavaBean` 属性的名称，
+而 `ref` 元素则引用了另一个 bean 定义的名称。`id` 和 `ref` 元素之间的这种关联表示了协作对象之间的依赖关系。
+有关配置对象依赖关系的详细信息，请参阅 xref:core/beans/dependencies.adoc[Dependencies]。
 
 [[beans-factory-xml-import]]
-=== Composing XML-based Configuration Metadata
+=== 组合基于 XML 的配置元数据
 
-It can be useful to have bean definitions span multiple XML files. Often, each individual
-XML configuration file represents a logical layer or module in your architecture.
+可以将Bean定义跨越多个XML文件是非常有用的。通常，每个独立的XML配置文件代表着架构中的一个逻辑层或模块。
 
-You can use the application context constructor to load bean definitions from all these
-XML fragments. This constructor takes multiple `Resource` locations, as was shown in the
-xref:core/beans/basics.adoc#beans-factory-instantiation[previous section]. Alternatively,
-use one or more occurrences of the `<import/>` element to load bean definitions from
-another file or files. The following example shows how to do so:
+您可以使用应用程序上下文构造函数从所有这些XML片段加载Bean定义。该构造函数接受多个 `Resource` 位置，
+就像在 xref:core/beans/basics.adoc#beans-factory-instantiation[上一节] 中所示的那样。
+或者，使用一个或多个 `<import/>` 元素的出现来从另一个文件或多个文件中加载Bean定义。以下示例显示了如何实现：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -200,87 +157,35 @@ another file or files. The following example shows how to do so:
 </beans>
 ----
 
-In the preceding example, external bean definitions are loaded from three files:
-`services.xml`, `messageSource.xml`, and `themeSource.xml`. All location paths are
-relative to the definition file doing the importing, so `services.xml` must be in the
-same directory or classpath location as the file doing the importing, while
-`messageSource.xml` and `themeSource.xml` must be in a `resources` location below the
-location of the importing file. As you can see, a leading slash is ignored. However, given
-that these paths are relative, it is better form not to use the slash at all. The
-contents of the files being imported, including the top level `<beans/>` element, must
-be valid XML bean definitions, according to the Infra Schema.
+在前面的示例中，外部Bean定义从三个文件中加载：`services.xml`、`messageSource.xml` 和 `themeSource.xml`。
+所有位置路径都相对于执行导入的定义文件，因此 `services.xml` 必须与执行导入的文件位于相同的目录或类路径位置，
+而 `messageSource.xml` 和 `themeSource.xml` 必须位于导入文件所在位置的 `resources` 目录下。
+正如您所看到的，前导斜杠会被忽略。但是，鉴于这些路径是相对的，最好根本不使用斜杠。被导入文件的内容，包括顶级 `<beans/>` 元素，
+必须符合 Infra Schema 的有效 XML Bean 定义。
 
 [NOTE]
 ====
-It is possible, but not recommended, to reference files in parent directories using a
-relative "../" path. Doing so creates a dependency on a file that is outside the current
-application. In particular, this reference is not recommended for `classpath:` URLs (for
-example, `classpath:../services.xml`), where the runtime resolution process chooses the
-"`nearest`" classpath root and then looks into its parent directory. Classpath
-configuration changes may lead to the choice of a different, incorrect directory.
+可以使用相对 "../" 路径引用父目录中的文件，但不推荐这样做。这样做会创建对当前应用程序之外的文件的依赖关系。
+特别是，不建议在 `classpath:` URL（例如，`classpath:../services.xml`）中使用此引用，其中运行时解析过程选择
+"`nearest`" 类路径根，然后查找其父目录。类路径配置更改可能导致选择不同的、不正确的目录。
 
-You can always use fully qualified resource locations instead of relative paths: for
-example, `file:C:/config/services.xml` or `classpath:/config/services.xml`. However, be
-aware that you are coupling your application's configuration to specific absolute
-locations. It is generally preferable to keep an indirection for such absolute
-locations -- for example, through "${...}" placeholders that are resolved against JVM
-system properties at runtime.
+您始终可以使用完全限定的资源位置而不是相对路径：例如，`file:C:/config/services.xml`
+或 `classpath:/config/services.xml`。但是，请注意，您正在将应用程序的配置与特定的绝对位置耦合在一起。
+通常最好为此类绝对位置保持间接性 - 例如，通过在运行时针对 JVM 系统属性解析的 "${...}" 占位符。
 ====
 
-The namespace itself provides the import directive feature. Further
-configuration features beyond plain bean definitions are available in a selection
-of XML namespaces provided by Infra -- for example, the `context` and `util` namespaces.
-
-
-[[groovy-bean-definition-dsl]]
-=== The Groovy Bean Definition DSL
-
-As a further example for externalized configuration metadata, bean definitions can also
-be expressed in Infra Groovy Bean Definition DSL, as known from the Grails framework.
-Typically, such configuration live in a ".groovy" file with the structure shown in the
-following example:
-
-[source,groovy,indent=0,subs="verbatim,quotes"]
-----
-beans {
-  dataSource(BasicDataSource) {
-    driverClassName = "org.hsqldb.jdbcDriver"
-    url = "jdbc:hsqldb:mem:grailsDB"
-    username = "sa"
-    password = ""
-    settings = [mynew:"setting"]
-  }
-  sessionFactory(SessionFactory) {
-    dataSource = dataSource
-  }
-  myService(MyService) {
-    nestedBean = { AnotherBean bean ->
-      dataSource = dataSource
-    }
-  }
-}
-----
-
-This configuration style is largely equivalent to XML bean definitions and even
-supports Infra XML configuration namespaces. It also allows for importing XML
-bean definition files through an `importBeans` directive.
-
+命名空间本身提供了导入指令功能。除了普通的 Bean 定义之外，Infra 提供的一些 XML
+命名空间还提供了进一步的配置功能，例如 `context` 和 `util` 命名空间。
 
 
 [[beans-factory-client]]
-== Using the Container
+== 使用容器
 
-The `ApplicationContext` is the interface for an advanced factory capable of maintaining
-a registry of different beans and their dependencies. By using the method
-`T getBean(String name, Class<T> requiredType)`, you can retrieve instances of your beans.
+`ApplicationContext` 是一个高级工厂的接口，它能够维护不同 bean 及其依赖项的注册表。
+通过使用方法 `T getBean(String name, Class<T> requiredType)`，您可以检索您的 bean 的实例。
 
-The `ApplicationContext` lets you read bean definitions and access them, as the following
-example shows:
+ApplicationContext 允许您读取 bean 定义并访问它们，如下面的示例所示
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // create and configure beans
@@ -293,31 +198,13 @@ PetStoreService service = context.getBean("petStore", PetStoreService.class);
 List<String> userList = service.getUsernameList();
 ----
 
-======
-
-With Groovy configuration, bootstrapping looks very similar. It has a different context
-implementation class which is Groovy-aware (but also understands XML bean definitions).
-The following example shows Groovy configuration:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ApplicationContext context = new GenericGroovyApplicationContext("services.groovy", "daos.groovy");
 ----
 
-======
+最灵活的变体是 `GenericApplicationContext` 与读取代理结合使用，例如，使用 `XmlBeanDefinitionReader` 读取 XML 文件，如下面的示例所示：
 
-The most flexible variant is `GenericApplicationContext` in combination with reader
-delegates -- for example, with `XmlBeanDefinitionReader` for XML files, as the following
-example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 GenericApplicationContext context = new GenericApplicationContext();
@@ -325,34 +212,13 @@ new XmlBeanDefinitionReader(context).loadBeanDefinitions("services.xml", "daos.x
 context.refresh();
 ----
 
-======
+您可以在同一个 `ApplicationContext` 中混合使用这样的读取代理，从不同的配置源中读取 Bean 定义。
 
-You can also use the `GroovyBeanDefinitionReader` for Groovy files, as the following
-example shows:
+然后，您可以使用 `getBean` 方法检索您的 bean 的实例。`ApplicationContext` 接口还有一些其他用于检索 bean 的方法，
+但理想情况下，您的应用程序代码不应使用它们。事实上，您的应用程序代码根本不应调用 `getBean()` 方法，因此完全不依赖 Infra APIs。
+例如，Infra 与 Web 框架的集成提供了对各种 Web 框架组件（如控制器和 JSF 管理的 bean）的依赖注入，
+使您可以通过元数据（例如自动装配注解）声明对特定 bean 的依赖关系。
 
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-GenericApplicationContext context = new GenericApplicationContext();
-new GroovyBeanDefinitionReader(context).loadBeanDefinitions("services.groovy", "daos.groovy");
-context.refresh();
-----
-
-======
-
-You can mix and match such reader delegates on the same `ApplicationContext`,
-reading bean definitions from diverse configuration sources.
-
-You can then use `getBean` to retrieve instances of your beans. The `ApplicationContext`
-interface has a few other methods for retrieving beans, but, ideally, your application
-code should never use them. Indeed, your application code should have no calls to the
-`getBean()` method at all and thus have no dependency on Infra APIs at all. For example,
-Infra integration with web frameworks provides dependency injection for various web
-framework components such as controllers and JSF-managed beans, letting you declare
-a dependency on a specific bean through metadata (such as an autowiring annotation).
 
 
 
