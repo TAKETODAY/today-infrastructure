@@ -1,148 +1,99 @@
 [[databuffers]]
-= Data Buffers and Codecs
+= 数据缓冲区和编解码器
 
-Java NIO provides `ByteBuffer` but many libraries build their own byte buffer API on top,
-especially for network operations where reusing buffers and/or using direct buffers is
-beneficial for performance. For example Netty has the `ByteBuf` hierarchy, Undertow uses
-XNIO, Jetty uses pooled byte buffers with a callback to be released, and so on.
-The `today-core` module provides a set of abstractions to work with various byte buffer
-APIs as follows:
+Java NIO 提供了 `ByteBuffer`，但许多库在其之上构建了自己的字节缓冲区 API，
+特别是对于网络操作，其中重用缓冲区和/或使用直接缓冲区有利于性能。例如，Netty 使用 `ByteBuf` 层次结构，
+Undertow 使用 XNIO，Jetty 使用带有释放回调的池化字节缓冲区，等等。
+`today-core` 模块提供了一组抽象，以处理各种字节缓冲区 API，如下所示：
 
-* xref:core/databuffer-codec.adoc#databuffers-factory[`DataBufferFactory`] abstracts the creation of a data buffer.
-* xref:core/databuffer-codec.adoc#databuffers-buffer[`DataBuffer`] represents a byte buffer, which may be
-xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[pooled].
-* xref:core/databuffer-codec.adoc#databuffers-utils[`DataBufferUtils`] offers utility methods for data buffers.
-* <<Codecs>> decode or encode data buffer streams into higher level objects.
-
-
+* xref:core/databuffer-codec.adoc#databuffers-factory[`DataBufferFactory`] 抽象了数据缓冲区的创建。
+* xref:core/databuffer-codec.adoc#databuffers-buffer[`DataBuffer`] 表示一个字节缓冲区，可能是
+xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化]、
+* xref:core/databuffer-codec.adoc#databuffers-utils[`DataBufferUtils`] 提供了数据缓冲区的实用方法。
+* xref:core/databuffer-codec.adoc#codecs[`编解码器`] 将数据缓冲区流解码或编码为更高级别的对象。
 
 
 [[databuffers-factory]]
 == `DataBufferFactory`
 
-`DataBufferFactory` is used to create data buffers in one of two ways:
+`DataBufferFactory` 用于以以下两种方式之一创建数据缓冲区：
 
-. Allocate a new data buffer, optionally specifying capacity upfront, if known, which is
-more efficient even though implementations of `DataBuffer` can grow and shrink on demand.
-. Wrap an existing `byte[]` or `java.nio.ByteBuffer`, which decorates the given data with
-a `DataBuffer` implementation and that does not involve allocation.
-
-Note that WebFlux applications do not create a `DataBufferFactory` directly but instead
-access it through the `ServerHttpResponse` or the `ClientHttpRequest` on the client side.
-The type of factory depends on the underlying client or server, e.g.
-`NettyDataBufferFactory` for Reactor Netty, `DefaultDataBufferFactory` for others.
-
-
+. 分配新的数据缓冲区，可选择地提前指定容量（如果已知），这种方式更高效，即使 `DataBuffer` 的实现可以根据需求增长和收缩。
+. 包装现有的 `byte[]` 或 `java.nio.ByteBuffer`，它使用 `DataBuffer` 实现装饰给定的数据，而不涉及分配。
 
 
 [[databuffers-buffer]]
 == `DataBuffer`
 
-The `DataBuffer` interface offers similar operations as `java.nio.ByteBuffer` but also
-brings a few additional benefits some of which are inspired by the Netty `ByteBuf`.
-Below is a partial list of benefits:
+`DataBuffer` 接口提供了与 `java.nio.ByteBuffer` 类似的操作，但还带来了一些额外的好处，
+其中一些受到了 Netty `ByteBuf` 的启发。以下是部分好处的列表：
 
-* Read and write with independent positions, i.e. not requiring a call to `flip()` to
-alternate between read and write.
-* Capacity expanded on demand as with `java.lang.StringBuilder`.
-* Pooled buffers and reference counting via xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[`PooledDataBuffer`].
-* View a buffer as `java.nio.ByteBuffer`, `InputStream`, or `OutputStream`.
-* Determine the index, or the last index, for a given byte.
-
-
-
+* 独立的读和写位置，即不需要调用 `flip()` 来在读和写之间切换。
+* 根据需要扩展容量，与 `java.lang.StringBuilder` 类似。
+* 通过 xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[`PooledDataBuffer`] 实现的缓冲池和引用计数。
+* 将缓冲区视为 `java.nio.ByteBuffer`、`InputStream` 或 `OutputStream`。
+* 确定给定字节的索引或最后一个索引。
 
 [[databuffers-buffer-pooled]]
 == `PooledDataBuffer`
 
-As explained in the Javadoc for
-{java-api}/java.base/java/nio/ByteBuffer.html[ByteBuffer],
-byte buffers can be direct or non-direct. Direct buffers may reside outside the Java heap
-which eliminates the need for copying for native I/O operations. That makes direct buffers
-particularly useful for receiving and sending data over a socket, but they're also more
-expensive to create and release, which leads to the idea of pooling buffers.
+如 {java-api}/java.base/java/nio/ByteBuffer.html[ByteBuffer]
+的 Javadoc 所述，字节缓冲区可以是直接的或非直接的。直接缓冲区可能驻留在 Java 堆之外，这消除了原生 I/O 操作的复制需求。
+这使得直接缓冲区特别适用于通过套接字接收和发送数据，但它们创建和释放的成本也更高，因此引入了缓冲区池的概念。
 
-`PooledDataBuffer` is an extension of `DataBuffer` that helps with reference counting which
-is essential for byte buffer pooling. How does it work? When a `PooledDataBuffer` is
-allocated the reference count is at 1. Calls to `retain()` increment the count, while
-calls to `release()` decrement it. As long as the count is above 0, the buffer is
-guaranteed not to be released. When the count is decreased to 0, the pooled buffer can be
-released, which in practice could mean the reserved memory for the buffer is returned to
-the memory pool.
+`PooledDataBuffer` 是 `DataBuffer` 的扩展，它有助于引用计数，这对字节缓冲区池是至关重要的。
+它是如何工作的呢？当分配一个 `PooledDataBuffer` 时，引用计数为 1。
+调用 `retain()` 方法会增加计数，而调用 `release()` 方法会减少计数。
+只要计数大于 0，就保证不会释放缓冲区。
+当计数减少到 0 时，池化缓冲区可以被释放，实际上这可能意味着为缓冲区保留的内存被返回到内存池中。
 
-Note that instead of operating on `PooledDataBuffer` directly, in most cases it's better
-to use the convenience methods in `DataBufferUtils` that apply release or retain to a
-`DataBuffer` only if it is an instance of `PooledDataBuffer`.
-
-
+需要注意的是，在大多数情况下，不直接操作 `PooledDataBuffer`，而是使用 `DataBufferUtils` 中的便利方法更好，
+这些方法仅在 `DataBuffer` 是 `PooledDataBuffer` 的实例时应用释放或保留。
 
 
 [[databuffers-utils]]
 == `DataBufferUtils`
 
-`DataBufferUtils` offers a number of utility methods to operate on data buffers:
+`DataBufferUtils` 提供了多个实用方法来操作数据缓冲区：
 
-* Join a stream of data buffers into a single buffer possibly with zero copy, e.g. via
-composite buffers, if that's supported by the underlying byte buffer API.
-* Turn `InputStream` or NIO `Channel` into `Flux<DataBuffer>`, and vice versa a
-`Publisher<DataBuffer>` into `OutputStream` or NIO `Channel`.
-* Methods to release or retain a `DataBuffer` if the buffer is an instance of
-`PooledDataBuffer`.
-* Skip or take from a stream of bytes until a specific byte count.
-
-
+* 将数据缓冲区流合并成一个单一的缓冲区，可能通过复合缓冲区实现零拷贝，例如，如果底层字节缓冲区 API 支持的话。
+* 将 `InputStream` 或 NIO `Channel` 转换为 `Flux<DataBuffer>`，反之亦然，将 `Publisher<DataBuffer>` 转换为 `OutputStream` 或 NIO `Channel`。
+* 如果缓冲区是 `PooledDataBuffer` 的实例，则释放或保留数据缓冲区的方法。
+* 从字节流中跳过或取出特定字节计数。
 
 
 [[codecs]]
-== Codecs
+== 编解码器
 
-The `cn.taketoday.core.codec` package provides the following strategy interfaces:
+`cn.taketoday.core.codec` 包提供了以下策略接口：
 
-* `Encoder` to encode `Publisher<T>` into a stream of data buffers.
-* `Decoder` to decode `Publisher<DataBuffer>` into a stream of higher level objects.
+. `Encoder` 用于将 `Publisher<T>` 编码为数据缓冲区流。
+. `Decoder` 用于将 `Publisher<DataBuffer>` 解码为更高级别对象流。
 
-The `today-core` module provides `byte[]`, `ByteBuffer`, `DataBuffer`, `Resource`, and
-`String` encoder and decoder implementations. The `spring-web` module adds Jackson JSON,
-Jackson Smile, JAXB2, Protocol Buffers and other encoders and decoders.
-
-
-
+`today-core` 模块提供了 `byte[]`、`ByteBuffer`、`DataBuffer`、`Resource` 和 `String`
+的编码器和解码器实现。`today-web` 模块添加了 Jackson JSON、Jackson Smile、JAXB2、Protocol Buffers 和其他编码器和解码器。
 
 [[databuffers-using]]
-== Using `DataBuffer`
+== 使用 `DataBuffer`
 
-When working with data buffers, special care must be taken to ensure buffers are released
-since they may be xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[pooled]. We'll use codecs to illustrate
-how that works but the concepts apply more generally. Let's see what codecs must do
-internally to manage data buffers.
+在处理数据缓冲区时，必须特别注意确保释放缓冲区，因为它们可能是 xref:core/databuffer-codec.adoc#databuffers-buffer-pooled[池化的]
+的。我们将使用编解码器来说明这是如何工作的，但这些概念通常适用。让我们看看编解码器在内部如何管理数据缓冲区。
 
-A `Decoder` is the last to read input data buffers, before creating higher level
-objects, and therefore it must release them as follows:
+`Decoder` 是最后一个读取输入数据缓冲区的对象，在创建更高级别对象之前，因此它必须按以下方式释放它们：
 
-. If a `Decoder` simply reads each input buffer and is ready to
-release it immediately, it can do so via `DataBufferUtils.release(dataBuffer)`.
-. If a `Decoder` is using `Flux` or `Mono` operators such as `flatMap`, `reduce`, and
-others that prefetch and cache data items internally, or is using operators such as
-`filter`, `skip`, and others that leave out items, then
-`doOnDiscard(DataBuffer.class, DataBufferUtils::release)` must be added to the
-composition chain to ensure such buffers are released prior to being discarded, possibly
-also as a result of an error or cancellation signal.
-. If a `Decoder` holds on to one or more data buffers in any other way, it must
-ensure they are released when fully read, or in case of an error or cancellation signals that
-take place before the cached data buffers have been read and released.
+. 如果 `Decoder` 只是简单地读取每个输入缓冲区并准备立即释放它，它可以通过 `DataBufferUtils.release(dataBuffer)` 来释放。
+. 如果 `Decoder` 使用 `Flux` 或 `Mono` 操作符，如 `flatMap`、`reduce` 和其他在内部预取和缓存数据项的操作符，或者是使用诸如
+`filter`、`skip` 和其他排除项的操作符，则必须将 `doOnDiscard(DataBuffer.class, DataBufferUtils::release)`
+添加到组合链中，以确保在被丢弃之前释放这些缓冲区，可能还包括作为错误或取消信号的结果而被丢弃。
+. 如果 `Decoder` 以任何其他方式持有一个或多个数据缓冲区，它必须确保在完全读取时释放它们，或者在缓存的数据缓冲区被读取和释放之前发生错误或取消信号的情况下释放它们。
 
-Note that `DataBufferUtils#join` offers a safe and efficient way to aggregate a data
-buffer stream into a single data buffer. Likewise `skipUntilByteCount` and
-`takeUntilByteCount` are additional safe methods for decoders to use.
+请注意，`DataBufferUtils#join` 提供了一种安全高效的方式将数据缓冲流聚合成单个数据缓冲区。同样，
+`skipUntilByteCount` 和 `takeUntilByteCount` 是解码器使用的额外安全方法。
 
-An `Encoder` allocates data buffers that others must read (and release). So an `Encoder`
-doesn't have much to do. However an `Encoder` must take care to release a data buffer if
-a serialization error occurs while populating the buffer with data. For example:
+`Encoder` 分配其他对象必须读取（和释放）的数据缓冲区。因此，`Encoder` 没有太多要做的事情。但是，
+如果在使用数据填充缓冲区时发生序列化错误，则 `Encoder` 必须确保释放数据缓冲区。例如：
 
-[tabs]
-======
-Java::
-+
+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 DataBuffer buffer = factory.allocateBuffer();
@@ -159,12 +110,8 @@ finally {
 return buffer;
 ----
 
-======
+`Encoder` 的消费者负责释放其接收到的数据缓冲区。在 非阻塞 应用程序中，
+`Encoder` 的输出用于写入HTTP服务器响应，或者写入客户端 HTTP 请求，这种情况下释放数据缓冲区是代码写入服务器响应或客户端请求的责任。
 
-The consumer of an `Encoder` is responsible for releasing the data buffers it receives.
-In a WebFlux application, the output of the `Encoder` is used to write to the HTTP server
-response, or to the client HTTP request, in which case releasing the data buffers is the
-responsibility of the code writing to the server response, or to the client request.
-
-Note that when running on Netty, there are debugging options for
+请注意，当在Netty上运行时，有一些调试选项可用于
 https://github.com/netty/netty/wiki/Reference-counted-objects#troubleshooting-buffer-leaks[troubleshooting buffer leaks].

@@ -98,7 +98,7 @@ with additional convenience macros for generating form input elements themselves
 [[mvc-view-bind-macros]]
 === The Bind Macros
 
-A standard set of macros are maintained within the `spring-webmvc.jar` file for
+A standard set of macros are maintained within the `today-web.jar` file for
 FreeMarker, so they are always available to a suitably configured application.
 
 Some of the macros defined in the Infra templating libraries are considered internal

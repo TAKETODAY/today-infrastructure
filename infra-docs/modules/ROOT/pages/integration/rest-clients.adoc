@@ -221,7 +221,7 @@ Pet result = restClient.get()
 [[rest-message-conversion]]
 === HTTP Message Conversion
 
-The `spring-web` module contains the `HttpMessageConverter` interface for reading and writing the body of HTTP requests and responses through `InputStream` and `OutputStream`.
+The `today-web` module contains the `HttpMessageConverter` interface for reading and writing the body of HTTP requests and responses through `InputStream` and `OutputStream`.
 `HttpMessageConverter` instances are used on the client side (for example, in the `RestClient`) and on the server side (for example, in Web MVC REST controllers).
 
 Concrete implementations for the main media (MIME) types are provided in the framework and are, by default, registered with the `RestClient` and `RestTemplate` on the client side and with `RequestMappingHandlerAdapter` on the server side (see xref:web/webmvc/mvc-config/message-converters.adoc[Configuring Message Converters]).

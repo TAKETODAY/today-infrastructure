@@ -142,7 +142,7 @@ leave that detail out if the names are the same and your code is compiled with t
 compiler flag.
 
 The syntax `{varName:regex}` declares a URI variable with a regular expression that has
-syntax of `{varName:regex}`. For example, given URL `"/spring-web-3.0.5.jar"`, the following method
+syntax of `{varName:regex}`. For example, given URL `"/today-web-4.0.jar"`, the following method
 extracts the name, version, and file extension:
 
 [tabs]

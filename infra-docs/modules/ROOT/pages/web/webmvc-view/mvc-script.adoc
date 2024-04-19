@@ -187,8 +187,8 @@ function render(template, model) {
 ----
 
 Check out the TODAY Framework unit tests,
-{today-framework-code}/spring-webmvc/src/test/java/cn/taketoday/web/servlet/view/script[Java], and
-{today-framework-code}/spring-webmvc/src/test/resources/cn/taketoday/web/servlet/view/script[resources],
+{today-framework-code}/today-web/src/test/java/cn/taketoday/web/servlet/view/script[Java], and
+{today-framework-code}/today-web/src/test/resources/cn/taketoday/web/servlet/view/script[resources],
 for more configuration examples.
 
 
