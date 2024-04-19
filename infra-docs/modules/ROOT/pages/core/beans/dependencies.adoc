@@ -1,12 +1,7 @@
 [[beans-dependencies]]
-= Dependencies
+= 依赖
 :page-section-summary-toc: 1
 
-A typical enterprise application does not consist of a single object (or bean in the
-Infra parlance). Even the simplest application has a few objects that work together to
-present what the end-user sees as a coherent application. This next section explains how
-you go from defining a number of bean definitions that stand alone to a fully realized
-application where objects collaborate to achieve a goal.
-
-
-
+一个典型的企业应用程序不是由单个对象（或者在基础架构术语中称为 bean）组成的。
+即使是最简单的应用程序也有一些对象一起工作，以呈现最终用户所看到的一致的应用程序。
+下一节将解释如何从定义一系列独立的 bean 定义转变为一个完全实现的应用程序，其中对象协作以实现一个目标。

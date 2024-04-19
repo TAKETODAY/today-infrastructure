@@ -1,20 +1,13 @@
 [[beans-child-bean-definitions]]
-= Bean Definition Inheritance
+= Bean 定义继承
 
-A bean definition can contain a lot of configuration information, including constructor
-arguments, property values, and container-specific information, such as the initialization
-method, a static factory method name, and so on. A child bean definition inherits
-configuration data from a parent definition. The child definition can override some
-values or add others as needed. Using parent and child bean definitions can save a lot
-of typing. Effectively, this is a form of templating.
+一个bean定义可以包含大量的配置信息，包括构造函数参数、属性值以及容器特定的信息，
+例如初始化方法、静态工厂方法名称等。子bean定义从父定义中继承配置数据。子定义可以根据需要覆盖一些值或添加其他值。
+使用父子bean定义可以节省大量的输入。实际上，这是一种模板化形式。
 
-If you work with an `ApplicationContext` interface programmatically, child bean
-definitions are represented by the `ChildBeanDefinition` class. Most users do not work
-with them on this level. Instead, they configure bean definitions declaratively in a class
-such as the `ClassPathXmlApplicationContext`. When you use XML-based configuration
-metadata, you can indicate a child bean definition by using the `parent` attribute,
-specifying the parent bean as the value of this attribute. The following example shows how
-to do so:
+如果你以编程方式使用 `ApplicationContext` 接口，子bean定义由 `ChildBeanDefinition` 类表示。
+大多数用户不会在这个级别上使用它们。相反，他们在类似于 `ClassPathXmlApplicationContext` 的类中以声明方式配置 bean 定义。
+当您使用基于XML的配置元数据时，可以通过使用 `parent` 属性来指示一个子bean定义，将父 bean 作为该属性的值。以下示例显示了如何这样做：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -31,22 +24,14 @@ to do so:
 ----
 <1> Note the `parent` attribute.
 
-A child bean definition uses the bean class from the parent definition if none is
-specified but can also override it. In the latter case, the child bean class must be
-compatible with the parent (that is, it must accept the parent's property values).
+一个子 bean 定义如果没有指定 bean 类，则使用父定义中的 bean 类，但也可以覆盖它。
+在后一种情况下，子 bean 类必须与父类兼容（也就是说，它必须接受父类的属性值）。
 
-A child bean definition inherits scope, constructor argument values, property values, and
-method overrides from the parent, with the option to add new values. Any scope, initialization
-method, destroy method, or `static` factory method settings that you specify
-override the corresponding parent settings.
+子 bean 定义从父类继承范围、构造函数参数值、属性值和方法覆盖，可以选择添加新值。您指定的任何范围、初始化方法、销毁方法或static工厂方法设置都会覆盖相应的父设置。
 
-The remaining settings are always taken from the child definition: depends on,
-autowire mode, dependency check, singleton, and lazy init.
+其余设置始终来自子定义：`depends on`、自动装配模式、依赖项检查、单例和延迟初始化。
 
-The preceding example explicitly marks the parent bean definition as abstract by using
-the `abstract` attribute. If the parent definition does not specify a class, explicitly
-marking the parent bean definition as `abstract` is required, as the following example
-shows:
+前面的示例通过使用abstract属性明确将父 bean 定义标记为抽象。如果父定义没有指定类，则需要显式将父 bean 定义标记为 `abstract`，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -62,21 +47,13 @@ shows:
 </bean>
 ----
 
-The parent bean cannot be instantiated on its own because it is incomplete, and it is
-also explicitly marked as `abstract`. When a definition is `abstract`, it is
-usable only as a pure template bean definition that serves as a parent definition for
-child definitions. Trying to use such an `abstract` parent bean on its own, by referring
-to it as a ref property of another bean or doing an explicit `getBean()` call with the
-parent bean ID returns an error. Similarly, the container's internal
-`preInstantiateSingletons()` method ignores bean definitions that are defined as
-abstract.
-
-NOTE: `ApplicationContext` pre-instantiates all singletons by default. Therefore, it is
-important (at least for singleton beans) that if you have a (parent) bean definition
-which you intend to use only as a template, and this definition specifies a class, you
-must make sure to set the __abstract__ attribute to __true__, otherwise the application
-context will actually (attempt to) pre-instantiate the `abstract` bean.
+父 bean 不能独立实例化，因为它是不完整的，而且明确标记为 `abstract`。当一个定义是 `abstract` 时，
+它只能作为一个纯模板 bean 定义使用，作为子定义的父定义。尝试单独使用这样的 `abstract` 父 bean，
+通过将其作为另一个 bean 的 ref 属性引用或使用显式的 `getBean()` 调用与父 bean ID 返回错误。
+同样，容器的内部 `preInstantiateSingletons()` 方法会忽略被定义为抽象的 bean 定义。
 
 
-
+NOTE: `ApplicationContext` 默认情况下会预先实例化所有单例。因此，对于单例 bean，
+如果你有一个（父）bean 定义，你只打算将其用作模板，并且这个定义指定了一个类，
+你必须确保将 __abstract__ 属性设置为 `true`，否则应用上下文实际上（尝试）会预先实例化抽象 bean。
 

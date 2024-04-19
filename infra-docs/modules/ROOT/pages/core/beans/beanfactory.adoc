@@ -1,98 +1,75 @@
 [[beans-beanfactory]]
-= The `BeanFactory` API
+= `BeanFactory` API
 
-The `BeanFactory` API provides the underlying basis for Infra IoC functionality.
-Its specific contracts are mostly used in integration with other parts of Infra and
-related third-party frameworks, and its `DefaultListableBeanFactory` implementation
-is a key delegate within the higher-level `GenericApplicationContext` container.
+`BeanFactory` API 提供了 Infra IoC 功能的基础。它的具体契约大多用于与 Infra
+的其他部分以及相关的第三方框架集成，其 `StandardBeanFactory` 实现是高级 `GenericApplicationContext` 容器内的一个关键委托。
 
-`BeanFactory` and related interfaces (such as `BeanFactoryAware`, `InitializingBean`,
-`DisposableBean`) are important integration points for other framework components.
-By not requiring any annotations or even reflection, they allow for very efficient
-interaction between the container and its components. Application-level beans may
-use the same callback interfaces but typically prefer declarative dependency
-injection instead, either through annotations or through programmatic configuration.
+`BeanFactory` 及其相关接口（如 `BeanFactoryAware`、`InitializingBean`、`DisposableBean`）
+是其他框架组件的重要集成点。通过不需要任何注解甚至反射，它们允许容器与其组件之间进行非常高效的交互。
+应用级别的 Bean 可以使用相同的回调接口，但通常更喜欢声明式依赖注入，可以通过注解或编程配置来实现。
 
-Note that the core `BeanFactory` API level and its `DefaultListableBeanFactory`
-implementation do not make assumptions about the configuration format or any
-component annotations to be used. All of these flavors come in through extensions
-(such as `XmlBeanDefinitionReader` and `AutowiredAnnotationBeanPostProcessor`) and
-operate on shared `BeanDefinition` objects as a core metadata representation.
-This is the essence of what makes Infra container so flexible and extensible.
-
-
+请注意，核心 `BeanFactory` API 层及其 `StandardBeanFactory`
+实现不对要使用的配置格式或任何组件注解做出假设。所有这些变体都通过扩展（如 `XmlBeanDefinitionReader`
+和 `AutowiredAnnotationBeanPostProcessor`）进入，并在共享的 `BeanDefinition` 对象上操作作为核心元数据表示。
+这就是使 Infra 容器如此灵活和可扩展的本质。
 
 [[context-introduction-ctx-vs-beanfactory]]
-== `BeanFactory` or `ApplicationContext`?
+== `BeanFactory` vs `ApplicationContext`?
 
-This section explains the differences between the `BeanFactory` and
-`ApplicationContext` container levels and the implications on bootstrapping.
+这一部分解释了 `BeanFactory` 和 `ApplicationContext` 容器级别之间的区别，以及对引导的影响。
 
-You should use an `ApplicationContext` unless you have a good reason for not doing so, with
-`GenericApplicationContext` and its subclass `AnnotationConfigApplicationContext`
-as the common implementations for custom bootstrapping. These are the primary entry
-points to Infra core container for all common purposes: loading of configuration
-files, triggering a classpath scan, programmatically registering bean definitions
-and annotated classes, and (as of 5.0) registering functional bean definitions.
+除非有充分理由不这样做，否则应该使用 `ApplicationContext`，其常见的自定义引导实现为
+`GenericApplicationContext` 及其子类 `AnnotationConfigApplicationContext`。
+这些是 Infra 核心容器的主要入口点，用于所有通用目的：加载配置文件，触发类路径扫描，
+以编程方式注册 bean 定义和注解类，以及注册功能 bean 定义。
 
-Because an `ApplicationContext` includes all the functionality of a `BeanFactory`, it is
-generally recommended over a plain `BeanFactory`, except for scenarios where full
-control over bean processing is needed. Within an `ApplicationContext` (such as the
-`GenericApplicationContext` implementation), several kinds of beans are detected
-by convention (that is, by bean name or by bean type -- in particular, post-processors),
-while a plain `DefaultListableBeanFactory` is agnostic about any special beans.
+因为 `ApplicationContext` 包含了 `BeanFactory` 的所有功能，所以通常建议使用 `ApplicationContext`
+而不是普通的 `BeanFactory`，除非需要对 bean 处理具有完全控制权。在 `ApplicationContext`
+内（例如 `GenericApplicationContext` 实现），按照约定检测到几种类型的 bean（即，按照 bean 名称或 bean 类型 -- 特别是后处理器）
+，而普通的 `StandardBeanFactory` 对于任何特殊的 bean 都是不可知的。
 
-For many extended container features, such as annotation processing and AOP proxying,
-the xref:core/beans/factory-extension.adoc#beans-factory-extension-bpp[`BeanPostProcessor` extension point] is essential.
-If you use only a plain `DefaultListableBeanFactory`, such post-processors do not
-get detected and activated by default. This situation could be confusing, because
-nothing is actually wrong with your bean configuration. Rather,  in such a scenario,
-the container needs to be fully bootstrapped through additional setup.
+对于许多扩展容器功能，例如注解处理和 AOP 代理，xref:core/beans/factory-extension.adoc#beans-factory-extension-bpp[`BeanPostProcessor` 扩展点]
+是必不可少的。如果仅使用普通的 `StandardBeanFactory`，这样的后处理器将不会被默认检测和激活。
+这种情况可能会令人困惑，因为您的 bean 配置实际上并没有问题。相反，在这种情况下，需要通过额外的设置完全引导容器。
 
-The following table lists features provided by the `BeanFactory` and
-`ApplicationContext` interfaces and implementations.
+以下表格列出了 `BeanFactory` 和 `ApplicationContext` 接口及其实现提供的功能。
 
 [[context-introduction-ctx-vs-beanfactory-feature-matrix]]
-.Feature Matrix
+.Feature 对比
 [cols="50%,25%,25%"]
 |===
-| Feature | `BeanFactory` | `ApplicationContext`
+| 特性 | `BeanFactory` | `ApplicationContext`
 
-| Bean instantiation/wiring
+| Bean 实例化/装配
 | Yes
 | Yes
 
-| Integrated lifecycle management
+| 集成的生命周期管理
 | No
 | Yes
 
-| Automatic `BeanPostProcessor` registration
+| `BeanPostProcessor` 自动注册
 | No
 | Yes
 
-| Automatic `BeanFactoryPostProcessor` registration
+| `BeanFactoryPostProcessor` 自动注册
 | No
 | Yes
 
-| Convenient `MessageSource` access (for internationalization)
+| 好用的 `MessageSource` 访问（用于国际化）
 | No
 | Yes
 
-| Built-in `ApplicationEvent` publication mechanism
+| 内置的 `ApplicationEvent` 发布机制
 | No
 | Yes
 |===
 
-To explicitly register a bean post-processor with a `DefaultListableBeanFactory`,
-you need to programmatically call `addBeanPostProcessor`, as the following example shows:
+要将一个Bean后处理器明确注册到`StandardBeanFactory`，你需要以编程方式调用`addBeanPostProcessor`，就像以下示例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+StandardBeanFactory factory = new StandardBeanFactory();
 // populate the factory with bean definitions
 
 // now register any needed BeanPostProcessor instances
@@ -102,18 +79,11 @@ factory.addBeanPostProcessor(new MyBeanPostProcessor());
 // now start using the factory
 ----
 
-======
+要将`BeanFactoryPostProcessor`应用于普通的`StandardBeanFactory`，你需要调用其`postProcessBeanFactory`方法，就像以下示例所示：
 
-To apply a `BeanFactoryPostProcessor` to a plain `DefaultListableBeanFactory`,
-you need to call its `postProcessBeanFactory` method, as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+StandardBeanFactory factory = new StandardBeanFactory();
 XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(factory);
 reader.loadBeanDefinitions(new FileSystemResource("beans.xml"));
 
@@ -125,19 +95,13 @@ cfg.setLocation(new FileSystemResource("jdbc.properties"));
 cfg.postProcessBeanFactory(factory);
 ----
 
-======
-
-In both cases, the explicit registration steps are inconvenient, which is
-why the various `ApplicationContext` variants are preferred over a plain
-`DefaultListableBeanFactory` in Spring-backed applications, especially when
-relying on `BeanFactoryPostProcessor` and `BeanPostProcessor` instances for extended
-container functionality in a typical enterprise setup.
+在这两种情况下，明确注册步骤都不太方便，这就是为什么在 Infra 支持的应用程序中，各种 `ApplicationContext`
+变体优先于普通的 `StandardBeanFactory` ，特别是在典型企业设置中依赖于 `BeanFactoryPostProcessor` 和 `BeanPostProcessor` 实例以扩展容器功能时。
 
 [NOTE]
 ====
-An `AnnotationConfigApplicationContext` has all common annotation post-processors
-registered and may bring in additional processors underneath the
-covers through configuration annotations, such as `@EnableTransactionManagement`.
-At the abstraction level of Infra annotation-based configuration model,
-the notion of bean post-processors becomes a mere internal container detail.
+
+`AnnotationConfigApplicationContext` 已经注册了所有常见的注解后处理器，
+并且可能通过配置注解（例如 `@EnableTransactionManagement` ）在底层引入额外的处理器。
+在基于注解的配置模型的抽象级别上，Bean后处理器的概念仅仅是容器的内部细节。
 ====

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.support;
@@ -90,7 +90,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * <li>Calls {@link #prepareContext(ConfigurableApplicationContext, MergedContextConfiguration)}
    * to allow for customizing the context before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory(StandardBeanFactory)} to allow for customizing the
-   * context's {@code DefaultListableBeanFactory}.</li>
+   * context's {@code StandardBeanFactory}.</li>
    * <li>Delegates to {@link #loadBeanDefinitions(GenericApplicationContext, MergedContextConfiguration)}
    * to populate the context from the locations or classes in the supplied
    * {@code MergedContextConfiguration}.</li>
@@ -258,7 +258,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * <li>Calls {@link #prepareContext(GenericApplicationContext)} to allow for customizing the context
    * before bean definitions are loaded.</li>
    * <li>Calls {@link #customizeBeanFactory(StandardBeanFactory)} to allow for customizing the
-   * context's {@code DefaultListableBeanFactory}.</li>
+   * context's {@code StandardBeanFactory}.</li>
    * <li>Delegates to {@link #createBeanDefinitionReader(GenericApplicationContext)} to create a
    * {@link BeanDefinitionReader} which is then used to populate the context
    * from the specified locations.</li>
@@ -336,7 +336,7 @@ public abstract class AbstractGenericContextLoader extends AbstractContextLoader
    * Customize the internal bean factory of the ApplicationContext created by
    * this {@code ContextLoader}.
    * <p>The default implementation is empty but can be overridden in subclasses
-   * to customize {@code DefaultListableBeanFactory}'s standard settings.
+   * to customize {@code StandardBeanFactory}'s standard settings.
    *
    * @param beanFactory the bean factory created by this {@code ContextLoader}
    * @see #loadContext(MergedContextConfiguration)

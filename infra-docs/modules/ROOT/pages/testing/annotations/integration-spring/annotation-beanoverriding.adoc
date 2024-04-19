@@ -5,7 +5,7 @@ Bean Overriding in Tests refers to the ability to override specific beans in the
 for a test class, by annotating one or more fields in said test class.
 
 NOTE: This is intended as a less risky alternative to the practice of registering a bean via
-`@Bean` with the `DefaultListableBeanFactory` `setAllowBeanDefinitionOverriding` set to
+`@Bean` with the `StandardBeanFactory` `setAllowBeanDefinitionOverriding` set to
 `true`.
 
 The Infra Testing Framework provides two sets of annotations presented below. One relies
