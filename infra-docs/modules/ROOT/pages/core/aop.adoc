@@ -1,37 +1,32 @@
 [[aop]]
-= Aspect Oriented Programming with Spring
+= 面向切面编程
 
-Aspect-oriented Programming (AOP) complements Object-oriented Programming (OOP) by
-providing another way of thinking about program structure. The key unit of modularity
-in OOP is the class, whereas in AOP the unit of modularity is the aspect. Aspects
-enable the modularization of concerns (such as transaction management) that cut across
-multiple types and objects. (Such concerns are often termed "crosscutting" concerns
-in AOP literature.)
+面向切面编程（AOP）通过提供另一种思考程序结构的方式，补充了面向对象编程（OOP）。在 OOP 中，
+模块化的关键单元是类，而在 AOP 中，模块化的单元是切面。切面使得能够将横切关注点（如事务管理）模块化，
+这些关注点跨越多个类型和对象。在AOP文献中，这些关注点通常被称为 “横切关注点”。
 
-One of the key components of Infra is the AOP framework. While the Infra IoC
-container does not depend on AOP (meaning you do not need to use AOP if you don't want
-to), AOP complements Infra IoC to provide a very capable middleware solution.
 
-.Infra AOP with AspectJ pointcuts
+框架关键组件之一是 AOP 框架。虽然 IoC 容器不依赖于 AOP（意味着如果你不想使用 AOP，你不需要使用它），
+但 AOP 与 IoC 相辅相成，提供了一个非常强大的中间件解决方案。
+
+
+.Infra AOP 与 AspectJ pointcuts
 ****
-Infra provides simple and powerful ways of writing custom aspects by using either a
-xref:core/aop/schema.adoc[schema-based approach] or the xref:core/aop/ataspectj.adoc[@AspectJ annotation style].
-Both of these styles offer fully typed advice and use of the AspectJ pointcut language
-while still using Infra AOP for weaving.
+框架提供了简单而强大的方法，通过使用 xref:core/aop/schema.adoc[基于 XML 配置] 或
+xref:core/aop/ataspectj.adoc[@AspectJ 注解样式] 来编写自定义切面。
+这两种样式都提供了完全类型化的建议和使用 AspectJ pointcut 语言的能力，同时仍然使用 AOP 进行织入。
 
-This chapter discusses the schema- and @AspectJ-based AOP support.
-The lower-level AOP support is discussed in xref:core/aop-api.adoc[the following chapter].
+本章讨论了 XML 和 @AspectJ 的 AOP 支持。下一章要讨论了 xref:core/aop-api.adoc[更底层的 AOP 支持]
 ****
 
-AOP is used in the TODAY Framework to:
+AOP 在 TODAY 框架中被用来：
 
-* Provide declarative enterprise services. The most important such service is
-  xref:data-access/transaction/declarative.adoc[declarative transaction management].
-* Let users implement custom aspects, complementing their use of OOP with AOP.
+* 提供声明式企业服务。其中最重要的服务是 xref:data-access/transaction/declarative.adoc[声明式事务管理]。
+* 允许用户实现自定义切面，以 AOP 补充他们对 OOP 的使用。
 
-NOTE: If you are interested only in generic declarative services or other pre-packaged
-declarative middleware services such as pooling, you do not need to work directly with
-Infra AOP, and can skip most of this chapter.
+
+NOTE: 如果您只对通用的声明式服务或其他预打包的声明式中间件服务（如池化）感兴趣，
+您无需直接使用 Infra AOP，并且可以跳过本章的大部分内容。
 
 
 

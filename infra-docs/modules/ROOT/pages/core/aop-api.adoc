@@ -1,12 +1,7 @@
 [[aop-api]]
-= Infra AOP APIs
+= AOP APIs
 :page-section-summary-toc: 1
 
-The previous chapter described the Infra support for AOP with @AspectJ and schema-based
-aspect definitions. In this chapter, we discuss the lower-level Infra AOP APIs. For common
-applications, we recommend the use of Infra AOP with AspectJ pointcuts as described in the
-previous chapter.
-
-
-
+上一章描述了使用 @AspectJ 和基于 XML 的切面定义的 AOP 的 Infra 支持。
+在本章中，我们讨论了更低级别的 Infra AOP APIs。对于常见的应用程序，我们建议使用上一章描述的 Infra AOP 与 AspectJ pointcuts。
 
