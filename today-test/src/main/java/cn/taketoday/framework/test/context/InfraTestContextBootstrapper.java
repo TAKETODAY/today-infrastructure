@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.context;
@@ -92,7 +92,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     TestContext context = super.buildTestContext();
     verifyConfiguration(context.getTestClass());
     WebEnvironment webEnvironment = getWebEnvironment(context.getTestClass());
-    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forClasspath() == ApplicationType.SERVLET_WEB) {
+    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forClasspath() == ApplicationType.NETTY_WEB) {
       context.setAttribute(ACTIVATE_SERVLET_LISTENER, true);
     }
     else if (webEnvironment != null && webEnvironment.isEmbedded()) {
@@ -145,7 +145,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     WebEnvironment webEnvironment = getWebEnvironment(mergedConfig.getTestClass());
     if (webEnvironment != null && isWebEnvironmentSupported(mergedConfig)) {
       ApplicationType webApplicationType = getApplicationType(mergedConfig);
-      if (webApplicationType == ApplicationType.SERVLET_WEB
+      if (webApplicationType == ApplicationType.NETTY_WEB
               && (webEnvironment.isEmbedded() || webEnvironment == WebEnvironment.MOCK)) {
         mergedConfig = new WebMergedContextConfiguration(mergedConfig, determineResourceBasePath(mergedConfig));
       }

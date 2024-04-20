@@ -77,6 +77,7 @@ import jakarta.servlet.ServletException;
  * @see #doFilter
  * @since 4.0
  */
+@Deprecated(forRemoval = true)
 public abstract class GenericFilterBean implements Filter, BeanNameAware, EnvironmentAware,
         EnvironmentCapable, ServletContextAware, InitializingBean, DisposableBean {
 
@@ -328,8 +329,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * @return PropertyValues
    * @throws ServletException if any required properties are missing
    */
-  private PropertyValues getFilterConfigPropertyValues(
-          FilterConfig config, Set<String> requiredProperties) throws ServletException {
+  private PropertyValues getFilterConfigPropertyValues(FilterConfig config, Set<String> requiredProperties) throws ServletException {
     PropertyValues propertyValues = new PropertyValues();
     Set<String> missingProps = CollectionUtils.isNotEmpty(requiredProperties)
             ? new HashSet<>(requiredProperties) : null;

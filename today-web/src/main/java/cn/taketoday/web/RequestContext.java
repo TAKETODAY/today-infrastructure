@@ -1030,6 +1030,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>String</code> containing the name of the MIME type of the
    * request, or null if the type is not known
    */
+  @Nullable
   public abstract String getContentType();
 
   /**

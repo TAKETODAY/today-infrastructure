@@ -33,7 +33,6 @@ import cn.taketoday.framework.web.netty.ConfigurableNettyWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
 import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
@@ -73,12 +72,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
       return null;
     }
     ConditionMessage.Builder message = ConditionMessage.forCondition(ConditionalOnWebApplication.class);
-    if (ConditionalOnWebApplication.Type.SERVLET.name().equals(type)) {
-      if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, getBeanClassLoader())) {
-        return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
-      }
-    }
-    else if (ConditionalOnWebApplication.Type.NETTY.name().equals(type)) {
+    if (ConditionalOnWebApplication.Type.NETTY.name().equals(type)) {
       if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())) {
         return ConditionOutcome.noMatch(message.didNotFind("netty web application classes").atAll());
       }
@@ -88,8 +82,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
         return ConditionOutcome.noMatch(message.didNotFind("reactive web application classes").atAll());
       }
     }
-    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, getBeanClassLoader())
-            && !ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
+    if (!ClassUtils.isPresent(ApplicationType.NETTY_INDICATOR_CLASS, getBeanClassLoader())
             && !ClassUtils.isPresent(ApplicationType.REACTOR_INDICATOR_CLASS, getBeanClassLoader())) {
       return ConditionOutcome.noMatch(message.didNotFind("reactive or servlet, netty web application classes").atAll());
     }
@@ -112,7 +105,6 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   private ConditionOutcome isWebApplication(ConditionContext context, AnnotatedTypeMetadata metadata, boolean required) {
     return switch (deduceType(metadata)) {
       case NETTY -> isNettyWebApplication(context);
-      case SERVLET -> isServletWebApplication(context);
       case REACTIVE -> isReactiveWebApplication(context);
       default -> isAnyApplication(context, required);
     };
@@ -125,38 +117,13 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
     if (nettyOutcome.isMatch() && required) {
       return new ConditionOutcome(nettyOutcome.isMatch(), message.because(nettyOutcome.getMessage()));
     }
-    ConditionOutcome servletOutcome = isServletWebApplication(context);
-    if (servletOutcome.isMatch() && required) {
-      return new ConditionOutcome(servletOutcome.isMatch(), message.because(servletOutcome.getMessage()));
-    }
     ConditionOutcome reactiveOutcome = isReactiveWebApplication(context);
     if (reactiveOutcome.isMatch() && required) {
       return new ConditionOutcome(reactiveOutcome.isMatch(), message.because(reactiveOutcome.getMessage()));
     }
-    return new ConditionOutcome(
-            servletOutcome.isMatch() || reactiveOutcome.isMatch() || nettyOutcome.isMatch(),
-            message.because(servletOutcome.getMessage())
-                    .append("and").append(nettyOutcome.getMessage())
+    return new ConditionOutcome(reactiveOutcome.isMatch() || nettyOutcome.isMatch(),
+            message.because(nettyOutcome.getMessage())
                     .append("and").append(reactiveOutcome.getMessage()));
-  }
-
-  private ConditionOutcome isServletWebApplication(ConditionContext context) {
-    var message = ConditionMessage.forCondition("");
-    if (!ClassUtils.isPresent(ApplicationType.WEB_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("infra web classes").atAll());
-    }
-
-    if (!ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.didNotFind("servlet web application classes").atAll());
-    }
-
-    if (context.getEnvironment() instanceof ConfigurableWebEnvironment) {
-      return ConditionOutcome.match(message.foundExactly("ConfigurableWebEnvironment"));
-    }
-    if (context.getResourceLoader() instanceof WebApplicationContext) {
-      return ConditionOutcome.match(message.foundExactly("WebApplicationContext"));
-    }
-    return ConditionOutcome.noMatch(message.because("not a servlet web application"));
   }
 
   private ConditionOutcome isReactiveWebApplication(ConditionContext context) {
@@ -185,10 +152,6 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
 
     if (context.getEnvironment() instanceof ConfigurableNettyWebEnvironment) {
       return ConditionOutcome.match(message.foundExactly("NettyWebConfigurableEnvironment"));
-    }
-
-    if (ClassUtils.isPresent(ApplicationType.SERVLET_INDICATOR_CLASS, context.getClassLoader())) {
-      return ConditionOutcome.noMatch(message.foundExactly("servlet web application classes"));
     }
 
     ResourceLoader resourceLoader = context.getResourceLoader();

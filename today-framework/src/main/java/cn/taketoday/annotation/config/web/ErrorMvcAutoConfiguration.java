@@ -20,7 +20,6 @@ package cn.taketoday.annotation.config.web;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletPath;
 import cn.taketoday.aop.framework.autoproxy.AutoProxyUtils;
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
@@ -49,11 +48,7 @@ import cn.taketoday.framework.web.error.DefaultErrorViewResolver;
 import cn.taketoday.framework.web.error.ErrorAttributes;
 import cn.taketoday.framework.web.error.ErrorController;
 import cn.taketoday.framework.web.error.ErrorViewResolver;
-import cn.taketoday.framework.web.server.ErrorPage;
-import cn.taketoday.framework.web.server.ErrorPageRegistrar;
-import cn.taketoday.framework.web.server.ErrorPageRegistry;
 import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -97,12 +92,6 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
           List<ErrorViewResolver> errorViewResolvers, ReturnValueHandlerManager returnValueHandler) {
     return new BasicErrorController(errorAttributes,
             serverProperties.error, errorViewResolvers, returnValueHandler);
-  }
-
-  @Component
-  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-  static ErrorPageCustomizer errorPageCustomizer(ServerProperties serverProperties, DispatcherServletPath dispatcherServletPath) {
-    return new ErrorPageCustomizer(serverProperties, dispatcherServletPath);
   }
 
   @Component
@@ -210,9 +199,9 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
 
     private String getMessage(Map<String, ?> model) {
       Object path = model.get("path");
-      String message = "Cannot render error page for request [" + path + "]";
+      String message = "Cannot render error page for request [%s]".formatted(path);
       if (model.get("message") != null) {
-        message += " and exception [" + model.get("message") + "]";
+        message += " and exception [%s]".formatted(model.get("message"));
       }
       message += " as the response has already been committed.";
       message += " As a result, the response may have the wrong status code.";
@@ -222,33 +211,6 @@ public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
     @Override
     public String getContentType() {
       return "text/html";
-    }
-
-  }
-
-  /**
-   * {@link WebServerFactoryCustomizer} that configures the server's error pages.
-   */
-  static class ErrorPageCustomizer implements ErrorPageRegistrar, Ordered {
-
-    private final ServerProperties properties;
-
-    private final DispatcherServletPath dispatcherServletPath;
-
-    protected ErrorPageCustomizer(ServerProperties properties, DispatcherServletPath dispatcherServletPath) {
-      this.properties = properties;
-      this.dispatcherServletPath = dispatcherServletPath;
-    }
-
-    @Override
-    public void registerErrorPages(ErrorPageRegistry errorPageRegistry) {
-      ErrorPage errorPage = new ErrorPage(dispatcherServletPath.getRelativePath(properties.error.path));
-      errorPageRegistry.addErrorPages(errorPage);
-    }
-
-    @Override
-    public int getOrder() {
-      return 0;
     }
 
   }

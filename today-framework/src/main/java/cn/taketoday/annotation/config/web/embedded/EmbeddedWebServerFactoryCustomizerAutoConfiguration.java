@@ -17,30 +17,16 @@
 
 package cn.taketoday.annotation.config.web.embedded;
 
-import org.apache.catalina.startup.Tomcat;
-import org.apache.coyote.UpgradeProtocol;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.Loader;
-import org.xnio.SslClientAuthMode;
-
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.context.condition.ConditionalOnThreading;
-import cn.taketoday.context.condition.ConditionalOnVirtualThreads;
-import cn.taketoday.context.condition.Threading;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.task.VirtualThreadTaskExecutor;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.web.embedded.undertow.UndertowDeploymentInfoCustomizer;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.stereotype.Component;
-import io.undertow.Undertow;
 import reactor.netty.http.server.HttpServer;
 
 /**
@@ -56,70 +42,6 @@ import reactor.netty.http.server.HttpServer;
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(ServerProperties.class)
 public class EmbeddedWebServerFactoryCustomizerAutoConfiguration {
-
-  /**
-   * Nested configuration if Tomcat is being used.
-   */
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass({ Tomcat.class, UpgradeProtocol.class })
-  public static class TomcatWebServerFactoryCustomizerConfiguration {
-
-    @Component
-    static TomcatWebServerFactoryCustomizer tomcatWebServerFactoryCustomizer(Environment environment,
-            ServerProperties serverProperties) {
-      return new TomcatWebServerFactoryCustomizer(environment, serverProperties);
-    }
-
-    @Component
-    @ConditionalOnVirtualThreads
-    static TomcatVirtualThreadsWebServerFactoryCustomizer tomcatVirtualThreadsProtocolHandlerCustomizer() {
-      return new TomcatVirtualThreadsWebServerFactoryCustomizer();
-    }
-
-  }
-
-  /**
-   * Nested configuration if Jetty is being used.
-   */
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass({ Server.class, Loader.class, WebAppContext.class })
-  public static class JettyWebServerFactoryCustomizerConfiguration {
-
-    @Component
-    static JettyWebServerFactoryCustomizer jettyWebServerFactoryCustomizer(
-            Environment environment, ServerProperties serverProperties) {
-      return new JettyWebServerFactoryCustomizer(environment, serverProperties);
-    }
-
-    @Component
-    @ConditionalOnVirtualThreads
-    static JettyVirtualThreadsWebServerFactoryCustomizer jettyVirtualThreadsWebServerFactoryCustomizer(
-            ServerProperties serverProperties) {
-      return new JettyVirtualThreadsWebServerFactoryCustomizer(serverProperties);
-    }
-
-  }
-
-  /**
-   * Nested configuration if Undertow is being used.
-   */
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass({ Undertow.class, SslClientAuthMode.class })
-  public static class UndertowWebServerFactoryCustomizerConfiguration {
-
-    @Component
-    static UndertowWebServerFactoryCustomizer undertowWebServerFactoryCustomizer(
-            Environment environment, ServerProperties serverProperties) {
-      return new UndertowWebServerFactoryCustomizer(environment, serverProperties);
-    }
-
-    @Bean
-    @ConditionalOnThreading(Threading.VIRTUAL)
-    UndertowDeploymentInfoCustomizer virtualThreadsUndertowDeploymentInfoCustomizer() {
-      return (deploymentInfo) -> deploymentInfo.setExecutor(new VirtualThreadTaskExecutor("undertow-"));
-    }
-
-  }
 
   /**
    * Nested configuration if Netty is being used.

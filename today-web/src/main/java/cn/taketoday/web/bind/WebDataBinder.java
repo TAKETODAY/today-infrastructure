@@ -35,11 +35,8 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.DataBinder;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.servlet.ServletUtils;
 import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.Part;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -417,8 +414,7 @@ public class WebDataBinder extends DataBinder {
   protected boolean shouldConstructArgument(MethodParameter param) {
     Class<?> type = param.nestedIfOptional().getNestedParameterType();
     return super.shouldConstructArgument(param)
-            && !MultipartFile.class.isAssignableFrom(type)
-            && !(ServletDetector.isPresent && Part.class.isAssignableFrom(type));
+            && !MultipartFile.class.isAssignableFrom(type);
   }
 
   /**
@@ -561,13 +557,6 @@ public class WebDataBinder extends DataBinder {
     @Nullable
     private Object getMultipartValue(String name, Class<?> paramType) {
       if (request.isMultipart()) {
-        if (ServletDetector.runningInServlet(request)) {
-          if (paramType == Part.class) {
-            List<Part> parts = ServletUtils.getParts(ServletUtils.getServletRequest(request), name);
-            return parts.size() == 1 ? parts.get(0) : parts;
-          }
-        }
-
         List<MultipartFile> files = request.getMultipartRequest().getFiles(name);
         if (CollectionUtils.isNotEmpty(files)) {
           return files.size() == 1 ? files.get(0) : files;

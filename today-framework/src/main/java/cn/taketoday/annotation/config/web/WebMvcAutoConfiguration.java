@@ -26,21 +26,17 @@ import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcProperties.Format;
 import cn.taketoday.annotation.config.web.WebProperties.Resources;
 import cn.taketoday.annotation.config.web.WebProperties.Resources.Chain.Strategy;
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactory;
 import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationEventPublisher;
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnBean;
-import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.task.AsyncTaskExecutor;
@@ -59,7 +55,6 @@ import cn.taketoday.validation.MessageCodesResolver;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CompositeWebMvcConfigurer;
@@ -88,11 +83,6 @@ import cn.taketoday.web.i18n.FixedLocaleResolver;
 import cn.taketoday.web.resource.EncodedResourceResolver;
 import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.VersionResourceResolver;
-import cn.taketoday.web.servlet.filter.FormContentFilter;
-import cn.taketoday.web.servlet.filter.HiddenHttpMethodFilter;
-import cn.taketoday.web.servlet.filter.OrderedFormContentFilter;
-import cn.taketoday.web.servlet.filter.OrderedHiddenHttpMethodFilter;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.View;
 
@@ -105,7 +95,6 @@ import static cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration
  * </p>
  */
 @DisableDIAutoConfiguration(after = {
-        DispatcherServletAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,
         ValidationAutoConfiguration.class
 })
@@ -398,34 +387,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   static ResourceHandlerRegistrationCustomizer resourceHandlerRegistrationCustomizer(
           WebProperties webProperties) {
     return new ResourceHandlerRegistrationCustomizer(webProperties.resources);
-  }
-
-  @ConditionalOnClass(name = ServletDetector.SERVLET_CLASS)
-  @Configuration(proxyBeanMethods = false)
-  static class WebServletConfig {
-
-    @Component
-    @ConditionalOnMissingBean
-    static InternalResourceViewResolver internalResourceViewResolver(WebMvcProperties mvcProperties) {
-      InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-      resolver.setOrder(Ordered.LOWEST_PRECEDENCE);
-      mvcProperties.view.applyTo(resolver);
-      return resolver;
-    }
-
-    @Component
-    @ConditionalOnMissingBean(HiddenHttpMethodFilter.class)
-    @ConditionalOnProperty(prefix = "web.mvc.hiddenmethod.filter", name = "enabled")
-    static OrderedHiddenHttpMethodFilter hiddenHttpMethodFilter() {
-      return new OrderedHiddenHttpMethodFilter();
-    }
-
-    @Component
-    @ConditionalOnMissingBean(FormContentFilter.class)
-    @ConditionalOnProperty(prefix = "web.mvc.formcontent.filter", name = "enabled", matchIfMissing = true)
-    static OrderedFormContentFilter formContentFilter() {
-      return new OrderedFormContentFilter();
-    }
   }
 
   static class ResourceHandlerRegistrationCustomizer {

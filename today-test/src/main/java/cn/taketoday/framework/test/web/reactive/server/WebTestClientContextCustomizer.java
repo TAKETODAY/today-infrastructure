@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.web.reactive.server;
@@ -48,7 +48,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
-import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@link ContextCustomizer} for {@link WebTestClient}.
@@ -139,8 +138,6 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
 
     private WebTestClient object;
 
-    private static final String SERVLET_APPLICATION_CONTEXT_CLASS = "cn.taketoday.web.context.WebApplicationContext";
-
     private static final String REACTIVE_APPLICATION_CONTEXT_CLASS = "cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext";
 
     @Override
@@ -187,16 +184,10 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
       if (webApplicationType == ApplicationType.REACTIVE_WEB) {
         return this.applicationContext.getEnvironment().getProperty("infra.webflux.base-path");
       }
-      else if (webApplicationType == ApplicationType.SERVLET_WEB) {
-        return ((WebApplicationContext) this.applicationContext).getServletContext().getContextPath();
-      }
       return null;
     }
 
     static ApplicationType deduceFromApplicationContext(Class<?> applicationContextClass) {
-      if (isAssignable(SERVLET_APPLICATION_CONTEXT_CLASS, applicationContextClass)) {
-        return ApplicationType.SERVLET_WEB;
-      }
       if (isAssignable(REACTIVE_APPLICATION_CONTEXT_CLASS, applicationContextClass)) {
         return ApplicationType.REACTIVE_WEB;
       }

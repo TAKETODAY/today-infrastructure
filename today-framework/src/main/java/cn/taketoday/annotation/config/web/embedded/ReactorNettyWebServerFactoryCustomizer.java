@@ -22,7 +22,7 @@ import java.time.Duration;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.cloud.CloudPlatform;
-import cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;

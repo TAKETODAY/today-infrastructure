@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.framework.web.netty.SendErrorHandler;
-import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
+import cn.taketoday.framework.web.server.ConfigurableWebServerFactory;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
@@ -44,7 +44,7 @@ import cn.taketoday.web.util.WebUtils;
  * Basic global error {@link Controller @Controller}, rendering {@link ErrorAttributes}.
  * More specific errors can be handled either using Web MVC abstractions (e.g.
  * {@code @ExceptionHandler}) or by adding servlet
- * {@link AbstractServletWebServerFactory#setErrorPages server error pages}.
+ * {@link ConfigurableWebServerFactory#setErrorPages server error pages}.
  *
  * @author Dave Syer
  * @author Phillip Webb

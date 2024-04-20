@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,6 @@
 
 package cn.taketoday.annotation.config.web.socket;
 
-import org.apache.catalina.startup.Tomcat;
-import org.apache.tomcat.websocket.server.WsSci;
-import org.eclipse.jetty.ee10.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
-import org.eclipse.jetty.ee10.websocket.servlet.WebSocketUpgradeFilter;
-
-import java.util.EnumSet;
-
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
@@ -31,20 +24,15 @@ import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Decorator;
-import cn.taketoday.core.Ordered;
-import cn.taketoday.core.annotation.Order;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.framework.web.embedded.jetty.JettyServletWebServerFactory;
 import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
-import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.config.EnableWebSocket;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
-import jakarta.servlet.DispatcherType;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} WebSocket
@@ -57,57 +45,6 @@ import jakarta.servlet.DispatcherType;
 @DisableDIAutoConfiguration
 @ConditionalOnClass(WebSocketHandlerMapping.class)
 public class WebSocketAutoConfiguration {
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass({ Tomcat.class, WsSci.class })
-  static class TomcatWebSocketConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-    static TomcatWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
-      return new TomcatWebSocketServletWebServerCustomizer();
-    }
-
-  }
-
-  @Lazy
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(JakartaWebSocketServletContainerInitializer.class)
-  static class JettyWebSocketConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-    static JettyWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
-      return new JettyWebSocketServletWebServerCustomizer();
-    }
-
-    @Component
-    @Order(Ordered.LOWEST_PRECEDENCE)
-    @ConditionalOnMissingBean(name = "websocketUpgradeFilterWebServerCustomizer")
-    static WebServerFactoryCustomizer<JettyServletWebServerFactory> websocketUpgradeFilterWebServerCustomizer() {
-      return factory -> {
-        factory.addInitializers(servletContext -> {
-          var registration = servletContext.addFilter(WebSocketUpgradeFilter.class.getName(), new WebSocketUpgradeFilter());
-          registration.setAsyncSupported(true);
-          registration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
-        });
-      };
-    }
-
-  }
-
-  @Lazy
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(io.undertow.websockets.jsr.Bootstrap.class)
-  static class UndertowWebSocketConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean(name = "websocketServletWebServerCustomizer")
-    static UndertowWebSocketServletWebServerCustomizer websocketServletWebServerCustomizer() {
-      return new UndertowWebSocketServletWebServerCustomizer();
-    }
-
-  }
 
   @Lazy
   @Configuration(proxyBeanMethods = false)

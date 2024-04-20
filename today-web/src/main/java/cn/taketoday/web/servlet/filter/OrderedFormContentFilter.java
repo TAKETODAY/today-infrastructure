@@ -27,6 +27,7 @@ import cn.taketoday.core.Ordered;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Deprecated(forRemoval = true)
 public class OrderedFormContentFilter extends FormContentFilter implements OrderedFilter {
 
   /**

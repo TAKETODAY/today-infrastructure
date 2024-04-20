@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework;
@@ -23,7 +23,6 @@ import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.core.ReactiveStreams;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.ServletDetector;
 
 /**
  * An enumeration of possible types of application.
@@ -40,12 +39,6 @@ public enum ApplicationType {
   NORMAL,
 
   /**
-   * The application should run as a servlet-based web application and should start an
-   * embedded servlet web server.
-   */
-  SERVLET_WEB,
-
-  /**
    * The application should run as a reactive web application and should start an
    * embedded reactive web server.
    */
@@ -58,23 +51,18 @@ public enum ApplicationType {
   NETTY_WEB;
 
   public static final String WEB_INDICATOR_CLASS = "cn.taketoday.web.RequestContext";
-  public static final String SERVLET_INDICATOR_CLASS = ServletDetector.SERVLET_CLASS;
+
   public static final String REACTOR_INDICATOR_CLASS = ReactiveStreams.REACTOR_INDICATOR_CLASS;
+
   public static final String NETTY_INDICATOR_CLASS = "io.netty.bootstrap.ServerBootstrap";
 
   public static ApplicationType forClasspath() {
     ClassLoader classLoader = ApplicationType.class.getClassLoader();
-    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)) {
-      if (ServletDetector.isPresent) {
-        return ApplicationType.SERVLET_WEB;
+    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader) && ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
+      if (ClassUtils.isPresent(REACTOR_INDICATOR_CLASS, classLoader)) {
+        return ApplicationType.REACTIVE_WEB;
       }
-
-      if (ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
-        if (ClassUtils.isPresent(REACTOR_INDICATOR_CLASS, classLoader)) {
-          return ApplicationType.REACTIVE_WEB;
-        }
-        return ApplicationType.NETTY_WEB;
-      }
+      return ApplicationType.NETTY_WEB;
     }
     return ApplicationType.NORMAL;
   }
@@ -83,8 +71,6 @@ public enum ApplicationType {
 
     @Override
     public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
-      registerTypeIfPresent(ServletDetector.SERVLET_CLASS, classLoader, hints);
-      registerTypeIfPresent(ServletDetector.SERVLET_WEBSOCKET_CLASS, classLoader, hints);
       registerTypeIfPresent(WEB_INDICATOR_CLASS, classLoader, hints);
       registerTypeIfPresent(NETTY_INDICATOR_CLASS, classLoader, hints);
       registerTypeIfPresent(REACTOR_INDICATOR_CLASS, classLoader, hints);

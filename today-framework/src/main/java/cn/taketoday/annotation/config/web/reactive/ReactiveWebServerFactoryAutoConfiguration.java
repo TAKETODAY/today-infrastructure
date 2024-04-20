@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.reactive;
@@ -61,24 +61,13 @@ import static cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type
 @ConditionalOnWebApplication(type = Type.REACTIVE)
 @EnableConfigurationProperties(ServerProperties.class)
 @Import({ BeanPostProcessorsRegistrar.class,
-        ReactiveWebServerFactoryConfiguration.EmbeddedTomcat.class,
-        ReactiveWebServerFactoryConfiguration.EmbeddedJetty.class,
-        ReactiveWebServerFactoryConfiguration.EmbeddedUndertow.class,
-        ReactiveWebServerFactoryConfiguration.EmbeddedNetty.class
-})
+        ReactiveWebServerFactoryConfiguration.EmbeddedNetty.class })
 public class ReactiveWebServerFactoryAutoConfiguration {
 
   @Component
   static ReactiveWebServerFactoryCustomizer reactiveWebServerFactoryCustomizer(
           ServerProperties serverProperties, @Nullable SslBundles sslBundles, @Nullable ApplicationTemp applicationTemp) {
     return new ReactiveWebServerFactoryCustomizer(serverProperties, sslBundles, applicationTemp);
-  }
-
-  @Component
-  @ConditionalOnClass(name = "org.apache.catalina.startup.Tomcat")
-  static TomcatReactiveWebServerFactoryCustomizer tomcatReactiveWebServerFactoryCustomizer(
-          ServerProperties serverProperties) {
-    return new TomcatReactiveWebServerFactoryCustomizer(serverProperties);
   }
 
   @Component

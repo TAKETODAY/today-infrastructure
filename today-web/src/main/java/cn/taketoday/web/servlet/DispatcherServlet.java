@@ -51,6 +51,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.0 2018-06-25 19:47:14
  */
+@Deprecated(forRemoval = true)
 public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
 
   @Serial

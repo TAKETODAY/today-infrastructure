@@ -11,8 +11,6 @@ cn.taketoday.annotation.config.web.client.RestClientAutoConfiguration
 cn.taketoday.annotation.config.web.client.RestTemplateAutoConfiguration
 cn.taketoday.annotation.config.web.WebMvcAutoConfiguration
 cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration
-cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration
-cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.reactive.ReactiveWebServerFactoryAutoConfiguration
 cn.taketoday.annotation.config.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration

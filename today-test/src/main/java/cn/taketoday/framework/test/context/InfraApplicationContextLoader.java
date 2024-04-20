@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.context;
@@ -100,7 +97,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     application.getSources().addAll(Arrays.asList(configLocations));
     List<ApplicationContextInitializer> initializers = getInitializers(config, application);
     if (config instanceof WebMergedContextConfiguration) {
-      application.setApplicationType(ApplicationType.SERVLET_WEB);
+      application.setApplicationType(ApplicationType.NETTY_WEB);
       if (!isEmbeddedWebEnvironment(config)) {
         new WebConfigurer().configure(config, application, initializers);
       }
@@ -132,7 +129,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
           ConfigurableEnvironment environment, boolean applicationEnvironment) {
     setActiveProfiles(environment, config.getActiveProfiles(), applicationEnvironment);
     ResourceLoader resourceLoader = (application.getResourceLoader() != null) ? application.getResourceLoader()
-                                                                              : new DefaultResourceLoader(null);
+            : new DefaultResourceLoader(null);
     TestPropertySourceUtils.addPropertiesFilesToEnvironment(environment, resourceLoader,
             config.getPropertySourceLocations());
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(environment, getInlinedProperties(config));

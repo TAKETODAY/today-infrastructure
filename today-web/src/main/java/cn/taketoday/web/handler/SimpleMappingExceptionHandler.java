@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -28,10 +25,7 @@ import java.util.Properties;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.RequestDispatcher;
 
 /**
  * {@link HandlerExceptionHandler} implementation that allows for mapping exception
@@ -321,21 +315,10 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
    * @see RequestContext#setStatus
    */
   protected void applyStatusCodeIfPossible(RequestContext request, int statusCode) {
-    if (ServletDetector.runningInServlet(request)) {
-      if (!ServletUtils.isIncludeRequest(ServletUtils.getServletRequest(request))) {
-        if (logger.isDebugEnabled()) {
-          logger.debug("Applying HTTP status {}", statusCode);
-        }
-        request.setStatus(statusCode);
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, statusCode);
-      }
+    if (logger.isDebugEnabled()) {
+      logger.debug("Applying HTTP status {}", statusCode);
     }
-    else {
-      if (logger.isDebugEnabled()) {
-        logger.debug("Applying HTTP status {}", statusCode);
-      }
-      request.setStatus(statusCode);
-    }
+    request.setStatus(statusCode);
   }
 
   /**

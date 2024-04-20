@@ -105,11 +105,11 @@ import cn.taketoday.framework.context.event.ApplicationStartedEvent;
 import cn.taketoday.framework.context.event.ApplicationStartingEvent;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
-import cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory;
-import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
+import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
@@ -117,7 +117,6 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
@@ -423,9 +422,9 @@ class ApplicationTests {
   @Test
   void defaultApplicationContextForWeb() {
     Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.SERVLET_WEB);
+    application.setApplicationType(ApplicationType.NETTY_WEB);
     this.context = application.run();
-    assertThat(this.context).isInstanceOf(AnnotationConfigServletWebServerApplicationContext.class);
+    assertThat(this.context).isInstanceOf(AnnotationConfigWebServerApplicationContext.class);
   }
 
   @Test
@@ -439,9 +438,9 @@ class ApplicationTests {
   @Test
   void environmentForWeb() {
     Application application = new Application(ExampleWebConfig.class);
-    application.setApplicationType(ApplicationType.SERVLET_WEB);
+    application.setApplicationType(ApplicationType.NETTY_WEB);
     this.context = application.run();
-    assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationServletEnvironment.class);
+    assertThat(this.context.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
   }
 
   @Test
@@ -1036,7 +1035,7 @@ class ApplicationTests {
   void webApplicationSwitchedOffInListener() {
     TestApplication application = new TestApplication(ExampleConfig.class);
     application.addListeners((ApplicationListener<ApplicationEnvironmentPreparedEvent>) (event) -> {
-      assertThat(event.getEnvironment()).isInstanceOf(ApplicationServletEnvironment.class);
+      assertThat(event.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
       TestPropertySourceUtils.addInlinedPropertiesToEnvironment(event.getEnvironment(), "foo=bar");
       event.getApplication().setApplicationType(ApplicationType.NORMAL);
     });
@@ -1053,16 +1052,16 @@ class ApplicationTests {
   void nonWebApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleConfig.class)
             .run("--app.main.application-type=normal");
-    assertThat(context).isNotInstanceOfAny(WebApplicationContext.class, ReactiveWebApplicationContext.class);
+    assertThat(context).isNotInstanceOfAny(ApplicationContext.class, ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isNotInstanceOfAny(ConfigurableWebEnvironment.class);
   }
 
   @Test
   void webApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleWebConfig.class)
-            .run("--app.main.application-type=SERVLET_WEB");
-    assertThat(context).isInstanceOf(WebApplicationContext.class);
-    assertThat(context.getEnvironment()).isInstanceOf(ApplicationServletEnvironment.class);
+            .run("--app.main.application-type=netty_web");
+    assertThat(context).isInstanceOf(ApplicationContext.class);
+    assertThat(context.getEnvironment()).isInstanceOf(ApplicationNettyWebEnvironment.class);
   }
 
   @Test
@@ -1585,8 +1584,10 @@ class ApplicationTests {
   static class ExampleWebConfig {
 
     @Bean
-    TomcatServletWebServerFactory webServer() {
-      return new TomcatServletWebServerFactory(0);
+    NettyWebServerFactory webServer() {
+      NettyWebServerFactory factory = new NettyWebServerFactory();
+      factory.setPort(0);
+      return factory;
     }
 
   }

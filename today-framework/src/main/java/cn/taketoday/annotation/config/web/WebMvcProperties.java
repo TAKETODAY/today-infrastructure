@@ -23,8 +23,6 @@ import java.util.Map;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.validation.DefaultMessageCodesResolver;
 import cn.taketoday.web.view.UrlBasedViewResolver;
@@ -85,8 +83,6 @@ public class WebMvcProperties {
 
   public final Async async = new Async();
 
-  public final Servlet servlet = new Servlet();
-
   public final View view = new View();
 
   public final Contentnegotiation contentnegotiation = new Contentnegotiation();
@@ -98,69 +94,6 @@ public class WebMvcProperties {
      * not set, the default timeout of the underlying implementation is used.
      */
     public Duration requestTimeout;
-
-  }
-
-  public static class Servlet {
-
-    /**
-     * Path of the dispatcher servlet. Setting a custom value for this property is not
-     * compatible with the PathPatternParser matching strategy.
-     */
-    public String path = "/";
-
-    /**
-     * Load on startup priority of the dispatcher servlet.
-     */
-    public int loadOnStartup = -1;
-
-    /**
-     * The request character encoding for this app
-     */
-    @Nullable
-    public String requestEncoding = Constant.DEFAULT_ENCODING;
-
-    /**
-     * The response character encoding for this app
-     */
-    @Nullable
-    public String responseEncoding = Constant.DEFAULT_ENCODING;
-
-    public void setPath(String path) {
-      Assert.notNull(path, "Path is required");
-      Assert.isTrue(!path.contains("*"), "Path must not contain wildcards");
-      this.path = path;
-    }
-
-    public String getServletMapping() {
-      if (this.path.isEmpty() || this.path.equals("/")) {
-        return "/";
-      }
-      if (this.path.endsWith("/")) {
-        return this.path + "*";
-      }
-      return this.path + "/*";
-    }
-
-    public String getPath(String path) {
-      String prefix = getServletPrefix();
-      if (!path.startsWith("/")) {
-        path = "/" + path;
-      }
-      return prefix + path;
-    }
-
-    public String getServletPrefix() {
-      String result = this.path;
-      int index = result.indexOf('*');
-      if (index != -1) {
-        result = result.substring(0, index);
-      }
-      if (result.endsWith("/")) {
-        result = result.substring(0, result.length() - 1);
-      }
-      return result;
-    }
 
   }
 

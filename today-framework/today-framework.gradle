@@ -47,12 +47,7 @@ dependencies {
   optional 'com.google.code.findbugs:jsr305'
   optional 'org.projectlombok:lombok'
   optional 'org.yaml:snakeyaml'
-  optional 'org.apache.tomcat.embed:tomcat-embed-core'
-  optional 'io.undertow:undertow-core'
-  optional 'io.undertow:undertow-servlet'
   optional 'org.hibernate.validator:hibernate-validator'
-  optional 'org.apache.tomcat.embed:tomcat-embed-websocket'
-  optional 'io.undertow:undertow-websockets-jsr'
   optional 'io.projectreactor:reactor-core'
   optional 'io.projectreactor.tools:blockhound'
   optional 'org.apache.httpcomponents.core5:httpcore5'
@@ -67,15 +62,8 @@ dependencies {
   optional 'com.oracle.database.jdbc:ojdbc8:21.7.0.0'
   optional 'com.oracle.database.jdbc:ucp:21.7.0.0'
 
-  optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
-  optional 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
 
-  optional 'org.eclipse.jetty.ee10:jetty-ee10-servlets'
-  optional 'org.eclipse.jetty.ee10:jetty-ee10-webapp'
-  optional 'org.eclipse.jetty:jetty-alpn-server'
-  optional 'org.eclipse.jetty.http2:jetty-http2-server'
   optional 'org.eclipse.jetty:jetty-reactive-httpclient'
-  optional 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
   optional 'org.crac:crac'
 
   testImplementation("org.eclipse.jetty:jetty-client")
@@ -106,7 +94,6 @@ dependencies {
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
-  testImplementation 'io.undertow:undertow-servlet'
   testImplementation 'jakarta.websocket:jakarta.websocket-api'
   testImplementation 'org.apache.tomcat.embed:tomcat-embed-websocket'
   testImplementation 'jakarta.json.bind:jakarta.json.bind-api'

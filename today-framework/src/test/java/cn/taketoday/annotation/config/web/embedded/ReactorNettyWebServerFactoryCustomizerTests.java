@@ -28,8 +28,8 @@ import java.time.Duration;
 import java.util.Map;
 
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
-import cn.taketoday.framework.web.embedded.netty.ReactorNettyReactiveWebServerFactory;
-import cn.taketoday.framework.web.embedded.netty.ReactorNettyServerCustomizer;
+import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyServerCustomizer;
 import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.mock.env.MockEnvironment;

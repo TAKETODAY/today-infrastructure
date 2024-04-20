@@ -29,7 +29,6 @@ import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.framework.web.server.WebServerFactory;
-import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
@@ -104,11 +103,11 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   }
 
   /**
-   * Returns the {@link ServletWebServerFactory} that should be used to create the
+   * Returns the {@link WebServerFactory} that should be used to create the
    * embedded {@link WebServer}. By default this method searches for a suitable bean in
    * the context itself.
    *
-   * @return a {@link ServletWebServerFactory} (never {@code null})
+   * @return a {@link WebServerFactory} (never {@code null})
    */
   private WebServerFactory getWebServerFactory() {
     // Use bean names so that we don't consider the hierarchy

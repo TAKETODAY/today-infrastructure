@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -28,9 +28,7 @@ import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebApplicationContext;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.server.reactive.HttpHandler;
-import cn.taketoday.mock.web.MockServletContext;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,23 +52,10 @@ class ConditionalOnWebApplicationTests {
   }
 
   @Test
-  void testWebApplicationWithServletContext() {
-    AnnotationConfigServletWebApplicationContext ctx = new AnnotationConfigServletWebApplicationContext();
-    ctx.register(AnyWebApplicationConfiguration.class, ServletWebApplicationConfiguration.class,
-            ReactiveWebApplicationConfiguration.class);
-    ctx.setServletContext(new MockServletContext());
-    ctx.refresh();
-    this.context = ctx;
-    assertThat(this.context.getBeansOfType(String.class)).containsExactly(entry("any", "any"),
-            entry("servlet", "servlet"));
-  }
-
-  @Test
 //  @Disabled
   void testWebApplicationWithReactiveContext() {
     AnnotationConfigReactiveWebApplicationContext context = new AnnotationConfigReactiveWebApplicationContext();
-    context.register(AnyWebApplicationConfiguration.class, ServletWebApplicationConfiguration.class,
-            ReactiveWebApplicationConfiguration.class);
+    context.register(AnyWebApplicationConfiguration.class, ReactiveWebApplicationConfiguration.class);
     context.refresh();
     this.context = context;
     assertThat(this.context.getBeansOfType(String.class)).containsExactly(entry("any", "any"),
@@ -80,8 +65,7 @@ class ConditionalOnWebApplicationTests {
   @Test
   void testNonWebApplication() {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(AnyWebApplicationConfiguration.class, ServletWebApplicationConfiguration.class,
-            ReactiveWebApplicationConfiguration.class);
+    ctx.register(AnyWebApplicationConfiguration.class, ReactiveWebApplicationConfiguration.class);
     ctx.refresh();
     this.context = ctx;
     assertThat(this.context.getBeansOfType(String.class)).isEmpty();
@@ -94,17 +78,6 @@ class ConditionalOnWebApplicationTests {
     @Bean
     String any() {
       return "any";
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnWebApplication(type = Type.SERVLET)
-  static class ServletWebApplicationConfiguration {
-
-    @Bean
-    String servlet() {
-      return "servlet";
     }
 
   }
