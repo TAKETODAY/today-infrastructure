@@ -156,7 +156,7 @@ the advice defined by `txAdvice` is run.
 
 The expression defined within the `<aop:pointcut/>` element is an AspectJ pointcut
 expression. See xref:core/aop.adoc[the AOP section] for more details on pointcut
-expressions in Spring.
+expressions in Infra.
 
 A common requirement is to make an entire service layer transactional. The best way to
 do this is to change the pointcut expression to match any operation in your

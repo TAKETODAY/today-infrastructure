@@ -208,7 +208,7 @@ public static void main(String[] args) {
 
 ======
 
-TIP: Constructor injection in `@Configuration` classes is only supported as of Spring
+TIP: Constructor injection in `@Configuration` classes is only supported as of Infra
 Framework 4.3. Note also that there is no need to specify `@Autowired` if the target
 bean defines only one constructor.
 

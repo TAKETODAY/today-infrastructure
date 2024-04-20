@@ -161,7 +161,7 @@ The following configuration shows how you can configure the `MBeanExporter` to u
 In the preceding example, an `MetadataMBeanInfoAssembler` bean has been configured with an
 instance of the `AnnotationJmxAttributeSource` class and passed to the `MBeanExporter`
 through the assembler property. This is all that is required to take advantage of
-metadata-driven management interfaces for your Spring-exposed MBeans.
+metadata-driven management interfaces for your Infra-exposed MBeans.
 
 
 [[jmx-interface-metadata-types]]

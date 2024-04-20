@@ -37,7 +37,7 @@ data. Both definitions work against the `books` cache.
 
 The `aop:config` definition applies the cache advice to the appropriate points in the
 program by using the AspectJ pointcut expression (more information is available in
-xref:core/aop.adoc[Aspect Oriented Programming with Spring]). In the preceding example,
+xref:core/aop.adoc[Aspect Oriented Programming with Infra]). In the preceding example,
 all methods from the `BookService` are considered and the cache advice is applied to them.
 
 The declarative XML caching supports all of the annotation-based model, so moving between

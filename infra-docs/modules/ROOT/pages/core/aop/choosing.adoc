@@ -14,7 +14,7 @@ development tools, and team familiarity with AOP.
 
 Use the simplest thing that can work. Infra AOP is simpler than using full AspectJ, as
 there is no requirement to introduce the AspectJ compiler / weaver into your development
-and build processes. If you only need to advise the execution of operations on Spring
+and build processes. If you only need to advise the execution of operations on Infra
 beans, Infra AOP is the right choice. If you need to advise objects not managed by
 the Infra container (such as domain objects, typically), you need to use
 AspectJ. You also need to use AspectJ if you wish to advise join points other than

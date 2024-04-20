@@ -1,48 +1,31 @@
 [[beans-environment]]
-= Environment Abstraction
+= Environment 接口
 
-The {today-framework-api}/core/env/Environment.html[`Environment`] interface
-is an abstraction integrated in the container that models two key
-aspects of the application environment: xref:core/beans/environment.adoc#beans-definition-profiles[profiles]
-and xref:core/beans/environment.adoc#beans-property-source-abstraction[properties].
+{today-framework-api}/core/env/Environment.html[`Environment`] 接口是集成在容器中的一个抽象，
+用于模拟应用程序环境的两个关键方面：xref:core/beans/environment.adoc#beans-definition-profiles[profiles]
+和 xref:core/beans/environment.adoc#beans-property-source-abstraction[properties]。
 
-A profile is a named, logical group of bean definitions to be registered with the
-container only if the given profile is active. Beans may be assigned to a profile
-whether defined in XML or with annotations. The role of the `Environment` object with
-relation to profiles is in determining which profiles (if any) are currently active,
-and which profiles (if any) should be active by default.
+配置文件是一个命名的、逻辑上的 bean 定义组，只有在给定配置文件处于活动状态时才会向容器注册。
+无论是在 XML 中定义还是使用注解，都可以将 bean 分配给配置文件。`Environment`
+对象与配置文件的关系在于确定当前激活的配置文件（如果有）以及默认情况下应该激活的配置文件（如果有）。
 
-Properties play an important role in almost all applications and may originate from
-a variety of sources: properties files, JVM system properties, system environment
-variables, JNDI, servlet context parameters, ad-hoc `Properties` objects, `Map` objects, and so
-on. The role of the `Environment` object with relation to properties is to provide the
-user with a convenient service interface for configuring property sources and resolving
-properties from them.
-
+属性在几乎所有应用程序中都起着重要作用，可以来自各种来源：属性文件、JVM 系统属性、系统环境变量、
+JNDI、servlet 上下文参数、临时 `Properties` 对象、`Map` 对象等等。`Environment`
+对象与属性的关系在于为用户提供一个方便的服务接口，用于配置属性源并从中解析属性。
 
 
 [[beans-definition-profiles]]
 == Bean Definition Profiles
 
-Bean definition profiles provide a mechanism in the core container that allows for
-registration of different beans in different environments. The word, "`environment,`"
-can mean different things to different users, and this feature can help with many
-use cases, including:
+Bean 定义配置文件提供了一个机制，允许在不同的环境中注册不同的 bean。"`environment`"
+这个词对不同的用户可能有不同的含义，而这个功能可以帮助解决许多用例，包括：
 
-* Working against an in-memory datasource in development versus looking up that same
-datasource from JNDI when in QA or production.
-* Registering monitoring infrastructure only when deploying an application into a
-performance environment.
-* Registering customized implementations of beans for customer A versus customer
-B deployments.
+* 在开发环境中使用内存数据源，而在 QA 或生产环境中从 JNDI 中查找相同的数据源。
+* 仅在将应用程序部署到性能环境时注册监控基础设施。
+* 为客户 A 与客户 B 的部署注册定制的 bean 实现。
 
-Consider the first use case in a practical application that requires a
-`DataSource`. In a test environment, the configuration might resemble the following:
+考虑到第一个用例，在需要 `DataSource` 的实际应用程序中。在测试环境中，配置可能如下所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Bean
@@ -55,17 +38,8 @@ public DataSource dataSource() {
 }
 ----
 
-======
+现在考虑将该应用程序部署到 QA 或生产环境中，假设该应用程序的数据源已在生产应用服务器的 JNDI 目录中注册。我们的 `dataSource` bean 现在如下所示：
 
-Now consider how this application can be deployed into a QA or production
-environment, assuming that the datasource for the application is registered
-with the production application server's JNDI directory. Our `dataSource` bean
-now looks like the following listing:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Bean(destroyMethod = "")
@@ -75,36 +49,20 @@ public DataSource dataSource() throws Exception {
 }
 ----
 
-======
+问题在于如何根据当前环境在这两种变体之间进行切换。随着时间的推移，基础设施用户已经想出了许多方法来完成这项任务，
+通常依赖于一组系统环境变量和包含 pass:q[`${placeholder}`] 令牌的 XML `<import/>` 语句，
+这些令牌会根据环境变量的值解析为正确的配置文件路径。Bean 定义配置文件是提供这个问题解决方案的核心容器功能。
 
-The problem is how to switch between using these two variations based on the
-current environment. Over time, Infra users have devised a number of ways to
-get this done, usually relying on a combination of system environment variables
-and XML `<import/>` statements containing pass:q[`${placeholder}`] tokens that resolve
-to the correct configuration file path depending on the value of an environment
-variable. Bean definition profiles is a core container feature that provides a
-solution to this problem.
-
-If we generalize the use case shown in the preceding example of environment-specific bean
-definitions, we end up with the need to register certain bean definitions in
-certain contexts but not in others. You could say that you want to register a
-certain profile of bean definitions in situation A and a different profile in
-situation B. We start by updating our configuration to reflect this need.
+如果我们概括上述示例中显示的特定环境 bean 定义的用例，我们最终需要在某些上下文中注册特定的 bean 定义，
+但在其他上下文中不需要。你可以说在情况 A 中注册特定配置文件的 bean 定义配置文件，并在情况 B 中注册不同的配置文件。我们首先更新配置以反映这种需求。
 
 
 [[beans-definition-profiles-java]]
-=== Using `@Profile`
+=== 使用 `@Profile` 注解
 
-The {today-framework-api}/context/annotation/Profile.html[`@Profile`]
-annotation lets you indicate that a component is eligible for registration
-when one or more specified profiles are active. Using our preceding example, we
-can rewrite the `dataSource` configuration as follows:
+{today-framework-api}/context/annotation/Profile.html[`@Profile`] 注解允许您指示在一个或多个指定的配置文件处于活动状态时，
+组件是否符合注册条件。使用我们之前的示例，我们可以将 `dataSource` 配置重写如下：
 
---
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -122,14 +80,6 @@ public class StandaloneDataConfig {
 }
 ----
 
-======
---
-
---
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -143,24 +93,19 @@ public class JndiDataConfig {
   }
 }
 ----
-<1> `@Bean(destroyMethod = "")` disables default destroy method inference.
+<1> `@Bean(destroyMethod = "")` 禁用了 destroyMethod 默认行为.
 
-======
---
+NOTE: 如前所述，使用 `@Bean` 方法时，通常选择使用编程方式的 JNDI 查找，可以使用 Infra
+的 `JndiTemplate`/`JndiLocatorDelegate` 辅助工具或之前展示的直接 JNDI `InitialContext` 使用，
+但不能使用 `JndiObjectFactoryBean` 变体，因为这会强制您将返回类型声明为 `FactoryBean` 类型。
 
-NOTE: As mentioned earlier, with `@Bean` methods, you typically choose to use programmatic
-JNDI lookups, by using either Infra `JndiTemplate`/`JndiLocatorDelegate` helpers or the
-straight JNDI `InitialContext` usage shown earlier but not the `JndiObjectFactoryBean`
-variant, which would force you to declare the return type as the `FactoryBean` type.
+配置文件字符串可以包含简单的配置文件名称（例如 `production`）或配置文件表达式。
+配置文件表达式允许表达更复杂的配置文件逻辑（例如 `production & us-east`）。配置文件表达式支持以下运算符：
 
-The profile string may contain a simple profile name (for example, `production`) or a
-profile expression. A profile expression allows for more complicated profile logic to be
-expressed (for example, `production & us-east`). The following operators are supported in
-profile expressions:
+* `!`：配置文件的逻辑 `NOT`
+* `&`：配置文件的逻辑 `AND`
+* `|`：配置文件的逻辑 `OR`
 
-* `!`: A logical `NOT` of the profile
-* `&`: A logical `AND` of the profiles
-* `|`: A logical `OR` of the profiles
 
 NOTE: You cannot mix the `&` and `|` operators without using parentheses. For example,
 `production & us-east | eu-central` is not a valid expression. It must be expressed as
@@ -171,11 +116,6 @@ of creating a custom composed annotation. The following example defines a custom
 `@Production` annotation that you can use as a drop-in replacement for
 `@Profile("production")`:
 
---
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Target(ElementType.TYPE)
@@ -185,27 +125,12 @@ public @interface Production {
 }
 ----
 
-======
---
+TIP: 如果不使用括号，不能混合使用 `&` 和 `|` 运算符。例如，`production & us-east | eu-central`
+不是一个有效的表达式。必须表达为 `production & (us-east | eu-central)`。
 
-TIP: If a `@Configuration` class is marked with `@Profile`, all of the `@Bean` methods and
-`@Import` annotations associated with that class are bypassed unless one or more of
-the specified profiles are active. If a `@Component` or `@Configuration` class is marked
-with `@Profile({"p1", "p2"})`, that class is not registered or processed unless
-profiles 'p1' or 'p2' have been activated. If a given profile is prefixed with the
-NOT operator (`!`), the annotated element is registered only if the profile is not
-active. For example, given `@Profile({"p1", "!p2"})`, registration will occur if profile
-'p1' is active or if profile 'p2' is not active.
+您可以将 `@Profile` 用作 xref:core/beans/classpath-scanning.adoc#beans-meta-annotations[元注解]，
+以创建自定义的组合注解。以下示例定义了一个自定义的 `@Production` 注解，您可以将其用作 `@Profile("production")` 的替代：
 
-`@Profile` can also be declared at the method level to include only one particular bean
-of a configuration class (for example, for alternative variants of a particular bean), as
-the following example shows:
-
---
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -229,37 +154,27 @@ public class AppConfig {
   }
 }
 ----
-<1> The `standaloneDataSource` method is available only in the `development` profile.
-<2> The `jndiDataSource` method is available only in the `production` profile.
+<1> `standaloneDataSource` 方法仅在 `development` 配置文件中可用。
+<2> `jndiDataSource` 方法仅在 `production` 配置文件中可用。
 
-======
---
 
 [NOTE]
 ====
-With `@Profile` on `@Bean` methods, a special scenario may apply: In the case of
-overloaded `@Bean` methods of the same Java method name (analogous to constructor
-overloading), a `@Profile` condition needs to be consistently declared on all
-overloaded methods. If the conditions are inconsistent, only the condition on the
-first declaration among the overloaded methods matters. Therefore, `@Profile` can
-not be used to select an overloaded method with a particular argument signature over
-another. Resolution between all factory methods for the same bean follows Infra
-constructor resolution algorithm at creation time.
+当在 `@Bean` 方法上使用 `@Profile` 时，可能会出现特殊情况：对于同一 Java 方法名称的重载 `@Bean` 方法
+（类似于构造函数重载），需要在所有重载的方法上一致地声明 `@Profile` 条件。如果条件不一致，
+则只有在重载方法中的第一个声明上的条件才会起作用。因此，`@Profile` 不能用于选择具有特定参数签名的重载方法。
+对于同一 bean 的所有工厂方法之间的解析在创建时遵循 Infra 构造函数解析算法。
 
-If you want to define alternative beans with different profile conditions,
-use distinct Java method names that point to the same bean name by using the `@Bean` name
-attribute, as shown in the preceding example. If the argument signatures are all
-the same (for example, all of the variants have no-arg factory methods), this is the only
-way to represent such an arrangement in a valid Java class in the first place
-(since there can only be one method of a particular name and argument signature).
+如果您想要使用不同的配置条件定义替代 bean，请使用不同的 Java 方法名称，这些名称通过使用 `@Bean`
+的名称属性指向相同的 bean 名称，就像前面的示例所示。如果参数签名都相同（例如，所有变体都具有无参数工厂方法），
+这是在有效的 Java 类中表示这种安排的唯一方法，因为一个特定名称和参数签名只能有一个方法。
 ====
 
 
 [[beans-definition-profiles-xml]]
-=== XML Bean Definition Profiles
+=== 使用 XML Profiles
 
-The XML counterpart is the `profile` attribute of the `<beans>` element. Our preceding sample
-configuration can be rewritten in two XML files, as follows:
+XML 的对应部分是 `<beans>` 元素的 `profile` 属性。我们之前的示例配置可以重写为两个 XML 文件，如下所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -288,8 +203,7 @@ configuration can be rewritten in two XML files, as follows:
 </beans>
 ----
 
-It is also possible to avoid that split and nest `<beans/>` elements within the same file,
-as the following example shows:
+也可以避免拆分，并在同一个文件中嵌套 `<beans/>` 元素，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -314,15 +228,12 @@ as the following example shows:
 </beans>
 ----
 
-The `spring-bean.xsd` has been constrained to allow such elements only as the
-last ones in the file. This should help provide flexibility without incurring
-clutter in the XML files.
+`spring-bean.xsd` 已被限制，只允许这些元素出现在文件的最后。这应该有助于在不使 XML 文件混乱的情况下提供灵活性。
 
 [NOTE]
 =====
-The XML counterpart does not support the profile expressions described earlier. It is possible,
-however, to negate a profile by using the `!` operator. It is also possible to apply a logical
-"`and`" by nesting the profiles, as the following example shows:
+XML 对应部分不支持之前描述的 profile 表达式。但是，可以通过使用 `!` 运算符来否定一个 profile。
+同时，也可以通过嵌套 profiles 来应用逻辑的 “and”，如下例所示：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -342,27 +253,20 @@ however, to negate a profile by using the `!` operator. It is also possible to a
 </beans>
 ----
 
-In the preceding example, the `dataSource` bean is exposed if both the `production` and
-`us-east` profiles are active.
+在前面的例子中，只有当 `production` 和 `us-east` 两个 profile 都处于激活状态时，`dataSource` bean 才会被暴露出来。
 =====
 
 
 [[beans-definition-profiles-enable]]
-=== Activating a Profile
+=== 激活 Profile
 
-Now that we have updated our configuration, we still need to instruct Infra which
-profile is active. If we started our sample application right now, we would see
-a `NoSuchBeanDefinitionException` thrown, because the container could not find
-the Infra bean named `dataSource`.
+现在我们已经更新了配置，但我们仍然需要告诉 Infra 哪个 profile 是激活的。
+如果我们现在启动示例应用程序，将会看到一个 `NoSuchBeanDefinitionException` 异常被抛出，
+因为容器找不到名为 `dataSource` 的 Infra bean。
 
-Activating a profile can be done in several ways, but the most straightforward is to do
-it programmatically against the `Environment` API which is available through an
-`ApplicationContext`. The following example shows how to do so:
+激活一个 profile 可以通过几种方式来完成，但最直接的方式是通过针对 `Environment`
+API 进行编程，该 API 可通过 `ApplicationContext` 获取。以下示例展示了如何做到这一点：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
@@ -371,34 +275,21 @@ ctx.register(SomeConfig.class, StandaloneDataConfig.class, JndiDataConfig.class)
 ctx.refresh();
 ----
 
-======
+此外，您还可以通过 `infra.profiles.active` 属性声明式地激活 profiles，该属性可以通过系统环境变量、
+JVM 系统属性、`web.xml` 中的 servlet 上下文参数，甚至是 JNDI 条目指定
+（参见 xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` 接口]）。
+在集成测试中，可以通过在 `today-test` 模块中使用 `@ActiveProfiles` 注解来声明活动的 profiles
+（参见 xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[环境 profiles 的上下文配置]）。
 
-In addition, you can also declaratively activate profiles through the
-`infra.profiles.active` property, which may be specified through system environment
-variables, JVM system properties, servlet context parameters in `web.xml`, or even as an
-entry in JNDI (see xref:core/beans/environment.adoc#beans-property-source-abstraction[`PropertySource` Abstraction]). In integration tests, active
-profiles can be declared by using the `@ActiveProfiles` annotation in the `today-test`
-module (see xref:testing/testcontext-framework/ctx-management/env-profiles.adoc[context configuration with environment profiles]
-).
+请注意，profiles 不是“要么这样，要么那样”的命题。您可以一次激活多个 profiles。在编程方式中，
+您可以向 `setActiveProfiles()` 方法提供多个 profile 名称，该方法接受 `String...` 可变参数。以下示例激活了多个 profiles：
 
-Note that profiles are not an "`either-or`" proposition. You can activate multiple
-profiles at once. Programmatically, you can provide multiple profile names to the
-`setActiveProfiles()` method, which accepts `String...` varargs. The following example
-activates multiple profiles:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ctx.getEnvironment().setActiveProfiles("profile1", "profile2");
 ----
 
-======
-
-Declaratively, `infra.profiles.active` may accept a comma-separated list of profile names,
-as the following example shows:
+在声明方式下，`infra.profiles.active` 可以接受逗号分隔的 profile 名称列表，如下例所示：
 
 [literal,indent=0,subs="verbatim,quotes"]
 ----
@@ -407,15 +298,10 @@ as the following example shows:
 
 
 [[beans-definition-profiles-default]]
-=== Default Profile
+=== 默认 Profile
 
-The default profile represents the profile that is enabled if no profile is active. Consider
-the following example:
+默认 profile 表示如果没有激活任何 profile，则启用的 profile。考虑以下示例：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -431,28 +317,19 @@ public class DefaultDataConfig {
   }
 }
 ----
-======
 
-If xref:#beans-definition-profiles-enable[no profile is active], the `dataSource` is
-created. You can see this as a way to provide a default definition for one or more
-beans. If any profile is enabled, the default profile does not apply.
+如果没有激活任何 profile（参见 xref:#beans-definition-profiles-enable[没有 profile 被激活]），
+则会创建 `dataSource`。您可以将其视为为一个或多个 bean 提供默认定义的一种方式。如果启用了任何 profile，则默认 profile 不适用。
 
-The name of the default profile is `default`. You can change the name of
-the default profile by using `setDefaultProfiles()` on the `Environment` or,
-declaratively, by using the `infra.profiles.default` property.
-
+默认 profile 的名称是 `default`。您可以通过在 `Environment` 上使用 `setDefaultProfiles()`
+或者在声明方式下使用 `infra.profiles.default` 属性来更改默认 profile 的名称。
 
 
 [[beans-property-source-abstraction]]
-== `PropertySource` Abstraction
+== `PropertySource` 接口
 
-Infra `Environment` abstraction provides search operations over a configurable
-hierarchy of property sources. Consider the following listing:
+Infra `Environment` 抽象提供了对可配置属性源层次结构的搜索操作。请考虑以下清单：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ApplicationContext ctx = new GenericApplicationContext();
@@ -461,54 +338,40 @@ boolean containsMyProperty = env.containsProperty("my-property");
 System.out.println("Does my environment contain the 'my-property' property? " + containsMyProperty);
 ----
 
-======
+在上述片段中，我们看到了一种高层次的方法，询问 Infra 是否对当前环境定义了 my-property 属性。
+为了回答这个问题，Environment 对象对一组
+{today-framework-api}/core/env/PropertySource.html[PropertySource] 对象进行搜索。
+PropertySource 是对任何键值对源的简单抽象，而 Infra {today-framework-api}/core/env/StandardEnvironment.html[StandardEnvironment]
+配置了两个 PropertySource 对象 -- 一个代表 JVM 系统属性 (System.getProperties())，另一个代表系统环境变量 (System.getenv())。
 
-In the preceding snippet, we see a high-level way of asking Infra whether the `my-property` property is
-defined for the current environment. To answer this question, the `Environment` object performs
-a search over a set of {today-framework-api}/core/env/PropertySource.html[`PropertySource`]
-objects. A `PropertySource` is a simple abstraction over any source of key-value pairs, and
-Infra {today-framework-api}/core/env/StandardEnvironment.html[`StandardEnvironment`]
-is configured with two PropertySource objects -- one representing the set of JVM system properties
-(`System.getProperties()`) and one representing the set of system environment variables
-(`System.getenv()`).
 
-NOTE: These default property sources are present for `StandardEnvironment`, for use in standalone
-applications. {today-framework-api}/web/context/support/StandardServletEnvironment.html[`StandardServletEnvironment`]
-is populated with additional default property sources including servlet config, servlet
-context parameters, and a {today-framework-api}/jndi/JndiPropertySource.html[`JndiPropertySource`]
-if JNDI is available.
+NOTE: 这些默认属性源适用于 `StandardEnvironment`，用于独立应用程序。
+{today-framework-api}/web/context/support/StandardServletEnvironment.html[StandardServletEnvironment]
+会填充额外的默认属性源，包括 servlet 配置、servlet 上下文参数，以及如果 JNDI 可用，则会添加一个
+{today-framework-api}/jndi/JndiPropertySource.html[JndiPropertySource]。
 
-Concretely, when you use the `StandardEnvironment`, the call to `env.containsProperty("my-property")`
-returns true if a `my-property` system property or `my-property` environment variable is present at
-runtime.
+具体来说，当您使用 `StandardEnvironment` 时，调用 env.containsProperty("my-property")
+如果在运行时存在 `my-property` 系统属性或 `my-property` 环境变量，则会返回 true。
 
 [TIP]
 ====
-The search performed is hierarchical. By default, system properties have precedence over
-environment variables. So, if the `my-property` property happens to be set in both places during
-a call to `env.getProperty("my-property")`, the system property value "`wins`" and is returned.
-Note that property values are not merged
-but rather completely overridden by a preceding entry.
+执行的搜索是分层的。默认情况下，系统属性优先于环境变量。因此，如果在调用
+`env.getProperty("my-property")` 时，`my-property` 属性恰好在两个地方都设置了，
+系统属性值会“获胜”并返回。请注意，属性值不会合并，而是被前面的条目完全覆盖。
 
-For a common `StandardServletEnvironment`, the full hierarchy is as follows, with the
-highest-precedence entries at the top:
+对于通用的 `StandardServletEnvironment`，完整的层次结构如下，优先级最高的条目位于顶部：
 
-. ServletConfig parameters (if applicable -- for example, in case of a `DispatcherServlet` context)
-. ServletContext parameters (web.xml context-param entries)
-. JNDI environment variables (`java:comp/env/` entries)
-. JVM system properties (`-D` command-line arguments)
-. JVM system environment (operating system environment variables)
+- ServletConfig 参数（如果适用 -- 例如，在 `DispatcherServlet` 上下文中）
+- ServletContext 参数（web.xml context-param 条目）
+- JNDI 环境变量（`java:comp/env/` 条目）
+- JVM 系统属性（`-D` 命令行参数）
+- JVM 系统环境（操作系统环境变量）
 ====
 
-Most importantly, the entire mechanism is configurable. Perhaps you have a custom source
-of properties that you want to integrate into this search. To do so, implement
-and instantiate your own `PropertySource` and add it to the set of `PropertySources` for the
-current `Environment`. The following example shows how to do so:
+最重要的是，整个机制是可配置的。也许您有自定义的属性源想要集成到这个搜索中。
+要实现这一点，实现并实例化您自己的 `PropertySource`，并将其添加到当前 `Environment`
+的 `PropertySources` 集合中。以下示例展示了如何实现：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 ConfigurableApplicationContext ctx = new GenericApplicationContext();
@@ -516,32 +379,20 @@ MutablePropertySources sources = ctx.getEnvironment().getPropertySources();
 sources.addFirst(new MyPropertySource());
 ----
 
-======
-
-In the preceding code, `MyPropertySource` has been added with highest precedence in the
-search. If it contains a  `my-property` property, the property is detected and returned, in favor of
-any `my-property` property in any other `PropertySource`. The
+在前面的代码中，`MyPropertySource` 已经以最高优先级添加到搜索中。如果它包含一个 `my-property` 属性，
+则该属性将被检测并返回，而不考虑任何其他 `PropertySource` 中的 `my-property` 属性。
 {today-framework-api}/core/env/MutablePropertySources.html[`MutablePropertySources`]
-API exposes a number of methods that allow for precise manipulation of the set of
-property sources.
-
-
+API 公开了许多方法，允许精确地操作属性源
 
 [[beans-using-propertysource]]
-== Using `@PropertySource`
+== 使用 `@PropertySource`
 
-The {today-framework-api}/context/annotation/PropertySource.html[`@PropertySource`]
-annotation provides a convenient and declarative mechanism for adding a `PropertySource`
-to Infra `Environment`.
+{today-framework-api}/context/annotation/PropertySource.html[`@PropertySource`]
+注解提供了一个方便和声明性的机制，用于向 Infra `Environment` 添加 `PropertySource`。
 
-Given a file called `app.properties` that contains the key-value pair `testbean.name=myTestBean`,
-the following `@Configuration` class uses `@PropertySource` in such a way that
-a call to `testBean.getName()` returns `myTestBean`:
+假设有一个名为 app.properties 的文件，其中包含键值对 `testbean.name=myTestBean`，
+以下 `@Configuration` 类使用 `@PropertySource`，使得调用 `testBean.getName()` 返回 `myTestBean`：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
  @Configuration
@@ -560,16 +411,8 @@ Java::
  }
 ----
 
-======
+`@PropertySource` 资源位置中的任何 `${...}` 占位符都将根据已注册到环境的属性源集合进行解析，如下例所示：
 
-Any `${...}` placeholders present in a `@PropertySource` resource location are
-resolved against the set of property sources already registered against the
-environment, as the following example shows:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
  @Configuration
@@ -588,33 +431,24 @@ Java::
  }
 ----
 
-======
+假设 `my.placeholder` 已经存在于已注册的某个属性源中（例如系统属性或环境变量），
+则占位符将解析为相应的值。如果没有找到，则默认使用 `default/path`。如果未指定默认值并且无法解析属性，
+则会抛出 `IllegalArgumentException` 异常。
 
-Assuming that `my.placeholder` is present in one of the property sources already
-registered (for example, system properties or environment variables), the placeholder is
-resolved to the corresponding value. If not, then `default/path` is used
-as a default. If no default is specified and a property cannot be resolved, an
-`IllegalArgumentException` is thrown.
 
-NOTE: `@PropertySource` can be used as a repeatable annotation. `@PropertySource`
-may also be used as a meta-annotation to create custom composed annotations with
-attribute overrides.
-
+NOTE: `@PropertySource` 可以作为可重复的注解使用。`@PropertySource` 也可以作为元注解使用，
+以创建具有属性覆盖的自定义组合注解。
 
 
 [[beans-placeholder-resolution-in-statements]]
-== Placeholder Resolution in Statements
+== 占位符解析
 
-Historically, the value of placeholders in elements could be resolved only against
-JVM system properties or environment variables. This is no longer the case. Because
-the `Environment` abstraction is integrated throughout the container, it is easy to
-route resolution of placeholders through it. This means that you may configure the
-resolution process in any way you like. You can change the precedence of searching through
-system properties and environment variables or remove them entirely. You can also add your
-own property sources to the mix, as appropriate.
+在历史上，元素中占位符的值只能针对 JVM 系统属性或环境变量进行解析。但现在情况已经不同了。
+由于 `Environment` 抽象已经整合到容器中，因此很容易通过它来路由占位符的解析。
+这意味着您可以按照任何您喜欢的方式配置解析过程。您可以更改通过系统属性和环境变量搜索的优先顺序，
+或者完全删除它们。您还可以根据需要将自己的属性源添加到混合中。
 
-Concretely, the following statement works regardless of where the `customer`
-property is defined, as long as it is available in the `Environment`:
+具体来说，以下语句可以在 `customer` 属性定义的任何地方正常工作，只要它在 `Environment` 中可用：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----

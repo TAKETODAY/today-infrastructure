@@ -1,5 +1,5 @@
 [[aop-api-pointcuts]]
-= Pointcut API in Spring
+= Pointcut API in Infra
 
 This section describes how Infra handles the crucial pointcut concept.
 
@@ -112,7 +112,7 @@ Infra can evaluate a static pointcut only once, when a method is first invoked.
 After that, there is no need to evaluate the pointcut again with each method invocation.
 
 The rest of this section describes some of the static pointcut implementations that are
-included with Spring.
+included with Infra.
 
 [[aop-api-pointcuts-regex]]
 ==== Regular Expression Pointcuts

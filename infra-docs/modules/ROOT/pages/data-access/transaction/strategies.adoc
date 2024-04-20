@@ -73,9 +73,9 @@ The `TransactionDefinition` interface specifies:
   that transaction. However, you can specify the behavior if
   a transactional method is run when a transaction context already exists. For
   example, code can continue running in the existing transaction (the common case), or
-  the existing transaction can be suspended and a new transaction created. Spring
+  the existing transaction can be suspended and a new transaction created. Infra
   offers all of the transaction propagation options familiar from EJB CMT. To read
-  about the semantics of transaction propagation in Spring, see xref:data-access/transaction/declarative/tx-propagation.adoc[Transaction Propagation].
+  about the semantics of transaction propagation in Infra, see xref:data-access/transaction/declarative/tx-propagation.adoc[Transaction Propagation].
 * Isolation: The degree to which this transaction is isolated from the work of other
   transactions. For example, can this transaction see uncommitted writes from other
   transactions?
@@ -118,7 +118,7 @@ public interface TransactionStatus extends TransactionExecution, SavepointManage
 ----
 
 Regardless of whether you opt for declarative or programmatic transaction management in
-Spring, defining the correct `TransactionManager` implementation is absolutely essential.
+Infra, defining the correct `TransactionManager` implementation is absolutely essential.
 You typically define this implementation through dependency injection.
 
 `TransactionManager` implementations normally require knowledge of the environment in

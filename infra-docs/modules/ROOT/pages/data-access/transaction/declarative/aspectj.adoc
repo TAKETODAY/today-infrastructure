@@ -1,7 +1,7 @@
 [[transaction-declarative-aspectj]]
 = Using `@Transactional` with AspectJ
 
-You can also use the TODAY Framework's `@Transactional` support outside of a Spring
+You can also use the TODAY Framework's `@Transactional` support outside of a Infra
 container by means of an AspectJ aspect. To do so, first annotate your classes
 (and optionally your classes' methods) with the `@Transactional` annotation,
 and then link (weave) your application with the

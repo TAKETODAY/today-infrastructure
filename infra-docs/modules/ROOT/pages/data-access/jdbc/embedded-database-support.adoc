@@ -52,7 +52,7 @@ for further details on all supported options.
 [[jdbc-embedded-database-types]]
 == Selecting the Embedded Database Type
 
-This section covers how to select one of the three embedded databases that Spring
+This section covers how to select one of the three embedded databases that Infra
 supports. It includes the following topics:
 
 * xref:data-access/jdbc/embedded-database-support.adoc#jdbc-embedded-database-using-HSQL[Using HSQL]

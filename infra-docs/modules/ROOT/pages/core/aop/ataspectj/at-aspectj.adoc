@@ -39,7 +39,7 @@ declarations.
 .Autodetecting aspects through component scanning
 NOTE: You can register aspect classes as regular beans in your Infra XML configuration,
 via `@Bean` methods in `@Configuration` classes, or have Infra autodetect them through
-classpath scanning -- the same as any other Spring-managed bean. However, note that the
+classpath scanning -- the same as any other Infra-managed bean. However, note that the
 `@Aspect` annotation is not sufficient for autodetection in the classpath. For that
 purpose, you need to add a separate `@Component` annotation (or, alternatively, a custom
 stereotype annotation that qualifies, as per the rules of Infra component scanner).

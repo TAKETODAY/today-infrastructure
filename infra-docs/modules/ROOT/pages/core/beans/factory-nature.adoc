@@ -22,7 +22,7 @@ perform certain actions upon initialization and destruction of your beans.
 ====
 The JSR-250 `@PostConstruct` and `@PreDestroy` annotations are generally considered best
 practice for receiving lifecycle callbacks in a modern Infra application. Using these
-annotations means that your beans are not coupled to Spring-specific interfaces.
+annotations means that your beans are not coupled to Infra-specific interfaces.
 For details, see xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[Using `@PostConstruct` and `@PreDestroy`].
 
 If you do not want to use the JSR-250 annotations but you still want to remove
@@ -35,7 +35,7 @@ features or other lifecycle behavior Infra does not by default offer, you can
 implement a `BeanPostProcessor` yourself. For more information, see
 xref:core/beans/factory-extension.adoc[Container Extension Points].
 
-In addition to the initialization and destruction callbacks, Spring-managed objects may
+In addition to the initialization and destruction callbacks, Infra-managed objects may
 also implement the `Lifecycle` interface so that those objects can participate in the
 startup and shutdown process, as driven by the container's own lifecycle.
 
@@ -56,7 +56,7 @@ void afterPropertiesSet() throws Exception;
 ----
 
 We recommend that you do not use the `InitializingBean` interface, because it
-unnecessarily couples the code to Spring. Alternatively, we suggest using
+unnecessarily couples the code to Infra. Alternatively, we suggest using
 the xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PostConstruct`] annotation or
 specifying a POJO initialization method. In the case of XML-based configuration metadata,
 you can use the `init-method` attribute to specify the name of the method that has a void
@@ -109,7 +109,7 @@ public class AnotherExampleBean implements InitializingBean {
 
 ======
 
-However, the first of the two preceding examples does not couple the code to Spring.
+However, the first of the two preceding examples does not couple the code to Infra.
 
 [NOTE]
 ====
@@ -149,7 +149,7 @@ void destroy() throws Exception;
 ----
 
 We recommend that you do not use the `DisposableBean` callback interface, because it
-unnecessarily couples the code to Spring. Alternatively, we suggest using
+unnecessarily couples the code to Infra. Alternatively, we suggest using
 the xref:core/beans/annotation-config/postconstruct-and-predestroy-annotations.adoc[`@PreDestroy`] annotation or
 specifying a generic method that is supported by bean definitions. With XML-based
 configuration metadata, you can use the `destroy-method` attribute on the `<bean/>`.
@@ -201,7 +201,7 @@ public class AnotherExampleBean implements DisposableBean {
 
 ======
 
-However, the first of the two preceding definitions does not couple the code to Spring.
+However, the first of the two preceding definitions does not couple the code to Infra.
 
 Note that Infra also supports inference of destroy methods, detecting a public `close` or
 `shutdown` method. This is the default behavior for `@Bean` methods in Java configuration
@@ -229,7 +229,7 @@ will wait for all such stop processing to complete before moving on to destroy m
 === Default Initialization and Destroy Methods
 
 When you write initialization and destroy method callbacks that do not use the
-Spring-specific `InitializingBean` and `DisposableBean` callback interfaces, you
+Infra-specific `InitializingBean` and `DisposableBean` callback interfaces, you
 typically write methods with names such as `init()`, `initialize()`, `dispose()`,
 and so on. Ideally, the names of such lifecycle callback methods are standardized across
 a project so that all developers use the same method names and ensure consistency.
@@ -362,7 +362,7 @@ public interface Lifecycle {
 }
 ----
 
-Any Spring-managed object may implement the `Lifecycle` interface. Then, when the
+Any Infra-managed object may implement the `Lifecycle` interface. Then, when the
 `ApplicationContext` itself receives start and stop signals (for example, for a stop/restart
 scenario at runtime), it cascades those calls to all `Lifecycle` implementations
 defined within that context. It does this by delegating to a `LifecycleProcessor`, shown
@@ -657,12 +657,12 @@ dependency type. The following table summarizes the most important `Aware` inter
 | Resources
 
 | `ServletConfigAware`
-| Current `ServletConfig` the container runs in. Valid only in a web-aware Spring
+| Current `ServletConfig` the container runs in. Valid only in a web-aware Infra
   `ApplicationContext`.
 | xref:web/webmvc.adoc#mvc[Web MVC]
 
 | `ServletContextAware`
-| Current `ServletContext` the container runs in. Valid only in a web-aware Spring
+| Current `ServletContext` the container runs in. Valid only in a web-aware Infra
   `ApplicationContext`.
 | xref:web/webmvc.adoc#mvc[Web MVC]
 |===

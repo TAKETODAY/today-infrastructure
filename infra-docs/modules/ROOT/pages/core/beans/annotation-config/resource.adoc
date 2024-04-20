@@ -4,7 +4,7 @@
 Infra also supports injection by using the JSR-250 `@Resource` annotation
 (`jakarta.annotation.Resource`) on fields or bean property setter methods.
 This is a common pattern in Jakarta EE: for example, in JSF-managed beans and JAX-WS
-endpoints. Infra supports this pattern for Spring-managed objects as well.
+endpoints. Infra supports this pattern for Infra-managed objects as well.
 
 `@Resource` takes a name attribute. By default, Infra interprets that value as
 the bean name to be injected. In other words, it follows by-name semantics,

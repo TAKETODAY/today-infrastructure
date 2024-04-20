@@ -212,7 +212,7 @@ alternatively, in a specific IoC container (as mentioned in the previous chapter
 the knowledge of how to convert properties to the desired type. For more about
 `PropertyEditor`, see {java-api}/java.desktop/java/beans/package-summary.html[the javadoc of the `java.beans` package from Oracle].
 
-A couple of examples where property editing is used in Spring:
+A couple of examples where property editing is used in Infra:
 
 * Setting properties on beans is done by using `PropertyEditor` implementations.
   When you use `String` as the value of a property of some bean that you declare

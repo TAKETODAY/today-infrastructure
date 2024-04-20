@@ -116,20 +116,20 @@ an ORM tool, be sure to avoid xref:testing/testcontext-framework/tx.adoc#testcon
 As mentioned in xref:testing/support-jdbc.adoc[JDBC Testing Support],
 `AbstractTransactionalJUnit4InfraContextTests` also provides convenience methods that
 delegate to methods in `JdbcTestUtils` by using the aforementioned `jdbcTemplate`.
-Furthermore, `AbstractTransactionalJUnit4SpringContextTests` provides an
+Furthermore, `AbstractTransactionalJUnit4InfraContextTests` provides an
 `executeSqlScript(..)` method for running SQL scripts against the configured `DataSource`.
 
 TIP: These classes are a convenience for extension. If you do not want your test classes
 to be tied to a Infra-specific class hierarchy, you can configure your own custom test
-classes by using `@RunWith(SpringRunner.class)` or xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Infra JUnit rules]
+classes by using `@RunWith(InfraRunner.class)` or xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit4-rules[Infra JUnit rules]
 .
 
 [[testcontext-junit-jupiter-extension]]
-== SpringExtension for JUnit Jupiter
+== InfraExtension for JUnit Jupiter
 
 The Infra TestContext Framework offers full integration with the JUnit Jupiter testing
 framework, introduced in JUnit 5. By annotating test classes with
-`@ExtendWith(SpringExtension.class)`, you can implement standard JUnit Jupiter-based unit
+`@ExtendWith(InfraExtension.class)`, you can implement standard JUnit Jupiter-based unit
 and integration tests and simultaneously reap the benefits of the TestContext framework,
 such as support for loading application contexts, dependency injection of test instances,
 transactional test method execution, and so on.
@@ -139,7 +139,7 @@ following features above and beyond the feature set that Infra supports for JUni
 TestNG:
 
 * Dependency injection for test constructors, test methods, and test lifecycle callback
-  methods. See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-di[Dependency Injection with the `SpringExtension`] for further details.
+  methods. See xref:testing/testcontext-framework/support-classes.adoc#testcontext-junit-jupiter-di[Dependency Injection with the `InfraExtension`] for further details.
 * Powerful support for link:https://junit.org/junit5/docs/current/user-guide/#extensions-conditions[conditional
   test execution] based on SpEL expressions, environment variables, system properties,
   and so on. See the documentation for `@EnabledIf` and `@DisabledIf` in
@@ -149,7 +149,7 @@ TestNG:
   xref:testing/annotations/integration-meta.adoc[Meta-Annotation Support for Testing] for further details.
 
 The following code listing shows how to configure a test class to use the
-`SpringExtension` in conjunction with `@ContextConfiguration`:
+`InfraExtension` in conjunction with `@ContextConfiguration`:
 
 [tabs]
 ======
@@ -158,7 +158,7 @@ Java::
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 // Instructs JUnit Jupiter to extend the test with Infra support.
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 // Instructs Infra to load an ApplicationContext from TestConfig.class
 @ContextConfiguration(classes = TestConfig.class)
 class SimpleTests {
@@ -184,7 +184,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Instructs Infra to register the SpringExtension with JUnit
+// Instructs Infra to register the InfraExtension with JUnit
 // Jupiter and load an ApplicationContext from TestConfig.class
 @JUnitConfig(TestConfig.class)
 class SimpleTests {
@@ -207,7 +207,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-// Instructs Infra to register the SpringExtension with JUnit
+// Instructs Infra to register the InfraExtension with JUnit
 // Jupiter and load a WebApplicationContext from TestWebConfig.class
 @JUnitWebConfig(TestWebConfig.class)
 class SimpleWebTests {
@@ -225,14 +225,14 @@ See the documentation for `@JUnitConfig` and `@JUnitWebConfig` in
 xref:testing/annotations/integration-junit-jupiter.adoc[Infra JUnit Jupiter Testing Annotations] for further details.
 
 [[testcontext-junit-jupiter-di]]
-=== Dependency Injection with the `SpringExtension`
+=== Dependency Injection with the `InfraExtension`
 
-The `SpringExtension` implements the
+The `InfraExtension` implements the
 link:https://junit.org/junit5/docs/current/user-guide/#extensions-parameter-resolution[`ParameterResolver`]
 extension API from JUnit Jupiter, which lets Infra provide dependency injection for test
 constructors, test methods, and test lifecycle callback methods.
 
-Specifically, the `SpringExtension` can inject dependencies from the test's
+Specifically, the `InfraExtension` can inject dependencies from the test's
 `ApplicationContext` into test constructors and methods that are annotated with
 Infra `@BeforeTransaction` and `@AfterTransaction` or JUnit's `@BeforeAll`,
 `@AfterAll`, `@BeforeEach`, `@AfterEach`, `@Test`, `@RepeatedTest`, `@ParameterizedTest`,
@@ -399,7 +399,7 @@ to the `RepetitionInfo`.
 === `@Nested` test class configuration
 
 The _Infra TestContext Framework_ has supported the use of test-related annotations on
-`@Nested` test classes in JUnit Jupiter since TODAY Framework 5.0; however, until Spring
+`@Nested` test classes in JUnit Jupiter since TODAY Framework 5.0; however, until Infra
 Framework 5.3 class-level test configuration annotations were not _inherited_ from
 enclosing classes like they are from superclasses.
 
@@ -467,34 +467,34 @@ class GreetingServiceTests {
 The `cn.taketoday.test.context.testng` package provides the following support
 classes for TestNG based test cases:
 
-* `AbstractTestNGSpringContextTests`
-* `AbstractTransactionalTestNGSpringContextTests`
+* `AbstractTestNGInfraContextTests`
+* `AbstractTransactionalTestNGInfraContextTests`
 
-`AbstractTestNGSpringContextTests` is an abstract base test class that integrates the
+`AbstractTestNGInfraContextTests` is an abstract base test class that integrates the
 Infra TestContext Framework with explicit `ApplicationContext` testing support in a
-TestNG environment. When you extend `AbstractTestNGSpringContextTests`, you can access a
+TestNG environment. When you extend `AbstractTestNGInfraContextTests`, you can access a
 `protected` `applicationContext` instance variable that you can use to perform explicit
 bean lookups or to test the state of the context as a whole.
 
-`AbstractTransactionalTestNGSpringContextTests` is an abstract transactional extension of
-`AbstractTestNGSpringContextTests` that adds some convenience functionality for JDBC
+`AbstractTransactionalTestNGInfraContextTests` is an abstract transactional extension of
+`AbstractTestNGInfraContextTests` that adds some convenience functionality for JDBC
 access. This class expects a `javax.sql.DataSource` bean and a
 `PlatformTransactionManager` bean to be defined in the `ApplicationContext`. When you
-extend `AbstractTransactionalTestNGSpringContextTests`, you can access a `protected`
+extend `AbstractTransactionalTestNGInfraContextTests`, you can access a `protected`
 `jdbcTemplate` instance variable that you can use to run SQL statements to query the
 database. You can use such queries to confirm database state both before and after
 running database-related application code, and Infra ensures that such queries run in
 the scope of the same transaction as the application code. When used in conjunction with
 an ORM tool, be sure to avoid xref:testing/testcontext-framework/tx.adoc#testcontext-tx-false-positives[false positives].
 As mentioned in xref:testing/support-jdbc.adoc[JDBC Testing Support],
-`AbstractTransactionalTestNGSpringContextTests` also provides convenience methods that
+`AbstractTransactionalTestNGInfraContextTests` also provides convenience methods that
 delegate to methods in `JdbcTestUtils` by using the aforementioned `jdbcTemplate`.
-Furthermore, `AbstractTransactionalTestNGSpringContextTests` provides an
+Furthermore, `AbstractTransactionalTestNGInfraContextTests` provides an
 `executeSqlScript(..)` method for running SQL scripts against the configured `DataSource`.
 
 TIP: These classes are a convenience for extension. If you do not want your test classes
-to be tied to a Spring-specific class hierarchy, you can configure your own custom test
+to be tied to a Infra-specific class hierarchy, you can configure your own custom test
 classes by using `@ContextConfiguration`, `@TestExecutionListeners`, and so on and by
 manually instrumenting your test class with a `TestContextManager`. See the source code
-of `AbstractTestNGSpringContextTests` for an example of how to instrument your test class.
+of `AbstractTestNGInfraContextTests` for an example of how to instrument your test class.
 

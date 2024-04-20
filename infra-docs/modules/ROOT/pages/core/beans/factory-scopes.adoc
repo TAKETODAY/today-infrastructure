@@ -76,7 +76,7 @@ ClassLoader. The scope of the Infra singleton is best described as being per-con
 and per-bean. This means that, if you define one bean for a particular class in a
 single Infra container, the Infra container creates one and only one instance
 of the class defined by that bean definition. The singleton scope is the default scope
-in Spring. To define a bean as a singleton in XML, you can define a bean as shown in the
+in Infra. To define a bean as a singleton in XML, you can define a bean as shown in the
 following example:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -127,7 +127,7 @@ which holds a reference to beans that need to be cleaned up.
 
 In some respects, the Infra container's role in regard to a prototype-scoped bean is a
 replacement for the Java `new` operator. All lifecycle management past that point must
-be handled by the client. (For details on the lifecycle of a bean in the Spring
+be handled by the client. (For details on the lifecycle of a bean in the Infra
 container, see xref:core/beans/factory-nature.adoc#beans-factory-lifecycle[Lifecycle Callbacks].)
 
 
@@ -314,7 +314,7 @@ The Infra container creates a new instance of the `AppPreferences` bean by using
 `appPreferences` bean definition once for the entire web application. That is, the
 `appPreferences` bean is scoped at the `ServletContext` level and stored as a regular
 `ServletContext` attribute. This is somewhat similar to a Infra singleton bean but
-differs in two important ways: It is a singleton per `ServletContext`, not per Spring
+differs in two important ways: It is a singleton per `ServletContext`, not per Infra
 `ApplicationContext` (for which there may be several in any given web application),
 and it is actually exposed and therefore visible as a `ServletContext` attribute.
 
@@ -504,7 +504,7 @@ see xref:core/aop/proxying.adoc[Proxying Mechanisms].
 As an alternative to factory scopes, a Infra `WebApplicationContext` also supports
 the injection of `HttpServletRequest`, `HttpServletResponse`, `HttpSession`,
 `WebRequest` and (if JSF is present) `FacesContext` and `ExternalContext` into
-Spring-managed beans, simply through type-based autowiring next to regular injection
+Infra-managed beans, simply through type-based autowiring next to regular injection
 points for other beans. Infra generally injects proxies for such request and session
 objects which has the advantage of working in singleton beans and serializable beans
 as well, similar to scoped proxies for factory-scoped beans.
@@ -619,7 +619,7 @@ void registerScope(String scopeName, Scope scope);
 
 This method is declared on the `ConfigurableBeanFactory` interface, which is available
 through the `BeanFactory` property on most of the concrete `ApplicationContext`
-implementations that ship with Spring.
+implementations that ship with Infra.
 
 The first argument to the `registerScope(..)` method is the unique name associated with
 a scope. Examples of such names in the Infra container itself are `singleton` and

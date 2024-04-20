@@ -118,7 +118,7 @@ console logging triggered during the shutdown phase via a JVM shutdown hook cann
 associated with an individual test method.
 
 When a Infra `ApplicationContext` is closed via a JVM shutdown hook, callbacks executed
-during the shutdown phase are executed on a thread named `SpringContextShutdownHook`. So,
+during the shutdown phase are executed on a thread named `ContextShutdownHook`. So,
 if you wish to disable console logging triggered when the `ApplicationContext` is closed
 via a JVM shutdown hook, you may be able to register a custom filter with your logging
 framework that allows you to ignore any logging initiated by that thread.

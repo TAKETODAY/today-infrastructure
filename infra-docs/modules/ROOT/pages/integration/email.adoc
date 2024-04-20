@@ -20,7 +20,7 @@ The TODAY Framework provides a helpful utility library for sending email that sh
 you from the specifics of the underlying mailing system and is responsible for
 low-level resource handling on behalf of the client.
 
-The `cn.taketoday.mail` package is the root level package for the Spring
+The `cn.taketoday.mail` package is the root level package for the Infra
 Framework's email support. The central interface for sending emails is the `MailSender`
 interface. A simple value object that encapsulates the properties of a simple mail such
 as `from` and `to` (plus many others) is the `SimpleMailMessage` class. This package

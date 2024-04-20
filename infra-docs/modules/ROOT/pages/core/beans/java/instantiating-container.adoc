@@ -1,7 +1,7 @@
 [[beans-java-instantiating-container]]
 = Instantiating the Infra Container by Using `AnnotationConfigApplicationContext`
 
-The following sections document Infra `AnnotationConfigApplicationContext`, introduced in Spring
+The following sections document Infra `AnnotationConfigApplicationContext`, introduced in Infra
 3.0. This versatile `ApplicationContext` implementation is capable of accepting not only
 `@Configuration` classes as input but also plain `@Component` classes and classes
 annotated with JSR-330 metadata.
@@ -57,7 +57,7 @@ public static void main(String[] args) {
 
 ======
 
-The preceding example assumes that `MyServiceImpl`, `Dependency1`, and `Dependency2` use Spring
+The preceding example assumes that `MyServiceImpl`, `Dependency1`, and `Dependency2` use Infra
 dependency injection annotations such as `@Autowired`.
 
 

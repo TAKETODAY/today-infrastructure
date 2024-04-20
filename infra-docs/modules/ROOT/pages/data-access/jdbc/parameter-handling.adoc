@@ -32,7 +32,7 @@ You can provide SQL type information in several ways:
 
 You can store images, other binary data, and large chunks of text in the database. These
 large objects are called BLOBs (Binary Large OBject) for binary data and CLOBs (Character
-Large OBject) for character data. In Spring, you can handle these large objects by using
+Large OBject) for character data. In Infra, you can handle these large objects by using
 the `JdbcTemplate` directly and also when using the higher abstractions provided by RDBMS
 Objects and the `SimpleJdbc` classes. All of these approaches use an implementation of
 the `LobHandler` interface for the actual management of the LOB (Large OBject) data.

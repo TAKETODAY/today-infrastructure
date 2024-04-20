@@ -1,16 +1,10 @@
 [[context-load-time-weaver]]
-= Registering a `LoadTimeWeaver`
+= 注册 `LoadTimeWeaver`
 
-The `LoadTimeWeaver` is used by Infra to dynamically transform classes as they are
-loaded into the Java virtual machine (JVM).
+`LoadTimeWeaver` 被基础架构用于在类加载到 Java 虚拟机（JVM）时动态转换类。
 
-To enable load-time weaving, you can add the `@EnableLoadTimeWeaving` to one of your
-`@Configuration` classes, as the following example shows:
+要启用加载时编织，您可以将 `@EnableLoadTimeWeaving` 添加到您的 `@Configuration` 类之一，如下例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @Configuration
@@ -19,9 +13,7 @@ public class AppConfig {
 }
 ----
 
-======
-
-Alternatively, for XML configuration, you can use the `context:load-time-weaver` element:
+另外，对于 XML 配置，您可以使用 `context:load-time-weaver` 元素：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -30,14 +22,12 @@ Alternatively, for XML configuration, you can use the `context:load-time-weaver`
 </beans>
 ----
 
-Once configured for the `ApplicationContext`, any bean within that `ApplicationContext`
-may implement `LoadTimeWeaverAware`, thereby receiving a reference to the load-time
-weaver instance. This is particularly useful in combination with
-xref:data-access/orm/jpa.adoc[Infra JPA support] where load-time weaving may be
-necessary for JPA class transformation.
-Consult the
+一旦为 `ApplicationContext` 配置完成，该 `ApplicationContext` 中的任何 bean 都可以实现
+`LoadTimeWeaverAware` 接口，从而获得对加载时编织器实例的引用。
+这在与 xref:data-access/orm/jpa.adoc[Infra JPA 支持] 结合使用时特别有用，
+其中加载时编织可能对 JPA 类转换至关重要。有关更多详细信息，请参阅
 {today-framework-api}/orm/jpa/LocalContainerEntityManagerFactoryBean.html[`LocalContainerEntityManagerFactoryBean`]
-javadoc for more detail. For more on AspectJ load-time weaving, see xref:core/aop/using-aspectj.adoc#aop-aj-ltw[Load-time Weaving with AspectJ in the TODAY Framework].
+的 Javadoc。有关 AspectJ 加载时编织的更多信息，请参阅 xref:core/aop/using-aspectj.adoc#aop-aj-ltw[在 Infra 中使用 AspectJ 进行加载时编织]。
 
 
 

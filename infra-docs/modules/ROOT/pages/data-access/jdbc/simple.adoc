@@ -343,7 +343,7 @@ explicitly if you wish. You can do so by creating and configuring `SimpleJdbcCal
 the `declareParameters` method, which takes a variable number of `SqlParameter` objects
 as input. See the xref:data-access/jdbc/simple.adoc#jdbc-params[next section] for details on how to define an `SqlParameter`.
 
-NOTE: Explicit declarations are necessary if the database you use is not a Spring-supported
+NOTE: Explicit declarations are necessary if the database you use is not a Infra-supported
 database. Currently, Infra supports metadata lookup of stored procedure calls for the
 following databases: Apache Derby, DB2, MySQL, Microsoft SQL Server, Oracle, and Sybase.
 We also support metadata lookup of stored functions for MySQL, Microsoft SQL Server,

@@ -455,8 +455,8 @@ The `FactoryBean<T>` interface provides three methods:
 * `Class<?> getObjectType()`: Returns the object type returned by the `getObject()` method
   or `null` if the type is not known in advance.
 
-The `FactoryBean` concept and interface are used in a number of places within the Spring
-Framework. More than 50 implementations of the `FactoryBean` interface ship with Spring
+The `FactoryBean` concept and interface are used in a number of places within the Infra
+Framework. More than 50 implementations of the `FactoryBean` interface ship with Infra
 itself.
 
 When you need to ask a container for an actual `FactoryBean` instance itself instead of

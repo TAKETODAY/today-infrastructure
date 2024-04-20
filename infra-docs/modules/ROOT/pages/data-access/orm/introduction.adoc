@@ -1,5 +1,5 @@
 [[orm-introduction]]
-= Introduction to ORM with Spring
+= Introduction to ORM with Infra
 
 The TODAY Framework supports integration with the Java Persistence API (JPA) and
 supports native Hibernate for resource management, data access object (DAO) implementations,
@@ -41,7 +41,7 @@ The benefits of using the TODAY Framework to create your ORM DAOs include:
   persistence resources. For example, related code that uses Hibernate generally needs to
   use the same Hibernate `Session` to ensure efficiency and proper transaction handling.
   Infra makes it easy to create and bind a `Session` to the current thread transparently,
-  by exposing a current `Session` through the Hibernate `SessionFactory`. Thus, Spring
+  by exposing a current `Session` through the Hibernate `SessionFactory`. Thus, Infra
   solves many chronic problems of typical Hibernate usage, for any local or JTA
   transaction environment.
 * *Integrated transaction management.* You can wrap your ORM code with a declarative,

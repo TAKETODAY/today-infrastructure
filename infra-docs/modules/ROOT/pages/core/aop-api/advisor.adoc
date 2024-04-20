@@ -1,8 +1,8 @@
 [[aop-api-advisor]]
-= The Advisor API in Spring
+= The Advisor API in Infra-
 :page-section-summary-toc: 1
 
-In Spring, an Advisor is an aspect that contains only a single advice object associated
+In Infra-, an Advisor is an aspect that contains only a single advice object associated
 with a pointcut expression.
 
 Apart from the special case of introductions, any advisor can be used with any advice.

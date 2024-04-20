@@ -149,7 +149,7 @@ the JDBC driver. If the count is not available, the JDBC driver returns a value 
 In such a scenario, with automatic setting of values on an underlying `PreparedStatement`,
 the corresponding JDBC type for each value needs to be derived from the given Java type.
 While this usually works well, there is a potential for issues (for example, with Map-contained
-`null` values). Spring, by default, calls `ParameterMetaData.getParameterType` in such a
+`null` values). Infra, by default, calls `ParameterMetaData.getParameterType` in such a
 case, which can be expensive with your JDBC driver. You should use a recent driver
 version and consider setting the `infra.jdbc.getParameterType.ignore` property to `true`
 (as a JVM system property or via the

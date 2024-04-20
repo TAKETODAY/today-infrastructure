@@ -61,7 +61,7 @@ public class ConcurrentOperationExecutor implements Ordered {
 
 Note that the aspect implements the `Ordered` interface so that we can set the precedence of
 the aspect higher than the transaction advice (we want a fresh transaction each time we
-retry). The `maxRetries` and `order` properties are both configured by Spring. The
+retry). The `maxRetries` and `order` properties are both configured by Infra. The
 main action happens in the `doConcurrentOperation` around advice. Notice that, for the
 moment, we apply the retry logic to each `businessService`. We try to proceed,
 and if we fail with a `PessimisticLockingFailureException`, we try again, unless

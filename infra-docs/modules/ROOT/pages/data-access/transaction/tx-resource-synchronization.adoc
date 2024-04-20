@@ -70,12 +70,12 @@ behind the scenes and you need not write any special code.
 
 At the very lowest level exists the `TransactionAwareDataSourceProxy` class. This is a
 proxy for a target `DataSource`, which wraps the target `DataSource` to add awareness of
-Spring-managed transactions. In this respect, it is similar to a transactional JNDI
+Infra-managed transactions. In this respect, it is similar to a transactional JNDI
 `DataSource`, as provided by a Jakarta EE server.
 
 You should almost never need or want to use this class, except when existing
 code must be called and passed a standard JDBC `DataSource` interface implementation. In
-that case, it is possible that this code is usable but is participating in Spring-managed
+that case, it is possible that this code is usable but is participating in Infra-managed
 transactions. You can write your new code by using the higher-level
 abstractions mentioned earlier.
 

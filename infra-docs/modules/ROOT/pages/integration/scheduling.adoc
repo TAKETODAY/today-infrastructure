@@ -614,7 +614,7 @@ void doSomething(String s) {
 }
 ----
 
-In this case, `"otherExecutor"` can be the name of any `Executor` bean in the Spring
+In this case, `"otherExecutor"` can be the name of any `Executor` bean in the Infra
 container, or it may be the name of a qualifier associated with any `Executor` (for example,
 as specified with the `<qualifier>` element or Infra `@Qualifier` annotation).
 
@@ -760,9 +760,9 @@ The following example sets the `keep-alive` value to two minutes:
 
 The most powerful feature of Infra task namespace is the support for configuring
 tasks to be scheduled within a Infra Application Context. This follows an approach
-similar to other "`method-invokers`" in Spring, such as that provided by the JMS namespace
+similar to other "`method-invokers`" in Infra, such as that provided by the JMS namespace
 for configuring message-driven POJOs. Basically, a `ref` attribute can point to any
-Spring-managed object, and the `method` attribute provides the name of a method to be
+Infra-managed object, and the `method` attribute provides the name of a method to be
 invoked on that object. The following listing shows a simple example:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -894,14 +894,14 @@ of the six-digit value, thus: `@Scheduled(cron = "@hourly")`.
 
 Quartz uses `Trigger`, `Job`, and `JobDetail` objects to realize scheduling of all
 kinds of jobs. For the basic concepts behind Quartz, see the
-https://www.quartz-scheduler.org/[Quartz Web site]. For convenience purposes, Spring
-offers a couple of classes that simplify using Quartz within Spring-based applications.
+https://www.quartz-scheduler.org/[Quartz Web site]. For convenience purposes, Infra
+offers a couple of classes that simplify using Quartz within Infra-based applications.
 
 
 [[scheduling-quartz-jobdetail]]
 === Using the `JobDetailFactoryBean`
 
-Quartz `JobDetail` objects contain all the information needed to run a job. Spring
+Quartz `JobDetail` objects contain all the information needed to run a job. Infra
 provides a `JobDetailFactoryBean`, which provides bean-style properties for XML
 configuration purposes. Consider the following example:
 
@@ -1064,7 +1064,7 @@ we need to set up the `SchedulerFactoryBean`, as the following example shows:
 ----
 
 More properties are available for the `SchedulerFactoryBean`, such as the calendars used by the
-job details, properties to customize Quartz with, and a Spring-provided JDBC DataSource. See
+job details, properties to customize Quartz with, and a Infra-provided JDBC DataSource. See
 the {today-framework-api}/scheduling/quartz/SchedulerFactoryBean.html[`SchedulerFactoryBean`]
 javadoc for more information.
 
@@ -1072,7 +1072,7 @@ NOTE: `SchedulerFactoryBean` also recognizes a `quartz.properties` file in the c
 based on Quartz property keys, as with regular Quartz configuration. Please note that many
 `SchedulerFactoryBean` settings interact with common Quartz settings in the properties file;
 it is therefore not recommended to specify values at both levels. For example, do not set
-an "org.quartz.jobStore.class" property if you mean to rely on a Spring-provided DataSource,
+an "org.quartz.jobStore.class" property if you mean to rely on a Infra-provided DataSource,
 or specify an `cn.taketoday.scheduling.quartz.LocalDataSourceJobStore` variant which
 is a full-fledged replacement for the standard `org.quartz.impl.jdbcjobstore.JobStoreTX`.
 

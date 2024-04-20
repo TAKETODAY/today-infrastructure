@@ -1,5 +1,5 @@
 [[aop-api-advice]]
-= Advice API in Spring
+= Advice API in Infra
 
 Now we can examine how Infra AOP handles advice.
 
@@ -24,7 +24,7 @@ You can use a mix of shared and per-instance advice in the same AOP proxy.
 
 
 [[aop-api-advice-types]]
-== Advice Types in Spring
+== Advice Types in Infra
 
 Infra provides several advice types and is extensible to support
 arbitrary advice types. This section describes the basic concepts and standard advice types.
@@ -81,7 +81,7 @@ However, you do not want to do this without good reason.
 
 NOTE: `MethodInterceptor` implementations offer interoperability with other AOP Alliance-compliant AOP
 implementations. The other advice types discussed in the remainder of this section
-implement common AOP concepts but in a Spring-specific way. While there is an advantage
+implement common AOP concepts but in a Infra-specific way. While there is an advantage
 in using the most specific advice type, stick with `MethodInterceptor` around advice if
 you are likely to want to run the aspect in another AOP framework. Note that pointcuts
 are not currently interoperable between frameworks, and the AOP Alliance does not
@@ -119,7 +119,7 @@ propagates back up the interceptor chain. If it is unchecked or on the signature
 the invoked method, it is passed directly to the client. Otherwise, it is
 wrapped in an unchecked exception by the AOP proxy.
 
-The following example shows a before advice in Spring, which counts all method invocations:
+The following example shows a before advice in Infra-, which counts all method invocations:
 
 [tabs]
 ======

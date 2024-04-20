@@ -25,7 +25,7 @@ Java::
 ----
 package fiona.apple;
 
-// Spring-API imports
+// Infra-API imports
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;

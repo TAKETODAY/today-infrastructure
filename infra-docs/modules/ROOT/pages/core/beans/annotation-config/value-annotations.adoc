@@ -47,7 +47,7 @@ catalog.name=MovieCatalog
 
 In that case, the `catalog` parameter and field will be equal to the `MovieCatalog` value.
 
-A default lenient embedded value resolver is provided by Spring. It will try to resolve the
+A default lenient embedded value resolver is provided by Infra. It will try to resolve the
 property value and if it cannot be resolved, the property name (for example `${catalog.name}`)
 will be injected as the value. If you want to maintain strict control over nonexistent
 values, you should declare a `PropertySourcesPlaceholderConfigurer` bean, as the following

@@ -224,7 +224,7 @@ a bean definition would be `com.example.SomeThing$OtherThing` or
 === Instantiation with a Constructor
 
 When you create a bean by the constructor approach, all normal classes are usable by and
-compatible with Spring. That is, the class being developed does not need to implement
+compatible with Infra. That is, the class being developed does not need to implement
 any specific interfaces or to be coded in a specific fashion. Simply specifying the bean
 class should suffice. However, depending on what type of IoC you use for that specific
 bean, you may need a default (empty) constructor.
@@ -393,7 +393,7 @@ NOTE: In Infra documentation, "factory bean" refers to a bean that is configured
 Infra container and that creates objects through an
 xref:core/beans/definition.adoc#beans-factory-class-instance-factory-method[instance] or
 xref:core/beans/definition.adoc#beans-factory-class-static-factory-method[static] factory method. By contrast,
-`FactoryBean` (notice the capitalization) refers to a Spring-specific
+`FactoryBean` (notice the capitalization) refers to a Infra-specific
 xref:core/beans/factory-extension.adoc#beans-factory-extension-factorybean[`FactoryBean`] implementation class.
 
 

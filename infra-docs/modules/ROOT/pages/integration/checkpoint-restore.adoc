@@ -1,7 +1,7 @@
 [[checkpoint-restore]]
 = JVM Checkpoint Restore
 
-The TODAY Framework integrates with checkpoint/restore as implemented by https://github.com/CRaC/docs[Project CRaC] in order to allow implementing systems capable of reducing the startup and warmup times of Spring-based Java applications with the JVM.
+The TODAY Framework integrates with checkpoint/restore as implemented by https://github.com/CRaC/docs[Project CRaC] in order to allow implementing systems capable of reducing the startup and warmup times of Infra-based Java applications with the JVM.
 
 Using this feature requires:
 
@@ -15,7 +15,7 @@ Conceptually, checkpoint and restore align with the xref:core/beans/factory-natu
 
 == On-demand checkpoint/restore of a running application
 
-A checkpoint can be created on demand, for example using a command like `jcmd application.jar JDK.checkpoint`. Before the creation of the checkpoint, Infra stops all the running beans, giving them a chance to close resources if needed by implementing `Lifecycle.stop`. After restore, the same beans are restarted, with `Lifecycle.start` allowing beans to reopen resources when relevant. For libraries that do not depend on Spring, custom checkpoint/restore integration can be provided by implementing `org.crac.Resource` and registering the related instance.
+A checkpoint can be created on demand, for example using a command like `jcmd application.jar JDK.checkpoint`. Before the creation of the checkpoint, Infra stops all the running beans, giving them a chance to close resources if needed by implementing `Lifecycle.stop`. After restore, the same beans are restarted, with `Lifecycle.start` allowing beans to reopen resources when relevant. For libraries that do not depend on Infra, custom checkpoint/restore integration can be provided by implementing `org.crac.Resource` and registering the related instance.
 
 WARNING: Leveraging checkpoint/restore of a running application typically requires additional lifecycle management to gracefully stop and start using resources like files or sockets and stop active threads.
 

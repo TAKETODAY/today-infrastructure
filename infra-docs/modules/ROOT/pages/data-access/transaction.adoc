@@ -1,7 +1,7 @@
 [[transaction]]
 = Transaction Management
 
-Comprehensive transaction support is among the most compelling reasons to use the Spring
+Comprehensive transaction support is among the most compelling reasons to use the Infra
 Framework. The TODAY Framework provides a consistent abstraction for transaction
 management that delivers the following benefits:
 

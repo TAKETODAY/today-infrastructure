@@ -1,59 +1,39 @@
 [[beans-classpath-scanning]]
-= Classpath Scanning and Managed Components
+= 类路径扫描和管理的组件
 
-Most examples in this chapter use XML to specify the configuration metadata that produces
-each `BeanDefinition` within the Infra container. The previous section
-(xref:core/beans/annotation-config.adoc[Annotation-based Container Configuration]) demonstrates how to provide a lot of the configuration
-metadata through source-level annotations. Even in those examples, however, the "base"
-bean definitions are explicitly defined in the XML file, while the annotations drive only
-the dependency injection. This section describes an option for implicitly detecting the
-candidate components by scanning the classpath. Candidate components are classes that
-match against a filter criteria and have a corresponding bean definition registered with
-the container. This removes the need to use XML to perform bean registration. Instead, you
-can use annotations (for example, `@Component`), AspectJ type expressions, or your own
-custom filter criteria to select which classes have bean definitions registered with
-the container.
+本章中的大多数示例都使用 XML 来指定配置元数据，这些配置元数据在 Infra 容器内生成每个 `BeanDefinition`。
+上一节 (xref:core/beans/annotation-config.adoc[基于注解的容器配置])
+演示了如何通过源代码级别的注解提供大量的配置元数据。然而，即使在那些示例中，
+“基础” bean 定义也是在 XML 文件中明确定义的，而注解只驱动依赖注入。本节介绍了一种通过扫描类路径来隐式检测候选组件的选项。
+候选组件是符合过滤器标准并且已在容器中注册了相应 bean 定义的类。这消除了使用 XML 执行 bean 注册的需求。
+相反，您可以使用注解（例如 `@Component`）、AspectJ 类型表达式或您自己的自定义过滤器标准来选择哪些类已在容器中注册了 bean 定义。
 
 [NOTE]
 ====
-You can define beans using Java rather than using XML files. Take a look at the
-`@Configuration`, `@Bean`, `@Import`, and `@DependsOn` annotations for examples of how to
-use these features.
+您可以使用 Java 来定义 beans，而不是使用 XML 文件。请查看
+`@Configuration`、`@Bean`、`@Import` 和 `@DependsOn` 注解的示例，了解如何使用这些功能。
 ====
 
-
-
 [[beans-stereotype-annotations]]
-== `@Component` and Further Stereotype Annotations
+== `@Component` 和其他 Stereotype 注解
 
-The `@Repository` annotation is a marker for any class that fulfills the role or
-_stereotype_ of a repository (also known as Data Access Object or DAO). Among the uses
-of this marker is the automatic translation of exceptions, as described in
-xref:data-access/orm/general.adoc#orm-exception-translation[Exception Translation].
+`@Repository` 注解用于标记任何充当存储库（也称为数据访问对象或 DAO）角色或 _stereotype_ 的类。这个标记的用途之一是自动转换异常，
+如 `xref:data-access/orm/general.adoc#orm-exception-translation[异常转换]` 中所述。
 
-Infra provides further stereotype annotations: `@Component`, `@Service`, and
-`@Controller`. `@Component` is a generic stereotype for any Spring-managed component.
-`@Repository`, `@Service`, and `@Controller` are specializations of `@Component` for
-more specific use cases (in the persistence, service, and presentation
-layers, respectively). Therefore, you can annotate your component classes with
-`@Component`, but, by annotating them with `@Repository`, `@Service`, or `@Controller`
-instead, your classes are more properly suited for processing by tools or associating
-with aspects. For example, these stereotype annotations make ideal targets for
-pointcuts. `@Repository`, `@Service`, and `@Controller` may also
-carry additional semantics in future releases of the TODAY Framework. Thus, if you are
-choosing between using `@Component` or `@Service` for your service layer, `@Service` is
-clearly the better choice. Similarly, as stated earlier, `@Repository` is already
-supported as a marker for automatic exception translation in your persistence layer.
-
-
+Infra 提供了其他立体类型注解：`@Component`、`@Service` 和 `@Controller`。`@Component`
+是 Infra 管理的任何组件的通用立体类型。`@Repository`、`@Service` 和 `@Controller` 是 `@Component` 的专化
+，用于更具体的用例（分别在持久化层、服务层和表示层）。因此，您可以用 `@Component` 注解您的组件类，
+但是，如果用 `@Repository`、`@Service` 或 `@Controller` 来注解它们，则您的类更适合由工具处理或与切面关联。
+例如，这些立体类型注解是切点的理想目标。在 TODAY 框架的未来版本中，`@Repository`、`@Service` 和 `@Controller`
+可能会携带额外的语义。因此，如果您在服务层选择使用 `@Component` 或 `@Service`，那么 `@Service` 显然是更好的选择。
+同样，如前所述，`@Repository` 已经支持在持久化层中作为自动异常转换的标记。
 
 [[beans-meta-annotations]]
 == Using Meta-annotations and Composed Annotations
 
-Many of the annotations provided by Infra can be used as meta-annotations in your
-own code. A meta-annotation is an annotation that can be applied to another annotation.
-For example, the `@Service` annotation mentioned xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[earlier]
-is meta-annotated with `@Component`, as the following example shows:
+许多 Infra 提供的注解可以在您自己的代码中用作元注解。元注解是可以应用于另一个注解的注解。
+例如，xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[早些时候]提到的
+`@Service` 注解在元注解中与 `@Component` 注解一起使用，如下例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -66,18 +46,13 @@ public @interface Service {
   // ...
 }
 ----
-<1> The `@Component` causes `@Service` to be treated in the same way as `@Component`.
 
-You can also combine meta-annotations to create "`composed annotations`". For example,
-the `@RestController` annotation from Web MVC is composed of `@Controller` and
-`@ResponseBody`.
+<1> `@Component` 使得 `@Service` 被视为与 `@Component` 相同的方式处理。
 
-In addition, composed annotations can optionally redeclare attributes from
-meta-annotations to allow customization. This can be particularly useful when you
-want to only expose a subset of the meta-annotation's attributes. For example, Infra
-`@SessionScope` annotation hard codes the scope name to `session` but still allows
-customization of the `proxyMode`. The following listing shows the definition of the
-`SessionScope` annotation:
+您还可以组合元注解来创建 “`组合注解`”。例如，Web MVC 中的 `@RestController` 注解由 `@Controller` 和 `@ResponseBody` 组成。
+
+此外，组合注解可以选择重新声明元注解中的属性，以允许定制。当您希望仅暴露元注解属性的子集时，这可能特别有用。
+例如，Infra 的 `@SessionScope` 注解将作用域名称硬编码为 `session`，但仍允许对 `proxyMode` 进行定制。以下清单显示了 `SessionScope` 注解的定义：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -97,7 +72,7 @@ public @interface SessionScope {
 }
 ----
 
-You can then use `@SessionScope` without declaring the `proxyMode` as follows:
+您可以像以下这样在不声明 `proxyMode` 的情况下使用 `@SessionScope`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -108,7 +83,7 @@ public class SessionScopedService {
 }
 ----
 
-You can also override the value for the `proxyMode`, as the following example shows:
+您还可以覆盖 `proxyMode` 的值，如以下示例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -119,18 +94,15 @@ public class SessionScopedUserService implements UserService {
 }
 ----
 
-For further details, see the
-{today-framework-wiki}/Infra-Annotation-Programming-Model[Infra Annotation Programming Model]
-wiki page.
+进一步了解, 请查看
+{today-framework-wiki}/Annotation-Programming-Model[Annotation Programming Model].
 
 
 
 [[beans-scanning-autodetection]]
-== Automatically Detecting Classes and Registering Bean Definitions
+== 自动检测类并注册 Bean
 
-Infra can automatically detect stereotyped classes and register corresponding
-`BeanDefinition` instances with the `ApplicationContext`. For example, the following two classes
-are eligible for such autodetection:
+Infra 可以自动检测有注释的类，并在 `ApplicationContext` 中注册相应的 `BeanDefinition` 实例。例如，以下两个类符合此类自动检测的条件：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -153,11 +125,8 @@ public class JpaMovieFinder implements MovieFinder {
 }
 ----
 
-
-To autodetect these classes and register the corresponding beans, you need to add
-`@ComponentScan` to your `@Configuration` class, where the `basePackages` attribute
-is a common parent package for the two classes. (Alternatively, you can specify a
-comma- or semicolon- or space-separated list that includes the parent package of each class.)
+要自动检测这些类并注册相应的 bean，您需要在 `@Configuration` 类中添加 `@ComponentScan`，
+其中 `basePackages` 属性是这两个类的共同父包。或者，您可以指定一个逗号、分号或空格分隔的列表，其中包含每个类的父包。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -168,10 +137,9 @@ public class AppConfig  {
 }
 ----
 
-NOTE: For brevity, the preceding example could have used the `value` attribute of the
-annotation (that is, `@ComponentScan("org.example")`).
+NOTE: 简洁起见，前面的示例可以使用注释的 value 属性（即 `@ComponentScan("org.example")`）。
 
-The following alternative uses XML:
+以下是使用 XML 的替代方法：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -189,67 +157,57 @@ The following alternative uses XML:
 </beans>
 ----
 
-TIP: The use of `<context:component-scan>` implicitly enables the functionality of
-`<context:annotation-config>`. There is usually no need to include the
-`<context:annotation-config>` element when using `<context:component-scan>`.
-On JDK 9's module path (Jigsaw), Infra classpath scanning generally works as expected.
-However, make sure that your component classes are exported in your `module-info`
-descriptors. If you expect Infra to invoke non-public members of your classes, make
-sure that they are 'opened' (that is, that they use an `opens` declaration instead of an
-`exports` declaration in your `module-info` descriptor).
+TIP: `<context:component-scan>` 的使用隐式地启用了 `<context:annotation-config>` 的功能。
+通常，在使用 `<context:component-scan>` 时，无需包含 `<context:annotation-config>` 元素。
+在 JDK 9 的模块路径（Jigsaw）上，Infra 类路径扫描通常按预期工作。但是，请确保在您的 `module-info`
+描述符中导出了组件类。如果您希望 Infra 调用类的非公开成员，请确保它们是“开放的”（即，
+它们在 `module-info` 描述符中使用了 `opens` 声明而不是 `exports` 声明）。
 
+此外，当您使用component-scan元素时，`AutowiredAnnotationBeanPostProcessor`
+和 `CommonAnnotationBeanPostProcessor` 都会被隐式包含。这意味着这两个组件会被自动检测并连接在一起，
+而无需在XML中提供任何 bean 配置元数据。
 
-Furthermore, the `AutowiredAnnotationBeanPostProcessor` and
-`CommonAnnotationBeanPostProcessor` are both implicitly included when you use the
-component-scan element. That means that the two components are autodetected and
-wired together -- all without any bean configuration metadata provided in XML.
-
-NOTE: You can disable the registration of `AutowiredAnnotationBeanPostProcessor` and
-`CommonAnnotationBeanPostProcessor` by including the `annotation-config` attribute
-with a value of `false`.
-
+NOTE: 您可以通过包含值为 false 的 `annotation-config` 属性来禁用
+`AutowiredAnnotationBeanPostProcessor` 和 `CommonAnnotationBeanPostProcessor` 的注册。
 
 
 [[beans-scanning-filters]]
-== Using Filters to Customize Scanning
+== 使用过滤器自定义扫描
 
-By default, classes annotated with `@Component`, `@Repository`, `@Service`, `@Controller`,
-`@Configuration`, or a custom annotation that itself is annotated with `@Component` are
-the only detected candidate components. However, you can modify and extend this behavior
-by applying custom filters. Add them as `includeFilters` or `excludeFilters` attributes of
-the `@ComponentScan` annotation (or as `<context:include-filter />` or
-`<context:exclude-filter />` child elements of the `<context:component-scan>` element in
-XML configuration). Each filter element requires the `type` and `expression` attributes.
-The following table describes the filtering options:
+默认情况下，使用 `@Component`、`@Repository`、`@Service`、`@Controller`、`@Configuration` 或本身带有 `@Component`
+注解的自定义注解标注的类，是唯一会被检测到的候选组件。但是，您可以通过应用自定义过滤器来修改和扩展此行为。
+将它们作为 `@ComponentScan` 注解的 `includeFilters` 或 `excludeFilters` 属性添加
+（或在XML配置中作为 `<context:component-scan>` 元素的子元素 `<context:include-filter />` 或 `<context:exclude-filter />` 添加）。
+每个过滤器元素都需要 `type` 和 `expression` 属性。下表描述了过滤选项：
 
 [[beans-scanning-filters-tbl]]
-.Filter Types
+.过滤器类型
 |===
-| Filter Type| Example Expression| Description
+| 过滤器类型 | 样例表达式 | 描述
 
 | annotation (default)
 | `org.example.SomeAnnotation`
-| An annotation to be _present_ or _meta-present_ at the type level in target components.
+| 在目标组件的类型级别上 _present_ 或 _meta-present_ 的注解。
 
 | assignable
 | `org.example.SomeClass`
-| A class (or interface) that the target components are assignable to (extend or implement).
+| 目标组件可分配（扩展或实现）的类（或接口）。
 
 | aspectj
 | `org.example..*Service+`
-| An AspectJ type expression to be matched by the target components.
+| 目标组件要匹配的 AspectJ 类型表达式。
 
 | regex
 | `org\.example\.Default.*`
-| A regex expression to be matched by the target components' class names.
+| 与目标组件类名匹配的 正则表达式。
 
 | custom
 | `org.example.MyTypeFilter`
-| A custom implementation of the `cn.taketoday.core.type.TypeFilter` interface.
+| `cn.taketoday.core.type.TypeFilter` 接口的自定义实现。
 |===
 
-The following example shows the configuration ignoring all `@Repository` annotations
-and using "`stub`" repositories instead:
+下面的示例显示了忽略所有 `@Repository` 注解而使用 "`stub`" 版本库的配置
+注释，而使用 "`stub`" 版本库：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -262,7 +220,7 @@ public class AppConfig {
 }
 ----
 
-The following listing shows the equivalent XML:
+下面列出了等效的 XML：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -274,20 +232,18 @@ The following listing shows the equivalent XML:
 </beans>
 ----
 
-NOTE: You can also disable the default filters by setting `useDefaultFilters=false` on the
-annotation or by providing `use-default-filters="false"` as an attribute of the
-`<component-scan/>` element. This effectively disables automatic detection of classes
-annotated or meta-annotated with `@Component`, `@Repository`, `@Service`, `@Controller`,
-`@RestController`, or `@Configuration`.
+NOTE: 您也可以通过在注解中设置 `useDefaultFilters=false` 或将 `use-default-filters="false"` 作为属性来禁用默认筛选器。
+注解，或将 `use-default-filters="false"` 作为 `<component-scan/>` 元素的属性。这将有效禁止自动检测类
+或元注释的类、`@Component`, `@Repository`, `@Service`, `@Controller`,
+`@RestController` 或 `@Configuration`。
 
 
 
 [[beans-factorybeans-annotations]]
-== Defining Bean Metadata within Components
+== 在组件内定义 Bean 元数据
 
-Infra components can also contribute bean definition metadata to the container. You can do
-this with the same `@Bean` annotation used to define bean metadata within `@Configuration`
-annotated classes. The following example shows how to do so:
+基础设施组件也可以向容器贡献 bean 定义元数据。您可以使用与在 `@Configuration`
+注解类中定义 bean 元数据相同的 `@Bean` 注解来实现这一点。以下示例显示了如何这样做：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -306,21 +262,16 @@ public class FactoryMethodComponent {
 }
 ----
 
-The preceding class is a Infra component that has application-specific code in its
-`doWork()` method. However, it also contributes a bean definition that has a factory
-method referring to the method `publicInstance()`. The `@Bean` annotation identifies the
-factory method and other bean definition properties, such as a qualifier value through
-the `@Qualifier` annotation. Other method-level annotations that can be specified are
-`@Scope`, `@Lazy`, and custom qualifier annotations.
+上述类是一个基础设施组件，在其 `doWork()` 方法中包含特定于应用程序的代码。
+然而，它还贡献了一个 bean 定义，该定义具有引用 `publicInstance()` 方法的工厂方法。
+@Bean 注解标识了工厂方法和其他 bean 定义属性，例如通过 `@Qualifier` 注解指定的限定符值。
+还可以指定的其他方法级注解包括 `@Scope` 、`@Lazy` 和自定义限定符注解。
 
-TIP: In addition to its role for component initialization, you can also place the `@Lazy`
-annotation on injection points marked with `@Autowired` or `@Inject`. In this context,
-it leads to the injection of a lazy-resolution proxy. However, such a proxy approach
-is rather limited. For sophisticated lazy interactions, in particular in combination
-with optional dependencies, we recommend `ObjectProvider<MyTargetBean>` instead.
+TIP: 除了在组件初始化方面的作用之外，您还可以在标有 @Autowired 或 `@Inject` 的注入点上放置 `@Lazy` 注解。
+在这种情况下，它会导致注入一个延迟解析的代理。然而，这种代理方法相当受限。对于复杂的延迟交互，
+特别是与可选依赖项相结合时，我们建议使用 `ObjectProvider<MyTargetBean>`。
 
-Autowired fields and methods are supported, as previously discussed, with additional
-support for autowiring of `@Bean` methods. The following example shows how to do so:
+@Autowired 字段和方法得到了支持，如前所述，还支持自动装配 `@Bean` 方法。以下示例显示了如何执行此操作：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -359,23 +310,16 @@ public class FactoryMethodComponent {
 }
 ----
 
+该示例将 `String` 方法参数 `country` 的自动装配值设置为另一个名为 `privateInstance` 的 bean 的 age 属性的值。
+通过 Infra 表达式语言元素，可以通过 `#{ <expression> }` 符号来定义属性的值。对于 @Value 注解
+，表达式解析器预配置为在解析表达式文本时查找 bean 名称。
 
-The example autowires the `String` method parameter `country` to the value of the `age`
-property on another bean named `privateInstance`. A Infra Expression Language element
-defines the value of the property through the notation `#{ <expression> }`. For `@Value`
-annotations, an expression resolver is preconfigured to look for bean names when
-resolving expression text.
+您还可以声明一个类型为 `InjectionPoint`（或其更具体的子类：`DependencyDescriptor`）的工厂方法参数，
+以访问触发当前 bean 创建的请求注入点。请注意，这仅适用于实际创建 bean 实例，而不适用于注入现有实例。
+因此，此功能对原型作用域的 bean 最有意义。对于其他作用域，工厂方法仅看到触发在给定作用域中创建新 bean 实例的注入点
+（例如，触发创建懒惰单例 bean 的依赖项）。您可以在这种情况下谨慎使用提供的注入点元数据。
 
-You may also declare a factory method parameter of type
-`InjectionPoint` (or its more specific subclass: `DependencyDescriptor`) to
-access the requesting injection point that triggers the creation of the current bean.
-Note that this applies only to the actual creation of bean instances, not to the
-injection of existing instances. As a consequence, this feature makes most sense for
-beans of prototype scope. For other scopes, the factory method only ever sees the
-injection point that triggered the creation of a new bean instance in the given scope
-(for example, the dependency that triggered the creation of a lazy singleton bean).
-You can use the provided injection point metadata with semantic care in such scenarios.
-The following example shows how to use `InjectionPoint`:
+以下示例显示了如何使用 `InjectionPoint`：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -389,81 +333,56 @@ public class FactoryMethodComponent {
 }
 ----
 
-
-The `@Bean` methods in a regular Infra component are processed differently than their
-counterparts inside a Infra `@Configuration` class. The difference is that `@Component`
-classes are not enhanced with CGLIB to intercept the invocation of methods and fields.
-CGLIB proxying is the means by which invoking methods or fields within `@Bean` methods
-in `@Configuration` classes creates bean metadata references to collaborating objects.
-Such methods are not invoked with normal Java semantics but rather go through the
-container in order to provide the usual lifecycle management and proxying of Spring
-beans, even when referring to other beans through programmatic calls to `@Bean` methods.
-In contrast, invoking a method or field in a `@Bean` method within a plain `@Component`
-class has standard Java semantics, with no special CGLIB processing or other
-constraints applying.
+在常规的 Infra 组件中，`@Bean` 方法与其在 Infra `@Configuration` 类中的对应方法处理方式不同。
+不同之处在于 `@Component` 类不会通过 CGLIB 进行增强，以拦截方法和字段的调用。CGLIB 代理是在
+Infra `@Configuration` 类中调用 `@Bean` 方法或字段时创建 bean 元数据引用到协作对象的手段。
+这种方法不是以普通的 Java 语义调用的，而是通过容器来提供通常的生命周期管理和 bean 的代理，
+即使通过对 `@Bean` 方法进行编程调用引用其他 bean 时也是如此。相反，在普通的 `@Component` 类中的 `@Bean`
+方法中调用方法或字段具有标准的 Java 语义，没有特殊的 CGLIB 处理或其他约束适用。
 
 [NOTE]
 ====
-You may declare `@Bean` methods as `static`, allowing for them to be called without
-creating their containing configuration class as an instance. This makes particular
-sense when defining post-processor beans (for example, of type `BeanFactoryPostProcessor`
-or `BeanPostProcessor`), since such beans get initialized early in the container
-lifecycle and should avoid triggering other parts of the configuration at that point.
+您可以将 `@Bean` 方法声明为 `static`，从而可以在不创建包含配置类实例的情况下调用它们。
+这在定义后处理器 bean（例如 `BeanFactoryPostProcessor` 或 `BeanPostProcessor` 类型）时特别有意义，
+因为这些 bean 在容器生命周期的早期就会初始化，并且应该在那时避免触发配置的其他部分。
 
-Calls to static `@Bean` methods never get intercepted by the container, not even within
-`@Configuration` classes (as described earlier in this section), due to technical
-limitations: CGLIB subclassing can override only non-static methods. As a consequence,
-a direct call to another `@Bean` method has standard Java semantics, resulting
-in an independent instance being returned straight from the factory method itself.
+对静态 `@Bean` 方法的调用从不被容器拦截，即使在 @Configuration 类中（如本节早期所述），
+由于技术限制：CGLIB 子类化只能覆盖非静态方法。因此，对另一个 `@Bean` 方法的直接调用具有标准的
+Java 语义，从工厂方法本身直接返回独立的实例。
 
-The Java language visibility of `@Bean` methods does not have an immediate impact on
-the resulting bean definition in Infra container. You can freely declare your
-factory methods as you see fit in non-`@Configuration` classes and also for static
-methods anywhere. However, regular `@Bean` methods in `@Configuration` classes need
-to be overridable -- that is, they must not be declared as `private` or `final`.
+在 Infra 容器中，`@Bean` 方法的 Java 语言可见性对结果 bean 定义没有直接影响。
+您可以自由地在非 `@Configuration` 类中声明工厂方法，也可以在任何地方声明静态方法。
+但是，在 `@Configuration` 类中的常规 `@Bean` 方法需要是可重写的，也就是说，它们不能声明为 `private` 或 `final`。
 
-`@Bean` methods are also discovered on base classes of a given component or
-configuration class, as well as on Java 8 default methods declared in interfaces
-implemented by the component or configuration class. This allows for a lot of
-flexibility in composing complex configuration arrangements, with even multiple
-inheritance being possible through Java 8 default methods as of Infra 4.2.
+`@Bean` 方法还会在给定组件或配置类的基类上发现，以及在由组件或配置类实现的接口中声明的 Java 8 默认方法上。
+这为组合复杂的配置方案提供了很大的灵活性，甚至通过 Java 8 默认方法可以实现多重继承。
 
-Finally, a single class may hold multiple `@Bean` methods for the same
-bean, as an arrangement of multiple factory methods to use depending on available
-dependencies at runtime. This is the same algorithm as for choosing the "`greediest`"
-constructor or factory method in other configuration scenarios: The variant with
-the largest number of satisfiable dependencies is picked at construction time,
-analogous to how the container selects between multiple `@Autowired` constructors.
+最后，单个类可以拥有多个针对同一 bean 的 `@Bean` 方法，作为在运行时根据可用依赖项选择多个工厂方法的排列。
+这与在其他配置场景中选择“最贪婪”的构造函数或工厂方法的算法相同：在构建时选择具有最多可满足依赖项的变体，
+类似于容器在多个 `@Autowired` 构造函数之间进行选择的方式。
 
 ====
 
 
 [[beans-scanning-name-generator]]
-== Naming Autodetected Components
+== 给自动探测的组件命名
 
-When a component is autodetected as part of the scanning process, its bean name is
-generated by the `BeanNameGenerator` strategy known to that scanner.
+当组件在扫描过程中自动检测到时，其 bean 名称是由该扫描器已知的 `BeanNameGenerator` 策略生成的。
 
-By default, the `AnnotationBeanNameGenerator` is used. For Spring
-xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[stereotype annotations],
-if you supply a name via the annotation's `value` attribute that name will be used as
-the name in the corresponding bean definition. This convention also applies when the
-following JSR-250 and JSR-330 annotations are used instead of Infra stereotype
-annotations: `@jakarta.annotation.ManagedBean`, `@javax.annotation.ManagedBean`,
-`@jakarta.inject.Named`, and `@javax.inject.Named`.
+默认情况下，使用 `AnnotationBeanNameGenerator`。对于基础设施的
+xref:core/beans/classpath-scanning.adoc#beans-stereotype-annotations[stereotype 注解]，
+如果通过注解的 `value` 属性提供了名称，那么该名称将用作相应 bean 定义中的名称。
+当使用以下 JSR-250 和 JSR-330 注解代替基础设施原型注解时，也适用该约定：
+`@jakarta.annotation.ManagedBean`、`@javax.annotation.ManagedBean`、
+`@jakarta.inject.Named` 和 `@javax.inject.Named`。
 
-As of TODAY Framework 6.1, the name of the annotation attribute that is used to specify
-the bean name is no longer required to be `value`. Custom stereotype annotations can
-declare an attribute with a different name (such as `name`) and annotate that attribute
-with `@AliasFor(annotation = Component.class, attribute = "value")`. See the source code
-declaration of `ControllerAdvice#name()` for a concrete example.
+用于指定 bean 名称的注解属性的名称不再必须为 `value`。自定义原型注解可以声明一个具有不同名称
+（例如 `name`）的属性，并使用 `@AliasFor(annotation = Component.class, attribute = "value")`
+注解该属性。查看 `ControllerAdvice#name()` 的源代码声明，以获取具体示例。
 
-
-If an explicit bean name cannot be derived from such an annotation or for any other
-detected component (such as those discovered by custom filters), the default bean name
-generator returns the uncapitalized non-qualified class name. For example, if the
-following component classes were detected, the names would be `myMovieLister` and
-`movieFinderImpl`.
+如果无法从此类注解或任何其他检测到的组件（例如由自定义过滤器发现的组件）中派生出明确的 bean 名称，
+那么默认的 bean 名称生成器将返回非大写的非限定类名。例如，如果检测到以下组件类，
+名称将是 `myMovieLister` 和 `movieFinderImpl`。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -481,20 +400,13 @@ public class MovieFinderImpl implements MovieFinder {
 }
 ----
 
-If you do not want to rely on the default bean-naming strategy, you can provide a custom
-bean-naming strategy. First, implement the
-{today-framework-api}/beans/factory/support/BeanNameGenerator.html[`BeanNameGenerator`]
-interface, and be sure to include a default no-arg constructor. Then, provide the fully
-qualified class name when configuring the scanner, as the following example annotation
-and bean definition show.
+如果不想依赖默认的 bean 命名策略，可以提供自定义的 bean 命名策略。
+首先，实现 {today-framework-api}/beans/factory/support/BeanNameGenerator.html[`BeanNameGenerator`]
+接口，并确保包含一个默认的无参构造函数。然后，在配置扫描器时提供完全限定的类名，如下面的示例注解和 bean 定义所示。
 
-TIP: If you run into naming conflicts due to multiple autodetected components having the
-same non-qualified class name (i.e., classes with identical names but residing in
-different packages), you may need to configure a `BeanNameGenerator` that defaults to the
-fully qualified class name for the generated bean name. As of TODAY Framework 5.2.3, the
-`FullyQualifiedAnnotationBeanNameGenerator` located in package
-`cn.taketoday.context.annotation` can be used for such purposes.
-
+TIP: 如果因多个自动检测到的组件具有相同的非限定类名（即，具有相同名称但位于不同包中的类）
+而遇到命名冲突，您可能需要配置一个默认为生成的 bean 名称使用完全限定类名的 `BeanNameGenerator`。
+位于 `cn.taketoday.context.annotation` 包中的 `FullyQualifiedAnnotationBeanNameGenerator` 可用于此类目的。
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -512,19 +424,15 @@ public class AppConfig {
 </beans>
 ----
 
-As a general rule, consider specifying the name with the annotation whenever other
-components may be making explicit references to it. On the other hand, the
-auto-generated names are adequate whenever the container is responsible for wiring.
-
+作为一般规则，在其他组件可能会明确引用时，考虑使用注释指定名称。另一方面，当容器负责装配时，自动生成的名称就足够了。
 
 
 [[beans-scanning-scope-resolver]]
-== Providing a Scope for Autodetected Components
+== 为自动检测的组件提供 Scope
 
-As with Spring-managed components in general, the default and most common scope for
-autodetected components is `singleton`. However, sometimes you need a different scope
-that can be specified by the `@Scope` annotation. You can provide the name of the
-scope within the annotation, as the following example shows:
+与一般的基础设施管理组件一样，自动检测到的组件的默认和最常见范围是 `singleton`。
+然而，有时您可能需要不同的范围，可以通过 `@Scope` 注解指定。
+可以在注解中提供范围的名称，如以下示例所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -535,24 +443,17 @@ public class MovieFinderImpl implements MovieFinder {
 }
 ----
 
+NOTE: `@Scope` 注解仅在具体的 bean 类（用于带注解的组件）或工厂方法（对于 `@Bean` 方法）上进行内省。
+与 XML bean 定义相比，没有 bean 定义继承的概念，类级别的继承层次对于元数据目的来说是无关紧要的。
 
-NOTE: `@Scope` annotations are only introspected on the concrete bean class (for annotated
-components) or the factory method (for `@Bean` methods). In contrast to XML bean
-definitions, there is no notion of bean definition inheritance, and inheritance
-hierarchies at the class level are irrelevant for metadata purposes.
+有关基础设施上下文中的 Web 特定范围（如 "`request`" 或 "`session`"）的详细信息，
+请参阅 xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[Request, Session, Application, and WebSocket Scopes]。
+与这些范围的预建注解一样，您还可以通过使用基础设施元注解方法来组合自己的范围注解：
+例如，使用 `@Scope("prototype")` 进行元注解的自定义注解，可能还声明了自定义作用域代理模式。
 
-For details on web-specific scopes such as "`request`" or "`session`" in a Infra context,
-see xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other[Request, Session, Application, and WebSocket Scopes]. As with the pre-built annotations for those scopes,
-you may also compose your own scoping annotations by using Infra meta-annotation
-approach: for example, a custom annotation meta-annotated with `@Scope("prototype")`,
-possibly also declaring a custom scoped-proxy mode.
-
-NOTE: To provide a custom strategy for scope resolution rather than relying on the
-annotation-based approach, you can implement the
-{today-framework-api}/context/annotation/ScopeMetadataResolver.html[`ScopeMetadataResolver`]
-interface. Be sure to include a default no-arg constructor. Then you can provide the
-fully qualified class name when configuring the scanner, as the following example of both
-an annotation and a bean definition shows:
+NOTE: 如果要提供自定义的范围解析策略，而不是依赖注解方式，您可以实现
+{today-framework-api}/context/annotation/ScopeMetadataResolver.html[ScopeMetadataResolver] 接口。
+确保包含一个默认的无参数构造函数。然后，在配置扫描器时，可以提供完全限定的类名，如下面示例中的注解和 bean 定义所示：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -570,11 +471,10 @@ public class AppConfig {
 </beans>
 ----
 
-When using certain non-singleton scopes, it may be necessary to generate proxies for the
-scoped objects. The reasoning is described in xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[Scoped Beans as Dependencies].
-For this purpose, a scoped-proxy attribute is available on the component-scan
-element. The three possible values are: `no`, `interfaces`, and `targetClass`. For example,
-the following configuration results in standard JDK dynamic proxies:
+在使用某些非单例范围时，可能需要为作用域对象生成代理。相关原因在
+xref:core/beans/factory-scopes.adoc#beans-factory-scopes-other-injection[作用域 Bean 作为依赖项]
+中有描述。为此，组件扫描元素上提供了一个 scoped-proxy 属性。可能的三个值是：`no`、`interfaces` 和 `targetClass`。
+例如，以下配置会导致标准 JDK 动态代理：
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -594,17 +494,14 @@ public class AppConfig {
 
 
 [[beans-scanning-qualifiers]]
-== Providing Qualifier Metadata with Annotations
+== 提供带有注释的 Qualifier 元数据
 
-The `@Qualifier` annotation is discussed in xref:core/beans/annotation-config/autowired-qualifiers.adoc[Fine-tuning Annotation-based Autowiring with Qualifiers].
-The examples in that section demonstrate the use of the `@Qualifier` annotation and
-custom qualifier annotations to provide fine-grained control when you resolve autowire
-candidates. Because those examples were based on XML bean definitions, the qualifier
-metadata was provided on the candidate bean definitions by using the `qualifier` or `meta`
-child elements of the `bean` element in the XML. When relying upon classpath scanning for
-auto-detection of components, you can provide the qualifier metadata with type-level
-annotations on the candidate class. The following three examples demonstrate this
-technique:
+`@Qualifier` 注解在 xref:core/beans/annotation-config/autowired-qualifiers.adoc[使用 Qualifiers 微调基于注解的自动装配]
+中有讨论。该部分的示例演示了使用 `@Qualifier` 注解和自定义限定符注解来在解析自动装配候选项时提供细粒度控制。
+因为这些示例是基于 XML bean 定义的，所以在 XML 的 `bean` 元素的 `qualifier` 或 `meta`
+子元素中提供了候选 bean 定义的限定符元数据。当依赖于类路径扫描进行组件的自动检测时，
+可以在候选类上使用类型级别的注解提供限定符元数据。以下三个示例演示了这种技术：
+
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
@@ -633,11 +530,8 @@ public class CachingMovieCatalog implements MovieCatalog {
 }
 ----
 
-
-NOTE: As with most annotation-based alternatives, keep in mind that the annotation metadata is
-bound to the class definition itself, while the use of XML allows for multiple beans
-of the same type to provide variations in their qualifier metadata, because that
-metadata is provided per-instance rather than per-class.
+NOTE: 与大多数基于注解的替代方案一样，请记住，注解元数据绑定到类定义本身，
+而使用 XML 允许同一类型的多个 bean 提供限定符元数据的变化，因为该元数据是按实例而不是按类提供的。
 
 
 

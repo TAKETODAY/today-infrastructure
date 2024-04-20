@@ -277,7 +277,7 @@ without an `@Autowired` annotation.
 [NOTE]
 ====
 Only one constructor of any given bean class may declare `@Autowired` with the `required`
-attribute set to `true`, indicating _the_ constructor to autowire when used as a Spring
+attribute set to `true`, indicating _the_ constructor to autowire when used as a Infra
 bean. As a consequence, if the `required` attribute is left at its default value `true`,
 only a single constructor may be annotated with `@Autowired`. If multiple constructors
 declare the annotation, they will all have to declare `required=false` in order to be
@@ -355,7 +355,7 @@ public class MovieRecommender {
 
 [NOTE]
 ====
-The `@Autowired`, `@Inject`, `@Value`, and `@Resource` annotations are handled by Spring
+The `@Autowired`, `@Inject`, `@Value`, and `@Resource` annotations are handled by Infra
 `BeanPostProcessor` implementations. This means that you cannot apply these annotations
 within your own `BeanPostProcessor` or `BeanFactoryPostProcessor` types (if any).
 These types must be 'wired up' explicitly by using XML or a Infra `@Bean` method.

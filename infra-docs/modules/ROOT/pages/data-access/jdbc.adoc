@@ -2,13 +2,13 @@
 = Data Access with JDBC
 
 The value provided by the TODAY Framework JDBC abstraction is perhaps best shown by
-the sequence of actions outlined in the following table below. The table shows which actions Spring
+the sequence of actions outlined in the following table below. The table shows which actions Infra
 takes care of and which actions are your responsibility.
 
 [[jdbc-who-does-what]]
 .Infra JDBC - who does what?
 |===
-| Action| Spring| You
+| Action| Infra| You
 
 | Define connection parameters.
 |

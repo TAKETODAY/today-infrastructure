@@ -28,7 +28,7 @@ Infra AOP never strives to compete with AspectJ to provide a comprehensive AOP
 solution. We believe that both proxy-based frameworks such as Infra AOP and full-blown
 frameworks such as AspectJ are valuable and that they are complementary, rather than in
 competition. Infra seamlessly integrates Infra AOP and IoC with AspectJ, to enable
-all uses of AOP within a consistent Spring-based application
+all uses of AOP within a consistent Infra-based application
 architecture. This integration does not affect the Infra AOP API or the AOP Alliance
 API. Infra AOP remains backward-compatible. See xref:core/aop-api.adoc[the following chapter]
 for a discussion of the Infra AOP APIs.

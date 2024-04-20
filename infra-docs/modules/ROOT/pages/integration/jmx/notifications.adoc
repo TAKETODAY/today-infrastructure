@@ -232,7 +232,7 @@ specification (1.2) entitled 'The JMX Notification Model'.)
 Infra provides support not only for registering to receive `Notifications` but also
 for publishing `Notifications`.
 
-NOTE: This section is really only relevant to Spring-managed beans that have
+NOTE: This section is really only relevant to Infra-managed beans that have
 been exposed as MBeans through an `MBeanExporter`. Any existing user-defined MBeans should
 use the standard JMX APIs for notification publication.
 

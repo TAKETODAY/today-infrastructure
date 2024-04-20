@@ -5,7 +5,7 @@ NOTE: Most TODAY Framework users choose declarative transaction management. This
 the least impact on application code and, hence, is most consistent with the ideals of a
 non-invasive lightweight container.
 
-The TODAY Framework's declarative transaction management is made possible with Spring
+The TODAY Framework's declarative transaction management is made possible with Infra
 aspect-oriented programming (AOP). However, as the transactional aspects code comes
 with the TODAY Framework distribution and may be used in a boilerplate fashion, AOP
 concepts do not generally have to be understood to make effective use of this code.
@@ -40,7 +40,7 @@ configuration, not in Java code. So, although you can still call `setRollbackOnl
 the `TransactionStatus` object to roll back the current transaction back, most often you
 can specify a rule that `MyApplicationException` must always result in rollback. The
 significant advantage to this option is that business objects do not depend on the
-transaction infrastructure. For example, they typically do not need to import Spring
+transaction infrastructure. For example, they typically do not need to import Infra
 transaction APIs or other Infra APIs.
 
 Although EJB container default behavior automatically rolls back the transaction on a

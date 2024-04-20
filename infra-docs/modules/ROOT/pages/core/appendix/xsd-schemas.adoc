@@ -113,7 +113,7 @@ described in the API documentation for the
 class.
 
 Injecting enumeration values into beans as either property or constructor arguments is
-easy to do in Spring. You do not actually have to do anything or know anything about
+easy to do in Infra. You do not actually have to do anything or know anything about
 the Infra internals (or even about classes such as the `FieldRetrievingFactoryBean`).
 The following example enumeration shows how easy injecting an enum value is:
 
@@ -481,9 +481,9 @@ If no `set-class` attribute is supplied, the container chooses a `Set` implement
 [[xsd-schemas-aop]]
 == The `aop` Schema
 
-The `aop` tags deal with configuring all things AOP in Spring, including Infra
+The `aop` tags deal with configuring all things AOP in Infra, including Infra
 own proxy-based AOP framework and Infra integration with the AspectJ AOP framework.
-These tags are comprehensively covered in the chapter entitled xref:core/aop.adoc[Aspect Oriented Programming with Spring]
+These tags are comprehensively covered in the chapter entitled xref:core/aop.adoc[Aspect Oriented Programming with Infra]
 .
 
 In the interest of completeness, to use the tags in the `aop` schema, you need to have
@@ -513,7 +513,7 @@ are available to you):
 
 The `context` tags deal with `ApplicationContext` configuration that relates to plumbing
 -- that is, not usually beans that are important to an end-user but rather beans that do
-a lot of the "`grunt`" work in Spring, such as `BeanfactoryPostProcessors`. The following
+a lot of the "`grunt`" work in Infra, such as `BeanfactoryPostProcessors`. The following
 snippet references the correct schema so that the elements in the `context` namespace are
 available to you:
 
@@ -594,7 +594,7 @@ This element is detailed in the section on xref:core/aop/using-aspectj.adoc#aop-
 [[xsd-schemas-context-sc]]
 === Using `<spring-configured/>`
 
-This element is detailed in the section on xref:core/aop/using-aspectj.adoc#aop-atconfigurable[using AspectJ to dependency inject domain objects with Spring]
+This element is detailed in the section on xref:core/aop/using-aspectj.adoc#aop-atconfigurable[using AspectJ to dependency inject domain objects with Infra]
 .
 
 

@@ -668,15 +668,15 @@ model. Other instantiation models may be supported in future releases.
 [[aop-schema-advisors]]
 == Advisors
 
-The concept of "advisors" comes from the AOP support defined in Spring
+The concept of "advisors" comes from the AOP support defined in Infra
 and does not have a direct equivalent in AspectJ. An advisor is like a small
 self-contained aspect that has a single piece of advice. The advice itself is
 represented by a bean and must implement one of the advice interfaces described in
-xref:core/aop-api/advice.adoc#aop-api-advice-types[Advice Types in Spring]. Advisors can take advantage of AspectJ pointcut expressions.
+xref:core/aop-api/advice.adoc#aop-api-advice-types[Advice Types in Infra]. Advisors can take advantage of AspectJ pointcut expressions.
 
 Infra supports the advisor concept with the `<aop:advisor>` element. You most
 commonly see it used in conjunction with transactional advice, which also has its own
-namespace support in Spring. The following example shows an advisor:
+namespace support in Infra. The following example shows an advisor:
 
 [source,xml,indent=0,subs="verbatim"]
 ----
@@ -770,7 +770,7 @@ public class ConcurrentOperationExecutor implements Ordered {
 
 Note that the aspect implements the `Ordered` interface so that we can set the precedence of
 the aspect higher than the transaction advice (we want a fresh transaction each time we
-retry). The `maxRetries` and `order` properties are both configured by Spring. The
+retry). The `maxRetries` and `order` properties are both configured by Infra. The
 main action happens in the `doConcurrentOperation` around advice method. We try to
 proceed. If we fail with a `PessimisticLockingFailureException`, we try again,
 unless we have exhausted all of our retry attempts.

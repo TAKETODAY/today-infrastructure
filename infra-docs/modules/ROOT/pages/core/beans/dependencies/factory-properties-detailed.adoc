@@ -452,7 +452,7 @@ The p-namespace lets you use the `bean` element's attributes (instead of nested
 Infra supports extensible configuration formats xref:core/appendix/xsd-schemas.adoc[with namespaces],
 which are based on an XML Schema definition. The `beans` configuration format discussed in
 this chapter is defined in an XML Schema document. However, the p-namespace is not defined
-in an XSD file and exists only in the core of Spring.
+in an XSD file and exists only in the core of Infra.
 
 The following example shows two XML snippets (the first uses
 standard XML format and the second uses the p-namespace) that resolve to the same result:
@@ -524,7 +524,7 @@ three approaches at the same time.
 [[beans-c-namespace]]
 == XML Shortcut with the c-namespace
 
-Similar to the xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-p-namespace[XML Shortcut with the p-namespace], the c-namespace, introduced in Spring
+Similar to the xref:core/beans/dependencies/factory-properties-detailed.adoc#beans-p-namespace[XML Shortcut with the p-namespace], the c-namespace, introduced in Infra
 3.1, allows inlined attributes for configuring the constructor arguments rather
 then nested `constructor-arg` elements.
 

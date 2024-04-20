@@ -179,7 +179,7 @@ environment, that it is almost always preferable to use such a connection pool o
 == Using `TransactionAwareDataSourceProxy`
 
 `TransactionAwareDataSourceProxy` is a proxy for a target `DataSource`. The proxy wraps that
-target `DataSource` to add awareness of Spring-managed transactions. In this respect, it
+target `DataSource` to add awareness of Infra-managed transactions. In this respect, it
 is similar to a transactional JNDI `DataSource`, as provided by a Jakarta EE server.
 
 NOTE: It is rarely desirable to use this class, except when already existing code must be

@@ -19,7 +19,7 @@ To create new XML configuration extensions:
 . xref:core/appendix/xml-custom.adoc#xsd-custom-namespacehandler[Code] a custom `NamespaceHandler` implementation.
 . xref:core/appendix/xml-custom.adoc#xsd-custom-parser[Code] one or more `BeanDefinitionParser` implementations
   (this is where the real work is done).
-. xref:core/appendix/xml-custom.adoc#xsd-custom-registration[Register] your new artifacts with Spring.
+. xref:core/appendix/xml-custom.adoc#xsd-custom-registration[Register] your new artifacts with Infra.
 
 For a unified example, we create an
 XML extension (a custom XML element) that lets us configure objects of the type
@@ -73,7 +73,7 @@ myns.xsd (inside package cn/taketoday/samples/xml)
 ----
 <1> The indicated line contains an extension base for all identifiable tags
 (meaning they have an `id` attribute that we can use as the bean identifier in the
-container). We can use this attribute because we imported the Spring-provided
+container). We can use this attribute because we imported the Infra-provided
 `beans` namespace.
 
 
@@ -215,7 +215,7 @@ public class SimpleDateFormatBeanDefinitionParser extends AbstractSingleBeanDefi
 
 }
 ----
-<1> We use the Spring-provided `AbstractSingleBeanDefinitionParser` to handle a lot of
+<1> We use the Infra-provided `AbstractSingleBeanDefinitionParser` to handle a lot of
 the basic grunt work of creating a single `BeanDefinition`.
 <2> We supply the `AbstractSingleBeanDefinitionParser` superclass with the type that our
 single `BeanDefinition` represents.
@@ -236,7 +236,7 @@ The coding is finished. All that remains to be done is to make the Infra XML
 parsing infrastructure aware of our custom element. We do so by registering our custom
 `namespaceHandler` and custom XSD file in two special-purpose properties files. These
 properties files are both placed in a `META-INF` directory in your application and
-can, for example, be distributed alongside your binary classes in a JAR file. The Spring
+can, for example, be distributed alongside your binary classes in a JAR file. The Infra
 XML parsing infrastructure automatically picks up your new extension by consuming
 these special properties files, the formats of which are detailed in the next two sections.
 

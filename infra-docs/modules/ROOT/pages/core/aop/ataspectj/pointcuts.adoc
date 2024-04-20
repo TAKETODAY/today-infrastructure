@@ -2,8 +2,8 @@
 = Declaring a Pointcut
 
 Pointcuts determine join points of interest and thus enable us to control
-when advice runs. Infra AOP only supports method execution join points for Spring
-beans, so you can think of a pointcut as matching the execution of methods on Spring
+when advice runs. Infra AOP only supports method execution join points for Infra
+beans, so you can think of a pointcut as matching the execution of methods on Infra
 beans. A pointcut declaration has two parts: a signature comprising a name and any
 parameters and a pointcut expression that determines exactly which method
 executions we are interested in. In the @AspectJ annotation-style of AOP, a pointcut
@@ -45,16 +45,16 @@ expressions:
   pointcut designator to use when working with Infra AOP.
 * `within`: Limits matching to join points within certain types (the execution
   of a method declared within a matching type when using Infra AOP).
-* `this`: Limits matching to join points (the execution of methods when using Spring
+* `this`: Limits matching to join points (the execution of methods when using Infra
   AOP) where the bean reference (Infra AOP proxy) is an instance of the given type.
 * `target`: Limits matching to join points (the execution of methods when using
   Infra AOP) where the target object (application object being proxied) is an instance
   of the given type.
-* `args`: Limits matching to join points (the execution of methods when using Spring
+* `args`: Limits matching to join points (the execution of methods when using Infra
   AOP) where the arguments are instances of the given types.
 * `@target`: Limits matching to join points (the execution of methods when using
   Infra AOP) where the class of the executing object has an annotation of the given type.
-* `@args`: Limits matching to join points (the execution of methods when using Spring
+* `@args`: Limits matching to join points (the execution of methods when using Infra
   AOP) where the runtime type of the actual arguments passed have annotations of the
   given types.
 * `@within`: Limits matching to join points within types that have the given
@@ -66,7 +66,7 @@ expressions:
 .Other pointcut types
 ****
 The full AspectJ pointcut language supports additional pointcut designators that are not
-supported in Spring: `call`, `get`, `set`, `preinitialization`,
+supported in Infra: `call`, `get`, `set`, `preinitialization`,
 `staticinitialization`, `initialization`, `handler`, `adviceexecution`, `withincode`, `cflow`,
 `cflowbelow`, `if`, `@this`, and `@withincode`. Use of these pointcut designators in pointcut
 expressions interpreted by Infra AOP results in an `IllegalArgumentException` being
@@ -97,7 +97,7 @@ If a pointcut is strictly meant to be public-only, even in a CGLIB proxy scenari
 potential non-public interactions through proxies, it needs to be defined accordingly.
 
 If your interception needs include method calls or even constructors within the target
-class, consider the use of Spring-driven xref:core/aop/using-aspectj.adoc#aop-aj-ltw[native AspectJ weaving] instead
+class, consider the use of Infra-driven xref:core/aop/using-aspectj.adoc#aop-aj-ltw[native AspectJ weaving] instead
 of Infra proxy-based AOP framework. This constitutes a different mode of AOP usage
 with different characteristics, so be sure to make yourself familiar with weaving
 before making a decision.
@@ -121,7 +121,7 @@ be used with the `&&` (and), `||` (or), and `!` (negation) operators, too.
 [NOTE]
 ====
 The `bean` PCD is supported only in Infra AOP and not in
-native AspectJ weaving. It is a Spring-specific extension to the standard PCDs that
+native AspectJ weaving. It is a Infra-specific extension to the standard PCDs that
 AspectJ defines and is, therefore, not available for aspects declared in the `@Aspect` model.
 
 The `bean` PCD operates at the instance level (building on the Infra bean name

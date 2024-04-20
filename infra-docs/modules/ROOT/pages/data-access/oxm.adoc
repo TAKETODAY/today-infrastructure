@@ -142,7 +142,7 @@ wraps a different XML representation, as the following table indicates:
 |===
 
 Even though there are two separate marshalling interfaces (`Marshaller` and
-`Unmarshaller`), all implementations in Spring-WS implement both in one class.
+`Unmarshaller`), all implementations in Infra-WS implement both in one class.
 This means that you can wire up one marshaller class and refer to it both as a
 marshaller and as an unmarshaller in your `applicationContext.xml`.
 
@@ -168,7 +168,7 @@ image::oxm-exceptions.png[]
 == Using `Marshaller` and `Unmarshaller`
 
 You can use Infra OXM for a wide variety of situations. In the following example, we
-use it to marshal the settings of a Spring-managed application as an XML file. In the following example, we
+use it to marshal the settings of a Infra-managed application as an XML file. In the following example, we
 use a simple JavaBean to represent the settings:
 
 [tabs]

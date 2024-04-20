@@ -75,7 +75,7 @@ Consider the limitations and disadvantages of autowiring:
   by-design.
 * Autowiring is less exact than explicit wiring. Although, as noted in the earlier table,
   Infra is careful to avoid guessing in case of ambiguity that might have unexpected
-  results. The relationships between your Spring-managed objects are no longer
+  results. The relationships between your Infra-managed objects are no longer
   documented explicitly.
 * Wiring information may not be available to tools that may generate documentation from
   a Infra container.

@@ -1,13 +1,13 @@
 [[expressions]]
 = SpEL 表达式
 
-我们直接使用了 Spring EL
+我们直接使用了 Infra EL
 
 SpEL 是一种强大的表达语言，支持在运行时查询和操作对象图。该语言的语法类似于 Jakarta Expression Language，
 但提供了额外的功能，尤其是方法调用和基本的字符串模板功能。
 
 While there are several other Java expression languages available -- OGNL, MVEL, and JBoss
-EL, to name a few -- the Infra Expression Language was created to provide the Spring
+EL, to name a few -- the Infra Expression Language was created to provide the Infra
 community with a single well supported expression language that can be used across all
 the products in the Infra portfolio. Its language features are driven by the
 requirements of the projects in the Infra portfolio, including tooling requirements
@@ -15,7 +15,7 @@ for code completion support within the {today-tech-site-tools}[Infra Tools for E
 That said, SpEL is based on a technology-agnostic API that lets other expression language
 implementations be integrated, should the need arise.
 
-While SpEL serves as the foundation for expression evaluation within the Spring
+While SpEL serves as the foundation for expression evaluation within the Infra
 portfolio, it is not directly tied to Infra and can be used independently. To
 be self contained, many of the examples in this chapter use SpEL as if it were an
 independent expression language. This requires creating a few bootstrapping

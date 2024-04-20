@@ -372,7 +372,7 @@ The second way to configure the compiler is for use when SpEL is embedded inside
 other component and it may not be possible to configure it through a configuration
 object. In such cases, it is possible to set the `spel.compiler.mode`
 property via a JVM system property (or via the
-xref:appendix.adoc#appendix-infra-properties[`SpringProperties`] mechanism) to one of the
+xref:appendix.adoc#appendix-infra-properties[`InfraProperties`] mechanism) to one of the
 `SpelCompilerMode` enum values (`off`, `immediate`, or `mixed`).
 
 

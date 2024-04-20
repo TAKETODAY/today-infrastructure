@@ -163,14 +163,14 @@ treatment, or both.
 
 Fortunately, Infra `LocalSessionFactoryBean` supports Hibernate's
 `SessionFactory.getCurrentSession()` method for any Infra transaction strategy,
-returning the current Spring-managed transactional `Session`, even with
+returning the current Infra-managed transactional `Session`, even with
 `HibernateTransactionManager`. The standard behavior of that method remains
 to return the current `Session` associated with the ongoing JTA transaction, if any.
 This behavior applies regardless of whether you use Infra
 `JtaTransactionManager`, EJB container managed transactions (CMTs), or JTA.
 
 In summary, you can implement DAOs based on the plain Hibernate API, while still being
-able to participate in Spring-managed transactions.
+able to participate in Infra-managed transactions.
 
 
 [[orm-hibernate-tx-declarative]]
@@ -178,7 +178,7 @@ able to participate in Spring-managed transactions.
 
 We recommend that you use Infra declarative transaction support, which lets you
 replace explicit transaction demarcation API calls in your Java code with an AOP
-transaction interceptor. You can configure this transaction interceptor in a Spring
+transaction interceptor. You can configure this transaction interceptor in a Infra
 container by using either Java annotations or XML. This declarative transaction capability
 lets you keep business services free of repetitive transaction demarcation code and
 focus on adding business logic, which is the real value of your application.
@@ -259,7 +259,7 @@ processing at runtime. The following example shows how to do so:
 
 You can demarcate transactions in a higher level of the application, on top of
 lower-level data access services that span any number of operations. Nor do restrictions
-exist on the implementation of the surrounding business service. It needs only a Spring
+exist on the implementation of the surrounding business service. It needs only a Infra
 `PlatformTransactionManager`. Again, the latter can come from anywhere, but preferably
 as a bean reference through a `setTransactionManager(..)` method. Also, the
 `productDAO` should be set by a `setProductDao(..)` method. The following pair of snippets show
@@ -372,7 +372,7 @@ be processed from a local cache rather than hitting the database.
 You can switch between a container-managed JNDI `SessionFactory` and a locally defined
 one without having to change a single line of application code. Whether to keep
 resource definitions in the container or locally within the application is mainly a
-matter of the transaction strategy that you use. Compared to a Spring-defined local
+matter of the transaction strategy that you use. Compared to a Infra-defined local
 `SessionFactory`, a manually registered JNDI `SessionFactory` does not provide any
 benefits. Deploying a `SessionFactory` through Hibernate's JCA connector provides the
 added value of participating in the Jakarta EE server's management infrastructure, but does
@@ -387,13 +387,13 @@ container and on JTA, even if you access only a single database and use only sta
 session beans to provide declarative transactions through container-managed
 transactions. Direct use of JTA programmatically also requires a Jakarta EE environment.
 
-Spring-driven transactions can work as well with a locally defined Hibernate
+Infra-driven transactions can work as well with a locally defined Hibernate
 `SessionFactory` as they do with a local JDBC `DataSource`, provided they access a
 single database. Thus, you need only use Infra JTA transaction strategy when you
 have distributed transaction requirements. A JCA connector requires container-specific
 deployment steps, and (obviously) JCA support in the first place. This configuration
 requires more work than deploying a simple web application with local resource
-definitions and Spring-driven transactions.
+definitions and Infra-driven transactions.
 
 All things considered, if you do not use EJBs, stick with local `SessionFactory` setup
 and Infra `HibernateTransactionManager` or `JtaTransactionManager`. You get all of
@@ -425,7 +425,7 @@ Another common problem is a connection leak after JTA transactions, with Hiberna
 sessions (and potentially underlying JDBC connections) not getting closed properly.
 
 You can resolve such issues by making Hibernate aware of the JTA transaction manager,
-to which it synchronizes (along with Spring). You have two options for doing this:
+to which it synchronizes (along with Infra). You have two options for doing this:
 
 * Pass your Infra `JtaTransactionManager` bean to your Hibernate setup. The easiest
   way is a bean reference into the `jtaTransactionManager` property for your

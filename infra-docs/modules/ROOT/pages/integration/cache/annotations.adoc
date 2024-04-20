@@ -244,7 +244,7 @@ public CompletableFuture<Foo> executeExpensiveOperation(String id) {...}
 <1> Using the `sync` attribute.
 
 NOTE: In order for such an arrangement to work at runtime, the configured cache
-needs to be capable of `CompletableFuture`-based retrieval. The Spring-provided
+needs to be capable of `CompletableFuture`-based retrieval. The Infra-provided
 `ConcurrentMapCacheManager` automatically adapts to that retrieval style, and
 `CaffeineCacheManager` natively supports it when its asynchronous cache mode is
 enabled: set `setAsyncCacheMode(true)` on your `CaffeineCacheManager` instance.
@@ -500,7 +500,7 @@ e.g. on `CaffeineCacheManager`. These are effectively also global.
 == Enabling Caching Annotations
 
 It is important to note that even though declaring the cache annotations does not
-automatically trigger their actions - like many things in Spring, the feature has to be
+automatically trigger their actions - like many things in Infra, the feature has to be
 declaratively enabled (which means if you ever suspect caching is to blame, you can
 disable it by removing only one configuration line rather than all the annotations in
 your code).

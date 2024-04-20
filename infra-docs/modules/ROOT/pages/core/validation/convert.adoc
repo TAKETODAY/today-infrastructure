@@ -206,7 +206,7 @@ creating common `ConversionService` configurations.
 
 
 
-[[core-convert-Spring-config]]
+[[core-convert-Infra-config]]
 == Configuring a `ConversionService`
 
 A `ConversionService` is a stateless object designed to be instantiated at application
@@ -216,10 +216,10 @@ Infra picks up that `ConversionService` and uses it whenever a type
 conversion needs to be performed by the framework. You can also inject this
 `ConversionService` into any of your beans and invoke it directly.
 
-NOTE: If no `ConversionService` is registered with Spring, the original `PropertyEditor`-based
+NOTE: If no `ConversionService` is registered with Infra, the original `PropertyEditor`-based
 system is used.
 
-To register a default `ConversionService` with Spring, add the following bean definition
+To register a default `ConversionService` with Infra, add the following bean definition
 with an `id` of `conversionService`:
 
 [source,xml,indent=0,subs="verbatim,quotes"]

@@ -241,7 +241,7 @@ features are not available, as the following table shows:
 [[annotations-comparison]]
 .Infra component model elements versus JSR-330 variants
 |===
-| Spring| jakarta.inject.*| jakarta.inject restrictions / comments
+| Infra| jakarta.inject.*| jakarta.inject restrictions / comments
 
 | @Autowired
 | @Inject
@@ -254,7 +254,7 @@ features are not available, as the following table shows:
 | @Scope("singleton")
 | @Singleton
 | The JSR-330 default scope is like Infra `prototype`. However, in order to keep it
-  consistent with Infra general defaults, a JSR-330 bean declared in the Spring
+  consistent with Infra general defaults, a JSR-330 bean declared in the Infra
   container is a `singleton` by default. In order to use a scope other than `singleton`,
   you should use Infra `@Scope` annotation. `jakarta.inject` also provides a
   `jakarta.inject.Scope` annotation: however, this one is only intended to be used

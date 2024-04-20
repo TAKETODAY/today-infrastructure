@@ -1,11 +1,11 @@
 [[tx-propagation]]
 = Transaction Propagation
 
-This section describes some semantics of transaction propagation in Spring. Note
+This section describes some semantics of transaction propagation in Infra. Note
 that this section is not a proper introduction to transaction propagation. Rather, it
-details some of the semantics regarding transaction propagation in Spring.
+details some of the semantics regarding transaction propagation in Infra.
 
-In Spring-managed transactions, be aware of the difference between physical and
+In Infra-managed transactions, be aware of the difference between physical and
 logical transactions, and how the propagation setting applies to this difference.
 
 [[tx-propagation-required]]

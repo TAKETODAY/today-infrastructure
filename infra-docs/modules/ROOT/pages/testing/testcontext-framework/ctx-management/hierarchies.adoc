@@ -105,7 +105,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 @ContextHierarchy({
   @ContextConfiguration(name = "parent", locations = "/app-config.xml"),
   @ContextConfiguration(name = "child", locations = "/user-config.xml")
@@ -135,7 +135,7 @@ Java::
 +
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
-@ExtendWith(SpringExtension.class)
+@ExtendWith(InfraExtension.class)
 @ContextHierarchy({
   @ContextConfiguration(name = "parent", locations = "/app-config.xml"),
   @ContextConfiguration(name = "child", locations = "/user-config.xml")

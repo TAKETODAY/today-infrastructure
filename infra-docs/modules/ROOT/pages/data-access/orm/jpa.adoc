@@ -84,7 +84,7 @@ application uses to refer to them (for example, in `@PersistenceUnit` and
 [[orm-jpa-setup-lcemfb]]
 === Using `LocalContainerEntityManagerFactoryBean`
 
-You can use this option for full JPA capabilities in a Spring-based application environment.
+You can use this option for full JPA capabilities in a Infra-based application environment.
 This includes web containers such as Tomcat, stand-alone applications, and
 integration tests with sophisticated persistence requirements.
 
@@ -142,7 +142,7 @@ Alternatively, specify a custom `persistenceXmlLocation` on your
 META-INF/my-persistence.xml) and include only a descriptor with that name in your
 application jar files. Because the Jakarta EE server looks only for default
 `META-INF/persistence.xml` files, it ignores such custom persistence units and, hence,
-avoids conflicts with a Spring-driven JPA setup upfront. (This applies to Resin 3.1, for
+avoids conflicts with a Infra-driven JPA setup upfront. (This applies to Resin 3.1, for
 example.)
 
 .When is load-time weaving required?
@@ -153,7 +153,7 @@ applying enhancements at build time through a custom compiler or an Ant task, yo
 load-time weaver.
 ****
 
-The `LoadTimeWeaver` interface is a Spring-provided class that lets JPA
+The `LoadTimeWeaver` interface is a Infra-provided class that lets JPA
 `ClassTransformer` instances be plugged in a specific manner, depending on whether the
 environment is a web container or application server. Hooking `ClassTransformers`
 through an
@@ -328,7 +328,7 @@ public class ProductDaoImpl implements ProductDao {
 
 ======
 
-The preceding DAO has no dependency on Infra and still fits nicely into a Spring
+The preceding DAO has no dependency on Infra and still fits nicely into a Infra
 application context. Moreover, the DAO takes advantage of annotations to require the
 injection of the default `EntityManagerFactory`, as the following example bean definition shows:
 
@@ -395,7 +395,7 @@ to `PersistenceContextType.TRANSACTION`. You can use this default to receive a s
 `EntityManager` proxy. The alternative, `PersistenceContextType.EXTENDED`, is a completely
 different affair. This results in a so-called extended `EntityManager`, which is not
 thread-safe and, hence, must not be used in a concurrently accessed component, such as a
-Spring-managed singleton bean. Extended `EntityManager` instances are only supposed to be used
+Infra-managed singleton bean. Extended `EntityManager` instances are only supposed to be used
 in stateful components that, for example, reside in a session, with the lifecycle of the
 `EntityManager` not tied to a current transaction but rather being completely up to the
 application.
@@ -415,7 +415,7 @@ On the Jakarta EE platform, they are used for dependency declaration and not for
 injection.
 ****
 
-The injected `EntityManager` is Spring-managed (aware of the ongoing transaction).
+The injected `EntityManager` is Infra-managed (aware of the ongoing transaction).
 Even though the new DAO implementation uses method-level injection of an `EntityManager`
 instead of an `EntityManagerFactory`, no change is required in the bean definition
 due to annotation usage.
@@ -468,7 +468,7 @@ the persistence units via `@Autowired @Qualifier("...")`.
 
 
 [[orm-jpa-tx]]
-== Spring-driven JPA Transactions
+== Infra-driven JPA Transactions
 
 NOTE: We strongly encourage you to read xref:data-access/transaction/declarative.adoc[Declarative Transaction Management],
 if you have not already done so, to get more detailed coverage of Infra declarative transaction support.
@@ -498,7 +498,7 @@ be processed from a local cache rather than hitting the database.
 As an advanced feature, `JpaTransactionManager` and subclasses of
 `AbstractEntityManagerFactoryBean` allow a custom `JpaDialect` to be passed into the
 `jpaDialect` bean property. A `JpaDialect` implementation can enable the following advanced
-features supported by Spring, usually in a vendor-specific manner:
+features supported by Infra, usually in a vendor-specific manner:
 
 * Applying specific transaction semantics (such as custom isolation level or transaction
   timeout)
@@ -516,7 +516,7 @@ capabilities of `JpaDialect` with other provider-specific defaults. Specifying a
 `HibernateJpaVendorAdapter` or `EclipseLinkJpaVendorAdapter` is the most convenient
 way of auto-configuring an `EntityManagerFactory` setup for Hibernate or EclipseLink,
 respectively. Note that those provider adapters are primarily designed for use with
-Spring-driven transaction management (that is, for use with `JpaTransactionManager`).
+Infra-driven transaction management (that is, for use with `JpaTransactionManager`).
 
 See the {today-framework-api}/orm/jpa/JpaDialect.html[`JpaDialect`] and
 {today-framework-api}/orm/jpa/JpaVendorAdapter.html[`JpaVendorAdapter`] javadoc for
@@ -543,7 +543,7 @@ provider-specific, typically through special properties to be specified as `jpaP
 on `LocalContainerEntityManagerFactoryBean`. In the case of Hibernate, these properties
 are even version-specific. See your Hibernate documentation for details.
 
-* Infra `HibernateJpaVendorAdapter` enforces certain Spring-oriented defaults, such
+* Infra `HibernateJpaVendorAdapter` enforces certain Infra-oriented defaults, such
 as the connection release mode, `on-close`, which matches Hibernate's own default in
 Hibernate 5.0 but not any more in Hibernate 5.1+. For a JTA setup, make sure to declare
 your persistence unit transaction type as "JTA". Alternatively, set Hibernate 5.2's

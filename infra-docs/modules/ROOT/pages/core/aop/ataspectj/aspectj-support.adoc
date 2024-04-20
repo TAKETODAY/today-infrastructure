@@ -3,7 +3,7 @@
 
 To use @AspectJ aspects in a Infra configuration, you need to enable Infra support for
 configuring Infra AOP based on @AspectJ aspects and auto-proxying beans based on
-whether or not they are advised by those aspects. By auto-proxying, we mean that, if Spring
+whether or not they are advised by those aspects. By auto-proxying, we mean that, if Infra
 determines that a bean is advised by one or more aspects, it automatically generates
 a proxy for that bean to intercept method invocations and ensures that advice is run
 as needed.

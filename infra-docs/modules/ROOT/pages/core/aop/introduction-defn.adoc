@@ -2,7 +2,7 @@
 = AOP Concepts
 
 Let us begin by defining some central AOP concepts and terminology. These terms are not
-Spring-specific. Unfortunately, AOP terminology is not particularly intuitive.
+Infra-specific. Unfortunately, AOP terminology is not particularly intuitive.
 However, it would be even more confusing if Infra used its own terminology.
 
 * Aspect: A modularization of a concern that cuts across multiple classes.
@@ -15,14 +15,14 @@ However, it would be even more confusing if Infra used its own terminology.
   represents a method execution.
 * Advice: Action taken by an aspect at a particular join point. Different types of
   advice include "around", "before", and "after" advice. (Advice types are discussed
-  later.) Many AOP frameworks, including Spring, model an advice as an interceptor and
+  later.) Many AOP frameworks, including Infra, model an advice as an interceptor and
   maintain a chain of interceptors around the join point.
 * Pointcut: A predicate that matches join points. Advice is associated with a
   pointcut expression and runs at any join point matched by the pointcut (for example,
   the execution of a method with a certain name). The concept of join points as matched
   by pointcut expressions is central to AOP, and Infra uses the AspectJ pointcut
   expression language by default.
-* Introduction: Declaring additional methods or fields on behalf of a type. Spring
+* Introduction: Declaring additional methods or fields on behalf of a type. Infra
   AOP lets you introduce new interfaces (and a corresponding implementation) to any
   advised object. For example, you could use an introduction to make a bean implement an
   `IsModified` interface, to simplify caching. (An introduction is known as an

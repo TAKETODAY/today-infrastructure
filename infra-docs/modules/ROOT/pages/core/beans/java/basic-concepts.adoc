@@ -7,7 +7,7 @@ The central artifacts in Infra Java configuration support are
 The `@Bean` annotation is used to indicate that a method instantiates, configures, and
 initializes a new object to be managed by the Infra IoC container. For those familiar
 with Infra `<beans/>` XML configuration, the `@Bean` annotation plays the same role as
-the `<bean/>` element. You can use `@Bean`-annotated methods with any Spring
+the `<bean/>` element. You can use `@Bean`-annotated methods with any Infra
 `@Component`. However, they are most often used with `@Configuration` beans.
 
 Annotating a class with `@Configuration` indicates that its primary purpose is as a

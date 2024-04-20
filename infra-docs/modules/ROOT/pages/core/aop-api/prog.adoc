@@ -1,7 +1,7 @@
 [[aop-prog]]
 = Creating AOP Proxies Programmatically with the `ProxyFactory`
 
-It is easy to create AOP proxies programmatically with Spring. This lets you use
+It is easy to create AOP proxies programmatically with Infra. This lets you use
 Infra AOP without dependency on Infra IoC.
 
 The interfaces implemented by the target object are

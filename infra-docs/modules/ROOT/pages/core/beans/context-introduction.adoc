@@ -1,64 +1,45 @@
 [[context-introduction]]
-= Additional Capabilities of the `ApplicationContext`
+= `ApplicationContext` 的附加功能
 
-As discussed in the xref:web/webmvc-view/mvc-xslt.adoc#mvc-view-xslt-beandefs[chapter introduction], the `cn.taketoday.beans.factory`
-package provides basic functionality for managing and manipulating beans, including in a
-programmatic way. The `cn.taketoday.context` package adds the
-{today-framework-api}/context/ApplicationContext.html[`ApplicationContext`]
-interface, which extends the `BeanFactory` interface, in addition to extending other
-interfaces to provide additional functionality in a more application
-framework-oriented style. Many people use the `ApplicationContext` in a completely
-declarative fashion, not even creating it programmatically, but instead relying on
-support classes such as `ContextLoader` to automatically instantiate an
-`ApplicationContext` as part of the normal startup process of a Jakarta EE web application.
+如前文所述，在 xref:web/webmvc-view/mvc-xslt.adoc#mvc-view-xslt-beandefs[章节介绍]中，
+`cn.taketoday.beans.factory` 包提供了管理和操作 bean 的基本功能，包括以编程方式进行操作。
+`cn.taketoday.context` 包添加了 `ApplicationContext` 接口，该接口扩展了 `BeanFactory`
+接口，并扩展了其他接口，以提供更多面向应用框架的功能。许多人以完全声明式的方式使用 `ApplicationContext`，
+甚至不会以编程方式创建它，而是依赖于支持类（如 `ContextLoader`）在 Jakarta EE Web 应用程序的正常启动过程中自动实例化 ApplicationContext。
+为了以更面向框架的方式增强 `BeanFactory` 的功能，上下文包还提供了以下功能：
 
-To enhance `BeanFactory` functionality in a more framework-oriented style, the context
-package also provides the following functionality:
-
-* Access to messages in i18n-style, through the `MessageSource` interface.
-* Access to resources, such as URLs and files, through the `ResourceLoader` interface.
-* Event publication, namely to beans that implement the `ApplicationListener` interface,
-  through the use of the `ApplicationEventPublisher` interface.
-* Loading of multiple (hierarchical) contexts, letting each be focused on one
-  particular layer, such as the web layer of an application, through the
-  `HierarchicalBeanFactory` interface.
+* 通过 `MessageSource` 接口以 i18n 样式访问消息。
+* 通过 `ResourceLoader` 接口访问资源，如 URL 和文件。
+* 通过 `ApplicationEventPublisher` 接口向实现 `ApplicationListener` 接口的 bean 发布事件。
+* 加载多个（分层）上下文，让每个上下文专注于一个特定的层，例如应用程序的 Web 层，通过 `HierarchicalBeanFactory` 接口。
 
 
 
 [[context-functionality-messagesource]]
-== Internationalization using `MessageSource`
+== `MessageSource` 国际化
 
-The `ApplicationContext` interface extends an interface called `MessageSource` and,
-therefore, provides internationalization ("`i18n`") functionality. Infra also provides the
-`HierarchicalMessageSource` interface, which can resolve messages hierarchically.
-Together, these interfaces provide the foundation upon which Infra effects message
-resolution. The methods defined on these interfaces include:
 
-* `String getMessage(String code, Object[] args, String default, Locale loc)`: The basic
-  method used to retrieve a message from the `MessageSource`. When no message is found
-  for the specified locale, the default message is used. Any arguments passed in become
-  replacement values, using the `MessageFormat` functionality provided by the standard
-  library.
-* `String getMessage(String code, Object[] args, Locale loc)`: Essentially the same as
-  the previous method but with one difference: No default message can be specified. If
-  the message cannot be found, a `NoSuchMessageException` is thrown.
-* `String getMessage(MessageSourceResolvable resolvable, Locale locale)`: All properties
-  used in the preceding methods are also wrapped in a class named
-  `MessageSourceResolvable`, which you can use with this method.
+`ApplicationContext` 接口扩展了一个称为 `MessageSource` 的接口，因此提供了国际化（"`i18n`"）功能。
+Infra 还提供了 `HierarchicalMessageSource` 接口，可以按层次解析消息。这些接口共同构成了 Infra
+实现消息解析的基础。这些接口定义的方法包括：
 
-When an `ApplicationContext` is loaded, it automatically searches for a `MessageSource`
-bean defined in the context. The bean must have the name `messageSource`. If such a bean
-is found, all calls to the preceding methods are delegated to the message source. If no
-message source is found, the `ApplicationContext` attempts to find a parent containing a
-bean with the same name. If it does, it uses that bean as the `MessageSource`. If the
-`ApplicationContext` cannot find any source for messages, an empty
-`DelegatingMessageSource` is instantiated in order to be able to accept calls to the
-methods defined above.
+* `String getMessage(String code, Object[] args, String default, Locale loc)`：
+从 `MessageSource` 中检索消息的基本方法。当找不到指定区域设置的消息时，将使用默认消息。
+传递的任何参数都将作为替换值使用，使用标准库提供的 `MessageFormat` 功能。
+* `String getMessage(String code, Object[] args, Locale loc)`：与上一个方法基本相同，
+但有一个区别：无法指定默认消息。如果找不到消息，则抛出 `NoSuchMessageException`。
+* `String getMessage(MessageSourceResolvable resolvable, Locale locale)`：
+所有在前面方法中使用的属性也包装在一个名为 `MessageSourceResolvable` 的类中，您可以将其与此方法一起使用。
 
-Infra provides three `MessageSource` implementations, `ResourceBundleMessageSource`, `ReloadableResourceBundleMessageSource`
-and `StaticMessageSource`. All of them implement `HierarchicalMessageSource` in order to do nested
-messaging. The `StaticMessageSource` is rarely used but provides programmatic ways to
-add messages to the source. The following example shows `ResourceBundleMessageSource`:
+当加载 `ApplicationContext` 时，它会自动搜索上下文中定义的 `MessageSource` bean。该 bean
+必须命名为 `messageSource`。如果找到这样的 bean，则所有对上述方法的调用都将委托给消息源。
+如果找不到消息源，则 `ApplicationContext` 尝试查找一个具有相同名称的父级包含的 bean。
+如果找到，则将该 bean 用作 `MessageSource`。如果 `ApplicationContext` 找不到任何消息源，
+则将实例化一个空的 `DelegatingMessageSource`，以便能够接受上述定义的方法的调用。
+Infra 提供了三个 `MessageSource` 实现，`ResourceBundleMessageSource`、
+`ReloadableResourceBundleMessageSource` 和 `StaticMessageSource`。
+它们都实现了 `HierarchicalMessageSource`，以便进行嵌套消息传递。`StaticMessageSource`
+很少使用，但提供了向源添加消息的程序化方法。以下示例展示了 `ResourceBundleMessageSource`：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -76,11 +57,9 @@ add messages to the source. The following example shows `ResourceBundleMessageSo
 </beans>
 ----
 
-The example assumes that you have three resource bundles called `format`, `exceptions` and `windows`
-defined in your classpath. Any request to resolve a message is
-handled in the JDK-standard way of resolving messages through `ResourceBundle` objects. For the
-purposes of the example, assume the contents of two of the above resource bundle files
-are as follows:
+示例假设您的类路径中定义了三个资源包，分别称为 `format`、`exceptions`
+和 `windows`。任何解析消息的请求都是通过 `ResourceBundle` 对象以
+JDK 标准的方式处理消息解析。为了示例的目的，假设上述两个资源包文件的内容如下：
 
 [source,properties,indent=0,subs="verbatim,quotes"]
 ----
@@ -94,14 +73,9 @@ message=Alligators rock!
 argument.required=The {0} argument is required.
 ----
 
-The next example shows a program to run the `MessageSource` functionality.
-Remember that all `ApplicationContext` implementations are also `MessageSource`
-implementations and so can be cast to the `MessageSource` interface.
+下一个示例展示了运行 `MessageSource` 功能的程序。请记住，所有的 `ApplicationContext`
+实现也都是 `MessageSource` 实现，因此可以将其转换为 `MessageSource` 接口。
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public static void main(String[] args) {
@@ -110,24 +84,20 @@ public static void main(String[] args) {
   System.out.println(message);
 }
 ----
-======
 
-The resulting output from the above program is as follows:
+上述程序的输出结果如下：
 
 [literal,subs="verbatim,quotes"]
 ----
 Alligators rock!
 ----
 
-To summarize, the `MessageSource` is defined in a file called `beans.xml`, which
-exists at the root of your classpath. The `messageSource` bean definition refers to a
-number of resource bundles through its `basenames` property. The three files that are
-passed in the list to the `basenames` property exist as files at the root of your
-classpath and are called `format.properties`, `exceptions.properties`, and
-`windows.properties`, respectively.
+总结一下，`MessageSource` 在名为 `beans.xml` 的文件中定义，该文件存在于类路径的根目录下。
+`messageSource` bean 定义通过其 `basenames` 属性引用了一些资源包。传递给 `basenames`
+属性的列表中有三个文件，在类路径的根目录下分别称为 `format.properties`、`exceptions.properties`
+和 `windows.properties`。
 
-The next example shows arguments passed to the message lookup. These arguments are
-converted into `String` objects and inserted into placeholders in the lookup message.
+下一个示例展示了传递给消息查找的参数。这些参数被转换为 `String` 对象，并插入到查找消息中的占位符中。
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -146,10 +116,6 @@ converted into `String` objects and inserted into placeholders in the lookup mes
 </beans>
 ----
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class Example {
@@ -168,9 +134,7 @@ public class Example {
 }
 ----
 
-======
-
-The resulting output from the invocation of the `execute()` method is as follows:
+调用 `execute()` 方法的结果输出如下：
 
 [literal,subs="verbatim,quotes"]
 ----
@@ -188,16 +152,19 @@ Typically, locale resolution is managed by the surrounding environment of the
 application. In the following example, the locale against which (British) messages are
 resolved is specified manually:
 
+关于国际化（"`i18n`"），Infra 中的各种 `MessageSource` 实现遵循与标准 JDK `ResourceBundle`
+相同的区域设置解析和回退规则。简而言之，继续使用之前定义的示例 `messageSource`，如果您想针对英国
+（en-GB）区域设置解析消息，您需要分别创建名为 `format_en_GB.properties`、
+`exceptions_en_GB.properties` 和`` windows_en_GB.properties`` 的文件。
+
+通常，区域设置解析由应用程序的周围环境管理。在下面的示例中，手动指定了（英国）消息所解析的区域设置：
+
 [literal,subs="verbatim,quotes"]
 ----
 # in exceptions_en_GB.properties
 argument.required=Ebagum lad, the ''{0}'' argument is required, I say, required.
 ----
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public static void main(final String[] args) {
@@ -208,105 +175,77 @@ public static void main(final String[] args) {
 }
 ----
 
-======
-
-The resulting output from the running of the above program is as follows:
+上述程序运行的结果输出如下：
 
 [literal,subs="verbatim,quotes"]
 ----
 Ebagum lad, the 'userDao' argument is required, I say, required.
 ----
 
-You can also use the `MessageSourceAware` interface to acquire a reference to any
-`MessageSource` that has been defined. Any bean that is defined in an
-`ApplicationContext` that implements the `MessageSourceAware` interface is injected with
-the application context's `MessageSource` when the bean is created and configured.
+您还可以使用 `MessageSourceAware` 接口来获取对已定义的任何 `MessageSource` 的引用。
+在实现了 `MessageSourceAware` 接口的 `ApplicationContext` 中定义的任何 bean
+在创建和配置时都会被注入应用程序上下文的 `MessageSource`。
 
-NOTE: Because Infra `MessageSource` is based on Java's `ResourceBundle`, it does not merge
-bundles with the same base name, but will only use the first bundle found.
-Subsequent message bundles with the same base name are ignored.
+NOTE: 由于 Infra 的 `MessageSource` 是基于 Java 的 `ResourceBundle`，
+它不会合并具有相同基本名称的包，而是仅使用找到的第一个包。具有相同基本名称的后续消息包将被忽略。
 
-NOTE: As an alternative to `ResourceBundleMessageSource`, Infra provides a
-`ReloadableResourceBundleMessageSource` class. This variant supports the same bundle
-file format but is more flexible than the standard JDK based
-`ResourceBundleMessageSource` implementation. In particular, it allows for reading
-files from any Infra resource location (not only from the classpath) and supports hot
-reloading of bundle property files (while efficiently caching them in between).
-See the {today-framework-api}/context/support/ReloadableResourceBundleMessageSource.html[`ReloadableResourceBundleMessageSource`]
-javadoc for details.
-
+NOTE: 作为 ResourceBundleMessageSource 的替代方案，Infra 提供了一个 `ReloadableResourceBundleMessageSource` 类。
+这个变种支持相同的包文件格式，但比标准的基于 JDK 的 `ResourceBundleMessageSource` 实现更灵活。
+特别是，它允许从任何 Infra 资源位置（不仅仅是从类路径）读取文件，并支持热重新加载包属性文件（同时在它们之间高效地缓存）。有关详细信息，
+请参阅 {today-framework-api}/context/support/ReloadableResourceBundleMessageSource.html[ReloadableResourceBundleMessageSource] 的 javadoc。
 
 
 [[context-functionality-events]]
-== Standard and Custom Events
+== 内置的和自定义事件
 
-Event handling in the `ApplicationContext` is provided through the `ApplicationEvent`
-class and the `ApplicationListener` interface. If a bean that implements the
-`ApplicationListener` interface is deployed into the context, every time an
-`ApplicationEvent` gets published to the `ApplicationContext`, that bean is notified.
-Essentially, this is the standard Observer design pattern.
+在 `ApplicationContext` 中提供事件处理是通过 `ApplicationEvent` 类和 `ApplicationListener` 接口实现的。
+如果部署了实现 `ApplicationListener` 接口的 bean 到上下文中，每当 `ApplicationEvent` 发布到 ApplicationContext，
+该 bean 就会收到通知。基本上，这就是标准的观察者设计模式。
 
-TIP: As of Infra 4.2, the event infrastructure has been significantly improved and offers
-an xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[annotation-based model] as well as the
-ability to publish any arbitrary event (that is, an object that does not necessarily
-extend from `ApplicationEvent`). When such an object is published, we wrap it in an
-event for you.
+TIP: 提供了 xref:core/beans/context-introduction.adoc#context-functionality-events-annotation[基于注解的模型] ，
+以及发布任意事件的能力（即，不一定要扩展自 ApplicationEvent 的对象）。当发布这样的对象时，我们会为您封装成一个事件。
 
-The following table describes the standard events that Infra provides:
+下表描述了 Infra 提供的标准事件：
 
 [[beans-ctx-events-tbl]]
-.Built-in Events
+.内置事件
 [cols="30%,70%"]
 |===
-| Event| Explanation
+| 事件 | 解释
 
 | `ContextRefreshedEvent`
-| Published when the `ApplicationContext` is initialized or refreshed (for example, by
-  using the `refresh()` method on the `ConfigurableApplicationContext` interface).
-  Here, "`initialized`" means that all beans are loaded, post-processor beans are detected
-  and activated, singletons are pre-instantiated, and the `ApplicationContext` object is
-  ready for use. As long as the context has not been closed, a refresh can be triggered
-  multiple times, provided that the chosen `ApplicationContext` actually supports such
-  "`hot`" refreshes. For example, `XmlWebApplicationContext` supports hot refreshes, but
-  `GenericApplicationContext` does not.
+| 当 `ApplicationContext` 被初始化或刷新时发布（例如，通过在 `ConfigurableApplicationContext`
+接口上使用 `refresh()` 方法）。在这里，“`initialized`”意味着所有的 bean 都已加载，后处理器 bean
+已被检测并激活，单例已预实例化，并且 `ApplicationContext` 对象已准备就绪。只要上下文没有关闭，
+就可以多次触发刷新，前提是所选的 `ApplicationContext` 实际上支持这种“`hot`”刷新。例如，
+`XmlWebApplicationContext` 支持热刷新，但 `GenericApplicationContext` 不支持。
+
 
 | `ContextStartedEvent`
-| Published when the `ApplicationContext` is started by using the `start()` method on the
-  `ConfigurableApplicationContext` interface. Here, "`started`" means that all `Lifecycle`
-  beans receive an explicit start signal. Typically, this signal is used to restart beans
-  after an explicit stop, but it may also be used to start components that have not been
-  configured for autostart (for example, components that have not already started on
-  initialization).
+| 当 `ApplicationContext` 通过在 `ConfigurableApplicationContext` 接口上使用 `start()`
+方法启动时发布。在这里，“`started`”意味着所有的 `Lifecycle` bean 都接收到一个明确的启动信号。
+通常，此信号用于在明确停止后重新启动 bean，但也可以用于启动尚未配置为自动启动的组件（例如，尚未在初始化时启动的组件）。
+
 
 | `ContextStoppedEvent`
-| Published when the `ApplicationContext` is stopped by using the `stop()` method on the
-  `ConfigurableApplicationContext` interface. Here, "`stopped`" means that all `Lifecycle`
-  beans receive an explicit stop signal. A stopped context may be restarted through a
-  `start()` call.
+| 当 `ApplicationContext` 通过在 `ConfigurableApplicationContext` 接口上使用 `stop()` 方法停止时发布。
+在这里，“`stopped`”意味着所有的 `Lifecycle` bean 都接收到一个明确的停止信号。停止的上下文可以通过调用 `start()` 方法重新启动。
 
 | `ContextClosedEvent`
-| Published when the `ApplicationContext` is being closed by using the `close()` method
-  on the `ConfigurableApplicationContext` interface or via a JVM shutdown hook. Here,
-  "closed" means that all singleton beans will be destroyed. Once the context is closed,
-  it reaches its end of life and cannot be refreshed or restarted.
+| 当 `ApplicationContext` 通过在 `ConfigurableApplicationContext` 接口上使用 `close()` 方法或通过
+JVM 关闭钩子进行关闭时发布。在这里，“closed”意味着所有的单例 bean 将被销毁。一旦上下文被关闭，
+它就达到了生命周期的终点，无法刷新或重新启动。
+
 
 | `RequestHandledEvent`
-| A web-specific event telling all beans that an HTTP request has been serviced. This
-  event is published after the request is complete. This event is only applicable to
-  web applications that use Infra `DispatcherServlet`.
+| 这是一个 Web 特定的事件，通知所有 bean 一个 HTTP 请求已被处理。此事件在请求完成后发布。
+这个事件仅适用于使用 Infra `DispatcherHandler` 的 Web 应用程序。
 
-| `ServletRequestHandledEvent`
-| A subclass of `RequestHandledEvent` that adds Servlet-specific context information.
 
 |===
 
-You can also create and publish your own custom events. The following example shows a
-simple class that extends Infra `ApplicationEvent` base class:
+您还可以创建并发布自己的自定义事件。以下示例显示了一个简单的类，它扩展了 Infra `ApplicationEvent` 基类：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class BlockedListEvent extends ApplicationEvent {
@@ -324,17 +263,10 @@ public class BlockedListEvent extends ApplicationEvent {
 }
 ----
 
-======
+要发布自定义的 `ApplicationEvent`，请在 `ApplicationEventPublisher` 上调用 `publishEvent()`
+方法。通常，通过创建一个实现了 `ApplicationEventPublisherAware` 接口的类，
+并将其注册为 Infra bean 来完成此操作。以下示例展示了这样一个类：
 
-To publish a custom `ApplicationEvent`, call the `publishEvent()` method on an
-`ApplicationEventPublisher`. Typically, this is done by creating a class that implements
-`ApplicationEventPublisherAware` and registering it as a Infra bean. The following
-example shows such a class:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class EmailService implements ApplicationEventPublisherAware {
@@ -360,22 +292,13 @@ public class EmailService implements ApplicationEventPublisherAware {
 }
 ----
 
-======
+在配置时间，Infra 容器检测到 `EmailService` 实现了 `ApplicationEventPublisherAware`，
+并自动调用 `setApplicationEventPublisher()` 方法。实际上，传递的参数是 Infra 容器本身。
+通过其 `ApplicationEventPublisher` 接口与应用程序上下文进行交互。
 
-At configuration time, the Infra container detects that `EmailService` implements
-`ApplicationEventPublisherAware` and automatically calls
-`setApplicationEventPublisher()`. In reality, the parameter passed in is the Spring
-container itself. You are interacting with the application context through its
-`ApplicationEventPublisher` interface.
+要接收自定义的 `ApplicationEvent`，您可以创建一个实现了 `ApplicationListener` 接口的类，
+并将其注册为 Infra bean。以下示例展示了这样一个类：
 
-To receive the custom `ApplicationEvent`, you can create a class that implements
-`ApplicationListener` and register it as a Infra bean. The following example
-shows such a class:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class BlockedListNotifier implements ApplicationListener<BlockedListEvent> {
@@ -392,24 +315,18 @@ public class BlockedListNotifier implements ApplicationListener<BlockedListEvent
 }
 ----
 
-======
+请注意，`ApplicationListener` 以您自定义事件的类型进行了泛型参数化（在前面的示例中为 `BlockedListEvent`）。
+这意味着 `onApplicationEvent()` 方法可以保持类型安全，避免任何需要进行向下转换的情况。
+您可以注册任意数量的事件监听器，但请注意，默认情况下，事件监听器同步接收事件。
+这意味着 `publishEvent()` 方法会阻塞，直到所有监听器完成事件处理。
+这种同步和单线程方法的一个优点是，当监听器接收到事件时，如果存在事务上下文，它会在发布者的事务上下文中操作。
+如果需要另一种事件发布策略，例如默认情况下进行异步事件处理，请参阅 Infra 的 javadoc 中关于
+{today-framework-api}/context/event/ApplicationEventMulticaster.html[`ApplicationEventMulticaster`] 接口
+和 {today-framework-api}/context/event/SimpleApplicationEventMulticaster.html[`SimpleApplicationEventMulticaster`]
+实现的配置选项，这些选项可以应用于自定义的 "applicationEventMulticaster" bean 定义。
+在这些情况下，ThreadLocals 和日志上下文不会被传播到事件处理中。
 
-Notice that `ApplicationListener` is generically parameterized with the type of your custom event (`BlockedListEvent` in the preceding example).
-This means that the `onApplicationEvent()` method can remain type-safe, avoiding any need for downcasting.
-You can register as many event listeners as you wish, but note that, by default, event listeners receive events synchronously.
-This means that the `publishEvent()` method blocks until all listeners have finished processing the event.
-One advantage of this synchronous and single-threaded approach is that, when a listener receives an event,
-it operates inside the transaction context of the publisher if a transaction context is available.
-If another strategy for event publication becomes necessary, e.g. asynchronous event processing by default,
-see the javadoc for Infra {today-framework-api}/context/event/ApplicationEventMulticaster.html[`ApplicationEventMulticaster`] interface
-and {today-framework-api}/context/event/SimpleApplicationEventMulticaster.html[`SimpleApplicationEventMulticaster`] implementation
-for configuration options which can be applied to a custom "applicationEventMulticaster" bean definition.
-In these cases, ThreadLocals and logging context are not propagated for the event processing.
-
-
-
-The following example shows the bean definitions used to register and configure each of
-the classes above:
+以下示例展示了用于注册和配置上述每个类的 bean 定义：
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
@@ -434,31 +351,15 @@ the classes above:
 </bean>
 ----
 
-Putting it all together, when the `sendEmail()` method of the `emailService` bean is
-called, if there are any email messages that should be blocked, a custom event of type
-`BlockedListEvent` is published. The `blockedListNotifier` bean is registered as an
-`ApplicationListener` and receives the `BlockedListEvent`, at which point it can
-notify appropriate parties.
-
-NOTE: Infra eventing mechanism is designed for simple communication between Infra beans
-within the same application context. However, for more sophisticated enterprise
-integration needs, the separately maintained
-{today-tech-site-projects}/spring-integration/[Infra Integration] project provides
-complete support for building lightweight,
-https://www.enterpriseintegrationpatterns.com[pattern-oriented], event-driven
-architectures that build upon the well-known Infra programming model.
-
+将所有内容整合在一起，当调用 `emailService` bean 的 `sendEmail()` 方法时，如果有任何应该被阻止的电子邮件消息，
+将发布一个类型为 `BlockedListEvent` 的自定义事件。`blockedListNotifier` bean 被注册为一个 `ApplicationListener`
+并接收 `BlockedListEvent`，在此时它可以通知相关方。
 
 [[context-functionality-events-annotation]]
-=== Annotation-based Event Listeners
+=== 使用注解标注事件监听器
 
-You can register an event listener on any method of a managed bean by using the
-`@EventListener` annotation. The `BlockedListNotifier` can be rewritten as follows:
+您可以通过使用 `@EventListener` 注解，在托管 bean 的任何方法上注册事件监听器。`BlockedListNotifier` 可以如下重写：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class BlockedListNotifier {
@@ -476,21 +377,11 @@ public class BlockedListNotifier {
 }
 ----
 
-======
+方法签名再次声明它监听的事件类型，但这次是使用灵活的名称，而不是实现特定的监听器接口。
+只要实际事件类型在其实现层次结构中解析了您的泛型参数，事件类型也可以通过泛型缩小。
 
-The method signature once again declares the event type to which it listens,
-but, this time, with a flexible name and without implementing a specific listener interface.
-The event type can also be narrowed through generics as long as the actual event type
-resolves your generic parameter in its implementation hierarchy.
+如果您的方法应该监听多个事件，或者如果您希望完全不定义参数，则可以在注解本身上指定事件类型。以下示例显示了如何操作：
 
-If your method should listen to several events or if you want to define it with no
-parameter at all, the event types can also be specified on the annotation itself. The
-following example shows how to do so:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @EventListener({ContextStartedEvent.class, ContextRefreshedEvent.class})
@@ -499,19 +390,11 @@ public void handleContextStart() {
 }
 ----
 
-======
+还可以通过使用注解的 `condition` 属性添加额外的运行时过滤，该属性定义了一个
+xref:core/expressions.adoc[`SpEL` 表达式]，该表达式应该匹配实际为特定事件调用方法。
 
-It is also possible to add additional runtime filtering by using the `condition` attribute
-of the annotation that defines a xref:core/expressions.adoc[`SpEL` expression], which should match
-to actually invoke the method for a particular event.
+以下示例显示了如何重写我们的通知器，以仅在事件的 `content` 属性等于 `my-event` 时调用：
 
-The following example shows how our notifier can be rewritten to be invoked only if the
-`content` attribute of the event is equal to `my-event`:
-
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @EventListener(condition = "#blEvent.content == 'my-event'")
@@ -520,45 +403,36 @@ public void processBlockedListEvent(BlockedListEvent blEvent) {
 }
 ----
 
-======
-
-Each `SpEL` expression evaluates against a dedicated context. The following table lists the
-items made available to the context so that you can use them for conditional event processing:
+每个 `SpEL` 表达式都针对一个专用的上下文进行评估。以下表格列出了提供给上下文的项目，以便您可以将它们用于条件事件处理：
 
 [[context-functionality-events-annotation-tbl]]
-.Event SpEL available metadata
+. SpEL 可用的元数据
+
 |===
-| Name| Location| Description| Example
+| 名称| 位置| 描述| 示例
 
 | Event
 | root object
-| The actual `ApplicationEvent`.
-| `#root.event` or `event`
+| 实际的 `ApplicationEvent`对象.
+| `#root.event` 或者 `event`
 
 | Arguments array
 | root object
-| The arguments (as an object array) used to invoke the method.
-| `#root.args` or `args`; `args[0]` to access the first argument, etc.
+| 用于调用该方法的参数（作为对象数组）。
+| `#root.args` 或 `args`；`args[0]` 用于访问第一个参数，依此类推。
 
 | __Argument name__
 | evaluation context
-| The name of any of the method arguments. If, for some reason, the names are not available
-  (for example, because there is no debug information in the compiled byte code), individual
-  arguments are also available using the `#a<#arg>` syntax where `<#arg>` stands for the
-  argument index (starting from 0).
-| `#blEvent` or `#a0` (you can also use `#p0` or `#p<#arg>` parameter notation as an alias)
+| 任何方法参数的名称。如果由于某种原因名称不可用（例如，因为编译的字节码中没有调试信息），
+也可以使用 `#a<#arg>` 语法来获取单个参数，其中 `<#arg>` 代表参数索引（从 0 开始）。
+
+| `#blEvent` 或 `#a0`（您还可以使用 `#p0` 或 `#p<#arg>` 参数符号作为别名）。
 |===
 
-Note that `#root.event` gives you access to the underlying event, even if your method
-signature actually refers to an arbitrary object that was published.
+请注意，即使您的方法签名实际上是引用发布的任意对象，`#root.event` 也可以访问底层事件。
 
-If you need to publish an event as the result of processing another event, you can change the
-method signature to return the event that should be published, as the following example shows:
+如果需要在处理另一个事件的结果上发布事件，您可以更改方法签名以返回应该发布的事件，如以下示例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @EventListener
@@ -567,27 +441,20 @@ public ListUpdateEvent handleBlockedListEvent(BlockedListEvent event) {
   // then publish a ListUpdateEvent...
 }
 ----
-======
 
-NOTE: This feature is not supported for
-xref:core/beans/context-introduction.adoc#context-functionality-events-async[asynchronous listeners].
+NOTE: 对于 xref:core/beans/context-introduction.adoc#context-functionality-events-async[异步监听器]，不支持此功能。
 
-The `handleBlockedListEvent()` method publishes a new `ListUpdateEvent` for every
-`BlockedListEvent` that it handles. If you need to publish several events, you can return
-a `Collection` or an array of events instead.
+`handleBlockedListEvent()` 方法为它处理的每个 `BlockedListEvent` 发布一个新的 `ListUpdateEvent`。
+如果需要发布多个事件，您可以返回一个事件的 `Collection` 或数组。
 
 
 [[context-functionality-events-async]]
-=== Asynchronous Listeners
+=== 异步监听器
 
-If you want a particular listener to process events asynchronously, you can reuse the
-xref:integration/scheduling.adoc#scheduling-annotation-support-async[regular `@Async` support].
-The following example shows how to do so:
+如果您希望特定的监听器异步处理事件，您可以重用
+xref:integration/scheduling.adoc#scheduling-annotation-support-async[常规的 `@Async` 支持]。
+以下示例展示了如何实现：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @EventListener
@@ -597,31 +464,20 @@ public void processBlockedListEvent(BlockedListEvent event) {
 }
 ----
 
-======
+当使用异步事件时，请注意以下限制：
 
-Be aware of the following limitations when using asynchronous events:
-
-* If an asynchronous event listener throws an `Exception`, it is not propagated to the
-  caller. See
-  {today-framework-api}/aop/interceptor/AsyncUncaughtExceptionHandler.html[`AsyncUncaughtExceptionHandler`]
-  for more details.
-* Asynchronous event listener methods cannot publish a subsequent event by returning a
-  value. If you need to publish another event as the result of the processing, inject an
-  {today-framework-api}/context/ApplicationEventPublisher.html[`ApplicationEventPublisher`]
-  to publish the event manually.
-* ThreadLocals and logging context are not propagated by default for the event processing.
+* 异常处理：如果异步事件监听器抛出异常，它不会传播给调用者。有关详细信息，请参阅
+{today-framework-api}/aop/interceptor/AsyncUncaughtExceptionHandler.html[`AsyncUncaughtExceptionHandler`]。
+* 发布后续事件：异步事件监听器方法不能通过返回值发布其他事件。如果需要作为处理结果发布另一个事件，请注入
+{today-framework-api}/context/ApplicationEventPublisher.html[`ApplicationEventPublisher`] 并手动发布事件。
+* ThreadLocals 和日志上下文：默认情况下，ThreadLocals 和日志上下文在事件处理期间不会传播。这可能会影响监听器中的任何上下文相关操作。
 
 
 [[context-functionality-events-order]]
-=== Ordering Listeners
+=== 监听器的顺序
 
-If you need one listener to be invoked before another one, you can add the `@Order`
-annotation to the method declaration, as the following example shows:
+如果需要一个监听器在另一个监听器之前被调用，您可以在方法声明中添加 `@Order` 注解，如以下示例所示：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @EventListener
@@ -630,21 +486,14 @@ public void processBlockedListEvent(BlockedListEvent event) {
   // notify appropriate parties via notificationAddress...
 }
 ----
-======
 
 
 [[context-functionality-events-generics]]
-=== Generic Events
+=== 通用事件
 
-You can also use generics to further define the structure of your event. Consider using an
-`EntityCreatedEvent<T>` where `T` is the type of the actual entity that got created. For example, you
-can create the following listener definition to receive only `EntityCreatedEvent` for a
-`Person`:
+您还可以使用泛型来进一步定义事件的结构。考虑使用 `EntityCreatedEvent<T>`，
+其中 `T` 是实际创建的实体的类型。例如，您可以创建以下监听器定义，以仅接收 `Person` 类型的 `EntityCreatedEvent`：
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 @EventListener
@@ -653,21 +502,14 @@ public void onPersonCreated(EntityCreatedEvent<Person> event) {
 }
 ----
 
-======
+由于类型擦除，这仅在触发的事件解析了事件监听器过滤器的泛型参数时才起作用
+（也就是说，类似于 `class PersonCreatedEvent extends EntityCreatedEvent<Person> { ... }`）。
 
-Due to type erasure, this works only if the event that is fired resolves the generic
-parameters on which the event listener filters (that is, something like
-`class PersonCreatedEvent extends EntityCreatedEvent<Person> { ... }`).
+在某些情况下，如果所有事件都遵循相同的结构（正如前面示例中的事件应该遵循的那样），
+这可能变得相当繁琐。在这种情况下，您可以实现 `ResolvableTypeProvider`
+来引导框架超出运行时环境提供的范围。以下事件显示了如何实现：
 
-In certain circumstances, this may become quite tedious if all events follow the same
-structure (as should be the case for the event in the preceding example). In such a case,
-you can implement `ResolvableTypeProvider` to guide the framework beyond what the runtime
-environment provides. The following event shows how to do so:
 
-[tabs]
-======
-Java::
-+
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 ----
 public class EntityCreatedEvent<T> extends ApplicationEvent implements ResolvableTypeProvider {
@@ -683,21 +525,17 @@ public class EntityCreatedEvent<T> extends ApplicationEvent implements Resolvabl
 }
 ----
 
-======
+TIP: 这不仅适用于 `ApplicationEvent`，而且适用于任何您发送的作为事件的任意对象。
 
-TIP: This works not only for `ApplicationEvent` but any arbitrary object that you send as
-an event.
-
-Finally, as with classic `ApplicationListener` implementations, the actual multicasting
-happens via a context-wide `ApplicationEventMulticaster` at runtime. By default, this is a
-`SimpleApplicationEventMulticaster` with synchronous event publication in the caller thread.
-This can be replaced/customized through an "applicationEventMulticaster" bean definition,
-e.g. for processing all events asynchronously and/or for handling listener exceptions:
+最后，与经典的 `ApplicationListener` 实现一样，实际的多播通过运行时的全局上下文
+`ApplicationEventMulticaster` 完成。默认情况下，这是一个具有同步事件发布的
+`SimpleApplicationEventMulticaster`，它在调用线程中完成。可以通过 "applicationEventMulticaster"
+bean 定义进行替换/自定义，例如，用于异步处理所有事件和/或处理监听器异常：
 
 [source,java,indent=0,subs="verbatim,quotes"]
 ----
-@Bean
-ApplicationEventMulticaster applicationEventMulticaster() {
+@Component
+static ApplicationEventMulticaster applicationEventMulticaster() {
   SimpleApplicationEventMulticaster multicaster = new SimpleApplicationEventMulticaster();
   multicaster.setTaskExecutor(...);
   multicaster.setErrorHandler(...);
@@ -708,98 +546,30 @@ ApplicationEventMulticaster applicationEventMulticaster() {
 
 
 [[context-functionality-resources]]
-== Convenient Access to Low-level Resources
+== 便捷地获取底层资源
 
-For optimal usage and understanding of application contexts, you should familiarize
-yourself with Infra `Resource` abstraction, as described in Resources.
+为了最佳地使用和理解应用程序上下文，您应该熟悉 Infra `Resource` 抽象，如资源中所述。
 
-An application context is a `ResourceLoader`, which can be used to load `Resource` objects.
-A `Resource` is essentially a more feature rich version of the JDK `java.net.URL` class.
-In fact, the implementations of the `Resource` wrap an instance of `java.net.URL`, where
-appropriate. A `Resource` can obtain low-level resources from almost any location in a
-transparent fashion, including from the classpath, a filesystem location, anywhere
-describable with a standard URL, and some other variations. If the resource location
-string is a simple path without any special prefixes, where those resources come from is
-specific and appropriate to the actual application context type.
+应用程序上下文是一个 `ResourceLoader`，可用于加载 `Resource` 对象。`Resource` 本质上是
+JDK `java.net.URL` 类的更丰富的版本。事实上，`Resource` 的实现包装了一个 `java.net.URL` 实例，
+如果适用的话。`Resource` 可以以透明的方式从几乎任何位置获取低级资源，包括从类路径、
+文件系统位置以及任何可以用标准 URL 描述的地方，以及其他一些变体。如果资源位置字符串是一个简单的路径，
+没有任何特殊的前缀，那么这些资源来自于哪里是特定和适合于实际应用程序上下文类型的。
 
-You can configure a bean deployed into the application context to implement the special
-callback interface, `ResourceLoaderAware`, to be automatically called back at
-initialization time with the application context itself passed in as the `ResourceLoader`.
-You can also expose properties of type `Resource`, to be used to access static resources.
-They are injected into it like any other properties. You can specify those `Resource`
-properties as simple `String` paths and rely on automatic conversion from those text
-strings to actual `Resource` objects when the bean is deployed.
+您可以配置部署到应用程序上下文中的 bean 来实现特殊的回调接口 `ResourceLoaderAware`，
+在初始化时会自动回调，传递应用程序上下文本身作为 `ResourceLoader`。您还可以暴露类型为 `Resource`
+的属性，用于访问静态资源。它们被注入其中，就像任何其他属性一样。您可以将这些 `Resource`
+属性指定为简单的 `String` 路径，并在部署 bean 时依赖于从这些文本字符串自动转换为实际 `Resource` 对象。
 
-The location path or paths supplied to an `ApplicationContext` constructor are actually
-resource strings and, in simple form, are treated appropriately according to the specific
-context implementation. For example `ClassPathXmlApplicationContext` treats a simple
-location path as a classpath location. You can also use location paths (resource strings)
-with special prefixes to force loading of definitions from the classpath or a URL,
-regardless of the actual context type.
+提供给 `ApplicationContext` 构造函数的位置路径实际上是资源字符串，并且在简单形式下，
+根据具体的上下文实现进行适当处理。例如，`ClassPathXmlApplicationContext` 将简单的位置路径视为类路径位置。
+您还可以使用具有特殊前缀的位置路径（资源字符串）来强制从类路径或 URL 加载定义，而不管实际的上下文类型如何。
 
-
-
-[[context-functionality-startup]]
-== Application Startup Tracking
-
-The `ApplicationContext` manages the lifecycle of Infra applications and provides a rich
-programming model around components. As a result, complex applications can have equally
-complex component graphs and startup phases.
-
-Tracking the application startup steps with specific metrics can help understand where
-time is being spent during the startup phase, but it can also be used as a way to better
-understand the context lifecycle as a whole.
-
-The `AbstractApplicationContext` (and its subclasses) is instrumented with an
-`ApplicationStartup`, which collects `StartupStep` data about various startup phases:
-
-* application context lifecycle (base packages scanning, config classes management)
-* beans lifecycle (instantiation, smart initialization, post processing)
-* application events processing
-
-Here is an example of instrumentation in the `AnnotationConfigApplicationContext`:
-
-[tabs]
-======
-Java::
-+
-[source,java,indent=0,subs="verbatim,quotes",role="primary"]
-----
-// create a startup step and start recording
-StartupStep scanPackages = getApplicationStartup().start("spring.context.base-packages.scan");
-// add tagging information to the current step
-scanPackages.tag("packages", () -> Arrays.toString(basePackages));
-// perform the actual phase we're instrumenting
-this.scanner.scan(basePackages);
-// end the current step
-scanPackages.end();
-----
-
-======
-
-
-The default `ApplicationStartup` implementation is a no-op variant, for minimal overhead.
-This means no metrics will be collected during application startup by default.
-TODAY Framework ships with an implementation for tracking startup steps with Java Flight Recorder:
-`FlightRecorderApplicationStartup`. To use this variant, you must configure an instance of it
-to the `ApplicationContext` as soon as it's been created.
-
-Developers can also use the `ApplicationStartup` infrastructure if they're providing their own
-`AbstractApplicationContext` subclass, or if they wish to collect more precise data.
-
-WARNING: `ApplicationStartup` is meant to be only used during application startup and for
-the core container; this is by no means a replacement for Java profilers or
-metrics libraries like https://micrometer.io[Micrometer].
-
-To start collecting custom `StartupStep`, components can either get the `ApplicationStartup`
-instance from the application context directly, make their component implement `ApplicationStartupAware`,
-or ask for the `ApplicationStartup` type on any injection point.
-
-NOTE: Developers should not use the `"spring.*"` namespace when creating custom startup steps.
-This namespace is reserved for internal Infra usage and is subject to change.
 
 [[context-create]]
 == Convenient ApplicationContext Instantiation for Web Applications
+
+NOTE: 5.0 不再支持 Servlet
 
 You can create `ApplicationContext` instances declaratively by using, for example, a
 `ContextLoader`. Of course, you can also create `ApplicationContext` instances
@@ -839,7 +609,7 @@ context and all of its required bean classes and library JARs in a Jakarta EE RA
 unit. This is the equivalent of bootstrapping a stand-alone `ApplicationContext` (only hosted
 in Jakarta EE environment) being able to access the Jakarta EE servers facilities. RAR deployment
 is a more natural alternative to a scenario of deploying a headless WAR file -- in effect,
-a WAR file without any HTTP entry points that is used only for bootstrapping a Spring
+a WAR file without any HTTP entry points that is used only for bootstrapping a Infra
 `ApplicationContext` in a Jakarta EE environment.
 
 RAR deployment is ideal for application contexts that do not need HTTP entry points but

@@ -36,14 +36,14 @@ framework), benefiting from all the pluggability provided by Dependency Injectio
 [[aop-pfb-2]]
 == JavaBean Properties
 
-In common with most `FactoryBean` implementations provided with Spring, the
+In common with most `FactoryBean` implementations provided with Infra-, the
 `ProxyFactoryBean` class is itself a JavaBean. Its properties are used to:
 
 * Specify the target you want to proxy.
 * Specify whether to use CGLIB (described later and see also xref:core/aop-api/pfb.adoc#aop-pfb-proxy-types[JDK- and CGLIB-based proxies]).
 
 Some key properties are inherited from `cn.taketoday.aop.framework.ProxyConfig`
-(the superclass for all AOP proxy factories in Spring). These key properties include
+(the superclass for all AOP proxy factories in Infra). These key properties include
 the following:
 
 * `proxyTargetClass`: `true` if the target class is to be proxied, rather than the
@@ -96,7 +96,7 @@ chooses to create either a JDK-based proxy or a CGLIB-based proxy for a particul
 object (which is to be proxied).
 
 NOTE: The behavior of the `ProxyFactoryBean` with regard to creating JDK- or CGLIB-based
-proxies changed between versions 1.2.x and 2.0 of Spring. The `ProxyFactoryBean` now
+proxies changed between versions 1.2.x and 2.0 of Infra. The `ProxyFactoryBean` now
 exhibits similar semantics with regard to auto-detecting interfaces as those of the
 `TransactionProxyFactoryBean` class.
 
@@ -268,14 +268,14 @@ a class called `Person` that did not implement any business interface. In this c
 can configure Infra to use CGLIB proxying rather than dynamic proxies. To do so, set the
 `proxyTargetClass` property on the `ProxyFactoryBean` shown earlier to `true`. While it is best to
 program to interfaces rather than classes, the ability to advise classes that do not
-implement interfaces can be useful when working with legacy code. (In general, Spring
+implement interfaces can be useful when working with legacy code. (In general, Infra
 is not prescriptive. While it makes it easy to apply good practices, it avoids forcing a
 particular approach.)
 
 If you want to, you can force the use of CGLIB in any case, even if you do have
 interfaces.
 
-CGLIB proxying works by generating a subclass of the target class at runtime. Spring
+CGLIB proxying works by generating a subclass of the target class at runtime. Infra
 configures this generated subclass to delegate method calls to the original target. The
 subclass is used to implement the Decorator pattern, weaving in the advice.
 
