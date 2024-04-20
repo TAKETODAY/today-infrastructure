@@ -20,7 +20,7 @@ name: Deploy
 
 on:
   push:
-    branches: [ master ]
+    branches: [ 'master' , '4.x' ]
 
 jobs:
   deploy-snapshot:

@@ -21,11 +21,12 @@ name: Coveralls
 on:
   push:
     branches:
-      - master
+      - 4.x
 
   pull_request:
     branches:
       - master
+      - 4.x
       - 'dev/**'
       - 'fix/**'
       - 'feat/**'
