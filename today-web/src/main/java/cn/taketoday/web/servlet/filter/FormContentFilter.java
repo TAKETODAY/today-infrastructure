@@ -55,7 +55,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 23:42
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public class FormContentFilter extends OncePerRequestFilter {
 
   private static final List<String> HTTP_METHODS = Arrays.asList("PUT", "PATCH", "DELETE");

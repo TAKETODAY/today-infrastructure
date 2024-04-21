@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.web.client;
@@ -38,7 +35,8 @@ import cn.taketoday.context.annotation.ConfigurationClassPostProcessor;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.web.client.TestRestTemplate.HttpClientOption;
-import cn.taketoday.framework.web.servlet.server.AbstractServletWebServerFactory;
+import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
 import cn.taketoday.test.context.TestContextAnnotationUtils;
@@ -146,9 +144,8 @@ class TestRestTemplateContextCustomizer implements ContextCustomizer {
 
     private boolean isSslEnabled(ApplicationContext context) {
       try {
-        AbstractServletWebServerFactory webServerFactory = context
-                .getBean(AbstractServletWebServerFactory.class);
-        return webServerFactory.getSsl() != null && webServerFactory.getSsl().isEnabled();
+        var webServerFactory = context.getBean(AbstractConfigurableWebServerFactory.class);
+        return Ssl.isEnabled(webServerFactory.getSsl());
       }
       catch (NoSuchBeanDefinitionException ex) {
         return false;

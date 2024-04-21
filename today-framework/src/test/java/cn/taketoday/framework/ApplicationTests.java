@@ -42,6 +42,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
+import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.aot.AotDetector;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
@@ -67,6 +69,7 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigUtils;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ContextRefreshedEvent;
@@ -106,7 +109,7 @@ import cn.taketoday.framework.context.event.ApplicationStartingEvent;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
 import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
-import cn.taketoday.framework.web.netty.NettyWebServerFactory;
+import cn.taketoday.framework.web.context.WebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
@@ -1052,7 +1055,7 @@ class ApplicationTests {
   void nonWebApplicationConfiguredViaAPropertyHasTheCorrectTypeOfContextAndEnvironment() {
     ConfigurableApplicationContext context = new Application(ExampleConfig.class)
             .run("--app.main.application-type=normal");
-    assertThat(context).isNotInstanceOfAny(ApplicationContext.class, ReactiveWebApplicationContext.class);
+    assertThat(context).isNotInstanceOfAny(WebServerApplicationContext.class, ReactiveWebApplicationContext.class);
     assertThat(context.getEnvironment()).isNotInstanceOfAny(ConfigurableWebEnvironment.class);
   }
 
@@ -1580,15 +1583,9 @@ class ApplicationTests {
 
   }
 
+  @Import({ RandomPortWebServerConfig.class, WebMvcAutoConfiguration.class })
   @Configuration(proxyBeanMethods = false)
   static class ExampleWebConfig {
-
-    @Bean
-    NettyWebServerFactory webServer() {
-      NettyWebServerFactory factory = new NettyWebServerFactory();
-      factory.setPort(0);
-      return factory;
-    }
 
   }
 

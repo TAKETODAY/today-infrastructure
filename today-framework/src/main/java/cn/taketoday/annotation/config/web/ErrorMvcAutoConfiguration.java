@@ -55,7 +55,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.util.HtmlUtils;
 import cn.taketoday.web.view.BeanNameViewResolver;
@@ -78,7 +77,7 @@ import cn.taketoday.web.view.View;
 @ConditionalOnClass({ DispatcherHandler.class })
 @DisableDIAutoConfiguration(before = WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({ ServerProperties.class, WebMvcProperties.class })
-public class ErrorMvcAutoConfiguration implements WebMvcConfigurer {
+public class ErrorMvcAutoConfiguration {
 
   @Component
   @ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)

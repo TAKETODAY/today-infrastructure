@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Clock;
 import java.util.Map;
 
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.framework.test.system.CapturedOutput;
@@ -49,8 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ErrorMvcAutoConfigurationTests {
 
   private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner().withConfiguration(
-          AutoConfigurations.of(DispatcherServletAutoConfiguration.class,
-                  WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
+          AutoConfigurations.of(WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
 
   @Test
   void renderContainsViewWithExceptionDetails() {

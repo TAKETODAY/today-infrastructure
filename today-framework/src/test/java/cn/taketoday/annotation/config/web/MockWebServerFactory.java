@@ -15,29 +15,14 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.beans.factory.aot;
+package cn.taketoday.annotation.config.web;
 
-import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
 
 /**
- * Filter that can be used to exclude AOT processing of a
- * {@link RegisteredBean}.
- *
- * @author Phillip Webb
- * @author Stephane Nicoll
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2024/4/21 11:03
  */
-@FunctionalInterface
-public interface BeanRegistrationExcludeFilter {
-
-  /**
-   * Return if the registered bean should be excluded from AOT processing and
-   * registration.
-   *
-   * @param registeredBean the registered bean
-   * @return if the registered bean should be excluded
-   */
-  boolean isExcludedFromAotProcessing(RegisteredBean registeredBean);
+public class MockWebServerFactory extends AbstractConfigurableWebServerFactory {
 
 }

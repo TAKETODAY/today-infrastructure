@@ -62,7 +62,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 15:15
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public abstract class OncePerRequestFilter extends GenericFilterBean {
 
   /**

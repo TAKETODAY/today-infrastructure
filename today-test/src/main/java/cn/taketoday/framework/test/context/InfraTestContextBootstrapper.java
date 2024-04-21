@@ -92,7 +92,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
     TestContext context = super.buildTestContext();
     verifyConfiguration(context.getTestClass());
     WebEnvironment webEnvironment = getWebEnvironment(context.getTestClass());
-    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forClasspath() == ApplicationType.NETTY_WEB) {
+    if (webEnvironment == WebEnvironment.MOCK && ApplicationType.forDefaults() == ApplicationType.NETTY_WEB) {
       context.setAttribute(ACTIVATE_SERVLET_LISTENER, true);
     }
     else if (webEnvironment != null && webEnvironment.isEmbedded()) {
@@ -162,7 +162,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
             TestPropertySourceUtils.convertInlinedPropertiesToMap(configuration.getPropertySourceProperties()));
     Binder binder = new Binder(source);
     return binder.bind("app.main.application-type", Bindable.of(ApplicationType.class))
-            .orElseGet(ApplicationType::forClasspath);
+            .orElseGet(ApplicationType::forDefaults);
   }
 
   /**

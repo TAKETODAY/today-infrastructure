@@ -55,7 +55,7 @@ import jakarta.servlet.http.Part;
  * @author TODAY 2020/12/8 23:07
  * @since 3.0
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public abstract class ServletUtils {
 
   /** Key for the mutex session attribute. */

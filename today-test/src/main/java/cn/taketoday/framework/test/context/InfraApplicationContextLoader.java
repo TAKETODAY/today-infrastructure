@@ -39,9 +39,7 @@ import cn.taketoday.framework.ApplicationContextFactory;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
-import cn.taketoday.framework.test.mock.web.InfraMockServletContext;
 import cn.taketoday.framework.web.reactive.context.GenericReactiveWebApplicationContext;
-import cn.taketoday.framework.web.servlet.support.ServletContextApplicationContextInitializer;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
@@ -263,15 +261,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     void configure(MergedContextConfiguration configuration, Application application,
             List<ApplicationContextInitializer> initializers) {
       WebMergedContextConfiguration webConfiguration = (WebMergedContextConfiguration) configuration;
-      addMockServletContext(initializers, webConfiguration);
       application.setApplicationContextFactory((webApplicationType) -> new GenericWebApplicationContext());
-    }
-
-    private void addMockServletContext(List<ApplicationContextInitializer> initializers,
-            WebMergedContextConfiguration webConfiguration) {
-      InfraMockServletContext servletContext = new InfraMockServletContext(
-              webConfiguration.getResourceBasePath());
-      initializers.add(0, new ServletContextApplicationContextInitializer(servletContext, true));
     }
 
   }

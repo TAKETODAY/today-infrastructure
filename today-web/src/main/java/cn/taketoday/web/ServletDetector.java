@@ -25,7 +25,7 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/8 11:39
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public abstract class ServletDetector {
   public static final String SERVLET_CLASS = "jakarta.servlet.Servlet";
   public static final String SERVLET_WEBSOCKET_CLASS = "jakarta.websocket.Session";

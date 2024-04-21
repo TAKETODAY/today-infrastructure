@@ -67,7 +67,7 @@ import jakarta.servlet.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 21:03
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public class GenericWebApplicationContext extends GenericApplicationContext
         implements ConfigurableWebApplicationContext {
 

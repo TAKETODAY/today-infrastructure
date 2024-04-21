@@ -250,11 +250,11 @@ public class ApplicationTemp {
     Path tempDirectory = Paths.get(property);
 
     if (!Files.exists(tempDirectory)) {
-      throw new IllegalStateException("Temp directory '" + tempDirectory + "' does not exist");
+      throw new IllegalStateException("Temp directory '%s' does not exist".formatted(tempDirectory));
     }
 
     if (!Files.isDirectory(tempDirectory)) {
-      throw new IllegalStateException("Temp location '" + tempDirectory + "' is not a directory");
+      throw new IllegalStateException("Temp location '%s' is not a directory".formatted(tempDirectory));
     }
     return tempDirectory;
   }

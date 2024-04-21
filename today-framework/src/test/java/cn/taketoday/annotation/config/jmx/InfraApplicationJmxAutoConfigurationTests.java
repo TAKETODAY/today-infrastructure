@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.jmx;
@@ -27,8 +27,6 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
-import cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -38,7 +36,7 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.framework.web.servlet.context.ServletWebServerApplicationContext;
+import cn.taketoday.framework.web.context.WebServerApplicationContext;
 import cn.taketoday.jmx.export.MBeanExporter;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,13 +106,13 @@ class InfraApplicationJmxAutoConfigurationTests {
   @Test
   void registerWithSimpleWebApp() throws Exception {
     try (ConfigurableApplicationContext context = new ApplicationBuilder()
-            .sources(ServletWebServerFactoryAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
+            .sources(//ServletWebServerFactoryAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
                     MultipleMBeanExportersConfiguration.class, InfraApplicationJmxAutoConfiguration.class)
             .run("--" + ENABLE_ADMIN_PROP, "--server.port=0")) {
-      assertThat(context).isInstanceOf(ServletWebServerApplicationContext.class);
+      assertThat(context).isInstanceOf(WebServerApplicationContext.class);
       assertThat(this.server.getAttribute(createDefaultObjectName(), "EmbeddedWebApplication"))
               .isEqualTo(Boolean.TRUE);
-      int expected = ((ServletWebServerApplicationContext) context).getWebServer().getPort();
+      int expected = ((WebServerApplicationContext) context).getWebServer().getPort();
       String actual = getProperty(createDefaultObjectName(), "local.server.port");
       assertThat(actual).isEqualTo(String.valueOf(expected));
     }

@@ -40,8 +40,6 @@ import cn.taketoday.framework.context.event.ApplicationFailedEvent;
 import cn.taketoday.framework.logging.LogLevel;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
-import cn.taketoday.mock.web.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -98,17 +96,6 @@ class ConditionEvaluationReportLoggingListenerTests {
   @Test
   void canBeUsedInApplicationContext() {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(Config.class);
-    new ConditionEvaluationReportLoggingListener().initialize(context);
-    context.refresh();
-    assertThatThrownBy(() -> context.getBean(ConditionEvaluationReport.class))
-            .isInstanceOf(NoSuchBeanDefinitionException.class);
-  }
-
-  @Test
-  void canBeUsedInNonGenericApplicationContext() {
-    AnnotationConfigServletWebApplicationContext context = new AnnotationConfigServletWebApplicationContext();
-    context.setServletContext(new MockServletContext());
     context.register(Config.class);
     new ConditionEvaluationReportLoggingListener().initialize(context);
     context.refresh();

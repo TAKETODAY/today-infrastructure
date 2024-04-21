@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.reactive.client;
@@ -25,10 +25,11 @@ import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundleKey;
 import cn.taketoday.core.ssl.jks.JksSslStoreBundle;
 import cn.taketoday.core.ssl.jks.JksSslStoreDetails;
-import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
+import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.Ssl.ClientAuth;
 import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import cn.taketoday.web.reactive.function.client.WebClientRequestException;
 
@@ -45,7 +46,8 @@ abstract class AbstractClientHttpConnectorFactoryTests {
 
   @Test
   void insecureConnection() {
-    TomcatServletWebServerFactory webServerFactory = new TomcatServletWebServerFactory(0);
+    NettyWebServerFactory webServerFactory = new NettyWebServerFactory();
+    webServerFactory.setPort(0);
     WebServer webServer = webServerFactory.getWebServer();
     try {
       webServer.start();
@@ -67,7 +69,8 @@ abstract class AbstractClientHttpConnectorFactoryTests {
 
   @Test
   void secureConnection() throws Exception {
-    TomcatServletWebServerFactory webServerFactory = new TomcatServletWebServerFactory(0);
+    NettyWebServerFactory webServerFactory = new NettyWebServerFactory();
+    webServerFactory.setPort(0);
     Ssl ssl = new Ssl();
     ssl.setClientAuth(ClientAuth.NEED);
     ssl.setKeyPassword("password");

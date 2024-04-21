@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.error;
@@ -34,9 +34,8 @@ import java.net.URL;
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
-import cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.context.annotation.Import;
@@ -126,7 +125,8 @@ class BasicErrorControllerDirectMockMvcTests {
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
-  @Import({ ServletWebServerFactoryAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
+  @Import({
+          RandomPortWebServerConfig.class,
           WebMvcAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
           ErrorMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   protected @interface MinimalWebConfiguration {

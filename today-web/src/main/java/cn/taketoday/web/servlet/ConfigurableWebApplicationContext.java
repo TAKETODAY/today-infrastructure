@@ -33,7 +33,7 @@ import jakarta.servlet.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/20 17:52
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public interface ConfigurableWebApplicationContext extends WebApplicationContext, ConfigurableApplicationContext {
 
   /**

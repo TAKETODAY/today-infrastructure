@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.freemarker;
@@ -25,14 +25,12 @@ import java.util.Locale;
 
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
-import cn.taketoday.framework.web.servlet.FilterRegistrationBean;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
@@ -51,9 +49,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Andy Wilkinson
  * @author Kazuki Shimizu
  */
-class FreeMarkerAutoConfigurationServletIntegrationTests {
+class FreeMarkerAutoConfigurationIntegrationTests {
 
-  private AnnotationConfigServletWebApplicationContext context;
+  private AnnotationConfigApplicationContext context;
 
   @AfterEach
   void close() {
@@ -143,19 +141,12 @@ class FreeMarkerAutoConfigurationServletIntegrationTests {
     assertThat(writer.toString()).contains("Hello World");
   }
 
-  @Test
-  void registerResourceHandlingFilterDisabledByDefault() {
-    load();
-    assertThat(this.context.getBeansOfType(FilterRegistrationBean.class)).isEmpty();
-  }
-
   private void load(String... env) {
     load(BaseConfiguration.class, env);
   }
 
   private void load(Class<?> config, String... env) {
-    this.context = new AnnotationConfigServletWebApplicationContext();
-    this.context.setServletContext(new MockServletContext());
+    this.context = new AnnotationConfigApplicationContext();
     TestPropertyValues.of(env).applyTo(this.context);
     this.context.register(config);
     this.context.refresh();

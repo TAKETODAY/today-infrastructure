@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.error;
@@ -26,18 +26,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.freemarker.FreeMarkerAutoConfiguration;
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
-import cn.taketoday.annotation.config.web.servlet.ServletWebServerFactoryAutoConfiguration;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -48,7 +44,6 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.PostMapping;
@@ -352,25 +347,19 @@ class BasicErrorControllerIntegrationTests {
   }
 
   private String createUrl(String path) {
-    int port = this.context.getEnvironment().getProperty("local.server.port", int.class);
+    int port = this.context.getEnvironment().getRequiredProperty("local.server.port", int.class);
     return "http://localhost:" + port + path;
   }
 
   private void load(String... arguments) {
-    List<String> args = new ArrayList<>();
-    args.add("--server.port=0");
-    if (arguments != null) {
-      args.addAll(Arrays.asList(arguments));
-    }
-    this.context = Application.run(TestConfiguration.class, StringUtils.toStringArray(args));
+    this.context = Application.run(TestConfiguration.class, arguments);
   }
 
   @Target(ElementType.TYPE)
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @ImportAutoConfiguration({
-          DispatcherServletAutoConfiguration.class,
-          ServletWebServerFactoryAutoConfiguration.class,
+          RandomPortWebServerConfig.class,
           WebMvcAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
           ErrorMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   private @interface MinimalWebConfiguration {
@@ -453,7 +442,6 @@ class BasicErrorControllerIntegrationTests {
       }
 
       @ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Expected!")
-      @SuppressWarnings("serial")
       static class ExpectedException extends RuntimeException {
 
       }
@@ -464,7 +452,6 @@ class BasicErrorControllerIntegrationTests {
       }
 
       @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-      @SuppressWarnings("serial")
       static class NoReasonExpectedException extends RuntimeException {
 
         NoReasonExpectedException(String message) {

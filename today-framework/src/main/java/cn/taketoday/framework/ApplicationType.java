@@ -67,6 +67,15 @@ public enum ApplicationType {
     return ApplicationType.NORMAL;
   }
 
+  public static ApplicationType forDefaults() {
+    ClassLoader classLoader = ApplicationType.class.getClassLoader();
+    if (ClassUtils.isPresent(WEB_INDICATOR_CLASS, classLoader)
+            && ClassUtils.isPresent(NETTY_INDICATOR_CLASS, classLoader)) {
+      return ApplicationType.NETTY_WEB;
+    }
+    return ApplicationType.NORMAL;
+  }
+
   static class Hints implements RuntimeHintsRegistrar {
 
     @Override

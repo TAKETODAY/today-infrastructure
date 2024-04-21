@@ -77,7 +77,7 @@ import jakarta.servlet.ServletException;
  * @see #doFilter
  * @since 4.0
  */
-@Deprecated(forRemoval = true)
+@Deprecated
 public abstract class GenericFilterBean implements Filter, BeanNameAware, EnvironmentAware,
         EnvironmentCapable, ServletContextAware, InitializingBean, DisposableBean {
 

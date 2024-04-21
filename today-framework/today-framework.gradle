@@ -95,7 +95,6 @@ dependencies {
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
   testImplementation 'jakarta.websocket:jakarta.websocket-api'
-  testImplementation 'org.apache.tomcat.embed:tomcat-embed-websocket'
   testImplementation 'jakarta.json.bind:jakarta.json.bind-api'
 
   testImplementation 'org.freemarker:freemarker'

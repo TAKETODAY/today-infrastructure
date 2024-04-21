@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.context.assertj;
@@ -23,11 +20,11 @@ package cn.taketoday.framework.test.context.assertj;
 import java.util.function.Supplier;
 
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
+import cn.taketoday.framework.web.context.WebServerApplicationContext;
 
 /**
- * A {@link WebApplicationContext} that additionally supports AssertJ style assertions.
+ * A {@link WebServerApplicationContext} that additionally supports AssertJ style assertions.
  * Can be used to decorate an existing servlet web application context or an application
  * context that failed to start.
  * <p>
@@ -36,23 +33,21 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebApplicationContextRunner
- * @see WebApplicationContext
  * @since 4.0
  */
-public interface AssertableWebApplicationContext
-        extends ApplicationContextAssertProvider<ConfigurableWebApplicationContext>, WebApplicationContext {
+public interface AssertableWebApplicationContext extends ApplicationContextAssertProvider<ConfigurableWebServerApplicationContext>, WebServerApplicationContext {
 
   /**
    * Factory method to create a new {@link AssertableWebApplicationContext} instance.
    *
    * @param contextSupplier a supplier that will either return a fully configured
-   * {@link ConfigurableWebApplicationContext} or throw an exception if the context
+   * {@link ConfigurableWebServerApplicationContext} or throw an exception if the context
    * fails to start.
    * @return a {@link AssertableWebApplicationContext} instance
    */
-  static AssertableWebApplicationContext get(Supplier<? extends ConfigurableWebApplicationContext> contextSupplier) {
+  static AssertableWebApplicationContext get(Supplier<? extends ConfigurableWebServerApplicationContext> contextSupplier) {
     return ApplicationContextAssertProvider.get(AssertableWebApplicationContext.class,
-            ConfigurableWebApplicationContext.class, contextSupplier);
+            ConfigurableWebServerApplicationContext.class, contextSupplier);
   }
 
 }

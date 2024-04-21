@@ -20,33 +20,32 @@ package cn.taketoday.framework.test.context.runner;
 import java.util.function.Supplier;
 
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
+import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Servlet
- * based {@link ConfigurableWebApplicationContext}.
+ * based {@link ConfigurableWebServerApplicationContext}.
  * <p>
  * See {@link AbstractApplicationContextRunner} for details.
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class WebApplicationContextRunner extends
-        AbstractApplicationContextRunner<WebApplicationContextRunner, ConfigurableWebApplicationContext, AssertableWebApplicationContext> {
+public final class WebApplicationContextRunner
+        extends AbstractApplicationContextRunner<WebApplicationContextRunner, ConfigurableWebServerApplicationContext, AssertableWebApplicationContext> {
 
   /**
    * Create a new {@link WebApplicationContextRunner} instance using an
-   * {@link AnnotationConfigServletWebApplicationContext} with a
+   * {@link AnnotationConfigWebServerApplicationContext} with a
    * {@link MockServletContext} as the underlying source.
-   *
-   * @see #withMockServletContext(Supplier)
    */
   public WebApplicationContextRunner() {
-    this(withMockServletContext(AnnotationConfigServletWebApplicationContext::new));
+    this(AnnotationConfigWebServerApplicationContext::new);
   }
 
   /**
@@ -55,28 +54,12 @@ public final class WebApplicationContextRunner extends
    *
    * @param contextFactory a supplier that returns a new instance on each call
    */
-  public WebApplicationContextRunner(Supplier<ConfigurableWebApplicationContext> contextFactory) {
+  public WebApplicationContextRunner(Supplier<ConfigurableWebServerApplicationContext> contextFactory) {
     super(contextFactory, WebApplicationContextRunner::new);
   }
 
-  private WebApplicationContextRunner(RunnerConfiguration<ConfigurableWebApplicationContext> configuration) {
+  private WebApplicationContextRunner(RunnerConfiguration<ConfigurableWebServerApplicationContext> configuration) {
     super(configuration, WebApplicationContextRunner::new);
-  }
-
-  /**
-   * Decorate the specified {@code contextFactory} to set a {@link MockServletContext}
-   * on each newly created {@link WebApplicationContext}.
-   *
-   * @param contextFactory the context factory to decorate
-   * @return an updated supplier that will set the {@link MockServletContext}
-   */
-  public static Supplier<ConfigurableWebApplicationContext> withMockServletContext(
-          Supplier<ConfigurableWebApplicationContext> contextFactory) {
-    return (contextFactory != null) ? () -> {
-      ConfigurableWebApplicationContext context = contextFactory.get();
-      context.setServletContext(new MockServletContext());
-      return context;
-    } : null;
   }
 
 }

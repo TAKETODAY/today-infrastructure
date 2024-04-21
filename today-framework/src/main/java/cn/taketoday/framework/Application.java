@@ -179,7 +179,7 @@ public class Application {
 
   private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
 
-  private ApplicationType applicationType;
+  private ApplicationType applicationType = ApplicationType.forDefaults();
 
   @Nullable
   private ConfigurableEnvironment environment;
@@ -255,7 +255,6 @@ public class Application {
     Assert.notNull(primarySources, "PrimarySources is required");
     this.resourceLoader = resourceLoader;
     this.primarySources = CollectionUtils.newLinkedHashSet(primarySources);
-    this.applicationType = ApplicationType.forClasspath();
     this.mainApplicationClass = deduceMainApplicationClass();
     this.applicationTemp = new ApplicationTemp(mainApplicationClass);
     this.bootstrapRegistryInitializers = TodayStrategies.find(BootstrapRegistryInitializer.class);

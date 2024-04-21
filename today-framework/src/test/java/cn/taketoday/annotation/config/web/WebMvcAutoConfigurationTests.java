@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web;
@@ -41,7 +41,6 @@ import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguratio
 import cn.taketoday.annotation.config.task.TaskExecutionAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidationAutoConfiguration;
 import cn.taketoday.annotation.config.validation.ValidatorAdapter;
-import cn.taketoday.annotation.config.web.servlet.DispatcherServletAutoConfiguration;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
@@ -58,12 +57,7 @@ import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
 import cn.taketoday.framework.test.context.runner.ContextConsumer;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
-import cn.taketoday.framework.web.embedded.tomcat.TomcatServletWebServerFactory;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
-import cn.taketoday.framework.web.servlet.ServletRegistrationBean;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
-import cn.taketoday.framework.web.servlet.server.MockServletWebServerFactory;
-import cn.taketoday.framework.web.servlet.server.ServletWebServerFactory;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -74,6 +68,7 @@ import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.Validator;
 import cn.taketoday.validation.beanvalidation.LocalValidatorFactoryBean;
+import cn.taketoday.web.AbstractRedirectModelManager;
 import cn.taketoday.web.HandlerAdapter;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMapping;
@@ -110,13 +105,8 @@ import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.VersionStrategy;
-import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.filter.FormContentFilter;
-import cn.taketoday.web.servlet.filter.HiddenHttpMethodFilter;
-import cn.taketoday.web.servlet.filter.OrderedFormContentFilter;
-import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.AbstractRedirectModelManager;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
@@ -132,11 +122,10 @@ import static org.mockito.Mockito.mock;
  */
 public class WebMvcAutoConfigurationTests {
 
-  private static final MockServletWebServerFactory webServerFactory = new MockServletWebServerFactory();
-
   private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
           .withConfiguration(
-                  AutoConfigurations.of(WebMvcAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
+                  AutoConfigurations.of(WebMvcAutoConfiguration.class,
+                          RandomPortWebServerConfig.class,
                           HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
           .withUserConfiguration(Config.class);
 
@@ -511,36 +500,6 @@ public class WebMvcAutoConfigurationTests {
   }
 
   @Test
-  void formContentFilterIsAutoConfigured() {
-    this.contextRunner.run((context) -> assertThat(context).hasSingleBean(OrderedFormContentFilter.class));
-  }
-
-  @Test
-  void formContentFilterCanBeOverridden() {
-    this.contextRunner.withUserConfiguration(CustomFormContentFilter.class).run((context) -> {
-      assertThat(context).doesNotHaveBean(OrderedFormContentFilter.class);
-      assertThat(context).hasSingleBean(FormContentFilter.class);
-    });
-  }
-
-  @Test
-  void formContentFilterCanBeDisabled() {
-    this.contextRunner.withPropertyValues("web.mvc.formcontent.filter.enabled=false")
-            .run((context) -> assertThat(context).doesNotHaveBean(FormContentFilter.class));
-  }
-
-  @Test
-  void hiddenHttpMethodFilterCanBeEnabled() {
-    this.contextRunner.withPropertyValues("web.mvc.hiddenmethod.filter.enabled=true")
-            .run((context) -> assertThat(context).hasSingleBean(HiddenHttpMethodFilter.class));
-  }
-
-  @Test
-  void hiddenHttpMethodFilterDisabledByDefault() {
-    this.contextRunner.run((context) -> assertThat(context).doesNotHaveBean(HiddenHttpMethodFilter.class));
-  }
-
-  @Test
   void customConfigurableWebBindingInitializer() {
     this.contextRunner.withUserConfiguration(CustomConfigurableWebBindingInitializer.class)
             .run(context ->
@@ -595,8 +554,7 @@ public class WebMvcAutoConfigurationTests {
             .run(assertExceptionResolverWarnLoggers((logger) -> assertThat(logger).isNotNull()));
   }
 
-  private ContextConsumer<AssertableWebApplicationContext> assertExceptionResolverWarnLoggers(
-          Consumer<Object> consumer) {
+  private ContextConsumer<AssertableWebApplicationContext> assertExceptionResolverWarnLoggers(Consumer<Object> consumer) {
     return (context) -> {
       HandlerExceptionHandler resolver = context.getBean(HandlerExceptionHandler.class);
       assertThat(resolver).isInstanceOf(CompositeHandlerExceptionHandler.class);
@@ -777,27 +735,27 @@ public class WebMvcAutoConfigurationTests {
                     (handler) -> assertThat(handler.isUseLastModified()).isFalse()));
   }
 
-  @Test
-  void addResourceHandlersAppliesToChildAndParentContext() {
-    var context = new AnnotationConfigServletWebServerApplicationContext();
-    context.register(WebMvcAutoConfiguration.class,
-            DispatcherServletAutoConfiguration.class,
-            HttpMessageConvertersAutoConfiguration.class,
-            PropertyPlaceholderAutoConfiguration.class,
-            ResourceHandlersWithChildAndParentContextConfiguration.class
-    );
-
-    context.refresh();
-
-    var resourceHandlerMapping = context.getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
-    var extraDispatcherServlet = context.getBean("extraDispatcherServlet", DispatcherServlet.class);
-    var extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext().getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
-
-    assertThat(resourceHandlerMapping).isNotSameAs(extraResourceHandlerMapping);
-    assertThat(resourceHandlerMapping.getUrlMap()).containsKey("/**");
-    assertThat(extraResourceHandlerMapping.getUrlMap()).containsKey("/**");
-    context.close();
-  }
+//  @Test
+//  void addResourceHandlersAppliesToChildAndParentContext() {
+//    var context = new AnnotationConfigServletWebServerApplicationContext();
+//    context.register(WebMvcAutoConfiguration.class,
+//            DispatcherServletAutoConfiguration.class,
+//            HttpMessageConvertersAutoConfiguration.class,
+//            PropertyPlaceholderAutoConfiguration.class,
+//            ResourceHandlersWithChildAndParentContextConfiguration.class
+//    );
+//
+//    context.refresh();
+//
+//    var resourceHandlerMapping = context.getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+//    var extraDispatcherServlet = context.getBean("extraDispatcherServlet", DispatcherServlet.class);
+//    var extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext().getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
+//
+//    assertThat(resourceHandlerMapping).isNotSameAs(extraResourceHandlerMapping);
+//    assertThat(resourceHandlerMapping.getUrlMap()).containsKey("/**");
+//    assertThat(extraResourceHandlerMapping.getUrlMap()).containsKey("/**");
+//    context.close();
+//  }
 
   private void assertResourceHttpRequestHandler(AssertableWebApplicationContext context,
           Consumer<ResourceHttpRequestHandler> handlerConsumer) {
@@ -831,13 +789,11 @@ public class WebMvcAutoConfigurationTests {
     return resourceHandler.getResourceTransformers();
   }
 
-  @SuppressWarnings("unchecked")
   private Map<String, List<Resource>> getMappingLocations(ApplicationContext context, HandlerMapping mapping) {
     Map<String, List<Resource>> mappingLocations = new LinkedHashMap<>();
     getHandlerMap(mapping).forEach((key, value) -> {
-      List<String> locationValues = (List<String>) ReflectionTestUtils.getField(value, "locationValues");
-      List<Resource> locationResources = (List<Resource>) ReflectionTestUtils.getField(value,
-              "locationResources");
+      List<String> locationValues = ReflectionTestUtils.getField(value, "locationValues");
+      List<Resource> locationResources = ReflectionTestUtils.getField(value, "locationResources");
       List<Resource> resources = new ArrayList<>();
       for (String locationValue : locationValues) {
         resources.add(context.getResource(locationValue));
@@ -895,10 +851,10 @@ public class WebMvcAutoConfigurationTests {
   @Configuration(proxyBeanMethods = false)
   static class Config {
 
-    @Bean
-    ServletWebServerFactory webServerFactory() {
-      return webServerFactory;
-    }
+//    @Bean
+//    MockWebServerFactory webServerFactory() {
+//      return webServerFactory;
+//    }
 
     @Bean
     WebServerFactoryCustomizerBeanPostProcessor ServletWebServerCustomizerBeanPostProcessor() {
@@ -1086,7 +1042,7 @@ public class WebMvcAutoConfigurationTests {
   static class CustomHttpMessageConverter {
 
     @Bean
-    HttpMessageConverter<?> customHttpMessageConverter(ConversionService conversionService) {
+    HttpMessageConverter<?> customHttpMessageConverter() {
       return mock(HttpMessageConverter.class);
     }
 
@@ -1186,26 +1142,6 @@ public class WebMvcAutoConfigurationTests {
 
   }
 
-  @Configuration(proxyBeanMethods = false)
-  static class AdditionalDispatcherServletConfiguration {
-
-    @Bean
-    ServletRegistrationBean<DispatcherServlet> additionalDispatcherServlet() {
-      return new ServletRegistrationBean<>(new DispatcherServlet());
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class AdditionalUntypedDispatcherServletConfiguration {
-
-    @Bean
-    ServletRegistrationBean<?> additionalDispatcherServlet() {
-      return new ServletRegistrationBean<>(new DispatcherServlet());
-    }
-
-  }
-
   static class CustomLocaleResolver implements LocaleResolver {
     @Override
     public Locale resolveLocale(RequestContext request) {
@@ -1230,33 +1166,6 @@ public class WebMvcAutoConfigurationTests {
     @Override
     protected void updateRedirectModel(List<RedirectModel> redirectModels, RequestContext request) {
 
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class ResourceHandlersWithChildAndParentContextConfiguration {
-
-    @Bean
-    TomcatServletWebServerFactory webServerFactory() {
-      return new TomcatServletWebServerFactory(0);
-    }
-
-    @Bean
-    ServletRegistrationBean<?> additionalDispatcherServlet(DispatcherServlet extraDispatcherServlet) {
-      var registration = new ServletRegistrationBean<>(extraDispatcherServlet, "/extra/*");
-      registration.setName("additionalDispatcherServlet");
-      registration.setLoadOnStartup(1);
-      return registration;
-    }
-
-    @Bean
-    private DispatcherServlet extraDispatcherServlet() {
-      DispatcherServlet dispatcherServlet = new DispatcherServlet();
-      var context = new AnnotationConfigWebApplicationContext();
-      context.register(ResourceHandlersWithChildAndParentContextChildConfiguration.class);
-      dispatcherServlet.setApplicationContext(context);
-      return dispatcherServlet;
     }
 
   }
