@@ -26,6 +26,7 @@ import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 
 /**
@@ -38,8 +39,6 @@ public class NettyWebServer implements WebServer {
 
   private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
-  private final InetSocketAddress listenAddress;
-
   private final EventLoopGroup childGroup;
 
   private final EventLoopGroup parentGroup;
@@ -49,6 +48,8 @@ public class NettyWebServer implements WebServer {
   private final ServerBootstrap serverBootstrap;
 
   private volatile boolean shutdownComplete = false;
+
+  private InetSocketAddress listenAddress;
 
   NettyWebServer(EventLoopGroup parentGroup, EventLoopGroup childGroup,
           ServerBootstrap serverBootstrap, InetSocketAddress listenAddress, Netty.Shutdown shutdownConfig) {
@@ -61,8 +62,11 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public void start() {
-    serverBootstrap.bind(listenAddress)
-            .syncUninterruptibly();
+    ChannelFuture channelFuture = serverBootstrap.bind(listenAddress);
+    channelFuture.syncUninterruptibly();
+    if (channelFuture.channel().localAddress() instanceof InetSocketAddress localAddress) {
+      listenAddress = localAddress;
+    }
     log.info("Netty web server started on port: '{}'", getPort());
   }
 
