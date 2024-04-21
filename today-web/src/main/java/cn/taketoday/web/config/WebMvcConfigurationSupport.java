@@ -107,7 +107,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.servlet.ServletViewResolverComposite;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.util.pattern.PathPatternParser;
@@ -495,13 +494,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       return null;
     }
 
-    ViewResolverComposite composite;
-    if (ServletDetector.isPresent) {
-      composite = new ServletViewResolverComposite();
-    }
-    else {
-      composite = new ViewResolverComposite();
-    }
+    ViewResolverComposite composite = new ViewResolverComposite();
 
     composite.setOrder(registry.getOrder());
     composite.setViewResolvers(viewResolvers);

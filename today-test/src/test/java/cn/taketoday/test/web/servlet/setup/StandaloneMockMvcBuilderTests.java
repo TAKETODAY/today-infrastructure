@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ser.impl.UnknownSerializer;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -37,15 +36,11 @@ import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -114,27 +109,6 @@ class StandaloneMockMvcBuilderTests {
   }
 
   @Test
-  void addFiltersFiltersContainsNull() {
-    StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
-    assertThatIllegalArgumentException().isThrownBy(() ->
-            builder.addFilters(new ContinueFilter(), null));
-  }
-
-  @Test
-  void addFilterPatternsNull() {
-    StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
-    assertThatIllegalArgumentException().isThrownBy(() ->
-            builder.addFilter(new ContinueFilter(), (String[]) null));
-  }
-
-  @Test
-  void addFilterPatternContainsNull() {
-    StandaloneMockMvcBuilder builder = MockMvcBuilders.standaloneSetup(new PersonController());
-    assertThatIllegalArgumentException().isThrownBy(() ->
-            builder.addFilter(new ContinueFilter(), (String) null));
-  }
-
-  @Test
   void addFilterWithInitParams() throws ServletException {
     Filter filter = mock(Filter.class);
     ArgumentCaptor<FilterConfig> captor = ArgumentCaptor.forClass(FilterConfig.class);
@@ -190,16 +164,6 @@ class StandaloneMockMvcBuilderTests {
     @RequestMapping(value = "/forward")
     public String forward() {
       return "forward:/persons";
-    }
-  }
-
-  private static class ContinueFilter extends OncePerRequestFilter {
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
-
-      filterChain.doFilter(request, response);
     }
   }
 

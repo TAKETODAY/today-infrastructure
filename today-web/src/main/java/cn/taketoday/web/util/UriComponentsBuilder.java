@@ -38,6 +38,7 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.util.HierarchicalUriComponents.PathComponent;
 import cn.taketoday.web.util.UriComponents.UriTemplateVariables;
 
@@ -275,6 +276,10 @@ public class UriComponentsBuilder implements UriBuilder, Cloneable {
    */
   public static UriComponentsBuilder fromHttpRequest(HttpRequest request) {
     return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.getURI(), request.getHeaders());
+  }
+
+  public static UriComponentsBuilder fromCurrentRequest() {
+    return fromHttpRequest(RequestContextHolder.get());
   }
 
   /**

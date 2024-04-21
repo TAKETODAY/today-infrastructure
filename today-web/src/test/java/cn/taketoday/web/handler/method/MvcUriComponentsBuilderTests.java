@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -51,16 +51,13 @@ import cn.taketoday.web.config.PathMatchConfigurer;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.filter.ForwardedHeaderFilter;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockFilterChain;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.http.HttpServletRequest;
 
 import static cn.taketoday.web.handler.method.MvcUriComponentsBuilder.fromController;
 import static cn.taketoday.web.handler.method.MvcUriComponentsBuilder.fromMappingName;
@@ -139,45 +136,6 @@ class MvcUriComponentsBuilderTests {
 
     assertThat(uriComponents.toString()).isEqualTo("https://example.org:9090/base/people");
     assertThat(builder.toUriString()).isEqualTo("https://example.org:9090/base");
-  }
-
-  @Test
-  public void usesForwardedHostAsHostIfHeaderIsSet() throws Exception {
-    this.request.setScheme("https");
-    this.request.addHeader("X-Forwarded-Host", "somethingDifferent");
-    adaptRequestFromForwardedHeaders();
-    UriComponents uriComponents = fromController(PersonControllerImpl.class).build();
-
-    assertThat(uriComponents.toUriString()).startsWith("https://somethingDifferent");
-  }
-
-  @Test
-  public void usesForwardedHostAndPortFromHeader() throws Exception {
-    this.request.setScheme("https");
-    request.addHeader("X-Forwarded-Host", "foobar:8088");
-    adaptRequestFromForwardedHeaders();
-    UriComponents uriComponents = fromController(PersonControllerImpl.class).build();
-
-    assertThat(uriComponents.toUriString()).startsWith("https://foobar:8088");
-  }
-
-  @Test
-  public void usesFirstHostOfXForwardedHost() throws Exception {
-    this.request.setScheme("https");
-    this.request.addHeader("X-Forwarded-Host", "barfoo:8888, localhost:8088");
-    adaptRequestFromForwardedHeaders();
-    UriComponents uriComponents = fromController(PersonControllerImpl.class).build();
-
-    assertThat(uriComponents.toUriString()).startsWith("https://barfoo:8888");
-  }
-
-  // SPR-16668
-  private void adaptRequestFromForwardedHeaders() throws Exception {
-    MockFilterChain chain = new MockFilterChain();
-    new ForwardedHeaderFilter().doFilter(this.request, new MockHttpServletResponse(), chain);
-    HttpServletRequest adaptedRequest = (HttpServletRequest) chain.getRequest();
-    RequestContextHolder.set(new ServletRequestContext(null,
-            adaptedRequest, new MockHttpServletResponse()));
   }
 
   @Test
@@ -679,8 +637,8 @@ class MvcUriComponentsBuilderTests {
   }
 
   @RequestMapping(method = HttpMethod.POST,
-                  produces = MediaType.APPLICATION_JSON_VALUE,
-                  consumes = MediaType.APPLICATION_JSON_VALUE)
+          produces = MediaType.APPLICATION_JSON_VALUE,
+          consumes = MediaType.APPLICATION_JSON_VALUE)
   @Target({ ElementType.METHOD, ElementType.TYPE })
   @Retention(RetentionPolicy.RUNTIME)
   @Documented

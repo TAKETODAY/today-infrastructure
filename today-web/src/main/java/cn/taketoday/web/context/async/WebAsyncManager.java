@@ -52,8 +52,6 @@ import cn.taketoday.web.util.DisconnectedClientHelper;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.web.servlet.filter.OncePerRequestFilter#shouldNotFilterAsyncDispatch
- * @see cn.taketoday.web.servlet.filter.OncePerRequestFilter#isAsyncDispatch
  * @since 4.0
  */
 public final class WebAsyncManager {

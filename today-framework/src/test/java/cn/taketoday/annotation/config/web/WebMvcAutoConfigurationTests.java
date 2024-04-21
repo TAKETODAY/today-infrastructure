@@ -106,7 +106,6 @@ import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.VersionStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.filter.FormContentFilter;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
@@ -903,16 +902,6 @@ public class WebMvcAutoConfigurationTests {
   }
 
   static class CustomWebBindingInitializer extends ConfigurableWebBindingInitializer {
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class CustomFormContentFilter {
-
-    @Bean
-    FormContentFilter customFormContentFilter() {
-      return new FormContentFilter();
-    }
 
   }
 

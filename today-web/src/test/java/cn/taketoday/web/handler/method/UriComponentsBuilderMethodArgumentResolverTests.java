@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -29,7 +26,6 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.UriComponentsBuilderParameterStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.ServletUriComponentsBuilder;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -59,7 +55,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
             null, this.servletRequest, new MockHttpServletResponse());
 
     Method method = this.getClass().getDeclaredMethod(
-            "handle", UriComponentsBuilder.class, ServletUriComponentsBuilder.class, int.class);
+            "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);
     this.builderParam = new ResolvableMethodParameter(new MethodParameter(method, 0));
     this.servletBuilderParam = new ResolvableMethodParameter(new MethodParameter(method, 1));
     this.intParam = new ResolvableMethodParameter(new MethodParameter(method, 2));
@@ -81,11 +77,11 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 
     assertThat(actual).isNotNull();
-    assertThat(actual.getClass()).isEqualTo(ServletUriComponentsBuilder.class);
-    assertThat(((ServletUriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost/myapp/main");
+    assertThat(actual.getClass()).isEqualTo(UriComponentsBuilder.class);
+    assertThat(((UriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost/myapp/main");
   }
 
-  void handle(UriComponentsBuilder builder, ServletUriComponentsBuilder servletBuilder, int value) {
+  void handle(UriComponentsBuilder builder, UriComponentsBuilder servletBuilder, int value) {
   }
 
 }

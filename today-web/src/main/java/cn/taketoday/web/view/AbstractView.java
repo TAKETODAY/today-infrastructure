@@ -43,7 +43,6 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 
 /**
  * Abstract base class for {@link View}
@@ -55,7 +54,7 @@ import cn.taketoday.web.servlet.WebApplicationObjectSupport;
  * with the given dynamic attributes (the model that the controller returned)
  * for each render operation.
  *
- * <p>Extends {@link WebApplicationObjectSupport}, which will be helpful to
+ * <p>Extends {@link ApplicationObjectSupport}, which will be helpful to
  * some views. Subclasses just need to implement the actual rendering.
  *
  * @author Rod Johnson

@@ -25,10 +25,8 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
-import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 
 /**
  * Supports return values of type
@@ -78,9 +76,6 @@ public class StreamingResponseBodyReturnValueHandler implements HandlerMethodRet
     }
 
     if (returnValue instanceof StreamingResponseBody streamingBody) {
-      if (ServletDetector.runningInServlet(context)) {
-        ShallowEtagHeaderFilter.disableContentCaching(context);
-      }
       var callable = new StreamingResponseBodyTask(context.getOutputStream(), streamingBody);
       context.getAsyncManager()
               .startCallableProcessing(callable, handler);

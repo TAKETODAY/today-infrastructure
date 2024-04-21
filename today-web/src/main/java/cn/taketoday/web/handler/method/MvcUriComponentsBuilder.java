@@ -53,13 +53,11 @@ import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.support.ServletUriComponentsBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 /**
@@ -70,7 +68,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
  * <ul>
  * <li>Static {@code fromXxx(...)} methods to prepare links using information
  * from the current request as determined by a call to
- * {@link cn.taketoday.web.servlet.support.ServletUriComponentsBuilder#fromCurrentServletMapping()}.
+ * {@link cn.taketoday.web.util.UriComponentsBuilder#fromCurrentRequest()}.
  * <li>Static {@code fromXxx(UriComponentsBuilder,...)} methods can be given
  * a baseUrl when operating outside the context of a request.
  * <li>Instance-based {@code withXxx(...)} methods where an instance of
@@ -542,11 +540,6 @@ public class MvcUriComponentsBuilder {
   }
 
   private static UriComponentsBuilder getBaseUrlToUse(@Nullable UriComponentsBuilder baseUrl) {
-    if (ServletDetector.isPresent) {
-      return baseUrl == null ?
-              ServletUriComponentsBuilder.fromCurrentServletMapping() :
-              baseUrl.cloneBuilder();
-    }
     return baseUrl == null ?
             UriComponentsBuilder.fromHttpRequest(RequestContextHolder.getRequired()) :
             baseUrl.cloneBuilder();
@@ -858,8 +851,9 @@ public class MvcUriComponentsBuilder {
       this.argumentValues = new Object[method.getParameterCount()];
     }
 
+    @Deprecated
     private static String getPath() {
-      UriComponentsBuilder builder = ServletUriComponentsBuilder.fromCurrentServletMapping();
+      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpRequest(RequestContextHolder.get());
       String path = builder.build().getPath();
       return path != null ? path : "";
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.client.standalone;
@@ -39,12 +36,6 @@ import cn.taketoday.web.annotation.PutMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -230,7 +221,7 @@ public class MultipartControllerTests {
     bodyBuilder.part("json", json, MediaType.APPLICATION_JSON);
 
     WebTestClient client = MockMvcWebTestClient.bindToController(new MultipartController())
-            .filter(new RequestWrappingFilter())
+//            .filter(new RequestWrappingFilter())
             .build();
 
     client.post().uri("/multipartfile")
@@ -319,17 +310,6 @@ public class MultipartControllerTests {
     @PostMapping("/json")
     public String processMultipart(@RequestPart Map<String, String> json) {
       return "redirect:/index";
-    }
-  }
-
-  private static class RequestWrappingFilter extends OncePerRequestFilter {
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-            FilterChain filterChain) throws IOException, ServletException {
-
-      request = new HttpServletRequestWrapper(request);
-      filterChain.doFilter(request, response);
     }
   }
 

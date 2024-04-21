@@ -46,6 +46,7 @@ import jakarta.servlet.ServletContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/21 16:35
  */
+@Deprecated
 public class ServletContextResourcePatternLoader extends PathMatchingPatternResourceLoader {
   private static final Logger logger = LoggerFactory.getLogger(ServletContextResourcePatternLoader.class);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.server.standard;
@@ -37,8 +37,7 @@ import jakarta.websocket.server.ServerEndpointConfig;
 
 /**
  * An implementation of {@link ServerEndpointConfig} for use in
- * Infra-based applications. A {@link ServerEndpointRegistration} bean is detected by
- * {@link ServerEndpointExporter} and registered with a Jakarta WebSocket runtime at startup.
+ * Infra-based applications.
  *
  * <p>Class constructors accept a singleton {@link Endpoint} instance
  * or an Endpoint specified by type {@link Class}. When specified by type, the endpoint
@@ -51,7 +50,6 @@ import jakarta.websocket.server.ServerEndpointConfig;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServerEndpointExporter
  * @since 4.0
  */
 public class ServerEndpointRegistration

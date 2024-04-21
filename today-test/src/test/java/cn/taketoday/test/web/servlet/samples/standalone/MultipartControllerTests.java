@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.standalone;
@@ -37,19 +34,12 @@ import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import cn.taketoday.validation.BindingResult;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.annotation.PostMapping;
 import cn.taketoday.web.annotation.PutMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.servlet.filter.OncePerRequestFilter;
-import cn.taketoday.web.RedirectModel;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -235,8 +225,8 @@ class MultipartControllerTests {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
     MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
 
-    Filter filter = new RequestWrappingFilter();
-    MockMvc mockMvc = standaloneSetup(new MultipartController()).addFilter(filter).build();
+//    Filter filter = new RequestWrappingFilter();
+    MockMvc mockMvc = standaloneSetup(new MultipartController())./*addFilter(filter).*/build();
 
     mockMvc.perform(multipart("/json").file(jsonPart)).andExpect(status().isFound());
   }
@@ -349,18 +339,6 @@ class MultipartControllerTests {
     @SuppressWarnings("unused")
     public void setFile(MultipartFile file) {
       this.file = file;
-    }
-  }
-
-  private static class RequestWrappingFilter extends OncePerRequestFilter {
-
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws IOException, ServletException {
-
-      request = new HttpServletRequestWrapper(request);
-      filterChain.doFilter(request, response);
     }
   }
 

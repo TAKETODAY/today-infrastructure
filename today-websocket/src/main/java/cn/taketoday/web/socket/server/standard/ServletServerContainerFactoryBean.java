@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.server.standard;
@@ -33,17 +33,13 @@ import jakarta.websocket.server.ServerContainer;
  * FactoryBean and using its setters allows for configuring the {@code ServerContainer}
  * through Infra configuration.
  *
- * <p>This is useful even if the {@code ServerContainer} is not injected into any other
- * bean within the Infra application context. For example, an application can configure
- * a {@link cn.taketoday.web.socket.server.support.DefaultHandshakeHandler}
- * {@link ServerEndpointExporter}, and separately declare this FactoryBean in order
- * to customize the properties of the (one and only) {@code ServerContainer} instance.
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
+@Deprecated
 public class ServletServerContainerFactoryBean
         implements FactoryBean<WebSocketContainer>, ServletContextAware, InitializingBean {
 

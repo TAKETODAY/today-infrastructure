@@ -46,6 +46,7 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  * @see ContentCachingRequestWrapper
  * @since 4.0
  */
+@Deprecated
 public class ContentCachingResponseWrapper extends HttpServletResponseWrapper {
 
   private final FastByteArrayOutputStream content = new FastByteArrayOutputStream(1024);

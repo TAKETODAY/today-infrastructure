@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -34,6 +31,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.annotation.Order;
@@ -48,6 +46,7 @@ import cn.taketoday.ui.ModelMap;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HttpRequestHandler;
+import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.annotation.ResponseBody;
@@ -56,12 +55,10 @@ import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.WebApplicationObjectSupport;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.RedirectModel;
 import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -456,7 +453,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
   }
 
   @Controller
-  static class ResponseBodyController extends WebApplicationObjectSupport implements ResponseBodyInterface {
+  static class ResponseBodyController extends ApplicationObjectSupport implements ResponseBodyInterface {
 
     @Override
     public void handle() { }
@@ -573,7 +570,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     }
   }
 
-  @RestControllerAdvice(assignableTypes = WebApplicationObjectSupport.class)
+  @RestControllerAdvice(assignableTypes = ApplicationObjectSupport.class)
   @Order(2)
   static class BasePackageTestExceptionResolver {
 

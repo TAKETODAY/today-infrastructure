@@ -65,7 +65,6 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see HandlerAdapterProvider
  * @see SimpleNotFoundHandler
- * @see cn.taketoday.web.servlet.ServletHandlerAdapter
  * @since 2019-12-08 20:23
  */
 public interface HandlerAdapter {

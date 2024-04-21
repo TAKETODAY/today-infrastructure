@@ -35,11 +35,9 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.context.async.DeferredResult;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
-import cn.taketoday.web.servlet.filter.ShallowEtagHeaderFilter;
 
 /**
  * Handler for return values of type {@link ResponseBodyEmitter} and sub-classes
@@ -188,11 +186,6 @@ public class ResponseBodyEmitterReturnValueHandler implements SmartReturnValueHa
               "Unsupported handler: '%s' and its return-value: '%s'".formatted(handler, returnValue));
     }
     emitter.extendResponse(request);
-
-    // At this point we know we're streaming..
-    if (ServletDetector.runningInServlet(request)) {
-      ShallowEtagHeaderFilter.disableContentCaching(request);
-    }
 
     HttpMessageConvertingHandler responseBodyEmitter;
     // the response will ignore further header changes

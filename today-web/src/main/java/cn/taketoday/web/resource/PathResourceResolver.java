@@ -227,10 +227,6 @@ public class PathResourceResolver extends AbstractResourceResolver {
       resourcePath = classPathResource.getPath();
       locationPath = StringUtils.cleanPath(((ClassPathResource) location).getPath());
     }
-    else if (resource instanceof ServletContextResource servletContextResource) {
-      resourcePath = servletContextResource.getPath();
-      locationPath = StringUtils.cleanPath(((ServletContextResource) location).getPath());
-    }
     else {
       resourcePath = resource.getURL().getPath();
       locationPath = StringUtils.cleanPath(location.getURL().getPath());
