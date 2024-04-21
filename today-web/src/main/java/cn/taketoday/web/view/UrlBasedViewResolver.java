@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -79,6 +79,7 @@ import cn.taketoday.web.servlet.view.InternalResourceView;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author Sam Brannen
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #setViewClass
  * @see #setPrefix
  * @see #setSuffix
@@ -154,8 +155,8 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    */
   public void setViewClass(@Nullable Class<?> viewClass) {
     if (viewClass != null && !requiredViewClass().isAssignableFrom(viewClass)) {
-      throw new IllegalArgumentException("Given view class [" + viewClass.getName() +
-              "] is not of type [" + requiredViewClass().getName() + "]");
+      throw new IllegalArgumentException("Given view class [%s] is not of type [%s]"
+              .formatted(viewClass.getName(), requiredViewClass().getName()));
     }
     this.viewClass = viewClass;
   }

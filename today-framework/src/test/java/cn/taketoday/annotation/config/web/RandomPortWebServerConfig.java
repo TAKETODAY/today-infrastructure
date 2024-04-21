@@ -29,7 +29,7 @@ import cn.taketoday.stereotype.Component;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/21 11:38
  */
-@Import({ NettyWebServerFactoryAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
+@Import({ NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
 public class RandomPortWebServerConfig {
 
   @Bean

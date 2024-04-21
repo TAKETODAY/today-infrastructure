@@ -154,8 +154,7 @@ public abstract class AbstractErrorController implements ErrorController {
    * @return a specific {@link ModelAndView} or {@code null} if the default should be
    * used
    */
-  protected ModelAndView resolveErrorView(
-          RequestContext request, HttpStatusCode status, Map<String, Object> model) {
+  protected ModelAndView resolveErrorView(RequestContext request, HttpStatusCode status, Map<String, Object> model) {
     for (ErrorViewResolver resolver : errorViewResolvers) {
       ModelAndView view = resolver.resolveErrorView(request, status, model);
       if (view != null) {

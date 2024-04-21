@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
@@ -46,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "web.mvc.servlet.path:/infra/")
+@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "server.error.path:/infra/")
 @DirtiesContext
 @DirtiesUrlFactories
 @DisabledIfInContinuousIntegration
@@ -72,7 +73,8 @@ class RemappedErrorViewIntegrationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @Import({ PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
+  @Import({ RandomPortWebServerConfig.class,
+          PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
           HttpMessageConvertersAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
   @Controller
   static class TestConfiguration implements ErrorPageRegistrar {

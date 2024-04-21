@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.http;
@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import cn.taketoday.annotation.config.gson.GsonAutoConfiguration;
 import cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration;
 import cn.taketoday.annotation.config.jsonb.JsonbAutoConfiguration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.aot.hint.predicate.RuntimeHintsPredicates;
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -232,7 +233,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void whenServletWebApplicationHttpMessageConvertersIsConfigured() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class, HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> assertThat(context).hasSingleBean(HttpMessageConverters.class));
   }
 
@@ -246,7 +247,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void whenEncodingCharsetIsNotConfiguredThenStringMessageConverterUsesUtf8() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class, HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> {
               assertThat(context).hasSingleBean(StringHttpMessageConverter.class);
               assertThat(context.getBean(StringHttpMessageConverter.class).getDefaultCharset())
@@ -257,7 +258,7 @@ class HttpMessageConvertersAutoConfigurationTests {
   @Test
   void whenEncodingCharsetIsConfiguredThenStringMessageConverterUsesSpecificCharset() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class, HttpMessageConvertersAutoConfiguration.class))
             .withPropertyValues("server.encoding.charset=UTF-16").run((context) -> {
               assertThat(context).hasSingleBean(StringHttpMessageConverter.class);
               assertThat(context.getBean(StringHttpMessageConverter.class).getDefaultCharset())
@@ -266,10 +267,9 @@ class HttpMessageConvertersAutoConfigurationTests {
   }
 
   @Test
-    // gh-21789
   void whenAutoConfigurationIsActiveThenServerPropertiesConfigurationPropertiesAreNotEnabled() {
     new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(HttpMessageConvertersAutoConfiguration.class))
+            .withConfiguration(AutoConfigurations.of(ServerProperties.class, RandomPortWebServerConfig.class, HttpMessageConvertersAutoConfiguration.class))
             .run((context) -> {
               assertThat(context).hasSingleBean(HttpMessageConverters.class);
               assertThat(context).doesNotHaveBean(ServerProperties.class);

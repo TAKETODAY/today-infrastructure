@@ -48,7 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ErrorMvcAutoConfigurationTests {
 
   private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner().withConfiguration(
-          AutoConfigurations.of(WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
+          AutoConfigurations.of(RandomPortWebServerConfig.class,
+                  WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
 
   @Test
   void renderContainsViewWithExceptionDetails() {

@@ -27,6 +27,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.beans.factory.BeanFactoryUtils;
 import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.context.ConfigurableApplicationContext;
@@ -106,9 +107,9 @@ class InfraApplicationJmxAutoConfigurationTests {
   @Test
   void registerWithSimpleWebApp() throws Exception {
     try (ConfigurableApplicationContext context = new ApplicationBuilder()
-            .sources(//ServletWebServerFactoryAutoConfiguration.class, DispatcherServletAutoConfiguration.class,
+            .sources(RandomPortWebServerConfig.class,
                     MultipleMBeanExportersConfiguration.class, InfraApplicationJmxAutoConfiguration.class)
-            .run("--" + ENABLE_ADMIN_PROP, "--server.port=0")) {
+            .run("--" + ENABLE_ADMIN_PROP)) {
       assertThat(context).isInstanceOf(WebServerApplicationContext.class);
       assertThat(this.server.getAttribute(createDefaultObjectName(), "EmbeddedWebApplication"))
               .isEqualTo(Boolean.TRUE);

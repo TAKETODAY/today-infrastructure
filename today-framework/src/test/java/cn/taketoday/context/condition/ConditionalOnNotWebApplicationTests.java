@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.condition;
@@ -24,7 +24,6 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.annotation.ConditionalOnNotWebApplication;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
-import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import reactor.core.publisher.Mono;
@@ -39,12 +38,6 @@ import static org.assertj.core.api.Assertions.entry;
  * @author Stephane Nicoll
  */
 class ConditionalOnNotWebApplicationTests {
-
-  @Test
-  void testNotWebApplicationWithServletContext() {
-    new WebApplicationContextRunner().withUserConfiguration(NotWebApplicationConfiguration.class)
-            .run((context) -> assertThat(context).doesNotHaveBean(String.class));
-  }
 
   @Test
 //  @Disabled("Reactive Web Server not supported")

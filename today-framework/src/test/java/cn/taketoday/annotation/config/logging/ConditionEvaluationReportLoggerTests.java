@@ -107,7 +107,7 @@ class ConditionEvaluationReportLoggerTests {
         context.refresh();
 
         logger.logReport(false);
-        assertThat(output).contains("not a servlet web application");
+        assertThat(output).contains("not a netty web application and not a reactive web application");
       }
     });
   }

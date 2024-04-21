@@ -29,6 +29,7 @@ import java.lang.annotation.Target;
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
 import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguration;
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
@@ -112,6 +113,7 @@ class DefaultErrorViewIntegrationTests {
   @Retention(RetentionPolicy.RUNTIME)
   @Documented
   @Import({
+          RandomPortWebServerConfig.class,
           WebMvcAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
           ErrorMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   protected @interface MinimalWebConfiguration {

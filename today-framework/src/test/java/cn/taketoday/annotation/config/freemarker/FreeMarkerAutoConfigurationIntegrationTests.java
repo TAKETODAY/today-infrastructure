@@ -24,11 +24,12 @@ import java.io.StringWriter;
 import java.util.Locale;
 
 import cn.taketoday.annotation.config.context.PropertyPlaceholderAutoConfiguration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
-import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
+import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.test.util.TestPropertyValues;
@@ -51,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class FreeMarkerAutoConfigurationIntegrationTests {
 
-  private AnnotationConfigApplicationContext context;
+  private AnnotationConfigWebServerApplicationContext context;
 
   @AfterEach
   void close() {
@@ -146,7 +147,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   private void load(Class<?> config, String... env) {
-    this.context = new AnnotationConfigApplicationContext();
+    this.context = new AnnotationConfigWebServerApplicationContext();
     TestPropertyValues.of(env).applyTo(this.context);
     this.context.register(config);
     this.context.refresh();
@@ -166,7 +167,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class,
+  @ImportAutoConfiguration({ FreeMarkerAutoConfiguration.class, RandomPortWebServerConfig.class,
           WebMvcAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class })
   static class BaseConfiguration {
 
