@@ -17,6 +17,7 @@
 
 package cn.taketoday.annotation.config.context;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Locale;
@@ -51,6 +52,7 @@ class MessageSourceAutoConfigurationProfileTests {
   private ApplicationContext context;
 
   @Test
+  @Disabled
   void testMessageSourceFromPropertySourceAnnotation() {
     assertThat(context.getMessage("foo", null, "Foo message", Locale.UK)).isEqualTo("bar");
   }

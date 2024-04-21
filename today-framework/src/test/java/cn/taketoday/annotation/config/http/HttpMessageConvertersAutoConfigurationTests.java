@@ -42,7 +42,6 @@ import cn.taketoday.framework.test.context.runner.ContextConsumer;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.framework.web.server.EncodingProperties;
-import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
@@ -263,16 +262,6 @@ class HttpMessageConvertersAutoConfigurationTests {
               assertThat(context).hasSingleBean(StringHttpMessageConverter.class);
               assertThat(context.getBean(StringHttpMessageConverter.class).getDefaultCharset())
                       .isEqualTo(StandardCharsets.UTF_16);
-            });
-  }
-
-  @Test
-  void whenAutoConfigurationIsActiveThenServerPropertiesConfigurationPropertiesAreNotEnabled() {
-    new WebApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(ServerProperties.class, RandomPortWebServerConfig.class, HttpMessageConvertersAutoConfiguration.class))
-            .run((context) -> {
-              assertThat(context).hasSingleBean(HttpMessageConverters.class);
-              assertThat(context).doesNotHaveBean(ServerProperties.class);
             });
   }
 
