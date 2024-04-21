@@ -57,13 +57,11 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.WebContentGenerator;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.cors.CorsConfigurationSource;
 import cn.taketoday.web.handler.SimpleNotFoundHandler;
-import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * {@code HttpRequestHandler} that serves static resources in an optimized way
@@ -772,28 +770,20 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
   @Nullable
   protected MediaType getMediaType(RequestContext request, Resource resource) {
     MediaType result = null;
-    if (ServletDetector.runningInServlet(request)) {
-      String mimeType = ServletUtils.getServletContext(request).getMimeType(resource.getName());
-      if (StringUtils.hasText(mimeType)) {
-        result = MediaType.parseMediaType(mimeType);
+    MediaType mediaType = null;
+    String filename = resource.getName();
+    String ext = StringUtils.getFilenameExtension(filename);
+    if (ext != null) {
+      mediaType = mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
+    }
+    if (mediaType == null) {
+      List<MediaType> mediaTypes = MediaTypeFactory.getMediaTypes(filename);
+      if (CollectionUtils.isNotEmpty(mediaTypes)) {
+        mediaType = mediaTypes.get(0);
       }
     }
-    if (result == null || MediaType.APPLICATION_OCTET_STREAM.equals(result)) {
-      MediaType mediaType = null;
-      String filename = resource.getName();
-      String ext = StringUtils.getFilenameExtension(filename);
-      if (ext != null) {
-        mediaType = mediaTypes.get(ext.toLowerCase(Locale.ENGLISH));
-      }
-      if (mediaType == null) {
-        List<MediaType> mediaTypes = MediaTypeFactory.getMediaTypes(filename);
-        if (CollectionUtils.isNotEmpty(mediaTypes)) {
-          mediaType = mediaTypes.get(0);
-        }
-      }
-      if (mediaType != null) {
-        result = mediaType;
-      }
+    if (mediaType != null) {
+      result = mediaType;
     }
     return result;
   }

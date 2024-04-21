@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view.groovy;
@@ -34,9 +31,9 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.AbstractTemplateView;
+import cn.taketoday.web.view.ViewRenderingException;
 import groovy.text.Template;
 import groovy.text.markup.MarkupTemplateEngine;
-import jakarta.servlet.ServletException;
 
 /**
  * An {@link AbstractTemplateView} subclass based on Groovy XML/XHTML markup templates.
@@ -45,6 +42,7 @@ import jakarta.servlet.ServletException;
  *
  * @author Brian Clozel
  * @author Rossen Stoyanchev
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see GroovyMarkupViewResolver
  * @see GroovyMarkupConfigurer
  * @see <a href="http://groovy-lang.org/templating.html#_the_markuptemplateengine">
@@ -113,9 +111,7 @@ public class GroovyMarkupView extends AbstractTemplateView {
   }
 
   @Override
-  protected void renderMergedTemplateModel(
-          Map<String, Object> model, RequestContext context) throws Exception {
-
+  protected void renderMergedTemplateModel(Map<String, Object> model, RequestContext context) throws Exception {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
 
@@ -135,9 +131,8 @@ public class GroovyMarkupView extends AbstractTemplateView {
     }
     catch (ClassNotFoundException ex) {
       Throwable cause = (ex.getCause() != null ? ex.getCause() : ex);
-      throw new ServletException(
-              "Could not find class while rendering Groovy Markup view with name '" +
-                      getUrl() + "': " + ex.getMessage() + "'", cause);
+      throw new ViewRenderingException("Could not find class while rendering Groovy Markup view with name '%s': %s'"
+              .formatted(getUrl(), ex.getMessage()), cause);
     }
   }
 

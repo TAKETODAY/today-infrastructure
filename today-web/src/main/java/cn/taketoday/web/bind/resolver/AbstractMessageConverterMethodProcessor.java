@@ -56,13 +56,10 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.handler.method.ActionMappingAnnotationHandler;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.util.pattern.PathPattern;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Extends {@link AbstractMessageConverterMethodArgumentResolver} with the ability to handle method
@@ -489,31 +486,12 @@ public abstract class AbstractMessageConverterMethodProcessor
 
   @Nullable
   private MediaType resolveMediaType(RequestContext request, String extension) {
-    MediaType result = null;
-    if (ServletDetector.runningInServlet(request)) {
-      String rawMimeType = ServletDelegate.getMimeType(request, extension);
-      if (StringUtils.hasText(rawMimeType)) {
-        result = MediaType.parseMediaType(rawMimeType);
-      }
-    }
-    if (result == null || MediaType.APPLICATION_OCTET_STREAM.equals(result)) {
-      result = MediaType.fromFileName("file." + extension);
-    }
-    return result;
+    return MediaType.fromFileName("file." + extension);
   }
 
   private boolean safeMediaType(MediaType mediaType) {
     return SAFE_MEDIA_BASE_TYPES.contains(mediaType.getType())
             || mediaType.getSubtype().endsWith("+xml");
-  }
-
-  static class ServletDelegate {
-
-    static String getMimeType(RequestContext request, String extension) {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-      return servletRequest.getServletContext().getMimeType("file." + extension);
-    }
-
   }
 
 }

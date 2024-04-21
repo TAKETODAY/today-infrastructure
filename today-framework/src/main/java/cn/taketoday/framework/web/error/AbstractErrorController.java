@@ -30,9 +30,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.RequestDispatcher;
 
 /**
  * Abstract base class for error {@link Controller @Controller} implementations.
@@ -123,18 +121,6 @@ public abstract class AbstractErrorController implements ErrorController {
   }
 
   protected HttpStatus getStatus(RequestContext request) {
-    if (ServletDetector.runningInServlet(request)) {
-      Integer statusCode = (Integer) request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-      if (statusCode == null) {
-        return HttpStatus.INTERNAL_SERVER_ERROR;
-      }
-      try {
-        return HttpStatus.valueOf(statusCode);
-      }
-      catch (Exception ex) {
-        return HttpStatus.INTERNAL_SERVER_ERROR;
-      }
-    }
     int statusCode = request.getStatus();
     try {
       return HttpStatus.valueOf(statusCode);

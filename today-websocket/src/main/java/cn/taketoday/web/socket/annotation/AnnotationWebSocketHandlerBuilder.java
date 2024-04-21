@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.annotation;
@@ -20,11 +20,9 @@ package cn.taketoday.web.socket.annotation;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.ArraySizeTrimmer;
@@ -34,12 +32,8 @@ import cn.taketoday.format.support.ApplicationConversionService;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.socket.Message;
-import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.WebSocketHandler;
-import jakarta.websocket.server.ServerEndpoint;
-import jakarta.websocket.server.ServerEndpointConfig;
 
 import static cn.taketoday.util.ClassUtils.isPresent;
 
@@ -70,11 +64,6 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
     resolvers.add(new PathVariableEndpointParameterResolver(conversionService));
     resolvers.add(new WebSocketSessionEndpointParameterResolver());
 
-    if (ServletDetector.isWebSocketPresent) {
-      resolvers.add(new PathParamEndpointParameterResolver(conversionService));
-      resolvers.add(new EndpointConfigEndpointParameterResolver());
-      resolvers.add(new StandardSessionEndpointParameterResolver());
-    }
   }
 
   public void addResolvers(EndpointParameterResolver... resolvers) {
@@ -107,28 +96,6 @@ public class AnnotationWebSocketHandlerBuilder implements ArraySizeTrimmer {
 
   public WebSocketHandler build(String beanName, BeanDefinition definition,
           ApplicationContext context, WebSocketHandlerDelegate annotationHandler) {
-    if (ServletDetector.isWebSocketPresent) {
-      var socketDispatcher = new StandardAnnotationWebSocketDispatcher(
-              annotationHandler, resolvers, supportPartialMessage);
-      var serverEndpoint = context.findAnnotationOnBean(beanName, ServerEndpoint.class);
-      if (serverEndpoint.isPresent()) {
-        ServerEndpointConfig.Configurator configuratorObject = null;
-        var configurator = serverEndpoint.<ServerEndpointConfig.Configurator>getClass("configurator");
-        if (!configurator.equals(ServerEndpointConfig.Configurator.class)) {
-          configuratorObject = BeanUtils.newInstance(configurator);
-        }
-        ServerEndpointConfig endpointConfig = ServerEndpointConfig.Builder
-                .create(StandardEndpoint.class, serverEndpoint.getStringValue())
-                .decoders(Arrays.asList(serverEndpoint.getClassArray("decoders")))
-                .encoders(Arrays.asList(serverEndpoint.getClassArray("encoders")))
-                .subprotocols(Arrays.asList(serverEndpoint.getStringArray("subprotocols")))
-                .configurator(configuratorObject)
-                .build();
-
-        socketDispatcher.setEndpointConfig(endpointConfig);
-      }
-      return socketDispatcher;
-    }
     return new AnnotationWebSocketDispatcher(annotationHandler, resolvers, supportPartialMessage);
   }
 

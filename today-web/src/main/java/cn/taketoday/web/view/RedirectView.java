@@ -41,10 +41,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriUtils;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * View that redirects to an absolute, context relative, or current request
@@ -78,7 +75,6 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see #setContextRelative
  * @see #setHttp10Compatible
  * @see #setExposeModelAttributes
  * @see RequestContext#sendRedirect
@@ -87,8 +83,6 @@ import jakarta.servlet.http.HttpServletRequest;
 public class RedirectView extends AbstractUrlBasedView implements SmartView {
 
   private static final Pattern URI_TEMPLATE_VARIABLE_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
-
-  private boolean contextRelative = false;
 
   private boolean http10Compatible = true;
 
@@ -117,7 +111,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * not as relative to the current ServletContext.
    *
    * @param url the URL to redirect to
-   * @see #RedirectView(String, boolean)
+   * @see #RedirectView(String)
    */
   public RedirectView(String url) {
     super(url);
@@ -128,26 +122,10 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * Create a new RedirectView with the given URL.
    *
    * @param url the URL to redirect to
-   * @param contextRelative whether to interpret the given URL as
-   * relative to the current ServletContext
-   */
-  public RedirectView(String url, boolean contextRelative) {
-    super(url);
-    this.contextRelative = contextRelative;
-    setExposePathVariables(false);
-  }
-
-  /**
-   * Create a new RedirectView with the given URL.
-   *
-   * @param url the URL to redirect to
-   * @param contextRelative whether to interpret the given URL as
-   * relative to the current ServletContext
    * @param http10Compatible whether to stay compatible with HTTP 1.0 clients
    */
-  public RedirectView(String url, boolean contextRelative, boolean http10Compatible) {
+  public RedirectView(String url, boolean http10Compatible) {
     super(url);
-    this.contextRelative = contextRelative;
     this.http10Compatible = http10Compatible;
     setExposePathVariables(false);
   }
@@ -156,30 +134,15 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
    * Create a new RedirectView with the given URL.
    *
    * @param url the URL to redirect to
-   * @param contextRelative whether to interpret the given URL as
-   * relative to the current ServletContext
    * @param http10Compatible whether to stay compatible with HTTP 1.0 clients
    * @param exposeModelAttributes whether or not model attributes should be
    * exposed as query parameters
    */
-  public RedirectView(String url, boolean contextRelative, boolean http10Compatible, boolean exposeModelAttributes) {
+  public RedirectView(String url, boolean http10Compatible, boolean exposeModelAttributes) {
     super(url);
-    this.contextRelative = contextRelative;
     this.http10Compatible = http10Compatible;
     this.exposeModelAttributes = exposeModelAttributes;
     setExposePathVariables(false);
-  }
-
-  /**
-   * Set whether to interpret a given URL that starts with a slash ("/")
-   * as relative to the current ServletContext, i.e. as relative to the
-   * web application root.
-   * <p>Default is "false": A URL that starts with a slash will be interpreted
-   * as absolute, i.e. taken as-is. If "true", the context path will be
-   * prepended to the URL in such a case.
-   */
-  public void setContextRelative(boolean contextRelative) {
-    this.contextRelative = contextRelative;
   }
 
   /**
@@ -312,10 +275,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     String url = getUrl();
     Assert.state(url != null, "'url' not set");
 
-    if (this.contextRelative && url.startsWith("/")) {
-      // Do not apply context path to relative URLs.
-      targetUrl.append(getContextPath(request));
-    }
     targetUrl.append(url);
 
     Charset enc = this.encoding;
@@ -335,18 +294,6 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
     }
 
     return targetUrl.toString();
-  }
-
-  private String getContextPath(RequestContext request) {
-    if (ServletDetector.runningInServlet(request)) {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-      String contextPath = servletRequest.getContextPath();
-      while (contextPath.startsWith("//")) {
-        contextPath = contextPath.substring(1);
-      }
-      return contextPath;
-    }
-    return "";
   }
 
   /**

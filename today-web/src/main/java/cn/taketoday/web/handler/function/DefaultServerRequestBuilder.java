@@ -55,8 +55,6 @@ import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.util.UriBuilder;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
 
 /**
  * Default {@link ServerRequest.Builder} implementation.
@@ -386,27 +384,12 @@ class DefaultServerRequestBuilder implements ServerRequest.Builder {
     }
   }
 
-  private static class BodyInputStream extends ServletInputStream {
+  private static class BodyInputStream extends InputStream {
 
     private final InputStream delegate;
 
     public BodyInputStream(byte[] body) {
       this.delegate = new ByteArrayInputStream(body);
-    }
-
-    @Override
-    public boolean isFinished() {
-      return false;
-    }
-
-    @Override
-    public boolean isReady() {
-      return true;
-    }
-
-    @Override
-    public void setReadListener(ReadListener readListener) {
-      throw new UnsupportedOperationException();
     }
 
     @Override

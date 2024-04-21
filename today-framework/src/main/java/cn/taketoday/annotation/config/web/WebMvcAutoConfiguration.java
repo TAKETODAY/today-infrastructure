@@ -60,7 +60,6 @@ import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CompositeWebMvcConfigurer;
 import cn.taketoday.web.config.ContentNegotiationConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
-import cn.taketoday.web.config.DefaultServletHandlerConfigurer;
 import cn.taketoday.web.config.InterceptorRegistry;
 import cn.taketoday.web.config.PathMatchConfigurer;
 import cn.taketoday.web.config.ResourceChainRegistration;
@@ -230,11 +229,6 @@ public class WebMvcAutoConfiguration extends WebMvcConfigurationSupport {
   @Override
   protected void addCorsMappings(CorsRegistry registry) {
     webMvcConfigurers.addCorsMappings(registry);
-  }
-
-  @Override
-  protected void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-    webMvcConfigurers.configureDefaultServletHandling(configurer);
   }
 
   @Override

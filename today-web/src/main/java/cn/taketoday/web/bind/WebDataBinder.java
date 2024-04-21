@@ -36,7 +36,6 @@ import cn.taketoday.validation.DataBinder;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.multipart.MultipartFile;
-import jakarta.servlet.ServletRequest;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
@@ -506,7 +505,7 @@ public class WebDataBinder extends DataBinder {
   }
 
   /**
-   * Resolver that looks up values to bind in a {@link ServletRequest}.
+   * Resolver that looks up values to bind in a {@link RequestContext}.
    */
   protected static class RequestValueResolver implements ValueResolver {
 

@@ -41,7 +41,6 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.context.support.RequestScope;
 import cn.taketoday.web.context.support.SessionManagerDiscover;
 import cn.taketoday.web.context.support.SessionScope;
-import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
@@ -217,7 +216,7 @@ public class RequestContextUtils {
   /**
    * Retrieve the current time zone from the given request, using the
    * {@link TimeZoneAwareLocaleContext} in the {@link LocaleResolver} bound to
-   * the request by the {@link DispatcherServlet} (if available).
+   * the request by the {@link DispatcherHandler} (if available).
    * <p>Note: This method returns {@code null} if no specific time zone can be
    * resolved for the given request. This is in contrast to {@link #getLocale}
    * where it is always possible to fall back to the request's locale based on the

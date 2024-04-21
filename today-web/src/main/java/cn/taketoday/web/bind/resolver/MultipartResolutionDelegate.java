@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,16 +25,12 @@ import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 
 /**
  * A common delegate for {@code ParameterResolvingStrategy} implementations
- * which need to resolve {@link MultipartFile} and {@link Part} arguments.
+ * which need to resolve {@link MultipartFile} arguments.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -52,19 +47,11 @@ final class MultipartResolutionDelegate {
     Class<?> paramType = parameter.getNestedParameterType();
     return Multipart.class.isAssignableFrom(paramType)
             || isMultipartCollection(parameter, paramType)
-            || isMultipartArray(paramType)
-            || (
-            ServletDetector.isPresent
-                    && (
-                    ServletDelegate.isPart(paramType)
-                            || ServletDelegate.isPartArray(paramType)
-                            || ServletDelegate.isPartCollection(parameter, paramType)
-            )
-    );
+            || isMultipartArray(paramType);
   }
 
   @Nullable
-  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) throws Exception {
+  public static Object resolveMultipartArgument(String name, MethodParameter parameter, RequestContext request) {
     if (!request.isMultipart()) {
       if (isMultipartArgument(parameter)) {
         return null;
@@ -89,11 +76,6 @@ final class MultipartResolutionDelegate {
       }
       return parts.toArray(new Multipart[parts.size()]);
     }
-    else {
-      if (ServletDetector.runningInServlet(request)) {
-        return ServletDelegate.resolvePart(request, name, parameter, parameterType);
-      }
-    }
     return UNRESOLVABLE;
   }
 
@@ -113,51 +95,6 @@ final class MultipartResolutionDelegate {
       return ResolvableType.forMethodParameter(methodParam).asCollection().resolveGeneric();
     }
     return null;
-  }
-
-  static class ServletDelegate {
-
-    static Object resolvePart(RequestContext request,
-            String name, MethodParameter parameter, Class<?> paramType) throws Exception {
-
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-      if (Part.class == paramType) {
-        return ServletUtils.getPart(servletRequest, name);
-      }
-      else if (isPartCollection(parameter, paramType)) {
-        List<Part> parts = resolvePartList(servletRequest, name);
-        return !parts.isEmpty() ? parts : null;
-      }
-      else if (isPartArray(paramType)) {
-        List<Part> parts = resolvePartList(servletRequest, name);
-        return !parts.isEmpty() ? parts.toArray(new Part[0]) : null;
-      }
-      return UNRESOLVABLE;
-    }
-
-    static List<Part> resolvePartList(HttpServletRequest request, String name) throws Exception {
-      Collection<Part> parts = request.getParts();
-      ArrayList<Part> result = new ArrayList<>(parts.size());
-      for (Part part : parts) {
-        if (part.getName().equals(name)) {
-          result.add(part);
-        }
-      }
-      return result;
-    }
-
-    static boolean isPart(Class<?> paramType) {
-      return Part.class == paramType;
-    }
-
-    static boolean isPartCollection(MethodParameter methodParam, Class<?> paramType) {
-      return Part.class == getCollectionParameterType(methodParam, paramType);
-    }
-
-    static boolean isPartArray(Class<?> paramType) {
-      return Part.class == paramType.getComponentType();
-    }
-
   }
 
 }

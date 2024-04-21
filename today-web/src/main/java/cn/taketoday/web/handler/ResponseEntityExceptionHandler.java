@@ -39,7 +39,6 @@ import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.HttpRequestMethodNotSupportedException;
 import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
@@ -51,7 +50,6 @@ import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.RequestDispatcher;
 
 /**
  * A convenient base class for {@link ControllerAdvice @ControllerAdvice} classes
@@ -520,19 +518,6 @@ public class ResponseEntityExceptionHandler {
   @Nullable
   protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
           @Nullable Object body, @Nullable HttpHeaders headers, HttpStatusCode statusCode, RequestContext request) {
-
-    if (ServletDetector.runningInServlet(request)) {
-      if (request.isCommitted()) {
-        if (logger.isWarnEnabled()) {
-          logger.warn("Response already committed. Ignoring: {}", ex.toString());
-        }
-        return null;
-      }
-      // set jakarta.servlet.error.exception to ex
-      if (HttpStatus.INTERNAL_SERVER_ERROR.isSameCodeAs(statusCode)) {
-        request.setAttribute(RequestDispatcher.ERROR_EXCEPTION, ex);
-      }
-    }
 
     if (HttpStatus.INTERNAL_SERVER_ERROR.isSameCodeAs(statusCode)) {
       request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);

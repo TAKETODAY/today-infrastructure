@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.service.invoker;
@@ -28,7 +28,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.service.annotation.PostExchange;
-import cn.taketoday.web.testfixture.servlet.MockMultipartFile;
+import cn.taketoday.web.testfixture.MockMultipartFile;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

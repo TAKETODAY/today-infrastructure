@@ -57,7 +57,6 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.resolver.PathVariableMethodArgumentResolver;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 /**
@@ -653,12 +652,7 @@ public class MvcUriComponentsBuilder {
     if (context == null) {
       return null;
     }
-    ApplicationContext applicationContext = context.getApplicationContext();
-    if (applicationContext != null) {
-      return applicationContext;
-    }
-    String attributeName = ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE;
-    return (ApplicationContext) context.getAttribute(attributeName);
+    return context.getApplicationContext();
   }
 
   /**

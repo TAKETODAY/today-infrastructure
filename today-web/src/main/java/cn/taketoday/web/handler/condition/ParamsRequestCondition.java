@@ -26,9 +26,7 @@ import java.util.Set;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestMapping;
-import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * A logical conjunction ({@code ' && '}) request condition that matches a request against
@@ -59,15 +57,8 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     }
 
     LinkedHashSet<ParamExpression> expressions = new LinkedHashSet<>(params.length);
-    if (ServletDetector.isPresent) {
-      for (String param : params) {
-        expressions.add(new ServletParamExpression(param));
-      }
-    }
-    else {
-      for (String param : params) {
-        expressions.add(new ParamExpression(param));
-      }
+    for (String param : params) {
+      expressions.add(new ParamExpression(param));
     }
     return expressions;
   }
@@ -192,17 +183,6 @@ public final class ParamsRequestCondition extends AbstractRequestCondition<Param
     protected boolean matchValue(RequestContext request) {
       return ObjectUtils.nullSafeEquals(this.value, request.getParameter(this.name));
     }
-  }
-
-  static class ServletParamExpression extends ParamExpression {
-
-    ServletParamExpression(String expression) {
-      super(expression, new HashSet<>(ServletUtils.SUBMIT_IMAGE_SUFFIXES.length + 1));
-      for (String suffix : ServletUtils.SUBMIT_IMAGE_SUFFIXES) {
-        namesToMatch.add(name + suffix);
-      }
-    }
-
   }
 
 }

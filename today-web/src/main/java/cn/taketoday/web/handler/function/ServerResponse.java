@@ -48,7 +48,6 @@ import cn.taketoday.web.ErrorResponse;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Represents a typed server-side HTTP response, as returned
@@ -487,7 +486,7 @@ public interface ServerResponse {
     /**
      * Build the response entity with a custom write function.
      *
-     * @param writeFunction the function used to write to the {@link HttpServletResponse}
+     * @param writeFunction the function used to write to the {@link RequestContext}
      */
     ServerResponse build(WriteFunction writeFunction);
 

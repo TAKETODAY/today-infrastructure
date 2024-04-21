@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,32 +12,31 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 package cn.taketoday.web;
 
 import java.io.Serial;
 
 import cn.taketoday.http.HttpStatus;
+import cn.taketoday.lang.Nullable;
 
 /**
- * @author TODAY <br>
- * 2018-12-02 09:14
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 2018-12-02 09:14
  */
 public class InternalServerException extends ResponseStatusException {
+
   @Serial
   private static final long serialVersionUID = 1L;
+
   public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
 
-  public InternalServerException(Throwable cause) {
-    super(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR, cause);
-  }
-
-  public InternalServerException(String message, Throwable cause) {
+  public InternalServerException(@Nullable String message, @Nullable Throwable cause) {
     super(HttpStatus.INTERNAL_SERVER_ERROR, message, cause);
   }
 
-  public InternalServerException(String message) {
+  public InternalServerException(@Nullable String message) {
     super(HttpStatus.INTERNAL_SERVER_ERROR, message);
   }
 
@@ -52,15 +48,11 @@ public class InternalServerException extends ResponseStatusException {
     return new InternalServerException();
   }
 
-  public static InternalServerException failed(String msg) {
+  public static InternalServerException failed(@Nullable String msg) {
     return new InternalServerException(msg);
   }
 
-  public static InternalServerException failed(Throwable cause) {
-    return new InternalServerException(cause);
-  }
-
-  public static InternalServerException failed(String msg, Throwable cause) {
+  public static InternalServerException failed(@Nullable String msg, @Nullable Throwable cause) {
     return new InternalServerException(msg, cause);
   }
 

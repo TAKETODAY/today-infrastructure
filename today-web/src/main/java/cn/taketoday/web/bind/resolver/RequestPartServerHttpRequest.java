@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,14 +30,10 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.support.HttpRequestDecorator;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 
 /**
  * {@link HttpRequest} implementation that accesses one part of a multipart
@@ -58,8 +54,6 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
 
   private final MultipartRequest multipartRequest;
 
-  private final boolean runningInServlet;
-
   /**
    * Create a new {@code RequestPartServerHttpRequest} instance.
    *
@@ -79,7 +73,6 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
       throw new MissingRequestPartException(requestPartName);
     }
     this.multipartHeaders = multipartHeaders;
-    this.runningInServlet = ServletDetector.runningInServlet(request);
   }
 
   @Override
@@ -89,14 +82,6 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
 
   @Override
   public InputStream getBody() throws IOException {
-    // Prefer Servlet Part resolution to cover file as well as parameter streams
-    if (runningInServlet) {
-      Part part = ServletUtils.getPart(request, requestPartName);
-      if (part != null) {
-        return part.getInputStream();
-      }
-    }
-
     Multipart multipart = CollectionUtils.firstElement(multipartRequest.multipartData(requestPartName));
     if (multipart instanceof MultipartFile file) {
       return file.getInputStream();
@@ -122,22 +107,7 @@ public class RequestPartServerHttpRequest extends HttpRequestDecorator implement
       }
     }
 
-    if (runningInServlet) {
-      String encoding = ServletDelegate.getCharacterEncoding(request);
-      return encoding != null ? Charset.forName(encoding) : StandardCharsets.UTF_8;
-    }
-    else {
-      return StandardCharsets.UTF_8;
-    }
-  }
-
-  static class ServletDelegate {
-
-    static String getCharacterEncoding(RequestContext request) {
-      HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-      return servletRequest.getCharacterEncoding();
-    }
-
+    return StandardCharsets.UTF_8;
   }
 
 }

@@ -30,10 +30,6 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * A logical disjunction (' || ') request condition that matches a request
@@ -130,24 +126,11 @@ public final class RequestMethodsRequestCondition extends AbstractRequestConditi
       return matchPreFlight(request);
     }
 
-    if (ServletDetector.runningInServlet(request)) {
-      if (getMethods().isEmpty()) {
-        if (HttpMethod.OPTIONS == request.getMethod()) {
-          HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-          if (!DispatcherType.ERROR.equals(servletRequest.getDispatcherType())) {
-            return null; // We handle OPTIONS transparently, so don't match if no explicit declarations
-          }
-        }
-        return this;
+    if (getMethods().isEmpty()) {
+      if (HttpMethod.OPTIONS == request.getMethod()) {
+        return null; // We handle OPTIONS transparently, so don't match if no explicit declarations
       }
-    }
-    else {
-      if (getMethods().isEmpty()) {
-        if (HttpMethod.OPTIONS == request.getMethod()) {
-          return null; // We handle OPTIONS transparently, so don't match if no explicit declarations
-        }
-        return this;
-      }
+      return this;
     }
 
     return matchRequestMethod(request.getMethod());

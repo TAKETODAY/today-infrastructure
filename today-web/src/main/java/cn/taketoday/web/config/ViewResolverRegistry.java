@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -33,7 +30,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
@@ -135,35 +131,6 @@ public class ViewResolverRegistry {
       }
     }
     return contentNegotiatingResolver;
-  }
-
-  /**
-   * Register JSP view resolver using a default view name prefix of "/WEB-INF/"
-   * and a default suffix of ".jsp".
-   * <p>When this method is invoked more than once, each call will register a
-   * new ViewResolver instance. Note that since it's not easy to determine
-   * if a JSP exists without forwarding to it, using multiple JSP-based view
-   * resolvers only makes sense in combination with the "viewNames" property
-   * on the resolver indicating which view names are handled by which resolver.
-   */
-  public UrlBasedViewResolverRegistration jsp() {
-    return jsp("/WEB-INF/", ".jsp");
-  }
-
-  /**
-   * Register JSP view resolver with the specified prefix and suffix.
-   * <p>When this method is invoked more than once, each call will register a
-   * new ViewResolver instance. Note that since it's not easy to determine
-   * if a JSP exists without forwarding to it, using multiple JSP-based view
-   * resolvers only makes sense in combination with the "viewNames" property
-   * on the resolver indicating which view names are handled by which resolver.
-   */
-  public UrlBasedViewResolverRegistration jsp(String prefix, String suffix) {
-    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-    resolver.setPrefix(prefix);
-    resolver.setSuffix(suffix);
-    viewResolvers.add(resolver);
-    return new UrlBasedViewResolverRegistration(resolver);
   }
 
   /**

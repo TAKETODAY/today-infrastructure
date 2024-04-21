@@ -1,0 +1,76 @@
+description = "Servlet Web Impl"
+
+configurations {
+  testFixturesAnnotationProcessor.extendsFrom(dependencyManagement, testImplementation)
+}
+
+dependencies {
+  api(project(":today-web"))
+
+  optional(project(":today-oxm"))
+
+  optional("org.reactivestreams:reactive-streams")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor.netty:reactor-netty5-http")
+  optional("io.undertow:undertow-core")
+
+  optional("org.apache.tomcat:tomcat-util")
+  optional("org.apache.tomcat.embed:tomcat-embed-core")
+  optional("jakarta.json.bind:jakarta.json.bind-api")
+  optional("jakarta.validation:jakarta.validation-api")
+  optional("jakarta.xml.bind:jakarta.xml.bind-api")
+  optional("com.google.code.gson:gson")
+  optional("com.google.protobuf:protobuf-java-util")
+  optional("com.rometools:rome")
+  optional("org.apache.groovy:groovy")
+  optional("org.freemarker:freemarker")
+  optional("org.webjars:webjars-locator-core")
+  optional("org.webjars:webjars-locator-lite")
+  optional("com.github.librepdf:openpdf")
+  optional("org.apache.poi:poi-ooxml")
+  optional("org.reactivestreams:reactive-streams")
+  optional("jakarta.mail:jakarta.mail-api")
+  optional("org.apache.groovy:groovy-templates")
+
+  testImplementation(testFixtures(project(":today-web")))
+  testImplementation(testFixtures(project(":today-core")))
+
+  testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
+  testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+  testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
+  testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
+
+  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
+  testImplementation("org.eclipse.jetty.ee10:jetty-ee10-servlet") {
+    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
+  }
+
+  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
+  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
+  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
+  testImplementation 'org.eclipse.jetty.ee10:jetty-ee10-servlets'
+  testImplementation 'org.eclipse.jetty.ee10:jetty-ee10-webapp'
+  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
+  testImplementation 'org.eclipse.jetty.http2:jetty-http2-server'
+
+  testImplementation("commons-io:commons-io")
+  testImplementation("org.mozilla:rhino")
+  testImplementation("org.dom4j:dom4j") {
+    exclude group: "javax.xml.bind", module: "jaxb-api"
+    exclude group: "jaxen", module: "jaxen"
+    exclude group: "net.java.dev.msv", module: "xsdlib"
+    exclude group: "pull-parser", module: "pull-parser"
+    exclude group: "xpp3", module: "xpp3"
+  }
+
+  testFixturesImplementation(testFixtures(project(":today-web")))
+  testFixturesImplementation("io.projectreactor:reactor-test")
+
+  testFixturesApi("org.junit.jupiter:junit-jupiter-api")
+  testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation("org.mockito:mockito-core")
+  testFixturesImplementation("org.mockito:mockito-junit-jupiter")
+  testFixturesImplementation("org.assertj:assertj-core")
+  testFixturesImplementation 'org.projectlombok:lombok'
+
+}

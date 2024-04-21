@@ -41,7 +41,7 @@ import cn.taketoday.web.reactive.function.client.WebClient;
 import cn.taketoday.web.service.annotation.GetExchange;
 import cn.taketoday.web.service.annotation.PostExchange;
 import cn.taketoday.web.service.invoker.HttpServiceProxyFactory;
-import cn.taketoday.web.testfixture.servlet.MockMultipartFile;
+import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.util.DefaultUriBuilderFactory;
 import cn.taketoday.web.util.UriBuilderFactory;
 import okhttp3.mockwebserver.MockResponse;
@@ -145,7 +145,6 @@ class WebClientAdapterTests {
   }
 
   @Test
-    // gh-30342
   void multipart() throws InterruptedException {
     prepareResponse(response -> response.setResponseCode(201));
     String fileName = "testFileName";

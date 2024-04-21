@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -33,7 +30,6 @@ import cn.taketoday.web.accept.ContentNegotiationStrategy;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
-import jakarta.servlet.ServletContext;
 
 /**
  * Creates a {@code ContentNegotiationManager} and configures it with
@@ -91,10 +87,6 @@ public class ContentNegotiationConfigurer {
 
   public ContentNegotiationConfigurer() { }
 
-  public ContentNegotiationConfigurer(@Nullable Object servletContext) {
-    factory.setServletContext(servletContext);
-  }
-
   /**
    * Set the exact list of strategies to use.
    * <p><strong>Note:</strong> use of this method is mutually exclusive with
@@ -135,9 +127,6 @@ public class ContentNegotiationConfigurer {
    * strategy to work. Any extensions explicitly registered here are also
    * treated as safe for the purpose of Reflected File Download attack
    * detection.
-   * <p>The path extension strategy will also try to use
-   * {@link ServletContext#getMimeType} and {@link MediaType#fromFileName(String)} to resolve path
-   * extensions. To change this behavior see the {@link #useRegisteredExtensionsOnly} property.
    *
    * @param extension the key to look up
    * @param mediaType the media type

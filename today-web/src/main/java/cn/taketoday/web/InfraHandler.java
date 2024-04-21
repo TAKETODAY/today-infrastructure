@@ -50,8 +50,6 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ContextLoaderListener;
-import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 
 /**
  * Infrastructure Handler
@@ -328,7 +326,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Instantiate the ApplicationContext for this handler, either a default
-   * {@link XmlWebApplicationContext}
+   * {@link ApplicationContext}
    * or a {@link #setContextClass custom context class}, if set.
    * <p>This implementation expects custom contexts to implement the
    * {@link cn.taketoday.context.ConfigurableApplicationContext}
@@ -340,7 +338,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    *
    * @param parent the parent ApplicationContext to use, or {@code null} if none
    * @return the ApplicationContext for this handler
-   * @see XmlWebApplicationContext
    */
   protected ApplicationContext createApplicationContext(@Nullable ApplicationContext parent) {
     Class<?> contextClass = getContextClass();
@@ -495,8 +492,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * Called by Infra via {@link ApplicationContextAware} to inject the current
    * application context. This method allows DispatcherServlets to be registered as
    * Infra beans inside an existing {@link ApplicationContext} rather than
-   * {@link #findApplicationContext() finding} a
-   * {@link ContextLoaderListener bootstrapped} context.
    * <p>Primarily added to support use in embedded handler containers.
    */
   @Override

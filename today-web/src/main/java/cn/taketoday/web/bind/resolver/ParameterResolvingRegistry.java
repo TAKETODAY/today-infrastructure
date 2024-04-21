@@ -39,7 +39,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.annotation.RequestAttribute;
 import cn.taketoday.web.bind.RequestBindingException;
@@ -53,8 +52,6 @@ import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.multipart.MultipartConfig;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.ServletContext;
 
 /**
  * ParameterResolvingStrategy registry
@@ -244,12 +241,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
     strategies.add(new AutowiredParameterResolver(context));
 
     // type-based argument resolution
-    if (ServletDetector.isPresent && context instanceof WebApplicationContext servletApp) {
-      ServletContext servletContext = servletApp.getServletContext();
-      Assert.state(servletContext != null, "ServletContext is not available");
-      ServletParameterResolvers.register(beanFactory, strategies, servletContext);
-    }
-
     CookieParameterResolver.register(strategies, beanFactory);
 
     strategies.add(new RequestContextMethodArgumentResolver());

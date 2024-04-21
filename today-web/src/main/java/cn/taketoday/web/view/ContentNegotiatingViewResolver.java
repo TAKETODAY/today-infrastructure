@@ -44,7 +44,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 
 /**
  * Implementation of {@link ViewResolver} that resolves a view based on the request file name
@@ -78,7 +77,6 @@ import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ViewResolver
- * @see InternalResourceViewResolver
  * @see BeanNameViewResolver
  * @since 4.0
  */

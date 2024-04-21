@@ -34,7 +34,6 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Role;
-import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.support.ApplicationObjectSupport;
 import cn.taketoday.core.conversion.Converter;
@@ -77,7 +76,6 @@ import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.NotFoundHandler;
 import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.ReturnValueHandler;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
@@ -107,13 +105,10 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
-import jakarta.servlet.ServletContext;
 
 /**
  * This is the main class providing the configuration behind the MVC Java config.
@@ -398,11 +393,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
   }
 
   private ContentNegotiationConfigurer createNegotiationConfigurer() {
-    if (ServletDetector.isPresent
-            && getApplicationContext() instanceof WebApplicationContext wac) {
-      Object servletContext = wac.getServletContext();
-      return new ContentNegotiationConfigurer(servletContext);
-    }
     return new ContentNegotiationConfigurer();
   }
 
@@ -480,13 +470,8 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
       Set<String> names = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
               applicationContext, ViewResolver.class, true, false);
       if (names.size() == 1) {
-        if (ServletDetector.isPresent) {
-          viewResolvers.add(new InternalResourceViewResolver());
-        }
-        else {
-          // add default
-          configureDefaultViewResolvers(viewResolvers);
-        }
+        // add default
+        configureDefaultViewResolvers(viewResolvers);
       }
     }
 
@@ -833,39 +818,6 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
    * @see ViewControllerRegistry
    */
   protected void addViewControllers(ViewControllerRegistry registry) { }
-
-  /**
-   * Return a handler mapping ordered at Integer.MAX_VALUE with a mapped
-   * default servlet handler. To configure "default" Servlet handling,
-   * override {@link #configureDefaultServletHandling}.
-   */
-  @Nullable
-  @Component
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnClass(name = ServletDetector.SERVLET_CLASS)
-  public HandlerMapping defaultServletHandlerMapping() {
-    if (ServletDetector.isPresent) {
-      if (getApplicationContext() instanceof WebApplicationContext context) {
-        ServletContext servletContext = context.getServletContext();
-        if (servletContext != null) {
-          var configurer = new DefaultServletHandlerConfigurer(servletContext);
-          configureDefaultServletHandling(configurer);
-
-          return configurer.buildHandlerMapping();
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Override this method to configure "default" Servlet handling.
-   *
-   * @see DefaultServletHandlerConfigurer
-   */
-  protected void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-
-  }
 
   /**
    * Override this method to add resource handlers for serving static resources.

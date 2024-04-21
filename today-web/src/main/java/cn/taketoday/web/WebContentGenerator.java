@@ -33,7 +33,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ServletUtils;
 
 /**
  * Convenient superclass for any kind of web content generator
@@ -299,13 +298,7 @@ public abstract class WebContentGenerator extends ApplicationObjectSupport {
     String ccValue = cacheControl.getHeaderValue();
     if (ccValue != null) {
       // Set computed HTTP 1.1 Cache-Control header
-      if (ServletDetector.runningInServlet(response)) {
-        ServletUtils.getServletResponse(response)
-                .setHeader(HttpHeaders.CACHE_CONTROL, ccValue);
-      }
-      else {
-        response.setHeader(HttpHeaders.CACHE_CONTROL, ccValue);
-      }
+      response.setHeader(HttpHeaders.CACHE_CONTROL, ccValue);
     }
   }
 

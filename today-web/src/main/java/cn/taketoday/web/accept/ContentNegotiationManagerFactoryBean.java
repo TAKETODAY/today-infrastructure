@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.accept;
@@ -34,8 +31,6 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-
-import static cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy.assertServletContext;
 
 /**
  * Factory to create a {@code ContentNegotiationManager} and configure it with
@@ -119,9 +114,6 @@ public class ContentNegotiationManagerFactoryBean
 
   @Nullable
   private ContentNegotiationManager contentNegotiationManager;
-
-  @Nullable
-  private Object servletContext;
 
   /**
    * Set the exact list of strategies to use.
@@ -270,11 +262,6 @@ public class ContentNegotiationManagerFactoryBean
     this.defaultNegotiationStrategy = strategy;
   }
 
-  public void setServletContext(@Nullable Object servletContext) {
-    assertServletContext(servletContext);
-    this.servletContext = servletContext;
-  }
-
   @Override
   public void afterPropertiesSet() {
     build();
@@ -291,7 +278,7 @@ public class ContentNegotiationManagerFactoryBean
     }
     else {
       if (this.favorPathExtension) {
-        var strategy = new PathExtensionContentNegotiationStrategy(servletContext, mediaTypes);
+        var strategy = new PathExtensionContentNegotiationStrategy(mediaTypes);
         strategy.setIgnoreUnknownExtensions(this.ignoreUnknownPathExtensions);
         if (this.useRegisteredExtensionsOnly != null) {
           strategy.setUseRegisteredExtensionsOnly(this.useRegisteredExtensionsOnly);

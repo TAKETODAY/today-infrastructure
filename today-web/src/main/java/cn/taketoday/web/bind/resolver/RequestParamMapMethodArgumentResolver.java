@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,26 +17,18 @@
 
 package cn.taketoday.web.bind.resolver;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
 
 /**
  * Resolves {@link Map} method arguments annotated with an @{@link RequestParam}
@@ -54,7 +46,7 @@ import jakarta.servlet.http.Part;
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestParamMethodArgumentResolver
- * @see HttpServletRequest#getParameterMap()
+ * @see RequestContext#getParameters()
  * @see MultipartRequest#getMultipartFiles()
  * @see MultipartRequest#getFileMap()
  * @since 4.0 2022/4/28 15:26
@@ -85,17 +77,6 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       else if (valueType == Multipart.class) {
         return context.getMultipartRequest().multipartData();
       }
-      else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
-        if (context.isMultipart()) {
-          Collection<Part> parts = ServletUtils.getServletRequest(context).getParts();
-          LinkedMultiValueMap<String, Part> result = new LinkedMultiValueMap<>(parts.size());
-          for (Part part : parts) {
-            result.add(part.getName(), part);
-          }
-          return result;
-        }
-        return new LinkedMultiValueMap<>();
-      }
       else {
         return context.getParameters();
       }
@@ -109,19 +90,6 @@ public class RequestParamMapMethodArgumentResolver implements ParameterResolving
       }
       else if (valueType == Multipart.class) {
         return context.getMultipartRequest().multipartData().toSingleValueMap();
-      }
-      else if (ServletDetector.runningInServlet(context) && valueType == Part.class) {
-        if (context.isMultipart()) {
-          Collection<Part> parts = ServletUtils.getServletRequest(context).getParts();
-          LinkedHashMap<String, Part> result = CollectionUtils.newLinkedHashMap(parts.size());
-          for (Part part : parts) {
-            if (!result.containsKey(part.getName())) {
-              result.put(part.getName(), part);
-            }
-          }
-          return result;
-        }
-        return new LinkedHashMap<>();
       }
       else {
         return context.getParameters().toSingleValueMap();

@@ -27,16 +27,13 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.util.Set;
 import java.util.function.Consumer;
 
 import cn.taketoday.core.ParameterizedTypeReference;
@@ -59,7 +56,6 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.ServletDetector;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.Multipart;
@@ -97,7 +93,7 @@ class DefaultServerRequest implements ServerRequest {
     this.params = requestContext.getParameters();
     this.requestPath = requestContext.getRequestPath();
     this.messageConverters = List.copyOf(messageConverters);
-    this.attributes = AttributesMap.create(requestContext);
+    this.attributes = requestContext.getAttributes();
     this.headers = new DefaultRequestHeaders(requestContext.getHeaders());
   }
 
@@ -374,67 +370,6 @@ class DefaultServerRequest implements ServerRequest {
     public String toString() {
       return this.httpHeaders.toString();
     }
-  }
-
-  private static final class AttributesMap extends AbstractMap<String, Object> {
-
-    private final RequestContext requestContext;
-
-    private AttributesMap(RequestContext requestContext) {
-      this.requestContext = requestContext;
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-      String name = (String) key;
-      return this.requestContext.getAttribute(name) != null;
-    }
-
-    @Override
-    public void clear() {
-      for (String attributeName : requestContext.getAttributeNames()) {
-        requestContext.removeAttribute(attributeName);
-      }
-    }
-
-    @Override
-    public Set<Entry<String, Object>> entrySet() {
-      HashSet<Entry<String, Object>> ret = new HashSet<>();
-      for (String attributeName : requestContext.getAttributeNames()) {
-        Object value = requestContext.getAttribute(attributeName);
-        ret.add(new SimpleImmutableEntry<>(attributeName, value));
-      }
-      return ret;
-    }
-
-    @Override
-    @Nullable
-    public Object get(Object key) {
-      String name = (String) key;
-      return this.requestContext.getAttribute(name);
-    }
-
-    @Override
-    public Object put(String key, Object value) {
-      Object oldValue = requestContext.getAttribute(key);
-      this.requestContext.setAttribute(key, value);
-      return oldValue;
-    }
-
-    @Override
-    @Nullable
-    public Object remove(Object key) {
-      String name = (String) key;
-      return this.requestContext.removeAttribute(name);
-    }
-
-    static Map<String, Object> create(RequestContext request) {
-      if (ServletDetector.runningInServlet(request)) {
-        return new AttributesMap(request);
-      }
-      return request.getAttributes();
-    }
-
   }
 
   static class CheckNotModifiedResponse extends RequestContext {
