@@ -48,9 +48,7 @@ import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.multipart.support.ServletMultipartRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -115,11 +113,6 @@ public class MockServletRequestContext extends RequestContext implements Servlet
   @SuppressWarnings("unchecked")
   public <T> T nativeRequest() {
     return (T) request;
-  }
-
-  @Override
-  public <T> T unwrapRequest(Class<T> requestClass) {
-    return ServletUtils.getNativeRequest(request, requestClass);
   }
 
   @SuppressWarnings("unchecked")

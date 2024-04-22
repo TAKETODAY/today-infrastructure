@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.multipart.support;
+package cn.taketoday.web.servlet;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +29,7 @@ import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.multipart.MultipartFile;
+import cn.taketoday.web.multipart.support.AbstractMultipartFile;
 import jakarta.servlet.http.Part;
 
 /**

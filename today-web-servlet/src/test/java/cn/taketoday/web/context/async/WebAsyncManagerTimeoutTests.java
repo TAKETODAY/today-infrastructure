@@ -26,6 +26,7 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
 import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;

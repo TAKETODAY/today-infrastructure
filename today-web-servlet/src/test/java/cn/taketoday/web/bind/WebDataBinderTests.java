@@ -34,6 +34,7 @@ import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.MockMultipartServletRequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.bind.ServletRequestParameterPropertyValues;
 import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;

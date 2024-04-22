@@ -55,7 +55,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.multipart.support.ServletMultipartRequest;
+import cn.taketoday.web.servlet.ServletMultipartRequest;
 import cn.taketoday.web.util.UriUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletMapping;

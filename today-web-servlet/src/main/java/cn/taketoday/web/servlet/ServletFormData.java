@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.multipart.support;
+package cn.taketoday.web.servlet;
 
 import java.io.IOException;
 
@@ -25,6 +25,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
+import cn.taketoday.web.multipart.support.AbstractMultipart;
 import jakarta.servlet.http.Part;
 
 /**

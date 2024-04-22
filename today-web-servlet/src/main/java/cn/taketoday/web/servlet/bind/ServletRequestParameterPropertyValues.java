@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.bind;
+package cn.taketoday.web.servlet.bind;
 
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;

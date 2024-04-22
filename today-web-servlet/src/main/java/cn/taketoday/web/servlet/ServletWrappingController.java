@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler.mvc;
+package cn.taketoday.web.servlet;
 
 import java.util.Enumeration;
 import java.util.Properties;
@@ -27,8 +27,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.Servlet;
@@ -55,7 +54,7 @@ import jakarta.servlet.ServletContext;
  *
  * <pre class="code">
  *
- * &lt;bean id="strutsWrappingController" class="cn.taketoday.web.handler.mvc.ServletWrappingController"&gt;
+ * &lt;bean id="strutsWrappingController" class="cn.taketoday.web.servlet.ServletWrappingController"&gt;
  *   &lt;property name="servletClass"&gt;
  *     &lt;value&gt;org.apache.struts.action.ActionServlet&lt;/value&gt;
  *   &lt;/property&gt;

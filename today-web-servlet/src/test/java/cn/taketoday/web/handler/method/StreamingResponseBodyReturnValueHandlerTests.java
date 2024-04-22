@@ -31,7 +31,7 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.StandardServletAsyncWebRequest;
+import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
 import cn.taketoday.web.servlet.ServletRequestContext;

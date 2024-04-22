@@ -15,13 +15,15 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.async;
+package cn.taketoday.web.servlet;
 
 import java.io.IOException;
 import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
