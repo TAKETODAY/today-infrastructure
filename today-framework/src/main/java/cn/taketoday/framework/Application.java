@@ -468,7 +468,7 @@ public class Application {
     bindToApplication(environment);
 
     if (!this.isCustomEnvironment) {
-      environment = EnvironmentConverter.convertIfNecessary(getClassLoader(), environment, switch (applicationType) {
+      environment = EnvironmentConverter.convertIfNecessary(environment, switch (applicationType) {
         case NETTY_WEB -> ApplicationNettyWebEnvironment.class;
         case REACTIVE_WEB -> ApplicationReactiveWebEnvironment.class;
         default -> ApplicationEnvironment.class;

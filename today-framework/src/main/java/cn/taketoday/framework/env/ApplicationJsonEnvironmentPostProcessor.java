@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.env;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 
@@ -38,10 +34,8 @@ import cn.taketoday.framework.json.JsonParser;
 import cn.taketoday.origin.Origin;
 import cn.taketoday.origin.OriginLookup;
 import cn.taketoday.origin.PropertySourceOrigin;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 /**
  * An {@link EnvironmentPostProcessor} that parses JSON from
@@ -66,14 +60,6 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
    * Name of the {@code APPLICATION_JSON} environment variable.
    */
   public static final String APPLICATION_JSON_ENVIRONMENT_VARIABLE = "INFRA_APPLICATION_JSON";
-
-  private static final String SERVLET_ENVIRONMENT_CLASS = "cn.taketoday.web.servlet.support.StandardServletEnvironment";
-
-  private static final LinkedHashSet<String> SERVLET_ENVIRONMENT_PROPERTY_SOURCES = CollectionUtils.newLinkedHashSet(
-          StandardServletEnvironment.JNDI_PROPERTY_SOURCE_NAME,
-          StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME,
-          StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME
-  );
 
   /**
    * The default order for the processor.
@@ -163,15 +149,6 @@ public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostP
   }
 
   private String findPropertySource(PropertySources sources) {
-    if (ClassUtils.isPresent(SERVLET_ENVIRONMENT_CLASS, getClass().getClassLoader())) {
-      PropertySource<?> servletPropertySource = sources.stream()
-              .filter(source -> SERVLET_ENVIRONMENT_PROPERTY_SOURCES.contains(source.getName()))
-              .findFirst()
-              .orElse(null);
-      if (servletPropertySource != null) {
-        return servletPropertySource.getName();
-      }
-    }
     return StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME;
   }
 

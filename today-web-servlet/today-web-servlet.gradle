@@ -7,6 +7,7 @@ configurations {
 dependencies {
   api(project(":today-web"))
 
+  optional(project(":today-websocket"))
   optional(project(":today-oxm"))
 
   optional("org.reactivestreams:reactive-streams")
@@ -31,9 +32,23 @@ dependencies {
   optional("org.reactivestreams:reactive-streams")
   optional("jakarta.mail:jakarta.mail-api")
   optional("org.apache.groovy:groovy-templates")
+  optional("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server")
+  optional("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server") {
+    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
+  }
+  optional("io.undertow:undertow-servlet")
+  optional("io.undertow:undertow-websockets-jsr")
+  optional("jakarta.servlet:jakarta.servlet-api")
+  optional("jakarta.websocket:jakarta.websocket-api")
+  optional("jakarta.websocket:jakarta.websocket-client-api")
+  optional("org.apache.tomcat:tomcat-websocket") {
+    exclude group: "org.apache.tomcat", module: "tomcat-servlet-api"
+    exclude group: "org.apache.tomcat", module: "tomcat-websocket-api"
+  }
 
   testImplementation(testFixtures(project(":today-web")))
   testImplementation(testFixtures(project(":today-core")))
+  testImplementation(testFixtures(project(":today-beans")))
 
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8")
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")

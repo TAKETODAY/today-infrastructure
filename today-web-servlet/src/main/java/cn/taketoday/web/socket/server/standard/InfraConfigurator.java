@@ -60,7 +60,6 @@ public class InfraConfigurator extends Configurator {
   private static final Map<String, Map<Class<?>, String>> cache =
           new ConcurrentHashMap<>();
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> T getEndpointInstance(Class<T> endpointClass) {
     WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();
@@ -94,7 +93,7 @@ public class InfraConfigurator extends Configurator {
 
     beanName = getBeanNameByType(wac, endpointClass);
     if (beanName != null) {
-      return (T) wac.getBean(beanName);
+      return wac.getBean(beanName, endpointClass);
     }
 
     if (logger.isTraceEnabled()) {
@@ -121,8 +120,8 @@ public class InfraConfigurator extends Configurator {
       else {
         beanNamesByType.put(endpointClass, NO_VALUE);
         if (names.size() > 1) {
-          throw new IllegalStateException("Found multiple @ServerEndpoint's of type [" +
-                  endpointClass.getName() + "]: bean names " + names);
+          throw new IllegalStateException("Found multiple @ServerEndpoint's of type [%s]: bean names %s"
+                  .formatted(endpointClass.getName(), names));
         }
       }
     }

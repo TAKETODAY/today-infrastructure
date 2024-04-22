@@ -1,26 +1,23 @@
 /*
- * Copyright (c) 1997, 2021 Oracle and/or its affiliates and others.
- * All rights reserved.
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2017 - 2024 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package jakarta.servlet.http;
 
 import java.io.Serializable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Locale;
@@ -75,12 +72,7 @@ public class Cookie implements Cloneable, Serializable {
   private static final ResourceBundle lStrings = ResourceBundle.getBundle(LSTRING_FILE);
 
   static {
-    boolean enforced = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-      @Override
-      public Boolean run() {
-        return Boolean.valueOf(System.getProperty("org.glassfish.web.rfc2109_cookie_names_enforced", "true"));
-      }
-    });
+    boolean enforced = Boolean.parseBoolean(System.getProperty("org.glassfish.web.rfc2109_cookie_names_enforced", "true"));
     if (enforced) {
       TSPECIALS = "/()<>@,;:\\\"[]?={} \t";
     }

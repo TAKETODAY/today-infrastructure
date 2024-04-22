@@ -33,13 +33,11 @@ import jakarta.websocket.server.ServerContainer;
  * FactoryBean and using its setters allows for configuring the {@code ServerContainer}
  * through Infra configuration.
  *
- *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-@Deprecated
 public class ServletServerContainerFactoryBean
         implements FactoryBean<WebSocketContainer>, ServletContextAware, InitializingBean {
 

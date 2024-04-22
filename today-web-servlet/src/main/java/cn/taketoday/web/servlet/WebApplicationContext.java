@@ -42,7 +42,6 @@ import jakarta.servlet.ServletContext;
  * @see cn.taketoday.web.servlet.ServletContextAware#setServletContext
  * @since 2019-07-10 22:03
  */
-@Deprecated
 public interface WebApplicationContext extends ApplicationContext {
 
   /**

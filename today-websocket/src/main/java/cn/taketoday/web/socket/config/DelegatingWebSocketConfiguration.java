@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.config;
@@ -26,7 +23,6 @@ import java.util.List;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.web.socket.annotation.EndpointParameterResolver;
 
 /**
  * A variation of {@link WebSocketConfigurationSupport} that detects implementations of
@@ -53,13 +49,6 @@ public class DelegatingWebSocketConfiguration extends WebSocketConfigurationSupp
   protected void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
     for (WebSocketConfigurer configurer : this.configurers) {
       configurer.registerWebSocketHandlers(registry);
-    }
-  }
-
-  @Override
-  protected void registerEndpointParameterStrategies(List<EndpointParameterResolver> resolvers) {
-    for (WebSocketConfigurer configurer : configurers) {
-      configurer.registerEndpointParameterStrategies(resolvers);
     }
   }
 

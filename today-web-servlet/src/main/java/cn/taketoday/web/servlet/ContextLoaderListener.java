@@ -36,7 +36,6 @@ import jakarta.servlet.ServletContextListener;
  * @see cn.taketoday.context.ApplicationContextInitializer
  * @since 4.0
  */
-@Deprecated
 public class ContextLoaderListener extends ContextLoader implements ServletContextListener {
 
   /**

@@ -28,7 +28,6 @@ import jakarta.servlet.ServletContext;
  * @author Harry Yang
  * @since 2018-08-03 15:45
  */
-@Deprecated
 public interface ServletContextAware extends Aware {
 
   /**

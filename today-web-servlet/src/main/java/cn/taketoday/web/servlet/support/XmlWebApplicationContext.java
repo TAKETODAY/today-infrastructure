@@ -63,7 +63,6 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  * @see ContextLoader#initWebApplicationContext
  * @since 4.0 2022/3/6 22:17
  */
-@Deprecated
 public class XmlWebApplicationContext extends AbstractRefreshableWebApplicationContext {
 
   /** Default config location for the root context. */

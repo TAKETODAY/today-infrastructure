@@ -39,7 +39,6 @@ import jakarta.servlet.ServletContextListener;
  * @see ContextLoaderListener
  * @since 4.0 2022/2/20 17:20
  */
-@Deprecated
 public class ContextCleanupListener implements ServletContextListener {
 
   private static final Logger logger = LoggerFactory.getLogger(ContextCleanupListener.class);

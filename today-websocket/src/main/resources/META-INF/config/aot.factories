@@ -1,2 +1,0 @@
-cn.taketoday.aot.hint.RuntimeHintsRegistrar= \
-cn.taketoday.web.socket.server.support.HandshakeHandlerRuntimeHints

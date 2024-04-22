@@ -17,7 +17,6 @@
 
 package cn.taketoday.annotation.config.web.socket;
 
-import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
@@ -46,18 +45,12 @@ import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 @ConditionalOnClass(WebSocketHandlerMapping.class)
 public class WebSocketAutoConfiguration {
 
-  @Lazy
-  @Configuration(proxyBeanMethods = false)
+  @Component
   @ConditionalOnClass(io.netty.handler.codec.http.HttpMethod.class)
   @ConditionalOnWebApplication(type = Type.NETTY)
-  static class NettyWebSocketConfiguration {
-
-    @Component
-    @ConditionalOnMissingBean
-    static RequestUpgradeStrategy nettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
-      return new NettyRequestUpgradeStrategy(sessionDecorator);
-    }
-
+  @ConditionalOnMissingBean
+  static RequestUpgradeStrategy nettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    return new NettyRequestUpgradeStrategy(sessionDecorator);
   }
 
 }

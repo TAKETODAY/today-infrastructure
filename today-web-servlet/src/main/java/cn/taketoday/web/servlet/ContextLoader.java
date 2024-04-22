@@ -85,7 +85,6 @@ import jakarta.servlet.ServletContext;
  * @see ContextLoaderListener
  * @since 4.0
  */
-@Deprecated
 public class ContextLoader {
 
   /**

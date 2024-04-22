@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
@@ -44,10 +45,6 @@ import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.standard.StandardWebSocketUpgradeStrategy;
-import cn.taketoday.web.socket.server.standard.TomcatRequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy;
 
 import static cn.taketoday.util.ClassUtils.isPresent;
 
@@ -66,9 +63,6 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see JettyRequestUpgradeStrategy
- * @see TomcatRequestUpgradeStrategy
- * @see UndertowRequestUpgradeStrategy
  * @since 4.0
  */
 public abstract class AbstractHandshakeHandler implements HandshakeHandler {
@@ -325,18 +319,19 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     if (upgradeStrategy != null) {
       return upgradeStrategy;
     }
+    // FIXME
     if (tomcatWsPresent) {
-      return new TomcatRequestUpgradeStrategy();
+      return BeanUtils.newInstance("cn.taketoday.web.socket.server.standard.TomcatRequestUpgradeStrategy", null);
     }
     else if (jettyWsPresent) {
-      return new JettyRequestUpgradeStrategy();
+      return BeanUtils.newInstance("cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy", null);
     }
     else if (undertowWsPresent) {
-      return new UndertowRequestUpgradeStrategy();
+      return BeanUtils.newInstance("cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy", null);
     }
     else {
       // Let's assume Jakarta WebSocket API 2.1+
-      return new StandardWebSocketUpgradeStrategy();
+      return BeanUtils.newInstance("cn.taketoday.web.socket.server.standard.StandardWebSocketUpgradeStrategy", null);
     }
   }
 

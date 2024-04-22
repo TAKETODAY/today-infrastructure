@@ -17,10 +17,7 @@
 
 package cn.taketoday.web.servlet.view;
 
-import cn.taketoday.context.MessageSource;
-import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -68,7 +65,6 @@ import jakarta.servlet.http.HttpServletRequest;
  * expressions in a JSP 2.0 page.
  *
  * @author Juergen Hoeller
- * @see JstlUtils#exposeLocalizationContext
  * @see InternalResourceViewResolver
  * @see cn.taketoday.context.support.ResourceBundleMessageSource
  * @see cn.taketoday.context.support.ReloadableResourceBundleMessageSource
@@ -76,9 +72,6 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @Deprecated
 public class JstlView extends InternalResourceView {
-
-  @Nullable
-  private MessageSource messageSource;
 
   /**
    * Constructor for use as a bean.
@@ -97,47 +90,10 @@ public class JstlView extends InternalResourceView {
   }
 
   /**
-   * Create a new JstlView with the given URL.
-   *
-   * @param url the URL to forward to
-   * @param messageSource the MessageSource to expose to JSTL tags
-   * (will be wrapped with a JSTL-aware MessageSource that is aware of JSTL's
-   * {@code jakarta.servlet.jsp.jstl.fmt.localizationContext} context-param)
-   * @see JstlUtils#getJstlAwareMessageSource
-   */
-  public JstlView(String url, @Nullable MessageSource messageSource) {
-    this(url);
-    this.messageSource = messageSource;
-  }
-
-  /**
-   * Wraps the MessageSource with a JSTL-aware MessageSource that is aware
-   * of JSTL's {@code jakarta.servlet.jsp.jstl.fmt.localizationContext}
-   * context-param.
-   *
-   * @see JstlUtils#getJstlAwareMessageSource
-   */
-  @Override
-  protected void initServletContext(ServletContext servletContext) {
-    if (this.messageSource != null) {
-      this.messageSource = JstlUtils.getJstlAwareMessageSource(servletContext, this.messageSource);
-    }
-    super.initServletContext(servletContext);
-  }
-
-  /**
    * Exposes a JSTL LocalizationContext for Framework's locale and MessageSource.
-   *
-   * @see JstlUtils#exposeLocalizationContext
    */
   @Override
   protected void exposeHelpers(HttpServletRequest servletRequest, RequestContext request) throws Exception {
-    if (this.messageSource != null) {
-      JstlUtils.exposeLocalizationContext(request, servletRequest, this.messageSource);
-    }
-    else {
-      JstlUtils.exposeLocalizationContext(request, servletRequest);
-    }
   }
 
 }

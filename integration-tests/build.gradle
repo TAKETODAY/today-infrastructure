@@ -8,6 +8,7 @@ dependencies {
 
   testImplementation project(':today-framework')
   testImplementation project(':today-test-support')
+  testImplementation project(':today-web-servlet')
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))

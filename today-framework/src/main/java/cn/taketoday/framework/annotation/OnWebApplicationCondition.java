@@ -33,11 +33,10 @@ import cn.taketoday.framework.web.netty.ConfigurableNettyWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;
-import cn.taketoday.web.servlet.WebApplicationContext;
 
 /**
  * {@link Condition} that checks for the presence or absence of
- * {@link WebApplicationContext}.
+ * web.
  *
  * @author Dave Syer
  * @author Phillip Webb
@@ -54,8 +53,7 @@ class OnWebApplicationCondition extends FilteringInfraCondition implements Order
   }
 
   @Override
-  protected ConditionOutcome[] getOutcomes(String[] configClasses,
-          AutoConfigurationMetadata configMetadata) {
+  protected ConditionOutcome[] getOutcomes(String[] configClasses, AutoConfigurationMetadata configMetadata) {
     ConditionOutcome[] outcomes = new ConditionOutcome[configClasses.length];
     for (int i = 0; i < outcomes.length; i++) {
       String autoConfigurationClass = configClasses[i];
