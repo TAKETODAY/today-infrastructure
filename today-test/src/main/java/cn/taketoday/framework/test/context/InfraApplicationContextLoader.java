@@ -87,7 +87,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
     String[] configLocations = config.getLocations();
     Assert.state(ObjectUtils.isNotEmpty(configClasses) || ObjectUtils.isNotEmpty(configLocations),
             () -> "No configuration classes or locations found in @InfraConfiguration. "
-                    + "For default configuration detection to work you need today-infra 4.0 or better (found "
+                    + "For default configuration detection to work you need today-framework 4.0 or better (found "
                     + cn.taketoday.lang.Version.instance + ").");
     Application application = getApplication();
     application.setMainApplicationClass(config.getTestClass());

@@ -411,12 +411,12 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void setContentType(String contentType) {
+  public void setContentType(@Nullable String contentType) {
     getDelegate().setContentType(contentType);
   }
 
   @Override
-  public void setContentType(MediaType contentType) {
+  public void setContentType(@Nullable MediaType contentType) {
     getDelegate().setContentType(contentType);
   }
 
@@ -427,7 +427,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void setHeader(String name, String value) {
+  public void setHeader(String name, @Nullable String value) {
     getDelegate().setHeader(name, value);
   }
 
@@ -477,7 +477,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void setMatchingMetadata(HandlerMatchingMetadata handlerMatchingMetadata) {
+  public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
     getDelegate().setMatchingMetadata(handlerMatchingMetadata);
   }
 
@@ -492,7 +492,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void setAttribute(String name, Object value) {
+  public void setAttribute(String name, @Nullable Object value) {
     getDelegate().setAttribute(name, value);
   }
 
@@ -557,7 +557,7 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  public void setBinding(BindingContext bindingContext) {
+  public void setBinding(@Nullable BindingContext bindingContext) {
     getDelegate().setBinding(bindingContext);
   }
 

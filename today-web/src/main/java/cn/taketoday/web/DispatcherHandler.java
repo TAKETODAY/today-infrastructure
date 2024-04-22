@@ -258,10 +258,9 @@ public class DispatcherHandler extends InfraHandler {
     catch (Throwable ex) {
       throwable = ex; // not handled
     }
-    finally {
-      logResult(context, throwable);
-      requestCompleted(context, throwable);
-    }
+
+    logResult(context, throwable);
+    requestCompleted(context, throwable);
   }
 
   /**
@@ -307,19 +306,18 @@ public class DispatcherHandler extends InfraHandler {
     catch (Throwable ex) {
       throwable = ex; // from request handler
     }
-    finally {
-      try {
-        processDispatchResult(context, handler, returnValue, throwable);
-        throwable = null; // handled
-      }
-      catch (Throwable ex) {
-        throwable = ex; // not handled
-      }
-      logResult(context, throwable);
 
-      if (!context.isConcurrentHandlingStarted()) {
-        requestCompleted(context, throwable);
-      }
+    try {
+      processDispatchResult(context, handler, returnValue, throwable);
+      throwable = null; // handled
+    }
+    catch (Throwable ex) {
+      throwable = ex; // not handled
+    }
+    logResult(context, throwable);
+
+    if (!context.isConcurrentHandlingStarted()) {
+      requestCompleted(context, throwable);
     }
   }
 
@@ -451,7 +449,8 @@ public class DispatcherHandler extends InfraHandler {
 
     // exception not handled
     if (notHandled != null) {
-      throw notHandled;
+      // try application level error handling
+      request.sendError(500, notHandled.getMessage());
     }
   }
 

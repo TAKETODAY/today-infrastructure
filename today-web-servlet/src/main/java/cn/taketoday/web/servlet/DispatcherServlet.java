@@ -98,7 +98,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    * <li>{@link #postProcessApplicationContext} will be called</li>
    * <li>Any {@link ApplicationContextInitializer ApplicationContextInitializers} specified through the
    * "contextInitializerClasses" init-param or through the {@link
-   * #setContextInitializers} property will be applied.</li>
+   * #addContextInitializers} property will be applied.</li>
    * <li>{@link ConfigurableApplicationContext#refresh refresh()} will be called</li>
    * </ul>
    * If the context has already been refreshed or does not implement

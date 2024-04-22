@@ -49,7 +49,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * Infrastructure Handler
@@ -96,10 +95,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   /** Actual ApplicationContextInitializer instances to apply to the context. */
   private final ArrayList<ApplicationContextInitializer> contextInitializers = new ArrayList<>();
 
-  /** Comma-delimited ApplicationContextInitializer class names set through init param. */
-  @Nullable
-  private String contextInitializerClasses;
-
   /** Flag used to detect whether onRefresh has already been called. */
   private volatile boolean refreshEventReceived;
 
@@ -145,7 +140,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * <li>{@link #postProcessApplicationContext} will be called</li>
    * <li>Any {@link ApplicationContextInitializer ApplicationContextInitializers} specified through the
    * "contextInitializerClasses" init-param or through the {@link
-   * #setContextInitializers} property will be applied.</li>
+   * #addContextInitializers} property will be applied.</li>
    * <li>{@link ConfigurableApplicationContext#refresh refresh()} will be called</li>
    * </ul>
    * If the context has already been refreshed or does not implement
@@ -383,8 +378,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   /**
    * Delegate the ApplicationContext before it is refreshed to any
-   * {@link ApplicationContextInitializer} instances specified by the
-   * "contextInitializerClasses" servlet init-param.
+   * {@link ApplicationContextInitializer} instances.
    * <p>See also {@link #postProcessApplicationContext}, which is designed to allow
    * subclasses (as opposed to end-users) to modify the application context, and is
    * called immediately before this method.
@@ -396,12 +390,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see ConfigurableApplicationContext#refresh()
    */
   protected void applyInitializers(ConfigurableApplicationContext context, List<ApplicationContextInitializer> initializers) {
-    if (this.contextInitializerClasses != null) {
-      for (String className : StringUtils.tokenizeToStringArray(this.contextInitializerClasses, INIT_PARAM_DELIMITERS)) {
-        initializers.add(loadInitializer(className, context));
-      }
-    }
-
     AnnotationAwareOrderComparator.sort(initializers);
     for (ApplicationContextInitializer initializer : initializers) {
       initializer.initialize(context);
@@ -569,21 +557,10 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #configureAndRefreshApplicationContext
    * @see #applyInitializers
    */
-  public void setContextInitializers(@Nullable ApplicationContextInitializer... initializers) {
+  public void addContextInitializers(@Nullable ApplicationContextInitializer... initializers) {
     if (initializers != null) {
       CollectionUtils.addAll(contextInitializers, initializers);
     }
-  }
-
-  /**
-   * Specify the set of fully-qualified {@link ApplicationContextInitializer} class
-   * names, per the optional "contextInitializerClasses" servlet init-param.
-   *
-   * @see #configureAndRefreshApplicationContext(ConfigurableApplicationContext)
-   * @see #applyInitializers(ConfigurableApplicationContext, List)
-   */
-  public void setContextInitializerClasses(@Nullable String contextInitializerClasses) {
-    this.contextInitializerClasses = contextInitializerClasses;
   }
 
   /**
