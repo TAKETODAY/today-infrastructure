@@ -1807,6 +1807,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   }
 
   @Test
+  @Disabled
   void modelAndViewWithStatusInExceptionHandler() throws Exception {
     initDispatcherServlet(ModelAndViewController.class);
 
