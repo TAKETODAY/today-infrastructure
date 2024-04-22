@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
@@ -73,8 +73,8 @@ import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.web.view.UrlBasedViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewRef;
 import cn.taketoday.web.view.ViewRenderingException;
@@ -290,7 +290,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
   /**
    * Set up view resolution with the given {@link ViewResolver ViewResolvers}.
-   * If not set, an {@link InternalResourceViewResolver} is used by default.
+   * If not set, an {@link cn.taketoday.web.view.UrlBasedViewResolver} is used by default.
    */
   public StandaloneMockMvcBuilder setViewResolvers(ViewResolver... resolvers) {
     this.viewResolvers = Arrays.asList(resolvers);
@@ -403,7 +403,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     if (viewResolvers == null) {
-      wac.addBeans(new InternalResourceViewResolver());
+      wac.addBeans(new UrlBasedViewResolver());
     }
     else {
       wac.addBeans(viewResolvers);
