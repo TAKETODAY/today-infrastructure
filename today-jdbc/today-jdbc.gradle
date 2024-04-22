@@ -28,7 +28,6 @@ dependencies {
   testImplementation 'ch.qos.logback:logback-classic'
   testImplementation 'com.mysql:mysql-connector-j'
 
-  compileOnly 'org.apache.tomcat:tomcat-jdbc:10.0.16'
   compileOnly 'com.oracle.database.jdbc:ucp:21.7.0.0'
   compileOnly 'org.postgresql:postgresql'
   compileOnly 'com.mchange:c3p0:0.9.5.5'

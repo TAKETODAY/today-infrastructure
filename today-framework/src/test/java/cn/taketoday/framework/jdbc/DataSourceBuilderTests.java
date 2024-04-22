@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.jdbc;
@@ -94,21 +91,6 @@ class DataSourceBuilderTests {
     assertThat(this.dataSource).isInstanceOf(HikariDataSource.class);
     HikariDataSource hikariDataSource = (HikariDataSource) this.dataSource;
     assertThat(hikariDataSource.getJdbcUrl()).isEqualTo("jdbc:h2:test");
-  }
-
-  @Test
-  void buildWhenHikariNotAvailableReturnsTomcatDataSource() {
-    this.dataSource = DataSourceBuilder.create(new HidePackagesClassLoader("com.zaxxer.hikari")).url("jdbc:h2:test")
-            .build();
-    assertThat(this.dataSource).isInstanceOf(org.apache.tomcat.jdbc.pool.DataSource.class);
-  }
-
-  @Test
-    // gh-26633
-  void buildWhenTomcatDataSourceWithNullPasswordReturnsDataSource() {
-    this.dataSource = DataSourceBuilder.create(new HidePackagesClassLoader("com.zaxxer.hikari")).url("jdbc:h2:test")
-            .username("test").password(null).build();
-    assertThat(this.dataSource).isInstanceOf(org.apache.tomcat.jdbc.pool.DataSource.class);
   }
 
   @Test
@@ -237,20 +219,6 @@ class DataSourceBuilderTests {
   void buildWhenMappedTypeSpecifiedAndNoSuitableOptionalMappingBuilds() {
     assertThatNoException().isThrownBy(
             () -> DataSourceBuilder.create().type(OracleDataSource.class).driverClassName("com.example").build());
-  }
-
-  @Test
-  void buildWhenCustomSubclassTypeSpecifiedReturnsDataSourceWithOnlyBasePropertiesSet() {
-    this.dataSource = DataSourceBuilder.create().url("jdbc:h2:test").type(CustomTomcatDataSource.class)
-            .username("test").build();
-    assertThat(this.dataSource).isInstanceOf(CustomTomcatDataSource.class);
-    CustomTomcatDataSource testDataSource = (CustomTomcatDataSource) this.dataSource;
-    assertThat(testDataSource.getUrl()).isEqualTo("jdbc:h2:test");
-    assertThat(testDataSource.getJdbcUrl()).isNull();
-    assertThat(testDataSource.getUsername()).isEqualTo("test");
-    assertThat(testDataSource.getUser()).isNull();
-    assertThat(testDataSource.getDriverClassName()).isEqualTo(Driver.class.getName());
-    assertThat(testDataSource.getDriverClass()).isNull();
   }
 
   @Test
@@ -507,40 +475,6 @@ class DataSourceBuilderTests {
         throw new ClassNotFoundException();
       }
       return super.loadClass(name, resolve);
-    }
-
-  }
-
-  static class CustomTomcatDataSource extends org.apache.tomcat.jdbc.pool.DataSource {
-
-    private String jdbcUrl;
-
-    private String user;
-
-    private String driverClass;
-
-    String getJdbcUrl() {
-      return this.jdbcUrl;
-    }
-
-    void setJdbcUrl(String jdbcUrl) {
-      this.jdbcUrl = jdbcUrl;
-    }
-
-    String getUser() {
-      return this.user;
-    }
-
-    void setUser(String user) {
-      this.user = user;
-    }
-
-    String getDriverClass() {
-      return this.driverClass;
-    }
-
-    void setDriverClass(String driverClass) {
-      this.driverClass = driverClass;
     }
 
   }

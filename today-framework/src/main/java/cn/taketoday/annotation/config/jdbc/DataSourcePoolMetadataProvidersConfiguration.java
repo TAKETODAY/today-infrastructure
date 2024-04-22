@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.jdbc;
@@ -22,7 +22,6 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbcp2.BasicDataSourceMXBean;
-import org.apache.tomcat.jdbc.pool.jmx.ConnectionPoolMBean;
 
 import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
@@ -32,7 +31,6 @@ import cn.taketoday.framework.jdbc.metadata.CommonsDbcp2DataSourcePoolMetadata;
 import cn.taketoday.framework.jdbc.metadata.DataSourcePoolMetadataProvider;
 import cn.taketoday.framework.jdbc.metadata.HikariDataSourcePoolMetadata;
 import cn.taketoday.framework.jdbc.metadata.OracleUcpDataSourcePoolMetadata;
-import cn.taketoday.framework.jdbc.metadata.TomcatDataSourcePoolMetadata;
 import cn.taketoday.jdbc.config.DataSourceUnwrapper;
 import cn.taketoday.stereotype.Component;
 import oracle.jdbc.OracleConnection;
@@ -51,24 +49,6 @@ import oracle.ucp.jdbc.PoolDataSource;
 @DisableAllDependencyInjection
 @Configuration(proxyBeanMethods = false)
 public class DataSourcePoolMetadataProvidersConfiguration {
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(org.apache.tomcat.jdbc.pool.DataSource.class)
-  static class TomcatDataSourcePoolMetadataProviderConfiguration {
-
-    @Component
-    static DataSourcePoolMetadataProvider tomcatPoolDataSourceMetadataProvider() {
-      return (dataSource) -> {
-        var tomcatDataSource = DataSourceUnwrapper.unwrap(dataSource,
-                ConnectionPoolMBean.class, org.apache.tomcat.jdbc.pool.DataSource.class);
-        if (tomcatDataSource != null) {
-          return new TomcatDataSourcePoolMetadata(tomcatDataSource);
-        }
-        return null;
-      };
-    }
-
-  }
 
   @Configuration(proxyBeanMethods = false)
   @ConditionalOnClass(HikariDataSource.class)

@@ -21,6 +21,7 @@ dependencies {
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))
   testImplementation(testFixtures(project(":today-tx")))
+  testImplementation(testFixtures(project(":today-web")))
   testImplementation(project(":today-jdbc"))
   testImplementation(project(":today-test"))
   testImplementation(project(":today-tx"))
@@ -94,7 +95,6 @@ dependencies {
   testImplementation 'org.hibernate.orm:hibernate-envers:6.1.4.Final'
 
   testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
-  testImplementation 'org.apache.tomcat:tomcat-jdbc:10.0.16'
   testImplementation 'com.zaxxer:HikariCP:5.0.0'
 
   testImplementation 'com.hazelcast:hazelcast-all:3.12.6'

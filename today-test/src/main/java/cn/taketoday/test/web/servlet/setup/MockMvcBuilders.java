@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MockMvcBuilder;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -33,7 +31,7 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
- * @see #webAppContextSetup(WebApplicationContext)
+ * @see #webAppContextSetup(ApplicationContext)
  * @see #standaloneSetup(Object...)
  * @since 4.0
  */
@@ -49,7 +47,7 @@ public final class MockMvcBuilders {
    * controllers in it. The context must have been configured with a
    * {@link jakarta.servlet.ServletContext ServletContext}.
    */
-  public static DefaultMockMvcBuilder webAppContextSetup(WebApplicationContext context) {
+  public static DefaultMockMvcBuilder webAppContextSetup(ApplicationContext context) {
     return new DefaultMockMvcBuilder(context);
   }
 

@@ -32,6 +32,7 @@ import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.Application;
@@ -41,7 +42,6 @@ import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
-import cn.taketoday.web.servlet.WebApplicationContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DefaultErrorViewIntegrationTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   private MockMvc mockMvc;
 

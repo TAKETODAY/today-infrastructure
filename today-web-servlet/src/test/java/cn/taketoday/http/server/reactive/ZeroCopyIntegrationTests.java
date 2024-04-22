@@ -30,7 +30,6 @@ import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.ReactorHttpServer;
-import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.UndertowHttpServer;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -32,6 +32,7 @@ import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguratio
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.beans.factory.annotation.Autowired;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
@@ -51,7 +52,6 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.View;
 import jakarta.servlet.DispatcherType;
@@ -73,7 +73,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class BasicErrorControllerMockMvcTests {
 
   @Autowired
-  private WebApplicationContext wac;
+  private ApplicationContext wac;
 
   private MockMvc mockMvc;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,16 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.jdbc;
 
 import com.zaxxer.hikari.HikariDataSource;
 
-import org.apache.tomcat.jdbc.pool.DataSource;
-import org.apache.tomcat.jdbc.pool.DataSourceProxy;
-import org.apache.tomcat.jdbc.pool.jmx.ConnectionPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -141,46 +138,6 @@ class DataSourceJmxConfigurationTests {
             .isEqualTo(expected);
   }
 
-  @Test
-  void tomcatDoesNotExposeMBeanPoolByDefault() {
-    this.contextRunner.withPropertyValues("datasource.type=" + DataSource.class.getName())
-            .run((context) -> assertThat(context).doesNotHaveBean(ConnectionPool.class));
-  }
-
-  @Test
-  void tomcatAutoConfiguredCanExposeMBeanPool() {
-    this.contextRunner.withPropertyValues(
-            "datasource.type=" + DataSource.class.getName(),
-            "datasource.tomcat.jmx-enabled=true").run((context) -> {
-      assertThat(context).hasBean("dataSourceMBean");
-      assertThat(context).hasSingleBean(ConnectionPool.class);
-      assertThat(context.getBean(DataSourceProxy.class).createPool().getJmxPool())
-              .isSameAs(context.getBean(ConnectionPool.class));
-    });
-  }
-
-  @Test
-  void tomcatProxiedCanExposeMBeanPool() {
-    this.contextRunner.withUserConfiguration(DataSourceProxyConfiguration.class)
-            .withPropertyValues("datasource.type=" + DataSource.class.getName(),
-                    "datasource.tomcat.jmx-enabled=true")
-            .run((context) -> {
-              assertThat(context).hasBean("dataSourceMBean");
-              assertThat(context).getBean("dataSourceMBean").isInstanceOf(ConnectionPool.class);
-            });
-  }
-
-  @Test
-  void tomcatDelegateCanExposeMBeanPool() {
-    this.contextRunner.withUserConfiguration(DataSourceDelegateConfiguration.class)
-            .withPropertyValues("datasource.type=" + DataSource.class.getName(),
-                    "datasource.tomcat.jmx-enabled=true")
-            .run((context) -> {
-              assertThat(context).hasBean("dataSourceMBean");
-              assertThat(context).getBean("dataSourceMBean").isInstanceOf(ConnectionPool.class);
-            });
-  }
-
   @Configuration(proxyBeanMethods = false)
   static class DataSourceProxyConfiguration {
 
@@ -212,7 +169,7 @@ class DataSourceJmxConfigurationTests {
         @Override
         public Object postProcessAfterInitialization(Object bean, String beanName) {
           return (bean instanceof javax.sql.DataSource)
-                 ? new DelegatingDataSource((javax.sql.DataSource) bean) : bean;
+                  ? new DelegatingDataSource((javax.sql.DataSource) bean) : bean;
         }
       };
     }

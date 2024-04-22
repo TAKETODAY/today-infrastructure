@@ -119,8 +119,6 @@ import cn.taketoday.test.context.support.TestPropertySourceUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
-import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Mono;
 
@@ -1043,7 +1041,6 @@ class ApplicationTests {
       event.getApplication().setApplicationType(ApplicationType.NORMAL);
     });
     this.context = application.run();
-    assertThat(this.context.getEnvironment()).isNotInstanceOf(StandardServletEnvironment.class);
     assertThat(this.context.getEnvironment().getProperty("foo")).isEqualTo("bar");
     Iterator<PropertySource<?>> iterator = this.context.getEnvironment().getPropertySources().iterator();
     assertThat(iterator.next().getName()).isEqualTo("configurationProperties");
@@ -1056,7 +1053,6 @@ class ApplicationTests {
     ConfigurableApplicationContext context = new Application(ExampleConfig.class)
             .run("--app.main.application-type=normal");
     assertThat(context).isNotInstanceOfAny(WebServerApplicationContext.class, ReactiveWebApplicationContext.class);
-    assertThat(context.getEnvironment()).isNotInstanceOfAny(ConfigurableWebEnvironment.class);
   }
 
   @Test

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
@@ -23,6 +20,7 @@ package cn.taketoday.test.web.servlet.setup;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.DirectFieldAccessor;
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StaticApplicationContext;
@@ -99,7 +97,7 @@ public class DefaultMockMvcBuilderTests {
   public void rootWacServletContainerAttributeNotPreviouslySet() {
     StubWebApplicationContext root = new StubWebApplicationContext(this.servletContext);
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
-    WebApplicationContext wac = builder.initWebAppContext();
+    ApplicationContext wac = builder.initWebAppContext();
     assertThat(wac).isSameAs(root);
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.servletContext)).isSameAs(root);
   }
@@ -118,7 +116,7 @@ public class DefaultMockMvcBuilderTests {
     dispatcher.setServletContext(this.servletContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(dispatcher);
-    WebApplicationContext wac = builder.initWebAppContext();
+    ApplicationContext wac = builder.initWebAppContext();
 
     assertThat(wac).isSameAs(dispatcher);
     assertThat(wac.getParent()).isSameAs(root);

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
@@ -44,39 +41,39 @@ import jakarta.servlet.ServletContext;
  */
 public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvcBuilder> {
 
-  private final WebApplicationContext webAppContext;
+  private final ApplicationContext context;
 
   /**
    * Protected constructor. Not intended for direct instantiation.
    *
-   * @see MockMvcBuilders#webAppContextSetup(WebApplicationContext)
+   * @see MockMvcBuilders#webAppContextSetup(ApplicationContext)
    */
-  protected DefaultMockMvcBuilder(WebApplicationContext webAppContext) {
-    Assert.notNull(webAppContext, "WebApplicationContext is required");
-    Assert.notNull(webAppContext.getServletContext(), "WebApplicationContext must have a ServletContext");
-    this.webAppContext = webAppContext;
+  protected DefaultMockMvcBuilder(ApplicationContext context) {
+    Assert.notNull(context, "WebApplicationContext is required");
+    this.context = context;
   }
 
   @Override
-  protected WebApplicationContext initWebAppContext() {
-    ServletContext servletContext = this.webAppContext.getServletContext();
-    Assert.state(servletContext != null, "No ServletContext");
-    ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
+  protected ApplicationContext initWebAppContext() {
+    if (context instanceof WebApplicationContext applicationContext) {
+      ServletContext servletContext = applicationContext.getServletContext();
+      Assert.state(servletContext != null, "No ServletContext");
+      ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
-    if (rootWac == null) {
-      rootWac = this.webAppContext;
-      ApplicationContext parent = this.webAppContext.getParent();
-      while (parent != null) {
-        if (parent instanceof WebApplicationContext && !(parent.getParent() instanceof WebApplicationContext)) {
-          rootWac = parent;
-          break;
+      if (rootWac == null) {
+        rootWac = this.context;
+        ApplicationContext parent = this.context.getParent();
+        while (parent != null) {
+          if (parent instanceof WebApplicationContext && !(parent.getParent() instanceof WebApplicationContext)) {
+            rootWac = parent;
+            break;
+          }
+          parent = parent.getParent();
         }
-        parent = parent.getParent();
+        servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
       }
-      servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, rootWac);
     }
-
-    return this.webAppContext;
+    return this.context;
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet;
@@ -21,6 +21,7 @@ import java.io.Serial;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockAsyncContext;
@@ -34,7 +35,6 @@ import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -62,7 +62,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
   /**
    * Create a new instance with the given web application context.
    */
-  public TestDispatcherServlet(WebApplicationContext webApplicationContext) {
+  public TestDispatcherServlet(ApplicationContext webApplicationContext) {
     super(webApplicationContext);
   }
 

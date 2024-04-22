@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet;
@@ -20,6 +20,7 @@ package cn.taketoday.test.web.servlet;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.web.servlet.WebApplicationContext;
@@ -43,12 +44,12 @@ import jakarta.servlet.Filter;
 public abstract class MockMvcBuilderSupport {
 
   /**
-   * Delegates to {@link #createMockMvc(Filter[], MockServletConfig, WebApplicationContext, RequestBuilder, List, List, List)}
+   * Delegates to {@link #createMockMvc(Filter[], MockServletConfig, ApplicationContext, RequestBuilder, List, List, List)}
    * for creation of the {@link MockMvc} instance and configures that instance
    * with the supplied {@code defaultResponseCharacterEncoding}.
    */
   protected final MockMvc createMockMvc(Filter[] filters, MockServletConfig servletConfig,
-          WebApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
+          ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           @Nullable Charset defaultResponseCharacterEncoding,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {
@@ -61,7 +62,7 @@ public abstract class MockMvcBuilderSupport {
   }
 
   protected final MockMvc createMockMvc(Filter[] filters, MockServletConfig servletConfig,
-          WebApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
+          ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
           @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {
 

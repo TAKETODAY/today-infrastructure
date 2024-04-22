@@ -548,7 +548,6 @@ bom {
     group("org.apache.tomcat") {
       modules = [
           "tomcat-annotations-api",
-          "tomcat-jdbc",
           "tomcat-util",
           "tomcat-websocket",
           "tomcat-jsp-api"

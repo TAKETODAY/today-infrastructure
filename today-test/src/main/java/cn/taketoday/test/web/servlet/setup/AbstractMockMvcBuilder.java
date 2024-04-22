@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
@@ -23,9 +23,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletConfig;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.web.servlet.DispatcherServletCustomizer;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MockMvcBuilder;
@@ -160,12 +162,21 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   @Override
   @SuppressWarnings("rawtypes")
   public final MockMvc build() {
-    WebApplicationContext wac = initWebAppContext();
-    ServletContext servletContext = wac.getServletContext();
-    MockServletConfig mockServletConfig = new MockServletConfig(servletContext);
+    ApplicationContext ctx = initWebAppContext();
+    ServletContext servletContext;
+    MockServletConfig mockServletConfig;
+
+    if (ctx instanceof WebApplicationContext wac) {
+      servletContext = wac.getServletContext();
+      mockServletConfig = new MockServletConfig(servletContext);
+    }
+    else {
+      servletContext = new MockServletContext();
+      mockServletConfig = new MockServletConfig(servletContext);
+    }
 
     for (MockMvcConfigurer configurer : this.configurers) {
-      RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, wac);
+      RequestPostProcessor processor = configurer.beforeMockMvcCreated(this, ctx);
       if (processor != null) {
         if (this.defaultRequestBuilder == null) {
           this.defaultRequestBuilder = MockMvcRequestBuilders.get("/");
@@ -188,7 +199,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
       }
     }
 
-    return super.createMockMvc(filterArray, mockServletConfig, wac, this.defaultRequestBuilder,
+    return super.createMockMvc(filterArray, mockServletConfig, ctx, this.defaultRequestBuilder,
             this.defaultResponseCharacterEncoding, this.globalResultMatchers, this.globalResultHandlers,
             this.dispatcherServletCustomizers);
   }
@@ -198,6 +209,6 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
    * {@code DispatcherServlet}. Invoked from {@link #build()} before the
    * {@link MockMvc} instance is created.
    */
-  protected abstract WebApplicationContext initWebAppContext();
+  protected abstract ApplicationContext initWebAppContext();
 
 }

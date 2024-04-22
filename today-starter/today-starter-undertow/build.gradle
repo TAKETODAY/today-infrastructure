@@ -6,5 +6,4 @@ dependencies {
   api("io.undertow:undertow-core")
   api("io.undertow:undertow-servlet")
   api("io.undertow:undertow-websockets-jsr")
-  api("org.apache.tomcat.embed:tomcat-embed-el")
 }

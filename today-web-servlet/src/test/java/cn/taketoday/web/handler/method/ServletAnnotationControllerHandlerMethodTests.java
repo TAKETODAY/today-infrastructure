@@ -137,12 +137,11 @@ import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
+import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.security.TestPrincipal;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockPart;
 import cn.taketoday.web.testfixture.servlet.MockServletConfig;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.view.AbstractView;
@@ -1904,19 +1903,6 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
     request.setRequestURI("/bind");
     request.addFile(new MockMultipartFile("param1", "value1".getBytes(StandardCharsets.UTF_8)));
-    request.addParameter("param2", "true");
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    getServlet().service(request, response);
-    assertThat(response.getContentAsString()).isEqualTo("value1-true-0");
-  }
-
-  @Test
-  void dataClassBindingWithServletPart() throws Exception {
-    initDispatcherServlet(ServletPartDataClassController.class);
-
-    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/bind");
-    request.setContentType("multipart/form-data");
-    request.addPart(new MockPart("param1", "value1".getBytes(StandardCharsets.UTF_8)));
     request.addParameter("param2", "true");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);

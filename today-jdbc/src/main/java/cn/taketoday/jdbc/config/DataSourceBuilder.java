@@ -428,7 +428,6 @@ public final class DataSourceBuilder<T extends DataSource> {
     private static <T extends DataSource> MappedDataSourceProperties<T> lookupPooled(
             @Nullable ClassLoader classLoader, @Nullable Class<T> type) {
       var result = lookup(classLoader, type, null, "com.zaxxer.hikari.HikariDataSource", HikariDataSourceProperties::new);
-      result = lookup(classLoader, type, result, "org.apache.tomcat.jdbc.pool.DataSource", TomcatPoolDataSourceProperties::new);
       result = lookup(classLoader, type, result, "org.apache.commons.dbcp2.BasicDataSource", MappedDbcp2DataSource::new);
       result = lookup(classLoader, type, result, "oracle.ucp.jdbc.PoolDataSourceImpl", OraclePoolDataSourceProperties::new, "oracle.jdbc.OracleConnection");
       result = lookup(classLoader, type, result, "com.mchange.v2.c3p0.ComboPooledDataSource", ComboPooledDataSourceProperties::new);
@@ -461,7 +460,7 @@ public final class DataSourceBuilder<T extends DataSource> {
       }
       MappedDataSourceProperties<?> propertyMappings = propertyMappingsSupplier.get();
       return (dataSourceType == null || propertyMappings.getDataSourceInstanceType().isAssignableFrom(dataSourceType))
-             ? (MappedDataSourceProperties<T>) propertyMappings : null;
+              ? (MappedDataSourceProperties<T>) propertyMappings : null;
     }
 
     private static boolean allPresent(
@@ -624,25 +623,6 @@ public final class DataSourceBuilder<T extends DataSource> {
               HikariDataSource::setDriverClassName);
       add(DataSourceProperty.USERNAME, HikariDataSource::getUsername, HikariDataSource::setUsername);
       add(DataSourceProperty.PASSWORD, HikariDataSource::getPassword, HikariDataSource::setPassword);
-    }
-
-  }
-
-  /**
-   * {@link DataSourceProperties} for Tomcat Pool.
-   */
-  private static class TomcatPoolDataSourceProperties
-          extends MappedDataSourceProperties<org.apache.tomcat.jdbc.pool.DataSource> {
-
-    TomcatPoolDataSourceProperties() {
-      add(DataSourceProperty.URL, org.apache.tomcat.jdbc.pool.DataSource::getUrl,
-              org.apache.tomcat.jdbc.pool.DataSource::setUrl);
-      add(DataSourceProperty.DRIVER_CLASS_NAME, org.apache.tomcat.jdbc.pool.DataSource::getDriverClassName,
-              org.apache.tomcat.jdbc.pool.DataSource::setDriverClassName);
-      add(DataSourceProperty.USERNAME, org.apache.tomcat.jdbc.pool.DataSource::getUsername,
-              org.apache.tomcat.jdbc.pool.DataSource::setUsername);
-      add(DataSourceProperty.PASSWORD, org.apache.tomcat.jdbc.pool.DataSource::getPassword,
-              org.apache.tomcat.jdbc.pool.DataSource::setPassword);
     }
 
   }

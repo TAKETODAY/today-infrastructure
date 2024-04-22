@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.jdbc;
@@ -46,8 +43,7 @@ class DataSourceBuilderRuntimeHintsTests {
                     com.zaxxer.hikari.HikariDataSource.class, org.apache.commons.dbcp2.BasicDataSource.class,
                     oracle.jdbc.datasource.OracleDataSource.class, oracle.ucp.jdbc.PoolDataSource.class,
                     org.postgresql.ds.PGSimpleDataSource.class,
-                    cn.taketoday.jdbc.datasource.SimpleDriverDataSource.class,
-                    org.apache.tomcat.jdbc.pool.DataSource.class)
+                    cn.taketoday.jdbc.datasource.SimpleDriverDataSource.class)
             .forEach((dataSourceType) -> {
               TypeHint typeHint = hints.getTypeHint(dataSourceType);
               assertThat(typeHint).withFailMessage(() -> "No hints found for data source type " + dataSourceType)

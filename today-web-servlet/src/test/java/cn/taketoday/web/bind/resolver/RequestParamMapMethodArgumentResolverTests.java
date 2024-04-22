@@ -33,10 +33,8 @@ import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockPart;
 import jakarta.servlet.http.Part;
 
-import static cn.taketoday.web.bind.resolver.MvcAnnotationPredicates.requestParam;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -141,57 +139,6 @@ class RequestParamMapMethodArgumentResolverTests {
     boolean condition = result instanceof MultiValueMap;
     assertThat(condition).isTrue();
     MultiValueMap<String, MultipartFile> resultMap = (MultiValueMap<String, MultipartFile>) result;
-    assertThat(resultMap.size()).isEqualTo(2);
-    assertThat(resultMap.get("mfilelist").size()).isEqualTo(2);
-    assertThat(resultMap.get("mfilelist").get(0)).isEqualTo(expected1);
-    assertThat(resultMap.get("mfilelist").get(1)).isEqualTo(expected2);
-    assertThat(resultMap.get("other").size()).isEqualTo(1);
-    assertThat(resultMap.get("other").get(0)).isEqualTo(expected3);
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  public void resolveMapOfPart() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setContentType("multipart/form-data");
-    Part expected1 = new MockPart("mfile", "Hello World".getBytes());
-    Part expected2 = new MockPart("other", "Hello World 3".getBytes());
-    request.addPart(expected1);
-    request.addPart(expected2);
-    request.setMethod("POST");
-    webRequest = new ServletRequestContext(null, request, null);
-
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, Part.class);
-    Object result = resolver.resolveArgument(webRequest, param);
-
-    boolean condition = result instanceof Map;
-    assertThat(condition).isTrue();
-    Map<String, Part> resultMap = (Map<String, Part>) result;
-    assertThat(resultMap.size()).isEqualTo(2);
-    assertThat(resultMap.get("mfile")).isEqualTo(expected1);
-    assertThat(resultMap.get("other")).isEqualTo(expected2);
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  public void resolveMultiValueMapOfPart() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setContentType("multipart/form-data");
-    Part expected1 = new MockPart("mfilelist", "Hello World 1".getBytes());
-    Part expected2 = new MockPart("mfilelist", "Hello World 2".getBytes());
-    Part expected3 = new MockPart("other", "Hello World 3".getBytes());
-    request.addPart(expected1);
-    request.addPart(expected2);
-    request.addPart(expected3);
-    request.setMethod("POST");
-    webRequest = new ServletRequestContext(null, request, null);
-
-    ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, Part.class);
-    Object result = resolver.resolveArgument(webRequest, param);
-
-    boolean condition = result instanceof MultiValueMap;
-    assertThat(condition).isTrue();
-    MultiValueMap<String, Part> resultMap = (MultiValueMap<String, Part>) result;
     assertThat(resultMap.size()).isEqualTo(2);
     assertThat(resultMap.get("mfilelist").size()).isEqualTo(2);
     assertThat(resultMap.get("mfilelist").get(0)).isEqualTo(expected1);

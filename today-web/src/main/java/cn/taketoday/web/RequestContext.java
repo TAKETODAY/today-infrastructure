@@ -1922,13 +1922,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    */
   public abstract <T> T nativeRequest();
 
-  /**
-   * @param requestClass wrapped request class
-   * @return returns {@code null} indicated that not a requestClass
-   */
-  @Nullable
-  public abstract <T> T unwrapRequest(Class<T> requestClass);
-
   // ------------------
 
   /**

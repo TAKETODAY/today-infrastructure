@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.jdbc;
@@ -45,7 +45,6 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.test.context.FilteredClassLoader;
 import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.jdbc.config.DatabaseDriver;
 import cn.taketoday.jdbc.datasource.SimpleDriverDataSource;
 import cn.taketoday.jdbc.datasource.embedded.EmbeddedDatabase;
 import cn.taketoday.util.StringUtils;
@@ -99,21 +98,6 @@ class DataSourceAutoConfigurationTests {
     assertDataSource(HikariDataSource.class, Collections.singletonList("org.apache.tomcat"), (dataSource) ->
             // Use Connection#isValid()
             assertThat(dataSource.getConnectionTestQuery()).isNull());
-  }
-
-  @Test
-  void tomcatIsFallback() {
-    assertDataSource(org.apache.tomcat.jdbc.pool.DataSource.class, Collections.singletonList("com.zaxxer.hikari"),
-            (dataSource) -> assertThat(dataSource.getUrl()).startsWith("jdbc:hsqldb:mem:testdb"));
-  }
-
-  @Test
-  void tomcatValidatesConnectionByDefault() {
-    assertDataSource(org.apache.tomcat.jdbc.pool.DataSource.class, Collections.singletonList("com.zaxxer.hikari"),
-            (dataSource) -> {
-              assertThat(dataSource.isTestOnBorrow()).isTrue();
-              assertThat(dataSource.getValidationQuery()).isEqualTo(DatabaseDriver.HSQLDB.getValidationQuery());
-            });
   }
 
   @Test

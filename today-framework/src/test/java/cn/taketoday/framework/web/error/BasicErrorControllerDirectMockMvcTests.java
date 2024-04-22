@@ -36,6 +36,7 @@ import cn.taketoday.annotation.config.http.HttpMessageConvertersAutoConfiguratio
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
+import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.EnableAspectJAutoProxy;
 import cn.taketoday.context.annotation.Import;
@@ -49,7 +50,6 @@ import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,7 +64,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class BasicErrorControllerDirectMockMvcTests {
 
-  private ConfigurableWebApplicationContext wac;
+  private ConfigurableApplicationContext wac;
 
   private MockMvc mockMvc;
 
@@ -74,14 +74,14 @@ class BasicErrorControllerDirectMockMvcTests {
     ApplicationContextTestUtils.closeAll(this.wac);
   }
 
-  void setup(ConfigurableWebApplicationContext context) {
+  void setup(ConfigurableApplicationContext context) {
     this.wac = context;
     this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
   }
 
   @Test
   void errorPageAvailableWithParentContext() throws Exception {
-    setup((ConfigurableWebApplicationContext) new ApplicationBuilder(ParentConfiguration.class)
+    setup(new ApplicationBuilder(ParentConfiguration.class)
             .child(ChildConfiguration.class)
             .run("--server.port=0"));
     MvcResult response = this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
@@ -93,7 +93,7 @@ class BasicErrorControllerDirectMockMvcTests {
 
   @Test
   void errorPageAvailableWithMvcIncluded() throws Exception {
-    setup((ConfigurableWebApplicationContext) new Application(WebMvcIncludedConfiguration.class)
+    setup(new Application(WebMvcIncludedConfiguration.class)
             .run("--server.port=0"));
     MvcResult response = this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
             .andExpect(status().is5xxServerError())
@@ -104,7 +104,7 @@ class BasicErrorControllerDirectMockMvcTests {
 
   @Test
   void errorPageNotAvailableWithWhitelabelDisabled() throws Exception {
-    setup((ConfigurableWebApplicationContext) new Application(WebMvcIncludedConfiguration.class)
+    setup(new Application(WebMvcIncludedConfiguration.class)
             .run("--server.port=0", "--server.error.whitelabel.enabled=false"));
 
     this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
@@ -113,7 +113,7 @@ class BasicErrorControllerDirectMockMvcTests {
 
   @Test
   void errorControllerWithAop() throws Exception {
-    setup((ConfigurableWebApplicationContext) new Application(WithAopConfiguration.class)
+    setup(new Application(WithAopConfiguration.class)
             .run("--server.port=0"));
     MvcResult response = this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
             .andExpect(status().is5xxServerError())

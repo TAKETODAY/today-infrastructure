@@ -472,12 +472,6 @@ public abstract class DecoratingRequestContext extends RequestContext {
   }
 
   @Override
-  @Nullable
-  public <T> T unwrapRequest(Class<T> requestClass) {
-    return getDelegate().unwrapRequest(requestClass);
-  }
-
-  @Override
   public HandlerMatchingMetadata getMatchingMetadata() {
     return getDelegate().getMatchingMetadata();
   }

@@ -34,6 +34,7 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.http.server.reactive.UndertowHttpServer;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.StringUtils;
@@ -126,7 +127,6 @@ public abstract class AbstractHttpHandlerIntegrationTests {
             Named.named("Jetty", new JettyHttpServer()),
             Named.named("Reactor Netty", new ReactorHttpServer()),
             Named.named("Reactor Netty 2", new ReactorNetty2HttpServer()),
-            Named.named("Tomcat", new TomcatHttpServer()),
             Named.named("Undertow", new UndertowHttpServer())
     );
   }

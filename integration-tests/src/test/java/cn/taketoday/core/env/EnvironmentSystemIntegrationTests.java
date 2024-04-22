@@ -77,7 +77,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Sam Brannen
  * @see cn.taketoday.context.support.EnvironmentIntegrationTests
  */
-class EnvironmentSystemIntegrationTests {
+public class EnvironmentSystemIntegrationTests {
 
   private final ConfigurableEnvironment prodEnv = new StandardEnvironment();
 

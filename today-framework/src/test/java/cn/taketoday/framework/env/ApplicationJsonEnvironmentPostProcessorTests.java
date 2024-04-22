@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,25 +12,22 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.env;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
-import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.core.env.StandardEnvironment;
 import cn.taketoday.framework.json.JsonParseException;
 import cn.taketoday.mock.env.MockPropertySource;
 import cn.taketoday.origin.PropertySourceOrigin;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;
-import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -145,38 +139,6 @@ class ApplicationJsonEnvironmentPostProcessorTests {
   }
 
   @Test
-  void propertySourceShouldBeOrderedBeforeJndiPropertySource() {
-    testServletPropertySource(StandardServletEnvironment.JNDI_PROPERTY_SOURCE_NAME);
-  }
-
-  @Test
-  void propertySourceShouldBeOrderedBeforeServletContextPropertySource() {
-    testServletPropertySource(StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME);
-  }
-
-  @Test
-  void propertySourceShouldBeOrderedBeforeServletConfigPropertySource() {
-    testServletPropertySource(StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME);
-  }
-
-  @Test
-  void propertySourceOrderingWhenMultipleServletSpecificPropertySources() {
-    MapPropertySource jndi = getPropertySource(StandardServletEnvironment.JNDI_PROPERTY_SOURCE_NAME, "jndi");
-    this.environment.getPropertySources().addFirst(jndi);
-    MapPropertySource servlet = getPropertySource(StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME,
-            "servlet");
-    this.environment.getPropertySources().addFirst(servlet);
-    MapPropertySource custom = getPropertySource("custom", "custom");
-    this.environment.getPropertySources().addFirst(custom);
-    TestPropertySourceUtils.addInlinedPropertiesToEnvironment(this.environment,
-            "INFRA_APPLICATION_JSON={\"foo\":\"bar\"}");
-    this.processor.postProcessEnvironment(this.environment, null);
-    PropertySource<?> json = this.environment.getPropertySources().get("infra.application.json");
-    assertThat(this.environment.getProperty("foo")).isEqualTo("custom");
-    assertThat(this.environment.getPropertySources()).containsSequence(custom, json, servlet, jndi);
-  }
-
-  @Test
   void nullValuesShouldBeAddedToPropertySource() {
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(this.environment,
             "INFRA_APPLICATION_JSON={\"foo\":null}");
@@ -207,18 +169,6 @@ class ApplicationJsonEnvironmentPostProcessorTests {
     this.environment.getPropertySources().addLast(source);
     this.processor.postProcessEnvironment(this.environment, null);
     assertThat(this.environment.getProperty("foo", Map.class)).isEmpty();
-  }
-
-  private void testServletPropertySource(String servletPropertySourceName) {
-    this.environment.getPropertySources().addFirst(getPropertySource(servletPropertySourceName, "servlet"));
-    TestPropertySourceUtils.addInlinedPropertiesToEnvironment(this.environment,
-            "INFRA_APPLICATION_JSON={\"foo\":\"bar\"}");
-    this.processor.postProcessEnvironment(this.environment, null);
-    assertThat(this.environment.getProperty("foo")).isEqualTo("bar");
-  }
-
-  private MapPropertySource getPropertySource(String name, String value) {
-    return new MapPropertySource(name, Collections.singletonMap("foo", value));
   }
 
 }

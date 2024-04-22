@@ -429,12 +429,6 @@ class DefaultServerRequest implements ServerRequest {
       throw new UnsupportedOperationException();
     }
 
-    @Nullable
-    @Override
-    public <T> T unwrapRequest(Class<T> requestClass) {
-      throw new UnsupportedOperationException();
-    }
-
     @Override
     public void setStatus(int sc) {
       this.status = sc;

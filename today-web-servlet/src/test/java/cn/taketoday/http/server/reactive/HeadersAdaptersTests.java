@@ -17,7 +17,6 @@
 
 package cn.taketoday.http.server.reactive;
 
-import org.apache.tomcat.util.http.MimeHeaders;
 import org.eclipse.jetty.http.HttpFields;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -139,7 +138,6 @@ class HeadersAdaptersTests {
             arguments(named("Map", MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
             arguments(named("Netty", new Netty4HeadersAdapter(new DefaultHttpHeaders()))),
             arguments(named("Netty", new Netty5HeadersAdapter(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders()))),
-            arguments(named("Tomcat", new TomcatHeadersAdapter(new MimeHeaders()))),
             arguments(named("Undertow", new UndertowHeadersAdapter(new HeaderMap()))),
             arguments(named("Jetty", new JettyHeadersAdapter(HttpFields.build())))
     );

@@ -609,15 +609,6 @@ public class NettyRequestContext extends RequestContext {
   }
 
   @Override
-  @Nullable
-  public <T> T unwrapRequest(Class<T> requestClass) {
-    if (requestClass.isInstance(request)) {
-      return requestClass.cast(request);
-    }
-    return null;
-  }
-
-  @Override
   protected MultipartRequest createMultipartRequest() {
     return new NettyMultipartRequest(this);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.UrlResource;
-import cn.taketoday.framework.web.servlet.context.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.MockHttpServletRequest;
@@ -62,9 +61,9 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(
-        Arguments.arguments(true, "/cp"),
-        Arguments.arguments(true, "/fs"),
-        Arguments.arguments(true, "/url")
+            Arguments.arguments(true, "/cp"),
+            Arguments.arguments(true, "/fs"),
+            Arguments.arguments(true, "/url")
     );
   }
 
@@ -127,7 +126,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   }
 
   private DispatcherServlet initDispatcherServlet(Class<?>... configClasses) {
-    var context = new AnnotationConfigServletWebApplicationContext();
+    var context = new AnnotationConfigWebApplicationContext();
     context.setServletContext(this.servletContext);
     context.register(configClasses);
     context.refresh();

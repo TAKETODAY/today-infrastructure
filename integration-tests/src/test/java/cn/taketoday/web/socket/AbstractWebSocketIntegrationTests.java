@@ -44,7 +44,6 @@ import cn.taketoday.web.socket.client.WebSocketClient;
 import cn.taketoday.web.socket.client.standard.StandardWebSocketClient;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.standard.TomcatRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
 
@@ -59,12 +58,10 @@ public abstract class AbstractWebSocketIntegrationTests {
 
   private static final Map<Class<?>, Class<?>> upgradeStrategyConfigTypes = Map.of(
           JettyWebSocketTestServer.class, JettyUpgradeStrategyConfig.class, //
-          TomcatWebSocketTestServer.class, TomcatUpgradeStrategyConfig.class, //
           UndertowTestServer.class, UndertowUpgradeStrategyConfig.class);
 
   static Stream<Arguments> argumentsFactory() {
     return Stream.of(
-            arguments(named("Tomcat", new TomcatWebSocketTestServer()), named("Standard", new StandardWebSocketClient())),
             arguments(named("Undertow", new UndertowTestServer()), named("Standard", new StandardWebSocketClient()))
     );
   }
@@ -170,16 +167,6 @@ public abstract class AbstractWebSocketIntegrationTests {
     @Bean
     public RequestUpgradeStrategy requestUpgradeStrategy() {
       return new JettyRequestUpgradeStrategy();
-    }
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class TomcatUpgradeStrategyConfig extends AbstractRequestUpgradeStrategyConfig {
-
-    @Override
-    @Bean
-    public RequestUpgradeStrategy requestUpgradeStrategy() {
-      return new TomcatRequestUpgradeStrategy();
     }
   }
 
