@@ -102,6 +102,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
    * Such view names will not be resolved in the configured default
    * way but rather be treated as special shortcut.
    */
+  @Deprecated
   public static final String FORWARD_URL_PREFIX = "forward:";
 
   @Nullable
@@ -428,14 +429,6 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
   @Override
   public int getOrder() {
     return this.order;
-  }
-
-  @Override
-  protected void initApplicationContext() {
-    super.initApplicationContext();
-    if (getViewClass() == null) {
-      throw new IllegalArgumentException("Property 'viewClass' is required");
-    }
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.mvc;
@@ -24,7 +24,6 @@ import java.util.Properties;
 import java.util.function.Function;
 
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -45,12 +44,9 @@ class WebContentInterceptorTests {
   private final Object handler = new Object();
   RequestContext context = new ServletRequestContext(null, servletRequest, response);
 
-  Function<String, RequestContext> requestFactory = new Function<String, RequestContext>() {
-    @Override
-    public RequestContext apply(String path) {
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", path);
-      return new MockServletRequestContext(servletRequest, response);
-    }
+  Function<String, RequestContext> requestFactory = path -> {
+    MockHttpServletRequest servletRequest = new MockHttpServletRequest("GET", path);
+    return new ServletRequestContext(null, servletRequest, response);
   };
 
   @Test
@@ -58,7 +54,7 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(10);
     interceptor.beforeProcess(context, handler);
 
-
+    context.flush();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
@@ -80,6 +76,8 @@ class WebContentInterceptorTests {
     request = requestFactory.apply("/example/bingo.html");
     interceptor.beforeProcess(request, handler);
 
+    request.requestCompleted();
+    
     cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }
@@ -89,7 +87,7 @@ class WebContentInterceptorTests {
     interceptor.setCacheSeconds(0);
     RequestContext requestContext = requestFactory.apply("/");
     interceptor.beforeProcess(requestContext, handler);
-
+    requestContext.requestCompleted();
     Iterable<String> cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("no-store");
   }

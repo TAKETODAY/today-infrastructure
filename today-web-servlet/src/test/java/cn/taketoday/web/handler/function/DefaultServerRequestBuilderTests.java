@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -35,7 +32,6 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockCookie;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.view.PathPatternsTestUtils;
-import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,16 +44,17 @@ class DefaultServerRequestBuilderTests {
           Collections.singletonList(new StringHttpMessageConverter());
 
   @Test
-  void from() throws ServletException, IOException {
+  void from() throws IOException {
     MockHttpServletRequest request = PathPatternsTestUtils.initRequest("POST", "https://example.com", true);
     request.addHeader("foo", "bar");
     request.setCookies(new MockCookie("foo", "bar"));
-    request.setAttribute("foo", "bar");
     request.addParameter("foo", "bar");
     request.setRemoteHost("127.0.0.1");
     request.setRemotePort(80);
 
     ServletRequestContext context = new ServletRequestContext(null, request, null);
+    context.setAttribute("foo", "bar");
+
     ServerRequest other = ServerRequest.create(context, messageConverters);
 
     ServerRequest result = ServerRequest.from(other)

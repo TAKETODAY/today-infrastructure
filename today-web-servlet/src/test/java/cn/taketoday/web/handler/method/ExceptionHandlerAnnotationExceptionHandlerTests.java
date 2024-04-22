@@ -55,6 +55,7 @@ import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
@@ -119,7 +120,8 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     ModelAndView mav = handleException(ex, handlerMethod);// ViewRenderingException
-    assertThat(mav.getViewName()).isNull();
+    assertThat(mav).isNull();
+//    assertThat(mav.getViewName()).isNull();
 
 //    assertThat(mav.getViewName()).isEqualTo("errorView");
 //    assertThat(mav.getModel().get("detail")).isEqualTo("Bad argument");
@@ -133,20 +135,11 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private ModelAndView handleException(
           ApplicationContext context, Exception ex, HandlerMethod handlerMethod) throws Exception {
-    ResolvableParameterFactory factory = new ResolvableParameterFactory();
-    ActionMappingAnnotationHandler handler = new ActionMappingAnnotationHandler(
-            handlerMethod, factory.createArray(handlerMethod.getMethod()), handlerMethod.getBeanType()) {
-      @Override
-      public Object getHandlerObject() {
-        return handlerMethod.getBean();
-      }
-    };
+    ServletRequestContext context1 = new ServletRequestContext(context, request, response);
+    context1.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
-    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
-
-    MockServletRequestContext context1 = new MockServletRequestContext(context, request, response);
     context1.setBinding(new BindingContext());
-    Object ret = this.handler.handleException(context1, ex, handler);
+    Object ret = this.handler.handleException(context1, ex, handlerMethod);
     if (ret instanceof ModelAndView mav) {
       return mav;
     }

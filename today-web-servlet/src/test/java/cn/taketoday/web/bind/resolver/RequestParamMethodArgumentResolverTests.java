@@ -43,8 +43,6 @@ import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockPart;
-import jakarta.servlet.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -89,15 +87,6 @@ class RequestParamMethodArgumentResolverTests {
     param = this.testMethod.annotPresent(RequestParam.class).arg(MultipartFile[].class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
-    param = this.testMethod.annotPresent(RequestParam.class).arg(Part.class);
-    assertThat(resolver.supportsParameter(param)).isTrue();
-
-    param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
-    assertThat(resolver.supportsParameter(param)).isTrue();
-
-    param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
-    assertThat(resolver.supportsParameter(param)).isTrue();
-
     param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class);
     assertThat(resolver.supportsParameter(param)).isFalse();
 
@@ -108,9 +97,6 @@ class RequestParamMethodArgumentResolverTests {
     assertThat(resolver.supportsParameter(param)).isTrue();
 
     param = this.testMethod.annotNotPresent(RequestParam.class).arg(List.class, MultipartFile.class);
-    assertThat(resolver.supportsParameter(param)).isTrue();
-
-    param = this.testMethod.annotNotPresent(RequestParam.class).arg(Part.class);
     assertThat(resolver.supportsParameter(param)).isTrue();
 
     param = this.testMethod.annot(MvcAnnotationPredicates.requestPart()).arg(MultipartFile.class);
@@ -253,97 +239,6 @@ class RequestParamMethodArgumentResolverTests {
   }
 
   @Test
-  public void resolvePart() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    MockPart expected = new MockPart("pfile", "Hello World".getBytes());
-    request.setMethod("POST");
-    request.setContentType("multipart/form-data");
-    request.addPart(expected);
-    webRequest = new ServletRequestContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
-
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part.class);
-    Object result = resolver.resolveArgument(webRequest, param);
-
-    boolean condition = result instanceof Part;
-    assertThat(condition).isTrue();
-    assertThat(result).as("Invalid result").isEqualTo(expected);
-  }
-
-  @Test
-  public void resolvePartList() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setMethod("POST");
-    request.setContentType("multipart/form-data");
-    MockPart expected1 = new MockPart("pfilelist", "Hello World 1".getBytes());
-    MockPart expected2 = new MockPart("pfilelist", "Hello World 2".getBytes());
-    request.addPart(expected1);
-    request.addPart(expected2);
-    request.addPart(new MockPart("other", "Hello World 3".getBytes()));
-    webRequest = new ServletRequestContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
-
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
-    Object result = resolver.resolveArgument(webRequest, param);
-
-    boolean condition = result instanceof List;
-    assertThat(condition).isTrue();
-    assertThat(result).isEqualTo(Arrays.asList(expected1, expected2));
-  }
-
-  @Test
-  public void resolvePartListMissing() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setMethod("POST");
-    request.setContentType("multipart/form-data");
-    request.addPart(new MockPart("other", "Hello World 3".getBytes()));
-    webRequest = new ServletRequestContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
-
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(List.class, Part.class);
-    assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
-            resolver.resolveArgument(webRequest, param));
-  }
-
-  @Test
-  public void resolvePartArray() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    MockPart expected1 = new MockPart("pfilearray", "Hello World 1".getBytes());
-    MockPart expected2 = new MockPart("pfilearray", "Hello World 2".getBytes());
-    request.setMethod("POST");
-    request.setContentType("multipart/form-data");
-    request.addPart(expected1);
-    request.addPart(expected2);
-    request.addPart(new MockPart("other", "Hello World 3".getBytes()));
-    webRequest = new ServletRequestContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
-
-    ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(Part[].class);
-    Object result = resolver.resolveArgument(webRequest, param);
-
-    boolean condition = result instanceof Part[];
-    assertThat(condition).isTrue();
-    Part[] parts = (Part[]) result;
-    assertThat(parts.length).isEqualTo(2);
-    assertThat(expected1).isEqualTo(parts[0]);
-    assertThat(expected2).isEqualTo(parts[1]);
-  }
-
-  @Test
-  public void resolvePartArrayMissing() throws Throwable {
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setMethod("POST");
-    request.setContentType("multipart/form-data");
-    request.addPart(new MockPart("other", "Hello World 3".getBytes()));
-    ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
-    webRequest.setBinding(new BindingContext());
-
-    ResolvableMethodParameter param = testMethod.annotPresent(RequestParam.class).arg(Part[].class);
-    assertThatExceptionOfType(MissingRequestPartException.class)
-            .isThrownBy(() -> resolver.resolveArgument(webRequest, param));
-  }
-
-  @Test
   public void resolveMultipartFileNotAnnot() throws Throwable {
     MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
     MultipartFile expected = new MockMultipartFile("multipartFileNotAnnot", "Hello World".getBytes());
@@ -418,23 +313,6 @@ class RequestParamMethodArgumentResolverTests {
     ResolvableMethodParameter param = this.testMethod.annotPresent(RequestParam.class).arg(MultipartFile.class);
     assertThatExceptionOfType(MissingRequestPartException.class).isThrownBy(() ->
             resolver.resolveArgument(webRequest, param));
-  }
-
-  @Test
-  public void resolvePartNotAnnot() throws Throwable {
-    MockPart expected = new MockPart("part", "Hello World".getBytes());
-    MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setMethod("POST");
-    request.setContentType("multipart/form-data");
-    request.addPart(expected);
-    webRequest = new ServletRequestContext(null, request, null);
-    webRequest.setBinding(new BindingContext());
-
-    ResolvableMethodParameter param = this.testMethod.annotNotPresent(RequestParam.class).arg(Part.class);
-    Object result = resolver.resolveArgument(webRequest, param);
-    boolean condition = result instanceof Part;
-    assertThat(condition).isTrue();
-    assertThat(result).as("Invalid result").isEqualTo(expected);
   }
 
   @Test
@@ -764,14 +642,10 @@ class RequestParamMethodArgumentResolverTests {
           @RequestParam("mfile") MultipartFile param4,
           @RequestParam("mfilelist") List<MultipartFile> param5,
           @RequestParam("mfilearray") MultipartFile[] param6,
-          @RequestParam("pfile") Part param7,
-          @RequestParam("pfilelist") List<Part> param8,
-          @RequestParam("pfilearray") Part[] param9,
           @RequestParam Map<?, ?> param10,
           String stringNotAnnot,
           MultipartFile multipartFileNotAnnot,
           List<MultipartFile> multipartFileList,
-          Part part,
           @RequestPart MultipartFile requestPartAnnot,
           @RequestParam("name") String paramRequired,
           @RequestParam(name = "name", required = false) String paramNotRequired,

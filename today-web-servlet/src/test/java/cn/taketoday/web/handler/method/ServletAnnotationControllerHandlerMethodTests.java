@@ -136,7 +136,6 @@ import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.security.TestPrincipal;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
@@ -152,7 +151,6 @@ import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
@@ -347,11 +345,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
   @Test
   void emptyParameterListHandleMethod() throws Exception {
-    initDispatcherServlet(EmptyParameterListHandlerMethodController.class, wac -> {
-      RootBeanDefinition vrDef = new RootBeanDefinition(InternalResourceViewResolver.class);
-      vrDef.getPropertyValues().add("suffix", ".jsp");
-      wac.registerBeanDefinition("viewResolver", vrDef);
-    });
+    initDispatcherServlet(EmptyParameterListHandlerMethodController.class);
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/emptyParameterListHandler");
     MockHttpServletResponse response = new MockHttpServletResponse();
@@ -2266,17 +2260,17 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class ControllerWithEmptyValueMapping {
 
     @RequestMapping("")
-    public void myPath2(HttpServletResponse response) {
+    public void myPath2(RequestContext response) {
       throw new IllegalStateException("test");
     }
 
     @RequestMapping("/bar")
-    public void myPath3(HttpServletResponse response) throws IOException {
+    public void myPath3(RequestContext response) throws IOException {
       response.getWriter().write("testX");
     }
 
     @ExceptionHandler
-    public void myPath2(Exception ex, HttpServletResponse response) throws IOException {
+    public void myPath2(Exception ex, RequestContext response) throws IOException {
       response.getWriter().write(ex.getMessage());
     }
   }
@@ -2285,17 +2279,17 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   private static class ControllerWithErrorThrown {
 
     @RequestMapping("")
-    public void myPath2(HttpServletResponse response) {
+    public void myPath2(RequestContext response) {
       throw new AssertionError("test");
     }
 
     @RequestMapping("/bar")
-    public void myPath3(HttpServletResponse response) throws IOException {
+    public void myPath3(RequestContext response) throws IOException {
       response.getWriter().write("testX");
     }
 
     @ExceptionHandler
-    public void myPath2(Error err, HttpServletResponse response) throws IOException {
+    public void myPath2(Error err, RequestContext response) throws IOException {
       response.getWriter().write(err.getMessage());
     }
   }
@@ -2304,24 +2298,24 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class MyAdaptedController {
 
     @RequestMapping("/myPath1.do")
-    public void myHandle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void myHandle(RequestContext request, RequestContext response) throws IOException {
       response.getWriter().write("test");
     }
 
     @RequestMapping("/myPath2.do")
     public void myHandle(@RequestParam("param1") String p1, @RequestParam("param2") int p2,
             @RequestHeader("header1") long h1, @CookieValue(name = "cookie1") Cookie c1,
-            HttpServletResponse response) throws IOException {
+            RequestContext response) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + p2 + "-" + h1 + "-" + c1.getValue());
     }
 
     @RequestMapping("/myPath3")
-    public void myHandle(TestBean tb, HttpServletResponse response) throws IOException {
+    public void myHandle(TestBean tb, RequestContext response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + tb.getAge());
     }
 
     @RequestMapping("/myPath4.do")
-    public void myHandle(TestBean tb, Errors errors, HttpServletResponse response) throws IOException {
+    public void myHandle(TestBean tb, Errors errors, RequestContext response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + errors.getFieldError("age").getCode());
     }
   }
@@ -2331,23 +2325,23 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class MyAdaptedController2 {
 
     @RequestMapping
-    public void myHandle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void myHandle(RequestContext request, RequestContext response) throws IOException {
       response.getWriter().write("test");
     }
 
     @RequestMapping("/myPath2.do")
-    public void myHandle(@RequestParam("param1") String p1, int param2, HttpServletResponse response,
+    public void myHandle(@RequestParam("param1") String p1, int param2, RequestContext response,
             @RequestHeader("header1") String h1, @CookieValue("cookie1") String c1) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + param2 + "-" + h1 + "-" + c1);
     }
 
     @RequestMapping("/myPath3")
-    public void myHandle(TestBean tb, HttpServletResponse response) throws IOException {
+    public void myHandle(TestBean tb, RequestContext response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + tb.getAge());
     }
 
     @RequestMapping("/myPath4.*")
-    public void myHandle(TestBean tb, Errors errors, HttpServletResponse response) throws IOException {
+    public void myHandle(TestBean tb, Errors errors, RequestContext response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + errors.getFieldError("age").getCode());
     }
   }
@@ -2357,7 +2351,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
     @RequestMapping("/myPath2.do")
     public void myHandle(@RequestParam("param1") T p1, int param2, @RequestHeader Integer header1,
-            @CookieValue int cookie1, HttpServletResponse response) throws IOException {
+            @CookieValue int cookie1, RequestContext response) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + param2 + "-" + header1 + "-" + cookie1);
     }
 
@@ -2380,23 +2374,23 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class MyAdaptedController3 extends MyAdaptedControllerBase<String> {
 
     @RequestMapping
-    public void myHandle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void myHandle(RequestContext request, RequestContext response) throws IOException {
       response.getWriter().write("test");
     }
 
     @Override
     public void myHandle(@RequestParam("param1") String p1, int param2, @RequestHeader Integer header1,
-            @CookieValue int cookie1, HttpServletResponse response) throws IOException {
+            @CookieValue int cookie1, RequestContext response) throws IOException {
       response.getWriter().write("test-" + p1 + "-" + param2 + "-" + header1 + "-" + cookie1);
     }
 
     @RequestMapping("/myPath3")
-    public void myHandle(TestBean tb, HttpServletResponse response) throws IOException {
+    public void myHandle(TestBean tb, RequestContext response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + tb.getAge());
     }
 
     @RequestMapping("/myPath4.*")
-    public void myHandle(TestBean tb, Errors errors, HttpServletResponse response) throws IOException {
+    public void myHandle(TestBean tb, Errors errors, RequestContext response) throws IOException {
       response.getWriter().write("test-" + tb.getName() + "-" + errors.getFieldError("age").getCode());
     }
 
@@ -2429,7 +2423,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     }
 
     @RequestMapping("/nonEmptyParameterListHandler")
-    public void nonEmptyParameterListHandler(HttpServletResponse response) {
+    public void nonEmptyParameterListHandler(RequestContext response) {
     }
   }
 
@@ -2478,7 +2472,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     RequestContext requestContext;
 
     @Autowired
-    HttpServletRequest request;
+    RequestContext request;
 
     public AbstractSessionManagerAutowired(SessionManager sessionManager) {
       super(sessionManager);
@@ -2827,13 +2821,13 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     private HttpSession session;
 
     @Autowired
-    private HttpServletRequest request;
+    private RequestContext request;
 
     @Autowired
     private RequestContext webRequest;
 
     @RequestMapping
-    public void myHandle(HttpServletResponse response, HttpServletRequest request) throws IOException {
+    public void myHandle(RequestContext response, RequestContext request) throws IOException {
       if (this.servletContext == null || this.servletConfig == null || this.session == null ||
               this.request == null || this.webRequest == null) {
         throw new IllegalStateException();
@@ -2847,17 +2841,17 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     }
 
     @RequestMapping(params = { "view", "!lang" })
-    public void myOtherHandle(HttpServletResponse response) throws IOException {
+    public void myOtherHandle(RequestContext response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping(method = HttpMethod.GET, params = { "view=my", "lang=de" })
-    public void myLangHandle(HttpServletResponse response) throws IOException {
+    public void myLangHandle(RequestContext response) throws IOException {
       response.getWriter().write("myLangView");
     }
 
     @RequestMapping(method = { HttpMethod.POST, HttpMethod.GET }, params = "surprise")
-    public void mySurpriseHandle(HttpServletResponse response) throws IOException {
+    public void mySurpriseHandle(RequestContext response) throws IOException {
       response.getWriter().write("mySurpriseView");
     }
   }
@@ -2867,12 +2861,12 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class MyConstrainedParameterDispatchingController {
 
     @RequestMapping(params = { "view", "!lang" })
-    public void myOtherHandle(HttpServletResponse response) throws IOException {
+    public void myOtherHandle(RequestContext response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping(method = HttpMethod.GET, params = { "view=my", "lang=de" })
-    public void myLangHandle(HttpServletResponse response) throws IOException {
+    public void myLangHandle(RequestContext response) throws IOException {
       response.getWriter().write("myLangView");
     }
   }
@@ -2882,22 +2876,22 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class MyRelativePathDispatchingController {
 
     @RequestMapping
-    public void myHandle(HttpServletResponse response) throws IOException {
+    public void myHandle(RequestContext response) throws IOException {
       response.getWriter().write("myView");
     }
 
     @RequestMapping("*Other")
-    public void myOtherHandle(HttpServletResponse response) throws IOException {
+    public void myOtherHandle(RequestContext response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping("myLang")
-    public void myLangHandle(HttpServletResponse response) throws IOException {
+    public void myLangHandle(RequestContext response) throws IOException {
       response.getWriter().write("myLangView");
     }
 
     @RequestMapping("surprise")
-    public void mySurpriseHandle(HttpServletResponse response) throws IOException {
+    public void mySurpriseHandle(RequestContext response) throws IOException {
       response.getWriter().write("mySurpriseView");
     }
   }
@@ -2906,22 +2900,22 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class MyRelativeMethodPathDispatchingController {
 
     @RequestMapping("*/myHandle") // was **/myHandle
-    public void myHandle(HttpServletResponse response) throws IOException {
+    public void myHandle(RequestContext response) throws IOException {
       response.getWriter().write("myView");
     }
 
     @RequestMapping("/*/*Other") // was /**/*Other
-    public void myOtherHandle(HttpServletResponse response) throws IOException {
+    public void myOtherHandle(RequestContext response) throws IOException {
       response.getWriter().write("myOtherView");
     }
 
     @RequestMapping("*/myLang") // was **/myLang
-    public void myLangHandle(HttpServletResponse response) throws IOException {
+    public void myLangHandle(RequestContext response) throws IOException {
       response.getWriter().write("myLangView");
     }
 
     @RequestMapping("/*/surprise") // was /**/surprise
-    public void mySurpriseHandle(HttpServletResponse response) throws IOException {
+    public void mySurpriseHandle(RequestContext response) throws IOException {
       response.getWriter().write("mySurpriseView");
     }
   }
@@ -3026,7 +3020,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class ParentController {
 
     @RequestMapping(method = HttpMethod.GET)
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) {
+    public void doGet(RequestContext req, RequestContext resp) {
     }
   }
 
@@ -3035,7 +3029,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class ChildController extends ParentController {
 
     @RequestMapping(method = HttpMethod.GET)
-    public void doGet(HttpServletRequest req, HttpServletResponse resp, @RequestParam("childId") String id) {
+    public void doGet(RequestContext req, RequestContext resp, @RequestParam("childId") String id) {
     }
   }
 
@@ -3089,7 +3083,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     public void myHandle(@RequestParam(required = false) String id,
             @RequestParam(required = false) boolean flag,
             @RequestHeader(value = "header", required = false) String header,
-            HttpServletResponse response) throws IOException {
+            RequestContext response) throws IOException {
       response.getWriter().write(String.valueOf(id) + "-" + flag + "-" + String.valueOf(header));
     }
   }
@@ -3101,7 +3095,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     public void myHandle(@RequestParam(value = "id", defaultValue = "foo") String id,
             @RequestParam(value = "otherId", defaultValue = "") String id2,
             @RequestHeader(defaultValue = "bar") String header,
-            HttpServletResponse response) throws IOException {
+            RequestContext response) throws IOException {
       response.getWriter().write(String.valueOf(id) + "-" + String.valueOf(id2) + "-" + String.valueOf(header));
     }
   }
@@ -3113,7 +3107,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     public void myHandle(@RequestParam(value = "id", defaultValue = "${myKey}") String id,
             @RequestHeader(defaultValue = "#{systemProperties.myHeader}") String header,
             @Value("#{request.contextPath}") String contextPath,
-            HttpServletResponse response) throws IOException {
+            RequestContext response) throws IOException {
       response.getWriter().write(String.valueOf(id) + "-" + String.valueOf(header) + "-" + contextPath);
     }
   }
@@ -3122,7 +3116,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class NestedSetController {
 
     @RequestMapping("/myPath.do")
-    public void myHandle(GenericBean<?> gb, HttpServletResponse response) throws Exception {
+    public void myHandle(GenericBean<?> gb, RequestContext response) throws Exception {
       response.getWriter().write(gb.getTestBeanSet().toString() + "-" +
               gb.getTestBeanSet().iterator().next().getClass().getName());
     }
@@ -3787,13 +3781,13 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     }
 
     @RequestMapping("/singleString")
-    public void processMultipart(@RequestParam("content") String content, HttpServletResponse response)
+    public void processMultipart(@RequestParam("content") String content, RequestContext response)
             throws IOException {
       response.getWriter().write(content);
     }
 
     @RequestMapping("/stringArray")
-    public void processMultipart(@RequestParam("content") String[] content, HttpServletResponse response)
+    public void processMultipart(@RequestParam("content") String[] content, RequestContext response)
             throws IOException {
       response.getWriter().write(StringUtils.arrayToDelimitedString(content, "-"));
     }
@@ -3803,12 +3797,12 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   static class CsvController {
 
     @RequestMapping("/singleInteger")
-    public void processCsv(@RequestParam("content") Integer content, HttpServletResponse response) throws IOException {
+    public void processCsv(@RequestParam("content") Integer content, RequestContext response) throws IOException {
       response.getWriter().write(content.toString());
     }
 
     @RequestMapping("/integerArray")
-    public void processCsv(@RequestParam("content") Integer[] content, HttpServletResponse response) throws IOException {
+    public void processCsv(@RequestParam("content") Integer[] content, RequestContext response) throws IOException {
       response.getWriter().write(StringUtils.arrayToDelimitedString(content, "-"));
     }
   }

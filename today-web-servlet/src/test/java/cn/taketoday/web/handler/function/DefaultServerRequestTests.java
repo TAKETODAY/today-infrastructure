@@ -128,10 +128,10 @@ class DefaultServerRequestTests {
   @Test
   void attributes() {
     MockHttpServletRequest servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    servletRequest.setAttribute("foo", "bar");
-    servletRequest.setAttribute("baz", "qux");
-
     ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    context.setAttribute("foo", "bar");
+    context.setAttribute("baz", "qux");
+
     DefaultServerRequest request = new DefaultServerRequest(context, this.messageConverters);
 
     Map<String, Object> attributesMap = request.attributes();

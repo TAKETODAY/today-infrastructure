@@ -27,11 +27,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
@@ -136,11 +136,11 @@ public class RedirectViewTests {
     this.request.setContextPath("//context");
     this.response = new MockHttpServletResponse();
     this.context = null;
-    doTest(new HashMap<>(), url, true, "/context" + url);
+    doTest(new HashMap<>(), url, true, url);
     this.request.setContextPath("///context");
     this.response = new MockHttpServletResponse();
     this.context = null;
-    doTest(new HashMap<>(), url, true, "/context" + url);
+    doTest(new HashMap<>(), url, true, url);
   }
 
   @Test
@@ -152,7 +152,7 @@ public class RedirectViewTests {
   @Test
   public void emptyMapWithContextRelative() throws Exception {
     String url = "/myUrl";
-    doTest(new HashMap<>(), url, true, "/context" + url);
+    doTest(new HashMap<>(), url, true, url);
   }
 
   @Test
@@ -192,7 +192,7 @@ public class RedirectViewTests {
   @Test
   public void contextRelativeQueryParam() throws Exception {
     String url = "/test.html?id=1";
-    doTest(new HashMap<>(), url, true, "/context" + url);
+    doTest(new HashMap<>(), url, true, url);
   }
 
   @Test

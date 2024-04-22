@@ -50,7 +50,6 @@ import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.PathMatchConfigurer;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -152,7 +151,7 @@ class MvcUriComponentsBuilderTests {
     UriComponents uriComponents = fromMethodName(
             PersonsAddressesController.class, "getAddressesForCountry", "DE").buildAndExpand("1");
 
-    assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/myapp/people/1/addresses/DE");
+    assertThat(uriComponents.toUriString()).isEqualTo("http://localhost/people/1/addresses/DE");
   }
 
   @Test
@@ -407,7 +406,7 @@ class MvcUriComponentsBuilderTests {
 
     String mappingName = "PAC#getAddressesForCountry";
     String url = fromMappingName(mappingName).arg(0, "DE").buildAndExpand(123);
-    assertThat(url).isEqualTo("/base/people/123/addresses/DE");
+    assertThat(url).isEqualTo("/people/123/addresses/DE");
   }
 
   @Test
@@ -430,7 +429,7 @@ class MvcUriComponentsBuilderTests {
 
     String mappingName = "PAC#getAddressesForCountry";
     String url = fromMappingName(mappingName).arg(0, "DE;FR").encode().buildAndExpand("_+_");
-    assertThat(url).isEqualTo("/base/people/_%2B_/addresses/DE%3BFR");
+    assertThat(url).isEqualTo("/people/_%2B_/addresses/DE%3BFR");
   }
 
   @Test
@@ -443,7 +442,7 @@ class MvcUriComponentsBuilderTests {
 
     String mappingName = "PWLSC#getAddressesForCountry";
     String url = fromMappingName(mappingName).arg(0, "DE;FR").encode().buildAndExpand("_+_");
-    assertThat(url).isEqualTo("/base/people/DE%3BFR");
+    assertThat(url).isEqualTo("/people/DE%3BFR");
   }
 
   @Test
@@ -456,7 +455,7 @@ class MvcUriComponentsBuilderTests {
     this.request.setContextPath("/base");
 
     assertThat(fromController(PersonsAddressesController.class).buildAndExpand("123").toString())
-            .isEqualTo("https://example.org:9999/base/api/people/123/addresses");
+            .isEqualTo("https://example.org:9999/api/people/123/addresses");
   }
 
   @Test
@@ -473,7 +472,7 @@ class MvcUriComponentsBuilderTests {
             .buildAndExpand("123")
             .toString();
 
-    assertThat(url).isEqualTo("https://example.org:9999/base/api/people/123/addresses/DE");
+    assertThat(url).isEqualTo("https://example.org:9999/api/people/123/addresses/DE");
   }
 
   private void initWebApplicationContext(Class<?> configClass) {
@@ -481,7 +480,7 @@ class MvcUriComponentsBuilderTests {
     context.setServletContext(new MockServletContext());
     context.register(configClass);
     context.refresh();
-    this.request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+    RequestContextHolder.set(new ServletRequestContext(context, request, new MockHttpServletResponse()));
   }
 
   static class Person {
@@ -637,8 +636,8 @@ class MvcUriComponentsBuilderTests {
   }
 
   @RequestMapping(method = HttpMethod.POST,
-          produces = MediaType.APPLICATION_JSON_VALUE,
-          consumes = MediaType.APPLICATION_JSON_VALUE)
+                  produces = MediaType.APPLICATION_JSON_VALUE,
+                  consumes = MediaType.APPLICATION_JSON_VALUE)
   @Target({ ElementType.METHOD, ElementType.TYPE })
   @Retention(RetentionPolicy.RUNTIME)
   @Documented

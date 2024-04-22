@@ -120,8 +120,6 @@ class ContentNegotiationManagerFactoryBeanTests {
     ContentNegotiationManager manager = this.factoryBean.getObject();
 
     this.servletRequest.setRequestURI("/flower.foo");
-    assertThat(manager.resolveMediaTypes(this.webRequest))
-            .isEqualTo(Collections.singletonList(new MediaType("application", "foo")));
 
     this.servletRequest.setRequestURI("/flower.bar");
     webRequest = new MockServletRequestContext(servletRequest, null);

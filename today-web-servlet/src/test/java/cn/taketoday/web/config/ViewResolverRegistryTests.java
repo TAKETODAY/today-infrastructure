@@ -26,7 +26,6 @@ import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.ViewResolver;
@@ -85,13 +84,6 @@ class ViewResolverRegistryTests {
     assertThat(this.registry.getViewResolvers()).isNotNull();
     assertThat(this.registry.getViewResolvers()).isEmpty();
     assertThat(this.registry.hasRegistrations()).isFalse();
-  }
-
-  @Test
-  public void customViewResolver() {
-    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver("/", ".jsp");
-    this.registry.viewResolver(viewResolver);
-    assertThat(this.registry.getViewResolvers().get(0)).isSameAs(viewResolver);
   }
 
   @Test

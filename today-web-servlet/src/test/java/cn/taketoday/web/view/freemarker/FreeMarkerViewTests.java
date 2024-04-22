@@ -36,7 +36,6 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.servlet.view.InternalResourceView;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
@@ -201,10 +200,6 @@ public class FreeMarkerViewTests {
     view = vr.resolveViewName("redirect:myUrl", Locale.getDefault());
     assertThat(view.getClass()).as("Correct view class").isEqualTo(RedirectView.class);
     assertThat(((RedirectView) view).getUrl()).as("Correct URL").isEqualTo("myUrl");
-
-    view = vr.resolveViewName("forward:myUrl", Locale.getDefault());
-    assertThat(view.getClass()).as("Correct view class").isEqualTo(InternalResourceView.class);
-    assertThat(((InternalResourceView) view).getUrl()).as("Correct URL").isEqualTo("myUrl");
   }
 
   private class TestConfiguration extends Configuration {

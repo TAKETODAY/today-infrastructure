@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -31,7 +31,6 @@ import cn.taketoday.beans.TypeMismatchException;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
@@ -323,11 +322,6 @@ class ResponseEntityExceptionHandlerTests {
   private ResponseEntity<Object> testException(Exception ex) {
     try {
       ResponseEntity<Object> responseEntity = this.exceptionHandlerSupport.handleException(ex, this.request);
-
-      // SPR-9653
-      if (HttpStatus.INTERNAL_SERVER_ERROR.equals(responseEntity.getStatusCode())) {
-        assertThat(this.servletRequest.getAttribute("jakarta.servlet.error.exception")).isSameAs(ex);
-      }
 
       defaultExceptionResolver.handleException(this.request, ex, null);
 

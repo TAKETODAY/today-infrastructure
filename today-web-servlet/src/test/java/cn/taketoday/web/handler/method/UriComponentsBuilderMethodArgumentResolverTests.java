@@ -70,15 +70,13 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
 
   @Test
   public void resolveArgument() throws Throwable {
-    this.servletRequest.setContextPath("/myapp");
-    this.servletRequest.setServletPath("/main");
     this.servletRequest.setPathInfo("/accounts");
 
     Object actual = this.resolver.resolveArgument(webRequest, builderParam);
 
     assertThat(actual).isNotNull();
     assertThat(actual.getClass()).isEqualTo(UriComponentsBuilder.class);
-    assertThat(((UriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost/myapp/main");
+    assertThat(((UriComponentsBuilder) actual).build().toUriString()).isEqualTo("http://localhost");
   }
 
   void handle(UriComponentsBuilder builder, UriComponentsBuilder servletBuilder, int value) {

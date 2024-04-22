@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.resource;
@@ -33,9 +30,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.ServletContextResource;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -114,18 +109,6 @@ public class PathResourceResolverTests {
     List<Resource> locations = Collections.singletonList(location);
     String actual = this.resolver.resolveUrlPath("../testalternatepath/bar.css", locations, null);
     assertThat(actual).isEqualTo("../testalternatepath/bar.css");
-  }
-
-  @Test // SPR-12432
-  public void checkServletContextResource() throws Exception {
-    Resource classpathLocation = new ClassPathResource("test/", PathResourceResolver.class);
-    MockServletContext context = new MockServletContext();
-
-    ServletContextResource servletContextLocation = new ServletContextResource(context, "/webjars/");
-    ServletContextResource resource = new ServletContextResource(context, "/webjars/webjar-foo/1.0/foo.js");
-
-    assertThat(this.resolver.checkResource(resource, classpathLocation)).isFalse();
-    assertThat(this.resolver.checkResource(resource, servletContextLocation)).isTrue();
   }
 
   @Test // SPR-12624

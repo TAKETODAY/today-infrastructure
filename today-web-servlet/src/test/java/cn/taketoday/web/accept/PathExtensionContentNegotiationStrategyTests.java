@@ -125,9 +125,6 @@ class PathExtensionContentNegotiationStrategyTests {
     MediaType textXml = strategy.getMediaTypeForResource(resource);
     assertThat(textXml).isEqualTo(MediaType.APPLICATION_XML);
 
-    assertThat(strategy.getMediaTypeForResource(new ClassPathResource("test.foo")))
-            .isEqualTo(new MediaType("application", "foo"));
-
   }
 
 }

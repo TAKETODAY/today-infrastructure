@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+  <display-name>ticket-webapp</display-name>
+  <description>Web interface for ticket application</description>
+
+  <distributable />
+
+</web-app>

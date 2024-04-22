@@ -106,6 +106,7 @@ import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 import cn.taketoday.web.handler.method.support.CompositeUriComponentsContributor;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.util.pattern.PathPatternParser;
+import cn.taketoday.web.view.UrlBasedViewResolver;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
@@ -471,6 +472,7 @@ public class WebMvcConfigurationSupport extends ApplicationObjectSupport {
               applicationContext, ViewResolver.class, true, false);
       if (names.size() == 1) {
         // add default
+        viewResolvers.add(new UrlBasedViewResolver());
         configureDefaultViewResolvers(viewResolvers);
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -40,8 +40,6 @@ import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.servlet.view.InternalResourceView;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
@@ -411,36 +409,6 @@ public class ContentNegotiatingViewResolverTests {
   }
 
   @Test
-  public void resolveViewNameRedirectView() throws Exception {
-    request.addHeader("Accept", "application/json");
-    request.setRequestURI("/test");
-
-    StaticWebApplicationContext webAppContext = new StaticWebApplicationContext();
-    webAppContext.setServletContext(new MockServletContext());
-    webAppContext.refresh();
-
-    UrlBasedViewResolver urlViewResolver = new InternalResourceViewResolver();
-    urlViewResolver.setApplicationContext(webAppContext);
-    ViewResolver xmlViewResolver = mock(ViewResolver.class);
-    viewResolver.setViewResolvers(Arrays.<ViewResolver>asList(xmlViewResolver, urlViewResolver));
-
-    View xmlView = mock(View.class, "application_xml");
-    View jsonView = mock(View.class, "application_json");
-    viewResolver.setDefaultViews(Arrays.asList(jsonView));
-
-    viewResolver.afterPropertiesSet();
-
-    String viewName = "redirect:anotherTest";
-    Locale locale = Locale.ENGLISH;
-
-    given(xmlViewResolver.resolveViewName(viewName, locale)).willReturn(xmlView);
-    given(jsonView.getContentType()).willReturn("application/json");
-
-    View actualView = viewResolver.resolveViewName(viewName, locale);
-    assertThat(actualView.getClass()).as("Invalid view").isEqualTo(RedirectView.class);
-  }
-
-  @Test
   public void resolveViewNoMatch() throws Exception {
     request.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9");
 
@@ -486,29 +454,6 @@ public class ContentNegotiatingViewResolverTests {
     RequestContextHolder.set(requestContext);
     result.render(null, requestContext);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);
-  }
-
-  @Test
-  public void nestedViewResolverIsNotSpringBean() throws Exception {
-    StaticWebApplicationContext webAppContext = new StaticWebApplicationContext();
-    webAppContext.setServletContext(new MockServletContext());
-    webAppContext.refresh();
-
-    InternalResourceViewResolver nestedResolver = new InternalResourceViewResolver();
-    nestedResolver.setApplicationContext(webAppContext);
-    nestedResolver.setViewClass(InternalResourceView.class);
-    viewResolver.setViewResolvers(new ArrayList<>(Arrays.asList(nestedResolver)));
-
-    FixedContentNegotiationStrategy fixedStrategy = new FixedContentNegotiationStrategy(MediaType.TEXT_HTML);
-    viewResolver.setContentNegotiationManager(new ContentNegotiationManager(fixedStrategy));
-
-    viewResolver.afterPropertiesSet();
-
-    String viewName = "view";
-    Locale locale = Locale.ENGLISH;
-
-    View result = viewResolver.resolveViewName(viewName, locale);
-    assertThat(result).as("Invalid view").isNotNull();
   }
 
   @Test

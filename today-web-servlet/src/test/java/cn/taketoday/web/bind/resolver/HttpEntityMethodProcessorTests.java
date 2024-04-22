@@ -27,12 +27,10 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpEntity;
-import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
@@ -46,9 +44,6 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -187,40 +182,6 @@ class HttpEntityMethodProcessorTests {
 
     assertThat(webRequest.responseHeaders().getFirst("Content-Type")).isEqualTo("text/plain;charset=UTF-8");
     assertThat(servletResponse.getContentAsString()).isEqualTo("Foo");
-  }
-
-  @Test  // SPR-13423
-  public void handleReturnValueWithETagAndETagFilter() throws Exception {
-    String eTagValue = "\"deadb33f8badf00d\"";
-    String content = "body";
-
-    Method method = getClass().getDeclaredMethod("handle");
-    MethodParameter returnType = new MethodParameter(method, -1);
-
-    FilterChain chain = (req, res) -> {
-      ResponseEntity<String> returnValue = ResponseEntity.ok().eTag(eTagValue).body(content);
-      try {
-        ServletRequestContext requestToUse =
-                new ServletRequestContext(null, (HttpServletRequest) req, (HttpServletResponse) res);
-
-        new HttpEntityMethodProcessor(Collections.singletonList(new StringHttpMessageConverter()), null)
-                .handleReturnValue(requestToUse, new HandlerMethod(this, method), returnValue);
-        requestToUse.requestCompleted();
-        assertThat(this.servletResponse.getContentAsString())
-                .as("Response body was cached? It should be written directly to the raw response")
-                .isEqualTo(content);
-      }
-      catch (Exception ex) {
-        throw new IllegalStateException(ex);
-      }
-    };
-
-    this.servletRequest.setMethod("GET");
-//    new ShallowEtagHeaderFilter().doFilter(this.servletRequest, this.servletResponse, chain);
-
-    assertThat(this.servletResponse.getStatus()).isEqualTo(200);
-    assertThat(this.servletResponse.getHeader(HttpHeaders.ETAG)).isEqualTo(eTagValue);
-    assertThat(this.servletResponse.getContentAsString()).isEqualTo(content);
   }
 
   @Test  // gh-24539
