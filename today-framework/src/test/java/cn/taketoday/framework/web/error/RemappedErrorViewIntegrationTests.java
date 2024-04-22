@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Dave Syer
  */
-@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "server.error.path:/infra/")
+@InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "server.error.path:/infra/error")
 @DirtiesContext
 @DirtiesUrlFactories
 @DisabledIfInContinuousIntegration

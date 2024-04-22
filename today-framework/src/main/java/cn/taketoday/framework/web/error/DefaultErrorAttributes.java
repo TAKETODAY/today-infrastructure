@@ -88,14 +88,14 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
   }
 
   private void addStatus(Map<String, Object> attributes, RequestContext request) {
-    Integer status = request.getStatus();
+    int status = request.getStatus();
 
     Throwable error = getError(request);
     if (error instanceof HttpStatusCodeProvider provider) {
       status = provider.getStatusCode().value();
     }
 
-    if (status == null) {
+    if (status == 200) {
       attributes.put("status", 999);
       attributes.put("error", "None");
       return;

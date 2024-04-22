@@ -82,8 +82,7 @@ class BasicErrorControllerDirectMockMvcTests {
   @Test
   void errorPageAvailableWithParentContext() throws Exception {
     setup(new ApplicationBuilder(ParentConfiguration.class)
-            .child(ChildConfiguration.class)
-            .run("--server.port=0"));
+            .child(ChildConfiguration.class).run());
     MvcResult response = this.mockMvc.perform(get("/error").accept(MediaType.TEXT_HTML))
             .andExpect(status().is5xxServerError())
             .andReturn();

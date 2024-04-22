@@ -27,7 +27,6 @@ import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.ServletRequestContext;
@@ -39,7 +38,6 @@ import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.util.WebUtils;
-import jakarta.servlet.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,15 +65,6 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void specificStatusCode() {
-    this.request.setAttribute("jakarta.servlet.error.status_code", 404);
-    Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
-            ErrorAttributeOptions.defaults());
-    assertThat(attributes.get("error")).isEqualTo(HttpStatus.NOT_FOUND.getReasonPhrase());
-    assertThat(attributes.get("status")).isEqualTo(404);
-  }
-
-  @Test
   void missingStatusCode() {
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
@@ -86,7 +75,7 @@ class DefaultErrorAttributesTests {
   @Test
   void mvcError() {
     RuntimeException ex = new RuntimeException("Test");
-    request.setAttribute("jakarta.servlet.error.exception", ex);
+    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     var attributes = errorAttributes.getErrorAttributes(webRequest, ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(errorAttributes.getError(webRequest)).isSameAs(ex);
     assertThat(webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE)).isSameAs(ex);
@@ -98,7 +87,7 @@ class DefaultErrorAttributesTests {
   @Test
   void servletErrorWithMessage() {
     RuntimeException ex = new RuntimeException("Test");
-    this.request.setAttribute("jakarta.servlet.error.exception", ex);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(ex);
@@ -111,7 +100,7 @@ class DefaultErrorAttributesTests {
   @Test
   void servletErrorWithoutMessage() {
     RuntimeException ex = new RuntimeException("Test");
-    this.request.setAttribute("jakarta.servlet.error.exception", ex);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(ex);
@@ -123,7 +112,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void servletMessageWithMessage() {
-    this.request.setAttribute("jakarta.servlet.error.message", "Test");
+    this.request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, "Test");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(attributes).doesNotContainKey("exception");
@@ -132,7 +121,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void servletMessageWithoutMessage() {
-    this.request.setAttribute("jakarta.servlet.error.message", "Test");
+    this.request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, "Test");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
     assertThat(attributes).doesNotContainKey("exception");
@@ -141,8 +130,8 @@ class DefaultErrorAttributesTests {
 
   @Test
   void nullExceptionMessage() {
-    this.request.setAttribute("jakarta.servlet.error.exception", new RuntimeException());
-    this.request.setAttribute("jakarta.servlet.error.message", "Test");
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new RuntimeException());
+    this.request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, "Test");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(attributes).doesNotContainKey("exception");
@@ -159,24 +148,10 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void unwrapServletException() {
-    RuntimeException ex = new RuntimeException("Test");
-    ServletException wrapped = new ServletException(new ServletException(ex));
-    this.request.setAttribute("jakarta.servlet.error.exception", wrapped);
-    Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
-            ErrorAttributeOptions.of(Include.MESSAGE));
-    assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(wrapped);
-    assertThat(this.webRequest.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE))
-            .isSameAs(wrapped);
-    assertThat(attributes).doesNotContainKey("exception");
-    assertThat(attributes.get("message")).isEqualTo("Test");
-  }
-
-  @Test
   void getError() {
     Assertions.setMaxStackTraceElementsDisplayed(1000);
     Error error = new OutOfMemoryError("Test error");
-    this.request.setAttribute("jakarta.servlet.error.exception", error);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, error);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
     assertThat(this.errorAttributes.getError(this.webRequest)).isSameAs(error);
@@ -213,7 +188,7 @@ class DefaultErrorAttributesTests {
   }
 
   private void testBindingResult(BindingResult bindingResult, Exception ex, ErrorAttributeOptions options) {
-    this.request.setAttribute("jakarta.servlet.error.exception", ex);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest, options);
     if (options.isIncluded(Include.MESSAGE)) {
       assertThat(attributes.get("message"))
@@ -234,7 +209,7 @@ class DefaultErrorAttributesTests {
   void withExceptionAttribute() {
     DefaultErrorAttributes errorAttributes = new DefaultErrorAttributes();
     RuntimeException ex = new RuntimeException("Test");
-    this.request.setAttribute("jakarta.servlet.error.exception", ex);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.EXCEPTION, Include.MESSAGE));
     assertThat(attributes.get("exception")).isEqualTo(RuntimeException.class.getName());
@@ -244,7 +219,7 @@ class DefaultErrorAttributesTests {
   @Test
   void withStackTraceAttribute() {
     RuntimeException ex = new RuntimeException("Test");
-    this.request.setAttribute("jakarta.servlet.error.exception", ex);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.STACK_TRACE));
     assertThat(attributes.get("trace").toString()).startsWith("java.lang");
@@ -253,7 +228,7 @@ class DefaultErrorAttributesTests {
   @Test
   void withoutStackTraceAttribute() {
     RuntimeException ex = new RuntimeException("Test");
-    this.request.setAttribute("jakarta.servlet.error.exception", ex);
+    this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
     assertThat(attributes).doesNotContainKey("trace");
@@ -261,7 +236,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void shouldIncludePathByDefault() {
-    this.request.setAttribute("jakarta.servlet.error.request_uri", "path");
+    request.setRequestURI("path");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());
     assertThat(attributes.get("path")).isEqualTo("path");
@@ -269,7 +244,7 @@ class DefaultErrorAttributesTests {
 
   @Test
   void shouldIncludePath() {
-    this.request.setAttribute("jakarta.servlet.error.request_uri", "path");
+    request.setRequestURI("path");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.PATH));
     assertThat(attributes).containsEntry("path", "path");

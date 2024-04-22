@@ -42,6 +42,7 @@ import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
+import cn.taketoday.web.util.WebUtils;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -82,7 +83,7 @@ class DefaultErrorViewIntegrationTests {
     MvcResult response = this.mockMvc
             .perform(
                     get("/error")
-                            .requestAttr("jakarta.servlet.error.exception",
+                            .requestAttr(WebUtils.ERROR_EXCEPTION_ATTRIBUTE,
                                     new RuntimeException("<script>alert('Hello World')</script>"))
                             .accept(MediaType.TEXT_HTML))
             .andExpect(status().is5xxServerError())
@@ -97,7 +98,7 @@ class DefaultErrorViewIntegrationTests {
   void testErrorWithSpelEscape() throws Exception {
     String spel = "${T(" + getClass().getName() + ").injectCall()}";
     MvcResult response = this.mockMvc
-            .perform(get("/error").requestAttr("jakarta.servlet.error.exception", new RuntimeException(spel))
+            .perform(get("/error").requestAttr(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new RuntimeException(spel))
                     .accept(MediaType.TEXT_HTML))
             .andExpect(status().is5xxServerError())
             .andReturn();

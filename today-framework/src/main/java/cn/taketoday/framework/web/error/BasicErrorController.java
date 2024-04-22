@@ -98,18 +98,18 @@ public class BasicErrorController extends AbstractErrorController implements Sen
     }
 
     HttpStatus status = getStatus(request);
+    if (status.is2xxSuccessful()) {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    boolean acceptsTextHtml = ifAcceptsTextHtml(request);
+    Map<String, Object> model = getErrorAttributes(request, acceptsTextHtml ? MediaType.TEXT_HTML : MediaType.ALL);
     request.setStatus(status);
-    if (ifAcceptsTextHtml(request)) {
-      Map<String, Object> model = getErrorAttributes(request, MediaType.TEXT_HTML);
-      request.setContentType("text/html;charset=UTF-8");
+    if (acceptsTextHtml) {
+      request.setContentType(MediaType.TEXT_HTML);
       return resolveErrorView(request, status, model);
     }
-    else {
-      if (status != HttpStatus.NO_CONTENT) {
-        return getErrorAttributes(request, MediaType.ALL);
-      }
-      return HttpRequestHandler.NONE_RETURN_VALUE;
-    }
+    return model;
   }
 
   /**
