@@ -32,7 +32,7 @@ import cn.taketoday.web.InternalServerException;
 import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockMethodParameter;
+import cn.taketoday.web.MockMethodParameter;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import lombok.Data;
 
