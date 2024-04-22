@@ -445,13 +445,20 @@ public class DispatcherHandler extends InfraHandler {
       }
     }
 
-    request.requestCompleted(notHandled);
-
     // exception not handled
     if (notHandled != null) {
       // try application level error handling
-      request.sendError(500, notHandled.getMessage());
+      try {
+        var httpStatus = HttpStatusProvider.getStatusCode(notHandled);
+        request.sendError(httpStatus.first, httpStatus.second);
+      }
+      catch (Throwable e) {
+        notHandled.addSuppressed(e);
+        request.requestCompleted(notHandled);
+        throw notHandled;
+      }
     }
+    request.requestCompleted(null);
   }
 
   public void setHandlerMapping(HandlerMapping handlerMapping) {

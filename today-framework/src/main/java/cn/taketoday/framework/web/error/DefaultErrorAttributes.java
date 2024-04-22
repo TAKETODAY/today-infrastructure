@@ -26,7 +26,7 @@ import java.util.Map;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.http.HttpStatusCodeProvider;
+import cn.taketoday.web.HttpStatusProvider;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
@@ -91,7 +91,7 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
     int status = request.getStatus();
 
     Throwable error = getError(request);
-    if (error instanceof HttpStatusCodeProvider provider) {
+    if (error instanceof HttpStatusProvider provider) {
       status = provider.getStatusCode().value();
     }
 

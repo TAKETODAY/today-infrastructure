@@ -31,13 +31,10 @@ import cn.taketoday.core.BridgeMethodResolver;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
-import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.core.annotation.MergedAnnotation;
 import cn.taketoday.core.annotation.MergedAnnotations;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
-import cn.taketoday.core.conversion.ConversionException;
 import cn.taketoday.core.i18n.LocaleContextHolder;
-import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
@@ -53,7 +50,6 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AsyncHandler;
-import cn.taketoday.web.handler.DefaultResponseStatus;
 import cn.taketoday.web.handler.HandlerWrapper;
 
 /**
@@ -515,27 +511,6 @@ public class HandlerMethod implements AsyncHandler {
   @Override
   public String toString() {
     return description;
-  }
-
-  // ResponseStatus
-
-  public static int getStatusValue(Throwable ex) {
-    return getResponseStatus(ex).value().value();
-  }
-
-  public static ResponseStatus getResponseStatus(Throwable ex) {
-    return getResponseStatus(ex.getClass());
-  }
-
-  public static ResponseStatus getResponseStatus(Class<? extends Throwable> exceptionClass) {
-    if (ConversionException.class.isAssignableFrom(exceptionClass)) {
-      return new DefaultResponseStatus(HttpStatus.BAD_REQUEST);
-    }
-    ResponseStatus status = AnnotationUtils.getAnnotation(exceptionClass, ResponseStatus.class);
-    if (status != null) {
-      return new DefaultResponseStatus(status);
-    }
-    return new DefaultResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   // HandlerMethod

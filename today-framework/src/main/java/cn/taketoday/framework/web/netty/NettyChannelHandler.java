@@ -27,6 +27,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.DispatcherHandler;
+import cn.taketoday.web.HttpStatusProvider;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
@@ -126,7 +127,8 @@ public class NettyChannelHandler extends DispatcherHandler implements ChannelInb
 
   @Nullable
   protected HttpResponse createErrorResponse(ChannelHandlerContext ctx, Throwable cause) {
-    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+    var statusCode = HttpStatusProvider.getStatusCode(cause);
+    return new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(statusCode.first.value()),
             Unpooled.EMPTY_BUFFER, requestConfig.httpHeadersFactory, trailersFactory());
   }
 
