@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,16 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
 
-import org.eclipse.jetty.util.component.LifeCycle;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
-
 import java.net.http.HttpClient;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
@@ -71,10 +69,10 @@ public class JdkHttpClientResourceFactory implements InitializingBean, Disposabl
   }
 
   /**
-   * Configure the thread prefix to initialize {@link QueuedThreadPool} executor with. This
+   * Configure the thread prefix to initialize the executor with. This
    * is used only when a {@link Executor} instance isn't
    * {@link #setExecutor(Executor) provided}.
-   * <p>By default set to "jetty-http".
+   * <p>By default set to "jdk-http".
    *
    * @param threadPrefix the thread prefix to use
    */
@@ -89,20 +87,12 @@ public class JdkHttpClientResourceFactory implements InitializingBean, Disposabl
       String name = this.threadPrefix + "@" + Integer.toHexString(hashCode());
       this.executor = Executors.newCachedThreadPool(new CustomizableThreadFactory(name));
     }
-    if (this.executor instanceof LifeCycle) {
-      ((LifeCycle) this.executor).start();
-    }
   }
 
   @Override
   public void destroy() throws Exception {
-    try {
-      if (this.executor instanceof LifeCycle) {
-        ((LifeCycle) this.executor).stop();
-      }
-    }
-    catch (Throwable ex) {
-      // ignore
+    if (this.executor instanceof ExecutorService executorService) {
+      executorService.shutdown();
     }
   }
 

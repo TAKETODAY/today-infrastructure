@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -32,7 +29,6 @@ import cn.taketoday.web.client.ResponseErrorHandler;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
-import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.JettyHttpServer;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +73,6 @@ class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
   }
 
   @ParameterizedHttpServerTest
-    // SPR-15560
   void emptyPathSegments(HttpServer httpServer) throws Exception {
     startServer(httpServer);
 
@@ -86,14 +81,7 @@ class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
 
     URI url = new URI("http://localhost:" + port + "//");
     ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-
-    // Jetty 10+ rejects empty path segments, see https://github.com/eclipse/jetty.project/issues/6302,
-    // but an application can apply CompactPathRule via RewriteHandler:
-    // https://www.eclipse.org/jetty/documentation/jetty-11/programming_guide.php
-
-    HttpStatus expectedStatus =
-            (httpServer instanceof JettyHttpServer ? HttpStatus.BAD_REQUEST : HttpStatus.OK);
-
+    HttpStatus expectedStatus = HttpStatus.OK;
     assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
   }
 

@@ -248,7 +248,7 @@ through Infra `ConcurrentTaskScheduler`. As a convenience, Infra also provides a
 `ThreadPoolTaskScheduler`, which internally delegates to a `ScheduledExecutorService`
 to provide common bean-style configuration along the lines of `ThreadPoolTaskExecutor`.
 These variants work perfectly fine for locally embedded thread pool setups in lenient
-application server environments, as well -- in particular on Tomcat and Jetty.
+application server environments, as well -- in particular on Tomcat.
 
 As of 6.1, `ThreadPoolTaskScheduler` provides a pause/resume capability and graceful
 shutdown through Infra lifecycle management. There is also a new option called

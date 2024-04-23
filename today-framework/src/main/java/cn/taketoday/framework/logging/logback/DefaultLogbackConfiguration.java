@@ -100,7 +100,6 @@ class DefaultLogbackConfiguration {
     config.logger("org.apache.coyote.http11.Http11NioProtocol", Level.WARN);
     config.logger("org.apache.sshd.common.util.SecurityUtils", Level.WARN);
     config.logger("org.apache.tomcat.util.net.NioSelectorPool", Level.WARN);
-    config.logger("org.eclipse.jetty.util.component.AbstractLifeCycle", Level.ERROR);
     config.logger("org.hibernate.validator.internal.util.Version", Level.WARN);
     config.logger("cn.taketoday.actuate.endpoint.jmx", Level.WARN);
   }

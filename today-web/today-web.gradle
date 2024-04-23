@@ -30,9 +30,7 @@ dependencies {
   optional("io.netty:netty5-transport")
   optional("io.projectreactor.netty:reactor-netty-http")
   optional("io.projectreactor.netty:reactor-netty5-http")
-  optional("io.undertow:undertow-core")
 
-  optional("org.eclipse.jetty:jetty-reactive-httpclient")
   optional('org.apache.httpcomponents.client5:httpclient5')
   optional('org.apache.httpcomponents.core5:httpcore5-reactive')
   optional("com.fasterxml.woodstox:woodstox-core")
@@ -68,11 +66,6 @@ dependencies {
   testImplementation("io.projectreactor.tools:blockhound")
   testImplementation("io.micrometer:micrometer-observation-test")
 
-  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
-  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
-
-  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
-
   testRuntimeOnly("com.sun.mail:jakarta.mail")
   testRuntimeOnly("com.sun.xml.bind:jaxb-core")
   testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
@@ -86,7 +79,7 @@ dependencies {
   testFixturesImplementation("org.bouncycastle:bcpkix-jdk18on") {
     because("needed by Netty's SelfSignedCertificate on JDK 15+")
   }
-  testFixturesImplementation("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server")
+
   testFixturesImplementation("org.xmlunit:xmlunit-assertj")
   testFixturesImplementation("org.xmlunit:xmlunit-matchers")
   testFixturesImplementation 'org.projectlombok:lombok'

@@ -63,7 +63,6 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
 import cn.taketoday.http.client.reactive.JdkClientHttpConnector;
-import cn.taketoday.http.client.reactive.JettyClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorNetty2ClientHttpConnector;
 import cn.taketoday.web.reactive.function.BodyExtractors;
@@ -107,7 +106,6 @@ class WebClientIntegrationTests {
             named("Reactor Netty", new ReactorClientHttpConnector()),
             named("Reactor Netty 2", new ReactorNetty2ClientHttpConnector()),
             named("JDK", new JdkClientHttpConnector()),
-            named("Jetty", new JettyClientHttpConnector()),
             named("HttpComponents", new HttpComponentsClientHttpConnector())
     );
   }
@@ -1166,7 +1164,7 @@ class WebClientIntegrationTests {
               List<String> headerValues = clientResponse.headers().header("Foo");
               return headerValues.isEmpty() ? Mono.error(
                       new MyException("Response does not contain Foo header")) :
-                     Mono.just(clientResponse);
+                      Mono.just(clientResponse);
             }
     );
 

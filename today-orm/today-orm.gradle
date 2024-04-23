@@ -10,7 +10,6 @@ dependencies {
   optional(project(":today-web"))
   optional("org.eclipse.persistence:org.eclipse.persistence.jpa")
   optional("org.hibernate:hibernate-core-jakarta")
-  optional("jakarta.servlet:jakarta.servlet-api")
   compileOnly("org.graalvm.sdk:graal-sdk")
 
   testImplementation 'ch.qos.logback:logback-classic'

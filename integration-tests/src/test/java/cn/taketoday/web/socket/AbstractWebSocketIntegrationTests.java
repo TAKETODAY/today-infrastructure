@@ -43,7 +43,6 @@ import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.socket.client.WebSocketClient;
 import cn.taketoday.web.socket.client.standard.StandardWebSocketClient;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
 
@@ -57,7 +56,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public abstract class AbstractWebSocketIntegrationTests {
 
   private static final Map<Class<?>, Class<?>> upgradeStrategyConfigTypes = Map.of(
-          JettyWebSocketTestServer.class, JettyUpgradeStrategyConfig.class, //
           UndertowTestServer.class, UndertowUpgradeStrategyConfig.class);
 
   static Stream<Arguments> argumentsFactory() {
@@ -158,16 +156,6 @@ public abstract class AbstractWebSocketIntegrationTests {
     }
 
     public abstract RequestUpgradeStrategy requestUpgradeStrategy();
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  static class JettyUpgradeStrategyConfig extends AbstractRequestUpgradeStrategyConfig {
-
-    @Override
-    @Bean
-    public RequestUpgradeStrategy requestUpgradeStrategy() {
-      return new JettyRequestUpgradeStrategy();
-    }
   }
 
   @Configuration(proxyBeanMethods = false)

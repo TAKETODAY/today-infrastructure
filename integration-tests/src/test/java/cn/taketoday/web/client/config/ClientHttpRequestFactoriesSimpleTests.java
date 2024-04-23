@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client.config;
@@ -27,7 +27,7 @@ import cn.taketoday.test.util.ReflectionTestUtils;
  *
  * @author Andy Wilkinson
  */
-@ClassPathExclusions({ "httpclient5-*.jar", "okhttp-*.jar", "jetty-client-*.jar" })
+@ClassPathExclusions({ "httpclient5-*.jar", "okhttp-*.jar" })
 class ClientHttpRequestFactoriesSimpleTests
         extends AbstractClientHttpRequestFactoriesTests<SimpleClientHttpRequestFactory> {
 
@@ -37,12 +37,12 @@ class ClientHttpRequestFactoriesSimpleTests
 
   @Override
   protected long connectTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return (int) ReflectionTestUtils.getField(requestFactory, "connectTimeout");
+    return ReflectionTestUtils.getField(requestFactory, "connectTimeout");
   }
 
   @Override
   protected long readTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return (int) ReflectionTestUtils.getField(requestFactory, "readTimeout");
+    return ReflectionTestUtils.getField(requestFactory, "readTimeout");
   }
 
 }

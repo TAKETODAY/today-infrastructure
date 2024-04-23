@@ -19,10 +19,6 @@ package cn.taketoday.framework.web.reactive.server;
 
 import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.awaitility.Awaitility;
-import org.eclipse.jetty.client.ContentResponse;
-import org.eclipse.jetty.client.StringRequestContent;
-import org.eclipse.jetty.http2.client.HTTP2Client;
-import org.eclipse.jetty.http2.client.transport.HttpClientTransportOverHTTP2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -560,29 +556,6 @@ public abstract class AbstractReactiveWebServerFactoryTests {
       // Continue
     }
     blockingHandler.completeOne();
-  }
-
-  @Test
-  protected void whenHttp2IsEnabledAndSslIsDisabledThenH2cCanBeUsed() throws Exception {
-    AbstractReactiveWebServerFactory factory = getFactory();
-    Http2 http2 = new Http2();
-    http2.setEnabled(true);
-    factory.setHttp2(http2);
-    this.webServer = factory.getWebServer(new EchoHandler());
-    this.webServer.start();
-    org.eclipse.jetty.client.HttpClient client = new org.eclipse.jetty.client.HttpClient(
-            new HttpClientTransportOverHTTP2(new HTTP2Client()));
-    client.start();
-    try {
-      ContentResponse response = client.POST("http://localhost:" + this.webServer.getPort())
-              .body(new StringRequestContent("text/plain", "Hello World"))
-              .send();
-      assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-      assertThat(response.getContentAsString()).isEqualTo("Hello World");
-    }
-    finally {
-      client.stop();
-    }
   }
 
   @Test

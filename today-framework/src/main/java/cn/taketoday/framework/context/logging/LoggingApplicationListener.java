@@ -174,7 +174,6 @@ public class LoggingApplicationListener implements GenericApplicationListener {
     loggers.add(LogLevel.TRACE, "cn.taketoday");
     loggers.add(LogLevel.TRACE, "org.apache.tomcat");
     loggers.add(LogLevel.TRACE, "org.apache.catalina");
-    loggers.add(LogLevel.TRACE, "org.eclipse.jetty");
     loggers.add(LogLevel.TRACE, "org.hibernate.tool.hbm2ddl");
     INFRA_LOGGING_LOGGERS = Collections.unmodifiableMap(loggers);
   }
@@ -319,8 +318,8 @@ public class LoggingApplicationListener implements GenericApplicationListener {
 
   private LoggingSystemProperties getLoggingSystemProperties(ConfigurableEnvironment environment) {
     return loggingSystem != null ?
-           loggingSystem.getSystemProperties(environment) :
-           new LoggingSystemProperties(environment);
+            loggingSystem.getSystemProperties(environment) :
+            new LoggingSystemProperties(environment);
   }
 
   private void initializeEarlyLoggingLevel(ConfigurableEnvironment environment) {

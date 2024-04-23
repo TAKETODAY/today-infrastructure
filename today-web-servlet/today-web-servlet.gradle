@@ -2,6 +2,7 @@ description = "Servlet Web Impl"
 
 dependencies {
   api(project(":today-web"))
+  api("jakarta.servlet:jakarta.servlet-api:6.0.0")
 
   optional(project(":today-websocket"))
   optional(project(":today-oxm"))
@@ -26,10 +27,6 @@ dependencies {
   optional("org.reactivestreams:reactive-streams")
   optional("jakarta.mail:jakarta.mail-api")
   optional("org.apache.groovy:groovy-templates")
-  optional("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server")
-  optional("org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server") {
-    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
-  }
   optional("io.undertow:undertow-servlet")
   optional("io.undertow:undertow-websockets-jsr")
   optional("jakarta.websocket:jakarta.websocket-api")
@@ -51,19 +48,6 @@ dependencies {
   testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   testImplementation("com.fasterxml.jackson.module:jackson-module-parameter-names")
   testImplementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv")
-
-  testImplementation 'org.eclipse.jetty:jetty-alpn-conscrypt-server'
-  testImplementation("org.eclipse.jetty.ee10:jetty-ee10-servlet") {
-    exclude group: "jakarta.servlet", module: "jakarta.servlet-api"
-  }
-
-  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jetty-server'
-  testImplementation 'org.eclipse.jetty.ee10.websocket:jetty-ee10-websocket-jakarta-server'
-  testImplementation 'org.eclipse.jetty:jetty-reactive-httpclient'
-  testImplementation 'org.eclipse.jetty.ee10:jetty-ee10-servlets'
-  testImplementation 'org.eclipse.jetty.ee10:jetty-ee10-webapp'
-  testImplementation 'org.eclipse.jetty:jetty-alpn-server'
-  testImplementation 'org.eclipse.jetty.http2:jetty-http2-server'
 
   testImplementation("commons-io:commons-io")
   testImplementation("org.mozilla:rhino")

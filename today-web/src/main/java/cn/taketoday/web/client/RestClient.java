@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -371,7 +371,6 @@ public interface RestClient {
      * client library (e.g. SSL).
      * <p>If no request factory is specified, {@code RestClient} uses
      * {@linkplain cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory Apache Http Client},
-     * {@linkplain cn.taketoday.http.client.JettyClientHttpRequestFactory Jetty Http Client}
      * if available on the classpath, and defaults to the
      * {@linkplain cn.taketoday.http.client.JdkClientHttpRequestFactory JDK HttpClient}
      * if the {@code java.net.http} module is loaded, or to a

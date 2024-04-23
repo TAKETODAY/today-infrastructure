@@ -26,14 +26,13 @@ import java.util.Map;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.http.HttpStatus;
-import cn.taketoday.web.HttpStatusProvider;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.validation.ObjectError;
+import cn.taketoday.web.HttpStatusProvider;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.util.WebUtils;
-import jakarta.servlet.RequestDispatcher;
 
 /**
  * Default implementation of {@link ErrorAttributes}. Provides the following attributes
@@ -131,8 +130,8 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
         attributes.put("errors", result.getAllErrors());
       }
       if (options.isIncluded(Include.MESSAGE)) {
-        attributes.put("message", "Validation failed for object='" +
-                result.getObjectName() + "'. " + "Error count: " + result.getErrorCount());
+        attributes.put("message", "Validation failed for object='%s'. Error count: %d"
+                .formatted(result.getObjectName(), result.getErrorCount()));
       }
     }
     else if (options.isIncluded(Include.MESSAGE)) {
@@ -145,7 +144,6 @@ public class DefaultErrorAttributes implements ErrorAttributes, Ordered {
    * attribute. By default the returned message is the first of the following that is
    * not empty:
    * <ol>
-   * <li>Value of the {@link RequestDispatcher#ERROR_MESSAGE} request attribute.
    * <li>Value of the {@link WebUtils#ERROR_MESSAGE_ATTRIBUTE} request attribute.
    * <li>Message of the given {@code error}.
    * <li>{@code No message available}.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.reactive.client;
 
 import org.apache.hc.client5.http.impl.async.HttpAsyncClients;
-import org.eclipse.jetty.reactive.client.ReactiveRequest;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.config.BeanDefinition;
@@ -62,21 +61,8 @@ class ClientHttpConnectorAutoConfigurationTests {
   }
 
   @Test
-  void whenReactorIsUnavailableThenJettyBeansAreDefined() {
-    this.contextRunner.withClassLoader(new FilteredClassLoader(HttpClient.class)).run((context) -> {
-      BeanDefinition customizerDefinition = context.getBeanFactory()
-              .getBeanDefinition("webClientHttpConnectorCustomizer");
-      assertThat(customizerDefinition.isLazyInit()).isTrue();
-      BeanDefinition connectorDefinition = context.getBeanFactory().getBeanDefinition("webClientHttpConnector");
-      assertThat(connectorDefinition.isLazyInit()).isTrue();
-      assertThat(context).hasBean("jettyClientResourceFactory");
-      assertThat(context).hasBean("jettyClientHttpConnectorFactory");
-    });
-  }
-
-  @Test
-  void whenReactorAndJettyAreUnavailableThenHttpClientBeansAreDefined() {
-    this.contextRunner.withClassLoader(new FilteredClassLoader(HttpClient.class, ReactiveRequest.class))
+  void whenReactorUnavailableThenHttpClientBeansAreDefined() {
+    this.contextRunner.withClassLoader(new FilteredClassLoader(HttpClient.class))
             .run((context) -> {
               BeanDefinition customizerDefinition = context.getBeanFactory()
                       .getBeanDefinition("webClientHttpConnectorCustomizer");
@@ -89,9 +75,9 @@ class ClientHttpConnectorAutoConfigurationTests {
   }
 
   @Test
-  void whenReactorJettyAndHttpClientBeansAreUnavailableThenJdkClientBeansAreDefined() {
+  void whenReactorHttpClientBeansAreUnavailableThenJdkClientBeansAreDefined() {
     this.contextRunner
-            .withClassLoader(new FilteredClassLoader(HttpClient.class, ReactiveRequest.class, HttpAsyncClients.class))
+            .withClassLoader(new FilteredClassLoader(HttpClient.class, HttpAsyncClients.class))
             .run((context) -> {
               BeanDefinition customizerDefinition = context.getBeanFactory()
                       .getBeanDefinition("webClientHttpConnectorCustomizer");

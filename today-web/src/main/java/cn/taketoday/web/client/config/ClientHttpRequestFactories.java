@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,6 @@ import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuil
 import org.apache.hc.client5.http.ssl.DefaultHostnameVerifier;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
-import org.eclipse.jetty.client.transport.HttpClientTransportDynamic;
-import org.eclipse.jetty.io.ClientConnector;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -36,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
 import cn.taketoday.core.ssl.SslBundle;
@@ -46,7 +42,6 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
@@ -64,13 +59,10 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0 2022/11/1 22:40
  */
 public abstract class ClientHttpRequestFactories {
+
   static final String APACHE_HTTP_CLIENT_CLASS = "org.apache.hc.client5.http.impl.classic.HttpClients";
 
   private static final boolean APACHE_HTTP_CLIENT_PRESENT = ClassUtils.isPresent(APACHE_HTTP_CLIENT_CLASS);
-
-  static final String JETTY_CLIENT_CLASS = "org.eclipse.jetty.client.HttpClient";
-
-  private static final boolean JETTY_CLIENT_PRESENT = ClassUtils.isPresent(JETTY_CLIENT_CLASS);
 
   /**
    * Return a {@link ClientHttpRequestFactory} implementation with the given
@@ -78,7 +70,6 @@ public abstract class ClientHttpRequestFactories {
    * dependencies {@link ClassUtils#isPresent are available} is returned:
    * <ol>
    * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
-   * <li>{@link JettyClientHttpRequestFactory}</li>
    * <li>{@link SimpleClientHttpRequestFactory}</li>
    * </ol>
    *
@@ -89,9 +80,6 @@ public abstract class ClientHttpRequestFactories {
     Assert.notNull(settings, "Settings is required");
     if (APACHE_HTTP_CLIENT_PRESENT) {
       return HttpComponents.get(settings);
-    }
-    if (JETTY_CLIENT_PRESENT) {
-      return Jetty.get(settings);
     }
     return Simple.get(settings);
   }
@@ -104,7 +92,6 @@ public abstract class ClientHttpRequestFactories {
    * <ul>
    * <li>{@link HttpComponentsClientHttpRequestFactory}</li>
    * <li>{@link JdkClientHttpRequestFactory}</li>
-   * <li>{@link JettyClientHttpRequestFactory}</li>
    * <li>{@link SimpleClientHttpRequestFactory}</li>
    * </ul>
    * A {@code requestFactoryType} of {@link ClientHttpRequestFactory} is equivalent to
@@ -124,9 +111,6 @@ public abstract class ClientHttpRequestFactories {
     }
     if (requestFactoryType == HttpComponentsClientHttpRequestFactory.class) {
       return (T) HttpComponents.get(settings);
-    }
-    if (requestFactoryType == JettyClientHttpRequestFactory.class) {
-      return (T) Jetty.get(settings);
     }
     if (requestFactoryType == JdkClientHttpRequestFactory.class) {
       return (T) Jdk.get(settings);
@@ -204,34 +188,6 @@ public abstract class ClientHttpRequestFactories {
   }
 
   /**
-   * Support for {@link JettyClientHttpRequestFactory}.
-   */
-  static class Jetty {
-
-    static JettyClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
-      JettyClientHttpRequestFactory requestFactory = createRequestFactory(settings.sslBundle());
-      PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
-      map.from(settings::connectTimeout).asInt(Duration::toMillis).to(requestFactory::setConnectTimeout);
-      map.from(settings::readTimeout).asInt(Duration::toMillis).to(requestFactory::setReadTimeout);
-      return requestFactory;
-    }
-
-    private static JettyClientHttpRequestFactory createRequestFactory(@Nullable SslBundle sslBundle) {
-      if (sslBundle != null) {
-        SSLContext sslContext = sslBundle.createSslContext();
-        SslContextFactory.Client sslContextFactory = new SslContextFactory.Client();
-        sslContextFactory.setSslContext(sslContext);
-        ClientConnector connector = new ClientConnector();
-        connector.setSslContextFactory(sslContextFactory);
-        var httpClient = new org.eclipse.jetty.client.HttpClient(new HttpClientTransportDynamic(connector));
-        return new JettyClientHttpRequestFactory(httpClient);
-      }
-      return new JettyClientHttpRequestFactory();
-    }
-
-  }
-
-  /**
    * Support for {@link JdkClientHttpRequestFactory}.
    */
   static class Jdk {
@@ -265,8 +221,7 @@ public abstract class ClientHttpRequestFactories {
 
     static SimpleClientHttpRequestFactory get(ClientHttpRequestFactorySettings settings) {
       SslBundle sslBundle = settings.sslBundle();
-      SimpleClientHttpRequestFactory requestFactory =
-              sslBundle != null
+      SimpleClientHttpRequestFactory requestFactory = sslBundle != null
               ? new SimpleClientHttpsRequestFactory(sslBundle)
               : new SimpleClientHttpRequestFactory();
       Assert.state(sslBundle == null || !sslBundle.getOptions().isSpecified(),
@@ -309,15 +264,13 @@ public abstract class ClientHttpRequestFactories {
    */
   static class Reflective {
 
-    static <T extends ClientHttpRequestFactory> T get(Supplier<T> requestFactorySupplier,
-            ClientHttpRequestFactorySettings settings) {
-      T requestFactory = requestFactorySupplier.get();
+    static <T extends ClientHttpRequestFactory> T get(Supplier<T> supplier, ClientHttpRequestFactorySettings settings) {
+      T requestFactory = supplier.get();
       configure(requestFactory, settings);
       return requestFactory;
     }
 
-    private static void configure(ClientHttpRequestFactory requestFactory,
-            ClientHttpRequestFactorySettings settings) {
+    private static void configure(ClientHttpRequestFactory requestFactory, ClientHttpRequestFactorySettings settings) {
       ClientHttpRequestFactory unwrapped = unwrapIfNecessary(requestFactory);
       PropertyMapper map = PropertyMapper.get().alwaysApplyingWhenNonNull();
       map.from(settings::readTimeout).to(readTimeout -> setReadTimeout(unwrapped, readTimeout));
@@ -325,8 +278,7 @@ public abstract class ClientHttpRequestFactories {
       map.from(settings::bufferRequestBody).to(bufferRequestBody -> setBufferRequestBody(unwrapped, bufferRequestBody));
     }
 
-    private static ClientHttpRequestFactory unwrapIfNecessary(
-            ClientHttpRequestFactory requestFactory) {
+    private static ClientHttpRequestFactory unwrapIfNecessary(ClientHttpRequestFactory requestFactory) {
       if (requestFactory instanceof ClientHttpRequestFactoryWrapper) {
         while (requestFactory instanceof ClientHttpRequestFactoryWrapper wrapper) {
           requestFactory = wrapper.getRequestFactory();

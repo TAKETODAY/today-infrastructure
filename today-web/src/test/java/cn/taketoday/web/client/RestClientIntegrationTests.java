@@ -44,7 +44,6 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.ReactorNettyClientRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.util.CollectionUtils;
@@ -78,7 +77,6 @@ class RestClientIntegrationTests {
     return Stream.of(
             named("JDK HttpURLConnection", new SimpleClientHttpRequestFactory()),
             named("HttpComponents", new HttpComponentsClientHttpRequestFactory()),
-            named("Jetty", new JettyClientHttpRequestFactory()),
             named("JDK HttpClient", new JdkClientHttpRequestFactory()),
             named("Reactor Netty", new ReactorNettyClientRequestFactory())
     );

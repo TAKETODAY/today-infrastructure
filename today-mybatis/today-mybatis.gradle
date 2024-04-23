@@ -13,8 +13,6 @@ dependencies {
 
   testImplementation project(':today-test')
   testImplementation 'org.apache.derby:derby'
-  testImplementation 'org.glassfish:jakarta.el'
-  testImplementation 'jakarta.servlet:jakarta.servlet-api'
   testImplementation 'com.fasterxml.woodstox:woodstox-core'
   testImplementation 'jakarta.transaction:jakarta.transaction-api'
 

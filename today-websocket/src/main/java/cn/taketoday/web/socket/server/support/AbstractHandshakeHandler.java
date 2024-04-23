@@ -67,9 +67,6 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  */
 public abstract class AbstractHandshakeHandler implements HandshakeHandler {
 
-  private static final boolean jettyWsPresent = isPresent(
-          "org.eclipse.jetty.ee10.websocket.server.JettyWebSocketServerContainer", AbstractHandshakeHandler.class);
-
   private static final boolean undertowWsPresent = isPresent(
           "io.undertow.websockets.jsr.ServerWebSocketContainer", AbstractHandshakeHandler.class);
 
@@ -318,10 +315,7 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     }
     // FIXME
 
-    if (jettyWsPresent) {
-      return BeanUtils.newInstance("cn.taketoday.web.socket.server.jetty.JettyRequestUpgradeStrategy", null);
-    }
-    else if (undertowWsPresent) {
+    if (undertowWsPresent) {
       return BeanUtils.newInstance("cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy", null);
     }
     else {

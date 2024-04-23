@@ -31,7 +31,6 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
 import cn.taketoday.http.client.reactive.JdkClientHttpConnector;
-import cn.taketoday.http.client.reactive.JettyClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
 import cn.taketoday.lang.Assert;
@@ -49,23 +48,20 @@ import reactor.core.publisher.Mono;
  *
  * @author Rossen Stoyanchev
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 final class DefaultWebClientBuilder implements WebClient.Builder {
 
   private static final boolean reactorClientPresent;
 
-  private static final boolean jettyClientPresent;
-
   private static final boolean httpComponentsClientPresent;
 
   static {
     ClassLoader loader = DefaultWebClientBuilder.class.getClassLoader();
     reactorClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
-    jettyClientPresent = ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", loader);
-    httpComponentsClientPresent =
-            ClassUtils.isPresent("org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient", loader) &&
-                    ClassUtils.isPresent("org.apache.hc.core5.reactive.ReactiveDataConsumer", loader);
+    httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient", loader)
+            && ClassUtils.isPresent("org.apache.hc.core5.reactive.ReactiveDataConsumer", loader);
   }
 
   @Nullable
@@ -112,7 +108,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
 
     this.baseUrl = other.baseUrl;
     this.defaultUriVariables = (other.defaultUriVariables != null ?
-                                new LinkedHashMap<>(other.defaultUriVariables) : null);
+            new LinkedHashMap<>(other.defaultUriVariables) : null);
     this.uriBuilderFactory = other.uriBuilderFactory;
 
     if (other.defaultHeaders != null) {
@@ -131,7 +127,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     this.connector = other.connector;
     this.strategies = other.strategies;
     this.strategiesConfigurers = (other.strategiesConfigurers != null ?
-                                  new ArrayList<>(other.strategiesConfigurers) : null);
+            new ArrayList<>(other.strategiesConfigurers) : null);
     this.exchangeFunction = other.exchangeFunction;
   }
 
@@ -318,9 +314,6 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     if (reactorClientPresent) {
       return new ReactorClientHttpConnector();
     }
-    else if (jettyClientPresent) {
-      return new JettyClientHttpConnector();
-    }
     else if (httpComponentsClientPresent) {
       return new HttpComponentsClientHttpConnector();
     }
@@ -354,7 +347,7 @@ final class DefaultWebClientBuilder implements WebClient.Builder {
     }
 
     DefaultUriBuilderFactory factory = (this.baseUrl != null ?
-                                        new DefaultUriBuilderFactory(this.baseUrl) : new DefaultUriBuilderFactory());
+            new DefaultUriBuilderFactory(this.baseUrl) : new DefaultUriBuilderFactory());
     factory.setDefaultUriVariables(this.defaultUriVariables);
     return factory;
   }

@@ -157,9 +157,6 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
     // Servlet Cookie doesn't support same site:
     // https://github.com/eclipse-ee4j/servlet-api/issues/175
 
-    // For Jetty, starting 9.4.21+ we could adapt to HttpCookie:
-    // https://github.com/eclipse/jetty.project/issues/3040
-
     // For Tomcat it seems to be a global option only:
     // https://tomcat.apache.org/tomcat-8.5-doc/config/cookie-processor.html
 

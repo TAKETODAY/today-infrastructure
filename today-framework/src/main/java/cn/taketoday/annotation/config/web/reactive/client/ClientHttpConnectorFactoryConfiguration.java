@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.web.reactive.client;
@@ -26,7 +26,6 @@ import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.http.client.reactive.JettyResourceFactory;
 import cn.taketoday.http.client.ReactorResourceFactory;
 import cn.taketoday.stereotype.Component;
 
@@ -59,24 +58,6 @@ class ClientHttpConnectorFactoryConfiguration {
             ReactorResourceFactory reactorResourceFactory,
             ObjectProvider<ReactorNettyHttpClientMapper> mapperProvider) {
       return new ReactorClientHttpConnectorFactory(reactorResourceFactory, mapperProvider);
-    }
-
-  }
-
-  @Configuration(proxyBeanMethods = false)
-  @ConditionalOnClass(org.eclipse.jetty.reactive.client.ReactiveRequest.class)
-  @ConditionalOnMissingBean(ClientHttpConnectorFactory.class)
-  static class JettyClient {
-
-    @Component
-    @ConditionalOnMissingBean
-    static JettyResourceFactory jettyClientResourceFactory() {
-      return new JettyResourceFactory();
-    }
-
-    @Component
-    static JettyClientHttpConnectorFactory jettyClientHttpConnectorFactory(JettyResourceFactory jettyResourceFactory) {
-      return new JettyClientHttpConnectorFactory(jettyResourceFactory);
     }
 
   }

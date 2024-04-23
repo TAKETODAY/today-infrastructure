@@ -33,7 +33,6 @@ import cn.taketoday.http.client.ClientHttpRequestInterceptor;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.http.client.InterceptingClientHttpRequestFactory;
 import cn.taketoday.http.client.JdkClientHttpRequestFactory;
-import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.http.converter.AllEncompassingFormHttpMessageConverter;
 import cn.taketoday.http.converter.ByteArrayHttpMessageConverter;
@@ -67,8 +66,6 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
 
   private static final boolean httpComponentsClientPresent;
 
-  private static final boolean jettyClientPresent;
-
   private static final boolean jdkClientPresent;
 
   // message factories
@@ -89,7 +86,6 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     ClassLoader loader = DefaultRestClientBuilder.class.getClassLoader();
 
     httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.classic.HttpClient", loader);
-    jettyClientPresent = ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", loader);
     jdkClientPresent = ClassUtils.isPresent("java.net.http.HttpClient", loader);
 
     jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", loader) &&
@@ -398,9 +394,6 @@ final class DefaultRestClientBuilder implements RestClient.Builder {
     }
     else if (httpComponentsClientPresent) {
       return new HttpComponentsClientHttpRequestFactory();
-    }
-    else if (jettyClientPresent) {
-      return new JettyClientHttpRequestFactory();
     }
     else if (jdkClientPresent) {
       // java.net.http module might not be loaded, so we can't default to the JDK HttpClient

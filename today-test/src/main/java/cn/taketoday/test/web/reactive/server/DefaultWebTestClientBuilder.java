@@ -28,7 +28,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.http.client.reactive.HttpComponentsClientHttpConnector;
 import cn.taketoday.http.client.reactive.JdkClientHttpConnector;
-import cn.taketoday.http.client.reactive.JettyClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorClientHttpConnector;
 import cn.taketoday.http.client.reactive.ReactorNetty2ClientHttpConnector;
 import cn.taketoday.http.codec.ClientCodecConfigurer;
@@ -58,18 +57,14 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
 
   private static final boolean reactorNetty2ClientPresent;
 
-  private static final boolean jettyClientPresent;
-
   private static final boolean httpComponentsClientPresent;
 
   static {
     ClassLoader loader = DefaultWebTestClientBuilder.class.getClassLoader();
     reactorNettyClientPresent = ClassUtils.isPresent("reactor.netty.http.client.HttpClient", loader);
     reactorNetty2ClientPresent = ClassUtils.isPresent("reactor.netty5.http.client.HttpClient", loader);
-    jettyClientPresent = ClassUtils.isPresent("org.eclipse.jetty.client.HttpClient", loader);
-    httpComponentsClientPresent =
-            ClassUtils.isPresent("org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient", loader) &&
-                    ClassUtils.isPresent("org.apache.hc.core5.reactive.ReactiveDataConsumer", loader);
+    httpComponentsClientPresent = ClassUtils.isPresent("org.apache.hc.client5.http.impl.async.CloseableHttpAsyncClient", loader)
+            && ClassUtils.isPresent("org.apache.hc.core5.reactive.ReactiveDataConsumer", loader);
   }
 
   @Nullable
@@ -281,9 +276,6 @@ class DefaultWebTestClientBuilder implements WebTestClient.Builder {
     }
     else if (reactorNetty2ClientPresent) {
       return new ReactorNetty2ClientHttpConnector();
-    }
-    else if (jettyClientPresent) {
-      return new JettyClientHttpConnector();
     }
     else if (httpComponentsClientPresent) {
       return new HttpComponentsClientHttpConnector();

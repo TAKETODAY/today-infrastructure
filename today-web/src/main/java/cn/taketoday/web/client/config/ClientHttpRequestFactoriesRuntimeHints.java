@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client.config;
@@ -29,7 +29,6 @@ import cn.taketoday.aot.hint.TypeReference;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestFactoryWrapper;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
-import cn.taketoday.http.client.JettyClientHttpRequestFactory;
 import cn.taketoday.http.client.SimpleClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.ClassUtils;
@@ -57,10 +56,6 @@ class ClientHttpRequestFactoriesRuntimeHints implements RuntimeHintsRegistrar {
     hints.registerTypeIfPresent(classLoader, ClientHttpRequestFactories.APACHE_HTTP_CLIENT_CLASS, (typeHint) -> {
       typeHint.onReachableType(TypeReference.of(ClientHttpRequestFactories.APACHE_HTTP_CLIENT_CLASS));
       registerReflectionHints(hints, HttpComponentsClientHttpRequestFactory.class);
-    });
-    hints.registerTypeIfPresent(classLoader, ClientHttpRequestFactories.JETTY_CLIENT_CLASS, (typeHint) -> {
-      typeHint.onReachableType(TypeReference.of(ClientHttpRequestFactories.JETTY_CLIENT_CLASS));
-      registerReflectionHints(hints, JettyClientHttpRequestFactory.class, long.class);
     });
     hints.registerType(SimpleClientHttpRequestFactory.class, (typeHint) -> {
       typeHint.onReachableType(HttpURLConnection.class);

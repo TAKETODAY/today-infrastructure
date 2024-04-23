@@ -22,9 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpRequestInitializer;
 import cn.taketoday.http.client.ClientHttpRequestInterceptor;
-import cn.taketoday.http.client.JettyClientHttpRequestFactory;
+import cn.taketoday.http.client.JdkClientHttpRequestFactory;
 import cn.taketoday.http.client.support.BasicAuthenticationInterceptor;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
@@ -43,7 +44,7 @@ class DefaultRestClientBuilderTests {
   @SuppressWarnings("unchecked")
   @Test
   void createFromRestTemplate() {
-    JettyClientHttpRequestFactory requestFactory = new JettyClientHttpRequestFactory();
+    ClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
     DefaultUriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory("baseUri");
     ResponseErrorHandler errorHandler = new DefaultResponseErrorHandler();
     List<HttpMessageConverter<?>> restTemplateMessageConverters = List.of(new StringHttpMessageConverter());
