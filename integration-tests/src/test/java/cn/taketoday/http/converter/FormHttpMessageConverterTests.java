@@ -45,6 +45,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.MockHttpInputMessage;
 import cn.taketoday.http.MockHttpOutputMessage;
 import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
+import cn.taketoday.test.classpath.ClassPathOverrides;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 
@@ -312,7 +313,8 @@ public class FormHttpMessageConverterTests {
     assertThat(item.getContentType()).isEqualTo("text/xml");
   }
 
-  @Test  // SPR-13309
+  @Test
+  @ClassPathOverrides("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.0")
   public void writeMultipartOrder() throws Exception {
     MyBean myBean = new MyBean();
     myBean.setString("foo");

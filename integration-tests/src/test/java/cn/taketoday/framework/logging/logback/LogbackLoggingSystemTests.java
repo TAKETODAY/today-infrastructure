@@ -164,8 +164,12 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     assertThat(getLineWithText(output, "Hello world")).contains("INFO");
     assertThat(file).exists();
     assertThat(getLineWithText(file, "Hello world")).contains("INFO");
-    assertThat((Object) ReflectionTestUtils.getField(getRollingPolicy(), "maxFileSize")).hasToString("10 MB");
+    assertThat(maxFileSize()).hasToString("10 MB");
     assertThat(getRollingPolicy().getMaxHistory()).isEqualTo(7);
+  }
+
+  private static Object maxFileSize() {
+    return ReflectionTestUtils.getField(getRollingPolicy(), "maxFileSize");
   }
 
   @Test
@@ -416,7 +420,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
     assertThat(getLineWithText(file, "Hello world")).contains("INFO");
-    assertThat((Object) ReflectionTestUtils.getField(getRollingPolicy(), "maxFileSize")).hasToString(expectedFileSize);
+    assertThat(maxFileSize()).hasToString(expectedFileSize);
   }
 
   @Test
@@ -428,7 +432,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(LoggingStartupContext, "classpath:logback-include-base.xml", logFile);
     this.logger.info("Hello world");
     assertThat(getLineWithText(file, "Hello world")).contains("INFO");
-    assertThat((Object) ReflectionTestUtils.getField(getRollingPolicy(), "maxFileSize")).hasToString("100 MB");
+    assertThat(maxFileSize()).hasToString("100 MB");
   }
 
   @Test
@@ -478,7 +482,7 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(LoggingStartupContext, null, logFile);
     this.logger.info("Hello world");
     assertThat(getLineWithText(file, "Hello world")).contains("INFO");
-    assertThat((Object) ReflectionTestUtils.getField(getRollingPolicy(), "totalSizeCap")).hasToString(expectedFileSize);
+    assertThat(getTotalSizeCap()).hasToString(expectedFileSize);
   }
 
   @Test
@@ -491,7 +495,11 @@ class LogbackLoggingSystemTests extends AbstractLoggingSystemTests {
     initialize(LoggingStartupContext, "classpath:logback-include-base.xml", logFile);
     this.logger.info("Hello world");
     assertThat(getLineWithText(file, "Hello world")).contains("INFO");
-    assertThat((Object) ReflectionTestUtils.getField(getRollingPolicy(), "totalSizeCap")).hasToString(expectedSize);
+    assertThat(getTotalSizeCap()).hasToString(expectedSize);
+  }
+
+  private static Object getTotalSizeCap() {
+    return ReflectionTestUtils.getField(getRollingPolicy(), "totalSizeCap");
   }
 
   @Test
