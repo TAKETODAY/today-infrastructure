@@ -38,7 +38,6 @@ import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.InfraCondition;
 import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
-import cn.taketoday.core.Ordered;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.template.TemplateAvailabilityProviders;
@@ -127,9 +126,7 @@ public class ErrorMvcAutoConfiguration {
     @Component
     @ConditionalOnMissingBean
     static BeanNameViewResolver beanNameViewResolver() {
-      BeanNameViewResolver resolver = new BeanNameViewResolver();
-      resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
-      return resolver;
+      return WebMvcAutoConfiguration.beanNameViewResolver();
     }
 
   }

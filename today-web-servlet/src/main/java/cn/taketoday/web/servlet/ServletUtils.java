@@ -17,26 +17,19 @@
 
 package cn.taketoday.web.servlet;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
-import cn.taketoday.web.bind.MultipartException;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.RequestDispatcher;
@@ -45,21 +38,15 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.ServletResponseWrapper;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.Part;
 
 /**
  * @author TODAY 2020/12/8 23:07
  * @since 3.0
  */
 public abstract class ServletUtils {
-
-  /** Key for the mutex session attribute. */
-  public static final String SESSION_MUTEX_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          ServletUtils.class, "MUTEX");
 
   /**
    * Request attribute to hold the current web application context.
@@ -78,37 +65,6 @@ public abstract class ServletUtils {
    * @since 4.0
    */
   public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "jakarta.servlet.context.tempdir";
-
-  /**
-   * HTML escape parameter at the servlet context level
-   * (i.e. a context-param in {@code web.xml}): "defaultHtmlEscape".
-   *
-   * @since 4.0
-   */
-  public static final String HTML_ESCAPE_CONTEXT_PARAM = "defaultHtmlEscape";
-
-  /**
-   * Use of response encoding for HTML escaping parameter at the servlet context level
-   * (i.e. a context-param in {@code web.xml}): "responseEncodedHtmlEscape".
-   *
-   * @since 4.0
-   */
-  public static final String RESPONSE_ENCODED_HTML_ESCAPE_CONTEXT_PARAM = "responseEncodedHtmlEscape";
-
-  /**
-   * Web app root key parameter at the servlet context level
-   * (i.e. a context-param in {@code web.xml}): "webAppRootKey".
-   *
-   * @since 4.0
-   */
-  public static final String WEB_APP_ROOT_KEY_PARAM = "webAppRootKey";
-
-  /**
-   * Default web app root key: "webapp.root".
-   *
-   * @since 4.0
-   */
-  public static final String DEFAULT_WEB_APP_ROOT_KEY = "webapp.root";
 
   // context
 
@@ -299,139 +255,8 @@ public abstract class ServletUtils {
   }
 
   //---------------------------------------------------------------------
-  // HttpSession
-  //---------------------------------------------------------------------
-
-  /**
-   * Determine the session id of the given request, if any.
-   *
-   * @param request current HTTP request
-   * @return the session id, or {@code null} if none
-   * @since 4.0
-   */
-  @Nullable
-  public static String getSessionId(HttpServletRequest request) {
-    Assert.notNull(request, "Request is required");
-    HttpSession session = request.getSession(false);
-    return (session != null ? session.getId() : null);
-  }
-
-  /**
-   * Check the given request for a session attribute of the given name.
-   * Returns null if there is no session or if the session has no such attribute.
-   * Does not create a new session if none has existed before!
-   *
-   * @param request current HTTP request
-   * @param name the name of the session attribute
-   * @return the value of the session attribute, or {@code null} if not found
-   * @since 4.0
-   */
-  @Nullable
-  public static Object getSessionAttribute(HttpServletRequest request, String name) {
-    Assert.notNull(request, "Request is required");
-    HttpSession session = request.getSession(false);
-    return session != null ? session.getAttribute(name) : null;
-  }
-
-  /**
-   * Check the given request for a session attribute of the given name.
-   * Throws an exception if there is no session or if the session has no such
-   * attribute. Does not create a new session if none has existed before!
-   *
-   * @param request current HTTP request
-   * @param name the name of the session attribute
-   * @return the value of the session attribute, or {@code null} if not found
-   * @throws IllegalStateException if the session attribute could not be found
-   * @since 4.0
-   */
-  public static Object getRequiredSessionAttribute(HttpServletRequest request, String name) {
-    Object attr = getSessionAttribute(request, name);
-    if (attr == null) {
-      throw new IllegalStateException("No session attribute '" + name + "' found");
-    }
-    return attr;
-  }
-
-  /**
-   * Set the session attribute with the given name to the given value.
-   * Removes the session attribute if value is null, if a session existed at all.
-   * Does not create a new session if not necessary!
-   *
-   * @param request current HTTP request
-   * @param name the name of the session attribute
-   * @param value the value of the session attribute
-   * @since 4.0
-   */
-  public static void setSessionAttribute(HttpServletRequest request, String name, @Nullable Object value) {
-    Assert.notNull(request, "Request is required");
-    if (value != null) {
-      request.getSession().setAttribute(name, value);
-    }
-    else {
-      HttpSession session = request.getSession(false);
-      if (session != null) {
-        session.removeAttribute(name);
-      }
-    }
-  }
-
-  /**
-   * Return the best available mutex for the given session:
-   * that is, an object to synchronize on for the given session.
-   * <p>Returns the session mutex attribute if available; usually,
-   * this means that the HttpSessionMutexListener needs to be defined
-   * in {@code web.xml}. Falls back to the HttpSession itself
-   * if no mutex attribute found.
-   * <p>The session mutex is guaranteed to be the same object during
-   * the entire lifetime of the session, available under the key defined
-   * by the {@code SESSION_MUTEX_ATTRIBUTE} constant. It serves as a
-   * safe reference to synchronize on for locking on the current session.
-   * <p>In many cases, the HttpSession reference itself is a safe mutex
-   * as well, since it will always be the same object reference for the
-   * same active logical session. However, this is not guaranteed across
-   * different servlet containers; the only 100% safe way is a session mutex.
-   *
-   * @param session the HttpSession to find a mutex for
-   * @return the mutex object (never {@code null})
-   * @see #SESSION_MUTEX_ATTRIBUTE
-   * @since 4.0
-   */
-  public static Object getSessionMutex(HttpSession session) {
-    Assert.notNull(session, "Session is required");
-    Object mutex = session.getAttribute(SESSION_MUTEX_ATTRIBUTE);
-    if (mutex == null) {
-      mutex = session;
-    }
-    return mutex;
-  }
-
-  //---------------------------------------------------------------------
   // ServletRequest
   //---------------------------------------------------------------------
-
-  /**
-   * Check if a specific input type="submit" parameter was sent in the request,
-   * either via a button (directly with name) or via an image (name + ".x" or
-   * name + ".y").
-   *
-   * @param request current HTTP request
-   * @param name the name of the parameter
-   * @return if the parameter was sent
-   * @see #SUBMIT_IMAGE_SUFFIXES
-   * @since 4.0
-   */
-  public static boolean hasSubmitParameter(ServletRequest request, String name) {
-    Assert.notNull(request, "Request is required");
-    if (request.getParameter(name) != null) {
-      return true;
-    }
-    for (String suffix : SUBMIT_IMAGE_SUFFIXES) {
-      if (request.getParameter(name + suffix) != null) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   /**
    * Determine whether the given request is an include request,
@@ -456,29 +281,6 @@ public abstract class ServletUtils {
     return contentType != null
             && HttpMethod.POST.matches(request.getMethod())
             && contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-  }
-
-  /**
-   * Retrieve the first cookie with the given name. Note that multiple
-   * cookies can have the same name but different paths or domains.
-   *
-   * @param request current servlet request
-   * @param name cookie name
-   * @return the first cookie with the given name, or {@code null} if none is found
-   * @since 4.0
-   */
-  @Nullable
-  public static Cookie getCookie(HttpServletRequest request, String name) {
-    Assert.notNull(request, "Request is required");
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if (name.equals(cookie.getName())) {
-          return cookie;
-        }
-      }
-    }
-    return null;
   }
 
   /**
@@ -532,21 +334,6 @@ public abstract class ServletUtils {
 
   /**
    * Obtain a named parameter from the given request parameters.
-   * <p>See {@link #findParameterValue(Map, String)}
-   * for a description of the lookup algorithm.
-   *
-   * @param request current HTTP request
-   * @param name the <i>logical</i> name of the request parameter
-   * @return the value of the parameter, or {@code null}
-   * if the parameter does not exist in given request
-   */
-  @Nullable
-  public static String findParameterValue(ServletRequest request, String name) {
-    return findParameterValue(request.getParameterMap(), name);
-  }
-
-  /**
-   * Obtain a named parameter from the given request parameters.
    * <p>This method will try to obtain a parameter value using the
    * following algorithm:
    * <ol>
@@ -596,182 +383,9 @@ public abstract class ServletUtils {
     return null;
   }
 
-  /**
-   * Expose the Servlet spec's error attributes as {@link HttpServletRequest}
-   * attributes under the keys defined in the Servlet 2.3 specification, for error pages that
-   * are rendered directly rather than through the Servlet container's error page resolution:
-   * {@code jakarta.servlet.error.status_code},
-   * {@code jakarta.servlet.error.exception_type},
-   * {@code jakarta.servlet.error.message},
-   * {@code jakarta.servlet.error.exception},
-   * {@code jakarta.servlet.error.request_uri},
-   * {@code jakarta.servlet.error.servlet_name}.
-   * <p>Does not override values if already present, to respect attribute values
-   * that have been exposed explicitly before.
-   * <p>Exposes status code 200 by default. Set the "jakarta.servlet.error.status_code"
-   * attribute explicitly (before or after) in order to expose a different status code.
-   *
-   * @param request current servlet request
-   * @param ex the exception encountered
-   * @param servletName the name of the offending servlet
-   * @since 4.0
-   */
-  public static void exposeErrorRequestAttributes(
-          HttpServletRequest request, Throwable ex, @Nullable String servletName) {
-
-    exposeRequestAttributeIfNotPresent(request, RequestDispatcher.ERROR_STATUS_CODE, HttpServletResponse.SC_OK);
-    exposeRequestAttributeIfNotPresent(request, RequestDispatcher.ERROR_EXCEPTION_TYPE, ex.getClass());
-    exposeRequestAttributeIfNotPresent(request, RequestDispatcher.ERROR_MESSAGE, ex.getMessage());
-    exposeRequestAttributeIfNotPresent(request, RequestDispatcher.ERROR_EXCEPTION, ex);
-    exposeRequestAttributeIfNotPresent(request, RequestDispatcher.ERROR_REQUEST_URI, request.getRequestURI());
-    if (servletName != null) {
-      exposeRequestAttributeIfNotPresent(request, RequestDispatcher.ERROR_SERVLET_NAME, servletName);
-    }
-  }
-
-  /**
-   * Expose the specified request attribute if not already present.
-   *
-   * @param request current servlet request
-   * @param name the name of the attribute
-   * @param value the suggested value of the attribute
-   * @since 4.0
-   */
-  private static void exposeRequestAttributeIfNotPresent(ServletRequest request, String name, Object value) {
-    if (request.getAttribute(name) == null) {
-      request.setAttribute(name, value);
-    }
-  }
-
-  /**
-   * Clear the Servlet spec's error attributes as {@link HttpServletRequest}
-   * attributes under the keys defined in the Servlet 2.3 specification:
-   * {@code jakarta.servlet.error.status_code},
-   * {@code jakarta.servlet.error.exception_type},
-   * {@code jakarta.servlet.error.message},
-   * {@code jakarta.servlet.error.exception},
-   * {@code jakarta.servlet.error.request_uri},
-   * {@code jakarta.servlet.error.servlet_name}.
-   *
-   * @param request current servlet request
-   * @since 4.0
-   */
-  public static void clearErrorRequestAttributes(HttpServletRequest request) {
-    request.removeAttribute(RequestDispatcher.ERROR_STATUS_CODE);
-    request.removeAttribute(RequestDispatcher.ERROR_EXCEPTION_TYPE);
-    request.removeAttribute(RequestDispatcher.ERROR_MESSAGE);
-    request.removeAttribute(RequestDispatcher.ERROR_EXCEPTION);
-    request.removeAttribute(RequestDispatcher.ERROR_REQUEST_URI);
-    request.removeAttribute(RequestDispatcher.ERROR_SERVLET_NAME);
-  }
-
   //---------------------------------------------------------------------
   // ServletContext
   //---------------------------------------------------------------------
-
-  /**
-   * Set a system property to the web application root directory.
-   * The key of the system property can be defined with the "webAppRootKey"
-   * context-param in {@code web.xml}. Default is "webapp.root".
-   * <p>Can be used for tools that support substitution with {@code System.getProperty}
-   * values, like log4j's "${key}" syntax within log file locations.
-   *
-   * @param servletContext the servlet context of the web application
-   * @throws IllegalStateException if the system property is already set,
-   * or if the WAR file is not expanded
-   * @see #WEB_APP_ROOT_KEY_PARAM
-   * @see #DEFAULT_WEB_APP_ROOT_KEY
-   */
-  public static void setWebAppRootSystemProperty(ServletContext servletContext) throws IllegalStateException {
-    Assert.notNull(servletContext, "ServletContext is required");
-    String root = servletContext.getRealPath("/");
-    if (root == null) {
-      throw new IllegalStateException(
-              "Cannot set web app root system property when WAR file is not expanded");
-    }
-    String param = servletContext.getInitParameter(WEB_APP_ROOT_KEY_PARAM);
-    String key = (param != null ? param : DEFAULT_WEB_APP_ROOT_KEY);
-    String oldValue = System.getProperty(key);
-    if (oldValue != null && !StringUtils.pathEquals(oldValue, root)) {
-      throw new IllegalStateException(
-              "Web app root system property already set to different value: '" +
-                      key + "' = [" + oldValue + "] instead of [" + root + "] - " +
-                      "Choose unique values for the 'webAppRootKey' context-param in your web.xml files!");
-    }
-    System.setProperty(key, root);
-    servletContext.log("Set web app root system property: '" + key + "' = [" + root + "]");
-  }
-
-  /**
-   * Remove the system property that points to the web app root directory.
-   * To be called on shutdown of the web application.
-   *
-   * @param servletContext the servlet context of the web application
-   * @see #setWebAppRootSystemProperty
-   */
-  public static void removeWebAppRootSystemProperty(ServletContext servletContext) {
-    Assert.notNull(servletContext, "ServletContext is required");
-    String param = servletContext.getInitParameter(WEB_APP_ROOT_KEY_PARAM);
-    String key = (param != null ? param : DEFAULT_WEB_APP_ROOT_KEY);
-    System.getProperties().remove(key);
-  }
-
-  /**
-   * Return whether default HTML escaping is enabled for the web application,
-   * i.e. the value of the "defaultHtmlEscape" context-param in {@code web.xml}
-   * (if any).
-   * <p>This method differentiates between no param specified at all and
-   * an actual boolean value specified, allowing to have a context-specific
-   * default in case of no setting at the global level.
-   *
-   * @param servletContext the servlet context of the web application
-   * @return whether default HTML escaping is enabled for the given application
-   * ({@code null} = no explicit default)
-   */
-  @Nullable
-  public static Boolean getDefaultHtmlEscape(@Nullable ServletContext servletContext) {
-    if (servletContext == null) {
-      return null;
-    }
-    String param = servletContext.getInitParameter(HTML_ESCAPE_CONTEXT_PARAM);
-    return StringUtils.hasText(param) ? Boolean.valueOf(param) : null;
-  }
-
-  /**
-   * Return whether response encoding should be used when HTML escaping characters,
-   * thus only escaping XML markup significant characters with UTF-* encodings.
-   * This option is enabled for the web application with a ServletContext param,
-   * i.e. the value of the "responseEncodedHtmlEscape" context-param in {@code web.xml}
-   * (if any).
-   * <p>This method differentiates between no param specified at all and
-   * an actual boolean value specified, allowing to have a context-specific
-   * default in case of no setting at the global level.
-   *
-   * @param servletContext the servlet context of the web application
-   * @return whether response encoding is to be used for HTML escaping
-   * ({@code null} = no explicit default)
-   * @since 4.0
-   */
-  @Nullable
-  public static Boolean getResponseEncodedHtmlEscape(@Nullable ServletContext servletContext) {
-    if (servletContext == null) {
-      return null;
-    }
-    String param = servletContext.getInitParameter(RESPONSE_ENCODED_HTML_ESCAPE_CONTEXT_PARAM);
-    return StringUtils.hasText(param) ? Boolean.valueOf(param) : null;
-  }
-
-  /**
-   * Return the temporary directory for the current web application,
-   * as provided by the servlet container.
-   *
-   * @param servletContext the servlet context of the web application
-   * @return the File representing the temporary directory
-   */
-  public static File getTempDir(ServletContext servletContext) {
-    Assert.notNull(servletContext, "ServletContext is required");
-    return (File) servletContext.getAttribute(TEMP_DIR_CONTEXT_ATTRIBUTE);
-  }
 
   /**
    * Return the real path of the given path within the web application,
@@ -800,91 +414,6 @@ public abstract class ServletUtils {
                       "web application archive not expanded?");
     }
     return realPath;
-  }
-
-  /**
-   * Retrieve all parts from the given servlet request.
-   *
-   * @param request the servlet request
-   * @return the parts in a MultiValueMap
-   * @throws MultipartException in case of failures
-   * @since 4.0
-   */
-  public static MultiValueMap<String, Part> getParts(HttpServletRequest request) throws MultipartException {
-    try {
-      MultiValueMap<String, Part> parts = MultiValueMap.forLinkedHashMap();
-      for (Part part : request.getParts()) {
-        parts.add(part.getName(), part);
-      }
-      return parts;
-    }
-    catch (Exception ex) {
-      throw new MultipartException("Failed to get request parts", ex);
-    }
-  }
-
-  /**
-   * Retrieve all parts with the given name from the given servlet request.
-   *
-   * @param request the servlet request
-   * @param name the name to look for
-   * @return the parts in a MultiValueMap
-   * @throws MultipartException in case of failures
-   * @since 4.0
-   */
-  public static List<Part> getParts(HttpServletRequest request, String name) throws MultipartException {
-    try {
-      ArrayList<Part> parts = new ArrayList<>(1);
-      for (Part part : request.getParts()) {
-        if (part.getName().equals(name)) {
-          parts.add(part);
-        }
-      }
-      return parts;
-    }
-    catch (Exception ex) {
-      throw new MultipartException("Failed to get request parts", ex);
-    }
-  }
-
-  public static Part getPart(RequestContext request, String requestPartName) {
-    HttpServletRequest servletRequest = ServletUtils.getServletRequest(request);
-    return getPart(servletRequest, requestPartName);
-  }
-
-  public static Part getPart(HttpServletRequest request, String requestPartName) {
-    try {
-      return request.getPart(requestPartName);
-    }
-    catch (Exception ex) {
-      throw new MultipartException("Failed to retrieve request part '" + requestPartName + "'", ex);
-    }
-  }
-
-  /**
-   * Bind all parts from the given servlet request.
-   *
-   * @param request the servlet request
-   * @param mpvs the property values to bind to
-   * @param bindEmpty whether to bind empty parts as well
-   * @throws MultipartException in case of failures
-   * @since 4.0
-   */
-  public static void bindParts(HttpServletRequest request, PropertyValues mpvs, boolean bindEmpty)
-          throws MultipartException {
-    for (Map.Entry<String, List<Part>> entry : getParts(request).entrySet()) {
-      String key = entry.getKey();
-      List<Part> values = entry.getValue();
-      if (values.size() == 1) {
-        Part part = values.get(0);
-        if (bindEmpty || part.getSize() > 0) {
-          mpvs.add(key, part);
-        }
-      }
-      else {
-        mpvs.add(key, values);
-      }
-    }
   }
 
 }

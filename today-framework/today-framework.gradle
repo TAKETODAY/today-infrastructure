@@ -33,7 +33,6 @@ dependencies {
   optional 'org.glassfish:jakarta.el'
   optional 'org.awaitility:awaitility'
   optional 'org.codehaus.janino:janino:3.1.6'
-  optional 'com.github.h-thurow:simple-jndi:0.23.0'
   optional 'jakarta.json.bind:jakarta.json.bind-api'
   optional 'jakarta.resource:jakarta.resource-api'
   optional 'org.aspectj:aspectjweaver'
@@ -115,7 +114,6 @@ dependencies {
   testImplementation 'com.mysql:mysql-connector-j'
 
 
-  testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'
   testImplementation 'org.apache.commons:commons-dbcp2:2.9.0'
   testImplementation 'com.oracle.database.jdbc:ucp:21.7.0.0'
   testImplementation 'org.hibernate:hibernate-envers:5.6.15.Final'

@@ -19,7 +19,6 @@ package cn.taketoday.web.servlet;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
@@ -28,7 +27,6 @@ import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
@@ -169,18 +167,6 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
       String attrName = getServletContextAttributeName();
       getServletContext().setAttribute(attrName, getApplicationContext());
     }
-  }
-
-  @Override
-  protected void applyInitializers(ConfigurableApplicationContext context, List<ApplicationContextInitializer> initializers) {
-    String globalClassNames = getServletContext().getInitParameter(ContextLoader.GLOBAL_INITIALIZER_CLASSES_PARAM);
-    if (globalClassNames != null) {
-      for (String className : StringUtils.tokenizeToStringArray(globalClassNames, INIT_PARAM_DELIMITERS)) {
-        initializers.add(loadInitializer(className, context));
-      }
-    }
-
-    super.applyInitializers(context, initializers);
   }
 
   @Override

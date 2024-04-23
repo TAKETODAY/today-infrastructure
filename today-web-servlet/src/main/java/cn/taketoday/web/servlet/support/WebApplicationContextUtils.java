@@ -31,7 +31,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import cn.taketoday.web.servlet.ContextLoaderListener;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import jakarta.servlet.ServletConfig;
@@ -75,8 +74,7 @@ public class WebApplicationContextUtils {
   }
 
   /**
-   * Find the root {@code WebServletApplicationContext} for this web app, typically
-   * loaded via {@link ContextLoaderListener}.
+   * Find the root {@code WebServletApplicationContext} for this web app,
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *

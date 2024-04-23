@@ -54,7 +54,6 @@ import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.View;
-import jakarta.servlet.DispatcherType;
 import jakarta.servlet.ServletContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -102,10 +101,7 @@ class BasicErrorControllerMockMvcTests {
     MvcResult result = this.mockMvc.perform(get("/noContent").accept("some/thing"))
             .andExpect(status().isNoContent())
             .andReturn();
-    MvcResult response = this.mockMvc.perform(new ErrorDispatcher(result, "/error"))
-            .andExpect(status().isNoContent())
-            .andReturn();
-    String content = response.getResponse().getContentAsString();
+    String content = result.getResponse().getContentAsString();
     assertThat(content).isEmpty();
   }
 
@@ -211,7 +207,7 @@ class BasicErrorControllerMockMvcTests {
 
   }
 
-  private class ErrorDispatcher implements RequestBuilder {
+  private static class ErrorDispatcher implements RequestBuilder {
 
     private final MvcResult result;
 
@@ -225,9 +221,7 @@ class BasicErrorControllerMockMvcTests {
     @Override
     public MockHttpServletRequest buildRequest(ServletContext servletContext) {
       MockHttpServletRequest request = this.result.getRequest();
-      request.setDispatcherType(DispatcherType.ERROR);
       request.setRequestURI(this.path);
-      request.setAttribute("jakarta.servlet.error.status_code", this.result.getResponse().getStatus());
       return request;
     }
 

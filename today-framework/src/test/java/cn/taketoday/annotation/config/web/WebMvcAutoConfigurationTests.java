@@ -124,7 +124,6 @@ public class WebMvcAutoConfigurationTests {
   private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
           .withConfiguration(
                   AutoConfigurations.of(WebMvcAutoConfiguration.class,
-                          RandomPortWebServerConfig.class,
                           HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
           .withUserConfiguration(Config.class);
 

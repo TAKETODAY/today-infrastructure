@@ -433,7 +433,6 @@ public class ContextLoader {
    * if any have been specified by {@link #CONTEXT_INITIALIZER_CLASSES_PARAM}.
    *
    * @param servletContext current servlet context
-   * @see #CONTEXT_INITIALIZER_CLASSES_PARAM
    */
   protected List<Class<ApplicationContextInitializer>> determineContextInitializerClasses(ServletContext servletContext) {
 
