@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.time.Duration;
 
 import cn.taketoday.http.client.ClientHttpRequestFactory;
-import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/11/1 23:10
  */
-@DirtiesUrlFactories
 abstract class AbstractClientHttpRequestFactoriesTests<T extends ClientHttpRequestFactory> {
 
   private final Class<T> requestFactoryType;

@@ -29,7 +29,6 @@ import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MapConfigurationPropertySource;
 import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
 import cn.taketoday.util.DataSize;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
@@ -54,7 +53,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Bono
  * @author Parviz Rozikov
  */
-@DirtiesUrlFactories
 class ServerPropertiesTests {
 
   private final ServerProperties properties = new ServerProperties();
