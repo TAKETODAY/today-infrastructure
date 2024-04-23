@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
+import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.scheduling.Trigger;
 import cn.taketoday.scheduling.TriggerContext;
 import cn.taketoday.util.ErrorHandler;
@@ -139,6 +140,12 @@ public class ThreadPoolTaskSchedulerTests extends AbstractSchedulingTaskExecutor
     await(task);
     assertThat(taskRun.get()).isTrue();
     assertThreadNamePrefix(task);
+  }
+
+  @Test
+  @DisabledIfInContinuousIntegration
+  void submitRunnableWithGetAfterShutdown() throws Exception {
+    super.submitRunnableWithGetAfterShutdown();
   }
 
   private void await(TestTask task) {

@@ -57,7 +57,7 @@ dependencies {
   testRuntimeOnly("jakarta.xml.bind:jakarta.xml.bind-api")
   testRuntimeOnly("org.glassfish:jakarta.el")
   // Substitute for javax.management:jmxremote_optional:1.0.1_04 (not available on Maven Central)
-  testRuntimeOnly("org.glassfish.external:opendmk_jmxremote_optional_jar")
+  testRuntimeOnly("org.glassfish.external:opendmk_jmxremote_optional_jar:1.0-b01-ea")
   testRuntimeOnly("org.javamoney:moneta")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine") // for @Inject TCK
   testFixturesApi("org.junit.jupiter:junit-jupiter-api")
