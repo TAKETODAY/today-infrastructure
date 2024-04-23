@@ -27,7 +27,6 @@ import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.session.config.SessionProperties;
 import cn.taketoday.util.DataSize;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
@@ -80,9 +79,6 @@ public class ServerProperties {
 
   @NestedConfigurationProperty
   public final EncodingProperties encoding = new EncodingProperties();
-
-  //  @NestedConfigurationProperty
-  public final SessionProperties session = new SessionProperties();
 
   @NestedConfigurationProperty
   public final ErrorProperties error = new ErrorProperties();
@@ -259,32 +255,6 @@ public class ServerProperties {
 
     public final NettySSL ssl = new NettySSL();
 
-    public static class NettySSL {
-      /**
-       * Whether to enable SSL support.
-       */
-      public boolean enabled = false;
-
-      /**
-       * Private key resource location
-       */
-      @Nullable
-      public String privateKey;
-
-      /**
-       * Private key password
-       */
-      @Nullable
-      public String keyPassword;
-
-      /**
-       * Public key resource location
-       */
-      @Nullable
-      public String publicKey;
-
-    }
-
     public static class Shutdown {
 
       /**
@@ -356,6 +326,32 @@ public class ServerProperties {
      * used.
      */
     public Duration idleTimeout;
+
+  }
+
+  public static class NettySSL {
+    /**
+     * Whether to enable SSL support.
+     */
+    public boolean enabled = false;
+
+    /**
+     * Private key resource location
+     */
+    @Nullable
+    public String privateKey;
+
+    /**
+     * Private key password
+     */
+    @Nullable
+    public String keyPassword;
+
+    /**
+     * Public key resource location
+     */
+    @Nullable
+    public String publicKey;
 
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.http;
@@ -35,12 +35,12 @@ import cn.taketoday.context.condition.ConditionalOnClass;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.condition.ConditionalOnProperty;
 import cn.taketoday.context.condition.NoneNestedConditions;
+import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
-import cn.taketoday.context.properties.bind.Binder;
-import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.server.EncodingProperties;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
@@ -83,14 +83,14 @@ public class HttpMessageConvertersAutoConfiguration {
   }
 
   @Configuration(proxyBeanMethods = false)
+  @EnableConfigurationProperties(ServerProperties.class)
   @ConditionalOnClass(StringHttpMessageConverter.class)
   protected static class StringHttpMessageConverterConfiguration {
 
     @Component
     @ConditionalOnMissingBean
-    static StringHttpMessageConverter stringHttpMessageConverter(ConfigurableEnvironment environment) {
-      var encoding = Binder.get(environment).bindOrCreate("server.encoding", EncodingProperties.class);
-      StringHttpMessageConverter converter = new StringHttpMessageConverter(encoding.getCharset());
+    static StringHttpMessageConverter stringHttpMessageConverter(ServerProperties serverProperties) {
+      StringHttpMessageConverter converter = new StringHttpMessageConverter(serverProperties.encoding.getCharset());
       converter.setWriteAcceptCharset(false);
       return converter;
     }

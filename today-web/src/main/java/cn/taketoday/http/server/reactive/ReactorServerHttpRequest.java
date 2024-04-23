@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,11 +59,11 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   private static final AtomicLong logPrefixIndex = new AtomicLong();
 
   private final HttpServerRequest request;
+
   private final NettyDataBufferFactory bufferFactory;
 
-  public ReactorServerHttpRequest(HttpServerRequest request,
-          NettyDataBufferFactory bufferFactory) throws URISyntaxException {
-    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), "",
+  public ReactorServerHttpRequest(HttpServerRequest request, NettyDataBufferFactory bufferFactory) throws URISyntaxException {
+    super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), null,
             new Netty4HeadersAdapter(request.requestHeaders()));
     Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.request = request;

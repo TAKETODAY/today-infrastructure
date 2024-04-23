@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ class ReactorNetty2ServerHttpRequest extends AbstractServerHttpRequest {
   public ReactorNetty2ServerHttpRequest(HttpServerRequest request, Netty5DataBufferFactory bufferFactory)
           throws URISyntaxException {
 
-    super(initUri(request), "", new Netty5HeadersAdapter(request.requestHeaders()));
+    super(initUri(request), null, new Netty5HeadersAdapter(request.requestHeaders()));
     Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.request = request;
     this.bufferFactory = bufferFactory;

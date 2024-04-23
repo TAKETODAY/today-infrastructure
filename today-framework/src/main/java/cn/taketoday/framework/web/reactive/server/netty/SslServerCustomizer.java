@@ -86,8 +86,7 @@ public class SslServerCustomizer implements ReactorNettyServerCustomizer {
    * @return an {@link AbstractProtocolSslContextSpec} instance
    */
   protected final AbstractProtocolSslContextSpec<?> createSslContextSpec(SslBundle sslBundle) {
-    AbstractProtocolSslContextSpec<?> sslContextSpec =
-            (this.http2 != null && this.http2.isEnabled())
+    AbstractProtocolSslContextSpec<?> sslContextSpec = Http2.isEnabled(http2)
             ? Http2SslContextSpec.forServer(sslBundle.getManagers().getKeyManagerFactory())
             : Http11SslContextSpec.forServer(sslBundle.getManagers().getKeyManagerFactory());
 
