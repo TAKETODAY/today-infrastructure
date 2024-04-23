@@ -268,6 +268,7 @@ public class ServerProperties {
       /**
        * Private key resource location
        */
+      @Nullable
       public String privateKey;
 
       /**
@@ -279,6 +280,7 @@ public class ServerProperties {
       /**
        * Public key resource location
        */
+      @Nullable
       public String publicKey;
 
     }

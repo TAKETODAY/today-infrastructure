@@ -54,9 +54,10 @@ import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.format.Parser;
 import cn.taketoday.format.Printer;
 import cn.taketoday.format.support.FormattingConversionService;
-import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
+import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ContextConsumer;
-import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
+import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.framework.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
@@ -121,11 +122,11 @@ import static org.mockito.Mockito.mock;
  */
 public class WebMvcAutoConfigurationTests {
 
-  private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
-          .withConfiguration(
-                  AutoConfigurations.of(WebMvcAutoConfiguration.class,
+  private final ApplicationContextRunner contextRunner =
+          ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
+                  .withConfiguration(AutoConfigurations.of(WebMvcAutoConfiguration.class, RandomPortWebServerConfig.class,
                           HttpMessageConvertersAutoConfiguration.class, PropertyPlaceholderAutoConfiguration.class))
-          .withUserConfiguration(Config.class);
+                  .withUserConfiguration(Config.class);
 
   @Test
   void handlerAdaptersCreated() {
@@ -552,7 +553,7 @@ public class WebMvcAutoConfigurationTests {
             .run(assertExceptionResolverWarnLoggers((logger) -> assertThat(logger).isNotNull()));
   }
 
-  private ContextConsumer<AssertableWebApplicationContext> assertExceptionResolverWarnLoggers(Consumer<Object> consumer) {
+  private ContextConsumer<AssertableApplicationContext> assertExceptionResolverWarnLoggers(Consumer<Object> consumer) {
     return (context) -> {
       HandlerExceptionHandler resolver = context.getBean(HandlerExceptionHandler.class);
       assertThat(resolver).isInstanceOf(CompositeHandlerExceptionHandler.class);
@@ -733,29 +734,7 @@ public class WebMvcAutoConfigurationTests {
                     (handler) -> assertThat(handler.isUseLastModified()).isFalse()));
   }
 
-//  @Test
-//  void addResourceHandlersAppliesToChildAndParentContext() {
-//    var context = new AnnotationConfigServletWebServerApplicationContext();
-//    context.register(WebMvcAutoConfiguration.class,
-//            DispatcherServletAutoConfiguration.class,
-//            HttpMessageConvertersAutoConfiguration.class,
-//            PropertyPlaceholderAutoConfiguration.class,
-//            ResourceHandlersWithChildAndParentContextConfiguration.class
-//    );
-//
-//    context.refresh();
-//
-//    var resourceHandlerMapping = context.getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
-//    var extraDispatcherServlet = context.getBean("extraDispatcherServlet", DispatcherServlet.class);
-//    var extraResourceHandlerMapping = extraDispatcherServlet.getApplicationContext().getBean("resourceHandlerMapping", SimpleUrlHandlerMapping.class);
-//
-//    assertThat(resourceHandlerMapping).isNotSameAs(extraResourceHandlerMapping);
-//    assertThat(resourceHandlerMapping.getUrlMap()).containsKey("/**");
-//    assertThat(extraResourceHandlerMapping.getUrlMap()).containsKey("/**");
-//    context.close();
-//  }
-
-  private void assertResourceHttpRequestHandler(AssertableWebApplicationContext context,
+  private void assertResourceHttpRequestHandler(AssertableApplicationContext context,
           Consumer<ResourceHttpRequestHandler> handlerConsumer) {
     Map<String, Object> handlerMap = getHandlerMap(context.getBean("resourceHandlerMapping", HandlerMapping.class));
     assertThat(handlerMap).hasSize(2);

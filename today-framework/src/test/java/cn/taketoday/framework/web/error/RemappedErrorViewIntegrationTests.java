@@ -27,14 +27,10 @@ import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
-import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.framework.test.web.client.TestRestTemplate;
 import cn.taketoday.framework.test.web.server.LocalServerPort;
-import cn.taketoday.framework.web.server.ErrorPage;
-import cn.taketoday.framework.web.server.ErrorPageRegistrar;
-import cn.taketoday.framework.web.server.ErrorPageRegistry;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.annotation.DirtiesContext;
 import cn.taketoday.test.web.servlet.DirtiesUrlFactories;
@@ -65,35 +61,16 @@ class RemappedErrorViewIntegrationTests {
     assertThat(content).contains("999");
   }
 
-  @Test
-  void forwardToErrorPage() {
-    String content = this.template.getForObject("http://localhost:" + this.port + "/infra/", String.class);
-    assertThat(content).contains("error");
-    assertThat(content).contains("500");
-  }
-
   @Configuration(proxyBeanMethods = false)
   @Import({ RandomPortWebServerConfig.class,
           PropertyPlaceholderAutoConfiguration.class, WebMvcAutoConfiguration.class,
           HttpMessageConvertersAutoConfiguration.class, ErrorMvcAutoConfiguration.class })
   @Controller
-  static class TestConfiguration implements ErrorPageRegistrar {
+  static class TestConfiguration {
 
     @RequestMapping("/")
     String home() {
       throw new RuntimeException("Planned!");
-    }
-
-    @Override
-    public void registerErrorPages(ErrorPageRegistry errorPageRegistry) {
-      errorPageRegistry.addErrorPages(new ErrorPage("/infra/error"));
-    }
-
-    // For manual testing
-    static void main(String[] args) {
-      new ApplicationBuilder(TestConfiguration.class)
-              .properties("web.mvc.servlet.path:infra/*")
-              .run(args);
     }
 
   }

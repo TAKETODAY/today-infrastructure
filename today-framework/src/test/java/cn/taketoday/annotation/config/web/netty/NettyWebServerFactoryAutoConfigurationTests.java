@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class NettyWebServerFactoryAutoConfigurationTests {
 
-  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner(this::createContext)
+  private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(this::createContext)
           .withConfiguration(AutoConfigurations.of(
                   NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class))
           .withUserConfiguration(WebServerConfiguration.class);

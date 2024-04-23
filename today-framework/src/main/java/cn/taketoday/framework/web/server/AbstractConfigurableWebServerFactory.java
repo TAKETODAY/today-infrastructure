@@ -18,9 +18,6 @@
 package cn.taketoday.framework.web.server;
 
 import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.ssl.SslBundle;
@@ -47,8 +44,6 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
 
   @Nullable
   private InetAddress address;
-
-  private Set<ErrorPage> errorPages = new LinkedHashSet<>();
 
   @Nullable
   private Ssl ssl;
@@ -111,28 +106,6 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   @Override
   public void setAddress(@Nullable InetAddress address) {
     this.address = address;
-  }
-
-  /**
-   * Returns a mutable set of {@link ErrorPage ErrorPages} that will be used when
-   * handling exceptions.
-   *
-   * @return the error pages
-   */
-  public Set<ErrorPage> getErrorPages() {
-    return this.errorPages;
-  }
-
-  @Override
-  public void setErrorPages(Set<? extends ErrorPage> errorPages) {
-    Assert.notNull(errorPages, "ErrorPages is required");
-    this.errorPages = new LinkedHashSet<>(errorPages);
-  }
-
-  @Override
-  public void addErrorPages(ErrorPage... errorPages) {
-    Assert.notNull(errorPages, "ErrorPages is required");
-    this.errorPages.addAll(Arrays.asList(errorPages));
   }
 
   @Nullable

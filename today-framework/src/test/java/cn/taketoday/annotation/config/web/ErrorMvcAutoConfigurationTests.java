@@ -24,9 +24,10 @@ import java.time.Clock;
 import java.util.Map;
 
 import cn.taketoday.context.annotation.config.AutoConfigurations;
-import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
+import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
+import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions;
 import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
 import cn.taketoday.framework.web.error.ErrorAttributes;
@@ -47,8 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(OutputCaptureExtension.class)
 class ErrorMvcAutoConfigurationTests {
 
-  private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner().withConfiguration(
-          AutoConfigurations.of(RandomPortWebServerConfig.class,
+  private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(AnnotationConfigWebServerApplicationContext::new)
+          .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class,
                   WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class));
 
   @Test
