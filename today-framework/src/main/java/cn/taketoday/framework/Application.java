@@ -177,7 +177,8 @@ public class Application {
 
   private List<ApplicationContextInitializer> initializers;
 
-  private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
+  @Nullable
+  private ApplicationContextFactory applicationContextFactory;
 
   private ApplicationType applicationType = ApplicationType.forDefaults();
 
@@ -526,7 +527,11 @@ public class Application {
    * @see #setApplicationContextFactory(ApplicationContextFactory)
    */
   protected ConfigurableApplicationContext createApplicationContext() {
-    ConfigurableApplicationContext context = applicationContextFactory.create(applicationType);
+    ApplicationContextFactory factory = this.applicationContextFactory;
+    if (factory == null) {
+      factory = ApplicationContextFactory.forDefault();
+    }
+    ConfigurableApplicationContext context = factory.create(applicationType);
     Assert.state(context != null, "No suitable ConfigurableApplicationContext");
     return context;
   }
@@ -760,8 +765,7 @@ public class Application {
    * @param applicationContextFactory the factory for the context
    */
   public void setApplicationContextFactory(@Nullable ApplicationContextFactory applicationContextFactory) {
-    this.applicationContextFactory = applicationContextFactory != null
-            ? applicationContextFactory : ApplicationContextFactory.DEFAULT;
+    this.applicationContextFactory = applicationContextFactory;
   }
 
   /**

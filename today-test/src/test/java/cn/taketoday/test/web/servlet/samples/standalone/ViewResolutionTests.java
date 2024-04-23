@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.standalone;
@@ -36,8 +33,8 @@ import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
+import cn.taketoday.web.view.UrlBasedViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
 import cn.taketoday.web.view.xml.MarshallingView;
@@ -59,18 +56,6 @@ import static org.hamcrest.Matchers.hasProperty;
  * @author Rossen Stoyanchev
  */
 class ViewResolutionTests {
-
-  @Test
-  void jspOnly() throws Exception {
-    InternalResourceViewResolver viewResolver = new InternalResourceViewResolver("/WEB-INF/", ".jsp");
-
-    standaloneSetup(new PersonController()).setViewResolvers(viewResolver).build()
-            .perform(get("/person/Corea"))
-            .andExpect(status().isOk())
-            .andExpect(model().size(1))
-            .andExpect(model().attributeExists("person"))
-            .andExpect(forwardedUrl("/WEB-INF/person/show.jsp"));
-  }
 
   @Test
   void jsonOnly() throws Exception {
@@ -112,7 +97,7 @@ class ViewResolutionTests {
 
     MockMvc mockMvc =
             standaloneSetup(new PersonController())
-                    .setViewResolvers(cnViewResolver, new InternalResourceViewResolver())
+                    .setViewResolvers(cnViewResolver, new UrlBasedViewResolver())
                     .build();
 
     mockMvc.perform(get("/person/Corea"))

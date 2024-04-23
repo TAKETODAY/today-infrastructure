@@ -44,12 +44,6 @@ import cn.taketoday.lang.TodayStrategies;
 public interface ApplicationContextFactory {
 
   /**
-   * A default {@link ApplicationContextFactory} implementation that will create an
-   * appropriate context for the {@link ApplicationType}.
-   */
-  ApplicationContextFactory DEFAULT = new Default();
-
-  /**
    * Creates the {@link ConfigurableApplicationContext application context} for a
    * {@link Application}, respecting the given {@code ApplicationType}.
    *
@@ -58,6 +52,14 @@ public interface ApplicationContextFactory {
    */
   @Nullable
   ConfigurableApplicationContext create(ApplicationType type);
+
+  /**
+   * Creates a default {@link ApplicationContextFactory} implementation that will
+   * create an appropriate context for the {@link ApplicationType}.
+   */
+  static ApplicationContextFactory forDefault() {
+    return new Default();
+  }
 
   /**
    * Creates an {@code ApplicationContextFactory} that will create contexts by

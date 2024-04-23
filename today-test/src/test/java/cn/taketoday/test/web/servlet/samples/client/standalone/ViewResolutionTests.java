@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.client.standalone;
@@ -38,15 +35,14 @@ import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.PathVariable;
-import cn.taketoday.web.servlet.view.InternalResourceViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
+import cn.taketoday.web.view.UrlBasedViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
 import cn.taketoday.web.view.xml.MarshallingView;
 
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.model;
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
 
@@ -57,26 +53,6 @@ import static org.hamcrest.Matchers.hasProperty;
  * @author Rossen Stoyanchev
  */
 class ViewResolutionTests {
-
-  @Test
-  void jspOnly() throws Exception {
-    WebTestClient testClient =
-            MockMvcWebTestClient.bindToController(new PersonController())
-                    .viewResolvers(new InternalResourceViewResolver("/WEB-INF/", ".jsp"))
-                    .build();
-
-    EntityExchangeResult<Void> result = testClient.get().uri("/person/Corea")
-            .exchange()
-            .expectStatus().isOk()
-            .expectBody().isEmpty();
-
-    // Further assertions on the server response
-    MockMvcWebTestClient.resultActionsFor(result)
-            .andExpect(status().isOk())
-            .andExpect(model().size(1))
-            .andExpect(model().attributeExists("person"))
-            .andExpect(forwardedUrl("/WEB-INF/person/show.jsp"));
-  }
 
   @Test
   void jsonOnly() {
@@ -128,7 +104,7 @@ class ViewResolutionTests {
 
     WebTestClient testClient =
             MockMvcWebTestClient.bindToController(new PersonController())
-                    .viewResolvers(cnViewResolver, new InternalResourceViewResolver())
+                    .viewResolvers(cnViewResolver, new UrlBasedViewResolver())
                     .build();
 
     EntityExchangeResult<Void> result = testClient.get().uri("/person/Corea")
