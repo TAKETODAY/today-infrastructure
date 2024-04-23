@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.framework.web.context.WebServerApplicationContext;
+import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 
 /**
  * A {@link WebServerApplicationContext} that additionally supports AssertJ style assertions.
@@ -35,7 +36,8 @@ import cn.taketoday.framework.web.context.WebServerApplicationContext;
  * @see WebApplicationContextRunner
  * @since 4.0
  */
-public interface AssertableWebApplicationContext extends ApplicationContextAssertProvider<ConfigurableWebServerApplicationContext>, WebServerApplicationContext {
+public interface AssertableWebApplicationContext
+        extends ApplicationContextAssertProvider<ConfigurableWebApplicationContext>, ConfigurableWebApplicationContext {
 
   /**
    * Factory method to create a new {@link AssertableWebApplicationContext} instance.
@@ -45,9 +47,9 @@ public interface AssertableWebApplicationContext extends ApplicationContextAsser
    * fails to start.
    * @return a {@link AssertableWebApplicationContext} instance
    */
-  static AssertableWebApplicationContext get(Supplier<? extends ConfigurableWebServerApplicationContext> contextSupplier) {
+  static AssertableWebApplicationContext get(Supplier<? extends ConfigurableWebApplicationContext> contextSupplier) {
     return ApplicationContextAssertProvider.get(AssertableWebApplicationContext.class,
-            ConfigurableWebServerApplicationContext.class, contextSupplier);
+            ConfigurableWebApplicationContext.class, contextSupplier);
   }
 
 }

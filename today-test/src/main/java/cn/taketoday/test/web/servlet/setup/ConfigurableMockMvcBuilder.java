@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.setup;
@@ -135,12 +135,6 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
   /**
    * Add a {@code MockMvcConfigurer} that automates MockMvc setup and
    * configures it for some specific purpose (e.g. security).
-   * <p>There is a built-in {@link SharedHttpSessionConfigurer} that can be
-   * used to re-use the HTTP session across requests. 3rd party frameworks
-   * like Infra Security also use this mechanism to provide configuration
-   * shortcuts.
-   *
-   * @see SharedHttpSessionConfigurer
    */
   <T extends B> T apply(MockMvcConfigurer configurer);
 

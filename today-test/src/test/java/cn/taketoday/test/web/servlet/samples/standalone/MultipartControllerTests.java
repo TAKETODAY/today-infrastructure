@@ -304,7 +304,7 @@ class MultipartControllerTests {
     }
 
     @PostMapping("/part")
-    public String processPart(@RequestPart Part part, @RequestPart Map<String, String> json) {
+    public String processPart(@RequestPart MultipartFile part, @RequestPart Map<String, String> json) {
       return "redirect:/index";
     }
 

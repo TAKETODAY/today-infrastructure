@@ -19,21 +19,14 @@ package cn.taketoday.framework.test.web.client;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
+import cn.taketoday.framework.test.RandomPortWebServerConfig;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
-import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.test.annotation.DirtiesContext;
-import jakarta.servlet.GenericServlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,28 +49,12 @@ class TestRestTemplateContextCustomizerWithOverrideIntegrationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  @Import({ TestServlet.class, NoTestRestTemplateBeanChecker.class })
+  @Import({ NoTestRestTemplateBeanChecker.class, RandomPortWebServerConfig.class })
   static class TestConfig {
-
-    @Bean
-    ReactorNettyReactiveWebServerFactory webServerFactory() {
-      return new ReactorNettyReactiveWebServerFactory(0);
-    }
 
     @Bean
     TestRestTemplate template() {
       return new CustomTestRestTemplate();
-    }
-
-  }
-
-  static class TestServlet extends GenericServlet {
-
-    @Override
-    public void service(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-      try (PrintWriter writer = response.getWriter()) {
-        writer.println("hello");
-      }
     }
 
   }

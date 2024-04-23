@@ -37,6 +37,7 @@ import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.ResultActions;
+import cn.taketoday.test.web.servlet.setup.InternalResourceViewResolver;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.annotation.RequestMapping;
@@ -99,6 +100,7 @@ public class EncodedUriTests {
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
 //      registry.jsp("", "");
+      registry.viewResolver(new InternalResourceViewResolver());
     }
   }
 

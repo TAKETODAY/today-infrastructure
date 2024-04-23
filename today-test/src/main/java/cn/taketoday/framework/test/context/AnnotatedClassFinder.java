@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.test.context;
@@ -31,6 +28,7 @@ import cn.taketoday.beans.factory.annotation.AnnotatedBeanDefinition;
 import cn.taketoday.context.annotation.ClassPathScanningCandidateComponentProvider;
 import cn.taketoday.core.type.filter.AnnotationTypeFilter;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -71,6 +69,7 @@ public final class AnnotatedClassFinder {
    * @return the first {@link Class} annotated with the target annotation within the
    * hierarchy defined by the given {@code source} or {@code null} if none is found.
    */
+  @Nullable
   public Class<?> findFromClass(Class<?> source) {
     Assert.notNull(source, "Source is required");
     return findFromPackage(ClassUtils.getPackageName(source));
@@ -84,6 +83,7 @@ public final class AnnotatedClassFinder {
    * @return the first {@link Class} annotated with the target annotation within the
    * hierarchy defined by the given {@code source} or {@code null} if none is found.
    */
+  @Nullable
   public Class<?> findFromPackage(String source) {
     Assert.notNull(source, "Source is required");
     Class<?> configuration = cache.get(source);
@@ -94,6 +94,7 @@ public final class AnnotatedClassFinder {
     return configuration;
   }
 
+  @Nullable
   private Class<?> scanPackage(String source) {
     while (!source.isEmpty()) {
       Set<AnnotatedBeanDefinition> components = this.scanner.findCandidateComponents(source);

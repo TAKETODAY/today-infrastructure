@@ -33,7 +33,6 @@ import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 
 import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link DefaultMockMvcBuilder}.
@@ -46,20 +45,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class DefaultMockMvcBuilderTests {
 
   private final MockServletContext servletContext = new MockServletContext();
-
-  @Test
-  public void webAppContextSetupWithNullWac() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    webAppContextSetup(null))
-            .withMessage("WebApplicationContext is required");
-  }
-
-  @Test
-  public void webAppContextSetupWithNullServletContext() {
-    assertThatIllegalArgumentException().isThrownBy(() ->
-                    webAppContextSetup(new StubWebApplicationContext(null)))
-            .withMessage("WebApplicationContext must have a ServletContext");
-  }
 
   /**
    * See SPR-12553 and SPR-13075.

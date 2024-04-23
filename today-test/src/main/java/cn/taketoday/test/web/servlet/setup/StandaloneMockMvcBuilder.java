@@ -74,7 +74,6 @@ import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.web.view.UrlBasedViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewRef;
 import cn.taketoday.web.view.ViewRenderingException;
@@ -403,7 +402,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
     }
 
     if (viewResolvers == null) {
-      wac.addBeans(new UrlBasedViewResolver());
+      wac.addBeans(new InternalResourceViewResolver());
     }
     else {
       wac.addBeans(viewResolvers);

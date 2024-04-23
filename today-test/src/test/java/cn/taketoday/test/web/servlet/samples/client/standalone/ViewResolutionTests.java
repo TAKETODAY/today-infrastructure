@@ -29,6 +29,7 @@ import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.reactive.server.EntityExchangeResult;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
 import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
+import cn.taketoday.test.web.servlet.setup.InternalResourceViewResolver;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
@@ -104,7 +105,7 @@ class ViewResolutionTests {
 
     WebTestClient testClient =
             MockMvcWebTestClient.bindToController(new PersonController())
-                    .viewResolvers(cnViewResolver, new UrlBasedViewResolver())
+                    .viewResolvers(cnViewResolver, new InternalResourceViewResolver())
                     .build();
 
     EntityExchangeResult<Void> result = testClient.get().uri("/person/Corea")

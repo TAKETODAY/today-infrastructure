@@ -20,12 +20,12 @@ package cn.taketoday.framework.test.web.client;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.ComponentScan;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.annotation.Import;
+import cn.taketoday.framework.test.RandomPortWebServerConfig;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
-import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.test.annotation.DirtiesContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,14 +49,10 @@ class TestRestTemplateContextCustomizerWithFactoryBeanTests {
     assertThat(this.restTemplate).isNotNull();
   }
 
+  @Import(RandomPortWebServerConfig.class)
   @Configuration(proxyBeanMethods = false)
   @ComponentScan("cn.taketoday.framework.test.web.client.scan")
   static class TestClassWithFactoryBean {
-
-    @Bean
-    ReactorNettyReactiveWebServerFactory webServerFactory() {
-      return new ReactorNettyReactiveWebServerFactory(0);
-    }
 
   }
 

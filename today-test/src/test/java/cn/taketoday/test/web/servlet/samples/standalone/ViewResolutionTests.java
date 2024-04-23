@@ -27,6 +27,7 @@ import cn.taketoday.oxm.jaxb.Jaxb2Marshaller;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.Person;
 import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.test.web.servlet.setup.InternalResourceViewResolver;
 import cn.taketoday.ui.Model;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
@@ -97,7 +98,7 @@ class ViewResolutionTests {
 
     MockMvc mockMvc =
             standaloneSetup(new PersonController())
-                    .setViewResolvers(cnViewResolver, new UrlBasedViewResolver())
+                    .setViewResolvers(cnViewResolver, new InternalResourceViewResolver())
                     .build();
 
     mockMvc.perform(get("/person/Corea"))

@@ -39,8 +39,10 @@ import cn.taketoday.framework.ApplicationContextFactory;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
+import cn.taketoday.framework.test.mock.web.InfraMockServletContext;
 import cn.taketoday.framework.web.reactive.context.GenericReactiveWebApplicationContext;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.ContextLoader;
@@ -53,6 +55,7 @@ import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.test.util.TestPropertyValues.Type;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.servlet.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**
@@ -165,6 +168,7 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
    *
    * @return a {@link ConfigurableEnvironment} instance
    */
+  @Nullable
   protected ConfigurableEnvironment getEnvironment() {
     return null;
   }
@@ -258,12 +262,18 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
    */
   private static class WebConfigurer {
 
-    void configure(MergedContextConfiguration configuration, Application application,
-            List<ApplicationContextInitializer> initializers) {
+    void configure(MergedContextConfiguration configuration, Application application, List<ApplicationContextInitializer> initializers) {
       WebMergedContextConfiguration webConfiguration = (WebMergedContextConfiguration) configuration;
-      application.setApplicationContextFactory((webApplicationType) -> new GenericWebApplicationContext());
+      addMockServletContext(initializers, webConfiguration);
+      application.setApplicationContextFactory(webApplicationType -> new GenericWebApplicationContext());
     }
 
+    private void addMockServletContext(List<ApplicationContextInitializer> initializers,
+            WebMergedContextConfiguration webConfiguration) {
+      InfraMockServletContext servletContext = new InfraMockServletContext(
+              webConfiguration.getResourceBasePath());
+      initializers.add(0, new ServletContextApplicationContextInitializer(servletContext, true));
+    }
   }
 
   /**

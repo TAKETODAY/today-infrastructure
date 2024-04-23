@@ -37,6 +37,7 @@ import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.InfraConfiguration;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -251,6 +252,7 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    *
    * @return the differentiator or {@code null}
    */
+  @Nullable
   protected String getDifferentiatorPropertySourceProperty() {
     return getClass().getName() + "=true";
   }
@@ -282,21 +284,25 @@ public class InfraTestContextBootstrapper extends DefaultTestContextBootstrapper
    * @param testClass the source test class
    * @return the {@link WebEnvironment} or {@code null}
    */
+  @Nullable
   protected WebEnvironment getWebEnvironment(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.webEnvironment() : null;
   }
 
+  @Nullable
   protected Class<?>[] getClasses(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.classes() : null;
   }
 
+  @Nullable
   protected String[] getProperties(Class<?> testClass) {
     InfraTest annotation = getAnnotation(testClass);
     return (annotation != null) ? annotation.properties() : null;
   }
 
+  @Nullable
   protected InfraTest getAnnotation(Class<?> testClass) {
     return TestContextAnnotationUtils.findMergedAnnotation(testClass, InfraTest.class);
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.samples.standalone.resulthandlers;
@@ -24,8 +21,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.web.servlet.result.PrintingResultHandler;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.RestController;
 import jakarta.servlet.http.Cookie;
@@ -62,7 +61,7 @@ class PrintingResultHandlerIntegrationTests {
     assertThat(writer).asString()
             .contains("Hello Request")
             .contains("Hello Response")
-            .contains("Headers = [Set-Cookie:\"enigma=42\", Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\"]");
+            .contains("Headers = [Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\", Set-Cookie:\"enigma=42\"]");
   }
 
   @Test
@@ -100,20 +99,20 @@ class PrintingResultHandlerIntegrationTests {
     assertThat(writer).asString()
             .contains("Hello Request")
             .contains("Hello Response")
-            .contains("Headers = [Set-Cookie:\"enigma=42\", Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\"]");
+            .contains("Headers = [Content-Type:\"text/plain;charset=UTF-8\", Content-Length:\"14\", Set-Cookie:\"enigma=42\"]");
   }
 
   @RestController
   private static class SimpleController {
 
     @GetMapping("/")
-    String hello(HttpServletResponse response) {
-      response.addCookie(new Cookie("enigma", "42"));
+    String hello(RequestContext response) {
+      response.addCookie(new HttpCookie("enigma", "42"));
       return "Hello Response";
     }
 
     @GetMapping("/utf8")
-    String utf8(HttpServletResponse response) {
+    String utf8(RequestContext response) {
       return "Grüß dich!";
     }
   }

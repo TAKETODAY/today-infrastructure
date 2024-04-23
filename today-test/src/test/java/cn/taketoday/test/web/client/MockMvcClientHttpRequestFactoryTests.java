@@ -31,6 +31,7 @@ import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.test.context.web.WebAppConfiguration;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.client.HttpClientErrorException;
@@ -106,12 +107,12 @@ public class MockMvcClientHttpRequestFactoryTests {
     }
 
     @RequestMapping(value = "/error", method = HttpMethod.GET)
-    public void handleError(HttpServletResponse response) throws Exception {
+    public void handleError(RequestContext response) throws Exception {
       response.sendError(400, "some bad request");
     }
 
     @RequestMapping(value = "/errorbody", method = HttpMethod.GET)
-    public void handleErrorWithBody(HttpServletResponse response) throws Exception {
+    public void handleErrorWithBody(RequestContext response) throws Exception {
       response.sendError(400, "some bad request");
       response.getWriter().write("some really bad request");
     }
