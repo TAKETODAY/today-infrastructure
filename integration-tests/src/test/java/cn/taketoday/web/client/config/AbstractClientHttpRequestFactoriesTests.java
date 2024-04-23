@@ -19,14 +19,9 @@ package cn.taketoday.web.client.config;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.time.Duration;
 
 import cn.taketoday.http.client.ClientHttpRequestFactory;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,15 +82,6 @@ abstract class AbstractClientHttpRequestFactoriesTests<T extends ClientHttpReque
   protected abstract long connectTimeout(T requestFactory);
 
   protected abstract long readTimeout(T requestFactory);
-
-  public static class TestServlet extends HttpServlet {
-
-    @Override
-    public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-      res.getWriter().println("Received " + req.getMethod() + " request to " + req.getRequestURI());
-    }
-
-  }
 
 }
 

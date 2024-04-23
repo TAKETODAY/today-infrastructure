@@ -37,12 +37,12 @@ class ClientHttpRequestFactoriesSimpleTests
 
   @Override
   protected long connectTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return ReflectionTestUtils.getField(requestFactory, "connectTimeout");
+    return (int) ReflectionTestUtils.getField(requestFactory, "connectTimeout");
   }
 
   @Override
   protected long readTimeout(SimpleClientHttpRequestFactory requestFactory) {
-    return ReflectionTestUtils.getField(requestFactory, "readTimeout");
+    return (int) ReflectionTestUtils.getField(requestFactory, "readTimeout");
   }
 
 }
