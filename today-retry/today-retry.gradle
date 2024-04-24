@@ -12,7 +12,6 @@ dependencies {
   testImplementation 'org.aspectj:aspectjrt'
   testImplementation 'org.aspectj:aspectjtools'
   testImplementation 'org.aspectj:aspectjweaver'
-  testImplementation 'jakarta.servlet:jakarta.servlet-api'
 
   testImplementation project(':today-test')
   testImplementation project(':today-tx')
