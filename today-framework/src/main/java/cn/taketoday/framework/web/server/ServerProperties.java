@@ -110,9 +110,8 @@ public class ServerProperties {
   @Nullable
   public Shutdown shutdown = Shutdown.IMMEDIATE;
 
-  @Nullable
   @NestedConfigurationProperty
-  public Ssl ssl;
+  public final Ssl ssl = new Ssl();
 
   @Nullable
   @NestedConfigurationProperty
@@ -142,9 +141,7 @@ public class ServerProperties {
   }
 
   public void applyTo(ConfigurableWebServerFactory factory) {
-    if (ssl != null) {
-      factory.setSsl(ssl);
-    }
+    factory.setSsl(ssl);
     if (port != null) {
       factory.setPort(port);
     }

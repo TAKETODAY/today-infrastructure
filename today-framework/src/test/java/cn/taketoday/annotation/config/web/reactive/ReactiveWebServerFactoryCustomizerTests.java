@@ -28,6 +28,7 @@ import cn.taketoday.framework.web.reactive.server.ConfigurableReactiveWebServerF
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
+import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.assertArg;
@@ -74,7 +75,7 @@ class ReactiveWebServerFactoryCustomizerTests {
   void testCustomizeServerSsl() {
     ConfigurableReactiveWebServerFactory factory = mock(ConfigurableReactiveWebServerFactory.class);
     Ssl ssl = mock(Ssl.class);
-    this.properties.ssl = (ssl);
+    ReflectionTestUtils.setField(properties, "ssl", ssl);
     this.customizer.customize(factory);
     then(factory).should().setSsl(ssl);
     then(factory).should().setSslBundles(this.sslBundles);

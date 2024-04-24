@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import cn.taketoday.annotation.config.web.netty.NettySSLBuilder;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.Compression;
@@ -38,7 +39,6 @@ import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.StringUtils;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
 
@@ -158,20 +158,14 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
       server = customizeSslConfiguration(getSsl(), server);
     }
     if (Compression.isEnabled(getCompression())) {
-      CompressionCustomizer compressionCustomizer = new CompressionCustomizer(getCompression());
-      server = compressionCustomizer.apply(server);
+      server = new CompressionCustomizer(getCompression()).apply(server);
     }
     server = server.protocol(listProtocols()).forwarded(this.useForwardHeaders);
     return applyCustomizers(server);
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {
-    SslServerCustomizer customizer = new SslServerCustomizer(getHttp2(), ssl.getClientAuth(), getSslBundle());
-    String bundleName = ssl.getBundle();
-    if (StringUtils.hasText(bundleName)) {
-      getSslBundles().addBundleUpdateHandler(bundleName, customizer::updateSslBundle);
-    }
-    return customizer.apply(httpServer);
+    return httpServer.secure(spec -> spec.sslContext(NettySSLBuilder.createSslContext(getHttp2(), ssl)));
   }
 
   private HttpProtocol[] listProtocols() {

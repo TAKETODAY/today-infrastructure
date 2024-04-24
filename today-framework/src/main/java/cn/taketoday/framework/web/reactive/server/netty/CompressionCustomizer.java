@@ -60,8 +60,7 @@ final class CompressionCustomizer implements ReactorNettyServerCustomizer {
     }
     CompressionPredicate mimeTypes = getMimeTypesPredicate(this.compression.getMimeTypes());
     CompressionPredicate excludedUserAgents = getExcludedUserAgentsPredicate(this.compression.getExcludedUserAgents());
-    server = server.compress(mimeTypes.and(excludedUserAgents));
-    return server;
+    return server.compress(mimeTypes.and(excludedUserAgents));
   }
 
   private CompressionPredicate getMimeTypesPredicate(String[] mimeTypeValues) {

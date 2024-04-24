@@ -120,8 +120,8 @@ public class NettyWebServerFactoryAutoConfiguration {
   }
 
   private static NettyChannelInitializer createChannelInitializer(NettyChannelHandler channelHandler, ServerProperties server) {
-    if (server.netty.ssl.enabled) {
-      return new SSLNettyChannelInitializer(channelHandler, NettySSLBuilder.createSslContext(server.http2, server.netty.ssl));
+    if (server.ssl.enabled) {
+      return new SSLNettyChannelInitializer(channelHandler, NettySSLBuilder.createSslContext(server.http2, server.ssl));
     }
     return new NettyChannelInitializer(channelHandler);
   }
@@ -141,7 +141,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     return NettyRequestConfig.forBuilder()
             .httpDataFactory(factory)
             .sendErrorHandler(sendErrorHandler)
-            .secure(server.netty.ssl.enabled)
+            .secure(server.ssl.enabled)
             .build();
   }
 

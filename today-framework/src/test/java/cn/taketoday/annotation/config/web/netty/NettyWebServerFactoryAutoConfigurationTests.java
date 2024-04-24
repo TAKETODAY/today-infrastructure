@@ -87,12 +87,13 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
       var result = Binder.get(context.getEnvironment()).bind("server", ServerProperties.class);
       assertThat(result.isBound()).isTrue();
-      assertNetty(result.get().netty);
-      assertNetty(properties.netty);
+      assertNetty(result.get());
+      assertNetty(properties);
     });
   }
 
-  private static void assertNetty(ServerProperties.Netty netty) {
+  private static void assertNetty(ServerProperties server) {
+    ServerProperties.Netty netty = server.netty;
     assertThat(netty.acceptorThreads).isEqualTo(1);
     assertThat(netty.workerThreads).isEqualTo(8);
     assertThat(netty.maxConnection).isEqualTo(1024);
@@ -111,7 +112,7 @@ class NettyWebServerFactoryAutoConfigurationTests {
     assertThat(shutdown.timeout).isEqualTo(20);
     assertThat(shutdown.unit).isEqualTo(TimeUnit.MINUTES);
 
-    var nettySSL = netty.ssl;
+    var nettySSL = server.ssl;
     assertThat(nettySSL.enabled).isFalse();
     assertThat(nettySSL.publicKey).isNull();
     assertThat(nettySSL.privateKey).isNull();
@@ -120,12 +121,12 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   @Test
   void nettySSL() {
-    contextRunner.withPropertyValues("server.netty.ssl.enabled:true",
-            "server.netty.ssl.public-key:classpath:/cn/taketoday/annotation/config/ssl/key1.crt",
-            "server.netty.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
+    contextRunner.withPropertyValues("server.ssl.enabled:true",
+            "server.ssl.public-key:classpath:/cn/taketoday/annotation/config/ssl/key1.crt",
+            "server.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
       ServerProperties properties = context.getBean(ServerProperties.class);
 
-      var nettySSL = properties.netty.ssl;
+      var nettySSL = properties.ssl;
       assertThat(nettySSL.enabled).isTrue();
       assertThat(nettySSL.publicKey).isEqualTo(context.getResource("classpath:/cn/taketoday/annotation/config/ssl/key1.crt"));
       assertThat(nettySSL.privateKey).isEqualTo(context.getResource("classpath:/cn/taketoday/annotation/config/ssl/key1.pem"));
@@ -139,9 +140,9 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   @Test
   void publicKeyNotFound() {
-    contextRunner.withPropertyValues("server.netty.ssl.enabled:true",
-            "server.netty.ssl.public-key:classpath:not-found.crt",
-            "server.netty.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
+    contextRunner.withPropertyValues("server.ssl.enabled:true",
+            "server.ssl.public-key:classpath:not-found.crt",
+            "server.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
 
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
               .hasRootCauseInstanceOf(IllegalStateException.class)
@@ -151,9 +152,9 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
   @Test
   void privateKeyNotFound() {
-    contextRunner.withPropertyValues("server.netty.ssl.enabled:true",
-            "server.netty.ssl.public-key:classpath:cn/taketoday/annotation/config/ssl/key1.crt",
-            "server.netty.ssl.private-key:classpath:not-found.pem").run(context -> {
+    contextRunner.withPropertyValues("server.ssl.enabled:true",
+            "server.ssl.public-key:classpath:cn/taketoday/annotation/config/ssl/key1.crt",
+            "server.ssl.private-key:classpath:not-found.pem").run(context -> {
 
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
               .hasRootCauseInstanceOf(IllegalStateException.class)

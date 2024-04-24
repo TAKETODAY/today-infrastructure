@@ -22,9 +22,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.framework.web.server.Http2;
-import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -51,28 +50,25 @@ import static io.netty.handler.ssl.SslProvider.OPENSSL;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/24 15:09
  */
-public class NettySSLBuilder {
+public abstract class NettySSLBuilder {
 
   /**
-   * Create an {@link SslContext} for a given {@link ServerProperties.NettySSL}.
+   * Create an {@link SslContext} for a given {@link Ssl}.
    *
-   * @param ssl the {@link ServerProperties.NettySSL} to use
+   * @param ssl the {@link Ssl} to use
    * @return an {@link SslContext} instance
    */
-  public static SslContext createSslContext(@Nullable Http2 http2, ServerProperties.NettySSL ssl) {
-    Resource privateKeyResource = ssl.privateKey;
-    Resource publicKeyResource = ssl.publicKey;
+  public static SslContext createSslContext(@Nullable Http2 http2, Ssl ssl) {
+    Assert.state(ssl.publicKey.exists(), "publicKey not found");
+    Assert.state(ssl.privateKey.exists(), "privateKey not found");
 
-    Assert.state(publicKeyResource.exists(), "publicKey not found");
-    Assert.state(privateKeyResource.exists(), "privateKey not found");
-
-    try (InputStream publicKeyStream = publicKeyResource.getInputStream();
-            InputStream privateKeyStream = privateKeyResource.getInputStream()) {
+    try (InputStream publicKeyStream = ssl.publicKey.getInputStream();
+            InputStream privateKeyStream = ssl.privateKey.getInputStream()) {
       return SslContextBuilder.forServer(publicKeyStream, privateKeyStream, ssl.keyPassword)
+              .protocols(ssl.enabledProtocols)
               .sslProvider(getSslProvider(http2))
               .ciphers(getCiphers(http2, ssl), SupportedCipherSuiteFilter.INSTANCE)
               .clientAuth(map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE))
-              .protocols(ssl.enabledProtocols)
               .applicationProtocolConfig(Http2.isEnabled(http2) ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
                       SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1) : null)
               .build();
@@ -83,7 +79,7 @@ public class NettySSLBuilder {
   }
 
   @Nullable
-  private static List<String> getCiphers(@Nullable Http2 http2, ServerProperties.NettySSL ssl) {
+  private static List<String> getCiphers(@Nullable Http2 http2, Ssl ssl) {
     if (ObjectUtils.isNotEmpty(ssl.ciphers)) {
       return Arrays.asList(ssl.ciphers);
     }

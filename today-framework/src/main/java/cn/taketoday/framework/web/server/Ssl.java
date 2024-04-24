@@ -17,6 +17,7 @@
 
 package cn.taketoday.framework.web.server;
 
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -30,25 +31,11 @@ import cn.taketoday.lang.Nullable;
  */
 public class Ssl {
 
-  private boolean enabled = true;
-
   @Nullable
   private String bundle;
 
   @Nullable
-  private ClientAuth clientAuth;
-
-  @Nullable
-  private String[] ciphers;
-
-  @Nullable
-  private String[] enabledProtocols;
-
-  @Nullable
   private String keyAlias;
-
-  @Nullable
-  private String keyPassword;
 
   @Nullable
   private String keyStore;
@@ -87,6 +74,46 @@ public class Ssl {
   private String trustCertificatePrivateKey;
 
   private String protocol = "TLS";
+
+  /**
+   * Whether to enable SSL support.
+   */
+  public boolean enabled = false;
+
+  /**
+   * Public key resource location
+   */
+  public Resource publicKey;
+
+  /**
+   * Private key resource location
+   */
+  public Resource privateKey;
+
+  /**
+   * Private key password
+   */
+  @Nullable
+  public String keyPassword;
+
+  /**
+   * The supported SSL ciphers
+   */
+  @Nullable
+  public String[] ciphers;
+
+  /**
+   * The enabled SSL protocols.
+   */
+  @Nullable
+  public String[] enabledProtocols;
+
+  /**
+   * Return Whether client authentication is not wanted ("none"), wanted ("want") or
+   * needed ("need"). Requires a trust store.
+   */
+  @Nullable
+  public ClientAuth clientAuth;
 
   /**
    * Return whether to enable SSL support.
