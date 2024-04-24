@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler;
@@ -27,12 +24,10 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.SocketException;
 
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.stereotype.Controller;
+import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.annotation.ExceptionHandler;
 import cn.taketoday.web.handler.method.ExceptionHandlerMethodResolver;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -144,7 +139,7 @@ class ExceptionHandlerMethodResolverTests {
     public void handle() { }
 
     @ExceptionHandler({ BindException.class, IllegalArgumentException.class })
-    public String handle1(Exception ex, HttpServletRequest request, HttpServletResponse response)
+    public String handle1(Exception ex)
             throws IOException {
       return ClassUtils.getShortName(ex.getClass());
     }
