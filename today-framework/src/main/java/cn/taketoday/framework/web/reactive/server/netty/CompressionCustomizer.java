@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.function.BiPredicate;
 
 import cn.taketoday.framework.web.server.Compression;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.InvalidMimeTypeException;
 import cn.taketoday.util.MimeType;
 import cn.taketoday.util.MimeTypeUtils;
@@ -39,6 +40,8 @@ import reactor.netty.http.server.HttpServerResponse;
  * @author Stephane Maldini
  * @author Phillip Webb
  * @author Brian Clozel
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class CompressionCustomizer implements ReactorNettyServerCustomizer {
 
@@ -53,11 +56,10 @@ final class CompressionCustomizer implements ReactorNettyServerCustomizer {
   @Override
   public HttpServer apply(HttpServer server) {
     if (!this.compression.getMinResponseSize().isNegative()) {
-      server = server.compress((int) this.compression.getMinResponseSize().toBytes());
+      server = server.compress(this.compression.getMinResponseSize().toBytesInt());
     }
     CompressionPredicate mimeTypes = getMimeTypesPredicate(this.compression.getMimeTypes());
-    CompressionPredicate excludedUserAgents = getExcludedUserAgentsPredicate(
-            this.compression.getExcludedUserAgents());
+    CompressionPredicate excludedUserAgents = getExcludedUserAgentsPredicate(this.compression.getExcludedUserAgents());
     server = server.compress(mimeTypes.and(excludedUserAgents));
     return server;
   }
@@ -74,7 +76,7 @@ final class CompressionCustomizer implements ReactorNettyServerCustomizer {
       }
       try {
         MimeType contentMimeType = MimeTypeUtils.parseMimeType(contentType);
-        return mimeTypes.stream().anyMatch((candidate) -> candidate.isCompatibleWith(contentMimeType));
+        return mimeTypes.stream().anyMatch(candidate -> candidate.isCompatibleWith(contentMimeType));
       }
       catch (InvalidMimeTypeException ex) {
         return false;
@@ -82,14 +84,14 @@ final class CompressionCustomizer implements ReactorNettyServerCustomizer {
     };
   }
 
-  private CompressionPredicate getExcludedUserAgentsPredicate(String[] excludedUserAgents) {
+  private CompressionPredicate getExcludedUserAgentsPredicate(@Nullable String[] excludedUserAgents) {
     if (ObjectUtils.isEmpty(excludedUserAgents)) {
       return ALWAYS_COMPRESS;
     }
     return (request, response) -> {
       HttpHeaders headers = request.requestHeaders();
       return Arrays.stream(excludedUserAgents)
-              .noneMatch((candidate) -> headers.contains(HttpHeaderNames.USER_AGENT, candidate, true));
+              .noneMatch(candidate -> headers.contains(HttpHeaderNames.USER_AGENT, candidate, true));
     };
   }
 

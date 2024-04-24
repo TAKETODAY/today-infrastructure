@@ -18,15 +18,17 @@
 package cn.taketoday.framework.web.netty;
 
 import java.net.InetSocketAddress;
+import java.util.function.IntSupplier;
 
 import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.GracefulShutdownResult;
+import cn.taketoday.framework.web.server.PortInUseException;
 import cn.taketoday.framework.web.server.ServerProperties.Netty;
 import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.framework.web.server.WebServerException;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 
 /**
@@ -35,7 +37,7 @@ import io.netty.channel.EventLoopGroup;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:15
  */
-public class NettyWebServer implements WebServer {
+final class NettyWebServer implements WebServer, IntSupplier {
 
   private static final Logger log = LoggerFactory.getLogger(NettyWebServer.class);
 
@@ -61,13 +63,22 @@ public class NettyWebServer implements WebServer {
   }
 
   @Override
-  public void start() {
-    ChannelFuture channelFuture = serverBootstrap.bind(listenAddress);
-    channelFuture.syncUninterruptibly();
-    if (channelFuture.channel().localAddress() instanceof InetSocketAddress localAddress) {
-      listenAddress = localAddress;
+  public void start() throws WebServerException {
+    try {
+      if (serverBootstrap.bind(listenAddress).syncUninterruptibly().channel().localAddress() instanceof InetSocketAddress localAddress) {
+        listenAddress = localAddress;
+      }
+      log.info("Netty web server started on port: '{}'", getPort());
     }
-    log.info("Netty web server started on port: '{}'", getPort());
+    catch (Exception ex) {
+      PortInUseException.throwIfPortBindingException(ex, this);
+      throw new WebServerException("Unable to start Netty", ex);
+    }
+  }
+
+  @Override
+  public int getAsInt() {
+    return getPort();
   }
 
   @Override
