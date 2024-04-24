@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -276,7 +276,7 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
   }
 
   private static RepositorySystem createRepositorySystem() {
-    org.eclipse.aether.impl.DefaultServiceLocator serviceLocator = MavenRepositorySystemUtils.newServiceLocator();
+    var serviceLocator = MavenRepositorySystemUtils.newServiceLocator();
     serviceLocator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
     serviceLocator.addService(TransporterFactory.class, HttpTransporterFactory.class);
     return serviceLocator.getService(RepositorySystem.class);
@@ -327,8 +327,8 @@ final class ModifiedClassPathClassLoader extends URLClassLoader {
           URI uri = url.toURI();
           File file = new File(uri);
           String name = (!uri.toString().endsWith("/"))
-                        ? file.getName()
-                        : file.getParentFile().getParentFile().getName();
+                  ? file.getName()
+                  : file.getParentFile().getParentFile().getName();
           for (String exclusion : this.exclusions) {
             if (this.matcher.match(exclusion, name)) {
               return true;
