@@ -51,7 +51,6 @@ import cn.taketoday.web.handler.method.ModelAttributeMethodProcessor;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.multipart.MultipartConfig;
 
 /**
  * ParameterResolvingStrategy registry
@@ -70,11 +69,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
    */
   @Nullable
   private RedirectModelManager redirectModelManager;
-  /**
-   * @since 3.0.1
-   */
-  @Nullable
-  private MultipartConfig multipartConfig;
 
   /**
    * @since 4.0
@@ -302,15 +296,6 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   @Nullable
   public RedirectModelManager getRedirectModelManager() {
     return redirectModelManager;
-  }
-
-  public void setMultipartConfig(@Nullable MultipartConfig multipartConfig) {
-    this.multipartConfig = multipartConfig;
-  }
-
-  @Nullable
-  public MultipartConfig getMultipartConfig() {
-    return multipartConfig;
   }
 
   /**

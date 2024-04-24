@@ -92,6 +92,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
    * of {@link HttpObjectDecoder} and its subclasses.
    */
   public void setHttpDecoderConfig(HttpDecoderConfig httpDecoderConfig) {
+    Assert.notNull(httpDecoderConfig, "HttpDecoderConfig is required");
     this.httpDecoderConfig = httpDecoderConfig;
   }
 

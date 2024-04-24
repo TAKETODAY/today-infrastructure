@@ -17,8 +17,6 @@
 
 package cn.taketoday.annotation.config.web.netty;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
@@ -32,12 +30,9 @@ import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.context.condition.ConditionalOnProperty;
-import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
@@ -50,14 +45,12 @@ import cn.taketoday.framework.web.netty.SSLNettyChannelInitializer;
 import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactory;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
-import cn.taketoday.web.multipart.MultipartConfig;
 import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
-import io.netty.handler.ssl.SslContextBuilder;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.
@@ -116,62 +109,55 @@ public class NettyWebServerFactoryAutoConfiguration {
     initializer.setMaxContentLength(netty.maxContentLength.toBytesInt());
 
     HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
-            .setMaxInitialLineLength(netty.maxInitialLineLength)
-            .setMaxHeaderSize(netty.maxHeaderSize)
+            .setInitialBufferSize(netty.initialBufferSize.toBytesInt())
             .setMaxChunkSize(netty.maxChunkSize.toBytesInt())
-            .setValidateHeaders(netty.validateHeaders);
+            .setMaxHeaderSize(netty.maxHeaderSize)
+            .setValidateHeaders(netty.validateHeaders)
+            .setChunkedSupported(netty.chunkedSupported)
+            .setAllowPartialChunks(netty.allowPartialChunks)
+            .setMaxInitialLineLength(netty.maxInitialLineLength)
+            .setAllowDuplicateContentLengths(netty.allowDuplicateContentLengths);
     initializer.setHttpDecoderConfig(httpDecoderConfig);
     return initializer;
   }
 
   private static NettyChannelInitializer createChannelInitializer(ResourceLoader resourceLoader,
           NettyChannelHandler channelHandler, ServerProperties.Netty netty) {
-    var nettySSL = netty.ssl;
-    if (nettySSL.enabled) {
-      Resource privateKeyResource = resourceLoader.getResource(nettySSL.privateKey);
-      Resource publicKeyResource = resourceLoader.getResource(nettySSL.publicKey);
-
-      Assert.state(publicKeyResource.exists(), "publicKey not found");
-      Assert.state(privateKeyResource.exists(), "privateKey not found");
-
-      try (InputStream publicKeyStream = publicKeyResource.getInputStream();
-              InputStream privateKeyStream = privateKeyResource.getInputStream()) {
-        return new SSLNettyChannelInitializer(channelHandler,
-                SslContextBuilder.forServer(publicKeyStream, privateKeyStream, nettySSL.keyPassword).build());
-      }
-      catch (IOException e) {
-        throw new IllegalStateException("publicKey or publicKey resource I/O error", e);
-      }
+    if (netty.ssl.enabled) {
+      return new SSLNettyChannelInitializer(channelHandler, NettySSLBuilder.build(netty.ssl, resourceLoader));
     }
-
     return new NettyChannelInitializer(channelHandler);
   }
 
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyRequestConfig nettyRequestConfig(ServerProperties properties,
-          MultipartConfig multipartConfig, SendErrorHandler sendErrorHandler) {
-    String location = multipartConfig.getLocation();
-    var factory = new DefaultHttpDataFactory(location != null);
-    if (multipartConfig.getMaxRequestSize() != null) {
-      factory.setMaxLimit(multipartConfig.getMaxRequestSize().toBytes());
+  static NettyRequestConfig nettyRequestConfig(ServerProperties server, SendErrorHandler sendErrorHandler) {
+    var multipart = server.multipart;
+    var factory = createHttpDataFactory(multipart);
+    if (multipart.maxFieldSize != null) {
+      factory.setMaxLimit(multipart.maxFieldSize.toBytes());
     }
-    if (location != null) {
-      factory.setBaseDir(location);
+    if (StringUtils.hasText(multipart.baseDir)) {
+      factory.setBaseDir(multipart.baseDir);
     }
-
+    factory.setDeleteOnExit(multipart.deleteOnExit);
     return NettyRequestConfig.forBuilder()
             .httpDataFactory(factory)
             .sendErrorHandler(sendErrorHandler)
-            .secure(properties.netty.ssl.enabled)
+            .secure(server.netty.ssl.enabled)
             .build();
   }
 
-  @Component
-  @ConditionalOnProperty(prefix = "server.multipart", name = "enabled", matchIfMissing = true)
-  @ConfigurationProperties(prefix = "server.multipart", ignoreUnknownFields = false)
-  static MultipartConfig multipartConfig() {
-    return new MultipartConfig();
+  private static DefaultHttpDataFactory createHttpDataFactory(ServerProperties.Multipart multipart) {
+    if (multipart.mixedMode) {
+      if (multipart.fieldSizeThreshold != null) {
+        return new DefaultHttpDataFactory(multipart.fieldSizeThreshold.toBytes(), multipart.charset);
+      }
+      return new DefaultHttpDataFactory();
+    }
+    else {
+      return new DefaultHttpDataFactory(StringUtils.hasText(multipart.baseDir), multipart.charset);
+    }
   }
 
 }

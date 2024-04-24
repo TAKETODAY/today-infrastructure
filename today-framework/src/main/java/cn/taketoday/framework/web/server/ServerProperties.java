@@ -18,6 +18,8 @@
 package cn.taketoday.framework.web.server;
 
 import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,7 @@ import cn.taketoday.util.DataSize;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 import io.netty.handler.logging.LogLevel;
 
 /**
@@ -118,6 +121,9 @@ public class ServerProperties {
   @NestedConfigurationProperty
   public Http2 http2;
 
+  @NestedConfigurationProperty
+  public final Multipart multipart = new Multipart();
+
   public final Netty netty = new Netty();
 
   public final ReactorNetty reactorNetty = new ReactorNetty();
@@ -187,7 +193,7 @@ public class ServerProperties {
     public Integer acceptorThreads;
 
     /**
-     * The SOMAXCONN value of the current machine. If failed to get the value,  {@code 200} is used as a
+     * The SOMAXCONN value of the current machine. If failed to get the value, {@code 200} is used as a
      * default value for Windows and {@code 128} for others.
      */
     @Nullable
@@ -196,6 +202,10 @@ public class ServerProperties {
     @Nullable
     public Class<? extends ServerSocketChannel> socketChannel;
 
+    /**
+     * Set netty LoggingHandler logging Level. If that loggingLevel
+     * is null will not register logging handler
+     */
     @Nullable
     public LogLevel loggingLevel;
 
@@ -208,16 +218,6 @@ public class ServerProperties {
     public DataSize maxContentLength = DataSize.ofMegabytes(100);
 
     /**
-     * If a 100-continue response is detected but the content
-     * length is too large then true means close the connection.
-     * otherwise the connection will remain open and data will be
-     * consumed and discarded until the next request is received.
-     *
-     * @see HttpObjectAggregator#closeOnExpectationFailed
-     */
-    public boolean closeOnExpectationFailed = false;
-
-    /**
      * The maximum chunk size.
      * <p>
      * HTTP requests and responses can be quite large, in which case
@@ -226,6 +226,12 @@ public class ServerProperties {
      * down the pipeline.
      */
     public DataSize maxChunkSize = DataSize.ofBytes(8192);
+
+    /**
+     * Set the initial size of the temporary buffer used when parsing the lines of the HTTP headers.
+     * (The buffer size in bytes.)
+     */
+    public DataSize initialBufferSize = DataSize.ofBytes(128);
 
     /**
      * The maximum line length of header lines.
@@ -251,6 +257,41 @@ public class ServerProperties {
      */
     public boolean validateHeaders = true;
 
+    /**
+     * If a 100-continue response is detected but the content
+     * length is too large then true means close the connection.
+     * otherwise the connection will remain open and data will be
+     * consumed and discarded until the next request is received.
+     *
+     * @see HttpObjectAggregator#closeOnExpectationFailed
+     */
+    public boolean closeOnExpectationFailed = false;
+
+    /**
+     * Set whether {@code Transfer-Encoding: Chunked} should be supported.
+     * if {@code false}, then a {@code Transfer-Encoding: Chunked} header will produce an error,
+     * instead of a stream of chunks.
+     */
+    public boolean chunkedSupported = true;
+
+    /**
+     * Set whether chunks can be split into multiple messages, if their
+     * chunk size exceeds the size of the input buffer. If set to {@code false}
+     * to only allow sending whole chunks down the pipeline.
+     */
+    public boolean allowPartialChunks = true;
+
+    /**
+     * Set whether more than one {@code Content-Length} header is allowed.
+     * You usually want to disallow this (which is the default) as multiple
+     * {@code Content-Length} headers can indicate a request- or response-splitting attack.
+     * if set to {@code true} to allow multiple content length headers.
+     */
+    public boolean allowDuplicateContentLengths = false;
+
+    /**
+     * shutdown details
+     */
     public final Shutdown shutdown = new Shutdown();
 
     public final NettySSL ssl = new NettySSL();
@@ -352,6 +393,71 @@ public class ServerProperties {
      */
     @Nullable
     public String publicKey;
+
+    /**
+     * The supported SSL ciphers
+     */
+    @Nullable
+    public String[] ciphers;
+
+    /**
+     * The enabled SSL protocols.
+     */
+    @Nullable
+    public String[] enabledProtocols;
+
+    /**
+     * Return Whether client authentication is not wanted ("none"), wanted ("want") or
+     * needed ("need"). Requires a trust store.
+     */
+    @Nullable
+    public Ssl.ClientAuth clientAuth;
+
+  }
+
+  /**
+   * Properties to be used in configuring a {@link DefaultHttpDataFactory}.
+   *
+   * @since 5.0
+   */
+  public static class Multipart {
+
+    /**
+     * directory path where to store disk attributes and file uploads.
+     * If mixedMode is disabled and this property is not empty will be
+     * using disk mode
+     */
+    @Nullable
+    public String baseDir;
+
+    /**
+     * true if temporary files should be deleted with the JVM, false otherwise.
+     */
+    public boolean deleteOnExit; // false is a good default cause true leaks
+
+    /**
+     * HttpData will be on Disk if the size of the file is greater than minSize, else it
+     * will be in memory. The type will be Mixed.
+     */
+    @Nullable
+    public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
+
+    /**
+     * Disk and memory mix mode
+     */
+    public boolean mixedMode = true;
+
+    /**
+     * charset
+     */
+    public Charset charset = StandardCharsets.UTF_8;
+
+    /**
+     * To set a max size limitation on fields. Exceeding it will generate an ErrorDataDecoderException.
+     * A value of -1 means no limitation (default).
+     */
+    @Nullable
+    public DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
 
   }
 
