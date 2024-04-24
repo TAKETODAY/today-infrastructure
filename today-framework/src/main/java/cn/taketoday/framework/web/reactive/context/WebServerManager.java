@@ -20,7 +20,6 @@ package cn.taketoday.framework.web.reactive.context;
 import java.util.function.Supplier;
 
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
-import cn.taketoday.framework.web.server.GracefulShutdownCallback;
 import cn.taketoday.framework.web.server.WebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.http.server.reactive.ServerHttpRequest;
@@ -56,10 +55,6 @@ final class WebServerManager {
     handler.initializeHandler();
     webServer.start();
     applicationContext.publishEvent(new ReactiveWebServerInitializedEvent(webServer, applicationContext));
-  }
-
-  void shutDownGracefully(GracefulShutdownCallback callback) {
-    webServer.shutDownGracefully(callback);
   }
 
   void stop() {

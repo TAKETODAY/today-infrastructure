@@ -78,8 +78,8 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
     return webServer;
   }
 
-  ReactorNettyWebServer createNettyWebServer(HttpServer httpServer, ReactorHttpHandlerAdapter handlerAdapter,
-          @Nullable Duration lifecycleTimeout, Shutdown shutdown) {
+  ReactorNettyWebServer createNettyWebServer(HttpServer httpServer,
+          ReactorHttpHandlerAdapter handlerAdapter, @Nullable Duration lifecycleTimeout, Shutdown shutdown) {
     return new ReactorNettyWebServer(httpServer, handlerAdapter, lifecycleTimeout, shutdown, resourceFactory);
   }
 

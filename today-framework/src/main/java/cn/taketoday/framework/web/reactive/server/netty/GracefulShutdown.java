@@ -31,6 +31,8 @@ import reactor.netty.DisposableServer;
  * Handles Netty graceful shutdown.
  *
  * @author Andy Wilkinson
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0
  */
 final class GracefulShutdown {
 

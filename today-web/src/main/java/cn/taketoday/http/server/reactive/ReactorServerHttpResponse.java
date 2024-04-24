@@ -33,7 +33,6 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.http.support.Netty4HeadersAdapter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.buffer.ByteBuf;
@@ -58,7 +57,6 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
 
   public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
     super(bufferFactory, new DefaultHttpHeaders(new Netty4HeadersAdapter(response.responseHeaders())));
-    Assert.notNull(response, "HttpServerResponse is required");
     this.response = response;
   }
 
@@ -119,8 +117,8 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
 
   private Publisher<ByteBuf> toByteBuf(Publisher<? extends DataBuffer> dataBuffers) {
     return dataBuffers instanceof Mono
-           ? Mono.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf)
-           : Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
+            ? Mono.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf)
+            : Flux.from(dataBuffers).map(NettyDataBufferFactory::toByteBuf);
   }
 
   @Override

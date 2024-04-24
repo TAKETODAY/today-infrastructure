@@ -31,7 +31,6 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.support.Netty4HeadersAdapter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -65,7 +64,6 @@ class ReactorServerHttpRequest extends AbstractServerHttpRequest {
   public ReactorServerHttpRequest(HttpServerRequest request, NettyDataBufferFactory bufferFactory) throws URISyntaxException {
     super(HttpMethod.valueOf(request.method().name()), ReactorUriHelper.createUri(request), null,
             new Netty4HeadersAdapter(request.requestHeaders()));
-    Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.request = request;
     this.bufferFactory = bufferFactory;
   }
