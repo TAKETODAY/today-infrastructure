@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.core.ApplicationTemp;
+import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.lang.Nullable;
@@ -377,22 +378,20 @@ public class ServerProperties {
     public boolean enabled = false;
 
     /**
+     * Public key resource location
+     */
+    public Resource publicKey;
+
+    /**
      * Private key resource location
      */
-    @Nullable
-    public String privateKey;
+    public Resource privateKey;
 
     /**
      * Private key password
      */
     @Nullable
     public String keyPassword;
-
-    /**
-     * Public key resource location
-     */
-    @Nullable
-    public String publicKey;
 
     /**
      * The supported SSL ciphers

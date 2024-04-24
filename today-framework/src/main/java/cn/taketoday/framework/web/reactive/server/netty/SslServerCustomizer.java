@@ -17,14 +17,17 @@
 
 package cn.taketoday.framework.web.reactive.server.netty;
 
+import cn.taketoday.annotation.config.web.netty.NettySSLBuilder;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.framework.web.server.Http2;
+import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.SslContext;
 import reactor.netty.http.Http11SslContextSpec;
 import reactor.netty.http.Http2SslContextSpec;
 import reactor.netty.http.server.HttpServer;
@@ -77,6 +80,20 @@ public class SslServerCustomizer implements ReactorNettyServerCustomizer {
 
   private SslProvider createSslProvider(SslBundle sslBundle) {
     return SslProvider.builder().sslContext(createSslContextSpec(sslBundle)).build();
+  }
+
+  private SslProvider createSslProvider(ServerProperties.NettySSL ssl) {
+    return SslProvider.builder().sslContext(createSslContext(ssl)).build();
+  }
+
+  /**
+   * Create an {@link SslContext} for a given {@link ServerProperties.NettySSL}.
+   *
+   * @param ssl the {@link ServerProperties.NettySSL} to use
+   * @return an {@link SslContext} instance
+   */
+  protected final SslContext createSslContext(ServerProperties.NettySSL ssl) {
+    return NettySSLBuilder.createSslContext(http2, ssl);
   }
 
   /**

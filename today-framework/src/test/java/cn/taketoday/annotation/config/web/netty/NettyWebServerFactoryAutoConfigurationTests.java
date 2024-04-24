@@ -127,8 +127,8 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
       var nettySSL = properties.netty.ssl;
       assertThat(nettySSL.enabled).isTrue();
-      assertThat(nettySSL.publicKey).isEqualTo("classpath:/cn/taketoday/annotation/config/ssl/key1.crt");
-      assertThat(nettySSL.privateKey).isEqualTo("classpath:/cn/taketoday/annotation/config/ssl/key1.pem");
+      assertThat(nettySSL.publicKey).isEqualTo(context.getResource("classpath:/cn/taketoday/annotation/config/ssl/key1.crt"));
+      assertThat(nettySSL.privateKey).isEqualTo(context.getResource("classpath:/cn/taketoday/annotation/config/ssl/key1.pem"));
       assertThat(nettySSL.keyPassword).isNull();
 
       NettyWebServerFactory factory = context.getBean(NettyWebServerFactory.class);

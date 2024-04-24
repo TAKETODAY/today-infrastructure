@@ -20,26 +20,48 @@ package cn.taketoday.annotation.config.web.netty;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.List;
 
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.core.io.ResourceLoader;
+import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ObjectUtils;
+import io.netty.handler.codec.http2.Http2SecurityUtil;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
 import static cn.taketoday.framework.web.server.Ssl.ClientAuth.map;
+import static io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
+import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
+import static io.netty.handler.ssl.SslProvider.JDK;
+import static io.netty.handler.ssl.SslProvider.OPENSSL;
 
 /**
+ * Internal using for creating {@link SslContext}
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2024/4/24 15:09
  */
 public class NettySSLBuilder {
 
-  public static SslContext build(ServerProperties.NettySSL ssl, ResourceLoader resourceLoader) {
-    Resource privateKeyResource = resourceLoader.getResource(ssl.privateKey);
-    Resource publicKeyResource = resourceLoader.getResource(ssl.publicKey);
+  /**
+   * Create an {@link SslContext} for a given {@link ServerProperties.NettySSL}.
+   *
+   * @param ssl the {@link ServerProperties.NettySSL} to use
+   * @return an {@link SslContext} instance
+   */
+  public static SslContext createSslContext(@Nullable Http2 http2, ServerProperties.NettySSL ssl) {
+    Resource privateKeyResource = ssl.privateKey;
+    Resource publicKeyResource = ssl.publicKey;
 
     Assert.state(publicKeyResource.exists(), "publicKey not found");
     Assert.state(privateKeyResource.exists(), "privateKey not found");
@@ -47,14 +69,35 @@ public class NettySSLBuilder {
     try (InputStream publicKeyStream = publicKeyResource.getInputStream();
             InputStream privateKeyStream = privateKeyResource.getInputStream()) {
       return SslContextBuilder.forServer(publicKeyStream, privateKeyStream, ssl.keyPassword)
-              .ciphers(ssl.ciphers != null ? Arrays.asList(ssl.ciphers) : null)
+              .sslProvider(getSslProvider(http2))
+              .ciphers(getCiphers(http2, ssl), SupportedCipherSuiteFilter.INSTANCE)
               .clientAuth(map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE))
               .protocols(ssl.enabledProtocols)
+              .applicationProtocolConfig(Http2.isEnabled(http2) ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
+                      SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1) : null)
               .build();
     }
     catch (IOException e) {
       throw new IllegalStateException("publicKey or publicKey resource I/O error", e);
     }
+  }
+
+  @Nullable
+  private static List<String> getCiphers(@Nullable Http2 http2, ServerProperties.NettySSL ssl) {
+    if (ObjectUtils.isNotEmpty(ssl.ciphers)) {
+      return Arrays.asList(ssl.ciphers);
+    }
+    if (Http2.isEnabled(http2)) {
+      return Http2SecurityUtil.CIPHERS;
+    }
+    return null;
+  }
+
+  private static SslProvider getSslProvider(@Nullable Http2 http2) {
+    if (Http2.isEnabled(http2)) {
+      return SslProvider.isAlpnSupported(OPENSSL) ? OPENSSL : JDK;
+    }
+    return OpenSsl.isAvailable() ? OPENSSL : JDK;
   }
 
 }

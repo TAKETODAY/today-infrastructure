@@ -33,7 +33,6 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
@@ -101,10 +100,9 @@ public class NettyWebServerFactoryAutoConfiguration {
    */
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyChannelInitializer nettyChannelInitializer(ServerProperties properties,
-          NettyChannelHandler channelHandler, ResourceLoader resourceLoader) {
+  static NettyChannelInitializer nettyChannelInitializer(ServerProperties properties, NettyChannelHandler channelHandler) {
     var netty = properties.netty;
-    var initializer = createChannelInitializer(resourceLoader, channelHandler, netty);
+    var initializer = createChannelInitializer(channelHandler, properties);
     initializer.setCloseOnExpectationFailed(netty.closeOnExpectationFailed);
     initializer.setMaxContentLength(netty.maxContentLength.toBytesInt());
 
@@ -121,10 +119,9 @@ public class NettyWebServerFactoryAutoConfiguration {
     return initializer;
   }
 
-  private static NettyChannelInitializer createChannelInitializer(ResourceLoader resourceLoader,
-          NettyChannelHandler channelHandler, ServerProperties.Netty netty) {
-    if (netty.ssl.enabled) {
-      return new SSLNettyChannelInitializer(channelHandler, NettySSLBuilder.build(netty.ssl, resourceLoader));
+  private static NettyChannelInitializer createChannelInitializer(NettyChannelHandler channelHandler, ServerProperties server) {
+    if (server.netty.ssl.enabled) {
+      return new SSLNettyChannelInitializer(channelHandler, NettySSLBuilder.createSslContext(server.http2, server.netty.ssl));
     }
     return new NettyChannelInitializer(channelHandler);
   }
