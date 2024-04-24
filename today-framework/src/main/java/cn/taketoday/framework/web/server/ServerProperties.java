@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
 import cn.taketoday.core.ApplicationTemp;
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.web.error.ErrorProperties;
 import cn.taketoday.lang.Nullable;
@@ -292,8 +291,6 @@ public class ServerProperties {
      */
     public final Shutdown shutdown = new Shutdown();
 
-    public final NettySSL ssl = new NettySSL();
-
     public static class Shutdown {
 
       /**
@@ -365,49 +362,6 @@ public class ServerProperties {
      * used.
      */
     public Duration idleTimeout;
-
-  }
-
-  public static class NettySSL {
-    /**
-     * Whether to enable SSL support.
-     */
-    public boolean enabled = false;
-
-    /**
-     * Public key resource location
-     */
-    public Resource publicKey;
-
-    /**
-     * Private key resource location
-     */
-    public Resource privateKey;
-
-    /**
-     * Private key password
-     */
-    @Nullable
-    public String keyPassword;
-
-    /**
-     * The supported SSL ciphers
-     */
-    @Nullable
-    public String[] ciphers;
-
-    /**
-     * The enabled SSL protocols.
-     */
-    @Nullable
-    public String[] enabledProtocols;
-
-    /**
-     * Return Whether client authentication is not wanted ("none"), wanted ("want") or
-     * needed ("need"). Requires a trust store.
-     */
-    @Nullable
-    public Ssl.ClientAuth clientAuth;
 
   }
 
