@@ -41,7 +41,7 @@ import io.netty.handler.ssl.SslHandler;
 final class SSLNettyChannelInitializer extends NettyChannelInitializer {
 
   @Nullable
-  private final HashMap<String, SslContext> serverNameSslProviders;
+  private final HashMap<String, SslContext> serverNameSslContexts;
 
   private final long handshakeTimeout;
 
@@ -54,19 +54,18 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
   public SSLNettyChannelInitializer(ChannelHandler channelHandler, boolean http2Enabled,
           Ssl ssl, SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
     super(channelHandler);
-    this.http2Enabled = http2Enabled;
-    this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
-    this.serverNameSslProviders = createServerNameSSLContexts(serverNameSslBundles);
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
-    
+    this.serverNameSslContexts = createServerNameSSLContexts(serverNameSslBundles);
+    this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.sslContext = createSslContext(sslBundle);
+    this.http2Enabled = http2Enabled;
   }
 
   @Override
   protected void initChannel(final Channel ch) {
-    if (serverNameSslProviders != null) {
+    if (serverNameSslContexts != null) {
       SniHandler sniHandler = new SniHandler((hostname, promise) ->
-              promise.setSuccess(serverNameSslProviders.getOrDefault(hostname, sslContext)), handshakeTimeout);
+              promise.setSuccess(serverNameSslContexts.getOrDefault(hostname, sslContext)), handshakeTimeout);
       ch.pipeline().addLast("SNI-handler", sniHandler);
     }
     else {
@@ -82,8 +81,8 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     if (serverName == null) {
       this.sslContext = createSslContext(sslBundle);
     }
-    else if (serverNameSslProviders != null) {
-      serverNameSslProviders.put(serverName, createSslContext(sslBundle));
+    else if (serverNameSslContexts != null) {
+      serverNameSslContexts.put(serverName, createSslContext(sslBundle));
     }
   }
 
