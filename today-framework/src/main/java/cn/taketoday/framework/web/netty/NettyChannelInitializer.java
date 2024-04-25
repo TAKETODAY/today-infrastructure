@@ -18,6 +18,8 @@
 package cn.taketoday.framework.web.netty;
 
 import cn.taketoday.lang.Assert;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
@@ -33,7 +35,9 @@ import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-02 21:34
  */
-public class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler {
+sealed class NettyChannelInitializer extends ChannelInitializer<Channel> implements ChannelHandler permits SSLNettyChannelInitializer {
+
+  protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   private final NettyChannelHandler nettyChannelHandler;
 

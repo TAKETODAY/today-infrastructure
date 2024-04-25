@@ -37,10 +37,8 @@ import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.framework.web.netty.NettyChannelHandler;
-import cn.taketoday.framework.web.netty.NettyChannelInitializer;
 import cn.taketoday.framework.web.netty.NettyRequestConfig;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
-import cn.taketoday.framework.web.netty.SSLNettyChannelInitializer;
 import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactory;
@@ -48,7 +46,6 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
-import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 /**
@@ -80,50 +77,15 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties,
-          NettyChannelInitializer nettyChannelInitializer, @Nullable SslBundles sslBundles,
+  static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
-    factory.setNettyChannelInitializer(nettyChannelInitializer);
 
     serverProperties.applyTo(factory, sslBundles, applicationTemp);
 
     factory.applyFrom(serverProperties.netty);
     factory.setBootstrapCustomizers(customizers);
     return factory;
-  }
-
-  /**
-   * Infra netty channel initializer
-   *
-   * @param channelHandler ChannelInboundHandler
-   */
-  @MissingBean
-  @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static NettyChannelInitializer nettyChannelInitializer(ServerProperties properties, NettyChannelHandler channelHandler) {
-    var netty = properties.netty;
-    var initializer = createChannelInitializer(channelHandler, properties);
-    initializer.setCloseOnExpectationFailed(netty.closeOnExpectationFailed);
-    initializer.setMaxContentLength(netty.maxContentLength.toBytesInt());
-
-    HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
-            .setInitialBufferSize(netty.initialBufferSize.toBytesInt())
-            .setMaxChunkSize(netty.maxChunkSize.toBytesInt())
-            .setMaxHeaderSize(netty.maxHeaderSize)
-            .setValidateHeaders(netty.validateHeaders)
-            .setChunkedSupported(netty.chunkedSupported)
-            .setAllowPartialChunks(netty.allowPartialChunks)
-            .setMaxInitialLineLength(netty.maxInitialLineLength)
-            .setAllowDuplicateContentLengths(netty.allowDuplicateContentLengths);
-    initializer.setHttpDecoderConfig(httpDecoderConfig);
-    return initializer;
-  }
-
-  private static NettyChannelInitializer createChannelInitializer(NettyChannelHandler channelHandler, ServerProperties server) {
-    if (server.ssl.enabled) {
-      return new SSLNettyChannelInitializer(channelHandler, NettySSLBuilder.createSslContext(server.http2, server.ssl));
-    }
-    return new NettyChannelInitializer(channelHandler);
   }
 
   @MissingBean

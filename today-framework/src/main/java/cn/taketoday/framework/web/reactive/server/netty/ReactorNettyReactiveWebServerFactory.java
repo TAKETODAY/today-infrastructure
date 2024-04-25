@@ -25,11 +25,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import cn.taketoday.annotation.config.web.netty.NettySSLBuilder;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
 import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.framework.web.server.Compression;
-import cn.taketoday.framework.web.server.Http2;
 import cn.taketoday.framework.web.server.Shutdown;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
@@ -39,6 +37,7 @@ import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
+import cn.taketoday.util.StringUtils;
 import reactor.netty.http.HttpProtocol;
 import reactor.netty.http.server.HttpServer;
 
@@ -165,13 +164,25 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {
-    return httpServer.secure(spec -> spec.sslContext(NettySSLBuilder.createSslContext(getHttp2(), ssl)));
+    SslServerCustomizer customizer = new SslServerCustomizer(isHttp2Enabled(), ssl.clientAuth, getSslBundle(),
+            getServerNameSslBundles());
+    addBundleUpdateHandler(null, ssl.getBundle(), customizer);
+    ssl.getServerNameBundles()
+            .forEach((serverNameSslBundle) -> addBundleUpdateHandler(serverNameSslBundle.serverName(),
+                    serverNameSslBundle.bundle(), customizer));
+    return customizer.apply(httpServer);
+  }
+
+  private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SslServerCustomizer customizer) {
+    if (StringUtils.hasText(bundleName)) {
+      getSslBundles().addBundleUpdateHandler(bundleName, sslBundle -> customizer.updateSslBundle(serverName, sslBundle));
+    }
   }
 
   private HttpProtocol[] listProtocols() {
     ArrayList<HttpProtocol> protocols = new ArrayList<>();
     protocols.add(HttpProtocol.HTTP11);
-    if (Http2.isEnabled(getHttp2())) {
+    if (isHttp2Enabled()) {
       if (Ssl.isEnabled(getSsl())) {
         protocols.add(HttpProtocol.H2);
       }

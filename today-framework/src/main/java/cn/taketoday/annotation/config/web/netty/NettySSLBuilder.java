@@ -18,14 +18,13 @@
 package cn.taketoday.annotation.config.web.netty;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import cn.taketoday.framework.web.server.Http2;
-import cn.taketoday.framework.web.server.Ssl;
-import cn.taketoday.lang.Assert;
+import cn.taketoday.core.ssl.SslBundle;
+import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;
 import io.netty.handler.codec.http2.Http2SecurityUtil;
 import io.netty.handler.ssl.ApplicationProtocolConfig;
@@ -37,7 +36,6 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.SupportedCipherSuiteFilter;
 
-import static cn.taketoday.framework.web.server.Ssl.ClientAuth.map;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
 import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
@@ -53,47 +51,42 @@ import static io.netty.handler.ssl.SslProvider.OPENSSL;
 public abstract class NettySSLBuilder {
 
   /**
-   * Create an {@link SslContext} for a given {@link Ssl}.
+   * Create an {@link SslContext} for a given {@link SslBundle}.
    *
-   * @param ssl the {@link Ssl} to use
+   * @param ssl the {@link SslBundle} to use
    * @return an {@link SslContext} instance
    */
-  public static SslContext createSslContext(@Nullable Http2 http2, Ssl ssl) {
-    Assert.state(ssl.publicKey.exists(), "publicKey not found");
-    Assert.state(ssl.privateKey.exists(), "privateKey not found");
-
-    try (InputStream publicKeyStream = ssl.publicKey.getInputStream();
-            InputStream privateKeyStream = ssl.privateKey.getInputStream()) {
-      return SslContextBuilder.forServer(publicKeyStream, privateKeyStream, ssl.keyPassword)
-              .protocols(ssl.enabledProtocols)
-              .sslProvider(getSslProvider(http2))
-              .ciphers(getCiphers(http2, ssl), SupportedCipherSuiteFilter.INSTANCE)
-              .clientAuth(map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE))
-              .applicationProtocolConfig(Http2.isEnabled(http2) ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
+  public static SslContext createSslContext(boolean http2Enabled, ClientAuth clientAuth, SslBundle ssl) {
+    SslOptions options = ssl.getOptions();
+    try {
+      return SslContextBuilder.forServer(ssl.getManagers().getKeyManagerFactory())
+              .protocols(options.getEnabledProtocols())
+              .sslProvider(getSslProvider(http2Enabled))
+              .ciphers(getCiphers(http2Enabled, options), SupportedCipherSuiteFilter.INSTANCE)
+              .clientAuth(clientAuth)
+              .applicationProtocolConfig(http2Enabled ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
                       SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1) : null)
               .build();
     }
     catch (IOException e) {
-      throw new IllegalStateException("publicKey or publicKey resource I/O error", e);
+      throw ExceptionUtils.sneakyThrow(e);
     }
   }
 
   @Nullable
-  private static List<String> getCiphers(@Nullable Http2 http2, Ssl ssl) {
-    if (ObjectUtils.isNotEmpty(ssl.ciphers)) {
-      return Arrays.asList(ssl.ciphers);
+  private static List<String> getCiphers(boolean http2Enabled, SslOptions options) {
+    if (ObjectUtils.isNotEmpty(options.getCiphers())) {
+      return Arrays.asList(options.getCiphers());
     }
-    if (Http2.isEnabled(http2)) {
+    if (http2Enabled) {
       return Http2SecurityUtil.CIPHERS;
     }
     return null;
   }
 
-  private static SslProvider getSslProvider(@Nullable Http2 http2) {
-    if (Http2.isEnabled(http2)) {
-      return SslProvider.isAlpnSupported(OPENSSL) ? OPENSSL : JDK;
-    }
-    return OpenSsl.isAvailable() ? OPENSSL : JDK;
+  private static SslProvider getSslProvider(boolean http2Enabled) {
+    return http2Enabled ? (SslProvider.isAlpnSupported(OPENSSL) ? OPENSSL : JDK)
+            : (OpenSsl.isAvailable() ? OPENSSL : JDK);
   }
 
 }

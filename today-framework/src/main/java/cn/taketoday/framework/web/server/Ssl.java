@@ -17,6 +17,10 @@
 
 package cn.taketoday.framework.web.server;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
 
@@ -81,17 +85,17 @@ public class Ssl {
   public boolean enabled = false;
 
   /**
-   * Public key resource location
+   * Public key resource, certificate or certificate chain in PEM format.
    */
   public Resource publicKey;
 
   /**
-   * Private key resource location
+   * Resource of the private key in PEM format.
    */
   public Resource privateKey;
 
   /**
-   * Private key password
+   * Password used to decrypt an encrypted private key.
    */
   @Nullable
   public String keyPassword;
@@ -114,6 +118,27 @@ public class Ssl {
    */
   @Nullable
   public ClientAuth clientAuth;
+
+  /**
+   * The handshake timeout
+   */
+  @Nullable
+  public Duration handshakeTimeout;
+
+  private List<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
+
+  /**
+   * Return the mapping of host names to SSL bundles for SNI configuration.
+   *
+   * @return the host name to SSL bundle mapping
+   */
+  public List<ServerNameSslBundle> getServerNameBundles() {
+    return this.serverNameBundles;
+  }
+
+  public void setServerNameBundles(List<ServerNameSslBundle> serverNameBundles) {
+    this.serverNameBundles = serverNameBundles;
+  }
 
   /**
    * Return whether to enable SSL support.
@@ -145,17 +170,6 @@ public class Ssl {
    */
   public void setBundle(@Nullable String bundle) {
     this.bundle = bundle;
-  }
-
-  /**
-   * Return Whether client authentication is not wanted ("none"), wanted ("want") or
-   * needed ("need"). Requires a trust store.
-   *
-   * @return the {@link ClientAuth} to use
-   */
-  @Nullable
-  public ClientAuth getClientAuth() {
-    return this.clientAuth;
   }
 
   public void setClientAuth(@Nullable ClientAuth clientAuth) {
@@ -420,6 +434,10 @@ public class Ssl {
     Ssl ssl = new Ssl();
     ssl.setBundle(bundle);
     return ssl;
+  }
+
+  public record ServerNameSslBundle(String serverName, String bundle) {
+
   }
 
   /**

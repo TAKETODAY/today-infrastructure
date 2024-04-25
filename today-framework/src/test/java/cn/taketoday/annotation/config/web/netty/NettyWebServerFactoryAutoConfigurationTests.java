@@ -28,9 +28,7 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
-import cn.taketoday.framework.web.netty.NettyChannelInitializer;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
-import cn.taketoday.framework.web.netty.SSLNettyChannelInitializer;
 import cn.taketoday.framework.web.netty.StandardNettyWebEnvironment;
 import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.framework.web.server.WebServerFactory;
@@ -134,7 +132,6 @@ class NettyWebServerFactoryAutoConfigurationTests {
 
       NettyWebServerFactory factory = context.getBean(NettyWebServerFactory.class);
       assertThat(factory.getWorkThreadCount()).isEqualTo(100);
-      assertThat(factory.getNettyChannelInitializer()).isInstanceOf(SSLNettyChannelInitializer.class);
     });
   }
 
@@ -166,11 +163,10 @@ class NettyWebServerFactoryAutoConfigurationTests {
   static class WebServerConfiguration {
 
     @Component
-    static WebServerFactory webServerFactory(NettyChannelInitializer nettyChannelInitializer) {
+    static WebServerFactory webServerFactory() {
       NettyWebServerFactory factory = new NettyWebServerFactory();
       factory.setWorkerThreadCount(100);
       factory.setPort(0);
-      factory.setNettyChannelInitializer(nettyChannelInitializer);
       return factory;
     }
 

@@ -22,12 +22,16 @@ import java.util.List;
 
 import cn.taketoday.annotation.config.web.netty.ServerBootstrapCustomizer;
 import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
+import cn.taketoday.framework.web.server.ChannelWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties.Netty;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.framework.web.server.WebServer;
-import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
@@ -40,6 +44,7 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.ServerSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.NetUtil;
@@ -54,7 +59,7 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/20 13:44
  */
-public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory implements WebServerFactory {
+public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory implements ChannelWebServerFactory {
 
   static boolean epollPresent = isPresent(
           "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServerFactory.class);
@@ -102,16 +107,10 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   @Nullable
   private LogLevel loggingLevel;
 
-  /**
-   * netty http channel initializer
-   */
-  @Nullable
-  private NettyChannelInitializer nettyChannelInitializer;
-
   @Nullable
   private List<ServerBootstrapCustomizer> bootstrapCustomizers;
 
-  private Netty.Shutdown shutdownConfig = new Netty.Shutdown();
+  private Netty nettyConfig = new Netty();
 
   /**
    * EventLoopGroup for acceptor
@@ -194,16 +193,6 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   /**
-   * set netty http channel initializer
-   * for prepare channel
-   *
-   * @param nettyChannelInitializer netty http channel initializer
-   */
-  public void setNettyChannelInitializer(NettyChannelInitializer nettyChannelInitializer) {
-    this.nettyChannelInitializer = nettyChannelInitializer;
-  }
-
-  /**
    * Set {@link LoggingHandler} logging Level
    * <p>
    * If that {@code loggingLevel} is {@code null} will not register logging handler
@@ -264,7 +253,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
   }
 
   @Override
-  public WebServer getWebServer() {
+  public WebServer getWebServer(NettyChannelHandler channelHandler) {
     ServerBootstrap bootstrap = new ServerBootstrap();
     preBootstrap(bootstrap);
 
@@ -298,9 +287,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       bootstrap.handler(new LoggingHandler(loggingLevel));
     }
 
-    NettyChannelInitializer channelInitializer = getNettyChannelInitializer();
-    Assert.state(channelInitializer != null, "No NettyChannelInitializer");
-    bootstrap.childHandler(channelInitializer);
+    bootstrap.childHandler(createChannelInitializer(nettyConfig, channelHandler));
     bootstrap.childOption(ChannelOption.SO_KEEPALIVE, true);
 
     if (bootstrapCustomizers != null) {
@@ -312,14 +299,33 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     postBootstrap(bootstrap);
 
     InetSocketAddress listenAddress = getListenAddress();
-    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap, listenAddress, shutdownConfig);
+    return new NettyWebServer(acceptorGroup, workerGroup, bootstrap, listenAddress, nettyConfig.shutdown);
   }
 
-  private InetSocketAddress getListenAddress() {
-    if (getAddress() != null) {
-      return new InetSocketAddress(getAddress().getHostAddress(), getPort());
-    }
-    return new InetSocketAddress(getPort());
+  /**
+   * Creates Infra netty channel initializer
+   *
+   * @param netty netty config
+   * @param channelHandler ChannelInboundHandler
+   */
+  protected ChannelInitializer<Channel> createChannelInitializer(Netty netty, NettyChannelHandler channelHandler) {
+    var initializer = createInitializer(channelHandler);
+    initializer.setHttpDecoderConfig(createHttpDecoderConfig(netty));
+    initializer.setMaxContentLength(netty.maxContentLength.toBytesInt());
+    initializer.setCloseOnExpectationFailed(netty.closeOnExpectationFailed);
+    return initializer;
+  }
+
+  protected final HttpDecoderConfig createHttpDecoderConfig(Netty netty) {
+    return new HttpDecoderConfig()
+            .setInitialBufferSize(netty.initialBufferSize.toBytesInt())
+            .setMaxChunkSize(netty.maxChunkSize.toBytesInt())
+            .setMaxHeaderSize(netty.maxHeaderSize)
+            .setValidateHeaders(netty.validateHeaders)
+            .setChunkedSupported(netty.chunkedSupported)
+            .setAllowPartialChunks(netty.allowPartialChunks)
+            .setMaxInitialLineLength(netty.maxInitialLineLength)
+            .setAllowDuplicateContentLengths(netty.allowDuplicateContentLengths);
   }
 
   /**
@@ -338,11 +344,6 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    */
   protected void postBootstrap(ServerBootstrap bootstrap) {
 
-  }
-
-  @Nullable
-  public NettyChannelInitializer getNettyChannelInitializer() {
-    return nettyChannelInitializer;
   }
 
   public void applyFrom(Netty netty) {
@@ -366,7 +367,33 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
       setMaxConnection(netty.maxConnection);
     }
 
-    shutdownConfig = netty.shutdown;
+    nettyConfig = netty;
+  }
+
+  private NettyChannelInitializer createInitializer(NettyChannelHandler channelHandler) {
+    if (Ssl.isEnabled(getSsl())) {
+      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler,
+              isHttp2Enabled(), getSsl().clientAuth, getSslBundle(), getServerNameSslBundles());
+      addBundleUpdateHandler(null, getSsl().getBundle(), initializer);
+      getSsl().getServerNameBundles()
+              .forEach((serverNameSslBundle) -> addBundleUpdateHandler(serverNameSslBundle.serverName(),
+                      serverNameSslBundle.bundle(), initializer));
+      return initializer;
+    }
+    return new NettyChannelInitializer(channelHandler);
+  }
+
+  private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SSLNettyChannelInitializer customizer) {
+    if (StringUtils.hasText(bundleName)) {
+      getSslBundles().addBundleUpdateHandler(bundleName, sslBundle -> customizer.updateSSLBundle(serverName, sslBundle));
+    }
+  }
+
+  private InetSocketAddress getListenAddress() {
+    if (getAddress() != null) {
+      return new InetSocketAddress(getAddress().getHostAddress(), getPort());
+    }
+    return new InetSocketAddress(getPort());
   }
 
   static class EpollDelegate {

@@ -18,6 +18,8 @@
 package cn.taketoday.framework.web.server;
 
 import java.net.InetAddress;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.ssl.SslBundle;
@@ -186,6 +188,10 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     return applicationTemp;
   }
 
+  protected final boolean isHttp2Enabled() {
+    return Http2.isEnabled(getHttp2());
+  }
+
   /**
    * Return the {@link SslBundle} that should be used with this server.
    *
@@ -193,6 +199,12 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    */
   protected final SslBundle getSslBundle() {
     return WebServerSslBundle.get(this.ssl, this.sslBundles);
+  }
+
+  protected final Map<String, SslBundle> getServerNameSslBundles() {
+    return this.ssl.getServerNameBundles().stream()
+            .collect(Collectors.toMap(Ssl.ServerNameSslBundle::serverName,
+                    serverNameSslBundle -> this.sslBundles.getBundle(serverNameSslBundle.bundle())));
   }
 
 }

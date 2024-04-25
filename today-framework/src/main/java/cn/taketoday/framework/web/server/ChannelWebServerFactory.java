@@ -17,17 +17,15 @@
 
 package cn.taketoday.framework.web.server;
 
+import cn.taketoday.framework.web.netty.NettyChannelHandler;
+
 /**
- * Tagging interface for factories that create a {@link WebServer}.
+ * Factory interface that can be used to create a netty {@link WebServer}.
  *
- * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see WebServer
- * @see ChannelWebServerFactory
- * @see cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory
- * @since 4.0
+ * @since 4.0 2024/4/25 16:46
  */
-public interface WebServerFactory {
+public interface ChannelWebServerFactory extends WebServerFactory {
 
   /**
    * Gets a new fully configured but paused {@link WebServer} instance. Clients should
@@ -35,12 +33,10 @@ public interface WebServerFactory {
    * called (which happens when the {@code ApplicationContext} has been fully
    * refreshed).
    *
+   * @param channelHandler the HTTP handler in charge of processing requests
    * @return a fully configured and started {@link WebServer}
    * @see WebServer#stop()
    */
-  @Deprecated
-  default WebServer getWebServer() {
-    throw new UnsupportedOperationException();
-  }
+  WebServer getWebServer(NettyChannelHandler channelHandler);
 
 }
