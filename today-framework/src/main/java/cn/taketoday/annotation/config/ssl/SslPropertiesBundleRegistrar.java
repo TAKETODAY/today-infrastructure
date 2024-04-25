@@ -17,21 +17,18 @@
 
 package cn.taketoday.annotation.config.ssl;
 
-import java.net.URL;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.regex.Pattern;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslBundleRegistry;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ResourceUtils;
-import cn.taketoday.util.StringUtils;
 
 /**
  * A {@link SslBundleRegistrar} that registers SSL bundles based
@@ -42,101 +39,78 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class SslPropertiesBundleRegistrar implements SslBundleRegistrar {
-
-  private static final Pattern PEM_CONTENT = Pattern.compile("-+BEGIN\\s+[^-]*-+", Pattern.CASE_INSENSITIVE);
+class SslPropertiesBundleRegistrar implements SslBundleRegistrar, DisposableBean {
 
   private final SslProperties.Bundles properties;
 
-  @Nullable
-  private FileWatcher fileWatcher;
+  private final FileWatcher fileWatcher;
 
-  SslPropertiesBundleRegistrar(SslProperties properties) {
-    this.properties = properties.getBundle();
-  }
-
-  SslPropertiesBundleRegistrar(SslProperties properties, @Nullable FileWatcher fileWatcher) {
+  SslPropertiesBundleRegistrar(SslProperties properties, FileWatcher fileWatcher) {
     this.properties = properties.getBundle();
     this.fileWatcher = fileWatcher;
   }
 
   @Override
   public void registerBundles(SslBundleRegistry registry) {
-    registerBundles(registry, this.properties.getPem(), PropertiesSslBundle::get, this::getLocations);
-    registerBundles(registry, this.properties.getJks(), PropertiesSslBundle::get, this::getLocations);
+    registerBundles(registry, this.properties.getPem(), PropertiesSslBundle::get, this::watchedPemPaths);
+    registerBundles(registry, this.properties.getJks(), PropertiesSslBundle::get, this::watchedJksPaths);
   }
 
   private <P extends SslBundleProperties> void registerBundles(SslBundleRegistry registry,
-          Map<String, P> properties, Function<P, SslBundle> bundleFactory, Function<P, Set<Location>> locationsSupplier) {
-
+          Map<String, P> properties, Function<P, SslBundle> bundleFactory, Function<P, Set<Path>> watchedPaths) {
     for (Map.Entry<String, P> entry : properties.entrySet()) {
       String bundleName = entry.getKey();
       P bundleProperties = entry.getValue();
-      SslBundle bundle = bundleFactory.apply(bundleProperties);
-      registry.registerBundle(bundleName, bundle);
-      if (bundleProperties.isReloadOnUpdate()) {
-        Set<Path> paths = locationsSupplier.apply(bundleProperties)
-                .stream()
-                .filter(Location::hasValue)
-                .map(location -> toPath(bundleName, location))
-                .collect(Collectors.toSet());
-
-        fileWatcher().watch(paths,
-                () -> registry.updateBundle(bundleName, bundleFactory.apply(bundleProperties)));
+      Supplier<SslBundle> bundleSupplier = () -> bundleFactory.apply(bundleProperties);
+      try {
+        registry.registerBundle(bundleName, bundleSupplier.get());
+        if (bundleProperties.isReloadOnUpdate()) {
+          Supplier<Set<Path>> pathsSupplier = () -> watchedPaths.apply(bundleProperties);
+          watchForUpdates(registry, bundleName, pathsSupplier, bundleSupplier);
+        }
+      }
+      catch (IllegalStateException ex) {
+        throw new IllegalStateException("Unable to register SSL bundle '%s'".formatted(bundleName), ex);
       }
     }
   }
 
-  private FileWatcher fileWatcher() {
-    if (fileWatcher == null) {
-      fileWatcher = new FileWatcher(properties.getWatch().getFile().getQuietPeriod());
-    }
-    return fileWatcher;
-  }
-
-  private Set<Location> getLocations(JksSslBundleProperties properties) {
-    var keystore = properties.getKeystore();
-    var truststore = properties.getTruststore();
-    Set<Location> locations = new LinkedHashSet<>();
-    locations.add(new Location("keystore.location", keystore.getLocation()));
-    locations.add(new Location("truststore.location", truststore.getLocation()));
-    return locations;
-  }
-
-  private Set<Location> getLocations(PemSslBundleProperties properties) {
-    var keystore = properties.getKeystore();
-    var truststore = properties.getTruststore();
-    var locations = new LinkedHashSet<Location>();
-    locations.add(new Location("keystore.private-key", keystore.getPrivateKey()));
-    locations.add(new Location("keystore.certificates", keystore.getCertificate()));
-    locations.add(new Location("truststore.private-key", truststore.getPrivateKey()));
-    locations.add(new Location("truststore.certificates", truststore.getCertificate()));
-    return locations;
-  }
-
-  private Path toPath(String bundleName, Location watchableLocation) {
-    String value = watchableLocation.value();
-    String field = watchableLocation.field();
-    Assert.state(!PEM_CONTENT.matcher(value).find(),
-            () -> "SSL bundle '%s' '%s' is not a URL and can't be watched".formatted(bundleName, field));
+  private void watchForUpdates(SslBundleRegistry registry, String bundleName,
+          Supplier<Set<Path>> pathsSupplier, Supplier<SslBundle> bundleSupplier) {
     try {
-      URL url = ResourceUtils.getURL(value);
-      Assert.state("file".equalsIgnoreCase(url.getProtocol()),
-              () -> "SSL bundle '%s' '%s' URL '%s' doesn't point to a file".formatted(bundleName, field, url));
-      return Path.of(url.toURI()).toAbsolutePath();
+      fileWatcher.watch(pathsSupplier.get(), () -> registry.updateBundle(bundleName, bundleSupplier.get()));
     }
-    catch (Exception ex) {
-      throw new IllegalStateException(
-              "SSL bundle '%s' '%s' location '%s' cannot be watched".formatted(bundleName, field, value), ex);
+    catch (RuntimeException ex) {
+      throw new IllegalStateException("Unable to watch for reload on update", ex);
     }
   }
 
-  private record Location(String field, String value) {
+  private Set<Path> watchedJksPaths(JksSslBundleProperties properties) {
+    ArrayList<BundleContentProperty> watched = new ArrayList<>(2);
+    watched.add(new BundleContentProperty("keystore.location", properties.getKeystore().getLocation()));
+    watched.add(new BundleContentProperty("truststore.location", properties.getTruststore().getLocation()));
+    return watchedPaths(watched);
+  }
 
-    boolean hasValue() {
-      return StringUtils.hasText(this.value);
-    }
+  private Set<Path> watchedPemPaths(PemSslBundleProperties properties) {
+    ArrayList<BundleContentProperty> watched = new ArrayList<>(4);
+    watched.add(new BundleContentProperty("keystore.private-key", properties.getKeystore().getPrivateKey()));
+    watched.add(new BundleContentProperty("keystore.certificate", properties.getKeystore().getCertificate()));
+    watched.add(new BundleContentProperty("truststore.private-key", properties.getTruststore().getPrivateKey()));
+    watched.add(new BundleContentProperty("truststore.certificate", properties.getTruststore().getCertificate()));
+    return watchedPaths(watched);
+  }
 
+  private Set<Path> watchedPaths(List<BundleContentProperty> properties) {
+    return properties.stream()
+            .filter(BundleContentProperty::hasValue)
+            .map(BundleContentProperty::toWatchPath)
+            .collect(Collectors.toSet());
+  }
+
+  @Override
+  public void destroy() throws Exception {
+    fileWatcher.destroy();
   }
 
 }

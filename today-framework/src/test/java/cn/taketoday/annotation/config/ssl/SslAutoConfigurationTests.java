@@ -104,12 +104,9 @@ class SslAutoConfigurationTests {
     List<String> propertyValues = new ArrayList<>();
     propertyValues.add("custom.ssl.key.alias=alias1");
     propertyValues.add("custom.ssl.key.password=secret1");
-    propertyValues
-            .add("custom.ssl.keystore.certificate=classpath:cn/taketoday/annotation/config/ssl/rsa-cert.pem");
-    propertyValues.add(
-            "custom.ssl.keystore.keystore.private-key=classpath:cn/taketoday/annotation/config/ssl/rsa-key.pem");
-    propertyValues
-            .add("custom.ssl.truststore.certificate=classpath:cn/taketoday/annotation/config/ssl/rsa-cert.pem");
+    propertyValues.add("custom.ssl.keystore.certificate=classpath:cn/taketoday/annotation/config/ssl/rsa-cert.pem");
+    propertyValues.add("custom.ssl.keystore.keystore.private-key=classpath:cn/taketoday/annotation/config/ssl/rsa-key.pem");
+    propertyValues.add("custom.ssl.truststore.certificate=classpath:cn/taketoday/annotation/config/ssl/rsa-cert.pem");
     propertyValues.add("custom.ssl.keystore.type=PKCS12");
     propertyValues.add("custom.ssl.truststore.type=PKCS12");
     this.contextRunner.withUserConfiguration(CustomSslBundleConfiguration.class)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.annotation.config.ssl;
@@ -52,7 +52,7 @@ class FileWatcherTests {
 
   @AfterEach
   void tearDown() throws IOException {
-    this.fileWatcher.close();
+    this.fileWatcher.destroy();
   }
 
   @Test
@@ -128,8 +128,8 @@ class FileWatcherTests {
     WaitingCallback callback = new WaitingCallback();
     this.fileWatcher.watch(Set.of(tempDir), callback);
     assertThatCode(() -> {
-      this.fileWatcher.close();
-      this.fileWatcher.close();
+      this.fileWatcher.destroy();
+      this.fileWatcher.destroy();
     }).doesNotThrowAnyException();
   }
 
@@ -165,7 +165,7 @@ class FileWatcherTests {
     }
   }
 
-  private static class WaitingCallback implements Runnable {
+  private static final class WaitingCallback implements Runnable {
 
     private final CountDownLatch latch = new CountDownLatch(1);
 

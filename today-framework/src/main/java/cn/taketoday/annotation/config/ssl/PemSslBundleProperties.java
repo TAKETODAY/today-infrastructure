@@ -40,25 +40,12 @@ public class PemSslBundleProperties extends SslBundleProperties {
    */
   private final Store truststore = new Store();
 
-  /**
-   * Whether to verify that the private key matches the public key.
-   */
-  private boolean verifyKeys;
-
   public Store getKeystore() {
     return this.keystore;
   }
 
   public Store getTruststore() {
     return this.truststore;
-  }
-
-  public boolean isVerifyKeys() {
-    return this.verifyKeys;
-  }
-
-  public void setVerifyKeys(boolean verifyKeys) {
-    this.verifyKeys = verifyKeys;
   }
 
   /**
