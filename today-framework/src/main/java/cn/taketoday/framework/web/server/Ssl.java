@@ -21,7 +21,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.taketoday.core.io.Resource;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -35,64 +34,100 @@ import cn.taketoday.lang.Nullable;
  */
 public class Ssl {
 
-  @Nullable
-  private String bundle;
-
-  @Nullable
-  private String keyAlias;
-
-  @Nullable
-  private String keyStore;
-
-  @Nullable
-  private String keyStorePassword;
-
-  @Nullable
-  private String keyStoreType;
-
-  @Nullable
-  private String keyStoreProvider;
-
-  @Nullable
-  private String trustStore;
-
-  @Nullable
-  private String trustStorePassword;
-
-  @Nullable
-  private String trustStoreType;
-
-  @Nullable
-  private String trustStoreProvider;
-
-  @Nullable
-  private String certificate;
-
-  @Nullable
-  private String certificatePrivateKey;
-
-  @Nullable
-  private String trustCertificate;
-
-  @Nullable
-  private String trustCertificatePrivateKey;
-
-  private String protocol = "TLS";
-
   /**
    * Whether to enable SSL support.
    */
-  public boolean enabled = false;
+  public boolean enabled = true;
 
   /**
-   * Public key resource, certificate or certificate chain in PEM format.
+   * The name of the SSL bundle to use.
    */
-  public Resource publicKey;
+  @Nullable
+  public String bundle;
 
   /**
-   * Resource of the private key in PEM format.
+   * The alias that identifies the key in the key store.
    */
-  public Resource privateKey;
+  @Nullable
+  public String keyAlias;
+
+  /**
+   * Path to the key store that holds the SSL certificates
+   * (typically a jks file).
+   */
+  @Nullable
+  public String keyStore;
+
+  /**
+   * The password used to access the key store.
+   */
+  @Nullable
+  public String keyStorePassword;
+
+  /**
+   * The type of the key store.
+   */
+  @Nullable
+  public String keyStoreType;
+
+  /**
+   * The provider for the key store.
+   */
+  @Nullable
+  public String keyStoreProvider;
+
+  /**
+   * The trust store that holds SSL certificates.
+   */
+  @Nullable
+  public String trustStore;
+
+  /**
+   * The password used to access the trust store.
+   */
+  @Nullable
+  public String trustStorePassword;
+
+  /**
+   * The type of the trust store.
+   */
+  @Nullable
+  public String trustStoreType;
+
+  /**
+   * The provider for the trust store.
+   */
+  @Nullable
+  public String trustStoreProvider;
+
+  /**
+   * The location of the certificates in PEM format.
+   */
+  @Nullable
+  public String certificate;
+
+  /**
+   * The location of the private key for the certificates in PEM format.
+   */
+  @Nullable
+  public String certificatePrivateKey;
+
+  /**
+   * The location of the trust certificates authority chain in PEM format.
+   */
+  @Nullable
+  public String trustCertificate;
+
+  /**
+   * The location of the private key for the trust certificates in PEM format.
+   */
+  @Nullable
+  public String trustCertificatePrivateKey;
+
+  /**
+   * The SSL protocol to use.
+   */
+  public String protocol = "TLS";
 
   /**
    * Password used to decrypt an encrypted private key.
@@ -122,45 +157,19 @@ public class Ssl {
   /**
    * The handshake timeout
    */
-  @Nullable
-  public Duration handshakeTimeout;
-
-  private List<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
+  public Duration handshakeTimeout = Duration.ofSeconds(10);
 
   /**
-   * Return the mapping of host names to SSL bundles for SNI configuration.
-   *
-   * @return the host name to SSL bundle mapping
+   * The mapping of host names to SSL bundles for SNI configuration.
    */
-  public List<ServerNameSslBundle> getServerNameBundles() {
-    return this.serverNameBundles;
-  }
+  public List<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
 
   public void setServerNameBundles(List<ServerNameSslBundle> serverNameBundles) {
     this.serverNameBundles = serverNameBundles;
   }
 
-  /**
-   * Return whether to enable SSL support.
-   *
-   * @return whether to enable SSL support
-   */
-  public boolean isEnabled() {
-    return this.enabled;
-  }
-
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-  }
-
-  /**
-   * Return the name of the SSL bundle to use.
-   *
-   * @return the SSL bundle name
-   */
-  @Nullable
-  public String getBundle() {
-    return this.bundle;
   }
 
   /**
@@ -176,238 +185,68 @@ public class Ssl {
     this.clientAuth = clientAuth;
   }
 
-  /**
-   * Return the supported SSL ciphers.
-   *
-   * @return the supported SSL ciphers
-   */
-  @Nullable
-  public String[] getCiphers() {
-    return this.ciphers;
-  }
-
   public void setCiphers(@Nullable String[] ciphers) {
     this.ciphers = ciphers;
-  }
-
-  /**
-   * Return the enabled SSL protocols.
-   *
-   * @return the enabled SSL protocols.
-   */
-  @Nullable
-  public String[] getEnabledProtocols() {
-    return this.enabledProtocols;
   }
 
   public void setEnabledProtocols(@Nullable String[] enabledProtocols) {
     this.enabledProtocols = enabledProtocols;
   }
 
-  /**
-   * Return the alias that identifies the key in the key store.
-   *
-   * @return the key alias
-   */
-  @Nullable
-  public String getKeyAlias() {
-    return this.keyAlias;
-  }
-
   public void setKeyAlias(@Nullable String keyAlias) {
     this.keyAlias = keyAlias;
-  }
-
-  /**
-   * Return the password used to access the key in the key store.
-   *
-   * @return the key password
-   */
-  @Nullable
-  public String getKeyPassword() {
-    return this.keyPassword;
   }
 
   public void setKeyPassword(@Nullable String keyPassword) {
     this.keyPassword = keyPassword;
   }
 
-  /**
-   * Return the path to the key store that holds the SSL certificates (typically a jks
-   * file).
-   *
-   * @return the path to the key store
-   */
-  @Nullable
-  public String getKeyStore() {
-    return this.keyStore;
-  }
-
   public void setKeyStore(@Nullable String keyStore) {
     this.keyStore = keyStore;
-  }
-
-  /**
-   * Return the password used to access the key store.
-   *
-   * @return the key store password
-   */
-  @Nullable
-  public String getKeyStorePassword() {
-    return this.keyStorePassword;
   }
 
   public void setKeyStorePassword(@Nullable String keyStorePassword) {
     this.keyStorePassword = keyStorePassword;
   }
 
-  /**
-   * Return the type of the key store.
-   *
-   * @return the key store type
-   */
-  @Nullable
-  public String getKeyStoreType() {
-    return this.keyStoreType;
-  }
-
   public void setKeyStoreType(@Nullable String keyStoreType) {
     this.keyStoreType = keyStoreType;
-  }
-
-  /**
-   * Return the provider for the key store.
-   *
-   * @return the key store provider
-   */
-  @Nullable
-  public String getKeyStoreProvider() {
-    return this.keyStoreProvider;
   }
 
   public void setKeyStoreProvider(@Nullable String keyStoreProvider) {
     this.keyStoreProvider = keyStoreProvider;
   }
 
-  /**
-   * Return the trust store that holds SSL certificates.
-   *
-   * @return the trust store
-   */
-  @Nullable
-  public String getTrustStore() {
-    return this.trustStore;
-  }
-
   public void setTrustStore(@Nullable String trustStore) {
     this.trustStore = trustStore;
-  }
-
-  /**
-   * Return the password used to access the trust store.
-   *
-   * @return the trust store password
-   */
-  @Nullable
-  public String getTrustStorePassword() {
-    return this.trustStorePassword;
   }
 
   public void setTrustStorePassword(@Nullable String trustStorePassword) {
     this.trustStorePassword = trustStorePassword;
   }
 
-  /**
-   * Return the type of the trust store.
-   *
-   * @return the trust store type
-   */
-  @Nullable
-  public String getTrustStoreType() {
-    return this.trustStoreType;
-  }
-
   public void setTrustStoreType(@Nullable String trustStoreType) {
     this.trustStoreType = trustStoreType;
-  }
-
-  /**
-   * Return the provider for the trust store.
-   *
-   * @return the trust store provider
-   */
-  @Nullable
-  public String getTrustStoreProvider() {
-    return this.trustStoreProvider;
   }
 
   public void setTrustStoreProvider(@Nullable String trustStoreProvider) {
     this.trustStoreProvider = trustStoreProvider;
   }
 
-  /**
-   * Return the location of the certificates in PEM format.
-   *
-   * @return the certificates location
-   */
-  @Nullable
-  public String getCertificate() {
-    return this.certificate;
-  }
-
   public void setCertificate(@Nullable String certificate) {
     this.certificate = certificate;
-  }
-
-  /**
-   * Return the location of the private key for the certificates in PEM format.
-   *
-   * @return the location of the certificates private key
-   */
-  @Nullable
-  public String getCertificatePrivateKey() {
-    return this.certificatePrivateKey;
   }
 
   public void setCertificatePrivateKey(@Nullable String certificatePrivateKey) {
     this.certificatePrivateKey = certificatePrivateKey;
   }
 
-  /**
-   * Return the location of the trust certificates authority chain in PEM format.
-   *
-   * @return the location of the trust certificates
-   */
-  @Nullable
-  public String getTrustCertificate() {
-    return this.trustCertificate;
-  }
-
   public void setTrustCertificate(@Nullable String trustCertificate) {
     this.trustCertificate = trustCertificate;
   }
 
-  /**
-   * Return the location of the private key for the trust certificates in PEM format.
-   *
-   * @return the location of the trust certificates private key
-   */
-  @Nullable
-  public String getTrustCertificatePrivateKey() {
-    return this.trustCertificatePrivateKey;
-  }
-
   public void setTrustCertificatePrivateKey(@Nullable String trustCertificatePrivateKey) {
     this.trustCertificatePrivateKey = trustCertificatePrivateKey;
-  }
-
-  /**
-   * Return the SSL protocol to use.
-   *
-   * @return the SSL protocol
-   */
-  public String getProtocol() {
-    return this.protocol;
   }
 
   public void setProtocol(String protocol) {
@@ -436,8 +275,11 @@ public class Ssl {
     return ssl;
   }
 
-  public record ServerNameSslBundle(String serverName, String bundle) {
+  public static class ServerNameSslBundle {
 
+    public String serverName;
+
+    public String bundle;
   }
 
   /**

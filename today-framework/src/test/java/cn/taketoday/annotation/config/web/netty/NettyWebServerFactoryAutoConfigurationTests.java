@@ -19,11 +19,10 @@ package cn.taketoday.annotation.config.web.netty;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.FileNotFoundException;
 import java.util.concurrent.TimeUnit;
 
-import cn.taketoday.annotation.config.web.ErrorMvcAutoConfiguration;
-import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
-import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
@@ -31,10 +30,9 @@ import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationCo
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.netty.StandardNettyWebEnvironment;
 import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.framework.web.server.WebServerFactory;
-import cn.taketoday.stereotype.Component;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.util.DataSize;
-import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,22 +45,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class NettyWebServerFactoryAutoConfigurationTests {
 
   private final ApplicationContextRunner contextRunner = ApplicationContextRunner.forProvider(this::createContext)
-          .withConfiguration(AutoConfigurations.of(
-                  NettyWebServerFactoryAutoConfiguration.class, WebMvcAutoConfiguration.class, ErrorMvcAutoConfiguration.class))
-          .withUserConfiguration(WebServerConfiguration.class);
+          .withConfiguration(AutoConfigurations.of(RandomPortWebServerConfig.class));
 
   AnnotationConfigWebServerApplicationContext createContext() {
     var context = new AnnotationConfigWebServerApplicationContext();
     context.setEnvironment(new StandardNettyWebEnvironment());
     return context;
-  }
-
-  @Test
-  void webServerFactory() {
-    contextRunner.run(context -> {
-      NettyWebServerFactory factory = context.getBean(NettyWebServerFactory.class);
-      assertThat(factory.getWorkThreadCount()).isEqualTo(100);
-    });
   }
 
   @Test
@@ -76,10 +64,10 @@ class NettyWebServerFactoryAutoConfigurationTests {
             "server.netty.maxHeaderSize=120",
             "server.netty.maxInitialLineLength=100",
             "server.netty.validateHeaders=false",
-            "server.netty.socketChannel=io.netty.channel.epoll.EpollServerSocketChannel",
-            "server.netty.shutdown.quietPeriod=2",
-            "server.netty.shutdown.timeout=20",
-            "server.netty.shutdown.unit=minutes",
+            "server.netty.socketChannel=io.netty.channel.socket.nio.NioServerSocketChannel",
+            "server.netty.shutdown.quietPeriod=1",
+            "server.netty.shutdown.timeout=1",
+            "server.netty.shutdown.unit=seconds",
             "server.netty.acceptor-threads=1").run(context -> {
       ServerProperties properties = context.getBean(ServerProperties.class);
 
@@ -102,32 +90,31 @@ class NettyWebServerFactoryAutoConfigurationTests {
     assertThat(netty.maxHeaderSize).isEqualTo(120);
     assertThat(netty.maxInitialLineLength).isEqualTo(100);
     assertThat(netty.validateHeaders).isEqualTo(false);
-    assertThat(netty.socketChannel).isEqualTo(EpollServerSocketChannel.class);
+    assertThat(netty.socketChannel).isEqualTo(NioServerSocketChannel.class);
 
     var shutdown = netty.shutdown;
 
-    assertThat(shutdown.quietPeriod).isEqualTo(2);
-    assertThat(shutdown.timeout).isEqualTo(20);
-    assertThat(shutdown.unit).isEqualTo(TimeUnit.MINUTES);
+    assertThat(shutdown.quietPeriod).isEqualTo(1);
+    assertThat(shutdown.timeout).isEqualTo(1);
+    assertThat(shutdown.unit).isEqualTo(TimeUnit.SECONDS);
 
-    var nettySSL = server.ssl;
-    assertThat(nettySSL.enabled).isFalse();
-    assertThat(nettySSL.publicKey).isNull();
-    assertThat(nettySSL.privateKey).isNull();
-    assertThat(nettySSL.keyPassword).isNull();
+    assertThat(Ssl.isEnabled(server.ssl)).isFalse();
+    assertThat(server.ssl).isNull();
   }
 
   @Test
   void nettySSL() {
     contextRunner.withPropertyValues("server.ssl.enabled:true",
-            "server.ssl.public-key:classpath:/cn/taketoday/annotation/config/ssl/key1.crt",
-            "server.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
+            "server.netty.workerThreads=100",
+            "server.ssl.certificate:classpath:cn/taketoday/annotation/config/ssl/key1.crt",
+            "server.ssl.certificatePrivateKey:classpath:cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
       ServerProperties properties = context.getBean(ServerProperties.class);
 
       var nettySSL = properties.ssl;
+      assertThat(nettySSL).isNotNull();
       assertThat(nettySSL.enabled).isTrue();
-      assertThat(nettySSL.publicKey).isEqualTo(context.getResource("classpath:/cn/taketoday/annotation/config/ssl/key1.crt"));
-      assertThat(nettySSL.privateKey).isEqualTo(context.getResource("classpath:/cn/taketoday/annotation/config/ssl/key1.pem"));
+      assertThat(nettySSL.certificate).isEqualTo("classpath:cn/taketoday/annotation/config/ssl/key1.crt");
+      assertThat(nettySSL.certificatePrivateKey).isEqualTo("classpath:cn/taketoday/annotation/config/ssl/key1.pem");
       assertThat(nettySSL.keyPassword).isNull();
 
       NettyWebServerFactory factory = context.getBean(NettyWebServerFactory.class);
@@ -138,37 +125,25 @@ class NettyWebServerFactoryAutoConfigurationTests {
   @Test
   void publicKeyNotFound() {
     contextRunner.withPropertyValues("server.ssl.enabled:true",
-            "server.ssl.public-key:classpath:not-found.crt",
-            "server.ssl.private-key:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
+            "server.ssl.certificate:classpath:not-found.crt",
+            "server.ssl.certificatePrivateKey:classpath:/cn/taketoday/annotation/config/ssl/key1.pem").run(context -> {
 
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
-              .hasRootCauseInstanceOf(IllegalStateException.class)
-              .hasRootCauseMessage("publicKey not found");
+              .hasRootCauseInstanceOf(FileNotFoundException.class)
+              .hasRootCauseMessage("class path resource [not-found.crt] cannot be resolved to URL because it does not exist");
     });
   }
 
   @Test
   void privateKeyNotFound() {
     contextRunner.withPropertyValues("server.ssl.enabled:true",
-            "server.ssl.public-key:classpath:cn/taketoday/annotation/config/ssl/key1.crt",
-            "server.ssl.private-key:classpath:not-found.pem").run(context -> {
+            "server.ssl.certificate:classpath:cn/taketoday/annotation/config/ssl/key1.crt",
+            "server.ssl.certificatePrivateKey:classpath:not-found.pem").run(context -> {
 
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
-              .hasRootCauseInstanceOf(IllegalStateException.class)
-              .hasRootCauseMessage("privateKey not found");
+              .hasRootCauseInstanceOf(FileNotFoundException.class)
+              .hasRootCauseMessage("class path resource [not-found.pem] cannot be resolved to URL because it does not exist");
     });
   }
 
-  @Configuration(proxyBeanMethods = false)
-  static class WebServerConfiguration {
-
-    @Component
-    static WebServerFactory webServerFactory() {
-      NettyWebServerFactory factory = new NettyWebServerFactory();
-      factory.setWorkerThreadCount(100);
-      factory.setPort(0);
-      return factory;
-    }
-
-  }
 }

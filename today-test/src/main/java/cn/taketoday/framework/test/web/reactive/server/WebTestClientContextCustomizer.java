@@ -39,6 +39,7 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.http.codec.CodecCustomizer;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
@@ -53,6 +54,7 @@ import cn.taketoday.web.reactive.function.client.ExchangeStrategies;
  * {@link ContextCustomizer} for {@link WebTestClient}.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */
 class WebTestClientContextCustomizer implements ContextCustomizer {
 
@@ -61,8 +63,7 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
     if (AotDetector.useGeneratedArtifacts()) {
       return;
     }
-    InfraTest infraTest = TestContextAnnotationUtils.findMergedAnnotation(mergedConfig.getTestClass(),
-            InfraTest.class);
+    InfraTest infraTest = TestContextAnnotationUtils.findMergedAnnotation(mergedConfig.getTestClass(), InfraTest.class);
     if (infraTest.webEnvironment().isEmbedded()) {
       registerWebTestClient(context);
     }
@@ -205,9 +206,8 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
 
     private boolean isSslEnabled(ApplicationContext context) {
       try {
-        AbstractReactiveWebServerFactory webServerFactory = context
-                .getBean(AbstractReactiveWebServerFactory.class);
-        return webServerFactory.getSsl() != null && webServerFactory.getSsl().isEnabled();
+        var webServerFactory = context.getBean(AbstractReactiveWebServerFactory.class);
+        return Ssl.isEnabled(webServerFactory.getSsl());
       }
       catch (NoSuchBeanDefinitionException ex) {
         return false;
@@ -226,8 +226,7 @@ class WebTestClientContextCustomizer implements ContextCustomizer {
       Collection<CodecCustomizer> codecCustomizers = context.getBeansOfType(CodecCustomizer.class).values();
       if (CollectionUtils.isNotEmpty(codecCustomizers)) {
         clientBuilder.exchangeStrategies(ExchangeStrategies.builder()
-                .codecs((codecs) -> codecCustomizers
-                        .forEach((codecCustomizer) -> codecCustomizer.customize(codecs)))
+                .codecs(codecs -> codecCustomizers.forEach(codecCustomizer -> codecCustomizer.customize(codecs)))
                 .build());
       }
     }

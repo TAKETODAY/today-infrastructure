@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.context;
@@ -32,31 +32,31 @@ import cn.taketoday.framework.web.server.WebServerFactory;
  */
 public class MissingWebServerFactoryBeanException extends NoSuchBeanDefinitionException {
 
-  private final ApplicationType webApplicationType;
+  private final ApplicationType applicationType;
 
   /**
    * Create a new {@code MissingWebServerFactoryBeanException}.
    *
-   * @param webServerApplicationContextClass the class of the
+   * @param contextClass the class of the
    * WebServerApplicationContext that required the WebServerFactory
    * @param webServerFactoryClass the class of the WebServerFactory that was missing
-   * @param webApplicationType the type of the web application
+   * @param applicationType the type of the web application
    */
-  public MissingWebServerFactoryBeanException(Class<? extends WebServerApplicationContext> webServerApplicationContextClass,
-          Class<? extends WebServerFactory> webServerFactoryClass, ApplicationType webApplicationType) {
+  public MissingWebServerFactoryBeanException(Class<? extends WebServerApplicationContext> contextClass,
+          Class<? extends WebServerFactory> webServerFactoryClass, ApplicationType applicationType) {
     super(webServerFactoryClass, String.format("Unable to start %s due to missing %s bean",
-            webServerApplicationContextClass.getSimpleName(), webServerFactoryClass.getSimpleName()));
-    this.webApplicationType = webApplicationType;
+            contextClass.getSimpleName(), webServerFactoryClass.getSimpleName()));
+    this.applicationType = applicationType;
   }
 
   /**
    * Returns the type of web application for which a {@link WebServerFactory} bean was
    * missing.
    *
-   * @return the type of web application
+   * @return the type of application
    */
-  public ApplicationType getWebApplicationType() {
-    return this.webApplicationType;
+  public ApplicationType getApplicationType() {
+    return this.applicationType;
   }
 
 }

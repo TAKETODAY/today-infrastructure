@@ -164,12 +164,13 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
   }
 
   private HttpServer customizeSslConfiguration(Ssl ssl, HttpServer httpServer) {
-    SslServerCustomizer customizer = new SslServerCustomizer(isHttp2Enabled(), ssl.clientAuth, getSslBundle(),
-            getServerNameSslBundles());
-    addBundleUpdateHandler(null, ssl.getBundle(), customizer);
-    ssl.getServerNameBundles()
-            .forEach((serverNameSslBundle) -> addBundleUpdateHandler(serverNameSslBundle.serverName(),
-                    serverNameSslBundle.bundle(), customizer));
+    SslServerCustomizer customizer = new SslServerCustomizer(
+            isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
+
+    addBundleUpdateHandler(null, ssl.bundle, customizer);
+    for (var pair : ssl.serverNameBundles) {
+      addBundleUpdateHandler(pair.serverName, pair.bundle, customizer);
+    }
     return customizer.apply(httpServer);
   }
 

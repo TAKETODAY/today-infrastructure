@@ -93,12 +93,6 @@ public class ServerProperties {
   public ForwardHeadersStrategy forwardHeadersStrategy;
 
   /**
-   * Value to use for the Server response header (if empty, no header is sent).
-   */
-  @Nullable
-  public String serverHeader;
-
-  /**
    * Maximum size of the HTTP message header.
    */
   public DataSize maxHttpRequestHeaderSize = DataSize.ofKilobytes(8);
@@ -109,8 +103,9 @@ public class ServerProperties {
   @Nullable
   public Shutdown shutdown = Shutdown.IMMEDIATE;
 
+  @Nullable
   @NestedConfigurationProperty
-  public final Ssl ssl = new Ssl();
+  public Ssl ssl;
 
   @Nullable
   @NestedConfigurationProperty
@@ -136,11 +131,10 @@ public class ServerProperties {
     if (applicationTemp != null) {
       factory.setApplicationTemp(applicationTemp);
     }
-    applyTo(factory);
-  }
 
-  public void applyTo(ConfigurableWebServerFactory factory) {
-    factory.setSsl(ssl);
+    if (ssl != null) {
+      factory.setSsl(ssl);
+    }
     if (port != null) {
       factory.setPort(port);
     }
@@ -156,10 +150,6 @@ public class ServerProperties {
     }
 
     factory.setCompression(compression);
-
-    if (serverHeader != null) {
-      factory.setServerHeader(serverHeader);
-    }
   }
 
   /**

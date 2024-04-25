@@ -40,8 +40,9 @@ import cn.taketoday.framework.web.netty.NettyChannelHandler;
 import cn.taketoday.framework.web.netty.NettyRequestConfig;
 import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.netty.SendErrorHandler;
+import cn.taketoday.framework.web.server.ChannelWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.framework.web.server.WebServerFactory;
+import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
@@ -77,7 +78,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @Component
   @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  static WebServerFactory nettyWebServerFactory(ServerProperties serverProperties, @Nullable SslBundles sslBundles,
+  static ChannelWebServerFactory nettyWebServerFactory(ServerProperties serverProperties, @Nullable SslBundles sslBundles,
           @Nullable List<ServerBootstrapCustomizer> customizers, @Nullable ApplicationTemp applicationTemp) {
     NettyWebServerFactory factory = new NettyWebServerFactory();
 
@@ -103,7 +104,7 @@ public class NettyWebServerFactoryAutoConfiguration {
     return NettyRequestConfig.forBuilder()
             .httpDataFactory(factory)
             .sendErrorHandler(sendErrorHandler)
-            .secure(server.ssl.enabled)
+            .secure(Ssl.isEnabled(server.ssl))
             .build();
   }
 

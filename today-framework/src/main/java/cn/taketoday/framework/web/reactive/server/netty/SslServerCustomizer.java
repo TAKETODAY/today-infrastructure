@@ -20,10 +20,10 @@ package cn.taketoday.framework.web.reactive.server.netty;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.annotation.config.web.netty.NettySSLBuilder;
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.framework.web.server.Ssl;
@@ -50,22 +50,25 @@ import reactor.netty.tcp.SslProvider.SslContextSpec;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0
  */
-public class SslServerCustomizer implements ReactorNettyServerCustomizer {
+final class SslServerCustomizer implements ReactorNettyServerCustomizer {
 
   private static final Log logger = LogFactory.getLog(SslServerCustomizer.class);
 
-  private final boolean isHttp2Enabled;
+  private final boolean http2Enabled;
 
   private final ClientAuth clientAuth;
+
+  private final Duration handshakeTimeout;
 
   private volatile SslProvider sslProvider;
 
   private final HashMap<String, SslProvider> serverNameSslProviders;
 
-  public SslServerCustomizer(boolean isHttp2Enabled, @Nullable Ssl.ClientAuth clientAuth,
+  public SslServerCustomizer(boolean http2Enabled, Ssl ssl,
           SslBundle sslBundle, Map<String, SslBundle> serverNameSslBundles) {
-    this.isHttp2Enabled = isHttp2Enabled;
-    this.clientAuth = Ssl.ClientAuth.map(clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
+    this.http2Enabled = http2Enabled;
+    this.handshakeTimeout = ssl.handshakeTimeout;
+    this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
     this.sslProvider = createSslProvider(sslBundle);
     this.serverNameSslProviders = createServerNameSslProviders(serverNameSslBundles);
   }
@@ -76,19 +79,22 @@ public class SslServerCustomizer implements ReactorNettyServerCustomizer {
   }
 
   private void applySecurity(SslContextSpec spec) {
-    spec.sslContext(this.sslProvider.getSslContext()).setSniAsyncMappings((serverName, promise) -> {
-      SslProvider provider = (serverName != null) ? this.serverNameSslProviders.get(serverName) : this.sslProvider;
-      return promise.setSuccess(provider);
-    });
+    var builder = spec.sslContext(sslProvider.getSslContext())
+            .handshakeTimeout(handshakeTimeout);
+
+    if (!serverNameSslProviders.isEmpty()) {
+      builder.setSniAsyncMappings((serverName, promise) ->
+              promise.setSuccess(serverNameSslProviders.getOrDefault(serverName, sslProvider)));
+    }
   }
 
   void updateSslBundle(@Nullable String serverName, SslBundle sslBundle) {
     logger.debug("SSL Bundle has been updated, reloading SSL configuration");
     if (serverName == null) {
-      this.sslProvider = createSslProvider(sslBundle);
+      sslProvider = createSslProvider(sslBundle);
     }
     else {
-      this.serverNameSslProviders.put(serverName, createSslProvider(sslBundle));
+      serverNameSslProviders.put(serverName, createSslProvider(sslBundle));
     }
   }
 
@@ -110,13 +116,13 @@ public class SslServerCustomizer implements ReactorNettyServerCustomizer {
    * @param sslBundle the {@link SslBundle} to use
    * @return an {@link AbstractProtocolSslContextSpec} instance
    */
-  protected final AbstractProtocolSslContextSpec<?> createSslContextSpec(SslBundle sslBundle) {
-    AbstractProtocolSslContextSpec<?> sslContextSpec = isHttp2Enabled
+  private AbstractProtocolSslContextSpec<?> createSslContextSpec(SslBundle sslBundle) {
+    AbstractProtocolSslContextSpec<?> sslContextSpec = http2Enabled
             ? Http2SslContextSpec.forServer(sslBundle.getManagers().getKeyManagerFactory())
             : Http11SslContextSpec.forServer(sslBundle.getManagers().getKeyManagerFactory());
     return sslContextSpec.configure(builder -> {
-      builder.trustManager(sslBundle.getManagers().getTrustManagerFactory());
       SslOptions options = sslBundle.getOptions();
+      builder.trustManager(sslBundle.getManagers().getTrustManagerFactory());
       builder.protocols(options.getEnabledProtocols());
       builder.ciphers(SslOptions.asSet(options.getCiphers()));
       builder.clientAuth(this.clientAuth);

@@ -27,16 +27,18 @@ import cn.taketoday.context.support.GenericApplicationContext;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
+import cn.taketoday.framework.web.netty.NettyChannelHandler;
+import cn.taketoday.framework.web.server.ChannelWebServerFactory;
 import cn.taketoday.framework.web.server.WebServer;
-import cn.taketoday.framework.web.server.WebServerFactory;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContextUtils;
+import io.netty.channel.ChannelHandler;
 
 /**
  * A {@link GenericWebServerApplicationContext} that can be used to bootstrap itself
- * from a contained {@link WebServerFactory} bean.
+ * from a contained {@link ChannelWebServerFactory} bean.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2023/2/3 16:52
@@ -92,36 +94,56 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   }
 
   protected WebServer createWebServer() {
-    WebServerFactory factory = getWebServerFactory();
-    WebServer webServer = factory.getWebServer();
+    ChannelHandler channelHandler = getChannelHandler();
+    ChannelWebServerFactory factory = getWebServerFactory();
 
-    StandardBeanFactory beanFactory = getBeanFactory();
+    WebServer webServer = factory.getWebServer(channelHandler);
+
     beanFactory.registerSingleton("webServerStartStop", new WebServerStartStopLifecycle(this, webServer));
     beanFactory.registerSingleton("webServerGracefulShutdown", new WebServerGracefulShutdownLifecycle(webServer));
-
     return webServer;
   }
 
   /**
-   * Returns the {@link WebServerFactory} that should be used to create the
+   * Returns the {@link ChannelWebServerFactory} that should be used to create the
    * embedded {@link WebServer}. By default this method searches for a suitable bean in
    * the context itself.
    *
-   * @return a {@link WebServerFactory} (never {@code null})
+   * @return a {@link ChannelWebServerFactory} (never {@code null})
    */
-  private WebServerFactory getWebServerFactory() {
+  private ChannelWebServerFactory getWebServerFactory() {
     // Use bean names so that we don't consider the hierarchy
-    StandardBeanFactory beanFactory = getBeanFactory();
-    Set<String> beanNames = beanFactory.getBeanNamesForType(WebServerFactory.class);
+    Set<String> beanNames = beanFactory.getBeanNamesForType(ChannelWebServerFactory.class);
     if (beanNames.isEmpty()) {
       throw new MissingWebServerFactoryBeanException(
-              getClass(), WebServerFactory.class, ApplicationType.NETTY_WEB);
+              getClass(), ChannelWebServerFactory.class, ApplicationType.NETTY_WEB);
     }
     if (beanNames.size() > 1) {
       throw new ApplicationContextException("Unable to start WebServerApplicationContext due to multiple WebServerFactory beans : "
               + StringUtils.collectionToCommaDelimitedString(beanNames));
     }
-    return beanFactory.getBean(CollectionUtils.firstElement(beanNames), WebServerFactory.class);
+    return beanFactory.getBean(CollectionUtils.firstElement(beanNames), ChannelWebServerFactory.class);
+  }
+
+  /**
+   * Return the {@link NettyChannelHandler} that should be used to process the web
+   * server. By default, this method searches for a suitable bean in the context itself.
+   *
+   * @return a {@link NettyChannelHandler} (never {@code null}
+   */
+  protected ChannelHandler getChannelHandler() {
+    // Use bean names so that we don't consider the hierarchy
+    Set<String> beanNames = beanFactory.getBeanNamesForType(ChannelHandler.class);
+    if (beanNames.isEmpty()) {
+      throw new ApplicationContextException(
+              "Unable to start WebServerApplicationContext due to missing ChannelHandler bean.");
+    }
+    if (beanNames.size() > 1) {
+      throw new ApplicationContextException(
+              "Unable to start WebServerApplicationContext due to multiple ChannelHandler beans : "
+                      + StringUtils.collectionToCommaDelimitedString(beanNames));
+    }
+    return beanFactory.getBean(CollectionUtils.firstElement(beanNames), ChannelHandler.class);
   }
 
   @Override

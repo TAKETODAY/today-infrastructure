@@ -70,17 +70,6 @@ class ServerPropertiesTests {
   }
 
   @Test
-  void testServerHeaderDefault() {
-    assertThat(this.properties.serverHeader).isNull();
-  }
-
-  @Test
-  void testServerHeader() {
-    bind("server.server-header", "Custom Server");
-    assertThat(this.properties.serverHeader).isEqualTo("Custom Server");
-  }
-
-  @Test
   void testCustomizeHeaderSize() {
     bind("server.max-http-request-header-size", "1MB");
     assertThat(this.properties.maxHttpRequestHeaderSize).isEqualTo(DataSize.ofMegabytes(1));

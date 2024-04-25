@@ -57,35 +57,34 @@ public final class WebServerSslBundle implements SslBundle {
 
   private WebServerSslBundle(SslStoreBundle stores, @Nullable String keyPassword, Ssl ssl) {
     this.stores = stores;
-    this.key = SslBundleKey.of(keyPassword, ssl.getKeyAlias());
-    this.protocol = ssl.getProtocol();
-    this.options = SslOptions.of(ssl.getCiphers(), ssl.getEnabledProtocols());
+    this.protocol = ssl.protocol;
+    this.key = SslBundleKey.of(keyPassword, ssl.keyAlias);
+    this.options = SslOptions.of(ssl.ciphers, ssl.enabledProtocols);
     this.managers = SslManagerBundle.from(this.stores, this.key);
   }
 
   private static SslStoreBundle createPemKeyStoreBundle(Ssl ssl) {
-    PemSslStoreDetails keyStoreDetails = new PemSslStoreDetails(ssl.getKeyStoreType(), ssl.getCertificate(),
-            ssl.getCertificatePrivateKey())
-            .withAlias(ssl.getKeyAlias());
+    PemSslStoreDetails keyStoreDetails = new PemSslStoreDetails(ssl.keyStoreType, ssl.certificate, ssl.certificatePrivateKey)
+            .withAlias(ssl.keyAlias);
     return new PemSslStoreBundle(keyStoreDetails, null);
   }
 
   private static SslStoreBundle createPemTrustStoreBundle(Ssl ssl) {
-    PemSslStoreDetails trustStoreDetails = new PemSslStoreDetails(ssl.getTrustStoreType(),
-            ssl.getTrustCertificate(), ssl.getTrustCertificatePrivateKey())
-            .withAlias(ssl.getKeyAlias());
+    PemSslStoreDetails trustStoreDetails = new PemSslStoreDetails(ssl.trustStoreType,
+            ssl.trustCertificate, ssl.trustCertificatePrivateKey)
+            .withAlias(ssl.keyAlias);
     return new PemSslStoreBundle(null, trustStoreDetails);
   }
 
   private static SslStoreBundle createJksKeyStoreBundle(Ssl ssl) {
-    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails(ssl.getKeyStoreType(), ssl.getKeyStoreProvider(),
-            ssl.getKeyStore(), ssl.getKeyStorePassword());
+    JksSslStoreDetails keyStoreDetails = new JksSslStoreDetails(ssl.keyStoreType,
+            ssl.keyStoreProvider, ssl.keyStore, ssl.keyStorePassword);
     return new JksSslStoreBundle(keyStoreDetails, null);
   }
 
   private static SslStoreBundle createJksTrustStoreBundle(Ssl ssl) {
-    JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails(ssl.getTrustStoreType(),
-            ssl.getTrustStoreProvider(), ssl.getTrustStore(), ssl.getTrustStorePassword());
+    JksSslStoreDetails trustStoreDetails = new JksSslStoreDetails(ssl.trustStoreType,
+            ssl.trustStoreProvider, ssl.trustStore, ssl.trustStorePassword);
     return new JksSslStoreBundle(null, trustStoreDetails);
   }
 
@@ -129,14 +128,14 @@ public final class WebServerSslBundle implements SslBundle {
    * Get the {@link SslBundle} that should be used for the given {@link Ssl} instance.
    *
    * @param ssl the source ssl instance
-   * @param sslBundles the bundles that should be used when {@link Ssl#getBundle()} is
+   * @param sslBundles the bundles that should be used when {@link Ssl#bundle} is
    * set
    * @return a {@link SslBundle} instance
    * @throws NoSuchSslBundleException if a bundle lookup fails
    */
   public static SslBundle get(@Nullable Ssl ssl, @Nullable SslBundles sslBundles) throws NoSuchSslBundleException {
     Assert.state(Ssl.isEnabled(ssl), "SSL is not enabled");
-    String bundleName = ssl.getBundle();
+    String bundleName = ssl.bundle;
     if (StringUtils.hasText(bundleName)) {
       if (sslBundles == null) {
         throw new IllegalStateException(
@@ -145,14 +144,14 @@ public final class WebServerSslBundle implements SslBundle {
       return sslBundles.getBundle(bundleName);
     }
     SslStoreBundle stores = createStoreBundle(ssl);
-    String keyPassword = ssl.getKeyPassword();
+    String keyPassword = ssl.keyPassword;
     return new WebServerSslBundle(stores, keyPassword, ssl);
   }
 
   private static SslStoreBundle createStoreBundle(Ssl ssl) {
     KeyStore keyStore = createKeyStore(ssl);
     KeyStore trustStore = createTrustStore(ssl);
-    return new WebServerSslStoreBundle(keyStore, trustStore, ssl.getKeyStorePassword());
+    return new WebServerSslStoreBundle(keyStore, trustStore, ssl.keyStorePassword);
   }
 
   @Nullable
@@ -178,21 +177,21 @@ public final class WebServerSslBundle implements SslBundle {
   }
 
   private static boolean hasPemKeyStoreProperties(Ssl ssl) {
-    return Ssl.isEnabled(ssl) && ssl.getCertificate() != null && ssl.getCertificatePrivateKey() != null;
+    return Ssl.isEnabled(ssl) && ssl.certificate != null && ssl.certificatePrivateKey != null;
   }
 
   private static boolean hasPemTrustStoreProperties(Ssl ssl) {
-    return Ssl.isEnabled(ssl) && ssl.getTrustCertificate() != null;
+    return Ssl.isEnabled(ssl) && ssl.trustCertificate != null;
   }
 
   private static boolean hasJksKeyStoreProperties(Ssl ssl) {
-    return Ssl.isEnabled(ssl) && (ssl.getKeyStore() != null
-            || (ssl.getKeyStoreType() != null && ssl.getKeyStoreType().equals("PKCS11")));
+    return Ssl.isEnabled(ssl)
+            && (ssl.keyStore != null || (ssl.keyStoreType != null && ssl.keyStoreType.equals("PKCS11")));
   }
 
   private static boolean hasJksTrustStoreProperties(Ssl ssl) {
-    return Ssl.isEnabled(ssl) && (ssl.getTrustStore() != null
-            || (ssl.getTrustStoreType() != null && ssl.getTrustStoreType().equals("PKCS11")));
+    return Ssl.isEnabled(ssl) && (ssl.trustStore != null
+            || (ssl.trustStoreType != null && ssl.trustStoreType.equals("PKCS11")));
   }
 
   @Override

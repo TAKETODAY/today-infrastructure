@@ -31,6 +31,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -60,12 +61,6 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  * @since 4.0 2022/10/20 13:44
  */
 public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory implements ChannelWebServerFactory {
-
-  static boolean epollPresent = isPresent(
-          "io.netty.channel.epoll.EpollServerSocketChannel", NettyWebServerFactory.class);
-
-  static boolean kQueuePresent = isPresent(
-          "io.netty.channel.kqueue.KQueueServerSocketChannel", NettyWebServerFactory.class);
 
   /**
    * the number of threads that will be used by
@@ -242,18 +237,20 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * Subclasses can override this method to perform epoll is available logic
    */
   protected boolean epollIsAvailable() {
-    return epollPresent && Epoll.isAvailable();
+    return isPresent("io.netty.channel.epoll.EpollServerSocketChannel", getClass())
+            && Epoll.isAvailable();
   }
 
   /**
    * Subclasses can override this method to perform KQueue is available logic
    */
   protected boolean kQueueIsAvailable() {
-    return kQueuePresent && KQueue.isAvailable();
+    return isPresent("io.netty.channel.kqueue.KQueueServerSocketChannel", getClass())
+            && KQueue.isAvailable();
   }
 
   @Override
-  public WebServer getWebServer(NettyChannelHandler channelHandler) {
+  public WebServer getWebServer(ChannelHandler channelHandler) {
     ServerBootstrap bootstrap = new ServerBootstrap();
     preBootstrap(bootstrap);
 
@@ -308,7 +305,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
    * @param netty netty config
    * @param channelHandler ChannelInboundHandler
    */
-  protected ChannelInitializer<Channel> createChannelInitializer(Netty netty, NettyChannelHandler channelHandler) {
+  protected ChannelInitializer<Channel> createChannelInitializer(Netty netty, ChannelHandler channelHandler) {
     var initializer = createInitializer(channelHandler);
     initializer.setHttpDecoderConfig(createHttpDecoderConfig(netty));
     initializer.setMaxContentLength(netty.maxContentLength.toBytesInt());
@@ -370,22 +367,23 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
     nettyConfig = netty;
   }
 
-  private NettyChannelInitializer createInitializer(NettyChannelHandler channelHandler) {
-    if (Ssl.isEnabled(getSsl())) {
-      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(channelHandler,
-              isHttp2Enabled(), getSsl().clientAuth, getSslBundle(), getServerNameSslBundles());
-      addBundleUpdateHandler(null, getSsl().getBundle(), initializer);
-      getSsl().getServerNameBundles()
-              .forEach((serverNameSslBundle) -> addBundleUpdateHandler(serverNameSslBundle.serverName(),
-                      serverNameSslBundle.bundle(), initializer));
+  private NettyChannelInitializer createInitializer(ChannelHandler channelHandler) {
+    Ssl ssl = getSsl();
+    if (Ssl.isEnabled(ssl)) {
+      SSLNettyChannelInitializer initializer = new SSLNettyChannelInitializer(
+              channelHandler, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
+      addBundleUpdateHandler(null, ssl.bundle, initializer);
+      for (var pair : ssl.serverNameBundles) {
+        addBundleUpdateHandler(pair.serverName, pair.bundle, initializer);
+      }
       return initializer;
     }
     return new NettyChannelInitializer(channelHandler);
   }
 
-  private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SSLNettyChannelInitializer customizer) {
+  private void addBundleUpdateHandler(@Nullable String serverName, @Nullable String bundleName, SSLNettyChannelInitializer initializer) {
     if (StringUtils.hasText(bundleName)) {
-      getSslBundles().addBundleUpdateHandler(bundleName, sslBundle -> customizer.updateSSLBundle(serverName, sslBundle));
+      getSslBundles().addBundleUpdateHandler(bundleName, sslBundle -> initializer.updateSSLBundle(serverName, sslBundle));
     }
   }
 

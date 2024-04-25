@@ -39,7 +39,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-  private final NettyChannelHandler nettyChannelHandler;
+  private final ChannelHandler nettyChannelHandler;
 
   /**
    * the maximum length of the aggregated content.
@@ -69,8 +69,7 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
           .setMaxChunkSize(8192)
           .setValidateHeaders(true);
 
-  public NettyChannelInitializer(NettyChannelHandler channelHandler) {
-    Assert.notNull(channelHandler, "NettyChannelHandler is required");
+  protected NettyChannelInitializer(ChannelHandler channelHandler) {
     this.nettyChannelHandler = channelHandler;
   }
 

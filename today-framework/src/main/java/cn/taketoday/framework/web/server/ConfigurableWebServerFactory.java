@@ -79,13 +79,6 @@ public interface ConfigurableWebServerFactory extends WebServerFactory {
   void setCompression(@Nullable Compression compression);
 
   /**
-   * Sets the server header value.
-   *
-   * @param serverHeader the server header value
-   */
-  void setServerHeader(@Nullable String serverHeader);
-
-  /**
    * Sets the shutdown configuration that will be applied to the server.
    *
    * @param shutdown the shutdown configuration

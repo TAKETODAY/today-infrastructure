@@ -18,8 +18,9 @@
 package cn.taketoday.framework.web.server;
 
 import java.net.InetAddress;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.ssl.SslBundle;
@@ -58,9 +59,6 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   @Nullable
   private Compression compression;
 
-  @Nullable
-  private String serverHeader;
-
   private Shutdown shutdown = Shutdown.IMMEDIATE;
 
   private ApplicationTemp applicationTemp = ApplicationTemp.instance;
@@ -69,6 +67,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
    * Create a new {@link AbstractConfigurableWebServerFactory} instance.
    */
   public AbstractConfigurableWebServerFactory() {
+
   }
 
   /**
@@ -154,16 +153,6 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     this.compression = compression;
   }
 
-  @Nullable
-  public String getServerHeader() {
-    return this.serverHeader;
-  }
-
-  @Override
-  public void setServerHeader(@Nullable String serverHeader) {
-    this.serverHeader = serverHeader;
-  }
-
   @Override
   public void setShutdown(Shutdown shutdown) {
     this.shutdown = shutdown;
@@ -202,9 +191,14 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
   }
 
   protected final Map<String, SslBundle> getServerNameSslBundles() {
-    return this.ssl.getServerNameBundles().stream()
-            .collect(Collectors.toMap(Ssl.ServerNameSslBundle::serverName,
-                    serverNameSslBundle -> this.sslBundles.getBundle(serverNameSslBundle.bundle())));
+    if (ssl != null && !ssl.serverNameBundles.isEmpty()) {
+      HashMap<String, SslBundle> ret = new HashMap<>();
+      for (Ssl.ServerNameSslBundle pair : ssl.serverNameBundles) {
+        ret.put(pair.serverName, sslBundles.getBundle(pair.bundle));
+      }
+      return ret;
+    }
+    return Collections.emptyMap();
   }
 
 }

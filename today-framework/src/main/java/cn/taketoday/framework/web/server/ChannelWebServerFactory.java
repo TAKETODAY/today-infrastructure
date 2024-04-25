@@ -17,7 +17,7 @@
 
 package cn.taketoday.framework.web.server;
 
-import cn.taketoday.framework.web.netty.NettyChannelHandler;
+import io.netty.channel.ChannelHandler;
 
 /**
  * Factory interface that can be used to create a netty {@link WebServer}.
@@ -37,6 +37,6 @@ public interface ChannelWebServerFactory extends WebServerFactory {
    * @return a fully configured and started {@link WebServer}
    * @see WebServer#stop()
    */
-  WebServer getWebServer(NettyChannelHandler channelHandler);
+  WebServer getWebServer(ChannelHandler channelHandler);
 
 }
