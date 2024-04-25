@@ -168,7 +168,6 @@ class PemSslStoreBundleTests {
   }
 
   @Test
-  @SuppressWarnings("removal")
   void createWithDetailsWhenHasKeyStoreDetailsAndTrustStoreDetailsAndAlias() {
     PemSslStoreDetails keyStoreDetails = PemSslStoreDetails.forCertificate("classpath:test-cert.pem")
             .withPrivateKey("classpath:test-key.pem");

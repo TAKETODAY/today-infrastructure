@@ -43,8 +43,7 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public record PemSslStoreDetails(
-        @Nullable String type, @Nullable String alias, @Nullable String password,
+public record PemSslStoreDetails(@Nullable String type, @Nullable String alias, @Nullable String password,
         @Nullable String certificates, @Nullable String privateKey, @Nullable String privateKeyPassword) {
 
   /**
