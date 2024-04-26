@@ -22,7 +22,7 @@ import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
 import cn.taketoday.framework.diagnostics.FailureAnalyzer;
 import cn.taketoday.web.server.context.MissingWebServerFactoryBeanException;
-import cn.taketoday.web.server.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.ReactiveWebServerFactory;
 
 /**
  * A {@link FailureAnalyzer} that performs analysis of failures caused by an

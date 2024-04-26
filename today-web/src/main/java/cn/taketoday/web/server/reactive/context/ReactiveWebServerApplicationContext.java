@@ -31,7 +31,7 @@ import cn.taketoday.web.server.WebServer;
 import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.web.server.context.MissingWebServerFactoryBeanException;
 import cn.taketoday.web.server.context.WebServerGracefulShutdownLifecycle;
-import cn.taketoday.web.server.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.ReactiveWebServerFactory;
 
 /**
  * A {@link GenericReactiveWebApplicationContext} that can be used to bootstrap itself

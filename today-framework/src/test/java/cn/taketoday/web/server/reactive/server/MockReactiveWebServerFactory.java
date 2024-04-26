@@ -15,14 +15,14 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.web.reactive;
+package cn.taketoday.web.server.reactive.server;
 
 import java.util.Map;
 
-import cn.taketoday.web.server.reactive.AbstractReactiveWebServerFactory;
-import cn.taketoday.web.server.reactive.ReactiveWebServerFactory;
 import cn.taketoday.web.server.WebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.web.server.reactive.AbstractReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.ReactiveWebServerFactory;
 
 import static org.mockito.Mockito.spy;
 
@@ -45,7 +45,7 @@ public class MockReactiveWebServerFactory extends AbstractReactiveWebServerFacto
     return this.webServer;
   }
 
-  static class MockReactiveWebServer implements WebServer {
+  public static class MockReactiveWebServer implements WebServer {
 
     private final int port;
 
@@ -63,11 +63,11 @@ public class MockReactiveWebServerFactory extends AbstractReactiveWebServerFacto
       this.port = port;
     }
 
-    HttpHandler getHttpHandler() {
+    public HttpHandler getHttpHandler() {
       return this.httpHandler;
     }
 
-    Map<String, HttpHandler> getHttpHandlerMap() {
+    public Map<String, HttpHandler> getHttpHandlerMap() {
       return this.httpHandlerMap;
     }
 

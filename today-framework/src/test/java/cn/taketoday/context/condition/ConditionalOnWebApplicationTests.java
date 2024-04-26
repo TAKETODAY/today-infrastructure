@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.web.server.reactive.context.AnnotationConfigReactiveWebApplicationContext;
-import cn.taketoday.web.server.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.ReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import reactor.core.publisher.Mono;
 

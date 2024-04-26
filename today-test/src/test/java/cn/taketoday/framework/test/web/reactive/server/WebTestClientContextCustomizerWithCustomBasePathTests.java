@@ -28,7 +28,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.framework.test.context.InfraTest;
-import cn.taketoday.web.server.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.server.reactive.ContextPathCompositeHandler;
 import cn.taketoday.http.server.reactive.HttpHandler;

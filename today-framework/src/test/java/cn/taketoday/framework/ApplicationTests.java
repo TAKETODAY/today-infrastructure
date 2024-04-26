@@ -112,7 +112,7 @@ import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationConte
 import cn.taketoday.web.server.context.WebServerApplicationContext;
 import cn.taketoday.web.server.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
 import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
-import cn.taketoday.web.server.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.support.ReactorNettyReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.test.context.support.TestPropertySourceUtils;

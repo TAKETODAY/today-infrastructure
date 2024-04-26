@@ -24,7 +24,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.framework.annotation.ConditionalOnNotWebApplication;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
-import cn.taketoday.web.server.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.ReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 import reactor.core.publisher.Mono;
 
