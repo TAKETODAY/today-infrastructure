@@ -17,20 +17,38 @@
 
 package cn.taketoday.framework.web.netty;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.annotation.config.web.netty.NettySSLBuilder;
 import cn.taketoday.core.ssl.SslBundle;
+import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.ExceptionUtils;
+import cn.taketoday.util.ObjectUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
+import io.netty.handler.codec.http2.Http2SecurityUtil;
+import io.netty.handler.ssl.ApplicationProtocolConfig;
+import io.netty.handler.ssl.ApplicationProtocolNames;
 import io.netty.handler.ssl.ClientAuth;
+import io.netty.handler.ssl.OpenSsl;
 import io.netty.handler.ssl.SniHandler;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.ssl.SslProvider;
+import io.netty.handler.ssl.SupportedCipherSuiteFilter;
+
+import static io.netty.handler.ssl.ApplicationProtocolConfig.Protocol;
+import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectedListenerFailureBehavior;
+import static io.netty.handler.ssl.ApplicationProtocolConfig.SelectorFailureBehavior;
+import static io.netty.handler.ssl.SslProvider.JDK;
+import static io.netty.handler.ssl.SslProvider.OPENSSL;
 
 /**
  * HTTPS netty channel initializer
@@ -58,7 +76,7 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     this.handshakeTimeout = ssl.handshakeTimeout.toMillis();
     this.serverNameSslProviders = createServerNameSSLContexts(serverNameSslBundles);
     this.clientAuth = Ssl.ClientAuth.map(ssl.clientAuth, ClientAuth.NONE, ClientAuth.OPTIONAL, ClientAuth.REQUIRE);
-    
+
     this.sslContext = createSslContext(sslBundle);
   }
 
@@ -106,8 +124,43 @@ final class SSLNettyChannelInitializer extends NettyChannelInitializer {
     return serverNameSslProviders;
   }
 
+  /**
+   * Create an {@link SslContext} for a given {@link SslBundle}.
+   *
+   * @param ssl the {@link SslBundle} to use
+   * @return an {@link SslContext} instance
+   */
   private SslContext createSslContext(SslBundle ssl) {
-    return NettySSLBuilder.createSslContext(http2Enabled, clientAuth, ssl);
+    SslOptions options = ssl.getOptions();
+    try {
+      return SslContextBuilder.forServer(ssl.getManagers().getKeyManagerFactory())
+              .protocols(options.getEnabledProtocols())
+              .sslProvider(getSslProvider())
+              .ciphers(getCiphers(options), SupportedCipherSuiteFilter.INSTANCE)
+              .clientAuth(clientAuth)
+              .applicationProtocolConfig(http2Enabled ? new ApplicationProtocolConfig(Protocol.ALPN, SelectorFailureBehavior.NO_ADVERTISE,
+                      SelectedListenerFailureBehavior.ACCEPT, ApplicationProtocolNames.HTTP_2, ApplicationProtocolNames.HTTP_1_1) : null)
+              .build();
+    }
+    catch (IOException e) {
+      throw ExceptionUtils.sneakyThrow(e);
+    }
+  }
+
+  @Nullable
+  private List<String> getCiphers(SslOptions options) {
+    if (ObjectUtils.isNotEmpty(options.getCiphers())) {
+      return Arrays.asList(options.getCiphers());
+    }
+    if (http2Enabled) {
+      return Http2SecurityUtil.CIPHERS;
+    }
+    return null;
+  }
+
+  private SslProvider getSslProvider() {
+    return http2Enabled ? (SslProvider.isAlpnSupported(OPENSSL) ? OPENSSL : JDK)
+            : (OpenSsl.isAvailable() ? OPENSSL : JDK);
   }
 
 }
