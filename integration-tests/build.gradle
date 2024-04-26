@@ -49,7 +49,6 @@ dependencies {
 
   testImplementation("jakarta.inject:jakarta.inject-api")
   testImplementation("jakarta.resource:jakarta.resource-api")
-  testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
   testImplementation("org.aspectj:aspectjweaver")
   testImplementation("org.hsqldb:hsqldb")
   testImplementation("org.hibernate:hibernate-core-jakarta")
