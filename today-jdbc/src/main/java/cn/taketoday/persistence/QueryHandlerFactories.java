@@ -19,8 +19,7 @@ package cn.taketoday.persistence;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
 
 /**
