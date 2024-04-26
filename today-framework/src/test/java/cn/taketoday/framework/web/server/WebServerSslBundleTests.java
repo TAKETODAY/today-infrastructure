@@ -41,7 +41,7 @@ class WebServerSslBundleTests {
   @Test
   void whenSslDisabledThrowsException() {
     Ssl ssl = new Ssl();
-    ssl.setEnabled(false);
+    ssl.enabled = (false);
     assertThatIllegalStateException().isThrownBy(() -> WebServerSslBundle.get(ssl))
             .withMessage("SSL is not enabled");
   }
