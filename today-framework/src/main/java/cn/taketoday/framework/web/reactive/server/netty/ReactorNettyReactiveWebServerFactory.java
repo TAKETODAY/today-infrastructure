@@ -169,7 +169,7 @@ public class ReactorNettyReactiveWebServerFactory extends AbstractReactiveWebSer
 
     addBundleUpdateHandler(null, ssl.bundle, customizer);
     for (var pair : ssl.serverNameBundles) {
-      addBundleUpdateHandler(pair.serverName, pair.bundle, customizer);
+      addBundleUpdateHandler(pair.getServerName(), pair.getBundle(), customizer);
     }
     return customizer.apply(httpServer);
   }

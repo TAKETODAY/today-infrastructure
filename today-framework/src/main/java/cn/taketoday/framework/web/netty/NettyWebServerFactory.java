@@ -374,7 +374,7 @@ public class NettyWebServerFactory extends AbstractConfigurableWebServerFactory 
               channelHandler, isHttp2Enabled(), ssl, getSslBundle(), getServerNameSslBundles());
       addBundleUpdateHandler(null, ssl.bundle, initializer);
       for (var pair : ssl.serverNameBundles) {
-        addBundleUpdateHandler(pair.serverName, pair.bundle, initializer);
+        addBundleUpdateHandler(pair.getServerName(), pair.getBundle(), initializer);
       }
       return initializer;
     }

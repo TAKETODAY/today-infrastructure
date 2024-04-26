@@ -1586,10 +1586,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * Sends an error response to the client using the specified status code and
    * clears the buffer.
-   *
+   * <p>
    * The server will preserve cookies and may clear or update any headers needed
    * to serve the error page as a valid response.
-   *
+   * <p>
    * If an error-page declaration has been made for the web application
    * corresponding to the status code passed in, it will be served back the error
    * page
@@ -1646,10 +1646,10 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /**
    * Sends an error response to the client using the specified status code and
    * clears the buffer.
-   *
+   * <p>
    * The server will preserve cookies and may clear or update any headers needed
    * to serve the error page as a valid response.
-   *
+   * <p>
    * If an error-page declaration has been made for the web application
    * corresponding to the status code passed in, it will be served back the error
    * page
@@ -1702,7 +1702,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * response. The Server container does not encode the binary data.
    * <p>
    * Calling flush() on the {@link OutputStream} commits the response.
-   *
+   * <p>
    * Either this method or {@link #getWriter} may be called to write the body, not
    * both, except when {@link #reset} has been called.
    *

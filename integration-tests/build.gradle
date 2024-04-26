@@ -1,3 +1,20 @@
+/*
+ * Copyright 2017 - 2024 the original author or authors.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
+ */
+
 plugins {
   id 'cn.taketoday.build.runtimehints-agent'
 }
@@ -32,7 +49,6 @@ dependencies {
 
   testImplementation("jakarta.inject:jakarta.inject-api")
   testImplementation("jakarta.resource:jakarta.resource-api")
-  testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
   testImplementation("org.aspectj:aspectjweaver")
   testImplementation("org.hsqldb:hsqldb")
   testImplementation("org.hibernate:hibernate-core-jakarta")
@@ -42,7 +58,6 @@ dependencies {
   testImplementation 'jakarta.inject:jakarta.inject-api'
   testImplementation 'com.fasterxml.jackson.core:jackson-databind'
   testImplementation 'jakarta.annotation:jakarta.annotation-api'
-  testImplementation 'org.apache.tomcat.embed:tomcat-embed-core'
   testImplementation 'org.mybatis:mybatis:3.5.9'
   testImplementation 'javax.cache:cache-api'
   testImplementation 'org.yaml:snakeyaml'
@@ -60,7 +75,6 @@ dependencies {
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
   testImplementation 'io.undertow:undertow-servlet'
   testImplementation 'jakarta.websocket:jakarta.websocket-api'
-  testImplementation 'org.apache.tomcat.embed:tomcat-embed-websocket'
   testImplementation "com.google.code.gson:gson"
   testImplementation 'jakarta.json.bind:jakarta.json.bind-api'
 

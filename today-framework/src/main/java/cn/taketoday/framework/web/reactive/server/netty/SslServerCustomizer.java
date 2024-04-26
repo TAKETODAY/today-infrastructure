@@ -17,8 +17,6 @@
 
 package cn.taketoday.framework.web.reactive.server.netty;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -28,6 +26,8 @@ import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.Logger;
+import cn.taketoday.logging.LoggerFactory;
 import io.netty.handler.ssl.ClientAuth;
 import reactor.netty.http.Http11SslContextSpec;
 import reactor.netty.http.Http2SslContextSpec;
@@ -52,7 +52,7 @@ import reactor.netty.tcp.SslProvider.SslContextSpec;
  */
 final class SslServerCustomizer implements ReactorNettyServerCustomizer {
 
-  private static final Log logger = LogFactory.getLog(SslServerCustomizer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SslServerCustomizer.class);
 
   private final boolean http2Enabled;
 

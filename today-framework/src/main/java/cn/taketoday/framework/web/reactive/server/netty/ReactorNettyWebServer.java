@@ -101,8 +101,8 @@ public class ReactorNettyWebServer implements WebServer {
     this.lifecycleTimeout = lifecycleTimeout;
     this.httpServer = httpServer.channelGroup(new DefaultChannelGroup(new DefaultEventExecutor()));
     this.gracefulShutdown = (shutdown == Shutdown.GRACEFUL)
-                            ? new GracefulShutdown(() -> this.disposableServer)
-                            : null;
+            ? new GracefulShutdown(() -> this.disposableServer)
+            : null;
   }
 
   public void setRouteProviders(List<NettyRouteProvider> routeProviders) {
@@ -161,7 +161,6 @@ public class ReactorNettyWebServer implements WebServer {
     }
     if (this.resourceFactory != null) {
       LoopResources resources = this.resourceFactory.getLoopResources();
-      Assert.notNull(resources, "No LoopResources: is ReactorResourceFactory not initialized yet?");
       server = server.runOn(resources);
     }
 

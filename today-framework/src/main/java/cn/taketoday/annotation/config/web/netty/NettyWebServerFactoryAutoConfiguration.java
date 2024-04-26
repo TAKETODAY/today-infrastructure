@@ -42,6 +42,7 @@ import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.framework.web.netty.SendErrorHandler;
 import cn.taketoday.framework.web.server.ChannelWebServerFactory;
 import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.framework.web.server.ServerProperties.Netty.Multipart;
 import cn.taketoday.framework.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
@@ -92,7 +93,7 @@ public class NettyWebServerFactoryAutoConfiguration {
   @MissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static NettyRequestConfig nettyRequestConfig(ServerProperties server, SendErrorHandler sendErrorHandler) {
-    var multipart = server.multipart;
+    var multipart = server.netty.multipart;
     var factory = createHttpDataFactory(multipart);
     if (multipart.maxFieldSize != null) {
       factory.setMaxLimit(multipart.maxFieldSize.toBytes());
@@ -108,7 +109,7 @@ public class NettyWebServerFactoryAutoConfiguration {
             .build();
   }
 
-  private static DefaultHttpDataFactory createHttpDataFactory(ServerProperties.Multipart multipart) {
+  private static DefaultHttpDataFactory createHttpDataFactory(Multipart multipart) {
     if (multipart.mixedMode) {
       if (multipart.fieldSizeThreshold != null) {
         return new DefaultHttpDataFactory(multipart.fieldSizeThreshold.toBytes(), multipart.charset);

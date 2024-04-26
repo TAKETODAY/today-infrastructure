@@ -119,7 +119,7 @@ class PropertyDescriptorResolver {
       register(candidates,
               new LombokPropertyDescriptor(type, factoryMethod, field, name, propertyType, getter, setter));
 
-      if (field.getModifiers().contains(Modifier.PUBLIC) && getter == null && setter == null) {
+      if (field.getModifiers().contains(Modifier.PUBLIC)) {
         // public field
         register(candidates, new PublicFieldPropertyDescriptor(type, factoryMethod, name, propertyType, field));
       }
