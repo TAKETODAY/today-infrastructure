@@ -50,6 +50,7 @@ import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
 import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.server.error.BasicErrorController;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;

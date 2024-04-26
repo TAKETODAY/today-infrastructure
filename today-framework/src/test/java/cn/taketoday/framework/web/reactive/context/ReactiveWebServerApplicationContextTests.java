@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.web.reactive.context;
@@ -38,10 +35,12 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
-import cn.taketoday.framework.web.context.MissingWebServerFactoryBeanException;
-import cn.taketoday.framework.web.context.ServerPortInfoApplicationContextInitializer;
+import cn.taketoday.web.server.context.MissingWebServerFactoryBeanException;
+import cn.taketoday.web.server.context.ServerPortInfoApplicationContextInitializer;
 import cn.taketoday.framework.web.reactive.server.MockReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.web.server.reactive.context.ReactiveWebServerApplicationContext;
+import cn.taketoday.web.server.reactive.context.ReactiveWebServerInitializedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

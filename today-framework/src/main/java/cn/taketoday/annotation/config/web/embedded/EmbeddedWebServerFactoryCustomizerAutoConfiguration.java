@@ -26,7 +26,7 @@ import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.stereotype.Component;
 import reactor.netty.http.server.HttpServer;
 

@@ -28,7 +28,7 @@ import cn.taketoday.context.properties.bind.Bindable;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.context.properties.source.ConfigurationPropertySource;
 import cn.taketoday.context.properties.source.MapConfigurationPropertySource;
-import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.util.DataSize;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;

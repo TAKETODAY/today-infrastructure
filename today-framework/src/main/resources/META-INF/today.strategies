@@ -38,7 +38,7 @@ cn.taketoday.framework.diagnostics.analyzer.InvalidConfigurationPropertyValueFai
 cn.taketoday.framework.diagnostics.analyzer.PatternParseFailureAnalyzer,\
 cn.taketoday.framework.diagnostics.analyzer.NoSuchBeanDefinitionFailureAnalyzer,\
 cn.taketoday.framework.diagnostics.analyzer.FactoryMethodBeanFailureAnalyzer,\
-cn.taketoday.framework.web.context.MissingWebServerFactoryBeanFailureAnalyzer,\
+cn.taketoday.framework.diagnostics.analyzer.MissingWebServerFactoryBeanFailureAnalyzer,\
 cn.taketoday.annotation.config.jdbc.DataSourceBeanCreationFailureAnalyzer,\
 cn.taketoday.annotation.config.jdbc.HikariDriverConfigurationFailureAnalyzer
 
@@ -95,7 +95,7 @@ cn.taketoday.framework.annotation.OnWebApplicationCondition
 cn.taketoday.context.ApplicationContextInitializer=\
 cn.taketoday.framework.context.ContextIdApplicationContextInitializer,\
 cn.taketoday.framework.context.config.DelegatingApplicationContextInitializer,\
-cn.taketoday.framework.web.context.ServerPortInfoApplicationContextInitializer,\
+cn.taketoday.web.server.context.ServerPortInfoApplicationContextInitializer,\
 cn.taketoday.annotation.config.logging.ConditionEvaluationReportLoggingListener
 
 #
@@ -104,10 +104,6 @@ cn.taketoday.context.ApplicationListener=\
   cn.taketoday.framework.context.logging.LoggingApplicationListener,\
   cn.taketoday.framework.builder.ParentContextCloserApplicationListener,\
   cn.taketoday.framework.env.EnvironmentPostProcessorApplicationListener
-
-# Template availability providers
-cn.taketoday.framework.template.TemplateAvailabilityProvider=\
-cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider
 
 cn.taketoday.framework.logging.LoggingSystemFactory=\
   cn.taketoday.framework.logging.logback.LogbackLoggingSystem.Factory,\

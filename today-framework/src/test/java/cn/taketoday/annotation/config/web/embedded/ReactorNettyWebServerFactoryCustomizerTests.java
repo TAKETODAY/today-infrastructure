@@ -28,10 +28,10 @@ import java.time.Duration;
 import java.util.Map;
 
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
-import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
-import cn.taketoday.framework.web.reactive.server.netty.ReactorNettyServerCustomizer;
-import cn.taketoday.framework.web.server.Http2;
-import cn.taketoday.framework.web.server.ServerProperties;
+import cn.taketoday.web.server.reactive.server.netty.ReactorNettyReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.server.netty.ReactorNettyServerCustomizer;
+import cn.taketoday.web.server.Http2;
+import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.mock.env.MockEnvironment;
 import cn.taketoday.util.DataSize;
 import io.netty.channel.ChannelOption;

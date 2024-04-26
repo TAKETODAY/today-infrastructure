@@ -23,8 +23,8 @@ package cn.taketoday.framework.test.context.runner;
 import java.util.function.Supplier;
 
 import cn.taketoday.framework.test.context.assertj.AssertableReactiveWebApplicationContext;
-import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebApplicationContext;
-import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.AnnotationConfigReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a

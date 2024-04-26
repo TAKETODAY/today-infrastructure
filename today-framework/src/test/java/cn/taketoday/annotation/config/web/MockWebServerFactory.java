@@ -17,7 +17,7 @@
 
 package cn.taketoday.annotation.config.web;
 
-import cn.taketoday.framework.web.server.AbstractConfigurableWebServerFactory;
+import cn.taketoday.web.server.AbstractConfigurableWebServerFactory;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

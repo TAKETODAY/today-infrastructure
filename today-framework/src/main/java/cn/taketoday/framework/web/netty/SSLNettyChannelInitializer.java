@@ -26,7 +26,7 @@ import java.util.Map;
 
 import cn.taketoday.core.ssl.SslBundle;
 import cn.taketoday.core.ssl.SslOptions;
-import cn.taketoday.framework.web.server.Ssl;
+import cn.taketoday.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.ObjectUtils;

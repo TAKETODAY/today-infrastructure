@@ -29,7 +29,7 @@ import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
-import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.ServletRequestContext;

@@ -29,9 +29,9 @@ import cn.taketoday.core.ssl.jks.JksSslStoreBundle;
 import cn.taketoday.core.ssl.jks.JksSslStoreDetails;
 import cn.taketoday.framework.Application;
 import cn.taketoday.framework.ApplicationType;
-import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
-import cn.taketoday.framework.web.context.WebServerApplicationContext;
-import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
+import cn.taketoday.web.server.context.WebServerApplicationContext;
+import cn.taketoday.web.server.WebServer;
 import cn.taketoday.web.reactive.function.client.WebClient;
 import cn.taketoday.web.reactive.function.client.WebClientRequestException;
 

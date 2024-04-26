@@ -33,8 +33,9 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.framework.template.TemplateAvailabilityProvider;
-import cn.taketoday.framework.template.TemplateAvailabilityProviders;
+import cn.taketoday.web.server.error.DefaultErrorViewResolver;
+import cn.taketoday.web.view.template.TemplateAvailabilityProvider;
+import cn.taketoday.web.view.template.TemplateAvailabilityProviders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.MockHttpServletRequest;
@@ -79,13 +80,13 @@ class DefaultErrorViewResolverTests {
     this.resourcesProperties = new Resources();
     TemplateAvailabilityProviders templateAvailabilityProviders = new TestTemplateAvailabilityProviders(
             this.templateAvailabilityProvider);
-    this.resolver = new DefaultErrorViewResolver(applicationContext, this.resourcesProperties,
+    this.resolver = new DefaultErrorViewResolver(applicationContext, this.resourcesProperties.staticLocations,
             templateAvailabilityProviders);
   }
 
   @Test
   void createWhenApplicationContextIsNullShouldThrowException() {
-    assertThatIllegalArgumentException().isThrownBy(() -> new DefaultErrorViewResolver(null, new Resources()))
+    assertThatIllegalArgumentException().isThrownBy(() -> new DefaultErrorViewResolver(null, new Resources().staticLocations))
             .withMessageContaining("ApplicationContext is required");
   }
 

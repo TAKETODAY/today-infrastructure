@@ -39,12 +39,14 @@ dependencies {
   optional("io.reactivex.rxjava3:rxjava")
   optional("io.netty:netty-buffer")
   optional("io.netty:netty-handler")
-  optional("io.netty:netty-codec-http")
   optional("io.netty:netty-transport")
   optional("io.netty:netty5-buffer")
   optional("io.netty:netty5-handler")
   optional("io.netty:netty5-codec-http")
   optional("io.netty:netty5-transport")
+  optional 'io.netty:netty-codec-http'
+  optional 'io.netty:netty-transport-native-kqueue'
+
   optional("io.projectreactor.netty:reactor-netty-http")
   optional("io.projectreactor.netty:reactor-netty5-http")
 

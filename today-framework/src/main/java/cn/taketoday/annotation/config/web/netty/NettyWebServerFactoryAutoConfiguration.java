@@ -36,18 +36,19 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.framework.web.netty.NettyChannelHandler;
-import cn.taketoday.framework.web.netty.NettyRequestConfig;
-import cn.taketoday.framework.web.netty.NettyWebServerFactory;
-import cn.taketoday.framework.web.netty.SendErrorHandler;
-import cn.taketoday.framework.web.server.ChannelWebServerFactory;
-import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.framework.web.server.ServerProperties.Netty.Multipart;
-import cn.taketoday.framework.web.server.Ssl;
+import cn.taketoday.web.server.ChannelWebServerFactory;
+import cn.taketoday.web.server.ServerProperties;
+import cn.taketoday.web.server.ServerProperties.Netty.Multipart;
+import cn.taketoday.web.server.Ssl;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
+import cn.taketoday.framework.web.netty.NettyChannelHandler;
+import cn.taketoday.framework.web.netty.NettyRequestConfig;
+import cn.taketoday.framework.web.netty.NettyWebServerFactory;
+import cn.taketoday.web.server.error.SendErrorHandler;
+import cn.taketoday.framework.web.netty.ServerBootstrapCustomizer;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
 
 /**

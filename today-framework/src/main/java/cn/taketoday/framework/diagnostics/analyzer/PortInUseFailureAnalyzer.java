@@ -19,7 +19,7 @@ package cn.taketoday.framework.diagnostics.analyzer;
 
 import cn.taketoday.framework.diagnostics.AbstractFailureAnalyzer;
 import cn.taketoday.framework.diagnostics.FailureAnalysis;
-import cn.taketoday.framework.web.server.PortInUseException;
+import cn.taketoday.web.server.PortInUseException;
 
 /**
  * A {@code FailureAnalyzer} that performs analysis of failures caused by a

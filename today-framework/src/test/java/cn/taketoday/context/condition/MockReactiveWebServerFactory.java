@@ -22,9 +22,9 @@ package cn.taketoday.context.condition;
 
 import java.util.Map;
 
-import cn.taketoday.framework.web.reactive.server.AbstractReactiveWebServerFactory;
-import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
-import cn.taketoday.framework.web.server.WebServer;
+import cn.taketoday.web.server.reactive.server.AbstractReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.web.server.WebServer;
 import cn.taketoday.http.server.reactive.HttpHandler;
 
 import static org.mockito.Mockito.spy;

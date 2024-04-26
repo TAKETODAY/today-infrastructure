@@ -20,8 +20,8 @@ package cn.taketoday.framework.test.context.assertj;
 import java.util.function.Supplier;
 
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
-import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
-import cn.taketoday.framework.web.context.WebServerApplicationContext;
+import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
+import cn.taketoday.web.server.context.WebServerApplicationContext;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 
 /**

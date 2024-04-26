@@ -40,7 +40,7 @@ import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.context.event.ApplicationEnvironmentPreparedEvent;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.framework.test.mock.web.InfraMockServletContext;
-import cn.taketoday.framework.web.reactive.context.GenericReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.GenericReactiveWebApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.context.ContextConfigurationAttributes;
@@ -55,7 +55,6 @@ import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.test.util.TestPropertyValues.Type;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 
 /**

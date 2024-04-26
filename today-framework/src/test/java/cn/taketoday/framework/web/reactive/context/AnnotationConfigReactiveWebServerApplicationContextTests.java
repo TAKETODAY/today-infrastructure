@@ -28,10 +28,11 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.event.ApplicationEventMulticaster;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.context.event.SimpleApplicationEventMulticaster;
-import cn.taketoday.framework.web.reactive.context.WebServerManager.DelayedInitializationHttpHandler;
+import cn.taketoday.web.server.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
+import cn.taketoday.web.server.reactive.context.WebServerManager.DelayedInitializationHttpHandler;
 import cn.taketoday.framework.web.reactive.context.config.ExampleReactiveWebServerApplicationConfiguration;
 import cn.taketoday.framework.web.reactive.server.MockReactiveWebServerFactory;
-import cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory;
+import cn.taketoday.web.server.reactive.server.ReactiveWebServerFactory;
 import cn.taketoday.http.server.reactive.HttpHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;

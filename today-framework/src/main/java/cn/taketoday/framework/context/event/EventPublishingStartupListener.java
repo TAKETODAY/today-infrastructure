@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.framework.context.event;
@@ -121,6 +121,7 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
       // Listeners have been registered to the application context, so we should
       // use it at this point if we can
       context.publishEvent(event);
+      AvailabilityChangeEvent.publish(context, ReadinessState.REFUSING_TRAFFIC);
     }
     else {
       // An inactive context may not have a multicaster so we use our multicaster to

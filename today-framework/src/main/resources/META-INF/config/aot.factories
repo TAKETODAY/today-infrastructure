@@ -10,8 +10,7 @@ cn.taketoday.framework.json.JacksonRuntimeHints,\
 cn.taketoday.framework.logging.java.JavaLoggingSystemRuntimeHints,\
 cn.taketoday.framework.logging.logback.LogbackRuntimeHints,\
 cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints,\
-cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration.Hints,\
-cn.taketoday.framework.template.TemplateRuntimeHints
+cn.taketoday.annotation.config.jackson.JacksonAutoConfiguration.Hints
 
 cn.taketoday.beans.factory.aot.BeanFactoryInitializationAotProcessor=\
 cn.taketoday.annotation.config.logging.ConditionEvaluationReportLoggingProcessor,\

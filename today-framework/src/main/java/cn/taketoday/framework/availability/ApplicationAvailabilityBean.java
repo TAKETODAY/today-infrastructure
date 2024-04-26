@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.framework.availability;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,11 +31,11 @@ import cn.taketoday.logging.LoggerFactory;
  *
  * @author Brian Clozel
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ApplicationAvailability
  * @since 4.0
  */
-public class ApplicationAvailabilityBean
-        implements ApplicationAvailability, ApplicationListener<AvailabilityChangeEvent<?>> {
+public class ApplicationAvailabilityBean implements ApplicationAvailability, ApplicationListener<AvailabilityChangeEvent<?>> {
 
   private final ConcurrentHashMap<Class<? extends AvailabilityState>, AvailabilityChangeEvent<?>>
           events = new ConcurrentHashMap<>();
@@ -84,7 +82,7 @@ public class ApplicationAvailabilityBean
   private <S extends AvailabilityState> Object getLogMessage(Class<S> type, AvailabilityChangeEvent<?> event) {
     AvailabilityChangeEvent<S> lastChangeEvent = getLastChangeEvent(type);
     StringBuilder message = new StringBuilder(
-            "Application availability state " + type.getSimpleName() + " changed");
+            "Application availability state %s changed".formatted(type.getSimpleName()));
     message.append((lastChangeEvent != null) ? " from " + lastChangeEvent.getState() : "");
     message.append(" to ").append(event.getState());
     message.append(getSourceDescription(event.getSource()));

@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 
 import cn.taketoday.web.servlet.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
-import cn.taketoday.framework.web.context.ConfigurableWebServerApplicationContext;
+import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.WebApplicationContext;

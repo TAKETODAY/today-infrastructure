@@ -22,8 +22,8 @@ package cn.taketoday.framework.test.context.assertj;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebApplicationContext;
-import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
 
 /**
  * A {@link ReactiveWebApplicationContext} that additionally supports AssertJ style

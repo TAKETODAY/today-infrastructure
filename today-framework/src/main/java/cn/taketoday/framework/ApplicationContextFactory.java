@@ -25,12 +25,12 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.support.GenericApplicationContext;
-import cn.taketoday.framework.web.context.AnnotationConfigWebServerApplicationContext;
-import cn.taketoday.framework.web.context.GenericWebServerApplicationContext;
-import cn.taketoday.framework.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
-import cn.taketoday.framework.web.reactive.context.ReactiveWebServerApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.web.server.context.GenericWebServerApplicationContext;
+import cn.taketoday.web.server.reactive.context.AnnotationConfigReactiveWebServerApplicationContext;
+import cn.taketoday.web.server.reactive.context.ReactiveWebServerApplicationContext;
 
 /**
  * Strategy interface for creating the {@link ConfigurableApplicationContext} used by a

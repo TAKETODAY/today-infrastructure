@@ -37,7 +37,7 @@ import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.builder.ApplicationBuilder;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.framework.web.context.WebServerApplicationContext;
+import cn.taketoday.web.server.context.WebServerApplicationContext;
 import cn.taketoday.jmx.export.MBeanExporter;
 
 import static org.assertj.core.api.Assertions.assertThat;

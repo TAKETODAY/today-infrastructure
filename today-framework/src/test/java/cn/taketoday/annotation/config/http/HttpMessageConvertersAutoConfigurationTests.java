@@ -41,7 +41,7 @@ import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ContextConsumer;
 import cn.taketoday.framework.test.context.runner.ReactiveWebApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
-import cn.taketoday.framework.web.server.EncodingProperties;
+import cn.taketoday.web.server.EncodingProperties;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.http.converter.StringHttpMessageConverter;

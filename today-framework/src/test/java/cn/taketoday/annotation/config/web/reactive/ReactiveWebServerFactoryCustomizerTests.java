@@ -24,10 +24,10 @@ import java.net.InetAddress;
 
 import cn.taketoday.core.ssl.DefaultSslBundleRegistry;
 import cn.taketoday.core.ssl.SslBundles;
-import cn.taketoday.framework.web.reactive.server.ConfigurableReactiveWebServerFactory;
-import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.framework.web.server.Shutdown;
-import cn.taketoday.framework.web.server.Ssl;
+import cn.taketoday.web.server.reactive.server.ConfigurableReactiveWebServerFactory;
+import cn.taketoday.web.server.ServerProperties;
+import cn.taketoday.web.server.Shutdown;
+import cn.taketoday.web.server.Ssl;
 import cn.taketoday.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -28,10 +28,10 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.framework.web.context.GenericWebServerApplicationContext;
+import cn.taketoday.web.server.context.GenericWebServerApplicationContext;
 import cn.taketoday.framework.web.netty.ConfigurableNettyWebEnvironment;
-import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebEnvironment;
-import cn.taketoday.framework.web.reactive.context.ReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
+import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;
 
 /**

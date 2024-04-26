@@ -20,9 +20,9 @@ package cn.taketoday.annotation.config.web.reactive;
 import cn.taketoday.core.ApplicationTemp;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
-import cn.taketoday.framework.web.reactive.server.ConfigurableReactiveWebServerFactory;
-import cn.taketoday.framework.web.server.ServerProperties;
-import cn.taketoday.framework.web.server.WebServerFactoryCustomizer;
+import cn.taketoday.web.server.reactive.server.ConfigurableReactiveWebServerFactory;
+import cn.taketoday.web.server.ServerProperties;
+import cn.taketoday.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.lang.Nullable;
 
 /**

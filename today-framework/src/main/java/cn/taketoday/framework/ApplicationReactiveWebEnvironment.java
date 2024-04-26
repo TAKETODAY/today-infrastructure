@@ -23,7 +23,7 @@ package cn.taketoday.framework;
 import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.framework.web.reactive.context.StandardReactiveWebEnvironment;
+import cn.taketoday.web.server.reactive.context.StandardReactiveWebEnvironment;
 
 /**
  * {@link StandardReactiveWebEnvironment} for typical use in a typical

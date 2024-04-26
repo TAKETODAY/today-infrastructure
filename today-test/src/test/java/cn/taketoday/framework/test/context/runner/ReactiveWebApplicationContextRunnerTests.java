@@ -21,7 +21,7 @@
 package cn.taketoday.framework.test.context.runner;
 
 import cn.taketoday.framework.test.context.assertj.AssertableReactiveWebApplicationContext;
-import cn.taketoday.framework.web.reactive.context.ConfigurableReactiveWebApplicationContext;
+import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebApplicationContext;
 
 /**
  * Tests for {@link ReactiveWebApplicationContextRunner}.

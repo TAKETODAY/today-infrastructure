@@ -26,7 +26,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
-import cn.taketoday.framework.web.error.ErrorAttributeOptions.Include;
+import cn.taketoday.web.server.error.DefaultErrorAttributes;
+import cn.taketoday.web.server.error.ErrorAttributeOptions;
+import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.ServletRequestContext;

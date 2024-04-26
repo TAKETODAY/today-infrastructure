@@ -25,6 +25,8 @@ import cn.taketoday.core.ssl.SslOptions;
 import cn.taketoday.core.ssl.SslStoreBundle;
 import cn.taketoday.framework.web.MockPkcs11Security;
 import cn.taketoday.framework.web.MockPkcs11SecurityProvider;
+import cn.taketoday.web.server.Ssl;
+import cn.taketoday.web.server.WebServerSslBundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

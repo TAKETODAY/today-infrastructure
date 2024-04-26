@@ -117,8 +117,7 @@ import cn.taketoday.util.function.ThrowingSupplier;
  *   // ... Bean definitions
  *
  *   public static void main(String[] args) {
- *     // Application.run(MyApplication.class, args);
- *     WebApplication.run(MyApplication.class, args);
+ *     Application.run(MyApplication.class, args);
  *   }
  * }
  * }</pre>
@@ -1276,9 +1275,8 @@ public class Application {
 
   private List<ApplicationExceptionReporter> getExceptionReporters(@Nullable ConfigurableApplicationContext context) {
     ClassLoader classLoader = getClassLoader();
-    var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class, parameters -> {
-      parameters.add(ConfigurableApplicationContext.class, context);
-    });
+    var instantiator = new Instantiator<ApplicationExceptionReporter>(ApplicationExceptionReporter.class,
+            parameters -> parameters.add(ConfigurableApplicationContext.class, context));
 
     List<String> strategiesNames = TodayStrategies.findNames(ApplicationExceptionReporter.class, classLoader);
     return instantiator.instantiate(strategiesNames);

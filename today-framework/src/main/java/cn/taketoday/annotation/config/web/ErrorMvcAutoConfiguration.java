@@ -40,14 +40,6 @@ import cn.taketoday.context.condition.SearchStrategy;
 import cn.taketoday.context.properties.EnableConfigurationProperties;
 import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.template.TemplateAvailabilityProviders;
-import cn.taketoday.framework.web.error.BasicErrorController;
-import cn.taketoday.framework.web.error.DefaultErrorAttributes;
-import cn.taketoday.framework.web.error.DefaultErrorViewResolver;
-import cn.taketoday.framework.web.error.ErrorAttributes;
-import cn.taketoday.framework.web.error.ErrorController;
-import cn.taketoday.framework.web.error.ErrorViewResolver;
-import cn.taketoday.framework.web.server.ServerProperties;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
@@ -55,9 +47,17 @@ import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
+import cn.taketoday.web.server.ServerProperties;
+import cn.taketoday.web.server.error.BasicErrorController;
+import cn.taketoday.web.server.error.DefaultErrorAttributes;
+import cn.taketoday.web.server.error.DefaultErrorViewResolver;
+import cn.taketoday.web.server.error.ErrorAttributes;
+import cn.taketoday.web.server.error.ErrorController;
+import cn.taketoday.web.server.error.ErrorViewResolver;
 import cn.taketoday.web.util.HtmlUtils;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.View;
+import cn.taketoday.web.view.template.TemplateAvailabilityProviders;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error
@@ -105,7 +105,7 @@ public class ErrorMvcAutoConfiguration {
     @ConditionalOnMissingBean(ErrorViewResolver.class)
     DefaultErrorViewResolver conventionErrorViewResolver(
             ApplicationContext applicationContext, WebProperties webProperties) {
-      return new DefaultErrorViewResolver(applicationContext, webProperties.resources);
+      return new DefaultErrorViewResolver(applicationContext, webProperties.resources.staticLocations);
     }
 
   }
