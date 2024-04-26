@@ -182,9 +182,9 @@ class ReactorNettyReactiveWebServerFactoryTests extends AbstractReactiveWebServe
     String keyPassword = "password";
     ReactorNettyReactiveWebServerFactory factory = getFactory();
     Ssl ssl = new Ssl();
-    ssl.setKeyStore(keyStore);
-    ssl.setKeyPassword(keyPassword);
-    ssl.setKeyAlias(alias);
+    ssl.keyStore = (keyStore);
+    ssl.keyPassword = (keyPassword);
+    ssl.keyAlias = (alias);
     factory.setSsl(ssl);
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();

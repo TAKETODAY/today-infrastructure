@@ -176,9 +176,9 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   protected final void testBasicSslWithKeyStore(String keyStore, String keyPassword) {
     AbstractReactiveWebServerFactory factory = getFactory();
     Ssl ssl = new Ssl();
-    ssl.setKeyStore(keyStore);
-    ssl.setKeyPassword(keyPassword);
-    ssl.setKeyStorePassword("secret");
+    ssl.keyStore = (keyStore);
+    ssl.keyPassword = (keyPassword);
+    ssl.keyStorePassword = ("secret");
     factory.setSsl(ssl);
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
@@ -202,10 +202,10 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     String keyPassword = "password";
     AbstractReactiveWebServerFactory factory = getFactory();
     Ssl ssl = new Ssl();
-    ssl.setKeyStore(keyStore);
-    ssl.setKeyStorePassword("secret");
-    ssl.setKeyPassword(keyPassword);
-    ssl.setKeyAlias("test-alias");
+    ssl.keyStore = (keyStore);
+    ssl.keyStorePassword = ("secret");
+    ssl.keyPassword = (keyPassword);
+    ssl.keyAlias = ("test-alias");
     factory.setSsl(ssl);
     this.webServer = factory.getWebServer(new EchoHandler());
     this.webServer.start();
@@ -231,9 +231,9 @@ public abstract class AbstractReactiveWebServerFactoryTests {
     String keyPassword = "password";
     AbstractReactiveWebServerFactory factory = getFactory();
     Ssl ssl = new Ssl();
-    ssl.setKeyStore(keyStore);
-    ssl.setKeyPassword(keyPassword);
-    ssl.setKeyAlias("test-alias-404");
+    ssl.keyStore = (keyStore);
+    ssl.keyPassword = (keyPassword);
+    ssl.keyAlias = ("test-alias-404");
     factory.setSsl(ssl);
     assertThatSslWithInvalidAliasCallFails(() -> factory.getWebServer(new EchoHandler()).start());
   }
@@ -253,22 +253,22 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   @Test
   void sslWantsClientAuthenticationSucceedsWithClientCertificate() throws Exception {
     Ssl ssl = new Ssl();
-    ssl.setClientAuth(Ssl.ClientAuth.WANT);
-    ssl.setKeyStore("classpath:test.jks");
-    ssl.setKeyPassword("password");
-    ssl.setKeyStorePassword("secret");
-    ssl.setTrustStore("classpath:test.jks");
+    ssl.clientAuth = (Ssl.ClientAuth.WANT);
+    ssl.keyStore = ("classpath:test.jks");
+    ssl.keyPassword = ("password");
+    ssl.keyStorePassword = ("secret");
+    ssl.trustStore = ("classpath:test.jks");
     testClientAuthSuccess(ssl, buildTrustAllSslWithClientKeyConnector("test.jks", "password"));
   }
 
   @Test
   void sslWantsClientAuthenticationSucceedsWithoutClientCertificate() {
     Ssl ssl = new Ssl();
-    ssl.setClientAuth(Ssl.ClientAuth.WANT);
-    ssl.setKeyStore("classpath:test.jks");
-    ssl.setKeyPassword("password");
-    ssl.setTrustStore("classpath:test.jks");
-    ssl.setKeyStorePassword("secret");
+    ssl.clientAuth = (Ssl.ClientAuth.WANT);
+    ssl.keyStore = ("classpath:test.jks");
+    ssl.keyPassword = ("password");
+    ssl.trustStore = ("classpath:test.jks");
+    ssl.keyStorePassword = ("secret");
     testClientAuthSuccess(ssl, buildTrustAllSslConnector());
   }
 
@@ -311,32 +311,32 @@ public abstract class AbstractReactiveWebServerFactoryTests {
   @Test
   void sslNeedsClientAuthenticationSucceedsWithClientCertificate() throws Exception {
     Ssl ssl = new Ssl();
-    ssl.setClientAuth(Ssl.ClientAuth.NEED);
-    ssl.setKeyStore("classpath:test.jks");
-    ssl.setKeyStorePassword("secret");
-    ssl.setKeyPassword("password");
-    ssl.setTrustStore("classpath:test.jks");
+    ssl.clientAuth = (Ssl.ClientAuth.NEED);
+    ssl.keyStore = ("classpath:test.jks");
+    ssl.keyStorePassword = ("secret");
+    ssl.keyPassword = ("password");
+    ssl.trustStore = ("classpath:test.jks");
     testClientAuthSuccess(ssl, buildTrustAllSslWithClientKeyConnector("test.jks", "password"));
   }
 
   @Test
   void sslNeedsClientAuthenticationFailsWithoutClientCertificate() {
     Ssl ssl = new Ssl();
-    ssl.setClientAuth(Ssl.ClientAuth.NEED);
-    ssl.setKeyStore("classpath:test.jks");
-    ssl.setKeyStorePassword("secret");
-    ssl.setKeyPassword("password");
-    ssl.setTrustStore("classpath:test.jks");
+    ssl.clientAuth = (Ssl.ClientAuth.NEED);
+    ssl.keyStore = ("classpath:test.jks");
+    ssl.keyStorePassword = ("secret");
+    ssl.keyPassword = ("password");
+    ssl.trustStore = ("classpath:test.jks");
     testClientAuthFailure(ssl, buildTrustAllSslConnector());
   }
 
   @Test
   void sslWithPemCertificates() throws Exception {
     Ssl ssl = new Ssl();
-    ssl.setClientAuth(Ssl.ClientAuth.NEED);
-    ssl.setCertificate("classpath:test-cert.pem");
-    ssl.setCertificatePrivateKey("classpath:test-key.pem");
-    ssl.setTrustCertificate("classpath:test-cert.pem");
+    ssl.clientAuth = (Ssl.ClientAuth.NEED);
+    ssl.certificate = "classpath:test-cert.pem";
+    ssl.certificatePrivateKey = ("classpath:test-key.pem");
+    ssl.trustCertificate = ("classpath:test-cert.pem");
     testClientAuthSuccess(ssl, buildTrustAllSslWithClientKeyConnector("test.p12", "secret"));
   }
 

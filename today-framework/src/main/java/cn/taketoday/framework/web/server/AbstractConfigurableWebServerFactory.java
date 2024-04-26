@@ -194,7 +194,7 @@ public abstract class AbstractConfigurableWebServerFactory implements Configurab
     if (ssl != null && !ssl.serverNameBundles.isEmpty()) {
       HashMap<String, SslBundle> ret = new HashMap<>();
       for (Ssl.ServerNameSslBundle pair : ssl.serverNameBundles) {
-        ret.put(pair.serverName, sslBundles.getBundle(pair.bundle));
+        ret.put(pair.getServerName(), sslBundles.getBundle(pair.getBundle()));
       }
       return ret;
     }

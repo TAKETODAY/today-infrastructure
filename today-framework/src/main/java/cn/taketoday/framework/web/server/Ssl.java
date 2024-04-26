@@ -19,7 +19,6 @@ package cn.taketoday.framework.web.server;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
 
 import cn.taketoday.lang.Nullable;
 
@@ -162,96 +161,7 @@ public class Ssl {
   /**
    * The mapping of host names to SSL bundles for SNI configuration.
    */
-  public List<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
-
-  public void setServerNameBundles(List<ServerNameSslBundle> serverNameBundles) {
-    this.serverNameBundles = serverNameBundles;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
-  }
-
-  /**
-   * Set the name of the SSL bundle to use.
-   *
-   * @param bundle the SSL bundle name
-   */
-  public void setBundle(@Nullable String bundle) {
-    this.bundle = bundle;
-  }
-
-  public void setClientAuth(@Nullable ClientAuth clientAuth) {
-    this.clientAuth = clientAuth;
-  }
-
-  public void setCiphers(@Nullable String[] ciphers) {
-    this.ciphers = ciphers;
-  }
-
-  public void setEnabledProtocols(@Nullable String[] enabledProtocols) {
-    this.enabledProtocols = enabledProtocols;
-  }
-
-  public void setKeyAlias(@Nullable String keyAlias) {
-    this.keyAlias = keyAlias;
-  }
-
-  public void setKeyPassword(@Nullable String keyPassword) {
-    this.keyPassword = keyPassword;
-  }
-
-  public void setKeyStore(@Nullable String keyStore) {
-    this.keyStore = keyStore;
-  }
-
-  public void setKeyStorePassword(@Nullable String keyStorePassword) {
-    this.keyStorePassword = keyStorePassword;
-  }
-
-  public void setKeyStoreType(@Nullable String keyStoreType) {
-    this.keyStoreType = keyStoreType;
-  }
-
-  public void setKeyStoreProvider(@Nullable String keyStoreProvider) {
-    this.keyStoreProvider = keyStoreProvider;
-  }
-
-  public void setTrustStore(@Nullable String trustStore) {
-    this.trustStore = trustStore;
-  }
-
-  public void setTrustStorePassword(@Nullable String trustStorePassword) {
-    this.trustStorePassword = trustStorePassword;
-  }
-
-  public void setTrustStoreType(@Nullable String trustStoreType) {
-    this.trustStoreType = trustStoreType;
-  }
-
-  public void setTrustStoreProvider(@Nullable String trustStoreProvider) {
-    this.trustStoreProvider = trustStoreProvider;
-  }
-
-  public void setCertificate(@Nullable String certificate) {
-    this.certificate = certificate;
-  }
-
-  public void setCertificatePrivateKey(@Nullable String certificatePrivateKey) {
-    this.certificatePrivateKey = certificatePrivateKey;
-  }
-
-  public void setTrustCertificate(@Nullable String trustCertificate) {
-    this.trustCertificate = trustCertificate;
-  }
-
-  public void setTrustCertificatePrivateKey(@Nullable String trustCertificatePrivateKey) {
-    this.trustCertificatePrivateKey = trustCertificatePrivateKey;
-  }
-
-  public void setProtocol(String protocol) {
-    this.protocol = protocol;
-  }
+  public final ArrayList<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
 
   /**
    * Returns if SSL is enabled for the given instance.
@@ -271,15 +181,31 @@ public class Ssl {
    */
   public static Ssl forBundle(@Nullable String bundle) {
     Ssl ssl = new Ssl();
-    ssl.setBundle(bundle);
+    ssl.bundle = bundle;
     return ssl;
   }
 
   public static class ServerNameSslBundle {
 
-    public String serverName;
+    private String serverName;
 
-    public String bundle;
+    private String bundle;
+
+    public void setBundle(String bundle) {
+      this.bundle = bundle;
+    }
+
+    public void setServerName(String serverName) {
+      this.serverName = serverName;
+    }
+
+    public String getBundle() {
+      return bundle;
+    }
+
+    public String getServerName() {
+      return serverName;
+    }
   }
 
   /**
