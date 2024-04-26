@@ -328,6 +328,11 @@
       "description": "Enable trace logs.",
       "sourceType": "cn.taketoday.framework.context.logging.LoggingApplicationListener",
       "defaultValue": false
+    },
+    {
+      "name": "web.mvc.converters.preferred-json-mapper",
+      "type": "java.lang.String",
+      "description": "Preferred JSON mapper to use for HTTP message conversion. By default, auto-detected according to the environment."
     }
   ],
   "hints": [
@@ -427,6 +432,167 @@
       "providers": [
         {
           "name": "infra-profile-name"
+        }
+      ]
+    },
+    {
+      "name": "datasource.driver-class-name",
+      "providers": [
+        {
+          "name": "class-reference",
+          "parameters": {
+            "target": "java.sql.Driver"
+          }
+        }
+      ]
+    },
+    {
+      "name": "datasource.xa.data-source-class-name",
+      "providers": [
+        {
+          "name": "class-reference",
+          "parameters": {
+            "target": "javax.sql.XADataSource"
+          }
+        }
+      ]
+    },
+    {
+      "name": "infra.jmx.server",
+      "providers": [
+        {
+          "name": "infra-bean-reference",
+          "parameters": {
+            "target": "javax.management.MBeanServer"
+          }
+        }
+      ]
+    },
+    {
+      "name": "web.mvc.converters.preferred-json-mapper",
+      "values": [
+        {
+          "value": "gson"
+        },
+        {
+          "value": "jackson"
+        },
+        {
+          "value": "jsonb"
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "web.mvc.format.date",
+      "values": [
+        {
+          "value": "dd/MM/yyyy",
+          "description": "Example date format. Any format supported by DateTimeFormatter.parse can be used."
+        },
+        {
+          "value": "iso",
+          "description": "ISO-8601 extended local date format."
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "web.mvc.format.date-time",
+      "values": [
+        {
+          "value": "yyyy-MM-dd HH:mm:ss",
+          "description": "Example date-time format. Any format supported by DateTimeFormatter.parse can be used."
+        },
+        {
+          "value": "iso",
+          "description": "ISO-8601 extended local date-time format."
+        },
+        {
+          "value": "iso-offset",
+          "description": "ISO offset date-time format."
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "web.mvc.format.time",
+      "values": [
+        {
+          "value": "HH:mm:ss",
+          "description": "Example time format. Any format supported by DateTimeFormatter.parse can be used."
+        },
+        {
+          "value": "iso",
+          "description": "ISO-8601 extended local time format."
+        },
+        {
+          "value": "iso-offset",
+          "description": "ISO offset time format."
+        }
+      ],
+      "providers": [
+        {
+          "name": "any"
+        }
+      ]
+    },
+    {
+      "name": "jpa.hibernate.ddl-auto",
+      "values": [
+        {
+          "value": "none",
+          "description": "Disable DDL handling."
+        },
+        {
+          "value": "validate",
+          "description": "Validate the schema, make no changes to the database."
+        },
+        {
+          "value": "update",
+          "description": "Update the schema if necessary."
+        },
+        {
+          "value": "create",
+          "description": "Create the schema and destroy previous data."
+        },
+        {
+          "value": "create-drop",
+          "description": "Create and then destroy the schema at the end of the session."
+        }
+      ]
+    },
+    {
+      "name": "jpa.hibernate.naming.implicit-strategy",
+      "providers": [
+        {
+          "name": "class-reference",
+          "parameters": {
+            "target": "org.hibernate.boot.model.naming.ImplicitNamingStrategy"
+          }
+        }
+      ]
+    },
+    {
+      "name": "jpa.hibernate.naming.physical-strategy",
+      "providers": [
+        {
+          "name": "class-reference",
+          "parameters": {
+            "target": "org.hibernate.boot.model.naming.PhysicalNamingStrategy"
+          }
         }
       ]
     }
