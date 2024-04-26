@@ -19,6 +19,7 @@ package cn.taketoday.framework.web.server;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.taketoday.lang.Nullable;
 
@@ -161,7 +162,7 @@ public class Ssl {
   /**
    * The mapping of host names to SSL bundles for SNI configuration.
    */
-  public final ArrayList<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
+  public final List<ServerNameSslBundle> serverNameBundles = new ArrayList<>();
 
   /**
    * Returns if SSL is enabled for the given instance.
@@ -185,6 +186,9 @@ public class Ssl {
     return ssl;
   }
 
+  /**
+   * @since 5.0
+   */
   public static class ServerNameSslBundle {
 
     private String serverName;

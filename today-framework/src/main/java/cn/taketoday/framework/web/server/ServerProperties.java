@@ -116,10 +116,9 @@ public class ServerProperties {
   public Http2 http2;
 
   @NestedConfigurationProperty
-  public final Multipart multipart = new Multipart();
-
   public final Netty netty = new Netty();
 
+  @NestedConfigurationProperty
   public final ReactorNetty reactorNetty = new ReactorNetty();
 
   public void applyTo(ConfigurableWebServerFactory factory,
@@ -279,7 +278,11 @@ public class ServerProperties {
     /**
      * shutdown details
      */
+    @NestedConfigurationProperty
     public final Shutdown shutdown = new Shutdown();
+
+    @NestedConfigurationProperty
+    public final Multipart multipart = new Multipart();
 
     public static class Shutdown {
 
@@ -301,6 +304,52 @@ public class ServerProperties {
        * The unit of quietPeriod and timeout
        */
       public TimeUnit unit = TimeUnit.SECONDS;
+
+    }
+
+    /**
+     * Properties to be used in configuring a {@link DefaultHttpDataFactory}.
+     *
+     * @since 5.0
+     */
+    public static class Multipart {
+
+      /**
+       * directory path where to store disk attributes and file uploads.
+       * If mixedMode is disabled and this property is not empty will be
+       * using disk mode
+       */
+      @Nullable
+      public String baseDir;
+
+      /**
+       * true if temporary files should be deleted with the JVM, false otherwise.
+       */
+      public boolean deleteOnExit; // false is a good default cause true leaks
+
+      /**
+       * HttpData will be on Disk if the size of the file is greater than minSize, else it
+       * will be in memory. The type will be Mixed.
+       */
+      @Nullable
+      public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
+
+      /**
+       * Disk and memory mix mode
+       */
+      public boolean mixedMode = true;
+
+      /**
+       * charset
+       */
+      public Charset charset = StandardCharsets.UTF_8;
+
+      /**
+       * To set a max size limitation on fields. Exceeding it will generate an ErrorDataDecoderException.
+       * A value of -1 means no limitation (default).
+       */
+      @Nullable
+      public DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
 
     }
 
@@ -352,52 +401,6 @@ public class ServerProperties {
      * used.
      */
     public Duration idleTimeout;
-
-  }
-
-  /**
-   * Properties to be used in configuring a {@link DefaultHttpDataFactory}.
-   *
-   * @since 5.0
-   */
-  public static class Multipart {
-
-    /**
-     * directory path where to store disk attributes and file uploads.
-     * If mixedMode is disabled and this property is not empty will be
-     * using disk mode
-     */
-    @Nullable
-    public String baseDir;
-
-    /**
-     * true if temporary files should be deleted with the JVM, false otherwise.
-     */
-    public boolean deleteOnExit; // false is a good default cause true leaks
-
-    /**
-     * HttpData will be on Disk if the size of the file is greater than minSize, else it
-     * will be in memory. The type will be Mixed.
-     */
-    @Nullable
-    public DataSize fieldSizeThreshold = DataSize.ofKilobytes(16); // 16kB
-
-    /**
-     * Disk and memory mix mode
-     */
-    public boolean mixedMode = true;
-
-    /**
-     * charset
-     */
-    public Charset charset = StandardCharsets.UTF_8;
-
-    /**
-     * To set a max size limitation on fields. Exceeding it will generate an ErrorDataDecoderException.
-     * A value of -1 means no limitation (default).
-     */
-    @Nullable
-    public DataSize maxFieldSize = DataSize.ofGigabytes(1); // total size in every field
 
   }
 
