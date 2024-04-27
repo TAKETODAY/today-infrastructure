@@ -15,46 +15,47 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.error;
+package cn.taketoday.web.server.error;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
 
 import cn.taketoday.web.server.error.ErrorAttributeOptions;
+import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 
-import static cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
-import static cn.taketoday.web.server.error.ErrorAttributeOptions.of;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/2/20 23:13
+ * Tests for {@link ErrorAttributeOptions}.
+ *
+ * @author Wanderlei Souza
+ * @author Stephane Nicoll
  */
-class ErrorAttributeOptionsTests {
+class ErrorAttributesOptionsTests {
 
   @Test
   void includingFromEmptyAttributesReturnAddedEntry() {
-    ErrorAttributeOptions options = of(EnumSet.noneOf(Include.class));
+    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.noneOf(Include.class));
     assertThat(options.including(Include.EXCEPTION).getIncludes()).containsOnly(Include.EXCEPTION);
   }
 
   @Test
   void includingFromMatchingAttributesDoesNotModifyOptions() {
-    ErrorAttributeOptions options = of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
+    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
     assertThat(options.including(Include.EXCEPTION).getIncludes()).containsOnly(Include.EXCEPTION,
             Include.STACK_TRACE);
   }
 
   @Test
   void excludingFromEmptyAttributesReturnEmptyList() {
-    ErrorAttributeOptions options = of(EnumSet.noneOf(Include.class));
+    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.noneOf(Include.class));
     assertThat(options.excluding(Include.EXCEPTION).getIncludes()).isEmpty();
   }
 
   @Test
   void excludingFromMatchingAttributesRemoveMatch() {
-    ErrorAttributeOptions options = of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
+    ErrorAttributeOptions options = ErrorAttributeOptions.of(EnumSet.of(Include.EXCEPTION, Include.STACK_TRACE));
     assertThat(options.excluding(Include.EXCEPTION).getIncludes()).containsOnly(Include.STACK_TRACE);
   }
 

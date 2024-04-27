@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.error;
+package cn.taketoday.web.server.error;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

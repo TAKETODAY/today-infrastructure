@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.error;
+package cn.taketoday.web.server.error;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,14 +33,13 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.web.server.error.DefaultErrorViewResolver;
-import cn.taketoday.ui.template.TemplateAvailabilityProvider;
-import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.ServletRequestContext;
+import cn.taketoday.ui.template.TemplateAvailabilityProvider;
+import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -64,7 +63,7 @@ class DefaultErrorViewResolverTests {
   @Mock
   private TemplateAvailabilityProvider templateAvailabilityProvider;
 
-  private Resources resourcesProperties;
+  private final Resources resourcesProperties = new Resources();
 
   private final Map<String, Object> model = new HashMap<>();
 
@@ -77,7 +76,6 @@ class DefaultErrorViewResolverTests {
   void setup() {
     AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.refresh();
-    this.resourcesProperties = new Resources();
     TemplateAvailabilityProviders templateAvailabilityProviders = new TestTemplateAvailabilityProviders(
             this.templateAvailabilityProvider);
     this.resolver = new DefaultErrorViewResolver(applicationContext, this.resourcesProperties.staticLocations,
@@ -207,6 +205,7 @@ class DefaultErrorViewResolverTests {
     String packageName = getClass().getPackage().getName();
     this.resourcesProperties
             .setStaticLocations(new String[] { "classpath:" + packageName.replace('.', '/') + path + "/" });
+    setup();
   }
 
   private MockHttpServletResponse render(ModelAndView modelAndView) throws Exception {
