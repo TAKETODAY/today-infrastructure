@@ -18,12 +18,10 @@
 package jakarta.servlet.http;
 
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 /**
@@ -61,15 +59,11 @@ public class Cookie implements Cloneable, Serializable {
 
   private static final String TSPECIALS;
 
-  private static final String LSTRING_FILE = "jakarta.servlet.http.LocalStrings";
-
   private static final String DOMAIN = "Domain"; // ;Domain=VALUE ... domain that sees cookie
   private static final String MAX_AGE = "Max-Age"; // ;Max-Age=VALUE ... cookies auto-expire
   private static final String PATH = "Path"; // ;Path=VALUE ... URLs that see the cookie
   private static final String SECURE = "Secure"; // ;Secure ... e.g. use SSL
   private static final String HTTP_ONLY = "HttpOnly";
-
-  private static final ResourceBundle lStrings = ResourceBundle.getBundle(LSTRING_FILE);
 
   static {
     boolean enforced = Boolean.parseBoolean(System.getProperty("org.glassfish.web.rfc2109_cookie_names_enforced", "true"));
@@ -115,11 +109,12 @@ public class Cookie implements Cloneable, Serializable {
    */
   public Cookie(String name, String value) {
     if (name == null || name.isEmpty()) {
-      throw new IllegalArgumentException(createErrorMessage("err.cookie_name_blank"));
+      throw new IllegalArgumentException("Cookie name must not be null or empty");
     }
 
     if (hasReservedCharacters(name)) {
-      throw new IllegalArgumentException(createErrorMessage("err.cookie_name_invalid", name));
+      throw new IllegalArgumentException("Cookie name %s is a reserved token or contains an invalid character for a cookie name"
+              .formatted(name));
     }
 
     this.name = name;
@@ -353,14 +348,6 @@ public class Cookie implements Cloneable, Serializable {
     return false;
   }
 
-  /*
-   * Create error message to be set as exception detail message.
-   */
-  private static String createErrorMessage(String key, Object... arguments) {
-    String errMsg = lStrings.getString(key);
-    return MessageFormat.format(errMsg, arguments);
-  }
-
   /**
    * Overrides the standard <code>java.lang.Object.clone</code> method to return a copy of this Cookie.
    */
@@ -425,11 +412,11 @@ public class Cookie implements Cloneable, Serializable {
    */
   public void setAttribute(String name, String value) {
     if (name == null || name.isEmpty()) {
-      throw new IllegalArgumentException(createErrorMessage("err.cookie_attribute_name_blank"));
+      throw new IllegalArgumentException("Cookie attribute name must not be null or empty");
     }
 
     if (hasReservedCharacters(name)) {
-      throw new IllegalArgumentException(createErrorMessage("err.cookie_attribute_name_invalid", name));
+      throw new IllegalArgumentException("Cookie attribute name %s contains an invalid character for an attribute name".formatted(name));
     }
 
     if (MAX_AGE.equalsIgnoreCase(name) && value != null) {

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.freemarker;
+package cn.taketoday.ui.freemarker;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,16 +25,16 @@ import cn.taketoday.aot.hint.TypeHint;
 import cn.taketoday.beans.factory.aot.AotServices;
 import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.ResourceLoader;
-import cn.taketoday.web.view.template.TemplateAvailabilityProvider;
 import cn.taketoday.mock.env.MockEnvironment;
+import cn.taketoday.ui.template.TemplateAvailabilityProvider;
 
-import static cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider.FreeMarkerTemplateAvailabilityProperties;
-import static cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints;
+import static cn.taketoday.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.FreeMarkerTemplateAvailabilityProperties;
+import static cn.taketoday.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/7/4 18:07
+ * @since 5.0 2024/4/27 15:41
  */
 class FreeMarkerTemplateAvailabilityProviderTests {
 

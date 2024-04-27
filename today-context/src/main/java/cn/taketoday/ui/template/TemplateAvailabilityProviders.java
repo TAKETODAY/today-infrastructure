@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
+package cn.taketoday.ui.template;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +30,7 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.lang.VisibleForTesting;
 
 /**
  * Collection of {@link TemplateAvailabilityProvider} beans that can be used to check
@@ -47,7 +48,8 @@ public class TemplateAvailabilityProviders {
 
   private static final int CACHE_LIMIT = 1024;
 
-  private static final TemplateAvailabilityProvider NONE = new NoTemplateAvailabilityProvider();
+  @VisibleForTesting
+  static final TemplateAvailabilityProvider NONE = new NoTemplateAvailabilityProvider();
 
   /**
    * Resolved template views, returning already cached instances without a global lock.
@@ -117,8 +119,7 @@ public class TemplateAvailabilityProviders {
   @Nullable
   public TemplateAvailabilityProvider getProvider(String view, ApplicationContext applicationContext) {
     Assert.notNull(applicationContext, "ApplicationContext is required");
-    return getProvider(view, applicationContext.getEnvironment(),
-            applicationContext.getClassLoader(), applicationContext);
+    return getProvider(view, applicationContext.getEnvironment(), applicationContext.getClassLoader(), applicationContext);
   }
 
   /**
@@ -169,7 +170,7 @@ public class TemplateAvailabilityProviders {
   private static class NoTemplateAvailabilityProvider implements TemplateAvailabilityProvider {
 
     @Override
-    public boolean isTemplateAvailable(String view, Environment environment, ClassLoader classLoader,
+    public boolean isTemplateAvailable(String template, Environment environment, ClassLoader classLoader,
             ResourceLoader resourceLoader) {
       return false;
     }

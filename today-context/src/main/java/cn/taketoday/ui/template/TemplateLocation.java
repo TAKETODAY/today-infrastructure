@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
+package cn.taketoday.ui.template;
 
 import java.io.IOException;
 

@@ -15,16 +15,17 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.freemarker;
+package cn.taketoday.ui.freemarker;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.taketoday.aot.hint.RuntimeHints;
 import cn.taketoday.context.properties.bind.BindableRuntimeHintsRegistrar;
-import cn.taketoday.web.view.template.PathBasedTemplateAvailabilityProvider;
-import cn.taketoday.web.view.template.TemplateAvailabilityProvider;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.TodayStrategies;
+import cn.taketoday.ui.template.PathBasedTemplateAvailabilityProvider;
+import cn.taketoday.ui.template.TemplateAvailabilityProvider;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -39,6 +40,10 @@ public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAva
 
   private static final String REQUIRED_CLASS_NAME = "freemarker.template.Configuration";
 
+  public static final String DEFAULT_PREFIX = TodayStrategies.getProperty("template.freemarker.default.prefix", "");
+
+  public static final String DEFAULT_SUFFIX = TodayStrategies.getProperty("template.freemarker.default.suffix", ".ftl");
+
   public FreeMarkerTemplateAvailabilityProvider() {
     super(REQUIRED_CLASS_NAME, FreeMarkerTemplateAvailabilityProperties.class, "freemarker");
   }
@@ -46,10 +51,10 @@ public class FreeMarkerTemplateAvailabilityProvider extends PathBasedTemplateAva
   protected static final class FreeMarkerTemplateAvailabilityProperties extends TemplateAvailabilityProperties {
 
     private List<String> templateLoaderPath = new ArrayList<>(
-            List.of(FreeMarkerProperties.DEFAULT_TEMPLATE_LOADER_PATH));
+            List.of(DEFAULT_TEMPLATE_LOADER_PATH));
 
     FreeMarkerTemplateAvailabilityProperties() {
-      super(FreeMarkerProperties.DEFAULT_PREFIX, FreeMarkerProperties.DEFAULT_SUFFIX);
+      super(DEFAULT_PREFIX, DEFAULT_SUFFIX);
     }
 
     @Override

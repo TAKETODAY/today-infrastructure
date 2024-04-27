@@ -1,26 +1,24 @@
 /*
- * Copyright (c) 1997, 2020 Oracle and/or its affiliates and others.
- * All rights reserved.
- * Copyright 2004 The Apache Software Foundation
+ * Copyright 2017 - 2024 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package jakarta.servlet;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.ResourceBundle;
 
 /**
  * Defines a generic, protocol-independent servlet. To write an HTTP servlet for use on the Web, extend
@@ -44,9 +42,6 @@ import java.util.ResourceBundle;
  */
 public abstract class GenericServlet implements Servlet, ServletConfig, java.io.Serializable {
   private static final long serialVersionUID = -8592279577370996712L;
-
-  private static final String LSTRING_FILE = "jakarta.servlet.LocalStrings";
-  private static ResourceBundle lStrings = ResourceBundle.getBundle(LSTRING_FILE);
 
   private transient ServletConfig config;
 
@@ -79,7 +74,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
   public String getInitParameter(String name) {
     ServletConfig sc = getServletConfig();
     if (sc == null) {
-      throw new IllegalStateException(lStrings.getString("err.servlet_config_not_initialized"));
+      throw new IllegalStateException("ServletConfig has not been initialized");
     }
 
     return sc.getInitParameter(name);
@@ -101,7 +96,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
   public Enumeration<String> getInitParameterNames() {
     ServletConfig sc = getServletConfig();
     if (sc == null) {
-      throw new IllegalStateException(lStrings.getString("err.servlet_config_not_initialized"));
+      throw new IllegalStateException("ServletConfig has not been initialized");
     }
 
     return sc.getInitParameterNames();
@@ -130,7 +125,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
   public ServletContext getServletContext() {
     ServletConfig sc = getServletConfig();
     if (sc == null) {
-      throw new IllegalStateException(lStrings.getString("err.servlet_config_not_initialized"));
+      throw new IllegalStateException("ServletConfig has not been initialized");
     }
 
     return sc.getServletContext();
@@ -223,7 +218,7 @@ public abstract class GenericServlet implements Servlet, ServletConfig, java.io.
   public String getServletName() {
     ServletConfig sc = getServletConfig();
     if (sc == null) {
-      throw new IllegalStateException(lStrings.getString("err.servlet_config_not_initialized"));
+      throw new IllegalStateException("ServletConfig has not been initialized");
     }
 
     return sc.getServletName();

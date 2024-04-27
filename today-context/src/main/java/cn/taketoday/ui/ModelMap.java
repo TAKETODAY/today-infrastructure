@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +12,20 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.ui;
 
 import java.io.Serial;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.util.StringUtils;
 
 /**
  * Implementation of {@link java.util.Map} for use when building model data for use
@@ -194,8 +191,13 @@ public class ModelMap extends LinkedHashMap<String, Object> implements Model {
   }
 
   @Override
-  public Iterator<String> attributeNames() {
-    return keySet().iterator();
+  public String[] getAttributeNames() {
+    return StringUtils.toStringArray(keySet());
+  }
+
+  @Override
+  public Iterable<String> attributeNames() {
+    return keySet();
   }
 
 }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.ui;
@@ -107,7 +104,7 @@ class ModelMapTests {
 
   @Test
   public void testOneArgCtorWithCollection() throws Exception {
-    ModelMap model = new ModelMap(new String[]{"foo", "boing"});
+    ModelMap model = new ModelMap(new String[] { "foo", "boing" });
     assertThat(model.size()).isEqualTo(1);
     String[] strings = (String[]) model.get("stringList");
     assertThat(strings).isNotNull();
@@ -133,7 +130,7 @@ class ModelMapTests {
 
   @Test
   public void testAddObjectWithEmptyArray() throws Exception {
-    ModelMap model = new ModelMap(new int[]{});
+    ModelMap model = new ModelMap(new int[] {});
     assertThat(model.size()).isEqualTo(1);
     int[] ints = (int[]) model.get("intList");
     assertThat(ints).isNotNull();
@@ -141,10 +138,31 @@ class ModelMapTests {
   }
 
   @Test
-  public void testAddAllObjectsWithNullMap() throws Exception {
+  public void addAllAttributes() throws Exception {
     ModelMap model = new ModelMap();
     model.addAllAttributes((Map<String, ?>) null);
     assertThat(model.size()).isEqualTo(0);
+    model.addAllAttributes(Map.of("foo", "bar"));
+    assertThat(model.size()).isEqualTo(1);
+    assertThat(model).containsAllEntriesOf(Map.of("foo", "bar"));
+
+    assertThat(model.get("foo")).isEqualTo("bar");
+    assertThat(model.getAttribute("foo")).isEqualTo("bar");
+    assertThat(model.containsAttribute("foo")).isTrue();
+  }
+
+  @Test
+  void setAttribute() {
+    ModelMap model = new ModelMap();
+    model.setAttribute("foo", "bar");
+    assertThat(model.containsAttribute("foo")).isTrue();
+    model.removeAttribute("foo");
+    assertThat(model.containsAttribute("foo")).isFalse();
+
+    model.put("foo", "bar");
+    assertThat(model.containsAttribute("foo")).isTrue();
+    assertThat(model.getAttribute("foo")).isEqualTo("bar");
+    assertThat(model.asMap()).isSameAs(model);
   }
 
   @Test
@@ -199,7 +217,7 @@ class ModelMapTests {
   }
 
   @Test
-  public void testMergeMapWithOverriding() throws Exception {
+  public void mergeAttributes() throws Exception {
     Map<String, TestBean> beans = new HashMap<>();
     beans.put("one", new TestBean("one"));
     beans.put("two", new TestBean("two"));
@@ -207,6 +225,10 @@ class ModelMapTests {
     ModelMap model = new ModelMap();
     model.put("one", new TestBean("oneOld"));
     model.mergeAttributes(beans);
+    assertThat(model.size()).isEqualTo(3);
+    assertThat(((TestBean) model.get("one")).getName()).isEqualTo("oneOld");
+
+    model.mergeAttributes(null);
     assertThat(model.size()).isEqualTo(3);
     assertThat(((TestBean) model.get("one")).getName()).isEqualTo("oneOld");
   }
@@ -281,12 +303,11 @@ class ModelMapTests {
     ModelMap map = new ModelMap();
     Object proxy = Proxy.newProxyInstance(
             getClass().getClassLoader(),
-            new Class<?>[] {Map.class},
+            new Class<?>[] { Map.class },
             (proxy1, method, args) -> "proxy");
     map.addAttribute(proxy);
     assertThat(map.get("map")).isSameAs(proxy);
   }
-
 
   public static class SomeInnerClass {
 
@@ -300,7 +321,6 @@ class ModelMapTests {
       return SomeInnerClass.class.hashCode();
     }
   }
-
 
   public static class UKInnerClass {
   }

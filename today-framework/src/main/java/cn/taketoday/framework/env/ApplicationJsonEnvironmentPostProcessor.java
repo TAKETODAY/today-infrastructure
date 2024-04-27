@@ -47,6 +47,7 @@ import cn.taketoday.util.StringUtils;
  * @author Phillip Webb
  * @author Madhura Bhave
  * @author Artsiom Yudovin
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ApplicationJsonEnvironmentPostProcessor implements EnvironmentPostProcessor, Ordered {

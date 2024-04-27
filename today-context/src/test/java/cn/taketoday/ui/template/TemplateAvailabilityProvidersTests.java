@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
+package cn.taketoday.ui.template;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.times;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/1/14 17:18
+ * @since 5.0 2024/4/27 16:29
  */
 @ExtendWith(MockitoExtension.class)
 class TemplateAvailabilityProvidersTests {
@@ -185,6 +185,23 @@ class TemplateAvailabilityProvidersTests {
     this.providers.getProvider(this.view, this.environment, this.classLoader, this.resourceLoader);
     then(this.provider).should(times(2)).isTemplateAvailable(this.view, this.environment, this.classLoader,
             this.resourceLoader);
+  }
+
+  @Test
+  void none() {
+    assertThat(TemplateAvailabilityProviders.NONE.isTemplateAvailable(view, environment, classLoader, resourceLoader)).isFalse();
+  }
+
+  @Test
+  void notPresent() {
+    assertThat(new NotPresentPathBasedTemplateAvailabilityProvider().isTemplateAvailable(view, environment, classLoader, resourceLoader)).isFalse();
+  }
+
+  static class NotPresentPathBasedTemplateAvailabilityProvider extends PathBasedTemplateAvailabilityProvider {
+
+    public NotPresentPathBasedTemplateAvailabilityProvider() {
+      super("NotPresent", TemplateAvailabilityProperties.class, "");
+    }
   }
 
 }

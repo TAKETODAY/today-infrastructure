@@ -35,10 +35,10 @@ import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
-import cn.taketoday.web.server.reactive.server.MockReactiveWebServerFactory;
+import cn.taketoday.http.server.reactive.HttpHandler;
 import cn.taketoday.web.server.context.MissingWebServerFactoryBeanException;
 import cn.taketoday.web.server.context.ServerPortInfoApplicationContextInitializer;
-import cn.taketoday.http.server.reactive.HttpHandler;
+import cn.taketoday.web.server.reactive.server.MockReactiveWebServerFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -150,8 +150,8 @@ class ReactiveWebServerApplicationContextTests {
     this.context.addApplicationListener(listener);
     this.context.close();
     List<ApplicationEvent> events = listener.receivedEvents();
-    assertThat(events).hasSize(2).extracting("class").contains(AvailabilityChangeEvent.class,
-            ContextClosedEvent.class);
+    assertThat(events).hasSize(2).extracting("class")
+            .contains(AvailabilityChangeEvent.class, ContextClosedEvent.class);
     assertThat(((AvailabilityChangeEvent<ReadinessState>) events.get(0)).getState())
             .isEqualTo(ReadinessState.REFUSING_TRAFFIC);
   }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.ui.freemarker;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
@@ -32,11 +32,15 @@ import cn.taketoday.core.io.DefaultResourceLoader;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.ResourceLoader;
+import freemarker.cache.MultiTemplateLoader;
+import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIOException;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -45,6 +49,16 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
 class FreeMarkerConfigurationFactoryBeanTests {
 
   private final FreeMarkerConfigurationFactoryBean fcfb = new FreeMarkerConfigurationFactoryBean();
+
+  @Test
+  void getObjectType() {
+    assertThat(fcfb.getObjectType()).isEqualTo(Configuration.class);
+  }
+
+  @Test
+  void isSingleton() {
+    assertThat(fcfb.isSingleton()).isTrue();
+  }
 
   @Test
   public void freeMarkerConfigurationFactoryBeanWithConfigLocation() throws Exception {
@@ -91,7 +105,7 @@ class FreeMarkerConfigurationFactoryBeanTests {
     assertThat(FreeMarkerTemplateUtils.processTemplateIntoString(ft, new HashMap())).isEqualTo("test");
   }
 
-  @Test  // SPR-12448
+  @Test
   public void freeMarkerConfigurationAsBean() {
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     RootBeanDefinition loaderDef = new RootBeanDefinition(InfraTemplateLoader.class);
@@ -103,4 +117,50 @@ class FreeMarkerConfigurationFactoryBeanTests {
     assertThat(beanFactory.getBean(Configuration.class)).isNotNull();
   }
 
+  @Test
+  void setFreemarkerVariables() throws TemplateException, IOException {
+    fcfb.setFreemarkerVariables(Map.of("foo", "bar"));
+    fcfb.afterPropertiesSet();
+    Configuration configuration = fcfb.getObject();
+    assertThat(configuration.getSharedVariableNames()).contains("foo");
+  }
+
+  @Test
+  void defaultEncoding() throws TemplateException, IOException {
+    fcfb.setDefaultEncoding("GBK");
+    fcfb.afterPropertiesSet();
+    Configuration configuration = fcfb.getObject();
+    assertThat(configuration.getDefaultEncoding()).contains("GBK");
+  }
+
+  @Test
+  void setPreTemplateLoaders() throws TemplateException, IOException {
+    TemplateLoader loader = mock();
+    fcfb.setPreTemplateLoaders(loader);
+
+    assertThat(fcfb.createConfiguration().getTemplateLoader()).isEqualTo(loader);
+
+    TemplateLoader loader2 = mock();
+    fcfb.setPreTemplateLoaders(loader, loader2);
+    assertThat(fcfb.createConfiguration().getTemplateLoader()).isInstanceOf(MultiTemplateLoader.class);
+  }
+
+  @Test
+  void setPostTemplateLoaders() throws TemplateException, IOException {
+    TemplateLoader loader = mock();
+    fcfb.setPostTemplateLoaders(loader);
+    fcfb.afterPropertiesSet();
+
+    Configuration configuration = fcfb.getObject();
+    assertThat(configuration.getTemplateLoader()).isEqualTo(loader);
+  }
+
+  @Test
+  void getAggregateTemplateLoader() {
+    TemplateLoader loader = mock();
+
+    assertThat(fcfb.getAggregateTemplateLoader(List.of())).isNull();
+    assertThat(fcfb.getAggregateTemplateLoader(List.of(loader))).isEqualTo(loader);
+    assertThat(fcfb.getAggregateTemplateLoader(List.of(loader, loader))).isInstanceOf(MultiTemplateLoader.class);
+  }
 }

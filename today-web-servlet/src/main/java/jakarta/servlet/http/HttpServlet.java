@@ -22,7 +22,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
@@ -88,9 +87,6 @@ public abstract class HttpServlet extends GenericServlet {
   @Deprecated(forRemoval = true, since = "Servlet 6.0")
   public static final String LEGACY_DO_HEAD = "jakarta.servlet.http.legacyDoHead";
 
-  private static final String LSTRING_FILE = "jakarta.servlet.http.LocalStrings";
-  private static ResourceBundle lStrings = ResourceBundle.getBundle(LSTRING_FILE);
-
   private boolean legacyHeadHandling;
 
   /**
@@ -154,8 +150,8 @@ public abstract class HttpServlet extends GenericServlet {
    */
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
-    String msg = lStrings.getString("http.method_get_not_supported");
-    resp.sendError(getMethodNotSupportedCode(protocol), msg);
+    resp.sendError(getMethodNotSupportedCode(protocol),
+            "HTTP method GET is not supported by this URL");
   }
 
   /**
@@ -251,8 +247,7 @@ public abstract class HttpServlet extends GenericServlet {
    */
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
-    String msg = lStrings.getString("http.method_post_not_supported");
-    resp.sendError(getMethodNotSupportedCode(protocol), msg);
+    resp.sendError(getMethodNotSupportedCode(protocol), "HTTP method POST is not supported by this URL");
   }
 
   /**
@@ -282,8 +277,7 @@ public abstract class HttpServlet extends GenericServlet {
    */
   protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
-    String msg = lStrings.getString("http.method_put_not_supported");
-    resp.sendError(getMethodNotSupportedCode(protocol), msg);
+    resp.sendError(getMethodNotSupportedCode(protocol), "HTTP method PUT is not supported by this URL");
   }
 
   /**
@@ -306,18 +300,14 @@ public abstract class HttpServlet extends GenericServlet {
    */
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
-    String msg = lStrings.getString("http.method_delete_not_supported");
-    resp.sendError(getMethodNotSupportedCode(protocol), msg);
+    resp.sendError(getMethodNotSupportedCode(protocol), "Http method DELETE is not supported by this URL");
   }
 
   private int getMethodNotSupportedCode(String protocol) {
-    switch (protocol) {
-      case "HTTP/0.9":
-      case "HTTP/1.0":
-        return HttpServletResponse.SC_BAD_REQUEST;
-      default:
-        return HttpServletResponse.SC_METHOD_NOT_ALLOWED;
-    }
+    return switch (protocol) {
+      case "HTTP/0.9", "HTTP/1.0" -> HttpServletResponse.SC_BAD_REQUEST;
+      default -> HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+    };
   }
 
   private Method[] getAllDeclaredMethods(Class<? extends HttpServlet> c) {
@@ -487,66 +477,46 @@ public abstract class HttpServlet extends GenericServlet {
   protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
     String method = req.getMethod();
 
-    if (method.equals(METHOD_GET)) {
-      long lastModified = getLastModified(req);
-      if (lastModified == -1) {
-        // servlet doesn't support if-modified-since, no reason
-        // to go through further expensive logic
-        doGet(req, resp);
-      }
-      else {
-        long ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
-        if (ifModifiedSince < lastModified) {
-          // If the servlet mod time is later, call doGet()
-          // Round down to the nearest second for a proper compare
-          // A ifModifiedSince of -1 will always be less
-          maybeSetLastModified(resp, lastModified);
+    switch (method) {
+      case METHOD_GET -> {
+        long lastModified = getLastModified(req);
+        if (lastModified == -1) {
+          // servlet doesn't support if-modified-since, no reason
+          // to go through further expensive logic
           doGet(req, resp);
         }
         else {
-          resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+          long ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
+          if (ifModifiedSince < lastModified) {
+            // If the servlet mod time is later, call doGet()
+            // Round down to the nearest second for a proper compare
+            // A ifModifiedSince of -1 will always be less
+            maybeSetLastModified(resp, lastModified);
+            doGet(req, resp);
+          }
+          else {
+            resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+          }
         }
+
       }
+      case METHOD_HEAD -> {
+        long lastModified = getLastModified(req);
+        maybeSetLastModified(resp, lastModified);
+        doHead(req, resp);
 
-    }
-    else if (method.equals(METHOD_HEAD)) {
-      long lastModified = getLastModified(req);
-      maybeSetLastModified(resp, lastModified);
-      doHead(req, resp);
-
-    }
-    else if (method.equals(METHOD_POST)) {
-      doPost(req, resp);
-
-    }
-    else if (method.equals(METHOD_PUT)) {
-      doPut(req, resp);
-
-    }
-    else if (method.equals(METHOD_DELETE)) {
-      doDelete(req, resp);
-
-    }
-    else if (method.equals(METHOD_OPTIONS)) {
-      doOptions(req, resp);
-
-    }
-    else if (method.equals(METHOD_TRACE)) {
-      doTrace(req, resp);
-
-    }
-    else {
+      }
+      case METHOD_POST -> doPost(req, resp);
+      case METHOD_PUT -> doPut(req, resp);
+      case METHOD_DELETE -> doDelete(req, resp);
+      case METHOD_OPTIONS -> doOptions(req, resp);
+      case METHOD_TRACE -> doTrace(req, resp);
       //
       // Note that this means NO servlet supports whatever
       // method was requested, anywhere on this server.
       //
-
-      String errMsg = lStrings.getString("http.method_not_implemented");
-      Object[] errArgs = new Object[1];
-      errArgs[0] = method;
-      errMsg = MessageFormat.format(errMsg, errArgs);
-
-      resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errMsg);
+      default -> resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Method %s is not defined in RFC 2068 and is not supported"
+              .formatted(method));
     }
   }
 
@@ -690,7 +660,7 @@ class NoBodyResponse extends HttpServletResponseWrapper {
   public ServletOutputStream getOutputStream() throws IOException {
 
     if (writer != null) {
-      throw new IllegalStateException(lStrings.getString("err.ise.getOutputStream"));
+      throw new IllegalStateException("Illegal to call getOutputStream() after getWriter() has been called");
     }
     usingOutputStream = true;
 
@@ -701,7 +671,7 @@ class NoBodyResponse extends HttpServletResponseWrapper {
   public PrintWriter getWriter() throws UnsupportedEncodingException {
 
     if (usingOutputStream) {
-      throw new IllegalStateException(lStrings.getString("err.ise.getWriter"));
+      throw new IllegalStateException("Illegal to call getWriter() after getOutputStream() has been called");
     }
 
     if (writer == null) {
@@ -720,8 +690,6 @@ class NoBodyResponse extends HttpServletResponseWrapper {
 //@Deprecated(forRemoval = true, since = "Servlet 6.0")
 class NoBodyOutputStream extends ServletOutputStream {
 
-  private static final String LSTRING_FILE = "jakarta.servlet.http.LocalStrings";
-  private static ResourceBundle lStrings = ResourceBundle.getBundle(LSTRING_FILE);
   static ThreadLocal<Boolean> disableFlush = new ThreadLocal<>();
 
   private int contentLength = 0;
@@ -747,17 +715,12 @@ class NoBodyOutputStream extends ServletOutputStream {
   @Override
   public void write(byte buf[], int offset, int len) throws IOException {
     if (buf == null) {
-      throw new NullPointerException(lStrings.getString("err.io.nullArray"));
+      throw new NullPointerException("Null passed for byte array in write method");
     }
 
     if (offset < 0 || len < 0 || offset + len > buf.length) {
-      String msg = lStrings.getString("err.io.indexOutOfBounds");
-      Object[] msgArgs = new Object[3];
-      msgArgs[0] = Integer.valueOf(offset);
-      msgArgs[1] = Integer.valueOf(len);
-      msgArgs[2] = Integer.valueOf(buf.length);
-      msg = MessageFormat.format(msg, msgArgs);
-      throw new IndexOutOfBoundsException(msg);
+      throw new IndexOutOfBoundsException("Invalid offset [%s] and / or length [%s] specified for array of size [%s]"
+              .formatted(offset, len, buf.length));
     }
 
     contentLength += len;

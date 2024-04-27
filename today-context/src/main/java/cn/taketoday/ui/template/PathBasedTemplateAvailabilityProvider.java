@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
+package cn.taketoday.ui.template;
 
 import java.util.List;
 
@@ -39,9 +39,9 @@ public abstract class PathBasedTemplateAvailabilityProvider implements TemplateA
 
   private final String className;
 
-  private final Class<TemplateAvailabilityProperties> propertiesClass;
-
   private final String propertyPrefix;
+
+  private final Class<TemplateAvailabilityProperties> propertiesClass;
 
   @SuppressWarnings("unchecked")
   public PathBasedTemplateAvailabilityProvider(String className,
@@ -52,18 +52,17 @@ public abstract class PathBasedTemplateAvailabilityProvider implements TemplateA
   }
 
   @Override
-  public boolean isTemplateAvailable(String view, Environment environment,
+  public boolean isTemplateAvailable(String template, Environment environment,
           ClassLoader classLoader, ResourceLoader resourceLoader) {
     if (ClassUtils.isPresent(this.className, classLoader)) {
       Binder binder = Binder.get((ConfigurableEnvironment) environment);
       var properties = binder.bindOrCreate(this.propertyPrefix, this.propertiesClass);
-      return isTemplateAvailable(view, resourceLoader, properties);
+      return isTemplateAvailable(template, resourceLoader, properties);
     }
     return false;
   }
 
-  private boolean isTemplateAvailable(String view,
-          ResourceLoader resourceLoader, TemplateAvailabilityProperties properties) {
+  private boolean isTemplateAvailable(String view, ResourceLoader resourceLoader, TemplateAvailabilityProperties properties) {
     String location = properties.getPrefix() + view + properties.getSuffix();
     for (String path : properties.getLoaderPath()) {
       if (resourceLoader.getResource(path + location).exists()) {

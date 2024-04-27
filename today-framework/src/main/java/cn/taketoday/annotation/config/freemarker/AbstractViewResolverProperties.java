@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
+package cn.taketoday.annotation.config.freemarker;
 
 import java.nio.charset.Charset;
 import java.util.LinkedHashMap;
@@ -26,11 +26,10 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MimeType;
-import cn.taketoday.web.view.ViewResolver;
 
 /**
  * Base class for {@link ConfigurationProperties @ConfigurationProperties} of a
- * {@link ViewResolver}.
+ * {@link cn.taketoday.web.view.ViewResolver}.
  *
  * @author Andy Wilkinson
  * @author Stephane Nicoll
@@ -43,7 +42,7 @@ public abstract class AbstractViewResolverProperties {
   private static final MimeType DEFAULT_CONTENT_TYPE = MediaType.TEXT_HTML;
 
   /**
-   * Whether to enable MVC view resolution for this technology.
+   * Whether to enable view resolution for this technology.
    */
   private boolean enabled = true;
 
@@ -65,6 +64,7 @@ public abstract class AbstractViewResolverProperties {
   /**
    * View names that can be resolved.
    */
+  @Nullable
   private String[] viewNames;
 
   /**
@@ -88,11 +88,12 @@ public abstract class AbstractViewResolverProperties {
     return this.checkTemplateLocation;
   }
 
+  @Nullable
   public String[] getViewNames() {
     return this.viewNames;
   }
 
-  public void setViewNames(String[] viewNames) {
+  public void setViewNames(@Nullable String[] viewNames) {
     this.viewNames = viewNames;
   }
 

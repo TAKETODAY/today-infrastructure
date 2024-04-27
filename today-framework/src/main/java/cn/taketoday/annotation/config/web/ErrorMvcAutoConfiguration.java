@@ -57,7 +57,7 @@ import cn.taketoday.web.server.error.ErrorViewResolver;
 import cn.taketoday.web.util.HtmlUtils;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.View;
-import cn.taketoday.web.view.template.TemplateAvailabilityProviders;
+import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} to render errors via an MVC error

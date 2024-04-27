@@ -34,8 +34,8 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.env.Environment;
 import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.web.server.error.DefaultErrorViewResolver;
-import cn.taketoday.web.view.template.TemplateAvailabilityProvider;
-import cn.taketoday.web.view.template.TemplateAvailabilityProviders;
+import cn.taketoday.ui.template.TemplateAvailabilityProvider;
+import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.MockHttpServletRequest;
@@ -94,7 +94,7 @@ class DefaultErrorViewResolverTests {
   void createWhenResourcePropertiesIsNullShouldThrowException() {
     assertThatIllegalArgumentException()
             .isThrownBy(() -> new DefaultErrorViewResolver(mock(ApplicationContext.class), null))
-            .withMessageContaining("Resources is required");
+            .withMessageContaining("staticLocations is required");
   }
 
   @Test

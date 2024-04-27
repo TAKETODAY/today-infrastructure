@@ -28,11 +28,12 @@ import cn.taketoday.beans.factory.annotation.DisableDependencyInjection;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextAware;
 import cn.taketoday.context.properties.ConfigurationProperties;
-import cn.taketoday.web.view.template.AbstractTemplateViewResolverProperties;
-import cn.taketoday.web.view.template.TemplateLocation;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
+import cn.taketoday.ui.freemarker.FreeMarkerTemplateAvailabilityProvider;
+import cn.taketoday.ui.template.TemplateAvailabilityProvider;
+import cn.taketoday.ui.template.TemplateLocation;
 
 /**
  * {@link ConfigurationProperties @ConfigurationProperties} for configuring FreeMarker.
@@ -47,11 +48,11 @@ import cn.taketoday.ui.freemarker.FreeMarkerConfigurationFactory;
 public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
         implements InitializingBean, ApplicationContextAware {
 
-  public static final String DEFAULT_TEMPLATE_LOADER_PATH = "classpath:/templates/";
+  public static final String DEFAULT_TEMPLATE_LOADER_PATH = TemplateAvailabilityProvider.DEFAULT_TEMPLATE_LOADER_PATH;
 
-  public static final String DEFAULT_PREFIX = "";
+  public static final String DEFAULT_PREFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_PREFIX;
 
-  public static final String DEFAULT_SUFFIX = ".ftl";
+  public static final String DEFAULT_SUFFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_PREFIX;
 
   /**
    * Well-known FreeMarker keys which are passed to FreeMarker's Configuration.

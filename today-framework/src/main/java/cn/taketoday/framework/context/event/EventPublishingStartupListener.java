@@ -121,7 +121,6 @@ public class EventPublishingStartupListener implements ApplicationStartupListene
       // Listeners have been registered to the application context, so we should
       // use it at this point if we can
       context.publishEvent(event);
-      AvailabilityChangeEvent.publish(context, ReadinessState.REFUSING_TRAFFIC);
     }
     else {
       // An inactive context may not have a multicaster so we use our multicaster to

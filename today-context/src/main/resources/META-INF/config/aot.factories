@@ -7,5 +7,7 @@ cn.taketoday.context.properties.ConfigurationPropertiesBeanRegistrationAotProces
 cn.taketoday.validation.beanvalidation.BeanValidationBeanRegistrationAotProcessor
 
 cn.taketoday.aot.hint.RuntimeHintsRegistrar= \
+cn.taketoday.ui.template.TemplateRuntimeHints,\
 cn.taketoday.mail.javamail.JavaMailMimeTypesRuntimeHints,\
-cn.taketoday.format.support.FormattingConversionServiceRuntimeHints
+cn.taketoday.format.support.FormattingConversionServiceRuntimeHints,\
+cn.taketoday.ui.freemarker.FreeMarkerTemplateAvailabilityProvider.Hints

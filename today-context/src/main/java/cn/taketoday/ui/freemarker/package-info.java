@@ -15,32 +15,15 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
-
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.io.ResourceLoader;
-
 /**
- * Indicates the availability of view templates for a particular templating engine such as
- * FreeMarker.
+ * Freemarker supports
  *
- * @author Andy Wilkinson
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 5.0 2024/4/27 16:35
  */
-@FunctionalInterface
-public interface TemplateAvailabilityProvider {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.ui.freemarker;
 
-  /**
-   * Returns {@code true} if a template is available for the given {@code view}.
-   *
-   * @param view the view name
-   * @param environment the environment
-   * @param classLoader the class loader
-   * @param resourceLoader the resource loader
-   * @return if the template is available
-   */
-  boolean isTemplateAvailable(String view, Environment environment,
-          ClassLoader classLoader, ResourceLoader resourceLoader);
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

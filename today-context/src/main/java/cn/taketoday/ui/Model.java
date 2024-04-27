@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.ui;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.lang.Unmodifiable;
 import cn.taketoday.util.CollectionUtils;
 
 /**
@@ -123,15 +120,16 @@ public interface Model {
    * @since 4.0
    */
   default String[] getAttributeNames() {
-    return CollectionUtils.toArray(attributeNames(), Constant.EMPTY_STRING_ARRAY);
+    return CollectionUtils.toArray(attributeNames().iterator(), Constant.EMPTY_STRING_ARRAY);
   }
 
   /**
-   * Return the names Iterator.
+   * Return the names.
    *
    * @since 4.0
    */
-  Iterator<String> attributeNames();
+  @Unmodifiable
+  Iterable<String> attributeNames();
 
   /**
    * Add the supplied attribute to this {@code Map} using a
@@ -144,7 +142,7 @@ public interface Model {
    * @param attributeValue the model attribute value
    * @since 4.0
    */
-  Model addAttribute(@Nullable Object attributeValue);
+  Model addAttribute(Object attributeValue);
 
   /**
    * Copy all attributes in the supplied {@code Collection} into this

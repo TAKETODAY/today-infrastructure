@@ -34,7 +34,7 @@ import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.View;
-import cn.taketoday.web.view.template.TemplateAvailabilityProviders;
+import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 
 /**
  * Default {@link ErrorViewResolver} implementation that attempts to resolve error views

@@ -15,10 +15,11 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
+package cn.taketoday.annotation.config.freemarker;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.core.Ordered;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.view.AbstractTemplateViewResolver;
 
 /**
@@ -44,6 +45,7 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
   /**
    * Name of the RequestContext attribute for all views.
    */
+  @Nullable
   private String requestContextAttribute;
 
   /**
@@ -91,11 +93,12 @@ public abstract class AbstractTemplateViewResolverProperties extends AbstractVie
     this.suffix = suffix;
   }
 
+  @Nullable
   public String getRequestContextAttribute() {
     return this.requestContextAttribute;
   }
 
-  public void setRequestContextAttribute(String requestContextAttribute) {
+  public void setRequestContextAttribute(@Nullable String requestContextAttribute) {
     this.requestContextAttribute = requestContextAttribute;
   }
 

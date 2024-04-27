@@ -15,25 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.view.template;
-
-import cn.taketoday.aot.hint.RuntimeHints;
-import cn.taketoday.aot.hint.RuntimeHintsRegistrar;
-import cn.taketoday.lang.Nullable;
-
 /**
- * {@link RuntimeHintsRegistrar} for default template location.
- *
- * @author Stephane Nicoll
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * Base classes for template.
  */
-class TemplateRuntimeHints implements RuntimeHintsRegistrar {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.ui.template;
 
-  @Override
-  public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
-    hints.resources().registerPatternIfPresent(classLoader,
-            "templates", (hint) -> hint.includes("templates/*"));
-  }
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

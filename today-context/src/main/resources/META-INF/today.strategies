@@ -16,5 +16,5 @@
 #
 
 # Template availability providers
-cn.taketoday.web.view.template.TemplateAvailabilityProvider=\
-cn.taketoday.annotation.config.freemarker.FreeMarkerTemplateAvailabilityProvider
+cn.taketoday.ui.template.TemplateAvailabilityProvider=\
+cn.taketoday.ui.freemarker.FreeMarkerTemplateAvailabilityProvider
