@@ -23,17 +23,17 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import cn.taketoday.http.client.ReactorResourceFactory;
+import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
+import cn.taketoday.lang.Assert;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.server.GracefulShutdownCallback;
 import cn.taketoday.web.server.GracefulShutdownResult;
 import cn.taketoday.web.server.PortInUseException;
 import cn.taketoday.web.server.Shutdown;
 import cn.taketoday.web.server.WebServer;
 import cn.taketoday.web.server.WebServerException;
-import cn.taketoday.http.client.ReactorResourceFactory;
-import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
-import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.LoggerFactory;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.channel.unix.Errors.NativeIoException;
 import io.netty.util.concurrent.DefaultEventExecutor;
@@ -126,7 +126,7 @@ public class ReactorNettyWebServer implements WebServer {
         throw new WebServerException("Unable to start Netty", ex);
       }
       LoggerFactory.getLogger(ReactorNettyWebServer.class)
-              .info("Netty started{}", getStartedOnMessage(disposableServer));
+              .info(getStartedOnMessage(disposableServer));
       startDaemonAwaitThread(disposableServer);
     }
   }
