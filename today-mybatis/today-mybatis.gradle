@@ -3,6 +3,7 @@ description = 'Infra Mybatis Integration'
 dependencies {
   api 'org.mybatis:mybatis:3.5.9'
 
+  optional project(':today-web')
   optional project(':today-jdbc')
   optional project(':today-beans')
   optional project(':today-context')
