@@ -81,7 +81,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
 
   @Test
   void customContentType() throws Exception {
-    load("freemarker.contentType:application/json");
+    load("freemarker.contentType=application/json");
     MockHttpServletResponse response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");

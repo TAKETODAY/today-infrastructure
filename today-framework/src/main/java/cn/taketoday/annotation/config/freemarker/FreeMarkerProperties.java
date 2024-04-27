@@ -52,7 +52,7 @@ public class FreeMarkerProperties extends AbstractTemplateViewResolverProperties
 
   public static final String DEFAULT_PREFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_PREFIX;
 
-  public static final String DEFAULT_SUFFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_PREFIX;
+  public static final String DEFAULT_SUFFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_SUFFIX;
 
   /**
    * Well-known FreeMarker keys which are passed to FreeMarker's Configuration.
