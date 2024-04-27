@@ -151,7 +151,7 @@ the corresponding JDBC type for each value needs to be derived from the given Ja
 While this usually works well, there is a potential for issues (for example, with Map-contained
 `null` values). Infra, by default, calls `ParameterMetaData.getParameterType` in such a
 case, which can be expensive with your JDBC driver. You should use a recent driver
-version and consider setting the `infra.jdbc.getParameterType.ignore` property to `true`
+version and consider setting the `jdbc.getParameterType.ignore` property to `true`
 (as a JVM system property or via the
 xref:appendix.adoc#appendix-infra-properties[`TodayStrategies`] mechanism) if you encounter
 a performance issue (as reported on Oracle 12c, JBoss, and PostgreSQL).

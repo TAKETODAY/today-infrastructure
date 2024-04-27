@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.bytecode;
@@ -55,7 +55,7 @@ import cn.taketoday.util.ReflectionUtils;
  * @since 4.0 2021/11/29 11:23
  */
 public abstract class BytecodeCompiler {
-  private static final int CLASSES_DEFINED_LIMIT = TodayStrategies.getInt("classes.defined.limit", 100);
+  private static final int CLASSES_DEFINED_LIMIT = TodayStrategies.getInt("bytecode.classes.defined.limit", 100);
 
   @Nullable
   private static final Method classLoaderDefineClassMethod;

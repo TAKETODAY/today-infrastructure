@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web;
 
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.lang.TodayStrategies;
 import cn.taketoday.util.ClassUtils;
 
 /**
@@ -33,10 +32,8 @@ public abstract class RequestContextHolder {
   private static final RequestThreadLocal contextHolder;
 
   static {
-    String holderType = TodayStrategies.getProperty(
-            "web.request-context-holder", "cn.taketoday.framework.web.netty.FastRequestThreadLocal");
-    if (ClassUtils.isPresent(holderType)) {
-      contextHolder = BeanUtils.newInstance(holderType, RequestContextHolder.class.getClassLoader());
+    if (ClassUtils.isPresent("cn.taketoday.framework.web.netty.FastRequestThreadLocal")) {
+      contextHolder = BeanUtils.newInstance("cn.taketoday.framework.web.netty.FastRequestThreadLocal", RequestContextHolder.class.getClassLoader());
     }
     else {
       contextHolder = new DefaultRequestThreadLocal();

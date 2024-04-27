@@ -46,7 +46,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class ApplicationTemp {
   private static final String TEMP_SUB_DIR = TodayStrategies.getProperty(
-          "app.temp-prefix", ApplicationTemp.class.getName());
+          "infra.app.temp-prefix", ApplicationTemp.class.getName());
 
   public static final ApplicationTemp instance = new ApplicationTemp();
 

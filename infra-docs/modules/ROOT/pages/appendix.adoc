@@ -53,10 +53,6 @@ checkpoint/restore at startup] 和
 | 用于是否忽略系统环境变量的获取，开启之后，将不能获取系统变量，详见：
 {today-framework-api}++/core/env/AbstractEnvironment.html#IGNORE_GETENV_PROPERTY_NAME++[`AbstractEnvironment`]。
 
-| `infra.jdbc.getParameterType.ignore`
-| 用于 是否需要忽略完全 `java.sql.ParameterMetaData.getParameterType`。 详见：
-xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量操作].
-
 | `infra.jndi.ignore`
 | 忽略默认 JNDI 环境，作为场景的优化，此类 JNDI 后备搜索一开始就找不到任何内容，从而避免重复的 JNDI 查找开销。详见：
 {today-framework-api}++/jndi/JndiLocatorDelegate.html#IGNORE_JNDI_PROPERTY_NAME++[`JndiLocatorDelegate`]。
@@ -82,5 +78,49 @@ xref:testing/testcontext-framework/ctx-management/failure-threshold.adoc[失败�
 | `infra.test.enclosing.configuration`
 | 如果使用默认 _封闭配置继承模式_ 测试类中不存在 `@NestedTestConfiguration`. 详见：
 xref:testing/annotations/integration-junit-jupiter.adoc#integration-testing-annotations-nestedtestconfiguration[更改默认封闭配置继承模式].
+
+| `infra.app.temp-prefix`
+| 全局 ApplicationTemp 的 _默认的临时目录（根目录）_，统一的临时目录更好管理应用产生的临时文件, 默认值：`${java.io.tmpdir}/cn.taketoday.core.ApplicationTemp/`
+
+| `template.default.loader.path`
+| 全局的 _模板默认加载路径_ 默认值：`classpath:templates/`
+
+| `template.default.freemarker.prefix`
+| 全局的 _Freemarker 模板默认前缀_ 默认值：`""`
+
+| `template.default.freemarker.suffix`
+| 全局的 _Freemarker 模板默认后缀_ 默认值：`.ftl`
+
+| `bytecode.classes.defined.limit`
+| `BytecodeCompiler` 最大生成个数，超过之后会重新使用新的类加载器。默认值：`100`
+
+| `jdbc.type-handler.enum-value-property-name`
+| `EnumerationValueTypeHandler` JDBC 中枚举值字段名称。在没有使用注解 `EnumerationValue` 的情况下，会使用该字段获取字段值。默认值：`value`
+
+| `jdbc.getParameterType.ignore`
+| 用于 是否需要忽略完全 `java.sql.ParameterMetaData.getParameterType`。 详见：
+xref:data-access/jdbc/advanced.adoc#jdbc-batch-list[对对象列表进行批量操作].
+
+| `sql.logToStdout`
+| SQL 调式打印 是否使用 _STDOUT_ ，如果对应的 Logger（`today.SQL`） 调试级别开启会使用 Logger 记录。默认值：`false`。 详见 `SqlStatementLogger`
+
+| `sql.format`
+| SQL 调式打印 是否 _格式化_  默认值：`true`  详见 `SqlStatementLogger`
+
+| `sql.highlight`
+| SQL 调式打印 是否开启 _SQL 高亮_  默认值：`true` 详见 `SqlStatementLogger`
+
+| `sql.stdoutOnly`
+| SQL 调式打印 是否仅仅使用 _STDOUT_  禁用 Logger（`today.SQL`） 记录，即使日志级别打开，默认值：`false` 详见 `SqlStatementLogger`
+
+| `sql.logSlowQuery`
+| `today.SQL_SLOW` Logger 记录超过该值的 `慢SQL` 默认值：`0` 不记录。详见 `SqlStatementLogger`
+
+| `server.session.temp-dir`
+| `SessionProperties` 使用的 默认的会话持久化子目录。该目录父级目录 取决于 `ApplicationTemp`。默认值：`server-sessions`
+
+| `server.session.id.source`
+| `SecureRandomSessionIdGenerator` 使用该字段配置生成 ID 的源。默认值：`ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`
+
 
 |===
