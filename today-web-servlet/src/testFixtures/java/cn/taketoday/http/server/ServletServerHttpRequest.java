@@ -43,7 +43,7 @@ import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 
 /**
  * {@link ServerHttpRequest} implementation that is based on a {@link HttpServletRequest}.

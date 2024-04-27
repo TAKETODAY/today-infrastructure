@@ -25,10 +25,10 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.PushBuilder;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.web.mock.http.PushBuilder;
 
 /**
  * Resolves servlet backed request-related method arguments. Supports values of the

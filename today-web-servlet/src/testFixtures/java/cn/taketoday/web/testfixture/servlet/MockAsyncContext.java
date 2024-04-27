@@ -31,8 +31,8 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * Mock implementation of the {@link AsyncContext} interface.

@@ -58,7 +58,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockPart;
 import cn.taketoday.web.view.PathPatternsTestUtils;
-import jakarta.servlet.http.Cookie;
+import cn.taketoday.web.mock.http.Cookie;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;

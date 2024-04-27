@@ -26,11 +26,11 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * Wrapper for a JSP or other resource within the same web application.
@@ -63,7 +63,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Rob Harrop
  * @see RequestDispatcher#forward
  * @see RequestDispatcher#include
- * @see jakarta.servlet.ServletResponse#flushBuffer
+ * @see cn.taketoday.web.mock.ServletResponse#flushBuffer
  * @see InternalResourceViewResolver
  * @since 4.0
  */
@@ -249,9 +249,9 @@ public class InternalResourceView extends AbstractUrlBasedView implements Servle
    * @param request current HTTP request
    * @param response current HTTP response
    * @return {@code true} for include, {@code false} for forward
-   * @see jakarta.servlet.RequestDispatcher#forward
-   * @see jakarta.servlet.RequestDispatcher#include
-   * @see jakarta.servlet.ServletResponse#isCommitted
+   * @see cn.taketoday.web.mock.RequestDispatcher#forward
+   * @see cn.taketoday.web.mock.RequestDispatcher#include
+   * @see cn.taketoday.web.mock.ServletResponse#isCommitted
    * @see ServletUtils#isIncludeRequest
    */
   protected boolean useInclude(HttpServletRequest request, HttpServletResponse response) {

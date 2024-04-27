@@ -22,14 +22,14 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.ServletContextAware;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.websocket.server.ServerContainer;
 
 /**
  * A {@link FactoryBean} for configuring {@link ServerContainer}.
  * Since there is usually only one {@code ServerContainer} instance accessible under a
- * well-known {@code jakarta.servlet.ServletContext} attribute, simply declaring this
+ * well-known {@code cn.taketoday.web.mock.ServletContext} attribute, simply declaring this
  * FactoryBean and using its setters allows for configuring the {@code ServerContainer}
  * through Infra configuration.
  *

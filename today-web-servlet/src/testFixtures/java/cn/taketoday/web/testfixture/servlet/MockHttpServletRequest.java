@@ -64,17 +64,17 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletMapping;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpUpgradeHandler;
-import jakarta.servlet.http.MappingMatch;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletMapping;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.web.mock.http.HttpUpgradeHandler;
+import cn.taketoday.web.mock.http.MappingMatch;
+import cn.taketoday.web.mock.http.Part;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.http.HttpServletRequest} interface.
+ * Mock implementation of the {@link HttpServletRequest} interface.
  *
  * <p>The default, preferred {@link Locale} for the <em>server</em> mocked by this request
  * is {@link Locale#ENGLISH}. This value can be changed via {@link #addPreferredLocale}

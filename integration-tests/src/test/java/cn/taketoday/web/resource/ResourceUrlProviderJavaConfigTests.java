@@ -25,12 +25,11 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServlet;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

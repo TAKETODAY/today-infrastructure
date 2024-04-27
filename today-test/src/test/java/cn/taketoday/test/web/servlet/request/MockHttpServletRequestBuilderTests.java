@@ -47,7 +47,7 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.RedirectModel;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.Cookie;
+import cn.taketoday.web.mock.http.Cookie;
 
 import static cn.taketoday.http.HttpMethod.GET;
 import static cn.taketoday.http.HttpMethod.POST;

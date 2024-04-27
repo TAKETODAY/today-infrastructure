@@ -31,10 +31,10 @@ import java.util.Map;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FastByteArrayOutputStream;
-import jakarta.servlet.ReadListener;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
+import cn.taketoday.web.mock.ReadListener;
+import cn.taketoday.web.mock.ServletInputStream;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletRequestWrapper;
 
 /**
  * {@link HttpServletRequest} wrapper that caches all content read from

@@ -54,7 +54,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.SessionTrackingMode;
-import jakarta.servlet.descriptor.JspConfigDescriptor;
+import cn.taketoday.web.mock.descriptor.JspConfigDescriptor;
 
 /**
  * Mock implementation of the {@link jakarta.servlet.ServletContext} interface.

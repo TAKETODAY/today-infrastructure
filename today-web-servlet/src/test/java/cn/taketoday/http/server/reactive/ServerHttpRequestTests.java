@@ -39,7 +39,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;

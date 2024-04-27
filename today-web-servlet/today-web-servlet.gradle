@@ -42,8 +42,6 @@ dependencies {
   optional("org.apache.poi:poi-ooxml")
   optional("jakarta.mail:jakarta.mail-api")
   optional("org.apache.groovy:groovy-templates")
-  optional("io.undertow:undertow-servlet")
-  optional("io.undertow:undertow-websockets-jsr")
   optional("jakarta.websocket:jakarta.websocket-api")
   optional("jakarta.websocket:jakarta.websocket-client-api")
   optional("io.reactivex.rxjava3:rxjava")

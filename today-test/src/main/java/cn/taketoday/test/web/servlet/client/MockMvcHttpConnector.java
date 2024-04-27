@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.servlet.client;
@@ -64,7 +64,7 @@ import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.http.Cookie;
+import cn.taketoday.web.mock.http.Cookie;
 import reactor.core.publisher.Mono;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
@@ -176,7 +176,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
                               buffer.read(partBytes);
                               DataBufferUtils.release(buffer);
 
-                              // Adapt to jakarta.servlet.http.Part...
+                              // Adapt to cn.taketoday.web.mock.http.Part...
                               MockPart mockPart = (part instanceof FilePart filePart ?
                                                    new MockPart(part.name(), filePart.filename(), partBytes) :
                                                    new MockPart(part.name(), partBytes));

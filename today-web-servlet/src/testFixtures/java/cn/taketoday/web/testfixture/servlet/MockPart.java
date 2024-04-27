@@ -30,7 +30,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 /**
  * Mock implementation of {@code jakarta.servlet.http.Part}.

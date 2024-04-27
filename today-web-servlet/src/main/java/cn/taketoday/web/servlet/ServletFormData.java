@@ -26,7 +26,7 @@ import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.StreamUtils;
 import cn.taketoday.web.multipart.support.AbstractMultipart;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 /**
  * Servlet based {@link AbstractMultipart}

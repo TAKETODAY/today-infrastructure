@@ -44,9 +44,9 @@ import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpSession;
 
 /**
  * Result handler that prints {@link MvcResult} details to a given output

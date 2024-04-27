@@ -28,10 +28,10 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 /**
- * Mock implementation of {@code jakarta.servlet.http.Part}.
+ * Mock implementation of {@code cn.taketoday.web.mock.http.Part}.
  *
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller

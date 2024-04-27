@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import jakarta.servlet.http.HttpSessionBindingEvent;
-import jakarta.servlet.http.HttpSessionBindingListener;
+import cn.taketoday.web.mock.http.HttpSessionBindingEvent;
+import cn.taketoday.web.mock.http.HttpSessionBindingListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

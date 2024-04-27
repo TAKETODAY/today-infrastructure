@@ -24,7 +24,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 
 /**
  * Resolves an argument of type {@link Principal}, similar to

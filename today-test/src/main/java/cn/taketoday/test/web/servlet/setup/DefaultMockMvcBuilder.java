@@ -21,7 +21,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * A concrete implementation of {@link AbstractMockMvcBuilder} that provides

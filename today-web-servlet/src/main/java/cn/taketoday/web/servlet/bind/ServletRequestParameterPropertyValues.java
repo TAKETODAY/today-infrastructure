@@ -20,7 +20,7 @@ package cn.taketoday.web.servlet.bind;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.ServletRequest;
+import cn.taketoday.web.mock.ServletRequest;
 
 /**
  * PropertyValues implementation created from parameters in a ServletRequest.

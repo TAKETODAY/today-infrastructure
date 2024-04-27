@@ -80,7 +80,7 @@ import cn.taketoday.web.view.ViewRenderingException;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.web.view.ViewResolverComposite;
 import cn.taketoday.web.view.ViewReturnValueHandler;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * A {@code MockMvcBuilder} that accepts {@code @Controller} registrations

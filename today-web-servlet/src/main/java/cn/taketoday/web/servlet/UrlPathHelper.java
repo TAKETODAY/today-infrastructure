@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.servlet;
@@ -35,11 +32,11 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.util.UriUtils;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.http.HttpServletMapping;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.MappingMatch;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.http.HttpServletMapping;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.MappingMatch;
 
 /**
  * Helper class for URL path matching. Provides support for URL paths in
@@ -50,7 +47,7 @@ import jakarta.servlet.http.MappingMatch;
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getLookupPathForRequest
- * @see jakarta.servlet.RequestDispatcher
+ * @see cn.taketoday.web.mock.RequestDispatcher
  * @since 4.0 2022/4/7 21:34
  */
 public class UrlPathHelper {
@@ -86,7 +83,7 @@ public class UrlPathHelper {
   /**
    * Whether URL lookups should always use the full path within the current
    * web application context, i.e. within
-   * {@link jakarta.servlet.ServletContext#getContextPath()}.
+   * {@link cn.taketoday.web.mock.ServletContext#getContextPath()}.
    * <p>If set to {@literal false} the path within the current servlet mapping
    * is used instead if applicable (i.e. in the case of a prefix based Servlet
    * mapping such as "/myServlet/*").
@@ -112,7 +109,7 @@ public class UrlPathHelper {
    * @see #getServletPath
    * @see #getContextPath
    * @see #getRequestUri
-   * @see jakarta.servlet.ServletRequest#getCharacterEncoding()
+   * @see cn.taketoday.web.mock.ServletRequest#getCharacterEncoding()
    * @see java.net.URLDecoder#decode(String, String)
    */
   public void setUrlDecode(boolean urlDecode) {
@@ -153,8 +150,8 @@ public class UrlPathHelper {
    *
    * @param defaultEncoding the character encoding to use
    * @see #determineEncoding
-   * @see jakarta.servlet.ServletRequest#getCharacterEncoding()
-   * @see jakarta.servlet.ServletRequest#setCharacterEncoding(String)
+   * @see cn.taketoday.web.mock.ServletRequest#getCharacterEncoding()
+   * @see cn.taketoday.web.mock.ServletRequest#setCharacterEncoding(String)
    * @see Constant#DEFAULT_ENCODING
    */
   public void setDefaultEncoding(String defaultEncoding) {
@@ -565,7 +562,7 @@ public class UrlPathHelper {
    * @param source the String to decode
    * @return the decoded String
    * @see Constant#DEFAULT_ENCODING
-   * @see jakarta.servlet.ServletRequest#getCharacterEncoding
+   * @see cn.taketoday.web.mock.ServletRequest#getCharacterEncoding
    * @see java.net.URLDecoder#decode(String, String)
    * @see java.net.URLDecoder#decode(String)
    */
@@ -597,7 +594,7 @@ public class UrlPathHelper {
    *
    * @param request current HTTP request
    * @return the encoding for the request (never {@code null})
-   * @see jakarta.servlet.ServletRequest#getCharacterEncoding()
+   * @see cn.taketoday.web.mock.ServletRequest#getCharacterEncoding()
    * @see #setDefaultEncoding
    */
   protected String determineEncoding(HttpServletRequest request) {

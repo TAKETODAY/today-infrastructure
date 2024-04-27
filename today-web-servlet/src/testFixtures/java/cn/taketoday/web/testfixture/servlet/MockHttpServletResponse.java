@@ -47,11 +47,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
 import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.http.HttpServletResponse} interface.
+ * Mock implementation of the {@link HttpServletResponse} interface.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson

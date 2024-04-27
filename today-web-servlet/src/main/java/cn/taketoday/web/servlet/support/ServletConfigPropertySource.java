@@ -22,7 +22,7 @@ import cn.taketoday.core.env.PropertySource;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import jakarta.servlet.ServletConfig;
+import cn.taketoday.web.mock.ServletConfig;
 
 /**
  * {@link PropertySource} that reads init parameters from a {@link ServletConfig} object.

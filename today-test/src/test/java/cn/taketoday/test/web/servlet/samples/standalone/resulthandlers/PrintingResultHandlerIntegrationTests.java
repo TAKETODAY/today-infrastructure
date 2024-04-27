@@ -27,8 +27,6 @@ import cn.taketoday.test.web.servlet.result.PrintingResultHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.RestController;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultHandlers.print;

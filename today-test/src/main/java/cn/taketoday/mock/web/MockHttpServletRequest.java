@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.web;
@@ -58,23 +55,23 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.UrlPathHelper;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletConnection;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletMapping;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpUpgradeHandler;
-import jakarta.servlet.http.MappingMatch;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.AsyncContext;
+import cn.taketoday.web.mock.DispatcherType;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.ServletConnection;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.ServletInputStream;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletMapping;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.web.mock.http.HttpUpgradeHandler;
+import cn.taketoday.web.mock.http.MappingMatch;
+import cn.taketoday.web.mock.http.Part;
 
 /**
  * Mock implementation of the {@link HttpServletRequest} interface.
@@ -826,7 +823,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see jakarta.servlet.ServletRequest#getLocale()
+   * @see cn.taketoday.web.mock.ServletRequest#getLocale()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -845,7 +842,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see jakarta.servlet.ServletRequest#getLocales()
+   * @see cn.taketoday.web.mock.ServletRequest#getLocales()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -870,7 +867,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Return {@code true} if the {@link #setSecure secure} flag has been set
    * to {@code true} or if the {@link #getScheme scheme} is {@code https}.
    *
-   * @see jakarta.servlet.ServletRequest#isSecure()
+   * @see cn.taketoday.web.mock.ServletRequest#isSecure()
    */
   @Override
   public boolean isSecure() {

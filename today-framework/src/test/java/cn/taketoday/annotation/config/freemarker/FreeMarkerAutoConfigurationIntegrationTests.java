@@ -40,7 +40,7 @@ import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfig;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfigurer;
 import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

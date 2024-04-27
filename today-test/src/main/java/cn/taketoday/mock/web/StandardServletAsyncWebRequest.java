@@ -24,11 +24,11 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.AsyncEvent;
-import jakarta.servlet.AsyncListener;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.AsyncContext;
+import cn.taketoday.web.mock.AsyncEvent;
+import cn.taketoday.web.mock.AsyncListener;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * A Servlet implementation of {@link AsyncWebRequest}.

@@ -23,7 +23,7 @@ import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link ApplicationContextInitializer} for setting the servlet context.

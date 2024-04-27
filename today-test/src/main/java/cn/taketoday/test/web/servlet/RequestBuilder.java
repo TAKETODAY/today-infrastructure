@@ -18,7 +18,7 @@
 package cn.taketoday.test.web.servlet;
 
 import cn.taketoday.mock.web.MockHttpServletRequest;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * Builds a {@link MockHttpServletRequest}.

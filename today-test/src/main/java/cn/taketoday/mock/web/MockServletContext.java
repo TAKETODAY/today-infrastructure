@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.web;
@@ -51,16 +48,16 @@ import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterRegistration;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.SessionCookieConfig;
-import jakarta.servlet.SessionTrackingMode;
-import jakarta.servlet.descriptor.JspConfigDescriptor;
+import cn.taketoday.web.mock.Filter;
+import cn.taketoday.web.mock.FilterRegistration;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.Servlet;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.ServletRegistration;
+import cn.taketoday.web.mock.SessionCookieConfig;
+import cn.taketoday.web.mock.SessionTrackingMode;
+import cn.taketoday.web.mock.descriptor.JspConfigDescriptor;
 
 /**
  * Mock implementation of the {@link ServletContext} interface.
@@ -645,7 +642,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see jakarta.servlet.ServletContext#getServletRegistration(java.lang.String)
+   * @see cn.taketoday.web.mock.ServletContext#getServletRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -656,7 +653,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see jakarta.servlet.ServletContext#getServletRegistrations()
+   * @see cn.taketoday.web.mock.ServletContext#getServletRegistrations()
    */
   @Override
   public Map<String, ? extends ServletRegistration> getServletRegistrations() {
@@ -686,7 +683,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see jakarta.servlet.ServletContext#getFilterRegistration(java.lang.String)
+   * @see cn.taketoday.web.mock.ServletContext#getFilterRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -697,7 +694,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see jakarta.servlet.ServletContext#getFilterRegistrations()
+   * @see cn.taketoday.web.mock.ServletContext#getFilterRegistrations()
    */
   @Override
   public Map<String, ? extends FilterRegistration> getFilterRegistrations() {

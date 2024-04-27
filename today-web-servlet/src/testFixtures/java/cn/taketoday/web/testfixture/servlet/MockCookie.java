@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.util.StringUtils;
-import jakarta.servlet.http.Cookie;
+import cn.taketoday.web.mock.http.Cookie;
 
 /**
  * Extension of {@code Cookie} with extra attributes, as defined in

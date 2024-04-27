@@ -37,7 +37,7 @@ import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 /**
  * Mock implementation of the

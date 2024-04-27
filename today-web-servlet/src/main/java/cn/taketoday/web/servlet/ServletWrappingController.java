@@ -28,11 +28,13 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
+import cn.taketoday.web.mock.Servlet;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.ServletResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
 
 /**
  * Framework Controller implementation that wraps a servlet instance which it manages
@@ -98,9 +100,9 @@ public class ServletWrappingController extends AbstractController
 
   /**
    * Set the class of the servlet to wrap.
-   * Needs to implement {@code jakarta.servlet.Servlet}.
+   * Needs to implement {@code cn.taketoday.web.mock.Servlet}.
    *
-   * @see jakarta.servlet.Servlet
+   * @see Servlet
    */
   public void setServletClass(@Nullable Class<? extends Servlet> servletClass) {
     this.servletClass = servletClass;
@@ -130,7 +132,7 @@ public class ServletWrappingController extends AbstractController
   /**
    * Initialize the wrapped Servlet instance.
    *
-   * @see jakarta.servlet.Servlet#init(jakarta.servlet.ServletConfig)
+   * @see Servlet#init(cn.taketoday.web.mock.ServletConfig)
    */
   @Override
   public void afterPropertiesSet() throws Exception {
@@ -147,7 +149,7 @@ public class ServletWrappingController extends AbstractController
   /**
    * Invoke the wrapped Servlet instance.
    *
-   * @see jakarta.servlet.Servlet#service(jakarta.servlet.ServletRequest, jakarta.servlet.ServletResponse)
+   * @see Servlet#service(ServletRequest, ServletResponse)
    */
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
@@ -161,7 +163,7 @@ public class ServletWrappingController extends AbstractController
   /**
    * Destroy the wrapped Servlet instance.
    *
-   * @see jakarta.servlet.Servlet#destroy()
+   * @see Servlet#destroy()
    */
   @Override
   public void destroy() {

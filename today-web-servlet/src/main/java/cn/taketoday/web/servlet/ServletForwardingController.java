@@ -23,11 +23,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.web.view.ModelAndView;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * Controller implementation that forwards to a named servlet,
@@ -152,9 +152,9 @@ public class ServletForwardingController extends AbstractController implements B
    * @param request current HTTP request
    * @param response current HTTP response
    * @return {@code true} for include, {@code false} for forward
-   * @see jakarta.servlet.RequestDispatcher#forward
-   * @see jakarta.servlet.RequestDispatcher#include
-   * @see jakarta.servlet.ServletResponse#isCommitted
+   * @see cn.taketoday.web.mock.RequestDispatcher#forward
+   * @see cn.taketoday.web.mock.RequestDispatcher#include
+   * @see cn.taketoday.web.mock.ServletResponse#isCommitted
    * @see ServletUtils#isIncludeRequest
    */
   protected boolean useInclude(HttpServletRequest request, HttpServletResponse response) {

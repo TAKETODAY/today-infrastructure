@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.web;
@@ -24,15 +21,15 @@ import java.io.IOException;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import cn.taketoday.web.mock.Filter;
+import cn.taketoday.web.mock.FilterChain;
+import cn.taketoday.web.mock.Servlet;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.ServletResponse;
 
 /**
- * Implementation of the {@link jakarta.servlet.FilterConfig} interface which
+ * Implementation of the {@link cn.taketoday.web.mock.FilterConfig} interface which
  * simply passes the call through to a given Filter/FilterChain combination
  * (indicating the next Filter in the chain along with the FilterChain that it is
  * supposed to work on) or to a given Servlet (indicating the end of the chain).

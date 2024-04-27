@@ -46,7 +46,7 @@ import freemarker.template.Configuration;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

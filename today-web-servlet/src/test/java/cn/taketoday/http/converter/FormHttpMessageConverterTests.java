@@ -21,7 +21,7 @@ import org.apache.tomcat.util.http.fileupload.FileItem;
 import org.apache.tomcat.util.http.fileupload.FileUpload;
 import org.apache.tomcat.util.http.fileupload.RequestContext;
 import org.apache.tomcat.util.http.fileupload.UploadContext;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import cn.taketoday.web.mock.fileupload.disk.DiskFileItemFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

@@ -40,7 +40,6 @@ import cn.taketoday.web.annotation.PutMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
-import jakarta.servlet.http.Part;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.post;

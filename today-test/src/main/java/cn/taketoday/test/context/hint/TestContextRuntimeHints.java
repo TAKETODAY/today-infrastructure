@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.hint;
@@ -42,7 +42,7 @@ class TestContextRuntimeHints implements RuntimeHintsRegistrar {
 
   @Override
   public void registerHints(RuntimeHints runtimeHints, ClassLoader classLoader) {
-    boolean servletPresent = ClassUtils.isPresent("jakarta.servlet.Servlet", classLoader);
+    boolean servletPresent = ClassUtils.isPresent("cn.taketoday.web.mock.Servlet", classLoader);
     boolean groovyPresent = ClassUtils.isPresent("groovy.lang.Closure", classLoader);
 
     ReflectionHints reflectionHints = runtimeHints.reflection();

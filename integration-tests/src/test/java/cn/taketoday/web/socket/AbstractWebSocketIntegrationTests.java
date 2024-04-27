@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
@@ -43,7 +44,6 @@ import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.socket.client.WebSocketClient;
 import cn.taketoday.web.socket.client.standard.StandardWebSocketClient;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
-import cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
 
 import static org.junit.jupiter.api.Named.named;
@@ -56,11 +56,11 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 public abstract class AbstractWebSocketIntegrationTests {
 
   private static final Map<Class<?>, Class<?>> upgradeStrategyConfigTypes = Map.of(
-          UndertowTestServer.class, UndertowUpgradeStrategyConfig.class);
+          NettyTestServer.class, NettyUpgradeStrategyConfig.class);
 
   static Stream<Arguments> argumentsFactory() {
     return Stream.of(
-            arguments(named("Undertow", new UndertowTestServer()), named("Standard", new StandardWebSocketClient()))
+            arguments(named("Standard", new StandardWebSocketClient()))
     );
   }
 
@@ -159,12 +159,12 @@ public abstract class AbstractWebSocketIntegrationTests {
   }
 
   @Configuration(proxyBeanMethods = false)
-  static class UndertowUpgradeStrategyConfig extends AbstractRequestUpgradeStrategyConfig {
+  static class NettyUpgradeStrategyConfig extends AbstractRequestUpgradeStrategyConfig {
 
     @Override
     @Bean
     public RequestUpgradeStrategy requestUpgradeStrategy() {
-      return new UndertowRequestUpgradeStrategy();
+      return new NettyRequestUpgradeStrategy(null);
     }
   }
 

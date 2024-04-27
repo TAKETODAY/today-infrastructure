@@ -33,15 +33,15 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.WebAsyncManager;
 import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.DispatcherType;
+import cn.taketoday.web.mock.Servlet;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers in Servlet

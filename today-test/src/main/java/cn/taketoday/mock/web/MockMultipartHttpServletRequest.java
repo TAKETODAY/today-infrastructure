@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,9 +37,9 @@ import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.http.Part;
 
 /**
  * Mock implementation of the

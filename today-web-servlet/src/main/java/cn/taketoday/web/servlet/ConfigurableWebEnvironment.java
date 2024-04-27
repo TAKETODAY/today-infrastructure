@@ -19,8 +19,8 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} allowing initialization of

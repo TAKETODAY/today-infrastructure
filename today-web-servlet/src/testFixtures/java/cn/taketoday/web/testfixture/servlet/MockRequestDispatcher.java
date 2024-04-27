@@ -23,7 +23,7 @@ import cn.taketoday.logging.LoggerFactory;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletResponseWrapper;
+import cn.taketoday.web.mock.http.HttpServletResponseWrapper;
 
 /**
  * Mock implementation of the {@link jakarta.servlet.RequestDispatcher} interface.

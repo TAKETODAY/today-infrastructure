@@ -29,8 +29,8 @@ import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.servlet.result.PrintingResultHandler;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultHandlers.log;

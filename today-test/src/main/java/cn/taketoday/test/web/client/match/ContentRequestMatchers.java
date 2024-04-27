@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +12,11 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.web.client.match;
 
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileUpload;
-import org.apache.tomcat.util.http.fileupload.UploadContext;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.hamcrest.Matcher;
 import org.w3c.dom.Node;
 
@@ -50,6 +43,10 @@ import cn.taketoday.test.web.client.RequestMatcher;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.StreamUtils;
+import cn.taketoday.web.mock.fileupload.FileItem;
+import cn.taketoday.web.mock.fileupload.FileUpload;
+import cn.taketoday.web.mock.fileupload.UploadContext;
+import cn.taketoday.web.mock.fileupload.disk.DiskFileItemFactory;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
 import static cn.taketoday.test.util.AssertionErrors.assertTrue;
@@ -229,8 +226,8 @@ public class ContentRequestMatchers {
         List<?> values = entry.getValue();
         assertTrue("No Multipart '" + name + "'", actualMap.get(name) != null);
         assertTrue("Multipart value count " + values.size(), containsExactly ?
-                                                             values.size() == actualMap.get(name).size() :
-                                                             values.size() <= actualMap.get(name).size());
+                values.size() == actualMap.get(name).size() :
+                values.size() <= actualMap.get(name).size());
         for (int i = 0; i < values.size(); i++) {
           Object expected = values.get(i);
           Object actual = actualMap.get(name).get(i);

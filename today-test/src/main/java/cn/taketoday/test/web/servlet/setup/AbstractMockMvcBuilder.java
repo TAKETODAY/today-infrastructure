@@ -39,10 +39,10 @@ import cn.taketoday.test.web.servlet.request.ConfigurableSmartRequestBuilder;
 import cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders;
 import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Filter;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
+import cn.taketoday.web.mock.DispatcherType;
+import cn.taketoday.web.mock.Filter;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
 
 /**
  * Abstract implementation of {@link MockMvcBuilder} with common methods for

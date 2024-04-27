@@ -28,8 +28,8 @@ import cn.taketoday.lang.Nullable;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * A {@link ServerHttpAsyncRequestControl} to use on Servlet containers (Servlet 3.0+).

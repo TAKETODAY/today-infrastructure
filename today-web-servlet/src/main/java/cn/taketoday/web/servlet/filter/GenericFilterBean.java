@@ -44,13 +44,13 @@ import cn.taketoday.web.servlet.ServletContextAware;
 import cn.taketoday.web.servlet.support.ServletContextResourceLoader;
 import cn.taketoday.web.servlet.support.StandardServletEnvironment;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
+import cn.taketoday.web.mock.Filter;
+import cn.taketoday.web.mock.FilterConfig;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
 
 /**
- * Simple base implementation of {@link jakarta.servlet.Filter} which treats
+ * Simple base implementation of {@link cn.taketoday.web.mock.Filter} which treats
  * its config parameters ({@code init-param} entries within the
  * {@code filter} tag in {@code web.xml}) as bean properties.
  *
@@ -61,7 +61,7 @@ import jakarta.servlet.ServletException;
  * setter will simply be ignored.
  *
  * <p>This filter leaves actual filtering to subclasses, which have to
- * implement the {@link jakarta.servlet.Filter#doFilter} method.
+ * implement the {@link cn.taketoday.web.mock.Filter#doFilter} method.
  *
  * <p>This generic filter base class has no dependency on the Framework
  * {@link cn.taketoday.context.ApplicationContext} concept.
@@ -166,7 +166,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * standard {@code init(FilterConfig)} method won't be called.
    *
    * @see #initFilterBean()
-   * @see #init(jakarta.servlet.FilterConfig)
+   * @see #init(cn.taketoday.web.mock.FilterConfig)
    */
   @Override
   public void afterPropertiesSet() throws ServletException {
@@ -273,7 +273,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * of the Servlet Filter version that shipped with WebLogic 6.1.
    *
    * @return the FilterConfig instance, or {@code null} if none available
-   * @see jakarta.servlet.GenericServlet#getServletConfig()
+   * @see cn.taketoday.web.mock.GenericServlet#getServletConfig()
    */
   @Nullable
   public FilterConfig getFilterConfig() {
@@ -288,8 +288,8 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * it falls back to the bean name as defined in the bean factory.
    *
    * @return the filter name, or {@code null} if none available
-   * @see jakarta.servlet.GenericServlet#getServletName()
-   * @see jakarta.servlet.FilterConfig#getFilterName()
+   * @see cn.taketoday.web.mock.GenericServlet#getServletName()
+   * @see cn.taketoday.web.mock.FilterConfig#getFilterName()
    * @see #setBeanName
    */
   @Nullable
@@ -306,8 +306,8 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    *
    * @return the ServletContext instance
    * @throws IllegalStateException if no ServletContext is available
-   * @see jakarta.servlet.GenericServlet#getServletContext()
-   * @see jakarta.servlet.FilterConfig#getServletContext()
+   * @see cn.taketoday.web.mock.GenericServlet#getServletContext()
+   * @see cn.taketoday.web.mock.FilterConfig#getServletContext()
    * @see #setServletContext
    */
   protected ServletContext getServletContext() {

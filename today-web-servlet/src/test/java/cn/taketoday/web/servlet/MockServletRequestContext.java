@@ -49,9 +49,9 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -39,7 +39,6 @@ import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;

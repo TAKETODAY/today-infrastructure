@@ -32,11 +32,11 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link cn.taketoday.core.io.Resource} implementation for
- * {@link jakarta.servlet.ServletContext} resources, interpreting
+ * {@link cn.taketoday.web.mock.ServletContext} resources, interpreting
  * relative paths within the web application root directory.
  *
  * <p>Always supports stream access and URL access, but only allows
@@ -45,9 +45,9 @@ import jakarta.servlet.ServletContext;
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see jakarta.servlet.ServletContext#getResourceAsStream
- * @see jakarta.servlet.ServletContext#getResource
- * @see jakarta.servlet.ServletContext#getRealPath
+ * @see cn.taketoday.web.mock.ServletContext#getResourceAsStream
+ * @see cn.taketoday.web.mock.ServletContext#getResource
+ * @see cn.taketoday.web.mock.ServletContext#getRealPath
  * @since 4.0 2022/2/20 16:27
  */
 @Deprecated
@@ -98,7 +98,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   /**
    * This implementation checks {@code ServletContext.getResource}.
    *
-   * @see jakarta.servlet.ServletContext#getResource(String)
+   * @see cn.taketoday.web.mock.ServletContext#getResource(String)
    */
   @Override
   public boolean exists() {
@@ -114,7 +114,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation delegates to {@code ServletContext.getResourceAsStream},
    * which returns {@code null} in case of a non-readable resource (e.g. a directory).
    *
-   * @see jakarta.servlet.ServletContext#getResourceAsStream(String)
+   * @see cn.taketoday.web.mock.ServletContext#getResourceAsStream(String)
    */
   @Override
   public boolean isReadable() {
@@ -158,7 +158,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation delegates to {@code ServletContext.getResourceAsStream},
    * but throws a FileNotFoundException if no resource found.
    *
-   * @see jakarta.servlet.ServletContext#getResourceAsStream(String)
+   * @see cn.taketoday.web.mock.ServletContext#getResourceAsStream(String)
    */
   @Override
   public InputStream getInputStream() throws IOException {
@@ -173,7 +173,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * This implementation delegates to {@code ServletContext.getResource},
    * but throws a FileNotFoundException if no resource found.
    *
-   * @see jakarta.servlet.ServletContext#getResource(String)
+   * @see cn.taketoday.web.mock.ServletContext#getResource(String)
    */
   @Override
   public URL getURL() throws IOException {
@@ -190,8 +190,8 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
    * {@code ServletContext.getRealPath}, throwing a FileNotFoundException
    * if not found or not resolvable.
    *
-   * @see jakarta.servlet.ServletContext#getResource(String)
-   * @see jakarta.servlet.ServletContext#getRealPath(String)
+   * @see cn.taketoday.web.mock.ServletContext#getResource(String)
+   * @see cn.taketoday.web.mock.ServletContext#getRealPath(String)
    */
   @Override
   public File getFile() throws IOException {

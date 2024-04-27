@@ -32,15 +32,15 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.util.WebUtils;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletRequestWrapper;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.ServletResponseWrapper;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.ServletRequestWrapper;
+import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.web.mock.ServletResponseWrapper;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpSession;
 
 /**
  * @author TODAY 2020/12/8 23:07
@@ -64,7 +64,7 @@ public abstract class ServletUtils {
    *
    * @since 4.0
    */
-  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "jakarta.servlet.context.tempdir";
+  public static final String TEMP_DIR_CONTEXT_ATTRIBUTE = "cn.taketoday.web.mock.context.tempdir";
 
   // context
 
@@ -261,7 +261,7 @@ public abstract class ServletUtils {
   /**
    * Determine whether the given request is an include request,
    * that is, not a top-level HTTP request coming in from the outside.
-   * <p>Checks the presence of the "jakarta.servlet.include.request_uri"
+   * <p>Checks the presence of the "cn.taketoday.web.mock.include.request_uri"
    * request attribute. Could check any request attribute that is only
    * present in an include request.
    *

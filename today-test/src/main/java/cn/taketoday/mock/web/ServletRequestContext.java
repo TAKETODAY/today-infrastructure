@@ -57,11 +57,11 @@ import cn.taketoday.web.context.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.servlet.ServletMultipartRequest;
 import cn.taketoday.web.util.UriUtils;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletMapping;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.MappingMatch;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletMapping;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.MappingMatch;
 
 /**
  * Servlet environment implementation

@@ -23,9 +23,9 @@ import java.util.Enumeration;
 import cn.taketoday.beans.factory.DisposableBean;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletContextEvent;
+import cn.taketoday.web.mock.ServletContextListener;
 
 /**
  * Web application listener that cleans up remaining disposable attributes

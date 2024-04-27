@@ -36,7 +36,7 @@ import cn.taketoday.web.annotation.PutMapping;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.annotation.RequestPart;
 import cn.taketoday.web.multipart.MultipartFile;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

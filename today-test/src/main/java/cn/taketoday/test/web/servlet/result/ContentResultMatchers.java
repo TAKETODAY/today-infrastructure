@@ -34,7 +34,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.test.util.JsonExpectationsHelper;
 import cn.taketoday.test.util.XmlExpectationsHelper;
 import cn.taketoday.test.web.servlet.ResultMatcher;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
 import static cn.taketoday.test.util.AssertionErrors.assertNotNull;

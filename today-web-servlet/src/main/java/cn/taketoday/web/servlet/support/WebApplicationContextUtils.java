@@ -33,11 +33,11 @@ import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpSession;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletRequest;
+import cn.taketoday.web.mock.ServletResponse;
+import cn.taketoday.web.mock.http.HttpSession;
 
 /**
  * Convenience methods for retrieving the root {@link WebApplicationContext} for

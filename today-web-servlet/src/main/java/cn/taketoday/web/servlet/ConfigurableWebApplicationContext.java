@@ -19,8 +19,8 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * Interface to be implemented by configurable web application contexts.
@@ -38,7 +38,7 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
   /**
    * Name of the ServletConfig environment bean in the factory.
    *
-   * @see jakarta.servlet.ServletConfig
+   * @see cn.taketoday.web.mock.ServletConfig
    */
   String SERVLET_CONFIG_BEAN_NAME = "servletConfig";
 

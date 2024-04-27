@@ -24,7 +24,7 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.Filter;
+import cn.taketoday.web.mock.Filter;
 
 /**
  * Base class for MockMvc builder implementations, providing the capability to

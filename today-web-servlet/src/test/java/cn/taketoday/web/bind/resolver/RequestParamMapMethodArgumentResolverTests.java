@@ -33,7 +33,7 @@ import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

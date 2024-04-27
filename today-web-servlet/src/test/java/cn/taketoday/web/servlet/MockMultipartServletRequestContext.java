@@ -23,7 +23,7 @@ package cn.taketoday.web.servlet;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.web;
@@ -27,14 +24,14 @@ import java.util.Map;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.FilterConfig;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * Mock implementation of the {@link FilterConfig} interface.
  *
  * <p>Used for testing the web framework; also useful for testing
- * custom {@link jakarta.servlet.Filter} implementations.
+ * custom {@link cn.taketoday.web.mock.Filter} implementations.
  *
  * @author Juergen Hoeller
  * @see MockFilterChain

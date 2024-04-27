@@ -41,7 +41,7 @@ import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**
  * Adapt {@link ServerHttpResponse} to the Servlet {@link HttpServletResponse}.

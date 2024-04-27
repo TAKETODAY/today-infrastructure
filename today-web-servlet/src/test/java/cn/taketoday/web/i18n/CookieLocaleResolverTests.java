@@ -37,7 +37,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.WebUtils;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
+import cn.taketoday.web.mock.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

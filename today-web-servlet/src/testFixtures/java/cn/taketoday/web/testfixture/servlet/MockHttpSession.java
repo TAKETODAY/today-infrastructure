@@ -29,12 +29,12 @@ import java.util.Map;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import jakarta.servlet.ServletContext;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpSessionBindingEvent;
-import jakarta.servlet.http.HttpSessionBindingListener;
+import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.web.mock.http.HttpSessionBindingEvent;
+import cn.taketoday.web.mock.http.HttpSessionBindingListener;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.http.HttpSession} interface.
+ * Mock implementation of the {@link HttpSession} interface.
  *
  * @author Juergen Hoeller
  * @author Rod Johnson

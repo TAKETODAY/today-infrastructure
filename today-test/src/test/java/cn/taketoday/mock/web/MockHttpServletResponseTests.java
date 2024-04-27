@@ -33,8 +33,8 @@ import java.util.Collection;
 import java.util.Locale;
 
 import cn.taketoday.lang.Constant;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletResponse;
 
 import static cn.taketoday.http.HttpHeaders.CONTENT_LANGUAGE;
 import static cn.taketoday.http.HttpHeaders.CONTENT_LENGTH;

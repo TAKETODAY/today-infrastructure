@@ -23,8 +23,8 @@ import cn.taketoday.beans.factory.config.BeanPostProcessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.servlet.ServletConfigAware;
 import cn.taketoday.web.servlet.ServletContextAware;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link BeanPostProcessor} implementation

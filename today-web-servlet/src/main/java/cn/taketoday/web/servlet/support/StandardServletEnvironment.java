@@ -27,8 +27,8 @@ import cn.taketoday.jndi.JndiPropertySource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * {@link Environment} implementation to be used by {@code Servlet}-based web

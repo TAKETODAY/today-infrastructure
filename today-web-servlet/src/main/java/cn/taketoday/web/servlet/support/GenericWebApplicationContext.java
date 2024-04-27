@@ -31,8 +31,8 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ConfigurableWebEnvironment;
 import cn.taketoday.web.servlet.ServletContextAware;
-import jakarta.servlet.ServletConfig;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
 
 /**
  * Subclass of {@link GenericApplicationContext}, suitable for web servlet environments.

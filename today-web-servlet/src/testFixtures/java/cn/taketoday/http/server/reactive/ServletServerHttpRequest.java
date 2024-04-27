@@ -46,8 +46,8 @@ import jakarta.servlet.AsyncEvent;
 import jakarta.servlet.AsyncListener;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 import reactor.core.publisher.Flux;
 
 /**

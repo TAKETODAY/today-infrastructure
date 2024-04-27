@@ -30,7 +30,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.AbstractMultipartFile;
-import jakarta.servlet.http.Part;
+import cn.taketoday.web.mock.http.Part;
 
 /**
  * MultipartFile adapter, wrapping a Servlet Part object.
