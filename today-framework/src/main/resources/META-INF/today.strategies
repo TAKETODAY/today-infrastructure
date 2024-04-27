@@ -103,7 +103,8 @@ cn.taketoday.context.ApplicationListener=\
   cn.taketoday.framework.context.AnsiOutputApplicationListener,\
   cn.taketoday.framework.context.logging.LoggingApplicationListener,\
   cn.taketoday.framework.builder.ParentContextCloserApplicationListener,\
-  cn.taketoday.framework.env.EnvironmentPostProcessorApplicationListener
+  cn.taketoday.framework.env.EnvironmentPostProcessorApplicationListener,\
+  cn.taketoday.framework.availability.ApplicationRefusingTrafficListener
 
 cn.taketoday.framework.logging.LoggingSystemFactory=\
   cn.taketoday.framework.logging.logback.LogbackLoggingSystem.Factory,\

@@ -33,6 +33,7 @@ import cn.taketoday.context.ApplicationListener;
 import cn.taketoday.context.event.ContextClosedEvent;
 import cn.taketoday.context.event.ContextRefreshedEvent;
 import cn.taketoday.core.env.ConfigurableEnvironment;
+import cn.taketoday.framework.availability.ApplicationRefusingTrafficListener;
 import cn.taketoday.framework.availability.AvailabilityChangeEvent;
 import cn.taketoday.framework.availability.ReadinessState;
 import cn.taketoday.http.server.reactive.HttpHandler;
@@ -148,11 +149,12 @@ class ReactiveWebServerApplicationContextTests {
     TestApplicationListener listener = new TestApplicationListener();
     this.context.refresh();
     this.context.addApplicationListener(listener);
+    this.context.addApplicationListener(new ApplicationRefusingTrafficListener());
     this.context.close();
     List<ApplicationEvent> events = listener.receivedEvents();
     assertThat(events).hasSize(2).extracting("class")
             .contains(AvailabilityChangeEvent.class, ContextClosedEvent.class);
-    assertThat(((AvailabilityChangeEvent<ReadinessState>) events.get(0)).getState())
+    assertThat(((AvailabilityChangeEvent<ReadinessState>) events.get(1)).getState())
             .isEqualTo(ReadinessState.REFUSING_TRAFFIC);
   }
 
