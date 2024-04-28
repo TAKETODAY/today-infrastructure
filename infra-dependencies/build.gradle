@@ -540,15 +540,6 @@ bom {
       ]
     }
   }
-  library("Undertow", "2.3.11.Final") {
-    group("io.undertow") {
-      modules = [
-          "undertow-core",
-          "undertow-servlet",
-          "undertow-websockets-jsr"
-      ]
-    }
-  }
   library("Versions Maven Plugin", "2.16.0") {
     group("org.codehaus.mojo") {
       plugins = [

@@ -26,7 +26,6 @@ dependencies {
   optional("org.reactivestreams:reactive-streams")
   optional("io.projectreactor.netty:reactor-netty-http")
   optional("io.projectreactor.netty:reactor-netty5-http")
-  optional("io.undertow:undertow-core")
 
   optional("jakarta.json.bind:jakarta.json.bind-api")
   optional("jakarta.validation:jakarta.validation-api")

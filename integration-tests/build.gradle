@@ -66,14 +66,12 @@ dependencies {
   testImplementation 'org.awaitility:awaitility'
   testImplementation 'org.reactivestreams:reactive-streams'
   testImplementation 'io.projectreactor:reactor-test'
-  testImplementation 'io.undertow:undertow-core'
   testImplementation 'io.netty:netty-codec-http'
   testImplementation 'io.projectreactor.netty:reactor-netty-http'
 
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
-  testImplementation 'io.undertow:undertow-servlet'
   testImplementation 'jakarta.websocket:jakarta.websocket-api'
   testImplementation "com.google.code.gson:gson"
   testImplementation 'jakarta.json.bind:jakarta.json.bind-api'
@@ -94,8 +92,6 @@ dependencies {
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 
   testImplementation 'com.mysql:mysql-connector-j'
-
-  testImplementation 'io.undertow:undertow-websockets-jsr'
 
   testImplementation 'com.github.h-thurow:simple-jndi:0.23.0'
   testImplementation 'org.apache.commons:commons-dbcp2:2.9.0'

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.server.support;
@@ -125,6 +122,22 @@ public class OriginHandshakeInterceptorTests extends AbstractHttpRequestTests {
     OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(Collections.emptyList());
     assertThat(interceptor.beforeHandshake(request, wsHandler, attributes)).isFalse();
     assertThat(HttpStatus.FORBIDDEN.value()).isEqualTo(servletResponse.getStatus());
+  }
+
+  @Test
+  void getAllowedOriginPatterns() {
+    OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(Collections.emptyList());
+    assertThat(interceptor.getAllowedOriginPatterns()).isEmpty();
+    interceptor.setAllowedOriginPatterns(List.of("https://mydomain1.example"));
+    assertThat(interceptor.getAllowedOriginPatterns()).hasSize(1).contains("https://mydomain1.example");
+  }
+
+  @Test
+  void getAllowedOrigins() {
+    OriginHandshakeInterceptor interceptor = new OriginHandshakeInterceptor(Collections.emptyList());
+    assertThat(interceptor.getAllowedOrigins()).isEmpty();
+    interceptor.setAllowedOrigins(List.of("https://mydomain1.example"));
+    assertThat(interceptor.getAllowedOrigins()).hasSize(1).contains("https://mydomain1.example");
   }
 
 }
