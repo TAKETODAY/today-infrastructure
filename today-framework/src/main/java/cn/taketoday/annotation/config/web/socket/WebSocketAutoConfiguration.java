@@ -21,16 +21,8 @@ import cn.taketoday.context.annotation.Lazy;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
 import cn.taketoday.context.annotation.config.EnableAutoConfiguration;
 import cn.taketoday.context.condition.ConditionalOnClass;
-import cn.taketoday.context.condition.ConditionalOnMissingBean;
-import cn.taketoday.core.Decorator;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
-import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.web.socket.server.support.NettyRequestUpgradeStrategy;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.stereotype.Component;
-import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.config.EnableWebSocket;
-import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 
 /**
@@ -42,15 +34,8 @@ import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 @Lazy
 @EnableWebSocket
 @DisableDIAutoConfiguration
+@ConditionalOnWebApplication
 @ConditionalOnClass(WebSocketHandlerMapping.class)
 public class WebSocketAutoConfiguration {
-
-  @Component
-  @ConditionalOnClass(io.netty.handler.codec.http.HttpMethod.class)
-  @ConditionalOnWebApplication(type = Type.NETTY)
-  @ConditionalOnMissingBean
-  static RequestUpgradeStrategy nettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
-    return new NettyRequestUpgradeStrategy(sessionDecorator);
-  }
 
 }

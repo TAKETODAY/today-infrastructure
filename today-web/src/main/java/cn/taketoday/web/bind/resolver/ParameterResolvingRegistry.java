@@ -55,13 +55,14 @@ import cn.taketoday.web.handler.method.ResponseBodyAdvice;
 /**
  * ParameterResolvingStrategy registry
  *
- * @author TODAY 2019-07-07 23:24
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ParameterResolvingStrategy
- * @since 3.0
+ * @since 3.0 2019-07-07 23:24
  */
 public class ParameterResolvingRegistry extends ApplicationObjectSupport implements ArraySizeTrimmer, InitializingBean {
 
   private final ParameterResolvingStrategies defaultStrategies = new ParameterResolvingStrategies(36);
+
   private final ParameterResolvingStrategies customizedStrategies = new ParameterResolvingStrategies();
 
   /**
@@ -281,11 +282,11 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
 
   //
 
-  public void addCustomizedStrategies(ParameterResolvingStrategy... strategies) {
+  public void addCustomizedStrategies(@Nullable ParameterResolvingStrategy... strategies) {
     customizedStrategies.add(strategies);
   }
 
-  public void addDefaultStrategies(ParameterResolvingStrategy... strategies) {
+  public void addDefaultStrategies(@Nullable ParameterResolvingStrategy... strategies) {
     defaultStrategies.add(strategies);
   }
 
@@ -352,11 +353,11 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   }
 
   static void applyConversionService(@Nullable ConversionService conversionService,
-          Iterable<ParameterResolvingStrategy> resolvers) {
+          Iterable<ParameterResolvingStrategy> strategies) {
     if (conversionService != null) {
-      for (final ParameterResolvingStrategy resolver : resolvers) {
-        if (resolver instanceof ConversionServiceAware) {
-          ((ConversionServiceAware) resolver).setConversionService(conversionService);
+      for (final ParameterResolvingStrategy resolver : strategies) {
+        if (resolver instanceof ConversionServiceAware aware) {
+          aware.setConversionService(conversionService);
         }
       }
     }
@@ -402,6 +403,7 @@ public class ParameterResolvingRegistry extends ApplicationObjectSupport impleme
   // AnnotationParameterResolver
 
   static final class RequestAttributeMethodArgumentResolver extends AbstractNamedValueResolvingStrategy {
+
     RequestAttributeMethodArgumentResolver(ConfigurableBeanFactory beanFactory) {
       super(beanFactory);
     }

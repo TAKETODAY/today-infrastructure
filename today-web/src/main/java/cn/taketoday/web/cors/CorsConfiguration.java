@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.cors;
 
 import java.time.Duration;
@@ -46,17 +47,19 @@ import cn.taketoday.util.StringUtils;
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @author TODAY <br>
- * 2019-12-08 16:39
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see <a href="https://www.w3.org/TR/cors/">CORS spec</a>
- * @since 2.3.7
+ * @since 2.3.7 2019-12-08 16:39
  */
 public class CorsConfiguration {
 
   /** Wildcard representing <em>all</em> origins, methods, or headers. */
   public static final String ALL = "*";
+
   private static final List<HttpMethod> DEFAULT_METHODS = List.of(HttpMethod.GET, HttpMethod.HEAD);
+
   private static final List<String> DEFAULT_PERMIT_ALL = Collections.singletonList(ALL);
+
   private static final List<String> DEFAULT_PERMIT_METHODS = List.of("GET", "HEAD", "POST");
 
   /** @since 3.0 */
@@ -606,9 +609,7 @@ public class CorsConfiguration {
     return new ArrayList<>(combined);
   }
 
-  private List<OriginPattern> combinePatterns(
-          @Nullable List<OriginPattern> source, @Nullable List<OriginPattern> other) {
-
+  private List<OriginPattern> combinePatterns(@Nullable List<OriginPattern> source, @Nullable List<OriginPattern> other) {
     if (other == null) {
       return source != null ? source : Collections.emptyList();
     }
@@ -706,8 +707,8 @@ public class CorsConfiguration {
     }
     boolean allowAnyHeader = this.allowedHeaders.contains(ALL);
     int maxResultSize = allowAnyHeader ? requestHeaders.size()
-                                       : Math.min(requestHeaders.size(), this.allowedHeaders.size());
-    List<String> result = new ArrayList<>(maxResultSize);
+            : Math.min(requestHeaders.size(), this.allowedHeaders.size());
+    ArrayList<String> result = new ArrayList<>(maxResultSize);
     for (String requestHeader : requestHeaders) {
       if (StringUtils.isNotEmpty(requestHeader)) {
         requestHeader = requestHeader.trim();
@@ -724,7 +725,7 @@ public class CorsConfiguration {
         }
       }
     }
-    return (result.isEmpty() ? null : result);
+    return result.isEmpty() ? null : result;
   }
 
   /**
@@ -756,6 +757,7 @@ public class CorsConfiguration {
     private static final Pattern PORTS_PATTERN = Pattern.compile("(.*):\\[(\\*|\\d+(,\\d+)*)]");
 
     private final Pattern pattern;
+
     private final String declaredPattern;
 
     OriginPattern(String declaredPattern) {

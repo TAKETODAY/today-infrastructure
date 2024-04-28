@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
+import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.RequestMapping;
 
 /**
@@ -113,7 +114,7 @@ public class UnsatisfiedRequestParameterException extends RequestBindingExceptio
   /**
    * Return the actual parameter Map associated with the ServletRequest.
    *
-   * @see jakarta.servlet.ServletRequest#getParameterMap()
+   * @see RequestContext#getParameters()
    */
   public final MultiValueMap<String, String> getActualParams() {
     return this.actualParams;

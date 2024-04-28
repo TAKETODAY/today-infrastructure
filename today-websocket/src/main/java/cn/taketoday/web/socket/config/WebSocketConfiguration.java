@@ -17,32 +17,47 @@
 
 package cn.taketoday.web.socket.config;
 
+import java.util.List;
+
+import cn.taketoday.beans.factory.annotation.DisableAllDependencyInjection;
+import cn.taketoday.context.annotation.Configuration;
+import cn.taketoday.context.condition.ConditionalOnClass;
+import cn.taketoday.context.condition.ConditionalOnMissingBean;
+import cn.taketoday.core.Decorator;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
+import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
+import cn.taketoday.web.socket.server.support.NettyRequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.WebSocketHandlerMapping;
 
 /**
- * Configuration support for WebSocket request handling.
+ * A Configuration that detects implementations of {@link WebSocketConfigurer} in
+ * Infra configuration and invokes them in order to configure WebSocket request handling.
  *
  * @author Rossen Stoyanchev
  * @author Sebastien Deleuze
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class WebSocketConfigurationSupport {
+@DisableAllDependencyInjection
+@Configuration(proxyBeanMethods = false)
+class WebSocketConfiguration {
 
   @Component
-  public WebSocketHandlerMapping webSocketHandlerMapping(
+  static WebSocketHandlerMapping webSocketHandlerMapping(List<WebSocketConfigurer> configurers,
           @Nullable WebMvcConfigurationSupport support, @Nullable RequestUpgradeStrategy requestUpgradeStrategy) {
     DefaultWebSocketHandlerRegistry registry = new DefaultWebSocketHandlerRegistry();
     if (requestUpgradeStrategy != null) {
       registry.setHandshakeHandler(new DefaultHandshakeHandler(requestUpgradeStrategy));
     }
 
-    registerWebSocketHandlers(registry);
+    for (WebSocketConfigurer configurer : configurers) {
+      configurer.registerWebSocketHandlers(registry);
+    }
+
     WebSocketHandlerMapping handlerMapping = registry.getHandlerMapping();
     if (support != null) {
       support.initHandlerMapping(handlerMapping);
@@ -50,8 +65,11 @@ public class WebSocketConfigurationSupport {
     return handlerMapping;
   }
 
-  protected void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-
+  @Component
+  @ConditionalOnClass(io.netty.handler.codec.http.HttpMethod.class)
+  @ConditionalOnMissingBean
+  static RequestUpgradeStrategy nettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
+    return new NettyRequestUpgradeStrategy(sessionDecorator);
   }
 
 }

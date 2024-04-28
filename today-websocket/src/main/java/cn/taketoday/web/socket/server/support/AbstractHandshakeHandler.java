@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
@@ -46,8 +45,6 @@ import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 
-import static cn.taketoday.util.ClassUtils.isPresent;
-
 /**
  * A base class for {@link HandshakeHandler} implementations.
  *
@@ -66,9 +63,6 @@ import static cn.taketoday.util.ClassUtils.isPresent;
  * @since 4.0
  */
 public abstract class AbstractHandshakeHandler implements HandshakeHandler {
-
-  private static final boolean undertowWsPresent = isPresent(
-          "io.undertow.websockets.jsr.ServerWebSocketContainer", AbstractHandshakeHandler.class);
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -313,15 +307,8 @@ public abstract class AbstractHandshakeHandler implements HandshakeHandler {
     if (upgradeStrategy != null) {
       return upgradeStrategy;
     }
-    // FIXME
 
-    if (undertowWsPresent) {
-      return BeanUtils.newInstance("cn.taketoday.web.socket.server.standard.UndertowRequestUpgradeStrategy", null);
-    }
-    else {
-      // Let's assume Jakarta WebSocket API 2.1+
-      return BeanUtils.newInstance("cn.taketoday.web.socket.server.standard.StandardWebSocketUpgradeStrategy", null);
-    }
+    return new NettyRequestUpgradeStrategy(null);
   }
 
 }
