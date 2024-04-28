@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-description = "Infra Web"
+description = "Web infrastructure based on netty"
 
 configurations {
   testFixturesAnnotationProcessor.extendsFrom(dependencyManagement)

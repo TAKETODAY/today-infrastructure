@@ -15,8 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-description = "Infra TestContext Framework"
-
+description = "Testing infrastructure"
 
 dependencies {
   api(project(":today-core"))
