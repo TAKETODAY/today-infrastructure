@@ -17,11 +17,6 @@
 
 package cn.taketoday.http.converter;
 
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.FileUpload;
-import org.apache.tomcat.util.http.fileupload.RequestContext;
-import org.apache.tomcat.util.http.fileupload.UploadContext;
-import cn.taketoday.web.mock.fileupload.disk.DiskFileItemFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -47,6 +42,11 @@ import cn.taketoday.http.MockHttpOutputMessage;
 import cn.taketoday.http.converter.xml.SourceHttpMessageConverter;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
+import cn.taketoday.web.mock.fileupload.FileItem;
+import cn.taketoday.web.mock.fileupload.FileUpload;
+import cn.taketoday.web.mock.fileupload.RequestContext;
+import cn.taketoday.web.mock.fileupload.UploadContext;
+import cn.taketoday.web.mock.fileupload.disk.DiskFileItemFactory;
 
 import static cn.taketoday.http.MediaType.APPLICATION_FORM_URLENCODED;
 import static cn.taketoday.http.MediaType.APPLICATION_JSON;
