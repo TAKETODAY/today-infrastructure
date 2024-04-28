@@ -41,13 +41,13 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.InfraHandler;
-import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
+
+import static cn.taketoday.web.servlet.DispatcherServlet.APPLICATION_CONTEXT_ID_PREFIX;
 
 /**
  * Performs the actual initialization work for the root application context.
- * Called by {@link ContextLoaderListener}.
  *
  * <p>Looks for a {@link #CONTEXT_CLASS_PARAM "contextClass"} parameter at the
  * {@code web.xml} context-param level to specify the context class type, falling
@@ -82,7 +82,6 @@ import cn.taketoday.web.mock.ServletContext;
  * @author Colin Sampaleanu
  * @author Sam Brannen
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ContextLoaderListener
  * @since 4.0
  */
 public class ContextLoader {
@@ -373,7 +372,7 @@ public class ContextLoader {
       }
       else {
         // Generate default id...
-        wac.setId(InfraHandler.APPLICATION_CONTEXT_ID_PREFIX +
+        wac.setId(APPLICATION_CONTEXT_ID_PREFIX +
                 ObjectUtils.getDisplayString(sc.getContextPath()));
       }
     }

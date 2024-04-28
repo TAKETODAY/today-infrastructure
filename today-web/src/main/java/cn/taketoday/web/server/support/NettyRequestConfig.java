@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.netty;
+package cn.taketoday.web.server.support;
 
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
@@ -150,9 +150,9 @@ public class NettyRequestConfig {
 
     /**
      * A <a href="https://tools.ietf.org/html/rfc6265">RFC6265</a> compliant cookie decoder to be used server side.
-     *
+     * <p>
      * Only name and value fields are expected, so old fields are not populated (path, domain, etc).
-     *
+     * <p>
      * Old <a href="https://tools.ietf.org/html/rfc2965">RFC2965</a> cookies are still supported,
      * old fields will simply be ignored.
      *
@@ -166,9 +166,9 @@ public class NettyRequestConfig {
     /**
      * A <a href="https://tools.ietf.org/html/rfc6265">RFC6265</a> compliant cookie encoder to be used server side,
      * so some fields are sent (Version is typically ignored).
-     *
+     * <p>
      * As Netty's Cookie merges Expires and MaxAge into one single field, only Max-Age field is sent.
-     *
+     * <p>
      * Note that multiple cookies must be sent as separate "Set-Cookie" headers.
      *
      * @see ServerCookieDecoder

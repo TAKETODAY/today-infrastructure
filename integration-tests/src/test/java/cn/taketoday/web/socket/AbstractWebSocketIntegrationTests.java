@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 import cn.taketoday.context.Lifecycle;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
+import cn.taketoday.web.socket.server.support.NettyRequestUpgradeStrategy;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;

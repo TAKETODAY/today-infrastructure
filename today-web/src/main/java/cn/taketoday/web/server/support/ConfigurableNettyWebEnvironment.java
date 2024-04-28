@@ -15,28 +15,16 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.netty;
+package cn.taketoday.web.server.support;
 
-import cn.taketoday.core.env.Environment;
-import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.core.env.StandardEnvironment;
+import cn.taketoday.core.env.ConfigurableEnvironment;
 
 /**
- * {@link Environment} implementation to be used by {@code netty}-based web
- * applications. All web-related (netty-based) {@code ApplicationContext} classes
- * initialize an instance by default.
+ * Specialization of {@link ConfigurableEnvironment} for netty application contexts.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 4.0 2023/2/4 23:57
  */
-public class StandardNettyWebEnvironment extends StandardEnvironment implements ConfigurableNettyWebEnvironment {
-
-  public StandardNettyWebEnvironment() {
-    super();
-  }
-
-  protected StandardNettyWebEnvironment(PropertySources propertySources) {
-    super(propertySources);
-  }
+public interface ConfigurableNettyWebEnvironment extends ConfigurableEnvironment {
 
 }

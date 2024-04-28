@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.netty;
+package cn.taketoday.web.server.support;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
@@ -80,7 +80,8 @@ sealed class NettyChannelInitializer extends ChannelInitializer<Channel> impleme
             .addLast("HttpServerCodec", new HttpServerCodec(httpDecoderConfig))
             .addLast("HttpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
             .addLast("HttpServerExpectContinueHandler", new HttpServerExpectContinueHandler())
-            .addLast("NettyChannelHandler", nettyChannelHandler);
+            .addLast("NettyChannelHandler", nettyChannelHandler)
+            .remove(this);
   }
 
   @Override

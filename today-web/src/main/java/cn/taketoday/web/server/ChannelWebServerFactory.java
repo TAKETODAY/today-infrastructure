@@ -28,6 +28,13 @@ import io.netty.channel.ChannelHandler;
 public interface ChannelWebServerFactory extends WebServerFactory {
 
   /**
+   * {@link ChannelHandler} bean name
+   *
+   * @see #getWebServer(ChannelHandler)
+   */
+  String CHANNEL_HANDLER_BEAN_NAME = "nettyChannelHandler";
+
+  /**
    * Gets a new fully configured but paused {@link WebServer} instance. Clients should
    * not be able to connect to the returned server until {@link WebServer#start()} is
    * called (which happens when the {@code ApplicationContext} has been fully

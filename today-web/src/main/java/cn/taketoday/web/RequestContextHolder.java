@@ -32,8 +32,8 @@ public abstract class RequestContextHolder {
   private static final RequestThreadLocal contextHolder;
 
   static {
-    if (ClassUtils.isPresent("cn.taketoday.framework.web.netty.FastRequestThreadLocal")) {
-      contextHolder = BeanUtils.newInstance("cn.taketoday.framework.web.netty.FastRequestThreadLocal", RequestContextHolder.class.getClassLoader());
+    if (ClassUtils.isPresent("cn.taketoday.web.server.support.FastRequestThreadLocal")) {
+      contextHolder = BeanUtils.newInstance("cn.taketoday.web.server.support.FastRequestThreadLocal", RequestContextHolder.class.getClassLoader());
     }
     else {
       contextHolder = new DefaultRequestThreadLocal();

@@ -31,8 +31,6 @@ import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.async.WebAsyncManager;
-import cn.taketoday.web.servlet.support.StandardServletEnvironment;
-import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 import cn.taketoday.web.mock.DispatcherType;
 import cn.taketoday.web.mock.Servlet;
 import cn.taketoday.web.mock.ServletConfig;
@@ -42,6 +40,8 @@ import cn.taketoday.web.mock.ServletRequest;
 import cn.taketoday.web.mock.ServletResponse;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.servlet.support.StandardServletEnvironment;
+import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers in Servlet
@@ -50,6 +50,10 @@ import cn.taketoday.web.mock.http.HttpServletResponse;
  * @since 2.0 2018-06-25 19:47:14
  */
 public class DispatcherServlet extends DispatcherHandler implements Servlet, Serializable {
+  /**
+   * Prefix for ApplicationContext ids that refer to context path
+   */
+  public static final String APPLICATION_CONTEXT_ID_PREFIX = ApplicationContext.class.getName() + ":";
 
   @Serial
   private static final long serialVersionUID = 1L;
@@ -155,7 +159,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     this.servletConfig = servletConfig;
     String servletName = servletConfig.getServletName();
     servletConfig.getServletContext().log("Initializing Infra %s '%s'".formatted(getClass().getSimpleName(), servletName));
-    logger.info("Initializing Servlet '{}'", servletName);
+    log.info("Initializing Servlet '{}'", servletName);
 
     init();
   }

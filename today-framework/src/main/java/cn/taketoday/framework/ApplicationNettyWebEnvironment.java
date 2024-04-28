@@ -24,7 +24,7 @@ import cn.taketoday.context.properties.source.ConfigurationPropertySources;
 import cn.taketoday.core.env.ConfigurableEnvironment;
 import cn.taketoday.core.env.ConfigurablePropertyResolver;
 import cn.taketoday.core.env.PropertySources;
-import cn.taketoday.framework.web.netty.StandardNettyWebEnvironment;
+import cn.taketoday.web.server.support.StandardNettyWebEnvironment;
 
 /**
  * Specialization of {@link ConfigurableEnvironment} for netty web application contexts.

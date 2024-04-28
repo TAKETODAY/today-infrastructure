@@ -24,7 +24,7 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.framework.Application;
-import cn.taketoday.framework.web.netty.NettyWebServerFactory;
+import cn.taketoday.web.server.support.NettyWebServerFactory;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.mock.Filter;
 import cn.taketoday.web.mock.ServletContext;

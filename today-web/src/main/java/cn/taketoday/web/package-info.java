@@ -16,7 +16,7 @@
  */
 
 /**
- * Infra Web
+ * Web infrastructure
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  */

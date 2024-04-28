@@ -46,7 +46,6 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 
@@ -58,31 +57,13 @@ import cn.taketoday.util.ObjectUtils;
  */
 public abstract class InfraHandler implements ApplicationContextAware, EnvironmentCapable, EnvironmentAware, BeanNameAware {
 
-  /**
-   * Default context class for InfraHandler.
-   *
-   * @see ClassPathXmlApplicationContext
-   */
-  public static final Class<?> DEFAULT_CONTEXT_CLASS = ClassPathXmlApplicationContext.class;
-
-  /**
-   * Prefix for ApplicationContext ids that refer to context path and/or servlet name.
-   */
-  public static final String APPLICATION_CONTEXT_ID_PREFIX = ApplicationContext.class.getName() + ":";
-
-  /**
-   * Any number of these characters are considered delimiters between
-   * multiple values in a single init-param String value.
-   */
-  public static final String INIT_PARAM_DELIMITERS = ",; \t\n";
-
-  protected final Logger logger = LoggerFactory.getLogger(getClass());
+  protected static final Logger log = LoggerFactory.getLogger(DispatcherHandler.class);
 
   /** If the ApplicationContext was injected via {@link #setApplicationContext}. */
   private boolean applicationContextInjected;
 
   /** ApplicationContext implementation class to create. */
-  private Class<?> contextClass = DEFAULT_CONTEXT_CLASS;
+  private Class<?> contextClass = ClassPathXmlApplicationContext.class;
 
   /** ApplicationContext id to assign. */
   @Nullable
@@ -114,7 +95,9 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
 
   protected final AtomicBoolean initialized = new AtomicBoolean(false);
 
-  protected InfraHandler() { }
+  protected InfraHandler() {
+
+  }
 
   /**
    * Create a new {@code InfraHandler} with the given application context.
@@ -205,19 +188,19 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
         afterApplicationContextInit();
       }
       catch (Exception ex) {
-        logger.error("Context initialization failed", ex);
+        log.error("Context initialization failed", ex);
         throw ex;
       }
 
-      if (logger.isDebugEnabled()) {
+      if (log.isDebugEnabled()) {
         String value = isEnableLoggingRequestDetails() ?
                 "shown which may lead to unsafe logging of potentially sensitive data" :
                 "masked to prevent unsafe logging of potentially sensitive data";
-        logger.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
+        log.debug("enableLoggingRequestDetails='{}': request parameters and headers will be {}",
                 isEnableLoggingRequestDetails(), value);
       }
 
-      logger.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
+      log.info("Completed initialization in {} ms", System.currentTimeMillis() - startTime);
     }
   }
 
@@ -306,7 +289,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   protected void applyDefaultContextId(ConfigurableApplicationContext context) {
-    context.setId(APPLICATION_CONTEXT_ID_PREFIX + "application");
+    context.setId("application");
   }
 
   /**
@@ -396,17 +379,6 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
     }
   }
 
-  protected final ApplicationContextInitializer loadInitializer(String className, ConfigurableApplicationContext context) {
-    try {
-      var initializerClass = ClassUtils.<ApplicationContextInitializer>forName(className, context.getClassLoader());
-      return BeanUtils.newInstance(initializerClass);
-    }
-    catch (ClassNotFoundException ex) {
-      throw new ApplicationContextException(
-              "Could not load class [%s] specified via 'contextInitializerClasses' init-param".formatted(className), ex);
-    }
-  }
-
   /**
    * Refresh this handler's application context, as well as the
    * dependent state of the handler.
@@ -423,7 +395,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
   }
 
   /**
-   * Template method which can be overridden to add servlet-specific refresh work.
+   * Template method which can be overridden to add infra-specific refresh work.
    * Called after successful context refresh.
    * <p>This implementation is empty.
    *
@@ -459,7 +431,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @param msg Log message
    */
   protected void logInfo(final String msg) {
-    logger.info(msg);
+    log.info(msg);
   }
 
   /**
@@ -558,9 +530,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * @see #applyInitializers
    */
   public void addContextInitializers(@Nullable ApplicationContextInitializer... initializers) {
-    if (initializers != null) {
-      CollectionUtils.addAll(contextInitializers, initializers);
-    }
+    CollectionUtils.addAll(contextInitializers, initializers);
   }
 
   /**

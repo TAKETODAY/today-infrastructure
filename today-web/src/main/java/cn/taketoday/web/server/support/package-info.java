@@ -15,14 +15,15 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-description = "WebSocket infrastructure"
+/**
+ * Default Netty support package
+ *
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 4.0 2024/4/28 11:28
+ */
+@NonNullApi
+@NonNullFields
+package cn.taketoday.web.server.support;
 
-dependencies {
-  api(project(":today-context"))
-  api(project(":today-core"))
-  api(project(":today-web"))
-  optional("io.netty:netty-codec-http")
-
-  testImplementation(testFixtures(project(":today-core")))
-  testImplementation(testFixtures(project(":today-web")))
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

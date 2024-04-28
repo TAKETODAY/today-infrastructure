@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.netty;
+package cn.taketoday.web.server.support;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,14 +93,14 @@ public class NettyRequestContext extends RequestContext {
 
   private final FullHttpRequest request;
 
-  final NettyRequestConfig config;
+  public final NettyRequestConfig config;
 
-  final ChannelHandlerContext channelContext;
+  public final ChannelHandlerContext channelContext;
 
   /**
    * response headers
    */
-  final HttpHeaders nettyResponseHeaders;
+  public final HttpHeaders nettyResponseHeaders;
 
   // headers and status-code is written? default = false
   private final AtomicBoolean committed = new AtomicBoolean();
@@ -420,6 +420,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected void postRequestCompleted(@Nullable Throwable notHandled) {
+    request.release();
     if (notHandled != null) {
       return;
     }

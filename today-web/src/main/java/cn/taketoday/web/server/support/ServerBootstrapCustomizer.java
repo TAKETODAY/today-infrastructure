@@ -15,16 +15,25 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.framework.web.netty;
+package cn.taketoday.web.server.support;
 
-import cn.taketoday.core.env.ConfigurableEnvironment;
+import io.netty.bootstrap.ServerBootstrap;
 
 /**
- * Specialization of {@link ConfigurableEnvironment} for netty application contexts.
+ * Strategy interface for customizing {@link ServerBootstrap netty server bootstrap}. Any
+ * beans of this type will get a callback with the ServerBootstrap before the server itself
+ * is started, so you can set options etc.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2023/2/4 23:57
+ * @since 4.0 2023/11/4 13:52
  */
-public interface ConfigurableNettyWebEnvironment extends ConfigurableEnvironment {
+public interface ServerBootstrapCustomizer {
+
+  /**
+   * Customize the specified {@link ServerBootstrap}.
+   *
+   * @param bootstrap the server bootstrap to customize
+   */
+  void customize(ServerBootstrap bootstrap);
 
 }

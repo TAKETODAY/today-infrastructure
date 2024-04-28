@@ -29,7 +29,7 @@ import cn.taketoday.core.type.AnnotatedTypeMetadata;
 import cn.taketoday.framework.ApplicationType;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
 import cn.taketoday.web.server.context.GenericWebServerApplicationContext;
-import cn.taketoday.framework.web.netty.ConfigurableNettyWebEnvironment;
+import cn.taketoday.web.server.support.ConfigurableNettyWebEnvironment;
 import cn.taketoday.web.server.reactive.context.ConfigurableReactiveWebEnvironment;
 import cn.taketoday.web.server.reactive.context.ReactiveWebApplicationContext;
 import cn.taketoday.util.ClassUtils;

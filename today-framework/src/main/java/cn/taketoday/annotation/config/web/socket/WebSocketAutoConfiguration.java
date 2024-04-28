@@ -25,7 +25,7 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.core.Decorator;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
-import cn.taketoday.framework.web.netty.NettyRequestUpgradeStrategy;
+import cn.taketoday.web.socket.server.support.NettyRequestUpgradeStrategy;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.socket.WebSocketSession;

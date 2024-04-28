@@ -20,6 +20,7 @@ package cn.taketoday.web.server.context;
 import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.context.ApplicationContextException;
@@ -127,18 +128,13 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
    * @return a {@link cn.taketoday.framework.web.netty.NettyChannelHandler} (never {@code null}
    */
   protected ChannelHandler getChannelHandler() {
-    // Use bean names so that we don't consider the hierarchy
-    Set<String> beanNames = beanFactory.getBeanNamesForType(ChannelHandler.class);
-    if (beanNames.isEmpty()) {
+    try {
+      return beanFactory.getBean(ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME, ChannelHandler.class);
+    }
+    catch (NoSuchBeanDefinitionException e) {
       throw new ApplicationContextException(
               "Unable to start WebServerApplicationContext due to missing ChannelHandler bean.");
     }
-    if (beanNames.size() > 1) {
-      throw new ApplicationContextException(
-              "Unable to start WebServerApplicationContext due to multiple ChannelHandler beans : "
-                      + StringUtils.collectionToCommaDelimitedString(beanNames));
-    }
-    return beanFactory.getBean(CollectionUtils.firstElement(beanNames), ChannelHandler.class);
   }
 
   /**

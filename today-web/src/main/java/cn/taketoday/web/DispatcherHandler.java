@@ -87,6 +87,19 @@ public class DispatcherHandler extends InfraHandler {
 
   public DispatcherHandler() { }
 
+  /**
+   * Create a new {@code DispatcherHandler} with the given application context.
+   * <p>
+   *
+   * If the context has already been refreshed or does not implement
+   * {@code ConfigurableApplicationContext}, none of the above will occur under the
+   * assumption that the user has performed these actions (or not) per his or her
+   * specific needs.
+   *
+   * @param context the context to use
+   * @see #initApplicationContext
+   * @see #configureAndRefreshApplicationContext
+   */
   public DispatcherHandler(ApplicationContext context) {
     super(context);
   }
@@ -410,11 +423,11 @@ public class DispatcherHandler extends InfraHandler {
       throw ex;
     }
     else if (returnValue != HttpRequestHandler.NONE_RETURN_VALUE) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("Using resolved error view: {}", returnValue, ex);
+      if (log.isTraceEnabled()) {
+        log.trace("Using resolved error view: {}", returnValue, ex);
       }
-      else if (logger.isDebugEnabled()) {
-        logger.debug("Using resolved error view: {}", returnValue);
+      else if (log.isDebugEnabled()) {
+        log.debug("Using resolved error view: {}", returnValue);
       }
     }
     return returnValue;
@@ -587,7 +600,7 @@ public class DispatcherHandler extends InfraHandler {
 
   // @since 4.0
   private void logRequest(RequestContext request) {
-    if (logger.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       String params;
       String contentType = request.getContentType();
       if (StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
@@ -613,7 +626,7 @@ public class DispatcherHandler extends InfraHandler {
       }
 
       message = URLDecoder.decode(message, StandardCharsets.UTF_8);
-      if (logger.isTraceEnabled()) {
+      if (log.isTraceEnabled()) {
         StringBuilder headers = new StringBuilder();
         HttpHeaders httpHeaders = request.requestHeaders();
         if (!httpHeaders.isEmpty()) {
@@ -640,32 +653,32 @@ public class DispatcherHandler extends InfraHandler {
           }
         }
 
-        logger.trace("%s, headers={%s} in DispatcherHandler '%s'".formatted(message, headers, beanName));
+        log.trace("%s, headers={%s} in DispatcherHandler '%s'".formatted(message, headers, beanName));
       }
       else {
-        logger.debug(message);
+        log.debug(message);
       }
     }
   }
 
   private void logResult(RequestContext request, @Nullable Throwable failureCause) {
-    if (logger.isDebugEnabled()) {
+    if (log.isDebugEnabled()) {
       if (failureCause != null) {
-        if (logger.isTraceEnabled()) {
-          logger.trace("Failed to complete request", failureCause);
+        if (log.isTraceEnabled()) {
+          log.trace("Failed to complete request", failureCause);
         }
         else {
-          logger.debug("Failed to complete request", failureCause);
+          log.debug("Failed to complete request", failureCause);
         }
       }
       else {
         if (request.isConcurrentHandlingStarted()) {
-          logger.debug("Exiting but response remains open for further handling");
+          log.debug("Exiting but response remains open for further handling");
           return;
         }
 
         String headers = "";  // nothing below trace
-        if (logger.isTraceEnabled()) {
+        if (log.isTraceEnabled()) {
           HttpHeaders httpHeaders = request.responseHeaders();
           if (isEnableLoggingRequestDetails()) {
             headers = httpHeaders.entrySet().stream()
@@ -678,14 +691,14 @@ public class DispatcherHandler extends InfraHandler {
           headers = ", headers={%s}".formatted(headers);
         }
         HttpStatus httpStatus = HttpStatus.resolve(request.getStatus());
-        logger.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
+        log.debug("{} Completed {}{}", request, httpStatus != null ? httpStatus : request.getStatus(), headers);
       }
     }
   }
 
   private void logStrategy(Object strategy) {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Detected {}", strategy.getClass().getName());
+    if (log.isDebugEnabled()) {
+      log.debug("Detected {}", strategy.getClass().getName());
     }
   }
 

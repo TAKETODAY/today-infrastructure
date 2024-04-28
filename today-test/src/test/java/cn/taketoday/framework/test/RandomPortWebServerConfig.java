@@ -22,7 +22,7 @@ import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.annotation.config.web.netty.NettyWebServerFactoryAutoConfiguration;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.framework.web.netty.NettyWebServerFactory;
+import cn.taketoday.web.server.support.NettyWebServerFactory;
 import cn.taketoday.web.server.WebServerFactoryCustomizer;
 import cn.taketoday.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.stereotype.Component;

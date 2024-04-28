@@ -24,7 +24,6 @@ import cn.taketoday.annotation.config.web.WebMvcProperties;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.annotation.Lazy;
-import cn.taketoday.context.annotation.MissingBean;
 import cn.taketoday.context.annotation.Role;
 import cn.taketoday.context.annotation.config.AutoConfigureOrder;
 import cn.taketoday.context.annotation.config.DisableDIAutoConfiguration;
@@ -36,20 +35,23 @@ import cn.taketoday.core.Ordered;
 import cn.taketoday.core.ssl.SslBundles;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication;
 import cn.taketoday.framework.annotation.ConditionalOnWebApplication.Type;
+import cn.taketoday.lang.Nullable;
+import cn.taketoday.stereotype.Component;
+import cn.taketoday.util.ClassUtils;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.server.ChannelWebServerFactory;
 import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.web.server.ServerProperties.Netty.Multipart;
 import cn.taketoday.web.server.Ssl;
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.stereotype.Component;
-import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.DispatcherHandler;
-import cn.taketoday.framework.web.netty.NettyChannelHandler;
-import cn.taketoday.framework.web.netty.NettyRequestConfig;
-import cn.taketoday.framework.web.netty.NettyWebServerFactory;
 import cn.taketoday.web.server.error.SendErrorHandler;
-import cn.taketoday.framework.web.netty.ServerBootstrapCustomizer;
+import cn.taketoday.web.server.support.NettyChannelHandler;
+import cn.taketoday.web.server.support.NettyRequestConfig;
+import cn.taketoday.web.server.support.NettyWebServerFactory;
+import cn.taketoday.web.server.support.ServerBootstrapCustomizer;
+import cn.taketoday.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
+
+import static cn.taketoday.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for a netty web server.
@@ -58,17 +60,22 @@ import io.netty.handler.codec.http.multipart.DefaultHttpDataFactory;
  * @since 4.0 2023/2/5 17:39
  */
 @Lazy
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnWebApplication(type = Type.NETTY)
 @EnableConfigurationProperties(ServerProperties.class)
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
 
+  private static final boolean websocketPresent = ClassUtils.isPresent(
+          "cn.taketoday.web.socket.Message", NettyChannelHandler.class);
+
+  @Component(CHANNEL_HANDLER_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @MissingBean(value = { NettyChannelHandler.class, DispatcherHandler.class })
+  @ConditionalOnMissingBean(name = CHANNEL_HANDLER_BEAN_NAME)
   static NettyChannelHandler nettyChannelHandler(ApplicationContext context,
-          WebMvcProperties webMvcProperties, NettyRequestConfig contextConfig) {
-    NettyChannelHandler handler = new NettyChannelHandler(contextConfig, context);
+          WebMvcProperties webMvcProperties, NettyRequestConfig requestConfig) {
+    NettyChannelHandler handler = createChannelHandler(context, requestConfig);
     handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.throwExceptionIfNoHandlerFound);
     handler.setEnableLoggingRequestDetails(webMvcProperties.logRequestDetails);
     return handler;
@@ -91,7 +98,8 @@ public class NettyWebServerFactoryAutoConfiguration {
     return factory;
   }
 
-  @MissingBean
+  @Component
+  @ConditionalOnMissingBean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   static NettyRequestConfig nettyRequestConfig(ServerProperties server, SendErrorHandler sendErrorHandler) {
     var multipart = server.netty.multipart;
@@ -120,6 +128,13 @@ public class NettyWebServerFactoryAutoConfiguration {
     else {
       return new DefaultHttpDataFactory(StringUtils.hasText(multipart.baseDir), multipart.charset);
     }
+  }
+
+  private static NettyChannelHandler createChannelHandler(ApplicationContext context, NettyRequestConfig requestConfig) {
+    if (websocketPresent) {
+      return new WsNettyChannelHandler(requestConfig, context);
+    }
+    return new NettyChannelHandler(requestConfig, context);
   }
 
 }
