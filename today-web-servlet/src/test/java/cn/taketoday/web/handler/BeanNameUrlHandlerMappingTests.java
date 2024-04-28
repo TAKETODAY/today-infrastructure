@@ -35,7 +35,7 @@ import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
-import jakarta.servlet.ServletException;
+import cn.taketoday.web.mock.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

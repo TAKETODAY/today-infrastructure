@@ -29,7 +29,7 @@ import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
 import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import jakarta.servlet.AsyncEvent;
+import cn.taketoday.web.mock.AsyncEvent;
 
 import static cn.taketoday.web.context.async.CallableProcessingInterceptor.RESULT_NONE;
 import static org.assertj.core.api.Assertions.assertThat;

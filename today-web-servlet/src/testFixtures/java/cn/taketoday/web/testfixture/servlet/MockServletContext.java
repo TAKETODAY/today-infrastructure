@@ -45,15 +45,15 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.servlet.ServletUtils;
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterRegistration;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.SessionCookieConfig;
-import jakarta.servlet.SessionTrackingMode;
+import cn.taketoday.web.mock.Filter;
+import cn.taketoday.web.mock.FilterRegistration;
+import cn.taketoday.web.mock.RequestDispatcher;
+import cn.taketoday.web.mock.Servlet;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.ServletRegistration;
+import cn.taketoday.web.mock.SessionCookieConfig;
+import cn.taketoday.web.mock.SessionTrackingMode;
 import cn.taketoday.web.mock.descriptor.JspConfigDescriptor;
 
 /**

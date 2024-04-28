@@ -79,8 +79,6 @@ public class CookieIntegrationTests extends AbstractHttpHandlerIntegrationTests 
 
   @ParameterizedHttpServerTest
   public void cookiesWithSameNameTest(HttpServer httpServer) throws Exception {
-    assumeFalse(httpServer instanceof UndertowHttpServer, "Bug in Undertow in Cookies with same name handling");
-
     startServer(httpServer);
 
     URI url = new URI("http://localhost:" + port);

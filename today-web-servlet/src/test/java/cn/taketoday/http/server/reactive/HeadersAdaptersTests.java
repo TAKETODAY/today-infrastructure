@@ -35,7 +35,6 @@ import cn.taketoday.http.support.Netty5HeadersAdapter;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.undertow.util.HeaderMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -135,8 +134,7 @@ class HeadersAdaptersTests {
     return Stream.of(
             arguments(named("Map", MultiValueMap.forAdaption(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH)))),
             arguments(named("Netty", new Netty4HeadersAdapter(new DefaultHttpHeaders()))),
-            arguments(named("Netty", new Netty5HeadersAdapter(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders()))),
-            arguments(named("Undertow", new UndertowHeadersAdapter(new HeaderMap())))
+            arguments(named("Netty", new Netty5HeadersAdapter(io.netty5.handler.codec.http.headers.HttpHeaders.newHeaders())))
     );
   }
 

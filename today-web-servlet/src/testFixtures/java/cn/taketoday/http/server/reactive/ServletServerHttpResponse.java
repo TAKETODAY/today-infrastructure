@@ -36,11 +36,11 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.AsyncEvent;
-import jakarta.servlet.AsyncListener;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.WriteListener;
+import cn.taketoday.web.mock.AsyncContext;
+import cn.taketoday.web.mock.AsyncEvent;
+import cn.taketoday.web.mock.AsyncListener;
+import cn.taketoday.web.mock.ServletOutputStream;
+import cn.taketoday.web.mock.WriteListener;
 import cn.taketoday.web.mock.http.HttpServletResponse;
 
 /**

@@ -39,7 +39,7 @@ import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.ViewControllerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import jakarta.servlet.ServletContext;
+import cn.taketoday.web.mock.ServletContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultHandlers.print;

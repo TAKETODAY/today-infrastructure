@@ -63,7 +63,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletConfig;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
-import jakarta.servlet.ServletException;
+import cn.taketoday.web.mock.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

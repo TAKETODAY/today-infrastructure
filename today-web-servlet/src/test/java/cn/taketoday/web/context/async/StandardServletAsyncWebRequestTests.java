@@ -26,7 +26,7 @@ import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
 import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import jakarta.servlet.AsyncEvent;
+import cn.taketoday.web.mock.AsyncEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

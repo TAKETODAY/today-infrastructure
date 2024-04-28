@@ -61,15 +61,15 @@ import cn.taketoday.transaction.TransactionDefinition;
  * used to match against the type of a thrown exception and its super types,
  * providing type safety and avoiding any unintentional matches that may occur
  * when using a pattern. For example, a value of
- * {@code jakarta.servlet.ServletException.class} will only match thrown exceptions
- * of type {@code jakarta.servlet.ServletException} and its subclasses.
+ * {@code java.lang.Exception.class} will only match thrown exceptions
+ * of type {@code java.lang.Exception} and its subclasses.
  *
  * <p>When a rollback rule is defined with an exception pattern, the pattern can
  * be a fully qualified class name or a substring of a fully qualified class name
  * for an exception type (which must be a subclass of {@code Throwable}), with no
  * wildcard support at present. For example, a value of
- * {@code "jakarta.servlet.ServletException"} or {@code "ServletException"} will
- * match {@code jakarta.servlet.ServletException} and its subclasses.
+ * {@code "java.lang.Exception"} or {@code "Exception"} will
+ * match {@code java.lang.Exception} and its subclasses.
  *
  * <p><strong>WARNING:</strong> You must carefully consider how specific a pattern
  * is and whether to include package information (which isn't mandatory). For example,
