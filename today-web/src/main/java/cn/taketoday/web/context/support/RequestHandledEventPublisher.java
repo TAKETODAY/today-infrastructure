@@ -57,7 +57,7 @@ public class RequestHandledEventPublisher implements RequestCompletedListener {
    */
   protected ApplicationEvent getRequestHandledEvent(RequestContext request, @Nullable Throwable notHandled) {
     return new RequestHandledEvent(this, request.getRequestURI(), request.getRemoteAddress(),
-            request.getMethodValue(), RequestContextUtils.getSessionId(request), null,
+            request.getMethodValue(), RequestContextUtils.getSessionId(request),
             request.getRequestProcessingTime(), notHandled, request.getStatus());
   }
 

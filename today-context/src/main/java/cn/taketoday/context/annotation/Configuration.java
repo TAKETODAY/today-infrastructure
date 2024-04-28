@@ -59,9 +59,8 @@ import cn.taketoday.stereotype.Component;
  * </pre>
  *
  * <p>See the {@link AnnotationConfigApplicationContext} javadocs for further details, and see
- * {@link cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext
- * AnnotationConfigWebApplicationContext} for web configuration instructions in a
- * {@code Servlet} container.
+ * {@link cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext
+ * AnnotationConfigWebServerApplicationContext} for web configuration instructions.
  *
  * <h3>Via {@code <beans>} XML</h3>
  *

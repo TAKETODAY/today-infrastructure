@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,6 @@ import cn.taketoday.web.multipart.MultipartFile;
  * <ul>
  * <li>Annotated with @{@link RequestPart}
  * <li>Of type {@link MultipartFile}
- * <li>Of type {@code jakarta.servlet.http.Part} in conjunction with Servlet multipart requests
  * </ul>
  *
  * <p>When a parameter is annotated with {@code @RequestPart}, the content of the part is
@@ -89,7 +88,6 @@ public class RequestPartMethodArgumentResolver extends AbstractMessageConverterM
    * <ul>
    * <li>annotated with {@code @RequestPart}
    * <li>of type {@link MultipartFile} unless annotated with {@code @RequestParam}
-   * <li>of type {@code jakarta.servlet.http.Part} unless annotated with
    * {@code @RequestParam}
    * </ul>
    */

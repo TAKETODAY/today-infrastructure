@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.annotation;
@@ -36,9 +33,8 @@ import cn.taketoday.web.multipart.MultipartFile;
  * Annotation that can be used to associate the part of a "multipart/form-data" request
  * with a method argument.
  *
- * <p>Supported method argument types include {@link MultipartFile} in conjunction with
- * {@code jakarta.servlet.http.Part} in
- * conjunction with Servlet multipart requests, or otherwise for any other method
+ * <p>Supported method argument types include {@link MultipartFile} in
+ * conjunction with multipart requests, or otherwise for any other method
  * argument, the content of the part is passed through an {@link HttpMessageConverter}
  * taking into consideration the 'Content-Type' header of the request part. This is
  * analogous to what @{@link RequestBody} does to resolve an argument based on the

@@ -115,7 +115,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   }
 
   /**
-   * Indicate whether a {@link jakarta.servlet.http.HttpServletResponse#SC_NOT_ACCEPTABLE 406 Not Acceptable}
+   * Indicate whether a {@link HttpStatus#NOT_ACCEPTABLE 406 Not Acceptable}
    * status code should be returned if no suitable view can be found.
    * <p>Default is {@code false}, meaning that this view resolver returns {@code null} for
    * {@link #resolveViewName(String, Locale)} when an acceptable view cannot be found.
@@ -233,7 +233,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   }
 
   /**
-   * Determines the list of {@link MediaType} for the given {@link jakarta.servlet.http.HttpServletRequest}.
+   * Determines the list of {@link MediaType} for the given {@link RequestContext}.
    *
    * @param context the current request
    * @return the list of media types requested, if any

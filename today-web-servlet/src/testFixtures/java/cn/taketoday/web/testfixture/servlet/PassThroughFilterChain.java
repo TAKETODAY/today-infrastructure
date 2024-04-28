@@ -29,7 +29,7 @@ import cn.taketoday.web.mock.ServletRequest;
 import cn.taketoday.web.mock.ServletResponse;
 
 /**
- * Implementation of the {@link jakarta.servlet.FilterConfig} interface which
+ * Implementation of the {@link cn.taketoday.web.mock.FilterConfig} interface which
  * simply passes the call through to a given Filter/FilterChain combination
  * (indicating the next Filter in the chain along with the FilterChain that it is
  * supposed to work on) or to a given Servlet (indicating the end of the chain).

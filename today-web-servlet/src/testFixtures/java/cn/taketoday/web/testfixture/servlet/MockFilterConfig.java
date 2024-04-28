@@ -28,10 +28,10 @@ import cn.taketoday.web.mock.FilterConfig;
 import cn.taketoday.web.mock.ServletContext;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.FilterConfig} interface.
+ * Mock implementation of the {@link cn.taketoday.web.mock.FilterConfig} interface.
  *
  * <p>Used for testing the web framework; also useful for testing
- * custom {@link jakarta.servlet.Filter} implementations.
+ * custom {@link cn.taketoday.web.mock.Filter} implementations.
  *
  * @author Juergen Hoeller
  * @author TODAY 2021/9/11 18:51

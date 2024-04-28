@@ -331,8 +331,8 @@ public class SimpleHandlerExceptionHandler extends AbstractHandlerExceptionHandl
   }
 
   /**
-   * Handle the case where an {@linkplain RequestPart @RequestPart}, a {@link MultipartFile},
-   * or a {@code jakarta.servlet.http.Part} argument is required but is missing.
+   * Handle the case where an {@linkplain RequestPart @RequestPart}, a {@link MultipartFile}
+   * argument is required but is missing.
    * <p>By default, an HTTP 400 error is sent back to the client.
    *
    * @param request current HTTP request

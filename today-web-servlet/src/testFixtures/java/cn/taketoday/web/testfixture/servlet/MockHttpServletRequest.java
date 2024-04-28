@@ -822,7 +822,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see jakarta.servlet.ServletRequest#getLocale()
+   * @see cn.taketoday.web.mock.ServletRequest#getLocale()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -841,7 +841,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * does <strong>not</strong> take into consideration any locales
    * specified via the {@code Accept-Language} header.
    *
-   * @see jakarta.servlet.ServletRequest#getLocales()
+   * @see cn.taketoday.web.mock.ServletRequest#getLocales()
    * @see #addPreferredLocale(Locale)
    * @see #setPreferredLocales(List)
    */
@@ -866,7 +866,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * Return {@code true} if the {@link #setSecure secure} flag has been set
    * to {@code true} or if the {@link #getScheme scheme} is {@code https}.
    *
-   * @see jakarta.servlet.ServletRequest#isSecure()
+   * @see cn.taketoday.web.mock.ServletRequest#isSecure()
    */
   @Override
   public boolean isSecure() {

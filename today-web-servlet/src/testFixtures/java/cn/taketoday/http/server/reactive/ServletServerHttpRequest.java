@@ -196,12 +196,12 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   @Nullable
   private String getSslSessionId() {
-    return (String) this.request.getAttribute("jakarta.servlet.request.ssl_session_id");
+    return (String) this.request.getAttribute("cn.taketoday.web.mock.request.ssl_session_id");
   }
 
   @Nullable
   private X509Certificate[] getX509Certificates() {
-    String name = "jakarta.servlet.request.X509Certificate";
+    String name = "cn.taketoday.web.mock.request.X509Certificate";
     return (X509Certificate[]) this.request.getAttribute(name);
   }
 

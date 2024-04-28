@@ -79,8 +79,7 @@ import cn.taketoday.util.StringUtils;
  * Examples are real URLs such as "{@code file:C:/context.xml}", pseudo-URLs
  * such as "{@code classpath:/context.xml}", and simple unprefixed paths
  * such as "{@code /WEB-INF/context.xml}". The latter will resolve in a
- * fashion specific to the underlying {@code ResourceLoader} (e.g.
- * {@code ServletContextResource} for a {@code WebApplicationContext}).
+ * fashion specific to the underlying {@code ResourceLoader}.
  *
  * <h3>Ant-style Patterns</h3>
  *

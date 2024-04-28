@@ -477,7 +477,6 @@ public abstract class AbstractView extends ApplicationObjectSupport implements V
   /**
    * Expose the model objects in the given map as request attributes.
    * Names will be taken from the model Map.
-   * This method is suitable for all resources reachable by {@link jakarta.servlet.RequestDispatcher}.
    *
    * @param model a Map of model objects to expose
    * @param request current HTTP request

@@ -148,7 +148,6 @@ public interface MultipartFile extends Multipart, InputStreamSource {
    * @throws IOException in case of reading or writing errors
    * @throws IllegalStateException if the file has already been moved
    * in the filesystem and is not available anymore for another transfer
-   * @see jakarta.servlet.http.Part#write(String)
    */
   void transferTo(File dest) throws IOException, IllegalStateException;
 

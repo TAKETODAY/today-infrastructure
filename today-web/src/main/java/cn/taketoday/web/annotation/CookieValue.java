@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +12,9 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.annotation;
 
 import java.lang.annotation.Documented;
@@ -26,12 +24,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import cn.taketoday.core.annotation.AliasFor;
+import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Constant;
 
 /**
  * Annotation which indicates that a method parameter should be bound to an HTTP
  * cookie.
- * <p>The method parameter may be declared as type {@link jakarta.servlet.http.Cookie}
+ * <p>The method parameter may be declared as type {@link HttpCookie}
  * or as cookie value type (String, int, etc.).
  *
  * @author Juergen Hoeller

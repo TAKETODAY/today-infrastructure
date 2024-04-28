@@ -40,16 +40,12 @@ public class RequestHandledEvent extends ApplicationEvent {
   @Nullable
   private final String sessionId;
 
-  /** Usually the UserPrincipal. */
-  @Nullable
-  private final String userName;
-
   /** Request processing time. */
   private final long processingTimeMillis;
 
   /** Cause of failure, if any. */
   @Nullable
-  private Throwable notHandled;
+  private final Throwable notHandled;
 
   /** URL that triggered the request. */
   private final String requestUrl;
@@ -71,70 +67,16 @@ public class RequestHandledEvent extends ApplicationEvent {
    * @param clientAddress the IP address that the request came from
    * @param method the HTTP method of the request (usually GET or POST)
    * @param sessionId the id of the HTTP session, if any
-   * @param userName the name of the user that was associated with the
-   * request, if any (usually the UserPrincipal)
-   * @param processingTimeMillis the processing time of the request in milliseconds
-   */
-  public RequestHandledEvent(Object source, String requestUrl, String clientAddress, String method,
-          @Nullable String sessionId, @Nullable String userName, long processingTimeMillis) {
-    super(source);
-    this.method = method;
-    this.statusCode = -1;
-    this.userName = userName;
-    this.sessionId = sessionId;
-    this.requestUrl = requestUrl;
-    this.clientAddress = clientAddress;
-    this.processingTimeMillis = processingTimeMillis;
-  }
-
-  /**
-   * Create a new RequestHandledEvent.
-   *
-   * @param source the component that published the event
-   * @param requestUrl the URL of the request
-   * @param clientAddress the IP address that the request came from
-   * @param method the HTTP method of the request (usually GET or POST)
-   * @param sessionId the id of the HTTP session, if any
-   * @param userName the name of the user that was associated with the
-   * request, if any (usually the UserPrincipal)
-   * @param processingTimeMillis the processing time of the request in milliseconds
-   * @param notHandled the cause of failure, if any
-   */
-  public RequestHandledEvent(Object source, String requestUrl, String clientAddress, String method,
-          @Nullable String sessionId, @Nullable String userName, long processingTimeMillis, @Nullable Throwable notHandled) {
-
-    super(source);
-    this.method = method;
-    this.notHandled = notHandled;
-    this.statusCode = -1;
-    this.userName = userName;
-    this.sessionId = sessionId;
-    this.requestUrl = requestUrl;
-    this.clientAddress = clientAddress;
-    this.processingTimeMillis = processingTimeMillis;
-  }
-
-  /**
-   * Create a new RequestHandledEvent.
-   *
-   * @param source the component that published the event
-   * @param requestUrl the URL of the request
-   * @param clientAddress the IP address that the request came from
-   * @param method the HTTP method of the request (usually GET or POST)
-   * @param sessionId the id of the HTTP session, if any
-   * @param userName the name of the user that was associated with the
-   * request, if any (usually the UserPrincipal)
    * @param processingTimeMillis the processing time of the request in milliseconds
    * @param notHandled the cause of failure, if any
    * @param statusCode the HTTP status code of the response
    */
   public RequestHandledEvent(Object source, String requestUrl,
           String clientAddress, String method, @Nullable String sessionId,
-          @Nullable String userName, long processingTimeMillis, @Nullable Throwable notHandled, int statusCode) {
+          long processingTimeMillis, @Nullable Throwable notHandled, int statusCode) {
     super(source);
 
     this.method = method;
-    this.userName = userName;
     this.sessionId = sessionId;
     this.statusCode = statusCode;
     this.requestUrl = requestUrl;
@@ -156,17 +98,6 @@ public class RequestHandledEvent extends ApplicationEvent {
   @Nullable
   public String getSessionId() {
     return this.sessionId;
-  }
-
-  /**
-   * Return the name of the user that was associated with the request
-   * (usually the UserPrincipal).
-   *
-   * @see jakarta.servlet.http.HttpServletRequest#getUserPrincipal()
-   */
-  @Nullable
-  public String getUserName() {
-    return this.userName;
   }
 
   /**
@@ -218,12 +149,7 @@ public class RequestHandledEvent extends ApplicationEvent {
    * the most important context data.
    */
   public String getShortDescription() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("url=[").append(getRequestUrl()).append("]; ");
-    sb.append("client=[").append(getClientAddress()).append("]; ");
-    sb.append("session=[").append(sessionId).append("]; ");
-    sb.append("user=[").append(userName).append("]; ");
-    return sb.toString();
+    return "url=[%s]; client=[%s]; session=[%s]; ".formatted(getRequestUrl(), getClientAddress(), sessionId);
   }
 
   /**
@@ -236,7 +162,6 @@ public class RequestHandledEvent extends ApplicationEvent {
     sb.append("client=[").append(getClientAddress()).append("]; ");
     sb.append("method=[").append(getMethod()).append("]; ");
     sb.append("session=[").append(sessionId).append("]; ");
-    sb.append("user=[").append(userName).append("]; ");
     sb.append("time=[").append(processingTimeMillis).append("ms]; ");
     sb.append("status=[");
     if (!wasFailure()) {

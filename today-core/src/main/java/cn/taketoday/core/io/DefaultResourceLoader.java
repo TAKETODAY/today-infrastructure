@@ -202,7 +202,7 @@ public class DefaultResourceLoader implements ResourceLoader {
    * Return a Resource handle for the resource at the given path.
    * <p>The default implementation supports class path locations. This should
    * be appropriate for standalone implementations but can be overridden,
-   * e.g. for implementations targeted at a Servlet container.
+   * e.g. for implementations targeted at a Web container.
    *
    * @param path the path to the resource
    * @return the corresponding Resource handle

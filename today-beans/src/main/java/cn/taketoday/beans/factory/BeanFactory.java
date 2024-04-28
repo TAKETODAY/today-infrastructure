@@ -94,8 +94,6 @@ import cn.taketoday.lang.Nullable;
  * (only applicable when running in an application context)
  * <li>ApplicationContextAware's {@code setApplicationContext}
  * (only applicable when running in an application context)
- * <li>ServletContextAware's {@code setServletContext}
- * (only applicable when running in a web application context)
  * <li>{@code postProcessBeforeInitialization} methods of BeanPostProcessors
  * <li>InitializingBean's {@code afterPropertiesSet}
  * <li>a custom {@code init-method} definition
@@ -120,7 +118,6 @@ import cn.taketoday.lang.Nullable;
  * @see cn.taketoday.context.ResourceLoaderAware#setResourceLoader
  * @see cn.taketoday.context.ApplicationEventPublisherAware#setApplicationEventPublisher
  * @see cn.taketoday.context.ApplicationContextAware#setApplicationContext
- * @see cn.taketoday.web.servlet.ServletContextAware#setServletContext
  * @see InitializationBeanPostProcessor#postProcessBeforeInitialization
  * @see InitializingBean#afterPropertiesSet
  * @see BeanDefinition#getInitMethodName()

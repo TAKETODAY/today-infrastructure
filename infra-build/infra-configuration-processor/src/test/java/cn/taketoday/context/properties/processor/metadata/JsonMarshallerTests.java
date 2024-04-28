@@ -312,7 +312,7 @@ class JsonMarshallerTests {
             				{
             					"name": "name",
             					"parameters": {
-            						"target": "jakarta.servlet.http.HttpServlet"
+            						"target": "HttpServlet"
             					},
             					"dummy": "dummy"
             				}

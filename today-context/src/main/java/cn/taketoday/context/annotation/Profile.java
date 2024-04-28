@@ -38,8 +38,7 @@ import cn.taketoday.util.MultiValueMap;
  * programmatically via {@link ConfigurableEnvironment#setActiveProfiles} or declaratively
  * by setting the {@link AbstractEnvironment#KEY_ACTIVE_PROFILES
  * infra.profiles.active} property as a JVM system property, as an
- * environment variable, or as a Servlet context parameter in {@code web.xml}
- * for web applications. Profiles may also be activated declaratively in
+ * environment variable. Profiles may also be activated declaratively in
  * integration tests via the {@code @ActiveProfiles} annotation.
  *
  * <p>The {@code @Profile} annotation may be used in any of the following ways:

@@ -54,9 +54,7 @@ import cn.taketoday.util.StringUtils;
  * <p>Note that for caching to work effectively, some preconditions need to be met:
  * Prefer an arrangement where the Framework jars live in the same ClassLoader as the
  * application classes, which allows for clean caching along with the application's
- * lifecycle in any case. For a web application, consider declaring a local
- * {@link cn.taketoday.web.servlet.IntrospectorCleanupListener} in {@code web.xml}
- * in case of a multi-ClassLoader layout, which will allow for effective caching as well.
+ * lifecycle in any case.
  *
  * <p>In case of a non-clean ClassLoader arrangement without a cleanup listener having
  * been set up, this class will fall back to a weak-reference-based caching model that
@@ -85,8 +83,7 @@ public final class CachedIntrospectionResults {
    * <p>Note that such an effect may also indicate a scenario where caching doesn't work
    * effectively: Prefer an arrangement where the Framework jars live in the same ClassLoader
    * as the application classes, which allows for clean caching along with the application's
-   * lifecycle in any case. For a web application, consider declaring a local
-   * {@link cn.taketoday.web.servlet.IntrospectorCleanupListener} in {@code web.xml}
+   * lifecycle in any case.
    * in case of a multi-ClassLoader layout, which will allow for effective caching as well.
    *
    * @see Introspector#getBeanInfo(Class, int)

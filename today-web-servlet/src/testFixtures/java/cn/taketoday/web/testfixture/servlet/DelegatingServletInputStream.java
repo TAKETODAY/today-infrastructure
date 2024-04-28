@@ -25,7 +25,7 @@ import cn.taketoday.web.mock.ReadListener;
 import cn.taketoday.web.mock.ServletInputStream;
 
 /**
- * Delegating implementation of {@link jakarta.servlet.ServletInputStream}.
+ * Delegating implementation of {@link cn.taketoday.web.mock.ServletInputStream}.
  *
  * <p>Used by {@link MockHttpServletRequest}; typically not directly
  * used for testing application controllers.

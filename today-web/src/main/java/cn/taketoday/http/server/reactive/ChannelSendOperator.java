@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.server.reactive;
@@ -48,22 +45,22 @@ import reactor.util.context.Context;
  * @param <T> the type of element signaled
  * @author Rossen Stoyanchev
  * @author Stephane Maldini
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class ChannelSendOperator<T> extends Mono<Void> implements Scannable {
 
   private final Flux<T> source;
+
   private final Function<Publisher<T>, Publisher<Void>> writeFunction;
 
-  public ChannelSendOperator(
-          Publisher<? extends T> source, Function<Publisher<T>, Publisher<Void>> writeFunction) {
+  public ChannelSendOperator(Publisher<? extends T> source, Function<Publisher<T>, Publisher<Void>> writeFunction) {
     this.source = Flux.from(source);
     this.writeFunction = writeFunction;
   }
 
   @Override
   @Nullable
-  @SuppressWarnings("rawtypes")
   public Object scanUnsafe(Attr key) {
     if (key == Attr.PREFETCH) {
       return Integer.MAX_VALUE;

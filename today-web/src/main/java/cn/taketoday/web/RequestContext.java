@@ -737,7 +737,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * both.
    *
    * @return a {@link InputStream} object containing the body of the request
-   * @throws IllegalStateException For Servlet Environment if the {@link #getReader} method has
+   * @throws IllegalStateException If the {@link #getReader} method has
    * already been called for this request
    * @throws IOException if an input or output exception occurred
    */
@@ -760,7 +760,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * {@link #getInputStream} may be called to read the body, not both.
    *
    * @return a <code>BufferedReader</code> containing the body of the request
-   * @throws IllegalStateException For Servlet Environment if {@link #getInputStream} method has
+   * @throws IllegalStateException if {@link #getInputStream} method has
    * been called on this request
    * @throws IOException if an input or output exception occurred
    * @see #getInputStream
@@ -1529,12 +1529,12 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * Sends a temporary redirect response to the client using the specified
    * redirect location URL and clears the buffer. The buffer will be replaced with
    * the data set by this method. Calling this method sets the status code to 302
-   * (Found). This method can accept relative URLs;the servlet container must
+   * (Found). This method can accept relative URLs;the Web container must
    * convert the relative URL to an absolute URL before sending the response to
    * the client. If the location is relative without a leading '/' the container
    * interprets it as relative to the current request URI. If the location is
    * relative with a leading '/' the container interprets it as relative to the
-   * servlet container root. If the location is relative with two leading '/' the
+   * web container root. If the location is relative with two leading '/' the
    * container interprets it as a network-path reference (see
    * <a href="http://www.ietf.org/rfc/rfc3986.txt"> RFC 3986: Uniform Resource
    * Identifier (URI): Generic Syntax</a>, section 4.2 &quot;Relative
@@ -1707,7 +1707,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * both, except when {@link #reset} has been called.
    *
    * @return a {@link OutputStream} for writing binary data
-   * @throws IllegalStateException For Servlet Environment if the <code>getWriter</code> method
+   * @throws IllegalStateException if the <code>getWriter</code> method
    * has been called on this response
    * @throws IOException if an input or output exception occurred
    * @see #getWriter
@@ -1738,7 +1738,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * @return a <code>PrintWriter</code> object that can return character data to
    * the client
    * @throws IOException if an input or output exception occurred
-   * @throws IllegalStateException For Servlet Environment if the <code>getOutputStream</code>
+   * @throws IllegalStateException if the <code>getOutputStream</code>
    * method has already been called for this response object
    * @see #getOutputStream
    * @see #reset
@@ -1775,7 +1775,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * committed.
    * <p>
    * Containers must communicate the content type and the character encoding used
-   * for the servlet response's writer to the client if the protocol provides a
+   * for the http response's writer to the client if the protocol provides a
    * way for doing so. In the case of HTTP, the <code>Content-Type</code> header
    * is used.
    *
@@ -1801,7 +1801,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * committed.
    * <p>
    * Containers must communicate the content type and the character encoding used
-   * for the servlet response's writer to the client if the protocol provides a
+   * for the http response's writer to the client if the protocol provides a
    * way for doing so. In the case of HTTP, the <code>Content-Type</code> header
    * is used.
    *
@@ -1821,7 +1821,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
    * <code>text/html; charset=UTF-8</code>, or
    * null
    * @see #getContentType()
-   * @see jakarta.servlet.http.HttpServletResponse#getContentType()
    */
   @Nullable
   public String getResponseContentType() {
@@ -1918,7 +1917,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
   }
 
   /**
-   * Native request eg: HttpServletRequest
+   * Native request
    */
   public abstract <T> T nativeRequest();
 

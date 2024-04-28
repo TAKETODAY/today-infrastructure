@@ -21,7 +21,6 @@ import java.io.File;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
-import java.util.Set;
 
 import cn.taketoday.context.properties.ConfigurationProperties;
 import cn.taketoday.context.properties.NestedConfigurationProperty;
@@ -51,12 +50,6 @@ public class SessionProperties {
   @Nullable
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration timeout = Duration.ofMinutes(30);
-
-  /**
-   * the {@link SessionTrackingMode session tracking modes}.
-   */
-  @Nullable
-  private Set<SessionTrackingMode> trackingModes;
 
   /**
    * Whether to persist session data between restarts.
@@ -123,20 +116,6 @@ public class SessionProperties {
 
   public void setTimeout(@Nullable Duration timeout) {
     this.timeout = timeout;
-  }
-
-  /**
-   * Return the {@link SessionTrackingMode session tracking modes}.
-   *
-   * @return the session tracking modes
-   */
-  @Nullable
-  public Set<SessionTrackingMode> getTrackingModes() {
-    return this.trackingModes;
-  }
-
-  public void setTrackingModes(@Nullable Set<SessionTrackingMode> trackingModes) {
-    this.trackingModes = trackingModes;
   }
 
   /**

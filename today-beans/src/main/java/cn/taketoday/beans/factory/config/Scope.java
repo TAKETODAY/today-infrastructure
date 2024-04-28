@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.config;
@@ -34,7 +31,7 @@ import cn.taketoday.lang.Nullable;
  * {@link ConfigurableBeanFactory#registerScope(String, Scope) specific key}.
  *
  * <p>{@link cn.taketoday.context.ApplicationContext} implementations
- * such as a {@link cn.taketoday.web.servlet.WebApplicationContext}
+ * such as a {@link cn.taketoday.web.server.context.WebServerApplicationContext}
  * may register additional standard scopes specific to their environment,
  * e.g. {@link cn.taketoday.web.RequestContext#SCOPE_REQUEST "request"}
  * and {@link cn.taketoday.web.RequestContext#SCOPE_SESSION "session"},
@@ -55,12 +52,13 @@ import cn.taketoday.lang.Nullable;
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
- * @author TODAY 2018-07-02 22:38:57
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see ConfigurableBeanFactory#registerScope
  * @see CustomScopeConfigurer
- * @since 3.0
+ * @since 3.0 2018-07-02 22:38:57
  */
 public interface Scope {
+
   /**
    * @since 2.1.7
    */
@@ -140,7 +138,7 @@ public interface Scope {
 
   /**
    * Resolve the contextual object for the given key, if any.
-   * E.g. the HttpServletRequest object for key "request".
+   * E.g. the RequestContext object for key "request".
    *
    * @param key the contextual key
    * @return the corresponding object, or {@code null} if none found
@@ -155,7 +153,7 @@ public interface Scope {
    * <p>The exact meaning of the conversation ID depends on the underlying
    * storage mechanism. In the case of session-scoped objects, the
    * conversation ID would typically be equal to (or derived from) the
-   * {@link jakarta.servlet.http.HttpSession#getId() session ID}; in the
+   * {@link cn.taketoday.session.WebSession#getId() session ID}; in the
    * case of a custom conversation that sits within the overall session,
    * the specific ID for the current conversation would be appropriate.
    * <p><b>Note: This is an optional operation.</b> It is perfectly valid to

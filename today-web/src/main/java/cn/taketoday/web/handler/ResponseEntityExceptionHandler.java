@@ -501,8 +501,6 @@ public class ResponseEntityExceptionHandler {
    * <p>The default implementation does the following:
    * <ul>
    * <li>return {@code null} if response is already committed
-   * <li>set the {@code "jakarta.servlet.error.exception"} request attribute
-   * if the response status is 500 (INTERNAL_SERVER_ERROR).
    * <li>extract the {@link ErrorResponse#getBody() body} from
    * {@link ErrorResponse} exceptions, if the {@code body} is {@code null}.
    * </ul>

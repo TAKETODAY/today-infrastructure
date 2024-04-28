@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.annotation;
@@ -37,8 +34,7 @@ import cn.taketoday.web.bind.annotation.SessionAttributes;
  * check and a cast to the target method parameter type.
  *
  * <p>For use cases that require adding or removing session attributes consider
- * injecting {@code cn.taketoday.web.session.WebSession} or
- * {@code jakarta.servlet.http.HttpSession} into the controller method.
+ * injecting {@link cn.taketoday.session.WebSession} into the controller method.
  *
  * <p>For temporary storage of model attributes in the session as part of the
  * workflow for a controller, consider using {@link SessionAttributes} instead.

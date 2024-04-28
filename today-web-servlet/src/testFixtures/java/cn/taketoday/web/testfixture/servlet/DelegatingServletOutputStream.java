@@ -25,7 +25,7 @@ import cn.taketoday.web.mock.ServletOutputStream;
 import cn.taketoday.web.mock.WriteListener;
 
 /**
- * Delegating implementation of {@link jakarta.servlet.ServletOutputStream}.
+ * Delegating implementation of {@link cn.taketoday.web.mock.ServletOutputStream}.
  *
  * <p>Used by {@link MockHttpServletResponse}; typically not directly
  * used for testing application controllers.

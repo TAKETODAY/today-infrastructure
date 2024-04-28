@@ -26,7 +26,7 @@ import cn.taketoday.web.mock.ServletResponse;
 import cn.taketoday.web.mock.http.HttpServletResponseWrapper;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.RequestDispatcher} interface.
+ * Mock implementation of the {@link cn.taketoday.web.mock.RequestDispatcher} interface.
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

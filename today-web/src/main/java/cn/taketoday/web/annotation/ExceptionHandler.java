@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.annotation;
@@ -50,32 +47,30 @@ import cn.taketoday.web.view.View;
  * You may refer to a top-level exception being propagated or to a nested
  * cause within a wrapper exception. As of 4.0, any cause level is being
  * exposed, whereas previously only an immediate cause was considered.
- * <li>Request and/or response objects (typically from the Servlet API).
- * You may choose any specific request/response type, e.g.
- * {@link jakarta.servlet.ServletRequest} / {@link jakarta.servlet.http.HttpServletRequest}.
- * <li>Session object: typically {@link jakarta.servlet.http.HttpSession}.
+ * <li>Request and/or response objects You may choose any specific request
+ * type, e.g. {@link cn.taketoday.web.RequestContext}.
+ * <li>Session object: typically {@link cn.taketoday.session.WebSession}.
  * An argument of this type will enforce the presence of a corresponding session.
  * As a consequence, such an argument will never be {@code null}.
  * <i>Note that session access may not be thread-safe, in particular in a
- * Servlet environment: Consider switching the
+ * Web environment: Consider switching the
  * {@link RequestMappingHandlerAdapter#setSynchronizeOnSession
  * "synchronizeOnSession"} flag to "true" if multiple requests are allowed to
  * access a session concurrently.</i>
  *
- * <li>{@link cn.taketoday.web.RequestContext} or
- * {@link jakarta.servlet.http.HttpServletRequest}.
+ * <li>{@link cn.taketoday.web.RequestContext}.
  * Allows for generic request parameter access as well as request/session
- * attribute access, without ties to the native Servlet API.
+ * attribute access, without ties to the native Web API.
  *
  * <li>{@link java.util.Locale} for the current request locale
  * (determined by the most specific locale resolver available,
- * i.e. the configured {@link LocaleResolver} in a Servlet environment).
+ * i.e. the configured {@link LocaleResolver} in a Web environment).
  * <li>{@link java.io.InputStream} / {@link java.io.Reader} for access
  * to the request's content. This will be the raw InputStream/Reader as
- * exposed by the Servlet API.
+ * exposed by the Web API.
  * <li>{@link java.io.OutputStream} / {@link java.io.Writer} for generating
  * the response's content. This will be the raw OutputStream/Writer as
- * exposed by the Servlet API.
+ * exposed by the Web API.
  * <li>{@link Model} as an alternative to returning
  * a model map from the handler method. Note that the provided model is not
  * pre-populated with regular model attributes and therefore always empty,
@@ -84,7 +79,7 @@ import cn.taketoday.web.view.View;
  *
  * <p>The following return types are supported for handler methods:
  * <ul>
- * <li>A {@code ModelAndView} object (from Servlet MVC).
+ * <li>A {@code ModelAndView} object (from Web MVC).
  * <li>A {@link Model} object, with the view name implicitly
  * determined through a {@link RequestToViewNameTranslator}.
  * <li>A {@link java.util.Map} object for exposing a model,
@@ -92,19 +87,18 @@ import cn.taketoday.web.view.View;
  * {@link RequestToViewNameTranslator}.
  * <li>A {@link View} object.
  * <li>A {@link String} value which is interpreted as view name.
- * <li>{@link ResponseBody @ResponseBody} annotated methods (Servlet-only)
+ * <li>{@link ResponseBody @ResponseBody} annotated methods
  * to set the response content. The return value will be converted to the
  * response stream using {@linkplain HttpMessageConverter message converters}.
  * <li>An {@link HttpEntity HttpEntity&lt;?&gt;} or
  * {@link ResponseEntity ResponseEntity&lt;?&gt;} object
- * (Servlet-only) to set response headers and content. The ResponseEntity body
+ * to set response headers and content. The ResponseEntity body
  * will be converted and written to the response stream using
  * {@linkplain HttpMessageConverter message converters}.
  * <li>{@code void} if the method handles the response itself (by
  * writing the response content directly, declaring an argument of type
- * {@link jakarta.servlet.ServletResponse} / {@link jakarta.servlet.http.HttpServletResponse}
- * for that purpose) or if the view name is supposed to be implicitly determined
- * through a {@link RequestToViewNameTranslator}
+ * {@link cn.taketoday.web.RequestContext} for that purpose) or if the
+ * view name is supposed to be implicitly determined through a {@link RequestToViewNameTranslator}
  * (not declaring a response argument in the handler method signature).
  * </ul>
  *

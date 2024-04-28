@@ -98,7 +98,6 @@ public class PathResourceResolver extends AbstractResourceResolver {
   /**
    * Whether the resource-path should be decoded
    *
-   * @see jakarta.servlet.ServletRequest#getCharacterEncoding()
    * @see java.net.URLDecoder#decode(String, String)
    */
   public void setUrlDecode(boolean urlDecode) {

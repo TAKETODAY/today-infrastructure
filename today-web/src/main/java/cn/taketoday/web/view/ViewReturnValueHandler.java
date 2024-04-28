@@ -26,6 +26,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.RedirectModel;
+import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.handler.method.HandlerMethod;
@@ -198,7 +200,7 @@ public class ViewReturnValueHandler implements SmartReturnValueHandler {
    * LocaleResolver bound to the request by the Ioc
    * (if available), falling back to the request's accept-header Locale.
    * <p>This method serves as a straightforward alternative to the standard
-   * Servlet {@link jakarta.servlet.http.HttpServletRequest#getLocale()} method,
+   * Servlet {@link RequestContext#getLocale()} method,
    * falling back to the latter if no more specific locale has been found.
    * <p>Consider using {@link LocaleContextHolder#getLocale()}
    * which will normally be populated with the same Locale.

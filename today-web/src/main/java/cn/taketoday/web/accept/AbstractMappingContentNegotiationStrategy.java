@@ -39,9 +39,8 @@ import cn.taketoday.web.RequestContext;
  * stores such mappings.
  *
  * <p>The method {@link #handleNoMatch} allow sub-classes to plug in additional
- * ways of looking up media types (e.g. through the Java Activation framework,
- * or {@link jakarta.servlet.ServletContext#getMimeType}. Media types resolved
- * via base classes are then added to the base class
+ * ways of looking up media types (e.g. through the Java Activation framework.
+ * Media types resolved via base classes are then added to the base class
  * {@link MappingMediaTypeFileExtensionResolver}, i.e. cached for new lookups.
  *
  * @author Rossen Stoyanchev

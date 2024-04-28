@@ -38,11 +38,6 @@ public abstract class RequestPath extends PathContainer {
    * Returns the portion of the URL path that represents the application.
    * The context path is always at the beginning of the path and starts but
    * does not end with "/". It is shared for URLs of the same application.
-   * <p>The context path may come from the underlying runtime API such as
-   * when deploying as a WAR to a Servlet container or it may be assigned in
-   * a WebFlux application through the use of
-   * {@link cn.taketoday.http.server.reactive.ContextPathCompositeHandler
-   * ContextPathCompositeHandler}.
    */
   public abstract PathContainer contextPath();
 

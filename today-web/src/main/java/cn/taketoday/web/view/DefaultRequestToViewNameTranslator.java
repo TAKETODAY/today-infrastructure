@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.view;
@@ -31,7 +28,7 @@ import cn.taketoday.web.util.WebUtils;
  * the incoming request into a view name.
  *
  * <p>Can be explicitly defined as the {@code viewNameTranslator} bean in a
- * {@link cn.taketoday.web.servlet.DispatcherServlet} context.
+ * {@link cn.taketoday.web.DispatcherHandler} context.
  * Otherwise, a plain default instance will be used.
  *
  * <p>The default transformation simply strips leading and trailing slashes
@@ -52,6 +49,7 @@ import cn.taketoday.web.util.WebUtils;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RequestToViewNameTranslator
  * @see ViewResolver
  * @since 4.0
@@ -144,8 +142,8 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   @Override
   public String getViewName(RequestContext request) {
     String lookupPath = removeSemicolonContent
-                        ? WebUtils.removeSemicolonContent(request.getLookupPath().value())
-                        : request.getLookupPath().value();
+            ? WebUtils.removeSemicolonContent(request.getLookupPath().value())
+            : request.getLookupPath().value();
     return prefix + transformPath(lookupPath) + suffix;
   }
 

@@ -57,7 +57,7 @@ import cn.taketoday.web.mock.SessionTrackingMode;
 import cn.taketoday.web.mock.descriptor.JspConfigDescriptor;
 
 /**
- * Mock implementation of the {@link jakarta.servlet.ServletContext} interface.
+ * Mock implementation of the {@link cn.taketoday.web.mock.ServletContext} interface.
  *
  * <p>Compatible with Servlet 3.1 but can be configured to expose a specific version
  * through {@link #setMajorVersion}/{@link #setMinorVersion}; default is 3.1.
@@ -633,7 +633,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see jakarta.servlet.ServletContext#getServletRegistration(java.lang.String)
+   * @see cn.taketoday.web.mock.ServletContext#getServletRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -644,7 +644,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see jakarta.servlet.ServletContext#getServletRegistrations()
+   * @see cn.taketoday.web.mock.ServletContext#getServletRegistrations()
    */
   @Override
   public Map<String, ? extends ServletRegistration> getServletRegistrations() {
@@ -674,7 +674,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns {@code null}.
    *
-   * @see jakarta.servlet.ServletContext#getFilterRegistration(java.lang.String)
+   * @see cn.taketoday.web.mock.ServletContext#getFilterRegistration(java.lang.String)
    */
   @Override
   @Nullable
@@ -685,7 +685,7 @@ public class MockServletContext implements ServletContext {
   /**
    * This method always returns an {@linkplain Collections#emptyMap empty map}.
    *
-   * @see jakarta.servlet.ServletContext#getFilterRegistrations()
+   * @see cn.taketoday.web.mock.ServletContext#getFilterRegistrations()
    */
   @Override
   public Map<String, ? extends FilterRegistration> getFilterRegistrations() {

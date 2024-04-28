@@ -65,7 +65,7 @@ public class SimpleMappingExceptionHandler extends AbstractHandlerExceptionHandl
   /**
    * Set the mappings between exception class names and error view names.
    * The exception class name can be a substring, with no wildcard support at present.
-   * A value of "ServletException" would match {@code jakarta.servlet.ServletException}
+   * A value of "Exception" would match {@code Exception}
    * and subclasses, for example.
    * <p><b>NB:</b> Consider carefully how
    * specific the pattern is, and whether to include package information (which isn't mandatory).

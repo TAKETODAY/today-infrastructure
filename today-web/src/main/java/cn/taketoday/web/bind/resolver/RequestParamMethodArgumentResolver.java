@@ -50,8 +50,7 @@ import cn.taketoday.web.util.UriComponentsBuilder;
 /**
  * Resolves method arguments annotated with @{@link RequestParam}, arguments of
  * type {@link MultipartFile} in conjunction with {@link MultipartRequest}
- * abstraction, and arguments of type {@code jakarta.servlet.http.Part} in conjunction
- * with Servlet multipart requests. This resolver can also be created in default
+ * abstraction. This resolver can also be created in default
  * resolution mode in which simple types (int, long, etc.) not annotated with
  * {@link RequestParam @RequestParam} are also treated as request parameters with
  * the parameter name derived from the argument name.

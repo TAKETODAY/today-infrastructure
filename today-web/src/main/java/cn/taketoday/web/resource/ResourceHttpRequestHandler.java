@@ -297,7 +297,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * response.
    * <p>Use of this method is typically not necessary since mappings are
    * otherwise determined via
-   * {@link jakarta.servlet.ServletContext#getMimeType(String)} or via
    * {@link MediaTypeFactory#getMediaType(Resource)}.
    *
    * @param mediaTypes media type mappings
@@ -758,7 +757,6 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
    * the following lookups based on the resource filename and its path
    * extension:
    * <ol>
-   * <li>{@link jakarta.servlet.ServletContext#getMimeType(String)}
    * <li>{@link #getMediaTypes()}
    * <li>{@link MediaTypeFactory#getMediaTypes(String)}
    * </ol>
