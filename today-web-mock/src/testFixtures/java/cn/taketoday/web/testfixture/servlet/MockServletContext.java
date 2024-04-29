@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.mock.web;
+package cn.taketoday.web.testfixture.servlet;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,14 +54,9 @@ import cn.taketoday.web.mock.ServletRegistration;
 import cn.taketoday.web.mock.SessionCookieConfig;
 import cn.taketoday.web.mock.SessionTrackingMode;
 import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
-import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 
 /**
- * Mock implementation of the {@link ServletContext} interface.
- *
- * <p>@since 4.0this set of mocks is designed on a Servlet 4.0 baseline.
+ * Mock implementation of the {@link cn.taketoday.web.mock.ServletContext} interface.
  *
  * <p>Compatible with Servlet 3.1 but can be configured to expose a specific version
  * through {@link #setMajorVersion}/{@link #setMinorVersion}; default is 3.1.
@@ -80,15 +75,11 @@ import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see #MockServletContext(cn.taketoday.core.io.ResourceLoader)
- * @see AnnotationConfigWebApplicationContext
- * @see XmlWebApplicationContext
- * @see GenericWebApplicationContext
- * @since 4.0
+ * @since 3.0
  */
 public class MockServletContext implements ServletContext {
 
-  /** Default Servlet name used by Tomcat, Jetty, JBoss, and GlassFish: {@value}. */
+  /** Default Servlet name used by Tomcat, JBoss, and GlassFish: {@value}. */
   private static final String COMMON_DEFAULT_SERVLET_NAME = "default";
 
   private static final String TEMP_DIR_SYSTEM_PROPERTY = "java.io.tmpdir";

@@ -79,7 +79,7 @@ dependencies {
 
   optional 'org.crac:crac'
 
-  testImplementation project(':today-web-servlet')
+  testImplementation project(':today-web-mock')
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))

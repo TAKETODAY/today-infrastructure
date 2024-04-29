@@ -28,7 +28,7 @@ dependencies {
   optional(project(":today-web"))
   optional(project(":today-websocket"))
   optional(project(":today-framework"))
-  optional(project(":today-web-servlet"))
+  optional(project(":today-web-mock"))
 
   optional('info.picocli:picocli')
   optional("jakarta.activation:jakarta.activation-api")

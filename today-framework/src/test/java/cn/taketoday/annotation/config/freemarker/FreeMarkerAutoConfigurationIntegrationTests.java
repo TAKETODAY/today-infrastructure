@@ -29,18 +29,18 @@ import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
-import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.ServletRequestContext;
 import cn.taketoday.test.util.TestPropertyValues;
+import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.view.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfig;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfigurer;
 import cn.taketoday.web.view.freemarker.FreeMarkerViewResolver;
-import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
