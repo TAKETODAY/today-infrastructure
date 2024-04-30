@@ -887,15 +887,14 @@ public class RequestContextUtils {
 
   private abstract static class ParameterParser<T> {
 
-    protected final T parse(String name, String parameter) throws RequestBindingException {
+    protected final T parse(String name, @Nullable String parameter) throws RequestBindingException {
       validateRequiredParameter(name, parameter);
       try {
         return doParse(parameter);
       }
       catch (NumberFormatException ex) {
-        throw new RequestBindingException(
-                "Required " + getType() + " parameter '" + name + "' with value of '" +
-                        parameter + "' is not a valid number", ex);
+        throw new RequestBindingException("Required %s parameter '%s' with value of '%s' is not a valid number"
+                .formatted(getType(), name, parameter), ex);
       }
     }
 
@@ -924,11 +923,11 @@ public class RequestContextUtils {
       return Integer.valueOf(s);
     }
 
-    public int parseInt(String name, String parameter) throws RequestBindingException {
+    public int parseInt(String name, @Nullable String parameter) throws RequestBindingException {
       return parse(name, parameter);
     }
 
-    public int[] parseInts(String name, String[] values) throws RequestBindingException {
+    public int[] parseInts(String name, @Nullable String[] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       int[] parameters = new int[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -950,11 +949,11 @@ public class RequestContextUtils {
       return Long.valueOf(parameter);
     }
 
-    public long parseLong(String name, String parameter) throws RequestBindingException {
+    public long parseLong(String name, @Nullable String parameter) throws RequestBindingException {
       return parse(name, parameter);
     }
 
-    public long[] parseLongs(String name, String[] values) throws RequestBindingException {
+    public long[] parseLongs(String name, @Nullable String[] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       long[] parameters = new long[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -976,11 +975,11 @@ public class RequestContextUtils {
       return Float.valueOf(parameter);
     }
 
-    public float parseFloat(String name, String parameter) throws RequestBindingException {
+    public float parseFloat(String name, @Nullable String parameter) throws RequestBindingException {
       return parse(name, parameter);
     }
 
-    public float[] parseFloats(String name, String[] values) throws RequestBindingException {
+    public float[] parseFloats(String name, @Nullable String[] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       float[] parameters = new float[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -1002,11 +1001,11 @@ public class RequestContextUtils {
       return Double.valueOf(parameter);
     }
 
-    public double parseDouble(String name, String parameter) throws RequestBindingException {
+    public double parseDouble(String name, @Nullable String parameter) throws RequestBindingException {
       return parse(name, parameter);
     }
 
-    public double[] parseDoubles(String name, String[] values) throws RequestBindingException {
+    public double[] parseDoubles(String name, @Nullable String[] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       double[] parameters = new double[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -1029,11 +1028,11 @@ public class RequestContextUtils {
               parameter.equalsIgnoreCase("yes") || parameter.equals("1"));
     }
 
-    public boolean parseBoolean(String name, String parameter) throws RequestBindingException {
+    public boolean parseBoolean(String name, @Nullable String parameter) throws RequestBindingException {
       return parse(name, parameter);
     }
 
-    public boolean[] parseBooleans(String name, String[] values) throws RequestBindingException {
+    public boolean[] parseBooleans(String name, @Nullable String[] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       boolean[] parameters = new boolean[values.length];
       for (int i = 0; i < values.length; i++) {
@@ -1055,12 +1054,12 @@ public class RequestContextUtils {
       return parameter;
     }
 
-    public String validateRequiredString(String name, String value) throws RequestBindingException {
+    public String validateRequiredString(String name, @Nullable String value) throws RequestBindingException {
       validateRequiredParameter(name, value);
       return value;
     }
 
-    public String[] validateRequiredStrings(String name, String[] values) throws RequestBindingException {
+    public String[] validateRequiredStrings(String name, @Nullable String[] values) throws RequestBindingException {
       validateRequiredParameter(name, values);
       for (String value : values) {
         validateRequiredParameter(name, value);

@@ -106,6 +106,7 @@ dependencies {
   testFixturesAnnotationProcessor("org.projectlombok:lombok")
 
   testImplementation(project(":today-core-test"))
+  testImplementation(project(":today-test-support"))
 
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-core")))

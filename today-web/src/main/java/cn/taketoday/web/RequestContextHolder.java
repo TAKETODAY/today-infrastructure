@@ -17,9 +17,7 @@
 
 package cn.taketoday.web;
 
-import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.util.ClassUtils;
 
 /**
  * Holder class to expose the web request in the form of a thread-bound
@@ -29,16 +27,8 @@ import cn.taketoday.util.ClassUtils;
  * @since 2.3.7 2019-03-23 10:29
  */
 public abstract class RequestContextHolder {
-  private static final RequestThreadLocal contextHolder;
 
-  static {
-    if (ClassUtils.isPresent("cn.taketoday.web.server.support.FastRequestThreadLocal")) {
-      contextHolder = BeanUtils.newInstance("cn.taketoday.web.server.support.FastRequestThreadLocal", RequestContextHolder.class.getClassLoader());
-    }
-    else {
-      contextHolder = new DefaultRequestThreadLocal();
-    }
-  }
+  private static final RequestThreadLocal contextHolder = RequestThreadLocal.lookup();
 
   /**
    * cleanup request context

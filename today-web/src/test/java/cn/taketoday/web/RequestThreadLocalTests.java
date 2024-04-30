@@ -15,34 +15,31 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.server.support;
+package cn.taketoday.web;
 
-import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.RequestThreadLocal;
-import io.netty.util.concurrent.FastThreadLocal;
+import org.junit.jupiter.api.Test;
+
+import cn.taketoday.test.classpath.ClassPathExclusions;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Netty fast ThreadLocal
- *
- * @author TODAY 2021/4/2 17:17
- * @see FastThreadLocal
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @since 5.0 2024/4/30 21:43
  */
-final class FastRequestThreadLocal extends RequestThreadLocal {
-  private final FastThreadLocal<RequestContext> threadLocal = new FastThreadLocal<>();
+class RequestThreadLocalTests {
 
-  @Override
-  public void remove() {
-    threadLocal.remove();
+  @Test
+  void netty() {
+    RequestThreadLocal requestThreadLocal = RequestThreadLocal.lookup();
+    assertThat(requestThreadLocal).isInstanceOf(RequestThreadLocal.Netty.class);
   }
 
-  @Override
-  public RequestContext get() {
-    return threadLocal.get();
+  @Test
+  @ClassPathExclusions("netty-comm*")
+  void nettyNotPresent() {
+    RequestThreadLocal requestThreadLocal = RequestThreadLocal.lookup();
+    assertThat(requestThreadLocal).isInstanceOf(RequestThreadLocal.Default.class);
   }
 
-  @Override
-  public void set(@Nullable RequestContext context) {
-    threadLocal.set(context);
-  }
 }
