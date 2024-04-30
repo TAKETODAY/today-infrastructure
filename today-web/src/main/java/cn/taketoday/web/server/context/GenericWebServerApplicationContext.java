@@ -122,10 +122,10 @@ public class GenericWebServerApplicationContext extends GenericApplicationContex
   }
 
   /**
-   * Return the {@link cn.taketoday.framework.web.netty.NettyChannelHandler} that should be used to process the web
+   * Return the {@link cn.taketoday.web.server.support.NettyChannelHandler} that should be used to process the web
    * server. By default, this method searches for a suitable bean in the context itself.
    *
-   * @return a {@link cn.taketoday.framework.web.netty.NettyChannelHandler} (never {@code null}
+   * @return a {@link cn.taketoday.web.server.support.NettyChannelHandler} (never {@code null}
    */
   protected ChannelHandler getChannelHandler() {
     try {

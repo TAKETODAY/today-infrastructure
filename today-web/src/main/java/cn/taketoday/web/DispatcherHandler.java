@@ -85,7 +85,9 @@ public class DispatcherHandler extends InfraHandler {
 
   protected WebAsyncManagerFactory webAsyncManagerFactory;
 
-  public DispatcherHandler() { }
+  public DispatcherHandler() {
+
+  }
 
   /**
    * Create a new {@code DispatcherHandler} with the given application context.

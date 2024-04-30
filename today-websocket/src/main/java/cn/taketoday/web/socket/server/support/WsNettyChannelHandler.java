@@ -21,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
 import cn.taketoday.web.server.support.NettyChannelHandler;
 import cn.taketoday.web.server.support.NettyRequestConfig;
 import cn.taketoday.web.socket.BinaryMessage;
@@ -66,7 +65,7 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
       int statusCode = closeFrame.statusCode();
       String reasonText = closeFrame.reasonText();
       CloseStatus closeStatus = new CloseStatus(statusCode, reasonText);
-      close(ctx, closeStatus, log);
+      close(ctx, closeStatus);
       socketHolder.unbind(ctx.channel());
       ctx.close();
     }
@@ -86,7 +85,7 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
     try {
-      close(ctx, CloseStatus.NORMAL, log);
+      close(ctx, CloseStatus.NORMAL);
     }
     finally {
       ctx.fireChannelInactive();
@@ -109,14 +108,14 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
     }
   }
 
-  private static void close(ChannelHandlerContext ctx, CloseStatus closeStatus, Logger logger) {
+  private static void close(ChannelHandlerContext ctx, CloseStatus closeStatus) {
     WebSocketHolder socketHolder = WebSocketHolder.find(ctx.channel());
     if (socketHolder != null) {
       try {
         socketHolder.wsHandler.onClose(socketHolder.session, closeStatus);
       }
       catch (Exception ex) {
-        logger.warn("Unhandled on-close exception for {}", socketHolder.session, ex);
+        log.warn("Unhandled on-close exception for {}", socketHolder.session, ex);
       }
     }
   }
