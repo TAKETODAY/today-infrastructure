@@ -136,7 +136,6 @@ public class NettyWebServerFactoryAutoConfiguration {
   }
 
   static class Ws {
-
     private static NettyChannelHandler createChannelHandler(ApplicationContext context, NettyRequestConfig requestConfig) {
       return new WsNettyChannelHandler(requestConfig, context);
     }

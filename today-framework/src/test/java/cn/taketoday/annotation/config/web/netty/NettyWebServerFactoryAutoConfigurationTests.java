@@ -26,15 +26,18 @@ import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.context.annotation.config.AutoConfigurations;
 import cn.taketoday.context.properties.bind.Binder;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
-import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
-import cn.taketoday.web.server.support.NettyWebServerFactory;
-import cn.taketoday.web.server.support.StandardNettyWebEnvironment;
+import cn.taketoday.test.classpath.ClassPathExclusions;
+import cn.taketoday.util.DataSize;
 import cn.taketoday.web.server.ServerProperties;
 import cn.taketoday.web.server.Ssl;
-import cn.taketoday.util.DataSize;
+import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
+import cn.taketoday.web.server.support.NettyChannelHandler;
+import cn.taketoday.web.server.support.NettyWebServerFactory;
+import cn.taketoday.web.server.support.StandardNettyWebEnvironment;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 
+import static cn.taketoday.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BEAN_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -143,6 +146,15 @@ class NettyWebServerFactoryAutoConfigurationTests {
       assertThatThrownBy(() -> context.getBean(ServerProperties.class))
               .hasRootCauseInstanceOf(FileNotFoundException.class)
               .hasRootCauseMessage("class path resource [not-found.pem] cannot be resolved to URL because it does not exist");
+    });
+  }
+
+  @Test
+  @ClassPathExclusions("today-websocket*")
+  void wsNotPresent() {
+    contextRunner.run(context -> {
+      assertThat(context.getBean(CHANNEL_HANDLER_BEAN_NAME).getClass()).isSameAs(NettyChannelHandler.class);
+      assertThat(context.getBean(NettyChannelHandler.class).getClass()).isSameAs(NettyChannelHandler.class);
     });
   }
 
