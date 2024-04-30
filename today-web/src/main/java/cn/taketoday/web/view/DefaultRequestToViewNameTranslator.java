@@ -142,8 +142,8 @@ public class DefaultRequestToViewNameTranslator implements RequestToViewNameTran
   @Override
   public String getViewName(RequestContext request) {
     String lookupPath = removeSemicolonContent
-            ? WebUtils.removeSemicolonContent(request.getLookupPath().value())
-            : request.getLookupPath().value();
+            ? WebUtils.removeSemicolonContent(request.getRequestPath().value())
+            : request.getRequestPath().value();
     return prefix + transformPath(lookupPath) + suffix;
   }
 

@@ -68,7 +68,7 @@ public class HandlerMatchingMetadata {
   public HandlerMatchingMetadata(Object handler, RequestContext request) {
     this.handler = handler;
     this.bestMatchingPattern = null;
-    this.lookupPath = request.getLookupPath();
+    this.lookupPath = request.getRequestPath();
     this.directLookupPath = lookupPath.value();
     this.patternParser = PathPatternParser.defaultInstance;
   }
@@ -76,7 +76,7 @@ public class HandlerMatchingMetadata {
   public HandlerMatchingMetadata(Object handler, RequestContext request, PathPatternParser patternParser) {
     this.handler = handler;
     this.bestMatchingPattern = null;
-    this.lookupPath = request.getLookupPath();
+    this.lookupPath = request.getRequestPath();
     this.directLookupPath = lookupPath.value();
     this.patternParser = patternParser;
   }

@@ -109,7 +109,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     if (handler == null) {
       // We need to care for the default handler directly
       Object rawHandler = null;
-      String lookupPath = request.getLookupPath().value();
+      String lookupPath = request.getRequestPath().value();
       if (StringUtils.matchesCharacter(lookupPath, '/')) {
         rawHandler = getRootHandler();
       }
@@ -137,7 +137,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
    */
   @Nullable
   protected Object lookupHandler(RequestContext request) {
-    PathContainer lookupPath = request.getLookupPath();
+    PathContainer lookupPath = request.getRequestPath();
 
     String requestPath = lookupPath.value();
     Object handler = getDirectMatch(requestPath, request);

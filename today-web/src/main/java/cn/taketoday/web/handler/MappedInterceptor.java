@@ -148,7 +148,7 @@ public final class MappedInterceptor implements HandlerInterceptor {
    * @return {@code true} if the interceptor should be applied to the request
    */
   public boolean matches(RequestContext request) {
-    PathContainer lookupPath = request.getLookupPath();
+    PathContainer lookupPath = request.getRequestPath();
     return matches(lookupPath);
   }
 

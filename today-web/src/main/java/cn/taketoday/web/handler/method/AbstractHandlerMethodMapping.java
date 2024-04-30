@@ -394,7 +394,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
   @Nullable
   @Override
   protected HandlerMethod getHandlerInternal(RequestContext request) {
-    HandlerMethod handlerMethod = lookupHandlerMethod(request.getLookupPath().value(), request);
+    HandlerMethod handlerMethod = lookupHandlerMethod(request.getRequestPath().value(), request);
     if (handlerMethod != null) {
       Object handler = handlerMethod.getBean();
       if (handler instanceof String beanName) {

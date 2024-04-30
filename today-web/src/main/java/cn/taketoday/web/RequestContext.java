@@ -56,7 +56,6 @@ import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Assert;
@@ -166,10 +165,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
   /** @since 4.0 */
   @Nullable
   protected HttpMethod httpMethod;
-
-  /** @since 4.0 */
-  @Nullable
-  protected PathContainer lookupPath;
 
   /** @since 4.0 */
   @Nullable
@@ -408,18 +403,6 @@ public abstract class RequestContext extends AttributeAccessorSupport
 
   protected RequestPath doGetRequestPath() {
     return RequestPath.parse(getRequestURI(), null);
-  }
-
-  /**
-   * @since 4.0
-   */
-  public PathContainer getLookupPath() {
-    PathContainer lookupPath = this.lookupPath;
-    if (lookupPath == null) {
-      lookupPath = getRequestPath().pathWithinApplication();
-      this.lookupPath = lookupPath;
-    }
-    return lookupPath;
   }
 
   public void setMatchingMetadata(@Nullable HandlerMatchingMetadata handlerMatchingMetadata) {
@@ -1332,7 +1315,7 @@ public abstract class RequestContext extends AttributeAccessorSupport
     }
   }
 
-  private void updateResponseIdempotent(String eTag, long lastModifiedTimestamp) {
+  private void updateResponseIdempotent(@Nullable String eTag, long lastModifiedTimestamp) {
     boolean isHttpGetOrHead = SAFE_METHODS.contains(getMethodValue());
     if (this.notModified) {
       setStatus(isHttpGetOrHead ?

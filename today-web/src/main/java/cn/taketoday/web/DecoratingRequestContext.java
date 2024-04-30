@@ -42,7 +42,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.PathContainer;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
@@ -130,11 +129,6 @@ public abstract class DecoratingRequestContext extends RequestContext {
   @Override
   public String getRequestURI() {
     return getDelegate().getRequestURI();
-  }
-
-  @Override
-  public PathContainer getLookupPath() {
-    return getDelegate().getLookupPath();
   }
 
   @Override

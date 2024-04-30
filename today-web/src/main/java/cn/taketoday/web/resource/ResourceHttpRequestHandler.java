@@ -599,7 +599,7 @@ public class ResourceHttpRequestHandler extends WebContentGenerator
     String path;
     HandlerMatchingMetadata matchingMetadata = request.getMatchingMetadata();
     if (matchingMetadata == null) {
-      path = request.getLookupPath().value();
+      path = request.getRequestPath().value();
     }
     else {
       path = matchingMetadata.getPathWithinMapping().value();

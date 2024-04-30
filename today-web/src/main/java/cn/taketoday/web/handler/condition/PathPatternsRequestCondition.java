@@ -188,7 +188,7 @@ public final class PathPatternsRequestCondition extends AbstractRequestCondition
   @Override
   @Nullable
   public PathPatternsRequestCondition getMatchingCondition(RequestContext request) {
-    PathPattern[] matches = getMatchingPatterns(request.getLookupPath());
+    PathPattern[] matches = getMatchingPatterns(request.getRequestPath());
     return matches != null ? new PathPatternsRequestCondition(matches) : null;
   }
 

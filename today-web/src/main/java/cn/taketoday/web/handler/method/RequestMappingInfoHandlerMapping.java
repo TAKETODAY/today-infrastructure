@@ -99,7 +99,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
     RequestMappingInfo info = bestMatch.mapping;
     PathPatternsRequestCondition pathPatternsCondition = info.getPathPatternsCondition();
     HandlerMatchingMetadata matchingMetadata = new HandlerMatchingMetadata(
-            bestMatch.getHandlerMethod(), directLookupPath, request.getLookupPath(),
+            bestMatch.getHandlerMethod(), directLookupPath, request.getRequestPath(),
             CollectionUtils.firstElement(pathPatternsCondition.getPatterns()), getPatternParser());
 
     request.setMatchingMetadata(matchingMetadata);
