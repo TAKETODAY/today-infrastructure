@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.reactive.function;
@@ -32,6 +29,7 @@ import cn.taketoday.lang.Nullable;
  * Exception thrown to indicate that a {@code Content-Type} is not supported.
  *
  * @author Arjen Poutsma
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
@@ -44,23 +42,6 @@ public class UnsupportedMediaTypeException extends NestedRuntimeException {
 
   @Nullable
   private final ResolvableType bodyType;
-
-  /**
-   * Constructor for when the specified Content-Type is invalid.
-   */
-  public UnsupportedMediaTypeException(String reason) {
-    super(reason);
-    this.contentType = null;
-    this.supportedMediaTypes = Collections.emptyList();
-    this.bodyType = null;
-  }
-
-  /**
-   * Constructor for when the Content-Type can be parsed but is not supported.
-   */
-  public UnsupportedMediaTypeException(@Nullable MediaType contentType, List<MediaType> supportedTypes) {
-    this(contentType, supportedTypes, null);
-  }
 
   /**
    * Constructor for when trying to encode from or decode to a specific Java type.
