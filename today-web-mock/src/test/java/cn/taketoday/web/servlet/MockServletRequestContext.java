@@ -36,7 +36,6 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.util.CollectionUtils;
@@ -48,10 +47,10 @@ import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.mock.http.Cookie;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -448,10 +447,6 @@ public class MockServletRequestContext extends RequestContext implements Servlet
 
   public void setHttpMethod(HttpMethod httpMethod) {
     this.httpMethod = httpMethod;
-  }
-
-  public void setLookupPath(RequestPath lookupPath) {
-    this.lookupPath = lookupPath;
   }
 
   public void setLocale(Locale locale) {
