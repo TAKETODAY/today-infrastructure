@@ -432,7 +432,7 @@ public final class WebAsyncManager {
 
   /**
    * Start concurrent request processing and initialize the given
-   * {@link DeferredResult} with a {@link DeferredResult.DeferredResultHandler} that saves
+   * {@link DeferredResult} with a {@link DeferredResultHandler} that saves
    * the result and dispatches the request to resume processing of that
    * result. The {@code AsyncWebRequest} is also updated with a completion
    * handler that expires the {@code DeferredResult} and a timeout handler
