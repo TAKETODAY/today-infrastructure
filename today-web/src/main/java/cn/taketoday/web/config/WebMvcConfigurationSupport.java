@@ -82,7 +82,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
-import cn.taketoday.web.context.async.WebAsyncManagerFactory;
+import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.AbstractHandlerMapping;
 import cn.taketoday.web.handler.BeanNameUrlHandlerMapping;

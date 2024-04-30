@@ -20,9 +20,10 @@ package cn.taketoday.web.server.support;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.async.AsyncWebRequest;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -67,7 +68,7 @@ public class NettyAsyncWebRequest extends AsyncWebRequest {
   }
 
   @Override
-  public void dispatch(Object concurrentResult) {
+  public void dispatch(@Nullable Object concurrentResult) {
     this.asyncStarted = false;
     if (asyncCompleted.compareAndSet(false, true)) {
       channelContext.executor().execute(() -> {

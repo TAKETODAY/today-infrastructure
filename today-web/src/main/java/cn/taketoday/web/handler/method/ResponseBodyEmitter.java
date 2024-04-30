@@ -28,7 +28,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.DeferredResult;
+import cn.taketoday.web.async.DeferredResult;
 
 /**
  * A controller method return value type for asynchronous request processing

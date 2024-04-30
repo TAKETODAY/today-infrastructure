@@ -45,7 +45,7 @@ import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.MissingRequestParameterException;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
-import cn.taketoday.web.context.async.AsyncRequestTimeoutException;
+import cn.taketoday.web.async.AsyncRequestTimeoutException;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.util.WebUtils;
 

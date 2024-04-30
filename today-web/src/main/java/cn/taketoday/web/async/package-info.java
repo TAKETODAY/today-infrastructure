@@ -15,18 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.handler;
-
-import cn.taketoday.lang.Nullable;
-
 /**
- * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0 2022/10/24 22:44
+ * Support for asynchronous request processing.
  */
-public interface AsyncHandler {
+@NonNullApi
+@NonNullFields
+package cn.taketoday.web.async;
 
-  default Object wrapConcurrentResult(@Nullable Object asyncResult) {
-    return this;
-  }
-
-}
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

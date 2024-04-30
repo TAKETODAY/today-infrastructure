@@ -31,8 +31,8 @@ import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.DeferredResult;
-import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.async.DeferredResult;
+import cn.taketoday.web.async.WebAsyncManager;
 
 /**
  * Default {@link AsyncServerResponse} implementation.

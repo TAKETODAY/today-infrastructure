@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.async;
+package cn.taketoday.web.async;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -32,7 +32,6 @@ import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.context.async.DeferredResult.DeferredResultHandler;
 import cn.taketoday.web.util.DisconnectedClientHelper;
 
 /**
@@ -95,8 +94,10 @@ public final class WebAsyncManager {
 
   private AsyncTaskExecutor taskExecutor = DEFAULT_TASK_EXECUTOR;
 
+  @Nullable
   private volatile Object concurrentResult = RESULT_NONE;
 
+  @Nullable
   private volatile Object[] concurrentResultContext;
 
   /*
@@ -166,6 +167,7 @@ public final class WebAsyncManager {
    * concurrent handling raised one.
    * @see #clearConcurrentResult()
    */
+  @Nullable
   public Object getConcurrentResult() {
     return concurrentResult;
   }
@@ -176,6 +178,7 @@ public final class WebAsyncManager {
    *
    * @see #clearConcurrentResult()
    */
+  @Nullable
   public Object[] getConcurrentResultContext() {
     return concurrentResultContext;
   }
@@ -400,7 +403,7 @@ public final class WebAsyncManager {
     return requestContext.getRequestURI();
   }
 
-  private void setConcurrentResultAndDispatch(Object result) {
+  private void setConcurrentResultAndDispatch(@Nullable Object result) {
     synchronized(this) {
       if (concurrentResult != RESULT_NONE) {
         return;
@@ -429,7 +432,7 @@ public final class WebAsyncManager {
 
   /**
    * Start concurrent request processing and initialize the given
-   * {@link DeferredResult} with a {@link DeferredResultHandler} that saves
+   * {@link DeferredResult} with a {@link DeferredResult.DeferredResultHandler} that saves
    * the result and dispatches the request to resume processing of that
    * result. The {@code AsyncWebRequest} is also updated with a completion
    * handler that expires the {@code DeferredResult} and a timeout handler

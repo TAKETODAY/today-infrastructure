@@ -36,7 +36,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayHolder;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.context.async.WebAsyncManagerFactory;
+import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AsyncHandler;
 import cn.taketoday.web.handler.HandlerAdapterAware;
 import cn.taketoday.web.handler.HandlerNotFoundException;
@@ -251,7 +251,7 @@ public class DispatcherHandler extends InfraHandler {
    * @param handler sync handler
    * @param concurrentResult async result
    */
-  public void handleConcurrentResult(RequestContext context, @Nullable Object handler, Object concurrentResult) throws Throwable {
+  public void handleConcurrentResult(RequestContext context, @Nullable Object handler, @Nullable Object concurrentResult) throws Throwable {
     Throwable throwable = null;
     try {
       if (handler instanceof AsyncHandler asyncHandler) {

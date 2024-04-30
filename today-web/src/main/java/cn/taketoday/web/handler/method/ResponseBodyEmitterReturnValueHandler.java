@@ -36,7 +36,7 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.context.async.DeferredResult;
+import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.handler.result.SmartReturnValueHandler;
 
 /**

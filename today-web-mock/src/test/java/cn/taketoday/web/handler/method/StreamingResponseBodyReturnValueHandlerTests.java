@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;

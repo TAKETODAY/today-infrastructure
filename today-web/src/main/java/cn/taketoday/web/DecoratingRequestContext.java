@@ -47,8 +47,8 @@ import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.async.AsyncWebRequest;
+import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**

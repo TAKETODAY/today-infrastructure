@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.async;
+package cn.taketoday.web.async;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -113,6 +113,6 @@ public abstract class AsyncWebRequest {
    * Dispatch the request to the container in order to resume processing after
    * concurrent execution in an application thread.
    */
-  public abstract void dispatch(Object concurrentResult);
+  public abstract void dispatch(@Nullable Object concurrentResult);
 
 }

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.async;
+package cn.taketoday.web.async;
 
 import java.util.PriorityQueue;
 import java.util.concurrent.Callable;
@@ -26,8 +26,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
-import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.util.concurrent.Future;
+import cn.taketoday.util.concurrent.FutureListener;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -65,14 +65,19 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
 
   private final Supplier<?> timeoutResult;
 
+  @Nullable
   private Runnable timeoutCallback;
 
+  @Nullable
   private Consumer<Throwable> errorCallback;
 
+  @Nullable
   private Runnable completionCallback;
 
+  @Nullable
   private DeferredResultHandler resultHandler;
 
+  @Nullable
   private volatile Object result = RESULT_NONE;
 
   private volatile boolean expired;
@@ -105,7 +110,6 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
    */
   public DeferredResult(@Nullable Long timeoutValue, Object timeoutResult) {
     this(timeoutValue, () -> timeoutResult);
-
   }
 
   /**
@@ -187,7 +191,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
    * completed for any reason including timeout and network error. This is useful
    * for detecting that a {@code DeferredResult} instance is no longer usable.
    */
-  public void onCompletion(Runnable callback) {
+  public void onCompletion(@Nullable Runnable callback) {
     this.completionCallback = callback;
   }
 
@@ -235,11 +239,11 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
    * {@code false} if the result was already set or the async request expired
    * @see #isSetOrExpired()
    */
-  public boolean setResult(T result) {
+  public boolean setResult(@Nullable T result) {
     return setResultInternal(result);
   }
 
-  private boolean setResultInternal(Object result) {
+  private boolean setResultInternal(@Nullable Object result) {
     // Immediate expiration check outside of the result lock
     if (isSetOrExpired()) {
       return false;
@@ -280,7 +284,7 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
    * request expired
    * @see #isSetOrExpired()
    */
-  public boolean setErrorResult(Object result) {
+  public boolean setErrorResult(@Nullable Object result) {
     return setResultInternal(result);
   }
 
@@ -347,15 +351,6 @@ public class DeferredResult<T> implements FutureListener<Future<T>> {
         }
       }
     };
-  }
-
-  /**
-   * Handles a DeferredResult value when set.
-   */
-  @FunctionalInterface
-  public interface DeferredResultHandler {
-
-    void handleResult(Object result);
   }
 
 }

@@ -603,7 +603,7 @@ public class HandlerMethod implements AsyncHandler {
 
     private final ResolvableType returnType;
 
-    public ConcurrentResultMethodParameter(Object returnValue) {
+    public ConcurrentResultMethodParameter(@Nullable Object returnValue) {
       super(-1);
       this.returnValue = returnValue;
       this.returnType = returnValue instanceof ReactiveTypeHandler.CollectedValuesList list

@@ -30,7 +30,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.mock.DispatcherType;
 import cn.taketoday.web.mock.Servlet;
 import cn.taketoday.web.mock.ServletConfig;

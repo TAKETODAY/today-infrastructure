@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.async;
+package cn.taketoday.web.async;
 
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 
 /**
@@ -42,6 +40,7 @@ import cn.taketoday.web.RequestContext;
  *
  * @author Rossen Stoyanchev
  * @author Rob Winch
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface DeferredResultProcessingInterceptor {
@@ -55,8 +54,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void beforeConcurrentHandling(
-          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> void beforeConcurrentHandling(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
 
   }
 
@@ -71,8 +69,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void preProcess(
-          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> void preProcess(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
 
   }
 
@@ -90,8 +87,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param concurrentResult the result to which the {@code DeferredResult}
    * @throws Exception in case of errors
    */
-  default <T> void postProcess(RequestContext request,
-          DeferredResult<T> deferredResult, Object concurrentResult) throws Exception {
+  default <T> void postProcess(RequestContext request, DeferredResult<T> deferredResult, @Nullable Object concurrentResult) throws Exception {
 
   }
 
@@ -109,8 +105,7 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleTimeout(
-          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> boolean handleTimeout(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
 
     return true;
   }
@@ -130,8 +125,7 @@ public interface DeferredResultProcessingInterceptor {
    * other interceptors should by bypassed and not be invoked
    * @throws Exception in case of errors
    */
-  default <T> boolean handleError(
-          RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
+  default <T> boolean handleError(RequestContext request, DeferredResult<T> deferredResult, Throwable t) throws Exception {
     return true;
   }
 
@@ -144,8 +138,7 @@ public interface DeferredResultProcessingInterceptor {
    * @param deferredResult the DeferredResult for the current request
    * @throws Exception in case of errors
    */
-  default <T> void afterCompletion(
-          RequestContext request, DeferredResult<T> deferredResult) throws Exception {
+  default <T> void afterCompletion(RequestContext request, DeferredResult<T> deferredResult) throws Exception {
 
   }
 

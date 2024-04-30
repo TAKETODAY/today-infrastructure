@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,14 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.context.async;
+package cn.taketoday.web.async;
 
 import java.util.ArrayList;
 
-import cn.taketoday.logging.Logger;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
 
@@ -30,9 +30,7 @@ import cn.taketoday.web.RequestContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class DeferredResultInterceptorChain {
-
-  private static final Logger logger = LoggerFactory.getLogger(DeferredResultInterceptorChain.class);
+final class DeferredResultInterceptorChain {
 
   private final ArrayList<DeferredResultProcessingInterceptor> interceptors;
 
@@ -57,8 +55,8 @@ class DeferredResultInterceptorChain {
     }
   }
 
-  public Object applyPostProcess(RequestContext request, DeferredResult<?> deferredResult,
-          Object concurrentResult) {
+  @Nullable
+  public Object applyPostProcess(RequestContext request, DeferredResult<?> deferredResult, @Nullable Object concurrentResult) {
 
     try {
       for (int i = this.preProcessingIndex; i >= 0; i--) {
@@ -108,7 +106,8 @@ class DeferredResultInterceptorChain {
         this.interceptors.get(i).afterCompletion(request, deferredResult);
       }
       catch (Throwable ex) {
-        logger.trace("Ignoring failure in afterCompletion method", ex);
+        LoggerFactory.getLogger(DeferredResultInterceptorChain.class)
+                .trace("Ignoring failure in afterCompletion method", ex);
       }
     }
   }

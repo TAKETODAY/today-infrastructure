@@ -47,7 +47,7 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
-import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.mock.http.Cookie;
 import cn.taketoday.web.mock.http.HttpServletRequest;

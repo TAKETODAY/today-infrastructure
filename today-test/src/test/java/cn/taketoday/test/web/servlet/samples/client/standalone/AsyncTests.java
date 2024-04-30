@@ -37,7 +37,7 @@ import cn.taketoday.web.annotation.GetMapping;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestController;
-import cn.taketoday.web.context.async.DeferredResult;
+import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import reactor.core.publisher.Mono;
 

@@ -23,7 +23,7 @@ import java.util.concurrent.CompletionStage;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.DeferredResult;
+import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.handler.method.HandlerMethod;
 
 /**

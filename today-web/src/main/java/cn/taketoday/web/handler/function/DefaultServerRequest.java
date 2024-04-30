@@ -57,7 +57,7 @@ import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.WebDataBinder;
-import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.UriBuilder;

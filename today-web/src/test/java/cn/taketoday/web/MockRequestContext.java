@@ -34,7 +34,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.context.async.AsyncWebRequest;
+import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.multipart.MultipartRequest;
 
 /**

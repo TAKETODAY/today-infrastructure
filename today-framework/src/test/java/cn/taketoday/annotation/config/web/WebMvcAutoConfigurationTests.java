@@ -83,7 +83,7 @@ import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
-import cn.taketoday.web.context.async.WebAsyncManagerFactory;
+import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;

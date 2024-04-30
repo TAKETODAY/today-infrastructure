@@ -53,8 +53,8 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.async.AsyncWebRequest;
+import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.multipart.MultipartRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -625,7 +625,7 @@ public class NettyRequestContext extends RequestContext {
    * @param concurrentResult async result
    * @throws Throwable dispatch error
    */
-  void dispatchConcurrentResult(Object concurrentResult) throws Throwable {
+  void dispatchConcurrentResult(@Nullable Object concurrentResult) throws Throwable {
     Object handler = WebAsyncManager.findHttpRequestHandler(this);
     dispatcherHandler.handleConcurrentResult(this, handler, concurrentResult);
   }

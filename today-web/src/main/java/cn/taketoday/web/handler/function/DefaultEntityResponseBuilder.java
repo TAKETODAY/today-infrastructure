@@ -58,7 +58,7 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.context.async.DeferredResult;
+import cn.taketoday.web.async.DeferredResult;
 
 /**
  * Default {@link EntityResponse.Builder} implementation.

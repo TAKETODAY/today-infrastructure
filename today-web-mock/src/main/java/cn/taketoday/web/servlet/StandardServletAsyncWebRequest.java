@@ -22,8 +22,8 @@ import java.util.function.Consumer;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.context.async.AsyncWebRequest;
-import cn.taketoday.web.context.async.WebAsyncManager;
+import cn.taketoday.web.async.AsyncWebRequest;
+import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.mock.AsyncContext;
 import cn.taketoday.web.mock.AsyncEvent;
 import cn.taketoday.web.mock.AsyncListener;

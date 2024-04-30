@@ -24,6 +24,7 @@ import java.util.List;
 import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.mock.AsyncContext;
 import cn.taketoday.web.mock.AsyncEvent;
@@ -158,7 +159,7 @@ public class MockAsyncContext implements AsyncContext {
    * specifies a default async request timeout of 30 seconds. Keep in mind the
    * timeout could further be impacted by global configuration through the MVC
    * Java config or the XML namespace, as well as be overridden per request on
-   * {@link cn.taketoday.web.context.async.DeferredResult DeferredResult}
+   * {@link DeferredResult DeferredResult}
    * or on
    * {@link cn.taketoday.web.handler.method.SseEmitter SseEmitter}.
    *

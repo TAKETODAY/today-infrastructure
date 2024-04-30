@@ -24,6 +24,11 @@ import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.web.RequestContext;
+import cn.taketoday.web.async.CallableProcessingInterceptor;
+import cn.taketoday.web.async.DeferredResult;
+import cn.taketoday.web.async.DeferredResultProcessingInterceptor;
+import cn.taketoday.web.async.WebAsyncManager;
+import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
 import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
@@ -31,7 +36,7 @@ import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.mock.AsyncEvent;
 
-import static cn.taketoday.web.context.async.CallableProcessingInterceptor.RESULT_NONE;
+import static cn.taketoday.web.async.CallableProcessingInterceptor.RESULT_NONE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
