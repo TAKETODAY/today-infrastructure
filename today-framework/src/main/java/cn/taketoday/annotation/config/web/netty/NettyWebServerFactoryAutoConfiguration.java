@@ -67,15 +67,12 @@ import static cn.taketoday.web.server.ChannelWebServerFactory.CHANNEL_HANDLER_BE
 @DisableDIAutoConfiguration(after = ErrorMvcAutoConfiguration.class)
 public class NettyWebServerFactoryAutoConfiguration {
 
-  private static final boolean websocketPresent = ClassUtils.isPresent(
-          "cn.taketoday.web.socket.Message", NettyChannelHandler.class);
-
   @Component(CHANNEL_HANDLER_BEAN_NAME)
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
   @ConditionalOnMissingBean(name = CHANNEL_HANDLER_BEAN_NAME)
   static NettyChannelHandler nettyChannelHandler(ApplicationContext context,
           WebMvcProperties webMvcProperties, NettyRequestConfig requestConfig) {
-    NettyChannelHandler handler = createChannelHandler(context, requestConfig);
+    NettyChannelHandler handler = createChannelHandler(context, requestConfig, context.getClassLoader());
     handler.setThrowExceptionIfNoHandlerFound(webMvcProperties.throwExceptionIfNoHandlerFound);
     handler.setEnableLoggingRequestDetails(webMvcProperties.logRequestDetails);
     return handler;
@@ -130,11 +127,19 @@ public class NettyWebServerFactoryAutoConfiguration {
     }
   }
 
-  private static NettyChannelHandler createChannelHandler(ApplicationContext context, NettyRequestConfig requestConfig) {
-    if (websocketPresent) {
-      return new WsNettyChannelHandler(requestConfig, context);
+  private static NettyChannelHandler createChannelHandler(ApplicationContext context,
+          NettyRequestConfig requestConfig, @Nullable ClassLoader classLoader) {
+    if (ClassUtils.isPresent("cn.taketoday.web.socket.server.support.WsNettyChannelHandler", classLoader)) {
+      return Ws.createChannelHandler(context, requestConfig);
     }
     return new NettyChannelHandler(requestConfig, context);
+  }
+
+  static class Ws {
+
+    private static NettyChannelHandler createChannelHandler(ApplicationContext context, NettyRequestConfig requestConfig) {
+      return new WsNettyChannelHandler(requestConfig, context);
+    }
   }
 
 }

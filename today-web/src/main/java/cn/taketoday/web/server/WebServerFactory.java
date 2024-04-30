@@ -24,23 +24,9 @@ package cn.taketoday.web.server;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebServer
  * @see ChannelWebServerFactory
- * @see cn.taketoday.framework.web.reactive.server.ReactiveWebServerFactory
+ * @see cn.taketoday.web.server.reactive.ReactiveWebServerFactory
  * @since 4.0
  */
 public interface WebServerFactory {
-
-  /**
-   * Gets a new fully configured but paused {@link WebServer} instance. Clients should
-   * not be able to connect to the returned server until {@link WebServer#start()} is
-   * called (which happens when the {@code ApplicationContext} has been fully
-   * refreshed).
-   *
-   * @return a fully configured and started {@link WebServer}
-   * @see WebServer#stop()
-   */
-  @Deprecated
-  default WebServer getWebServer() {
-    throw new UnsupportedOperationException();
-  }
 
 }
