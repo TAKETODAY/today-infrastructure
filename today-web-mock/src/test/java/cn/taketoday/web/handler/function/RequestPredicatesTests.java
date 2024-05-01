@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.function;
@@ -117,21 +114,6 @@ class RequestPredicatesTests {
   }
 
   @Test
-  void contextPath() {
-    RequestPredicate predicate = RequestPredicates.path("/bar");
-
-    MockHttpServletRequest initRequest = PathPatternsTestUtils.initRequest("GET", "/foo", "/bar", true);
-    ServerRequest request = new DefaultServerRequest(
-            new ServletRequestContext(null, initRequest, new MockHttpServletResponse()),
-            Collections.emptyList());
-
-    assertThat(predicate.test(request)).isTrue();
-
-    request = initRequest("GET", "/foo");
-    assertThat(predicate.test(request)).isFalse();
-  }
-
-  @Test
   void pathNoLeadingSlash() {
     RequestPredicate predicate = RequestPredicates.path("p*");
     assertThat(predicate.test(initRequest("GET", "/path"))).isTrue();
@@ -157,8 +139,7 @@ class RequestPredicatesTests {
   @Test
   public void pathWithContext() {
     RequestPredicate predicate = RequestPredicates.path("/p*");
-    ServerRequest request = initRequest("GET", "/context/path",
-            servletRequest -> servletRequest.setContextPath("/context"));
+    ServerRequest request = initRequest("GET", "/path", servletRequest -> { });
     assertThat(predicate.test(request)).isTrue();
   }
 

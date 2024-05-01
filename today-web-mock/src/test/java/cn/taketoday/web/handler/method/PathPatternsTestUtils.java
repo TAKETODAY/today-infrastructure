@@ -46,7 +46,6 @@ public abstract class PathPatternsTestUtils {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
       MockHttpServletRequest servletRequest = new MockHttpServletRequest(method, requestUri);
-      servletRequest.setContextPath(contextPath);
       return new ServletRequestContext(context, servletRequest, new MockHttpServletResponse());
     }
     else {
@@ -101,9 +100,7 @@ public abstract class PathPatternsTestUtils {
   private static MockHttpServletRequest createRequest0(String method, @Nullable String contextPath, String path) {
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
-      MockHttpServletRequest request = new MockHttpServletRequest(method, requestUri);
-      request.setContextPath(contextPath);
-      return request;
+      return new MockHttpServletRequest(method, requestUri);
     }
     else {
       return new MockHttpServletRequest(method, path);

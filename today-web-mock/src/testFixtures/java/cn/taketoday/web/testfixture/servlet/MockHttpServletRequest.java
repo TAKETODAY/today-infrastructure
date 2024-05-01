@@ -54,7 +54,6 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.mock.AsyncContext;
 import cn.taketoday.web.mock.DispatcherType;
 import cn.taketoday.web.mock.RequestDispatcher;
@@ -236,8 +235,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
   @Nullable
   private String pathInfo;
 
-  private String contextPath = "";
-
   @Nullable
   private String queryString;
 
@@ -254,8 +251,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   @Nullable
   private String requestURI;
-
-  private String servletPath = "";
 
   @Nullable
   private HttpSession session;
@@ -510,8 +505,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     this.inputStream = (this.content != null ?
-                        new DelegatingServletInputStream(new ByteArrayInputStream(this.content)) :
-                        new DelegatingServletInputStream(InputStream.nullInputStream()));
+            new DelegatingServletInputStream(new ByteArrayInputStream(this.content)) :
+            new DelegatingServletInputStream(InputStream.nullInputStream()));
     return this.inputStream;
   }
 
@@ -727,8 +722,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     if (this.content != null) {
       InputStream sourceStream = new ByteArrayInputStream(this.content);
       Reader sourceReader = (this.characterEncoding != null) ?
-                            new InputStreamReader(sourceStream, this.characterEncoding) :
-                            new InputStreamReader(sourceStream);
+              new InputStreamReader(sourceStream, this.characterEncoding) :
+              new InputStreamReader(sourceStream);
       this.reader = new BufferedReader(sourceReader);
     }
     else {
@@ -1215,15 +1210,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return (this.pathInfo != null ? this.servletContext.getRealPath(this.pathInfo) : null);
   }
 
-  public void setContextPath(String contextPath) {
-    this.contextPath = contextPath;
-  }
-
-  @Override
-  public String getContextPath() {
-    return this.contextPath;
-  }
-
   public void setQueryString(@Nullable String queryString) {
     this.queryString = queryString;
   }
@@ -1301,15 +1287,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
       url.append(uri);
     }
     return url;
-  }
-
-  public void setServletPath(String servletPath) {
-    this.servletPath = servletPath;
-  }
-
-  @Override
-  public String getServletPath() {
-    return this.servletPath;
   }
 
   public void setSession(HttpSession session) {
@@ -1435,11 +1412,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
    */
   @Nullable
   private MappingMatch determineMappingMatch() {
-    if (StringUtils.hasText(this.requestURI) && StringUtils.hasText(this.servletPath)) {
-      String path = UrlPathHelper.defaultInstance.getRequestUri(this);
-      String prefix = this.contextPath + this.servletPath;
-      return (path.startsWith(prefix) && (path.length() > prefix.length()) ? MappingMatch.PATH : null);
-    }
     return null;
   }
 

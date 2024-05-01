@@ -110,18 +110,17 @@ public class SimpleUrlHandlerMappingTests {
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).isEqualTo("welcome.xxx");
     assertThat(request.getAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE)).isEqualTo(otherBean);
 
-    request = PathPatternsTestUtils.initRequest("GET", "/app", "/welcome.x");
+    request = PathPatternsTestUtils.initRequest("GET", "/welcome.x");
     chain = getHandler(hm, request);
     assertThat(chain.getRawHandler()).isSameAs(otherBean);
     assertThat(request.getAttribute(PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE)).isEqualTo("welcome.x");
     assertThat(request.getAttribute(BEST_MATCHING_HANDLER_ATTRIBUTE)).isEqualTo(otherBean);
 
-    request = PathPatternsTestUtils.initRequest("GET", "/");
-    request.setServletPath("/welcome.html");
+    request = PathPatternsTestUtils.initRequest("GET", "/welcome.html");
     chain = getHandler(hm, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 
-    request = PathPatternsTestUtils.initRequest("GET", "/app", "/welcome.html");
+    request = PathPatternsTestUtils.initRequest("GET", "/welcome.html");
     chain = getHandler(hm, request);
     assertThat(chain.getRawHandler()).isSameAs(bean);
 

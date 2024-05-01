@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +12,12 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
+
+import com.ctc.wstx.shaded.msv_core.util.Uri;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,13 +50,13 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.UnsatisfiedRequestParameterException;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.MappedInterceptor;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
-import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -75,9 +74,6 @@ class RequestMappingInfoHandlerMappingTests {
     TestController controller = new TestController();
 
     TestRequestMappingInfoHandlerMapping mapping1 = new TestRequestMappingInfoHandlerMapping();
-
-    UrlPathHelper pathHelper = new UrlPathHelper();
-    pathHelper.setRemoveSemicolonContent(false);
 
     TestRequestMappingInfoHandlerMapping mapping2 = new TestRequestMappingInfoHandlerMapping();
 
@@ -287,7 +283,7 @@ class RequestMappingInfoHandlerMappingTests {
   void handleMatchUriTemplateVariables(TestRequestMappingInfoHandlerMapping mapping) {
     RequestMappingInfo key = RequestMappingInfo.paths("/{path1}/{path2}").build();
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/1/2");
-    String lookupPath = new UrlPathHelper().getLookupPathForRequest(request);
+    String lookupPath = request.getRequestURI();
 
     var context = new ServletRequestContext(null, request, new MockHttpServletResponse());
 
@@ -306,15 +302,12 @@ class RequestMappingInfoHandlerMappingTests {
     assertThat(uriVariables.get("path2")).isEqualTo("2");
   }
 
-  @SuppressWarnings("unchecked")
   @PathPatternsParameterizedTest
   void handleMatchUriTemplateVariablesDecode(TestRequestMappingInfoHandlerMapping mapping) {
     RequestMappingInfo key = RequestMappingInfo.paths("/{group}/{identifier}").build();
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/group/a%2Fb");
 
-    UrlPathHelper pathHelper = new UrlPathHelper();
-    pathHelper.setUrlDecode(false);
-    String lookupPath = pathHelper.getLookupPathForRequest(request);
+    String lookupPath = UriUtils.decode(request.getRequestURI(), "UTF-8");
 
     var context = new ServletRequestContext(null, request, new MockHttpServletResponse());
 

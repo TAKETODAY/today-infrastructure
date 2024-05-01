@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.context;
@@ -31,14 +28,14 @@ import cn.taketoday.beans.factory.ObjectProvider;
 import cn.taketoday.beans.factory.support.ScopeNotActiveException;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.taketoday.beans.testfixture.beans.CountingTestBean;
+import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
+import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.support.RequestScope;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.beans.testfixture.beans.CountingTestBean;
-import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
-import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
@@ -74,14 +71,13 @@ public class RequestScopeTests {
   @Test
   public void getFromScope() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setContextPath("/path");
     ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedObject";
     assertThat(request.getAttribute(name)).isNull();
     TestBean bean = (TestBean) this.beanFactory.getBean(name);
-    assertThat(bean.getName()).isEqualTo("/path");
+    assertThat(bean.getName()).isEqualTo("");
     assertThat(request.getAttribute(name)).isSameAs(bean);
     assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
   }

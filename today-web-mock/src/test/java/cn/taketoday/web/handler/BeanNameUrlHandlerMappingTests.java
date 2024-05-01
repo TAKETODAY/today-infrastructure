@@ -29,13 +29,13 @@ import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.HandlerMapping;
+import cn.taketoday.web.mock.ServletException;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.testfixture.servlet.MockServletContext;
-import cn.taketoday.web.mock.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -61,8 +61,7 @@ class BeanNameUrlHandlerMappingTests {
   public void requestsWithoutHandlers() throws Exception {
     HandlerMapping hm = (HandlerMapping) wac.getBean("handlerMapping");
 
-    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/myapp/mypath/nonsense.html");
-    req.setContextPath("/myapp");
+    MockHttpServletRequest req = new MockHttpServletRequest("GET", "/mypath/nonsense.html");
     ServletRequestContext request = new ServletRequestContext(null, req, new MockHttpServletResponse());
     Object h = hm.getHandler(request);
     assertThat(h).as("Handler is null").isNull();
@@ -93,26 +92,19 @@ class BeanNameUrlHandlerMappingTests {
     HandlerExecutionChain hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/myapp/mypath/welcome.html");
-    req.setContextPath("/myapp");
+    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/myapp/mypath/welcome.html");
-    req.setContextPath("/myapp");
-    req.setServletPath("/mypath/welcome.html");
+    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/myapp/myservlet/mypath/welcome.html");
-    req.setContextPath("/myapp");
-    req.setServletPath("/myservlet");
+    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/myapp/myapp/mypath/welcome.html");
-    req.setContextPath("/myapp");
-    req.setServletPath("/myapp");
+    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
@@ -143,8 +135,7 @@ class BeanNameUrlHandlerMappingTests {
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/myapp/mypath/welcome.html");
-    req.setContextPath("/myapp");
+    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
@@ -154,15 +145,12 @@ class BeanNameUrlHandlerMappingTests {
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
-    req = new MockHttpServletRequest("GET", "/myapp/mypath/welcome.html");
-    req.setContextPath("/myapp");
+    req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();
 
     req = new MockHttpServletRequest("GET", "/mypath/welcome.html");
-    req.setContextPath("");
-    req.setServletPath("/");
     hec = getChain(hm, req);
 
     assertThat(hec != null && hec.getRawHandler() == bean).as("Handler is correct bean").isTrue();

@@ -55,7 +55,6 @@ public class ResourceUrlProviderJavaConfigTests {
     context.refresh();
 
     this.request = new MockHttpServletRequest("GET", "/");
-    this.request.setContextPath("/myapp");
     this.response = new MockHttpServletResponse();
 
     this.filterChain = new MockFilterChain(this.servlet/*,
@@ -78,8 +77,7 @@ public class ResourceUrlProviderJavaConfigTests {
 
   @Test
   public void resolvePathNoMatch() throws Exception {
-    this.request.setRequestURI("/myapp/myservlet/index");
-    this.request.setServletPath("/myservlet");
+    this.request.setRequestURI("/myapp/index");
     this.filterChain.doFilter(this.request, this.response);
 
     assertThat(resolvePublicResourceUrlPath("/myapp/myservlet/index")).isEqualTo("/myapp/myservlet/index");

@@ -133,6 +133,13 @@ import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.handler.function.RouterFunctions;
 import cn.taketoday.web.handler.function.ServerResponse;
+import cn.taketoday.web.mock.ServletConfig;
+import cn.taketoday.web.mock.ServletContext;
+import cn.taketoday.web.mock.ServletException;
+import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.web.mock.http.Part;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.ServletRequestContext;
@@ -148,13 +155,6 @@ import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
-import cn.taketoday.web.mock.ServletConfig;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.mock.ServletException;
-import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletResponse;
-import cn.taketoday.web.mock.http.HttpSession;
-import cn.taketoday.web.mock.http.Part;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -173,9 +173,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   void emptyValueMapping() throws Exception {
     initDispatcherServlet(ControllerWithEmptyValueMapping.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo");
-    request.setContextPath("/foo");
-    request.setServletPath("");
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test");
@@ -191,9 +189,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
   void errorThrownFromHandlerMethod() throws Exception {
     initDispatcherServlet(ControllerWithErrorThrown.class);
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/foo");
-    request.setContextPath("/foo");
-    request.setServletPath("");
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
     MockHttpServletResponse response = new MockHttpServletResponse();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("test");
@@ -272,8 +268,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
       wac.registerBeanDefinition("ppc", ppc);
     });
 
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myApp/myPath.do");
-    request.setContextPath("/myApp");
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myPath.do");
     MockHttpServletResponse response = new MockHttpServletResponse();
     System.setProperty("myHeader", "bar");
     try {
@@ -282,7 +277,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     finally {
       System.clearProperty("myHeader");
     }
-    assertThat(response.getContentAsString()).isEqualTo("foo-bar-/myApp");
+    assertThat(response.getContentAsString()).isEqualTo("foo-bar-/myPath.do");
   }
 
   @Test
@@ -3108,9 +3103,8 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
     @RequestMapping("/myPath.do")
     public void myHandle(@RequestParam(value = "id", defaultValue = "${myKey}") String id,
             @RequestHeader(defaultValue = "#{systemProperties.myHeader}") String header,
-            @Value("#{request.contextPath}") String contextPath,
-            RequestContext response) throws IOException {
-      response.getWriter().write(String.valueOf(id) + "-" + String.valueOf(header) + "-" + contextPath);
+            @Value("#{request.requestPath.value()}") String path, RequestContext response) throws IOException {
+      response.getWriter().write(id + "-" + header + "-" + path);
     }
   }
 

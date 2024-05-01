@@ -29,14 +29,14 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.testfixture.servlet.DelegatingServletInputStream;
-import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.mock.AsyncContext;
 import cn.taketoday.web.mock.ReadListener;
 import cn.taketoday.web.mock.ServletInputStream;
 import cn.taketoday.web.mock.http.HttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.DelegatingServletInputStream;
+import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -170,7 +170,6 @@ public class ServerHttpRequestTests {
   }
 
   @Test
-    // gh-26615
   void mutateContentTypeHeaderValue() throws Exception {
     ServerHttpRequest request = createRequest("/path").mutate()
             .headers(headers -> headers.setContentType(MediaType.APPLICATION_JSON)).build();
@@ -184,12 +183,11 @@ public class ServerHttpRequestTests {
 
   @Test
   void mutateWithExistingContextPath() throws Exception {
-    ServerHttpRequest request = createRequest("/context/path", "/context");
+    ServerHttpRequest request = createRequest("/path");
 
     ServerHttpRequest mutated = request.mutate().build();
-    assertThat(mutated.getPath().contextPath().value()).isEqualTo("/context");
     assertThat(mutated.getPath().pathWithinApplication().value()).isEqualTo("/path");
-    assertThat(mutated.getURI().getRawPath()).isEqualTo("/context/path");
+    assertThat(mutated.getURI().getRawPath()).isEqualTo("/path");
 
     mutated = request.mutate().contextPath("/other").path("/other/path").build();
     assertThat(mutated.getPath().contextPath().value()).isEqualTo("/other");
@@ -199,11 +197,11 @@ public class ServerHttpRequestTests {
 
   @Test
   void mutateContextPathWithoutUpdatingPathShouldFail() throws Exception {
-    ServerHttpRequest request = createRequest("/context/path", "/context");
+    ServerHttpRequest request = createRequest("/path");
 
     assertThatThrownBy(() -> request.mutate().contextPath("/fail").build())
             .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Invalid contextPath '/fail': must match the start of requestPath: '/context/path'");
+            .hasMessage("Invalid contextPath '/fail': must match the start of requestPath: '/path'");
   }
 
   @Test // gh-26304
@@ -216,13 +214,8 @@ public class ServerHttpRequestTests {
   }
 
   private ServerHttpRequest createRequest(String uriString) throws Exception {
-    return createRequest(uriString, "");
-  }
-
-  private ServerHttpRequest createRequest(String uriString, String contextPath) throws Exception {
     URI uri = URI.create(uriString);
     MockHttpServletRequest request = new TestHttpServletRequest(uri);
-    request.setContextPath(contextPath);
     AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpServletResponse());
     return new ServletServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
   }

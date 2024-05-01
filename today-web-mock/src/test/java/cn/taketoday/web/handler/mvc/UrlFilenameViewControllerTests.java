@@ -138,8 +138,7 @@ class UrlFilenameViewControllerTests {
   @Test
   void withContextMapping() throws Throwable {
     UrlFilenameViewController controller = new UrlFilenameViewController();
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/myapp/docs/cvs/commit.html");
-    request.setContextPath("/myapp");
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", "/docs/cvs/commit.html");
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.refresh();
     ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());

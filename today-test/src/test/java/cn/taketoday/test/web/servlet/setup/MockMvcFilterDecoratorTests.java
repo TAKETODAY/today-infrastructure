@@ -55,7 +55,6 @@ class MockMvcFilterDecoratorTests {
   @BeforeEach
   public void setup() {
     request = new MockHttpServletRequest();
-    request.setContextPath("/context");
     response = new MockHttpServletResponse();
     filterChain = new MockFilterChain();
     delegate = new MockFilter();
@@ -248,7 +247,7 @@ class MockMvcFilterDecoratorTests {
           String requestUri, String pattern) throws Exception {
 
     request.setDispatcherType(requestDispatcherType);
-    request.setRequestURI(request.getContextPath() + requestUri);
+    request.setRequestURI(requestUri);
     filter = new MockMvcFilterDecorator(delegate, null, null, EnumSet.of(filterDispatcherType), pattern);
     filter.doFilter(request, response, filterChain);
 
@@ -262,7 +261,7 @@ class MockMvcFilterDecoratorTests {
   }
 
   private void assertFilterInvoked(String requestUri, String pattern) throws Exception {
-    request.setRequestURI(request.getContextPath() + requestUri);
+    request.setRequestURI(requestUri);
     filter = new MockMvcFilterDecorator(delegate, new String[] { pattern });
     filter.doFilter(request, response, filterChain);
 

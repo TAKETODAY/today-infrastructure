@@ -34,25 +34,23 @@ class RequestPathUtilsTests {
   @Test
   void parseAndCache() {
     // basic
-    testParseAndCache("/app/a/b/c", "/app", "/a/b/c");
+    testParseAndCache("/a/b/c", "/a/b/c");
 
     // contextPath only, servletPathOnly, contextPath and servletPathOnly
-    testParseAndCache("/app/a/b/c", "/app", "/a/b/c");
-    testParseAndCache("/a/b/c", "", "/a/b/c");
-    testParseAndCache("/app1/app2", "/app1/app2", "");
+    testParseAndCache("/a/b/c", "/a/b/c");
+    testParseAndCache("/a/b/c", "/a/b/c");
+    testParseAndCache("/", "/");
 
     // trailing slash
-    testParseAndCache("/app/a/", "/app", "/a/");
-    testParseAndCache("/app/a//", "/app", "/a//");
+    testParseAndCache("/a/", "/a/");
+    testParseAndCache("/a//", "/a//");
   }
 
-  private void testParseAndCache(String requestUri, String contextPath, String pathWithinApplication) {
+  private void testParseAndCache(String requestUri, String pathWithinApplication) {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
-    request.setContextPath(contextPath);
     ServletRequestContext context = new ServletRequestContext(null, request, null);
     RequestPath requestPath = context.getRequestPath();
 
-    assertThat(requestPath.contextPath().value()).isEqualTo(contextPath);
     assertThat(requestPath.pathWithinApplication().value()).isEqualTo(pathWithinApplication);
   }
 

@@ -38,7 +38,7 @@ class DefaultRequestToViewNameTranslatorTests {
 
   @SuppressWarnings("unused")
   private static Stream<Function<String, ServletRequestContext>> pathPatternsArguments() {
-    return PathPatternsTestUtils.requestArguments("/sundays");
+    return PathPatternsTestUtils.requestArguments("");
   }
 
   @PathPatternsParameterizedTest

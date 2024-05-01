@@ -285,29 +285,6 @@ public interface HttpServletRequest extends ServletRequest {
   }
 
   /**
-   * Returns the portion of the request URI that indicates the context of the request. The context path always comes first
-   * in a request URI. The path starts with a "/" character but does not end with a "/" character. For servlets in the
-   * default (root) context, this method returns "". The container does not decode this string.
-   *
-   * <p>
-   * It is possible that a servlet container may match a context by more than one context path. In such cases this method
-   * will return the actual context path used by the request and it may differ from the path returned by the
-   * {@link cn.taketoday.web.mock.ServletContext#getContextPath()} method. The context path returned by
-   * {@link cn.taketoday.web.mock.ServletContext#getContextPath()} should be considered as the prime or preferred context path
-   * of the application.
-   *
-   * @return a <code>String</code> specifying the portion of the request URI that indicates the context of the request.
-   * The path will be canonicalized as per section 3.5 of the specification. This method will not return any encoded
-   * characters unless the container is configured specifically to allow them.
-   * @throws IllegalArgumentException In standard configuration, this method will never throw. However, a container may be
-   * configured to not reject some suspicious sequences identified by 3.5.2, furthermore the container may be configured
-   * to allow such paths to only be accessed via safer methods like {@link #getRequestURI()} and to throw
-   * IllegalArgumentException if this method is called for such suspicious paths.
-   * @see cn.taketoday.web.mock.ServletContext#getContextPath()
-   */
-  String getContextPath();
-
-  /**
    * Returns the query string that is contained in the request URL after the path. This method returns <code>null</code>
    * if the URL does not have a query string.
    *
@@ -409,25 +386,6 @@ public interface HttpServletRequest extends ServletRequest {
    * @return a <code>StringBuffer</code> object containing the reconstructed URL
    */
   StringBuffer getRequestURL();
-
-  /**
-   * Returns the part of this request's URL that calls the servlet. This path starts with a "/" character and includes the
-   * path to the servlet, but does not include any extra path information or a query string.
-   *
-   * <p>
-   * This method will return an empty string ("") if the servlet used to process this request was matched using the "/*"
-   * pattern.
-   *
-   * @return a <code>String</code> containing the path of the servlet being called, as specified in the request URL, or an
-   * empty string if the servlet used to process the request is matched using the "/*" pattern. The path will be
-   * canonicalized as per section 3.5 of the specification. This method will not return any encoded characters unless the
-   * container is configured specifically to allow them.
-   * @throws IllegalArgumentException In standard configuration, this method will never throw. However, a container may be
-   * configured to not reject some suspicious sequences identified by 3.5.2, furthermore the container may be configured
-   * to allow such paths to only be accessed via safer methods like {@link #getRequestURI()} and to throw
-   * IllegalArgumentException if this method is called for such suspicious paths.
-   */
-  String getServletPath();
 
   /**
    * Returns the current <code>HttpSession</code> associated with this request or, if there is no current session and

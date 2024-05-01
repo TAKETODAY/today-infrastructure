@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Serial;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -40,8 +39,6 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.InvalidMediaTypeException;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.http.server.PathContainer;
-import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
@@ -54,13 +51,10 @@ import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.ServletIndicator;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.mock.http.Cookie;
-import cn.taketoday.web.mock.http.HttpServletMapping;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.mock.http.HttpServletResponse;
-import cn.taketoday.web.mock.http.MappingMatch;
+import cn.taketoday.web.multipart.MultipartRequest;
 
 /**
  * Servlet environment implementation
@@ -126,15 +120,6 @@ public final class ServletRequestContext extends RequestContext implements Servl
   @Override
   public int getServerPort() {
     return request.getServerPort();
-  }
-
-  public String getContextPath() {
-    return request.getContextPath();
-  }
-
-  @Override
-  protected RequestPath doGetRequestPath() {
-    return ServletRequestPath.parse(this);
   }
 
   @SuppressWarnings("unchecked")
@@ -498,91 +483,6 @@ public final class ServletRequestContext extends RequestContext implements Servl
     }
     else {
       return request.getAttributeNames().asIterator();
-    }
-  }
-
-  /**
-   * Simple wrapper around the default {@link RequestPath} implementation that
-   * supports a servletPath as an additional prefix to be omitted from
-   * {@link #pathWithinApplication()}.
-   */
-  private static final class ServletRequestPath extends RequestPath {
-
-    private final RequestPath requestPath;
-
-    private final PathContainer contextPath;
-
-    private ServletRequestPath(String rawPath, @Nullable String contextPath, String servletPath) {
-      this.requestPath = RequestPath.parse(rawPath, contextPath + servletPath);
-      this.contextPath = StringUtils.hasText(contextPath) ? PathContainer.parsePath(contextPath) : PathContainer.empty();
-    }
-
-    @Override
-    public String value() {
-      return this.requestPath.value();
-    }
-
-    @Override
-    public List<Element> elements() {
-      return this.requestPath.elements();
-    }
-
-    @Override
-    public PathContainer contextPath() {
-      return this.contextPath;
-    }
-
-    @Override
-    public PathContainer pathWithinApplication() {
-      return this.requestPath.pathWithinApplication();
-    }
-
-    @Override
-    public RequestPath modifyContextPath(String contextPath) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean equals(@Nullable Object other) {
-      if (this == other) {
-        return true;
-      }
-      if (other == null || getClass() != other.getClass()) {
-        return false;
-      }
-      return (this.requestPath.equals(((ServletRequestPath) other).requestPath));
-    }
-
-    @Override
-    public int hashCode() {
-      return this.requestPath.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return this.requestPath.toString();
-    }
-
-    public static RequestPath parse(ServletRequestContext request) {
-      HttpServletRequest servletRequest = request.getRequest();
-      String servletPath = getServletPath(servletRequest);
-      if (StringUtils.hasText(servletPath)) {
-        if (servletPath.endsWith("/")) {
-          servletPath = servletPath.substring(0, servletPath.length() - 1);
-        }
-        return new ServletRequestPath(request.getRequestURI(), servletRequest.getContextPath(), servletPath);
-      }
-      return RequestPath.parse(request.getRequestURI(), servletRequest.getContextPath());
-    }
-
-    @Nullable
-    public static String getServletPath(HttpServletRequest request) {
-      HttpServletMapping mapping = request.getHttpServletMapping();
-      if (ObjectUtils.nullSafeEquals(mapping.getMappingMatch(), MappingMatch.PATH)) {
-        String servletPath = request.getServletPath();
-        return UriUtils.encodePath(servletPath, StandardCharsets.UTF_8);
-      }
-      return null;
     }
   }
 

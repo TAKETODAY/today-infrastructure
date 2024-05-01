@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.condition;
 
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.util.pattern.PathPatternParser;
-import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -110,7 +107,7 @@ public class PathPatternsRequestConditionTests {
 
   @Test
   void matchPatternWithContextPath() {
-    MockHttpServletRequest request = createRequest("/app", "/app/foo/bar");
+    MockHttpServletRequest request = createRequest("", "/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
     PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
@@ -211,9 +208,7 @@ public class PathPatternsRequestConditionTests {
   }
 
   private MockHttpServletRequest createRequest(String contextPath, String requestURI) {
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", requestURI);
-    request.setContextPath(contextPath);
-    return request;
+    return new MockHttpServletRequest("GET", requestURI);
   }
 
   private PathPatternsRequestCondition createCondition(String... patterns) {

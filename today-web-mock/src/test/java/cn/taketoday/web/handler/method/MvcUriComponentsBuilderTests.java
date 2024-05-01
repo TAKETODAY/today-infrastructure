@@ -147,7 +147,6 @@ class MvcUriComponentsBuilderTests {
 
   @Test
   public void fromMethodNameTypeLevelPathVariable() {
-    this.request.setContextPath("/myapp");
     UriComponents uriComponents = fromMethodName(
             PersonsAddressesController.class, "getAddressesForCountry", "DE").buildAndExpand("1");
 
@@ -402,7 +401,6 @@ class MvcUriComponentsBuilderTests {
 
     this.request.setServerName("example.org");
     this.request.setServerPort(9999);
-    this.request.setContextPath("/base");
 
     String mappingName = "PAC#getAddressesForCountry";
     String url = fromMappingName(mappingName).arg(0, "DE").buildAndExpand(123);
@@ -425,7 +423,6 @@ class MvcUriComponentsBuilderTests {
 
     this.request.setServerName("example.org");
     this.request.setServerPort(9999);
-    this.request.setContextPath("/base");
 
     String mappingName = "PAC#getAddressesForCountry";
     String url = fromMappingName(mappingName).arg(0, "DE;FR").encode().buildAndExpand("_+_");
@@ -438,7 +435,6 @@ class MvcUriComponentsBuilderTests {
 
     this.request.setServerName("example.org");
     this.request.setServerPort(9999);
-    this.request.setContextPath("/base");
 
     String mappingName = "PWLSC#getAddressesForCountry";
     String url = fromMappingName(mappingName).arg(0, "DE;FR").encode().buildAndExpand("_+_");
@@ -452,7 +448,6 @@ class MvcUriComponentsBuilderTests {
     this.request.setScheme("https");
     this.request.setServerName("example.org");
     this.request.setServerPort(9999);
-    this.request.setContextPath("/base");
 
     assertThat(fromController(PersonsAddressesController.class).buildAndExpand("123").toString())
             .isEqualTo("https://example.org:9999/api/people/123/addresses");
@@ -465,7 +460,6 @@ class MvcUriComponentsBuilderTests {
     this.request.setScheme("https");
     this.request.setServerName("example.org");
     this.request.setServerPort(9999);
-    this.request.setContextPath("/base");
 
     String url = fromMethodCall(on(PersonsAddressesController.class)
             .getAddressesForCountry("DE"))
@@ -636,8 +630,8 @@ class MvcUriComponentsBuilderTests {
   }
 
   @RequestMapping(method = HttpMethod.POST,
-                  produces = MediaType.APPLICATION_JSON_VALUE,
-                  consumes = MediaType.APPLICATION_JSON_VALUE)
+          produces = MediaType.APPLICATION_JSON_VALUE,
+          consumes = MediaType.APPLICATION_JSON_VALUE)
   @Target({ ElementType.METHOD, ElementType.TYPE })
   @Retention(RetentionPolicy.RUNTIME)
   @Documented

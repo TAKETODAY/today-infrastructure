@@ -47,14 +47,13 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RedirectModel;
-import cn.taketoday.web.mock.http.HttpServletRequest;
-import cn.taketoday.web.servlet.UrlPathHelper;
-import cn.taketoday.web.util.UriComponentsBuilder;
-import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.mock.ServletContext;
 import cn.taketoday.web.mock.ServletRequest;
 import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.mock.http.HttpSession;
+import cn.taketoday.web.util.UriComponentsBuilder;
+import cn.taketoday.web.util.UriUtils;
 
 /**
  * Default builder for {@link MockHttpServletRequest} required as input to
@@ -74,8 +73,7 @@ import cn.taketoday.web.mock.http.HttpSession;
  * @author Kamill Sokol
  * @since 4.0
  */
-public class MockHttpServletRequestBuilder
-        implements ConfigurableSmartRequestBuilder<MockHttpServletRequestBuilder>, Mergeable {
+public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBuilder<MockHttpServletRequestBuilder>, Mergeable {
 
   private final String method;
 
@@ -172,48 +170,6 @@ public class MockHttpServletRequestBuilder
     Assert.notNull(url, "'url' is required");
     this.method = httpMethod;
     this.url = url;
-  }
-
-  /**
-   * Specify the portion of the requestURI that represents the context path.
-   * The context path, if specified, must match to the start of the request URI.
-   * <p>In most cases, tests can be written by omitting the context path from
-   * the requestURI. This is because most applications don't actually depend
-   * on the name under which they're deployed. If specified here, the context
-   * path must start with a "/" and must not end with a "/".
-   *
-   * @see HttpServletRequest#getContextPath()
-   */
-  public MockHttpServletRequestBuilder contextPath(String contextPath) {
-    if (StringUtils.hasText(contextPath)) {
-      Assert.isTrue(contextPath.startsWith("/"), "Context path must start with a '/'");
-      Assert.isTrue(!contextPath.endsWith("/"), "Context path must not end with a '/'");
-    }
-    this.contextPath = contextPath;
-    return this;
-  }
-
-  /**
-   * Specify the portion of the requestURI that represents the path to which
-   * the Servlet is mapped. This is typically a portion of the requestURI
-   * after the context path.
-   * <p>In most cases, tests can be written by omitting the servlet path from
-   * the requestURI. This is because most applications don't actually depend
-   * on the prefix to which a servlet is mapped. For example if a Servlet is
-   * mapped to {@code "/main/*"}, tests can be written with the requestURI
-   * {@code "/accounts/1"} as opposed to {@code "/main/accounts/1"}.
-   * If specified here, the servletPath must start with a "/" and must not
-   * end with a "/".
-   *
-   * @see HttpServletRequest#getServletPath()
-   */
-  public MockHttpServletRequestBuilder servletPath(String servletPath) {
-    if (StringUtils.hasText(servletPath)) {
-      Assert.isTrue(servletPath.startsWith("/"), "Servlet path must start with a '/'");
-      Assert.isTrue(!servletPath.endsWith("/"), "Servlet path must not end with a '/'");
-    }
-    this.servletPath = servletPath;
-    return this;
   }
 
   /**
@@ -814,13 +770,6 @@ public class MockHttpServletRequestBuilder
    * Update the contextPath, servletPath, and pathInfo of the request.
    */
   private void updatePathRequestProperties(MockHttpServletRequest request, String requestUri) {
-    if (!requestUri.startsWith(this.contextPath)) {
-      throw new IllegalArgumentException(
-              "Request URI [" + requestUri + "] does not start with context path [" + this.contextPath + "]");
-    }
-    request.setContextPath(this.contextPath);
-    request.setServletPath(this.servletPath);
-
     if ("".equals(this.pathInfo)) {
       if (!requestUri.startsWith(this.contextPath + this.servletPath)) {
         throw new IllegalArgumentException(
@@ -828,7 +777,7 @@ public class MockHttpServletRequestBuilder
       }
       String extraPath = requestUri.substring(this.contextPath.length() + this.servletPath.length());
       this.pathInfo = (StringUtils.hasText(extraPath) ?
-                       UrlPathHelper.defaultInstance.decodeRequestString(request, extraPath) : null);
+              UriUtils.decode(extraPath, StandardCharsets.UTF_8) : null);
     }
     request.setPathInfo(this.pathInfo);
   }

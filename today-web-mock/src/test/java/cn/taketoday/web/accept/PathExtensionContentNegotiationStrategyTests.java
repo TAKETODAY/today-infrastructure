@@ -72,10 +72,8 @@ class PathExtensionContentNegotiationStrategyTests {
   }
 
   @Test
-    // SPR-8678
   void getMediaTypeFilenameWithContextPath() throws Exception {
-    this.servletRequest.setContextPath("/project-1.0.0.M3");
-    this.servletRequest.setRequestURI("/project-1.0.0.M3/");
+    this.servletRequest.setRequestURI("/");
     assertThat(this.strategy.resolveMediaTypes(webRequest)).as("Context path should be excluded").isEqualTo(ContentNegotiationStrategy.MEDIA_TYPE_ALL_LIST);
 
     this.servletRequest.setRequestURI("/project-1.0.0.M3");

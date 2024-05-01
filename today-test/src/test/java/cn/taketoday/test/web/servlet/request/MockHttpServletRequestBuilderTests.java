@@ -40,11 +40,11 @@ import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.mock.ServletContext;
 import cn.taketoday.web.mock.http.Cookie;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static cn.taketoday.http.HttpMethod.GET;
 import static cn.taketoday.http.HttpMethod.POST;
@@ -113,72 +113,12 @@ class MockHttpServletRequestBuilderTests {
   }
 
   @Test
-  void contextPathEmpty() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/foo");
-    MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
-
-    assertThat(request.getContextPath()).isEqualTo("");
-    assertThat(request.getServletPath()).isEqualTo("");
-    assertThat(request.getPathInfo()).isEqualTo("/foo");
-  }
-
-  @Test
-  void contextPathServletPathEmpty() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/travel/hotels/42");
-    this.builder.contextPath("/travel");
-    MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
-
-    assertThat(request.getContextPath()).isEqualTo("/travel");
-    assertThat(request.getServletPath()).isEqualTo("");
-    assertThat(request.getPathInfo()).isEqualTo("/hotels/42");
-  }
-
-  @Test
-  void contextPathServletPath() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/travel/main/hotels/42");
-    this.builder.contextPath("/travel");
-    this.builder.servletPath("/main");
-
-    MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
-
-    assertThat(request.getContextPath()).isEqualTo("/travel");
-    assertThat(request.getServletPath()).isEqualTo("/main");
-    assertThat(request.getPathInfo()).isEqualTo("/hotels/42");
-  }
-
-  @Test
-  void contextPathServletPathInfoEmpty() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/travel/hotels/42");
-    this.builder.contextPath("/travel");
-    this.builder.servletPath("/hotels/42");
-    MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
-
-    assertThat(request.getContextPath()).isEqualTo("/travel");
-    assertThat(request.getServletPath()).isEqualTo("/hotels/42");
-    assertThat(request.getPathInfo()).isNull();
-  }
-
-  @Test
-  void contextPathServletPathInfo() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/");
-    this.builder.servletPath("/index.html");
-    this.builder.pathInfo(null);
-    MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
-
-    assertThat(request.getContextPath()).isEqualTo("");
-    assertThat(request.getServletPath()).isEqualTo("/index.html");
-    assertThat(request.getPathInfo()).isNull();
-  }
-
-  @Test
     // gh-28823, gh-29933
   void emptyPath() {
     this.builder = new MockHttpServletRequestBuilder(GET, "");
     MockHttpServletRequest request = this.builder.buildRequest(this.servletContext);
 
     assertThat(request.getRequestURI()).isEqualTo("/");
-    assertThat(request.getContextPath()).isEqualTo("");
-    assertThat(request.getServletPath()).isEqualTo("");
     assertThat(request.getPathInfo()).isEqualTo("/");
   }
 
@@ -193,19 +133,17 @@ class MockHttpServletRequestBuilderTests {
 
   @Test
   void contextPathServletPathInvalid() {
-    testContextPathServletPathInvalid("/Foo", "", "Request URI [/foo/bar] does not start with context path [/Foo]");
-    testContextPathServletPathInvalid("foo", "", "Context path must start with a '/'");
-    testContextPathServletPathInvalid("/foo/", "", "Context path must not end with a '/'");
+    testContextPathServletPathInvalid("Request URI [/foo/bar] does not start with context path [/Foo]");
+    testContextPathServletPathInvalid("Context path must start with a '/'");
+    testContextPathServletPathInvalid("Context path must not end with a '/'");
 
-    testContextPathServletPathInvalid("/foo", "/Bar", "Invalid servlet path [/Bar] for request URI [/foo/bar]");
-    testContextPathServletPathInvalid("/foo", "bar", "Servlet path must start with a '/'");
-    testContextPathServletPathInvalid("/foo", "/bar/", "Servlet path must not end with a '/'");
+    testContextPathServletPathInvalid("Invalid servlet path [/Bar] for request URI [/foo/bar]");
+    testContextPathServletPathInvalid("Servlet path must start with a '/'");
+    testContextPathServletPathInvalid("Servlet path must not end with a '/'");
   }
 
-  private void testContextPathServletPathInvalid(String contextPath, String servletPath, String message) {
+  private void testContextPathServletPathInvalid(String message) {
     try {
-      this.builder.contextPath(contextPath);
-      this.builder.servletPath(servletPath);
       this.builder.buildRequest(this.servletContext);
     }
     catch (IllegalArgumentException ex) {

@@ -143,14 +143,6 @@ public class HttpServletRequestWrapper extends ServletRequestWrapper implements 
   }
 
   /**
-   * The default behavior of this method is to return getContextPath() on the wrapped request object.
-   */
-  @Override
-  public String getContextPath() {
-    return this._getHttpServletRequest().getContextPath();
-  }
-
-  /**
    * The default behavior of this method is to return getQueryString() on the wrapped request object.
    */
   @Override
@@ -204,14 +196,6 @@ public class HttpServletRequestWrapper extends ServletRequestWrapper implements 
   @Override
   public StringBuffer getRequestURL() {
     return this._getHttpServletRequest().getRequestURL();
-  }
-
-  /**
-   * The default behavior of this method is to return getServletPath() on the wrapped request object.
-   */
-  @Override
-  public String getServletPath() {
-    return this._getHttpServletRequest().getServletPath();
   }
 
   /**

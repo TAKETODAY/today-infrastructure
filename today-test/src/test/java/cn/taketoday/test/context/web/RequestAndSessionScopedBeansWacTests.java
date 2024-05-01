@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.web;
@@ -59,14 +56,12 @@ class RequestAndSessionScopedBeansWacTests {
   @Test
   void requestScope() throws Exception {
     String beanName = "requestScopedTestBean";
-    String contextPath = "/path";
 
     assertThat(request.getAttribute(beanName)).isNull();
 
-    request.setContextPath(contextPath);
     TestBean testBean = wac.getBean(beanName, TestBean.class);
 
-    assertThat(testBean.getName()).isEqualTo(contextPath);
+    assertThat(testBean.getName()).isEqualTo("/");
     assertThat(request.getAttribute(beanName)).isSameAs(testBean);
     assertThat(wac.getBean(beanName, TestBean.class)).isSameAs(testBean);
   }

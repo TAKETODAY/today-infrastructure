@@ -27,7 +27,6 @@ import java.util.function.Function;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockFilterConfig;
-import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.mock.DispatcherType;
 import cn.taketoday.web.mock.Filter;
 import cn.taketoday.web.mock.FilterChain;
@@ -141,7 +140,7 @@ final class MockMvcFilterDecorator implements Filter {
           throws IOException, ServletException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-    String requestPath = UrlPathHelper.defaultInstance.getPathWithinApplication(httpRequest);
+    String requestPath = httpRequest.getRequestURI();
 
     if (matchDispatcherType(httpRequest.getDispatcherType()) && matchRequestPath(requestPath)) {
       this.delegate.doFilter(request, response, filterChain);

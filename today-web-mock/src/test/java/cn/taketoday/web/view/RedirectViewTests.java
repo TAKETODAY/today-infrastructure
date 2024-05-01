@@ -62,7 +62,6 @@ public class RedirectViewTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
     this.request = new MockHttpServletRequest();
-    this.request.setContextPath("/context");
     this.response = new MockHttpServletResponse();
 
     context.refresh();
@@ -133,11 +132,9 @@ public class RedirectViewTests {
   public void contextRelativeWithValidatedContextPath() throws Exception {
     String url = "/myUrl";
 
-    this.request.setContextPath("//context");
     this.response = new MockHttpServletResponse();
     this.context = null;
     doTest(new HashMap<>(), url, true, url);
-    this.request.setContextPath("///context");
     this.response = new MockHttpServletResponse();
     this.context = null;
     doTest(new HashMap<>(), url, true, url);

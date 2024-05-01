@@ -42,8 +42,6 @@ import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.UrlPathHelper;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
@@ -300,8 +298,6 @@ public class HandlerMethodMappingTests {
 
   private static class MyHandlerMethodMapping extends AbstractHandlerMethodMapping<String> {
 
-    private UrlPathHelper pathHelper = new UrlPathHelper();
-
     private PathMatcher pathMatcher = new AntPathMatcher();
 
     private final List<String> matches = new ArrayList<>();
@@ -348,7 +344,7 @@ public class HandlerMethodMappingTests {
 
     @Override
     protected String getMatchingMapping(String pattern, RequestContext request) {
-      String lookupPath = this.pathHelper.getLookupPathForRequest(ServletUtils.getServletRequest(request));
+      String lookupPath = request.getRequestPath().value();
       String match = (this.pathMatcher.match(pattern, lookupPath) ? pattern : null);
       if (match != null) {
         this.matches.add(match);
@@ -358,7 +354,7 @@ public class HandlerMethodMappingTests {
 
     @Override
     protected Comparator<String> getMappingComparator(RequestContext request) {
-      String lookupPath = this.pathHelper.getLookupPathForRequest(ServletUtils.getServletRequest(request));
+      String lookupPath = request.getRequestPath().value();
       return this.pathMatcher.getPatternComparator(lookupPath);
     }
 
