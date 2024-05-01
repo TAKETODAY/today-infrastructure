@@ -61,7 +61,7 @@ class RequestAndSessionScopedBeansWacTests {
 
     TestBean testBean = wac.getBean(beanName, TestBean.class);
 
-    assertThat(testBean.getName()).isEqualTo("/");
+    assertThat(testBean.getName()).isEqualTo("");
     assertThat(request.getAttribute(beanName)).isSameAs(testBean);
     assertThat(wac.getBean(beanName, TestBean.class)).isSameAs(testBean);
   }

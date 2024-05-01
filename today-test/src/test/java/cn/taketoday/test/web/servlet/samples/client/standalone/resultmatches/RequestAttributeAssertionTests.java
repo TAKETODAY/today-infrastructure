@@ -50,7 +50,7 @@ public class RequestAttributeAssertionTests {
 
   @Test
   void requestAttributeMatcher() throws Exception {
-    performRequest(mainServletClient, "/main/1")
+    performRequest(mainServletClient, "/1")
             .andExpect(request().request(context -> {
               HandlerMatchingMetadata matchingMetadata = context.getMatchingMetadata();
 
