@@ -45,7 +45,9 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpDecoderConfig;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpObjectDecoder;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
@@ -86,6 +88,34 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
   private Decorator<WebSocketSession> sessionDecorator;
 
   /**
+   * A configuration object for specifying the behaviour
+   * of {@link HttpObjectDecoder} and its subclasses.
+   */
+  private HttpDecoderConfig httpDecoderConfig = new HttpDecoderConfig()
+          .setMaxInitialLineLength(4096)
+          .setMaxHeaderSize(8192)
+          .setMaxChunkSize(8192)
+          .setValidateHeaders(true);
+
+  /**
+   * @see HttpClientCodec
+   */
+  private boolean parseHttpAfterConnectRequest = HttpClientCodec.DEFAULT_PARSE_HTTP_AFTER_CONNECT_REQUEST;
+
+  /**
+   * @see HttpClientCodec
+   */
+  private boolean failOnMissingResponse = HttpClientCodec.DEFAULT_FAIL_ON_MISSING_RESPONSE;
+
+  public void setFailOnMissingResponse(boolean failOnMissingResponse) {
+    this.failOnMissingResponse = failOnMissingResponse;
+  }
+
+  public void setParseHttpAfterConnectRequest(boolean parseHttpAfterConnectRequest) {
+    this.parseHttpAfterConnectRequest = parseHttpAfterConnectRequest;
+  }
+
+  /**
    * Set the maximum length of the aggregated content.
    * If the length of the aggregated content exceeds this value,
    *
@@ -113,6 +143,10 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     this.sessionDecorator = sessionDecorator;
   }
 
+  public void setHttpDecoderConfig(HttpDecoderConfig httpDecoderConfig) {
+    this.httpDecoderConfig = httpDecoderConfig;
+  }
+
   @Override
   protected Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions) {
@@ -132,7 +166,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
               @Override
               protected void initChannel(SocketChannel ch) {
                 ch.pipeline()
-                        .addLast("httpClientCodec", new HttpClientCodec())
+                        .addLast("httpClientCodec", new HttpClientCodec(httpDecoderConfig, parseHttpAfterConnectRequest, failOnMissingResponse))
                         .addLast("httpObjectAggregator", new HttpObjectAggregator(maxContentLength, closeOnExpectationFailed))
                         .addLast("message-handler", handler);
                 NettyWebSocketClient.this.initChannel(ch);
