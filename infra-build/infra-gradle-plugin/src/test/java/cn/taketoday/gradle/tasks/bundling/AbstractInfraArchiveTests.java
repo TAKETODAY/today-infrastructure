@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.tasks.bundling;
@@ -256,7 +256,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
     this.task.getMainClass().set("com.example.Main");
     executeTask();
     try (JarFile jarFile = new JarFile(this.task.getArchiveFile().get().getAsFile())) {
-      assertThat(jarFile.getEntry("cn/taketoday/app/loader/LaunchedURLClassLoader.class")).isNotNull();
+      assertThat(jarFile.getEntry("cn/taketoday/app/loader/LaunchedClassLoader.class")).isNotNull();
       assertThat(jarFile.getEntry("cn/taketoday/app/loader/")).isNotNull();
     }
     // gh-16698
@@ -273,7 +273,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
     executeTask();
     this.task.getManifest().getAttributes().put("Main-Class", "cn.taketoday.app.loader.PropertiesLauncher");
     try (JarFile jarFile = new JarFile(this.task.getArchiveFile().get().getAsFile())) {
-      assertThat(jarFile.getEntry("cn/taketoday/app/loader/LaunchedURLClassLoader.class")).isNotNull();
+      assertThat(jarFile.getEntry("cn/taketoday/app/loader/LaunchedClassLoader.class")).isNotNull();
       assertThat(jarFile.getEntry("cn/taketoday/app/loader/")).isNotNull();
     }
   }
@@ -363,7 +363,7 @@ abstract class AbstractInfraArchiveTests<T extends Jar & InfraArchive> {
       assertThat(jarFile.getManifest().getMainAttributes().getValue("Main-Class"))
               .isEqualTo("com.example.CustomLauncher");
       assertThat(jarFile.getManifest().getMainAttributes().getValue("Start-Class")).isEqualTo("com.example.Main");
-      assertThat(jarFile.getEntry("cn/taketoday/app/loader/LaunchedURLClassLoader.class")).isNull();
+      assertThat(jarFile.getEntry("cn/taketoday/app/loader/LaunchedClassLoader.class")).isNull();
     }
   }
 
