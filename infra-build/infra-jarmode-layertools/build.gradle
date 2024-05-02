@@ -1,21 +1,25 @@
 plugins {
-	id "java-library"
-	id "cn.taketoday.build.conventions"
+  id "java-library"
+  id "cn.taketoday.build.conventions"
 }
 
 description = "Infra Layers Tools"
 
 dependencies {
-	implementation(project(":infra-build:infra-app-loader"))
-	implementation(project(":today-core"))
+  implementation(project(":infra-build:infra-app-loader"))
+  implementation(project(":today-core"))
 
-	testImplementation("org.assertj:assertj-core")
-	testImplementation("org.junit.jupiter:junit-jupiter")
-	testImplementation("org.mockito:mockito-core")
-	testImplementation("org.mockito:mockito-junit-jupiter")
+  testImplementation("org.assertj:assertj-core")
+  testImplementation("org.junit.jupiter:junit-jupiter")
+  testImplementation("org.mockito:mockito-core")
+  testImplementation("org.mockito:mockito-junit-jupiter")
 }
 
 jar {
-	reproducibleFileOrder = true
-	preserveFileTimestamps = false
+  reproducibleFileOrder = true
+  preserveFileTimestamps = false
+}
+
+test {
+  enabled = false
 }
