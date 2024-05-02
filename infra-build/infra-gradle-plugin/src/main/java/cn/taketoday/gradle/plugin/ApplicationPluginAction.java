@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.distribution.Distribution;
 import org.gradle.api.distribution.DistributionContainer;
+import org.gradle.api.distribution.plugins.DistributionPlugin;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.ApplicationPlugin;
@@ -34,6 +35,7 @@ import org.gradle.api.tasks.application.CreateStartScripts;
 import org.gradle.jvm.application.scripts.TemplateBasedScriptGenerator;
 import org.gradle.util.GradleVersion;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -65,6 +67,19 @@ final class ApplicationPluginAction implements PluginApplicationAction {
     configureFilePermissions(binCopySpec, 0755);
     distribution.getContents().with(binCopySpec);
     applyApplicationDefaultJvmArgsToRunTasks(project.getTasks(), javaApplication);
+
+    //
+    JarTypeFileSpec jarTypeFileSpec = new JarTypeFileSpec();
+    distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
+            .contents(copySpec -> copySpec.exclude(element -> {
+              if (!element.isDirectory()) {
+                File file = element.getFile();
+                if (file.getName().endsWith(".jar")) {
+                  return !jarTypeFileSpec.isSatisfiedBy(file);
+                }
+              }
+              return false;
+            }));
   }
 
   private void applyApplicationDefaultJvmArgsToRunTasks(TaskContainer tasks, JavaApplication javaApplication) {

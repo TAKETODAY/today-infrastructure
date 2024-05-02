@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.gradle.plugin;
@@ -21,8 +21,7 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.specs.Spec;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.Set;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
 /**
@@ -35,14 +34,13 @@ import java.util.jar.JarFile;
  * @since 4.0
  */
 class JarTypeFileSpec implements Spec<File> {
-
-  private static final Set<String> EXCLUDED_JAR_TYPES = Collections.singleton("dependencies-starter");
+  static final Attributes.Name JarTypeName = new Attributes.Name("Infra-App-Jar-Type");
 
   @Override
   public boolean isSatisfiedBy(File file) {
     try (JarFile jar = new JarFile(file)) {
-      String jarType = jar.getManifest().getMainAttributes().getValue("Infra-App-Jar-Type");
-      if (jarType != null && EXCLUDED_JAR_TYPES.contains(jarType)) {
+      String jarType = jar.getManifest().getMainAttributes().getValue(JarTypeName);
+      if ("dependencies-starter".equals(jarType)) {
         return false;
       }
     }
