@@ -208,38 +208,6 @@ public class StandardWebSocketClient extends AbstractWebSocketClient {
     return session;
   }
 
-  @Override
-  protected CompletableFuture<WebSocketSession> executeInternal(WebSocketHandler webSocketHandler,
-          HttpHeaders headers, final URI uri, List<String> protocols,
-          List<WebSocketExtension> extensions, Map<String, Object> attributes) {
-
-    int port = getPort(uri);
-    InetSocketAddress localAddress = new InetSocketAddress(getLocalHost(), port);
-    InetSocketAddress remoteAddress = new InetSocketAddress(uri.getHost(), port);
-
-    final StandardWebSocketSession session = new StandardWebSocketSession(headers, localAddress, remoteAddress);
-
-    final ClientEndpointConfig endpointConfig = ClientEndpointConfig.Builder.create()
-            .configurator(new StandardWebSocketClientConfigurator(headers))
-            .preferredSubprotocols(protocols)
-            .extensions(adaptExtensions(extensions)).build();
-
-    endpointConfig.getUserProperties().putAll(getUserProperties());
-
-    final Endpoint endpoint = new StandardEndpoint(session, webSocketHandler);
-
-    Callable<WebSocketSession> connectTask = () -> {
-      webSocketContainer.connectToServer(endpoint, endpointConfig, uri);
-      return session;
-    };
-
-    if (this.taskExecutor != null) {
-      return FutureUtils.callAsync(connectTask, this.taskExecutor);
-    }
-    else {
-      return FutureUtils.callAsync(connectTask);
-    }
-  }
 
   private static List<Extension> adaptExtensions(List<WebSocketExtension> extensions) {
     ArrayList<Extension> result = new ArrayList<>();

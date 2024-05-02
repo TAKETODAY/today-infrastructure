@@ -26,12 +26,12 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.socket.BinaryMessage;
 import cn.taketoday.web.socket.CloseStatus;
-import cn.taketoday.web.socket.NativeWebSocketSession;
 import cn.taketoday.web.socket.PingMessage;
 import cn.taketoday.web.socket.PongMessage;
+import cn.taketoday.web.socket.WebSocketSession;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -40,49 +40,49 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 1.0.1 2021/5/24 21:03
+ * @since 4.0 2021/5/24 21:03
  */
-public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandlerContext> {
+public class NettyWebSocketSession extends WebSocketSession {
 
   private final boolean secure;
 
-  private final ChannelHandlerContext ctx;
+  private final Channel channel;
 
-  NettyWebSocketSession(HttpHeaders handshakeHeaders, boolean secure, ChannelHandlerContext ctx) {
+  public NettyWebSocketSession(HttpHeaders handshakeHeaders, boolean secure, Channel channel) {
     super(handshakeHeaders);
     this.secure = secure;
-    this.ctx = ctx;
+    this.channel = channel;
   }
 
   @Override
   public void sendText(String text) {
-    ctx.writeAndFlush(new TextWebSocketFrame(text));
+    channel.writeAndFlush(new TextWebSocketFrame(text));
   }
 
   @Override
   public void sendPartialText(String partialMessage, boolean isLast) {
-    ctx.writeAndFlush(new TextWebSocketFrame(isLast, 0, partialMessage));
+    channel.writeAndFlush(new TextWebSocketFrame(isLast, 0, partialMessage));
   }
 
   @Override
   public void sendBinary(BinaryMessage data) {
     final ByteBuffer payload = data.getPayload();
-    ctx.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(payload)));
+    channel.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(payload)));
   }
 
   @Override
   public void sendPartialBinary(ByteBuffer partialByte, boolean isLast) {
-    ctx.writeAndFlush(new BinaryWebSocketFrame(isLast, 0, Unpooled.wrappedBuffer(partialByte)));
+    channel.writeAndFlush(new BinaryWebSocketFrame(isLast, 0, Unpooled.wrappedBuffer(partialByte)));
   }
 
   @Override
   public void sendPing(PingMessage message) {
-    ctx.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
+    channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
   }
 
   @Override
   public void sendPong(PongMessage message) {
-    ctx.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
+    channel.writeAndFlush(new PongWebSocketFrame(Unpooled.wrappedBuffer(message.getPayload())));
   }
 
   @Override
@@ -92,7 +92,7 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
 
   @Override
   public boolean isOpen() {
-    return ctx.channel().isOpen();
+    return channel.isOpen();
   }
 
   @Override
@@ -127,14 +127,14 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
 
   @Override
   public void close(CloseStatus status) throws IOException {
-    ctx.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
+    channel.writeAndFlush(new CloseWebSocketFrame(status.getCode(), status.getReason()))
             .addListener(ChannelFutureListener.CLOSE);
   }
 
   @Nullable
   @Override
   public InetSocketAddress getRemoteAddress() {
-    return (InetSocketAddress) ctx.channel().remoteAddress();
+    return (InetSocketAddress) channel.remoteAddress();
   }
 
   @Nullable
@@ -151,20 +151,19 @@ public class NettyWebSocketSession extends NativeWebSocketSession<ChannelHandler
       return false;
     if (!super.equals(o))
       return false;
-    return secure == that.secure && Objects.equals(ctx, that.ctx);
+    return secure == that.secure && Objects.equals(channel, that.channel);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ctx, secure);
+    return Objects.hash(channel, secure);
   }
 
   @Override
   public String toString() {
     return "NettyWebSocketSession{" +
-            "ctx=" + ctx +
+            "channel=" + channel +
             ", secure=" + secure +
-            ", nativeSession=" + nativeSession +
             ", attributes=" + attributes +
             '}';
   }

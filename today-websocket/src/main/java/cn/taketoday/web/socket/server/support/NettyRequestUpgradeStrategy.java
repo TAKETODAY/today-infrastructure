@@ -53,7 +53,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   }
 
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(), context.config.secure, context.channelContext);
+    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(), context.config.secure, context.channelContext.channel());
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);

@@ -127,7 +127,7 @@ public class WsNettyChannelHandler extends NettyChannelHandler {
    * @return websocket message
    */
   @Nullable
-  private static Message<?> adaptMessage(WebSocketFrame frame) {
+  public static Message<?> adaptMessage(WebSocketFrame frame) {
     if (frame instanceof PingWebSocketFrame) {
       return new PingMessage(frame.content().nioBuffer());
     }

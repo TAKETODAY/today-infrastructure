@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.web.socket.client;
 
 import java.net.URI;
@@ -31,17 +32,15 @@ import cn.taketoday.web.socket.WebSocketSession;
  * to a pre-configured URI when the application starts.
  *
  * @author Rossen Stoyanchev
- * @author TODAY 2021/11/12 15:58
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see WebSocketConnectionManager
- * @since 4.0
+ * @since 4.0 2021/11/12 15:58
  */
 public interface WebSocketClient {
 
-  Future<WebSocketSession> doHandshake(
-          WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
+  Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
 
-  Future<WebSocketSession> doHandshake(
-          WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
+  Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
 
   /**
    * Execute a handshake request to the given url and handle the resulting
@@ -52,8 +51,7 @@ public interface WebSocketClient {
    * @param uriVariables the variables to expand the template
    * @return a future that completes when the session is available
    */
-  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
-          String uriTemplate, Object... uriVariables);
+  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
 
   /**
    * Execute a handshake request to the given url and handle the resulting
@@ -63,7 +61,6 @@ public interface WebSocketClient {
    * @param uri the url
    * @return a future that completes when the session is available
    */
-  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
-          @Nullable WebSocketHttpHeaders headers, URI uri);
+  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
 
 }

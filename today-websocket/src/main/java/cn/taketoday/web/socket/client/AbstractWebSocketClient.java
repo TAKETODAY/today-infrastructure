@@ -62,40 +62,15 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
-  public CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
-          String uriTemplate, Object... uriVars) {
-
+  public CompletableFuture<WebSocketSession> execute(WebSocketHandler handler, String uriTemplate, Object... uriVars) {
     Assert.notNull(uriTemplate, "'uriTemplate' is required");
     URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-    return execute(webSocketHandler, null, uri);
+    return execute(handler, null, uri);
   }
 
   @Override
-  public final CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler,
-          @Nullable WebSocketHttpHeaders headers, URI uri) {
-    Assert.notNull(webSocketHandler, "WebSocketHandler is required");
-    assertUri(uri);
-
-    if (logger.isDebugEnabled()) {
-      logger.debug("Connecting to {}", uri);
-    }
-
-    HttpHeaders headersToUse = HttpHeaders.forWritable();
-    if (headers != null) {
-      headers.forEach((header, values) -> {
-        if (values != null && !specialHeaders.contains(header.toLowerCase())) {
-          headersToUse.put(header, values);
-        }
-      });
-    }
-
-    List<String> subProtocols =
-            (headers != null ? headers.getSecWebSocketProtocol() : Collections.emptyList());
-    List<WebSocketExtension> extensions =
-            (headers != null ? headers.getSecWebSocketExtensions() : Collections.emptyList());
-
-    return executeInternal(webSocketHandler, headersToUse, uri, subProtocols, extensions,
-            Collections.emptyMap());
+  public final CompletableFuture<WebSocketSession> execute(WebSocketHandler handler, @Nullable WebSocketHttpHeaders headers, URI uri) {
+    return doHandshake(handler, headers, uri).completable();
   }
 
   @Override
@@ -107,8 +82,8 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   }
 
   @Override
-  public final Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri) {
-    Assert.notNull(webSocketHandler, "WebSocketHandler is required");
+  public final Future<WebSocketSession> doHandshake(WebSocketHandler handler, @Nullable WebSocketHttpHeaders headers, URI uri) {
+    Assert.notNull(handler, "WebSocketHandler is required");
     assertUri(uri);
 
     if (logger.isDebugEnabled()) {
@@ -117,19 +92,19 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
 
     HttpHeaders headersToUse = HttpHeaders.forWritable();
     if (headers != null) {
-      headers.forEach((header, values) -> {
+      for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+        String header = entry.getKey();
+        List<String> values = entry.getValue();
         if (values != null && !specialHeaders.contains(header.toLowerCase())) {
           headersToUse.put(header, values);
         }
-      });
+      }
     }
 
-    List<String> subProtocols =
-            (headers != null ? headers.getSecWebSocketProtocol() : Collections.emptyList());
-    List<WebSocketExtension> extensions =
-            (headers != null ? headers.getSecWebSocketExtensions() : Collections.emptyList());
+    List<String> subProtocols = (headers != null ? headers.getSecWebSocketProtocol() : Collections.emptyList());
+    List<WebSocketExtension> extensions = (headers != null ? headers.getSecWebSocketExtensions() : Collections.emptyList());
 
-    return doHandshakeInternal(webSocketHandler, headersToUse, uri, subProtocols, extensions);
+    return doHandshakeInternal(handler, headersToUse, uri, subProtocols, extensions);
   }
 
   protected void assertUri(URI uri) {
@@ -153,22 +128,5 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
    */
   protected abstract Future<WebSocketSession> doHandshakeInternal(WebSocketHandler webSocketHandler,
           HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions);
-
-  /**
-   * Perform the actual handshake to establish a connection to the server.
-   *
-   * @param webSocketHandler the client-side handler for WebSocket messages
-   * @param headers the HTTP headers to use for the handshake, with unwanted (forbidden)
-   * headers filtered out (never {@code null})
-   * @param uri the target URI for the handshake (never {@code null})
-   * @param subProtocols requested sub-protocols, or an empty list
-   * @param extensions requested WebSocket extensions, or an empty list
-   * @param attributes the attributes to associate with the WebSocketSession, i.e. via
-   * {@link WebSocketSession#getAttributes()}; currently always an empty map
-   * @return the established WebSocket session wrapped in a {@code CompletableFuture}.
-   */
-  protected abstract CompletableFuture<WebSocketSession> executeInternal(WebSocketHandler webSocketHandler,
-          HttpHeaders headers, URI uri, List<String> subProtocols, List<WebSocketExtension> extensions,
-          Map<String, Object> attributes);
 
 }

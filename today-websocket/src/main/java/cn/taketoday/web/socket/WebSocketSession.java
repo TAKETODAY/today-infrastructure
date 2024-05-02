@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,12 +35,6 @@ import cn.taketoday.util.AlternativeJdkIdGenerator;
  * @since 3.0 2021/4/5 14:16
  */
 public abstract class WebSocketSession extends AttributeAccessorSupport implements AttributeAccessor {
-
-  public static final String URI_TEMPLATE_VARIABLES = "UriTemplateVariables";
-
-  public static final String JAVAX_ENDPOINT_CONFIG_KEY = "jakarta.websocket.EndpointConfig";
-
-  public static final String WEBSOCKET_SESSION_KEY = WebSocketSession.class.getName() + "-WebSocketSession";
 
   public static final AlternativeJdkIdGenerator idGenerator = new AlternativeJdkIdGenerator();
 
