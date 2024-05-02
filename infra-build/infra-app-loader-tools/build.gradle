@@ -5,7 +5,7 @@ plugins {
 
 description = "Infra Application Loader Tools"
 
-def generatedResources = "${buildDir}/generated-resources/main"
+def generatedResources = "${layout.buildDirectory}/generated-resources/main"
 
 configurations {
   loader {
@@ -34,7 +34,7 @@ dependencies {
   testImplementation("org.zeroturnaround:zt-zip:1.13")
 }
 
-task reproducibleLoaderJar(type: Jar) {
+tasks.register('reproducibleLoaderJar', Jar) {
   dependsOn configurations.loader
   from {
     zipTree(configurations.loader.incoming.files.singleFile).matching {
@@ -49,7 +49,7 @@ task reproducibleLoaderJar(type: Jar) {
   destinationDirectory = file("${generatedResources}/META-INF/loader")
 }
 
-task layerToolsJar(type: Sync) {
+tasks.register('layerToolsJar', Sync) {
   dependsOn configurations.jarmode
   from {
     file(configurations.jarmode.incoming.files.singleFile)
