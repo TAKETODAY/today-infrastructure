@@ -30,7 +30,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
-import cn.taketoday.http.support.Netty5HeadersAdapter;
+import cn.taketoday.http.support.Netty5HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -57,7 +57,7 @@ class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse impleme
   private final HttpServerResponse response;
 
   public ReactorNetty2ServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
-    super(bufferFactory, HttpHeaders.forWritable(new Netty5HeadersAdapter(response.responseHeaders())));
+    super(bufferFactory, new Netty5HttpHeaders(response.responseHeaders()));
     Assert.notNull(response, "HttpServerResponse is required");
     this.response = response;
   }
@@ -120,8 +120,8 @@ class ReactorNetty2ServerHttpResponse extends AbstractServerHttpResponse impleme
 
   private Publisher<Buffer> toByteBufs(Publisher<? extends DataBuffer> dataBuffers) {
     return dataBuffers instanceof Mono ?
-           Mono.from(dataBuffers).map(Netty5DataBufferFactory::toBuffer) :
-           Flux.from(dataBuffers).map(Netty5DataBufferFactory::toBuffer);
+            Mono.from(dataBuffers).map(Netty5DataBufferFactory::toBuffer) :
+            Flux.from(dataBuffers).map(Netty5DataBufferFactory::toBuffer);
   }
 
   @Override

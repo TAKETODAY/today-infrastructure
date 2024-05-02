@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,45 +12,53 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.support;
 
 import java.util.AbstractSet;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.MultiValueMap;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty5.handler.codec.http.headers.HttpHeaders;
 
 /**
- * {@code MultiValueMap} implementation for wrapping Netty 4 HTTP headers.
+ * {@code MultiValueMap} implementation for wrapping Netty HTTP headers.
  *
- * @author Rossen Stoyanchev
- * @author Sam Brannen
- * @author Brian Clozel
+ * <p>This class is based on {@link Netty4HttpHeaders}.
+ *
+ * @author Violeta Georgieva
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public final class Netty4HeadersAdapter implements MultiValueMap<String, String> {
+public final class Netty5HttpHeaders extends cn.taketoday.http.HttpHeaders {
 
   private final HttpHeaders headers;
 
-  public Netty4HeadersAdapter(HttpHeaders headers) {
+  /**
+   * Create a new {@code Netty5HeadersAdapter} based on the given
+   * {@code HttpHeaders}.
+   */
+  public Netty5HttpHeaders(HttpHeaders headers) {
+    Assert.notNull(headers, "Headers is required");
     this.headers = headers;
   }
 
   @Override
   @Nullable
   public String getFirst(String key) {
-    return this.headers.get(key);
+    CharSequence value = this.headers.get(key);
+    return (value != null ? value.toString() : null);
   }
 
   @Override
@@ -62,9 +70,7 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
 
   @Override
   public void addAll(String key, @Nullable Collection<? extends String> values) {
-    if (values != null) {
-      this.headers.add(key, values);
-    }
+    this.headers.add(key, values);
   }
 
   @Override
@@ -75,14 +81,15 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
   }
 
   @Override
+  public void setAll(Map<String, String> values) {
+    values.forEach(this.headers::set);
+  }
+
+  @Override
   public Map<String, String> toSingleValueMap() {
     Map<String, String> singleValueMap = CollectionUtils.newLinkedHashMap(this.headers.size());
-    this.headers.entries()
-            .forEach(entry -> {
-              if (!singleValueMap.containsKey(entry.getKey())) {
-                singleValueMap.put(entry.getKey(), entry.getValue());
-              }
-            });
+    this.headers.forEach(entry -> singleValueMap.putIfAbsent(
+            entry.getKey().toString(), entry.getValue().toString()));
     return singleValueMap;
   }
 
@@ -103,16 +110,24 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
 
   @Override
   public boolean containsValue(Object value) {
-    return (value instanceof String &&
-            this.headers.entries().stream()
-                    .anyMatch(entry -> value.equals(entry.getValue())));
+    if (value instanceof CharSequence) {
+      for (final Entry<CharSequence, CharSequence> header : headers) {
+        if (Objects.equals(header.getValue(), value)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   @Override
   @Nullable
   public List<String> get(Object key) {
-    if (containsKey(key)) {
-      return this.headers.getAll((String) key);
+    Iterator<CharSequence> iterator = this.headers.valuesIterator((CharSequence) key);
+    if (iterator.hasNext()) {
+      List<String> result = new ArrayList<>();
+      iterator.forEachRemaining(value -> result.add(value.toString()));
+      return result;
     }
     return null;
   }
@@ -120,7 +135,7 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
   @Nullable
   @Override
   public List<String> put(String key, @Nullable List<String> value) {
-    List<String> previousValues = this.headers.getAll(key);
+    List<String> previousValues = get(key);
     this.headers.set(key, value);
     return previousValues;
   }
@@ -129,7 +144,7 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
   @Override
   public List<String> remove(Object key) {
     if (key instanceof String headerName) {
-      List<String> previousValues = this.headers.getAll(headerName);
+      List<String> previousValues = get(headerName);
       this.headers.remove(headerName);
       return previousValues;
     }
@@ -138,7 +153,7 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
 
   @Override
   public void putAll(Map<? extends String, ? extends List<String>> map) {
-    map.forEach(this.headers::add);
+    map.forEach(this.headers::set);
   }
 
   @Override
@@ -153,15 +168,16 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
 
   @Override
   public Collection<List<String>> values() {
-    return this.headers.names().stream()
-            .map(this.headers::getAll).collect(Collectors.toList());
+    List<List<String>> result = new ArrayList<>(this.headers.size());
+    forEach((key, value) -> result.add(value));
+    return result;
   }
 
   @Override
-  public Set<Map.Entry<String, List<String>>> entrySet() {
+  public Set<Entry<String, List<String>>> entrySet() {
     return new AbstractSet<>() {
       @Override
-      public Iterator<Map.Entry<String, List<String>>> iterator() {
+      public Iterator<Entry<String, List<String>>> iterator() {
         return new EntryIterator();
       }
 
@@ -177,9 +193,9 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
     return cn.taketoday.http.HttpHeaders.formatHeaders(this);
   }
 
-  private class EntryIterator implements Iterator<Map.Entry<String, List<String>>> {
+  private class EntryIterator implements Iterator<Entry<String, List<String>>> {
 
-    private final Iterator<String> names = headers.names().iterator();
+    private final Iterator<CharSequence> names = headers.names().iterator();
 
     @Override
     public boolean hasNext() {
@@ -187,32 +203,33 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
     }
 
     @Override
-    public Map.Entry<String, List<String>> next() {
+    public Entry<String, List<String>> next() {
       return new HeaderEntry(this.names.next());
     }
   }
 
-  private class HeaderEntry implements Map.Entry<String, List<String>> {
+  private class HeaderEntry implements Entry<String, List<String>> {
 
-    private final String key;
+    private final CharSequence key;
 
-    HeaderEntry(String key) {
+    HeaderEntry(CharSequence key) {
       this.key = key;
     }
 
     @Override
     public String getKey() {
-      return this.key;
+      return this.key.toString();
     }
 
     @Override
     public List<String> getValue() {
-      return headers.getAll(this.key);
+      List<String> values = get(this.key);
+      return (values != null ? values : Collections.emptyList());
     }
 
     @Override
     public List<String> setValue(List<String> value) {
-      List<String> previousValues = headers.getAll(this.key);
+      List<String> previousValues = getValue();
       headers.set(this.key, value);
       return previousValues;
     }
@@ -232,12 +249,13 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
   }
 
   private final class HeaderNamesIterator implements Iterator<String> {
-    private final Iterator<String> iterator;
+
+    private final Iterator<CharSequence> iterator;
 
     @Nullable
-    private String currentName;
+    private CharSequence currentName;
 
-    private HeaderNamesIterator(Iterator<String> iterator) {
+    private HeaderNamesIterator(Iterator<CharSequence> iterator) {
       this.iterator = iterator;
     }
 
@@ -249,7 +267,7 @@ public final class Netty4HeadersAdapter implements MultiValueMap<String, String>
     @Override
     public String next() {
       this.currentName = this.iterator.next();
-      return this.currentName;
+      return this.currentName.toString();
     }
 
     @Override

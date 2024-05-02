@@ -26,13 +26,12 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferFactory;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
 import cn.taketoday.core.io.buffer.NettyDataBufferFactory;
-import cn.taketoday.http.DefaultHttpHeaders;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
-import cn.taketoday.http.support.Netty4HeadersAdapter;
+import cn.taketoday.http.support.Netty4HttpHeaders;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import io.netty.buffer.ByteBuf;
@@ -56,7 +55,7 @@ class ReactorServerHttpResponse extends AbstractServerHttpResponse implements Ze
   private final HttpServerResponse response;
 
   public ReactorServerHttpResponse(HttpServerResponse response, DataBufferFactory bufferFactory) {
-    super(bufferFactory, new DefaultHttpHeaders(new Netty4HeadersAdapter(response.responseHeaders())));
+    super(bufferFactory, new Netty4HttpHeaders(response.responseHeaders()));
     this.response = response;
   }
 

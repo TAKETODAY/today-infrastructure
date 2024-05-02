@@ -27,7 +27,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.ResponseCookie;
-import cn.taketoday.http.support.Netty5HeadersAdapter;
+import cn.taketoday.http.support.Netty5HttpHeaders;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
@@ -73,9 +73,8 @@ class ReactorNetty2ClientHttpResponse implements ClientHttpResponse {
    */
   public ReactorNetty2ClientHttpResponse(HttpClientResponse response, Connection connection) {
     this.response = response;
-    MultiValueMap<String, String> adapter = new Netty5HeadersAdapter(response.responseHeaders());
-    this.headers = HttpHeaders.readOnlyHttpHeaders(adapter);
     this.inbound = connection.inbound();
+    this.headers = new Netty5HttpHeaders(response.responseHeaders()).asReadOnly();
     this.bufferFactory = new Netty5DataBufferFactory(connection.outbound().alloc());
   }
 

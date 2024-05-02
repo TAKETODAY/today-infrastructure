@@ -45,6 +45,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.server.ServerHttpResponse;
+import cn.taketoday.http.support.Netty4HttpHeaders;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
@@ -271,7 +272,7 @@ public class NettyRequestContext extends RequestContext {
 
   @Override
   protected cn.taketoday.http.HttpHeaders createResponseHeaders() {
-    return new NettyHttpHeaders(nettyResponseHeaders);
+    return new Netty4HttpHeaders(nettyResponseHeaders);
   }
 
   @Override

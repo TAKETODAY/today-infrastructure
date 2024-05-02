@@ -30,7 +30,7 @@ import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.Netty5DataBufferFactory;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpLogging;
-import cn.taketoday.http.support.Netty5HeadersAdapter;
+import cn.taketoday.http.support.Netty5HttpHeaders;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
@@ -67,7 +67,7 @@ class ReactorNetty2ServerHttpRequest extends AbstractServerHttpRequest {
   public ReactorNetty2ServerHttpRequest(HttpServerRequest request, Netty5DataBufferFactory bufferFactory)
           throws URISyntaxException {
 
-    super(initUri(request), null, new Netty5HeadersAdapter(request.requestHeaders()));
+    super(initUri(request), null, new Netty5HttpHeaders(request.requestHeaders()));
     Assert.notNull(bufferFactory, "DataBufferFactory is required");
     this.request = request;
     this.bufferFactory = bufferFactory;

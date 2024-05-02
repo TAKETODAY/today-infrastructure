@@ -31,7 +31,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
-import cn.taketoday.http.support.Netty4HeadersAdapter;
+import cn.taketoday.http.support.Netty4HttpHeaders;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import reactor.core.publisher.Flux;
@@ -143,6 +143,7 @@ class ReactorClientHttpRequest extends AbstractClientHttpRequest implements Zero
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new Netty4HeadersAdapter(this.request.requestHeaders()));
+    return new Netty4HttpHeaders(this.request.requestHeaders()).asReadOnly();
   }
+
 }

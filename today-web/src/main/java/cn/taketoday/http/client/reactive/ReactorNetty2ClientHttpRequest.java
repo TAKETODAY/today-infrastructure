@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client.reactive;
@@ -31,7 +31,7 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
-import cn.taketoday.http.support.Netty5HeadersAdapter;
+import cn.taketoday.http.support.Netty5HttpHeaders;
 import io.netty5.buffer.Buffer;
 import io.netty5.handler.codec.http.headers.DefaultHttpCookiePair;
 import reactor.core.publisher.Flux;
@@ -145,7 +145,7 @@ class ReactorNetty2ClientHttpRequest extends AbstractClientHttpRequest implement
 
   @Override
   protected HttpHeaders initReadOnlyHeaders() {
-    return HttpHeaders.readOnlyHttpHeaders(new Netty5HeadersAdapter(this.request.requestHeaders()));
+    return new Netty5HttpHeaders(this.request.requestHeaders()).asReadOnly();
   }
 
 }
