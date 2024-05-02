@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
@@ -28,33 +28,32 @@ import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.taketoday.app.loader.archive.Archive;
-import cn.taketoday.app.loader.archive.Archive.Entry;
-import cn.taketoday.app.loader.archive.Archive.EntryFilter;
-import cn.taketoday.app.loader.archive.ExplodedArchive;
-import cn.taketoday.app.loader.archive.JarFileArchive;
-import cn.taketoday.app.loader.util.SystemPropertyUtils;
+import cn.taketoday.app.loader.Archive.Entry;
+import cn.taketoday.app.loader.log.DebugLogger;
+import cn.taketoday.app.loader.net.protocol.jar.JarUrl;
+import cn.taketoday.lang.Nullable;
 
 /**
  * {@link Launcher} for archives with user-configured classpath and main class through a
- * properties file. This model is often more flexible and more amenable to creating
- * well-behaved OS-level services than a model based on executable jars.
+ * properties file.
  * <p>
  * Looks in various places for a properties file to extract loader settings, defaulting to
  * {@code loader.properties} either on the current classpath or in the current working
  * directory. The name of the properties file can be changed by setting a System property
- * {@code loader.config.name} (e.g. {@code -Dloader.config.name=foo} will look for
- * {@code foo.properties}. If that file doesn't exist then tries
+ * {@code loader.config.name} (e.g. {@code -Dloader.config.name=my} will look for
+ * {@code my.properties}. If that file doesn't exist then tries
  * {@code loader.config.location} (with allowed prefixes {@code classpath:} and
  * {@code file:} or any valid URL). Once that file is located turns it into Properties and
  * extracts optional values (which can also be provided overridden as System properties in
@@ -72,20 +71,11 @@ import cn.taketoday.app.loader.util.SystemPropertyUtils;
  * @author Dave Syer
  * @author Janne Valkealahti
  * @author Andy Wilkinson
+ * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public class PropertiesLauncher extends Launcher {
-
-  private static final Class<?>[] PARENT_ONLY_PARAMS = new Class<?>[] { ClassLoader.class };
-
-  private static final Class<?>[] URLS_AND_PARENT_PARAMS = new Class<?>[] { URL[].class, ClassLoader.class };
-
-  private static final Class<?>[] NO_PARAMS = new Class<?>[] {};
-
-  private static final URL[] NO_URLS = new URL[0];
-
-  private static final String DEBUG = "loader.debug";
 
   /**
    * Properties key for main class. As a manifest entry can also be specified as
@@ -134,39 +124,38 @@ public class PropertiesLauncher extends Launcher {
    */
   public static final String SET_SYSTEM_PROPERTIES = "loader.system";
 
+  private static final URL[] NO_URLS = new URL[0];
+
   private static final Pattern WORD_SEPARATOR = Pattern.compile("\\W+");
 
   private static final String NESTED_ARCHIVE_SEPARATOR = "!" + File.separator;
 
-  private final File home;
+  private static final String JAR_FILE_PREFIX = "jar:file:";
 
-  private List<String> paths = new ArrayList<>();
+  private static final DebugLogger debug = DebugLogger.get(PropertiesLauncher.class);
+
+  private final Archive archive;
+
+  @Nullable
+  private final File homeDirectory;
+
+  private final List<String> paths;
 
   private final Properties properties = new Properties();
 
-  private final Archive parent;
-
-  private volatile ClassPathArchives classPathArchives;
-
-  public PropertiesLauncher() {
-    try {
-      this.home = getHomeDirectory();
-      initializeProperties();
-      initializePaths();
-      this.parent = createArchive();
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException(ex);
-    }
+  public PropertiesLauncher() throws Exception {
+    this(Archive.create(Launcher.class));
   }
 
-  protected File getHomeDirectory() {
-    try {
-      return new File(getPropertyWithDefault(HOME, "${user.dir}"));
-    }
-    catch (Exception ex) {
-      throw new IllegalStateException(ex);
-    }
+  PropertiesLauncher(Archive archive) throws Exception {
+    this.archive = archive;
+    this.homeDirectory = getHomeDirectory();
+    initializeProperties();
+    this.paths = getPaths();
+  }
+
+  protected File getHomeDirectory() throws Exception {
+    return new File(getPropertyWithDefault(HOME, "${user.dir}"));
   }
 
   private void initializeProperties() throws Exception {
@@ -177,44 +166,26 @@ public class PropertiesLauncher extends Launcher {
     else {
       String[] names = getPropertyWithDefault(CONFIG_NAME, "loader").split(",");
       for (String name : names) {
-        configs.add("file:" + getHomeDirectory() + "/" + name + ".properties");
-        configs.add("classpath:" + name + ".properties");
-        configs.add("classpath:APP-INF/classes/" + name + ".properties");
+        String propertiesFile = name + ".properties";
+        configs.add("file:" + this.homeDirectory + "/" + propertiesFile);
+        configs.add("classpath:" + propertiesFile);
+        configs.add("classpath:APP-INF/classes/" + propertiesFile);
       }
     }
     for (String config : configs) {
       try (InputStream resource = getResource(config)) {
-        if (resource != null) {
-          debug("Found: " + config);
-          loadResource(resource);
-          // Load the first one we find
-          return;
+        if (resource == null) {
+          debug.log("Not found: %s", config);
+          continue;
         }
-        else {
-          debug("Not found: " + config);
-        }
+        debug.log("Found: %s", config);
+        loadResource(resource);
+        return; // Load the first one we find
       }
     }
   }
 
-  private void loadResource(InputStream resource) throws Exception {
-    this.properties.load(resource);
-    for (Object key : Collections.list(this.properties.propertyNames())) {
-      String text = this.properties.getProperty((String) key);
-      String value = SystemPropertyUtils.resolvePlaceholders(this.properties, text);
-      if (value != null) {
-        this.properties.put(key, value);
-      }
-    }
-    if ("true".equals(getProperty(SET_SYSTEM_PROPERTIES))) {
-      debug("Adding resolved properties to System properties");
-      for (Object key : Collections.list(this.properties.propertyNames())) {
-        String value = this.properties.getProperty((String) key);
-        System.setProperty((String) key, value);
-      }
-    }
-  }
-
+  @Nullable
   private InputStream getResource(String config) throws Exception {
     if (config.startsWith("classpath:")) {
       return getClasspathResource(config.substring("classpath:".length()));
@@ -224,6 +195,14 @@ public class PropertiesLauncher extends Launcher {
       return getURLResource(config);
     }
     return getFileResource(config);
+  }
+
+  @Nullable
+  private InputStream getClasspathResource(String config) {
+    config = stripLeadingSlashes(config);
+    config = "/" + config;
+    debug.log("Trying classpath: %s", config);
+    return getClass().getResourceAsStream(config);
   }
 
   private String handleUrl(String path) {
@@ -243,36 +222,16 @@ public class PropertiesLauncher extends Launcher {
     return config.contains("://");
   }
 
-  private InputStream getClasspathResource(String config) {
-    while (config.startsWith("/")) {
-      config = config.substring(1);
-    }
-    config = "/" + config;
-    debug("Trying classpath: " + config);
-    return getClass().getResourceAsStream(config);
-  }
-
-  private InputStream getFileResource(String config) throws Exception {
-    File file = new File(config);
-    debug("Trying file: " + config);
-    if (file.canRead()) {
-      return new FileInputStream(file);
-    }
-    return null;
-  }
-
+  @Nullable
   private InputStream getURLResource(String config) throws Exception {
     URL url = new URL(config);
     if (exists(url)) {
-      URLConnection con = url.openConnection();
+      URLConnection connection = url.openConnection();
       try {
-        return con.getInputStream();
+        return connection.getInputStream();
       }
       catch (IOException ex) {
-        // Close the HTTP connection (if applicable).
-        if (con instanceof HttpURLConnection httpURLConnection) {
-          httpURLConnection.disconnect();
-        }
+        disconnect(connection);
         throw ex;
       }
     }
@@ -280,7 +239,6 @@ public class PropertiesLauncher extends Launcher {
   }
 
   private boolean exists(URL url) throws IOException {
-    // Try a URL connection content-length header...
     URLConnection connection = url.openConnection();
     try {
       connection.setUseCaches(connection.getClass().getSimpleName().startsWith("JNLP"));
@@ -290,25 +248,61 @@ public class PropertiesLauncher extends Launcher {
         if (responseCode == HttpURLConnection.HTTP_OK) {
           return true;
         }
-        else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+        if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
           return false;
         }
       }
       return (connection.getContentLength() >= 0);
     }
     finally {
-      if (connection instanceof HttpURLConnection httpURLConnection) {
-        httpURLConnection.disconnect();
+      disconnect(connection);
+    }
+  }
+
+  private void disconnect(URLConnection connection) {
+    if (connection instanceof HttpURLConnection httpConnection) {
+      httpConnection.disconnect();
+    }
+  }
+
+  @Nullable
+  private InputStream getFileResource(String config) throws Exception {
+    File file = new File(config);
+    debug.log("Trying file: %s", config);
+    return (!file.canRead()) ? null : new FileInputStream(file);
+  }
+
+  private void loadResource(InputStream resource) throws Exception {
+    this.properties.load(resource);
+    resolvePropertyPlaceholders();
+    if ("true".equalsIgnoreCase(getProperty(SET_SYSTEM_PROPERTIES))) {
+      addToSystemProperties();
+    }
+  }
+
+  private void resolvePropertyPlaceholders() {
+    for (String name : this.properties.stringPropertyNames()) {
+      String value = this.properties.getProperty(name);
+      String resolved = SystemPropertyUtils.resolvePlaceholders(this.properties, value);
+      if (resolved != null) {
+        this.properties.put(name, resolved);
       }
     }
   }
 
-  private void initializePaths() throws Exception {
-    String path = getProperty(PATH);
-    if (path != null) {
-      this.paths = parsePathsProperty(path);
+  private void addToSystemProperties() {
+    debug.log("Adding resolved properties to System properties");
+    for (String name : this.properties.stringPropertyNames()) {
+      String value = this.properties.getProperty(name);
+      System.setProperty(name, value);
     }
-    debug("Nested archive paths: " + this.paths);
+  }
+
+  private List<String> getPaths() throws Exception {
+    String path = getProperty(PATH);
+    List<String> paths = (path != null) ? parsePathsProperty(path) : Collections.emptyList();
+    debug.log("Nested archive paths: %s", this.paths);
+    return paths;
   }
 
   private List<String> parsePathsProperty(String commaSeparatedPaths) {
@@ -316,7 +310,7 @@ public class PropertiesLauncher extends Launcher {
     for (String path : commaSeparatedPaths.split(",")) {
       path = cleanupPath(path);
       // "" means the user wants root of archive but not current directory
-      path = (path == null || path.isEmpty()) ? "/" : path;
+      path = (path.isEmpty()) ? "/" : path;
       paths.add(path);
     }
     if (paths.isEmpty()) {
@@ -325,140 +319,266 @@ public class PropertiesLauncher extends Launcher {
     return paths;
   }
 
-  protected String[] getArgs(String... args) throws Exception {
-    String loaderArgs = getProperty(ARGS);
-    if (loaderArgs != null) {
-      String[] defaultArgs = loaderArgs.split("\\s+");
-      String[] additionalArgs = args;
-      args = new String[defaultArgs.length + additionalArgs.length];
-      System.arraycopy(defaultArgs, 0, args, 0, defaultArgs.length);
-      System.arraycopy(additionalArgs, 0, args, defaultArgs.length, additionalArgs.length);
+  private String cleanupPath(String path) {
+    path = path.trim();
+    // No need for current dir path
+    if (path.startsWith("./")) {
+      path = path.substring(2);
     }
-    return args;
+    if (isArchive(path)) {
+      return path;
+    }
+    if (path.endsWith("/*")) {
+      return path.substring(0, path.length() - 1);
+    }
+    // It's a directory
+    return (!path.endsWith("/") && !path.equals(".")) ? path + "/" : path;
+  }
+
+  @Override
+  protected ClassLoader createClassLoader(Collection<URL> urls) throws Exception {
+    String loaderClassName = getProperty("loader.classLoader");
+    if (loaderClassName == null) {
+      return super.createClassLoader(urls);
+    }
+    ClassLoader parent = getClass().getClassLoader();
+    ClassLoader classLoader = new LaunchedClassLoader(false, urls.toArray(new URL[0]), parent);
+    debug.log("Classpath for custom loader: %s", urls);
+    classLoader = wrapWithCustomClassLoader(classLoader, loaderClassName);
+    debug.log("Using custom class loader: %s", loaderClassName);
+    return classLoader;
+  }
+
+  private ClassLoader wrapWithCustomClassLoader(ClassLoader parent, String loaderClassName) throws Exception {
+    Instantiator<ClassLoader> instantiator = new Instantiator<>(parent, loaderClassName);
+    ClassLoader loader = instantiator.declaredConstructor(ClassLoader.class).newInstance(parent);
+    loader = (loader != null) ? loader : instantiator.declaredConstructor(URL[].class, ClassLoader.class).newInstance(NO_URLS, parent);
+    loader = (loader != null) ? loader : instantiator.constructWithoutParameters();
+    if (loader != null) {
+      return loader;
+    }
+    throw new IllegalStateException("Unable to create class loader for " + loaderClassName);
+  }
+
+  @Nullable
+  @Override
+  protected Archive getArchive() {
+    return null; // We don't have a single archive and are not exploded.
   }
 
   @Override
   protected String getMainClass() throws Exception {
     String mainClass = getProperty(MAIN, "Start-Class");
     if (mainClass == null) {
-      throw new IllegalStateException("No '" + MAIN + "' or 'Start-Class' specified");
+      throw new IllegalStateException("No '%s' or 'Start-Class' specified".formatted(MAIN));
     }
     return mainClass;
   }
 
-  @Override
-  protected ClassLoader createClassLoader(Iterator<Archive> archives) throws Exception {
-    String customLoaderClassName = getProperty("loader.classLoader");
-    if (customLoaderClassName == null) {
-      return super.createClassLoader(archives);
-    }
-    LinkedHashSet<URL> urls = new LinkedHashSet<>();
-    while (archives.hasNext()) {
-      urls.add(archives.next().getUrl());
-    }
-    ClassLoader loader = new LaunchedURLClassLoader(urls.toArray(NO_URLS), getClass().getClassLoader());
-    debug("Classpath for custom loader: " + urls);
-    loader = wrapWithCustomClassLoader(loader, customLoaderClassName);
-    debug("Using custom class loader: " + customLoaderClassName);
-    return loader;
+  protected String[] getArgs(String... args) throws Exception {
+    String loaderArgs = getProperty(ARGS);
+    return (loaderArgs != null) ? merge(loaderArgs.split("\\s+"), args) : args;
   }
 
-  @SuppressWarnings("unchecked")
-  private ClassLoader wrapWithCustomClassLoader(ClassLoader parent, String className) throws Exception {
-    Class<ClassLoader> type = (Class<ClassLoader>) Class.forName(className, true, parent);
-    ClassLoader classLoader = newClassLoader(type, PARENT_ONLY_PARAMS, parent);
-    if (classLoader == null) {
-      classLoader = newClassLoader(type, URLS_AND_PARENT_PARAMS, NO_URLS, parent);
-    }
-    if (classLoader == null) {
-      classLoader = newClassLoader(type, NO_PARAMS);
-    }
-    if (classLoader == null) {
-      throw new IllegalArgumentException("Unable to create class loader for " + className);
-    }
-    return classLoader;
+  private String[] merge(String[] a1, String[] a2) {
+    String[] result = new String[a1.length + a2.length];
+    System.arraycopy(a1, 0, result, 0, a1.length);
+    System.arraycopy(a2, 0, result, a1.length, a2.length);
+    return result;
   }
 
-  private ClassLoader newClassLoader(Class<ClassLoader> loaderClass, Class<?>[] parameterTypes, Object... initargs)
-          throws Exception {
-    try {
-      Constructor<ClassLoader> constructor = loaderClass.getDeclaredConstructor(parameterTypes);
-      constructor.setAccessible(true);
-      return constructor.newInstance(initargs);
-    }
-    catch (NoSuchMethodException ex) {
-      return null;
-    }
+  @Nullable
+  private String getProperty(String name) throws Exception {
+    return getProperty(name, null, null);
   }
 
-  private String getProperty(String propertyKey) throws Exception {
-    return getProperty(propertyKey, null, null);
+  @Nullable
+  private String getProperty(String name, @Nullable String manifestKey) throws Exception {
+    return getProperty(name, manifestKey, null);
   }
 
-  private String getProperty(String propertyKey, String manifestKey) throws Exception {
-    return getProperty(propertyKey, manifestKey, null);
+  private String getPropertyWithDefault(String name, String defaultValue) throws Exception {
+    return getProperty(name, null, defaultValue);
   }
 
-  private String getPropertyWithDefault(String propertyKey, String defaultValue) throws Exception {
-    return getProperty(propertyKey, null, defaultValue);
-  }
-
-  private String getProperty(String propertyKey, String manifestKey, String defaultValue) throws Exception {
-    if (manifestKey == null) {
-      manifestKey = propertyKey.replace('.', '-');
-      manifestKey = toCamelCase(manifestKey);
+  @Nullable
+  private String getProperty(String name, @Nullable String manifestKey, @Nullable String defaultValue) throws Exception {
+    manifestKey = (manifestKey != null) ? manifestKey : toCamelCase(name.replace('.', '-'));
+    String value = SystemPropertyUtils.getProperty(name);
+    if (value != null) {
+      return getResolvedProperty(name, manifestKey, value, "environment");
     }
-    String property = SystemPropertyUtils.getProperty(propertyKey);
-    if (property != null) {
-      String value = SystemPropertyUtils.resolvePlaceholders(this.properties, property);
-      debug("Property '" + propertyKey + "' from environment: " + value);
-      return value;
+    if (this.properties.containsKey(name)) {
+      value = this.properties.getProperty(name);
+      return getResolvedProperty(name, manifestKey, value, "properties");
     }
-    if (this.properties.containsKey(propertyKey)) {
-      String value = SystemPropertyUtils.resolvePlaceholders(this.properties,
-              this.properties.getProperty(propertyKey));
-      debug("Property '" + propertyKey + "' from properties: " + value);
-      return value;
-    }
-    try {
-      if (this.home != null) {
-        // Prefer home dir for MANIFEST if there is one
-        try (ExplodedArchive archive = new ExplodedArchive(this.home, false)) {
-          Manifest manifest = archive.getManifest();
-          if (manifest != null) {
-            String value = manifest.getMainAttributes().getValue(manifestKey);
-            if (value != null) {
-              debug("Property '" + manifestKey + "' from home directory manifest: " + value);
-              return SystemPropertyUtils.resolvePlaceholders(this.properties, value);
-            }
+    // Prefer home dir for MANIFEST if there is one
+    if (this.homeDirectory != null) {
+      try {
+        try (Archive explodedArchive = new ExplodedArchive(this.homeDirectory)) {
+          value = getManifestValue(explodedArchive, manifestKey);
+          if (value != null) {
+            return getResolvedProperty(name, manifestKey, value, "home directory manifest");
           }
         }
       }
-    }
-    catch (IllegalStateException ex) {
-      // Ignore
-    }
-    // Otherwise try the parent archive
-    Manifest manifest = createArchive().getManifest();
-    if (manifest != null) {
-      String value = manifest.getMainAttributes().getValue(manifestKey);
-      if (value != null) {
-        debug("Property '" + manifestKey + "' from archive manifest: " + value);
-        return SystemPropertyUtils.resolvePlaceholders(this.properties, value);
+      catch (IllegalStateException ex) {
+        // Ignore
       }
     }
-    return (defaultValue != null) ? SystemPropertyUtils.resolvePlaceholders(this.properties, defaultValue)
-                                  : defaultValue;
+    // Otherwise try the root archive
+    value = getManifestValue(this.archive, manifestKey);
+    if (value != null) {
+      return getResolvedProperty(name, manifestKey, value, "manifest");
+    }
+    return SystemPropertyUtils.resolvePlaceholders(this.properties, defaultValue);
+  }
+
+  @Nullable
+  String getManifestValue(Archive archive, String manifestKey) throws Exception {
+    Manifest manifest = archive.getManifest();
+    return (manifest != null) ? manifest.getMainAttributes().getValue(manifestKey) : null;
+  }
+
+  private String getResolvedProperty(String name, @Nullable String manifestKey, String value, String from) {
+    value = SystemPropertyUtils.resolvePlaceholders(this.properties, value);
+    String altName = (manifestKey != null && !manifestKey.equals(name)) ? "[%s] ".formatted(manifestKey) : "";
+    debug.log("Property '%s'%s from %s: %s", name, altName, from, value);
+    return value;
+
+  }
+
+  void close() throws Exception {
+    if (this.archive != null) {
+      this.archive.close();
+    }
+  }
+
+  @Nullable
+  public static String toCamelCase(@Nullable CharSequence string) {
+    if (string == null) {
+      return null;
+    }
+    StringBuilder result = new StringBuilder();
+    Matcher matcher = WORD_SEPARATOR.matcher(string);
+    int pos = 0;
+    while (matcher.find()) {
+      result.append(capitalize(string.subSequence(pos, matcher.end()).toString()));
+      pos = matcher.end();
+    }
+    result.append(capitalize(string.subSequence(pos, string.length()).toString()));
+    return result.toString();
+  }
+
+  private static String capitalize(String str) {
+    return Character.toUpperCase(str.charAt(0)) + str.substring(1);
   }
 
   @Override
-  protected Iterator<Archive> getClassPathArchivesIterator() throws Exception {
-    ClassPathArchives classPathArchives = this.classPathArchives;
-    if (classPathArchives == null) {
-      classPathArchives = new ClassPathArchives();
-      this.classPathArchives = classPathArchives;
+  protected Set<URL> getClassPathUrls() throws Exception {
+    Set<URL> urls = new LinkedHashSet<>();
+    for (String path : getPaths()) {
+      path = cleanupPath(handleUrl(path));
+      urls.addAll(getClassPathUrlsForPath(path));
     }
-    return classPathArchives.iterator();
+    urls.addAll(getClassPathUrlsForRoot());
+    debug.log("Using class path URLs %s", urls);
+    return urls;
+  }
+
+  private Set<URL> getClassPathUrlsForPath(String path) throws Exception {
+    File file = (!isAbsolutePath(path)) ? new File(this.homeDirectory, path) : new File(path);
+    Set<URL> urls = new LinkedHashSet<>();
+    if (!"/".equals(path)) {
+      if (file.isDirectory()) {
+        try (var explodedArchive = new ExplodedArchive(file)) {
+          debug.log("Adding classpath entries from directory %s", file);
+          urls.add(file.toURI().toURL());
+          urls.addAll(explodedArchive.getClassPathUrls(this::isArchive));
+        }
+      }
+    }
+    if (!file.getPath().contains(NESTED_ARCHIVE_SEPARATOR) && isArchive(file.getName())) {
+      debug.log("Adding classpath entries from jar/zip archive %s", path);
+      urls.add(file.toURI().toURL());
+    }
+    Set<URL> nested = getClassPathUrlsForNested(path);
+    if (!nested.isEmpty()) {
+      debug.log("Adding classpath entries from nested %s", path);
+      urls.addAll(nested);
+    }
+    return urls;
+  }
+
+  private Set<URL> getClassPathUrlsForNested(String path) throws Exception {
+    boolean isJustArchive = isArchive(path);
+    if (!path.equals("/") && path.startsWith("/")
+            || (this.archive.isExploded() && this.archive.getRootDirectory().equals(this.homeDirectory))) {
+      return Collections.emptySet();
+    }
+    File file = null;
+    if (isJustArchive) {
+      File candidate = new File(this.homeDirectory, path);
+      if (candidate.exists()) {
+        file = candidate;
+        path = "";
+      }
+    }
+    int separatorIndex = path.indexOf('!');
+    if (separatorIndex != -1) {
+      file = (!path.startsWith(JAR_FILE_PREFIX)) ? new File(this.homeDirectory, path.substring(0, separatorIndex))
+              : new File(path.substring(JAR_FILE_PREFIX.length(), separatorIndex));
+      path = path.substring(separatorIndex + 1);
+      path = stripLeadingSlashes(path);
+    }
+    if (path.equals("/") || path.equals("./") || path.equals(".")) {
+      // The prefix for nested jars is actually empty if it's at the root
+      path = "";
+    }
+    Archive archive = (file != null) ? new JarFileArchive(file) : this.archive;
+    try {
+      Set<URL> urls = new LinkedHashSet<>(archive.getClassPathUrls(includeByPrefix(path)));
+      if (!isJustArchive && file != null && path.isEmpty()) {
+        urls.add(JarUrl.create(file));
+      }
+      return urls;
+    }
+    finally {
+      if (archive != this.archive) {
+        archive.close();
+      }
+    }
+  }
+
+  private Set<URL> getClassPathUrlsForRoot() throws IOException {
+    debug.log("Adding classpath entries from root archive %s", this.archive);
+    return this.archive.getClassPathUrls(JarLauncher::isLibraryFileOrClassesDirectory);
+  }
+
+  private Predicate<Entry> includeByPrefix(String prefix) {
+    return (entry) -> (entry.isDirectory() && entry.name().equals(prefix))
+            || (isArchive(entry) && entry.name().startsWith(prefix));
+  }
+
+  private boolean isArchive(Entry entry) {
+    return isArchive(entry.name());
+  }
+
+  private boolean isArchive(String name) {
+    name = name.toLowerCase(Locale.ENGLISH);
+    return name.endsWith(".jar") || name.endsWith(".zip");
+  }
+
+  private boolean isAbsolutePath(String root) {
+    // Windows contains ":" others start with "/"
+    return root.contains(":") || root.startsWith("/");
+  }
+
+  private String stripLeadingSlashes(String string) {
+    while (string.startsWith("/")) {
+      string = string.substring(1);
+    }
+    return string;
   }
 
   public static void main(String[] args) throws Exception {
@@ -467,261 +587,38 @@ public class PropertiesLauncher extends Launcher {
     launcher.launch(args);
   }
 
-  public static String toCamelCase(CharSequence string) {
-    if (string == null) {
-      return null;
-    }
-    StringBuilder builder = new StringBuilder();
-    Matcher matcher = WORD_SEPARATOR.matcher(string);
-    int pos = 0;
-    while (matcher.find()) {
-      builder.append(capitalize(string.subSequence(pos, matcher.end()).toString()));
-      pos = matcher.end();
-    }
-    builder.append(capitalize(string.subSequence(pos, string.length()).toString()));
-    return builder.toString();
-  }
-
-  private static String capitalize(String str) {
-    return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-  }
-
-  private void debug(String message) {
-    if (Boolean.getBoolean(DEBUG)) {
-      System.out.println(message);
-    }
-  }
-
-  private String cleanupPath(String path) {
-    path = path.trim();
-    // No need for current dir path
-    if (path.startsWith("./")) {
-      path = path.substring(2);
-    }
-    String lowerCasePath = path.toLowerCase(Locale.ENGLISH);
-    if (lowerCasePath.endsWith(".jar") || lowerCasePath.endsWith(".zip")) {
-      return path;
-    }
-    if (path.endsWith("/*")) {
-      path = path.substring(0, path.length() - 1);
-    }
-    else {
-      // It's a directory
-      if (!path.endsWith("/") && !path.equals(".")) {
-        path = path + "/";
-      }
-    }
-    return path;
-  }
-
-  void close() throws Exception {
-    if (this.classPathArchives != null) {
-      this.classPathArchives.close();
-    }
-    if (this.parent != null) {
-      this.parent.close();
-    }
-  }
-
   /**
-   * An iterable collection of the classpath archives.
+   * Utility to help instantiate objects.
    */
-  private class ClassPathArchives implements Iterable<Archive> {
+  private record Instantiator<T>(ClassLoader parent, Class<?> type) {
 
-    private final List<Archive> classPathArchives;
+    Instantiator(ClassLoader parent, String className) throws ClassNotFoundException {
+      this(parent, Class.forName(className, true, parent));
+    }
 
-    private final List<JarFileArchive> jarFileArchives = new ArrayList<>();
+    T constructWithoutParameters() throws Exception {
+      return declaredConstructor().newInstance();
+    }
 
-    ClassPathArchives() throws Exception {
-      this.classPathArchives = new ArrayList<>();
-      for (String path : PropertiesLauncher.this.paths) {
-        for (Archive archive : getClassPathArchives(path)) {
-          addClassPathArchive(archive);
+    Using<T> declaredConstructor(Class<?>... parameterTypes) {
+      return new Using<>(this, parameterTypes);
+    }
+
+    private record Using<T>(Instantiator<T> instantiator, Class<?>... parameterTypes) {
+
+      @SuppressWarnings("unchecked")
+      T newInstance(Object... initargs) throws Exception {
+        try {
+          Constructor<?> constructor = this.instantiator.type().getDeclaredConstructor(this.parameterTypes);
+          constructor.setAccessible(true);
+          return (T) constructor.newInstance(initargs);
+        }
+        catch (NoSuchMethodException ex) {
+          return null;
         }
       }
-      addNestedEntries();
+
     }
-
-    private void addClassPathArchive(Archive archive) throws IOException {
-      if (!(archive instanceof ExplodedArchive)) {
-        this.classPathArchives.add(archive);
-        return;
-      }
-      this.classPathArchives.add(archive);
-      this.classPathArchives.addAll(asList(archive.getNestedArchives(null, new ArchiveEntryFilter())));
-    }
-
-    private List<Archive> getClassPathArchives(String path) throws Exception {
-      String root = cleanupPath(handleUrl(path));
-      List<Archive> lib = new ArrayList<>();
-      File file = new File(root);
-      if (!"/".equals(root)) {
-        if (!isAbsolutePath(root)) {
-          file = new File(PropertiesLauncher.this.home, root);
-        }
-        if (file.isDirectory()) {
-          debug("Adding classpath entries from " + file);
-          Archive archive = new ExplodedArchive(file, false);
-          lib.add(archive);
-        }
-      }
-      Archive archive = getArchive(file);
-      if (archive != null) {
-        debug("Adding classpath entries from archive " + archive.getUrl() + root);
-        lib.add(archive);
-      }
-      List<Archive> nestedArchives = getNestedArchives(root);
-      if (nestedArchives != null) {
-        debug("Adding classpath entries from nested " + root);
-        lib.addAll(nestedArchives);
-      }
-      return lib;
-    }
-
-    private boolean isAbsolutePath(String root) {
-      // Windows contains ":" others start with "/"
-      return root.contains(":") || root.startsWith("/");
-    }
-
-    private Archive getArchive(File file) throws IOException {
-      if (isNestedArchivePath(file)) {
-        return null;
-      }
-      String name = file.getName().toLowerCase(Locale.ENGLISH);
-      if (name.endsWith(".jar") || name.endsWith(".zip")) {
-        return getJarFileArchive(file);
-      }
-      return null;
-    }
-
-    private boolean isNestedArchivePath(File file) {
-      return file.getPath().contains(NESTED_ARCHIVE_SEPARATOR);
-    }
-
-    private List<Archive> getNestedArchives(String path) throws Exception {
-      Archive parent = PropertiesLauncher.this.parent;
-      String root = path;
-      if (!root.equals("/") && root.startsWith("/")
-              || parent.getUrl().toURI().equals(PropertiesLauncher.this.home.toURI())) {
-        // If home dir is same as parent archive, no need to add it twice.
-        return null;
-      }
-      int index = root.indexOf('!');
-      if (index != -1) {
-        File file = new File(PropertiesLauncher.this.home, root.substring(0, index));
-        if (root.startsWith("jar:file:")) {
-          file = new File(root.substring("jar:file:".length(), index));
-        }
-        parent = getJarFileArchive(file);
-        root = root.substring(index + 1);
-        while (root.startsWith("/")) {
-          root = root.substring(1);
-        }
-      }
-      if (root.endsWith(".jar")) {
-        File file = new File(PropertiesLauncher.this.home, root);
-        if (file.exists()) {
-          parent = getJarFileArchive(file);
-          root = "";
-        }
-      }
-      if (root.equals("/") || root.equals("./") || root.equals(".")) {
-        // The prefix for nested jars is actually empty if it's at the root
-        root = "";
-      }
-      EntryFilter filter = new PrefixMatchingArchiveFilter(root);
-      List<Archive> archives = asList(parent.getNestedArchives(null, filter));
-      if ((root == null || root.isEmpty() || ".".equals(root)) && !path.endsWith(".jar")
-              && parent != PropertiesLauncher.this.parent) {
-        // You can't find the root with an entry filter so it has to be added
-        // explicitly. But don't add the root of the parent archive.
-        archives.add(parent);
-      }
-      return archives;
-    }
-
-    private void addNestedEntries() {
-      // The parent archive might have "APP-INF/lib/" and "APP-INF/classes/"
-      // directories, meaning we are running from an executable JAR. We add nested
-      // entries from there with low priority (i.e. at end).
-      try {
-        Iterator<Archive> archives = PropertiesLauncher.this.parent.getNestedArchives(null,
-                JarLauncher.NESTED_ARCHIVE_ENTRY_FILTER);
-        while (archives.hasNext()) {
-          this.classPathArchives.add(archives.next());
-        }
-      }
-      catch (IOException ex) {
-        // Ignore
-      }
-    }
-
-    private List<Archive> asList(Iterator<Archive> iterator) {
-      List<Archive> list = new ArrayList<>();
-      while (iterator.hasNext()) {
-        list.add(iterator.next());
-      }
-      return list;
-    }
-
-    private JarFileArchive getJarFileArchive(File file) throws IOException {
-      JarFileArchive archive = new JarFileArchive(file);
-      this.jarFileArchives.add(archive);
-      return archive;
-    }
-
-    @Override
-    public Iterator<Archive> iterator() {
-      return this.classPathArchives.iterator();
-    }
-
-    void close() throws IOException {
-      for (JarFileArchive archive : this.jarFileArchives) {
-        archive.close();
-      }
-    }
-
-  }
-
-  /**
-   * Convenience class for finding nested archives that have a prefix in their file path
-   * (e.g. "lib/").
-   */
-  private static final class PrefixMatchingArchiveFilter implements EntryFilter {
-
-    private final String prefix;
-
-    private final ArchiveEntryFilter filter = new ArchiveEntryFilter();
-
-    private PrefixMatchingArchiveFilter(String prefix) {
-      this.prefix = prefix;
-    }
-
-    @Override
-    public boolean matches(Entry entry) {
-      if (entry.isDirectory()) {
-        return entry.getName().equals(this.prefix);
-      }
-      return entry.getName().startsWith(this.prefix) && this.filter.matches(entry);
-    }
-
-  }
-
-  /**
-   * Convenience class for finding nested archives (archive entries that can be
-   * classpath entries).
-   */
-  private static final class ArchiveEntryFilter implements EntryFilter {
-
-    private static final String DOT_JAR = ".jar";
-
-    private static final String DOT_ZIP = ".zip";
-
-    @Override
-    public boolean matches(Entry entry) {
-      return entry.getName().endsWith(DOT_JAR) || entry.getName().endsWith(DOT_ZIP);
-    }
-
   }
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,10 +12,17 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 /**
- * Support for loading and manipulating JAR/WAR files.
+ * Alternative {@link java.util.jar.JarFile} implementation with support for nested jars.
+ *
+ * @see cn.taketoday.app.loader.jar.NestedJarFile
  */
+@NonNullApi
+@NonNullFields
 package cn.taketoday.app.loader.jar;
+
+import cn.taketoday.lang.NonNullApi;
+import cn.taketoday.lang.NonNullFields;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,13 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
-
-import cn.taketoday.app.loader.archive.Archive;
-import cn.taketoday.app.loader.archive.Archive.EntryFilter;
 
 /**
  * {@link Launcher} for JAR based archives. This launcher assumes that dependency jars are
@@ -30,37 +27,33 @@ import cn.taketoday.app.loader.archive.Archive.EntryFilter;
  * @author Madhura Bhave
  * @author Scott Frederick
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 5.0
  */
 public class JarLauncher extends ExecutableArchiveLauncher {
 
-  static final EntryFilter NESTED_ARCHIVE_ENTRY_FILTER = (entry) -> {
-    if (entry.isDirectory()) {
-      return entry.getName().equals("APP-INF/classes/");
-    }
-    return entry.getName().startsWith("APP-INF/lib/");
-  };
-
-  public JarLauncher() {
+  public JarLauncher() throws Exception {
   }
 
-  protected JarLauncher(Archive archive) {
+  protected JarLauncher(Archive archive) throws Exception {
     super(archive);
   }
 
   @Override
-  protected boolean isPostProcessingClassPathArchives() {
-    return false;
+  protected boolean isIncludedOnClassPath(Archive.Entry entry) {
+    return isLibraryFileOrClassesDirectory(entry);
   }
 
   @Override
-  protected boolean isNestedArchive(Archive.Entry entry) {
-    return NESTED_ARCHIVE_ENTRY_FILTER.matches(entry);
-  }
-
-  @Override
-  protected String getArchiveEntryPathPrefix() {
+  protected String getEntryPathPrefix() {
     return "APP-INF/";
+  }
+
+  static boolean isLibraryFileOrClassesDirectory(Archive.Entry entry) {
+    String name = entry.name();
+    if (entry.isDirectory()) {
+      return name.equals("APP-INF/classes/");
+    }
+    return name.startsWith("APP-INF/lib/");
   }
 
   public static void main(String[] args) throws Exception {

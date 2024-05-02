@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,42 +12,38 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * A class path index file that provides ordering information for JARs.
+ * A class path index file that provides an ordered classpath for exploded JARs.
  *
  * @author Madhura Bhave
  * @author Phillip Webb
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 5.0
  */
 final class ClassPathIndexFile {
 
   private final File root;
 
-  private final List<String> lines;
+  private final Set<String> lines;
 
   private ClassPathIndexFile(File root, List<String> lines) {
     this.root = root;
-    this.lines = lines.stream().map(this::extractName).toList();
+    this.lines = lines.stream().map(this::extractName).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   private String extractName(String line) {
@@ -81,46 +77,23 @@ final class ClassPathIndexFile {
     }
   }
 
-  static ClassPathIndexFile loadIfPossible(URL root, String location) throws IOException {
-    return loadIfPossible(asFile(root), location);
-  }
-
-  private static ClassPathIndexFile loadIfPossible(File root, String location) throws IOException {
+  static ClassPathIndexFile loadIfPossible(File root, String location) throws IOException {
     return loadIfPossible(root, new File(root, location));
   }
 
   private static ClassPathIndexFile loadIfPossible(File root, File indexFile) throws IOException {
     if (indexFile.exists() && indexFile.isFile()) {
-      try (InputStream inputStream = new FileInputStream(indexFile)) {
-        return new ClassPathIndexFile(root, loadLines(inputStream));
-      }
+      List<String> lines = Files.readAllLines(indexFile.toPath())
+              .stream()
+              .filter(ClassPathIndexFile::lineHasText)
+              .toList();
+      return new ClassPathIndexFile(root, lines);
     }
     return null;
   }
 
-  private static List<String> loadLines(InputStream inputStream) throws IOException {
-    List<String> lines = new ArrayList<>();
-    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-    String line = reader.readLine();
-    while (line != null) {
-      if (!line.trim().isEmpty()) {
-        lines.add(line);
-      }
-      line = reader.readLine();
-    }
-    return Collections.unmodifiableList(lines);
-  }
-
-  private static File asFile(URL url) {
-    if (!"file".equals(url.getProtocol())) {
-      throw new IllegalArgumentException("URL does not reference a file");
-    }
-    try {
-      return new File(url.toURI());
-    }
-    catch (URISyntaxException ex) {
-      return new File(url.getPath());
-    }
+  private static boolean lineHasText(String line) {
+    return !line.trim().isEmpty();
   }
 
 }

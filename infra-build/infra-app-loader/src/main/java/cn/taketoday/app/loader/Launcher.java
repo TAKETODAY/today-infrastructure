@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,27 +12,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
 
-import java.io.File;
-import java.net.URI;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Method;
 import java.net.URL;
-import java.security.CodeSource;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.Set;
 
-import cn.taketoday.app.loader.archive.Archive;
-import cn.taketoday.app.loader.archive.ExplodedArchive;
-import cn.taketoday.app.loader.archive.JarFileArchive;
-import cn.taketoday.app.loader.jar.JarFile;
+import cn.taketoday.app.loader.net.protocol.Handlers;
+import cn.taketoday.lang.Nullable;
 
 /**
  * Base class for launchers that can start an application with a fully configured
- * classpath backed by one or more {@link Archive}s.
+ * classpath.
  *
  * @author Phillip Webb
  * @author Dave Syer
@@ -41,7 +37,7 @@ import cn.taketoday.app.loader.jar.JarFile;
  */
 public abstract class Launcher {
 
-  private static final String JAR_MODE_LAUNCHER = "cn.taketoday.app.loader.jarmode.JarModeLauncher";
+  private static final String JAR_MODE_RUNNER_CLASS_NAME = JarModeRunner.class.getName();
 
   /**
    * Launch the application. This method is the initial entry point that should be
@@ -52,64 +48,74 @@ public abstract class Launcher {
    */
   protected void launch(String[] args) throws Exception {
     if (!isExploded()) {
-      JarFile.registerUrlProtocolHandler();
+      Handlers.register();
     }
-    ClassLoader classLoader = createClassLoader(getClassPathArchivesIterator());
-    String jarMode = System.getProperty("jarmode");
-    String launchClass = (jarMode != null && !jarMode.isEmpty()) ? JAR_MODE_LAUNCHER : getMainClass();
-    launch(args, launchClass, classLoader);
+    try {
+      ClassLoader classLoader = createClassLoader(getClassPathUrls());
+      String jarMode = System.getProperty("jarmode");
+      String mainClassName = hasLength(jarMode) ? JAR_MODE_RUNNER_CLASS_NAME : getMainClass();
+      launch(classLoader, mainClassName, args);
+    }
+    catch (UncheckedIOException ex) {
+      throw ex.getCause();
+    }
+  }
+
+  private boolean hasLength(@Nullable String jarMode) {
+    return (jarMode != null) && !jarMode.isEmpty();
   }
 
   /**
    * Create a classloader for the specified archives.
    *
-   * @param archives the archives
+   * @param urls the classpath URLs
    * @return the classloader
    * @throws Exception if the classloader cannot be created
    */
-  protected ClassLoader createClassLoader(Iterator<Archive> archives) throws Exception {
-    ArrayList<URL> urls = new ArrayList<>(50);
-    while (archives.hasNext()) {
-      urls.add(archives.next().getUrl());
-    }
+  protected ClassLoader createClassLoader(Collection<URL> urls) throws Exception {
     return createClassLoader(urls.toArray(new URL[0]));
   }
 
-  /**
-   * Create a classloader for the specified URLs.
-   *
-   * @param urls the URLs
-   * @return the classloader
-   * @throws Exception if the classloader cannot be created
-   */
-  protected ClassLoader createClassLoader(URL[] urls) throws Exception {
-    return new LaunchedURLClassLoader(isExploded(), getArchive(), urls, getClass().getClassLoader());
+  private ClassLoader createClassLoader(URL[] urls) {
+    ClassLoader parent = getClass().getClassLoader();
+    return new LaunchedClassLoader(isExploded(), getArchive(), urls, parent);
   }
 
   /**
    * Launch the application given the archive file and a fully configured classloader.
    *
-   * @param args the incoming arguments
-   * @param launchClass the launch class to run
    * @param classLoader the classloader
+   * @param mainClassName the main class to run
+   * @param args the incoming arguments
    * @throws Exception if the launch fails
    */
-  protected void launch(String[] args, String launchClass, ClassLoader classLoader) throws Exception {
+  protected void launch(ClassLoader classLoader, String mainClassName, String[] args) throws Exception {
     Thread.currentThread().setContextClassLoader(classLoader);
-    createMainMethodRunner(launchClass, args, classLoader).run();
+    Class<?> mainClass = Class.forName(mainClassName, false, classLoader);
+    Method mainMethod = mainClass.getDeclaredMethod("main", String[].class);
+    mainMethod.setAccessible(true);
+    mainMethod.invoke(null, new Object[] { args });
   }
 
   /**
-   * Create the {@code MainMethodRunner} used to launch the application.
+   * Returns if the launcher is running in an exploded mode. If this method returns
+   * {@code true} then only regular JARs are supported and the additional URL and
+   * ClassLoader support infrastructure can be optimized.
    *
-   * @param mainClass the main class
-   * @param args the incoming arguments
-   * @param classLoader the classloader
-   * @return the main method runner
+   * @return if the jar is exploded.
    */
-  protected MainMethodRunner createMainMethodRunner(String mainClass, String[] args, ClassLoader classLoader) {
-    return new MainMethodRunner(mainClass, args);
+  protected boolean isExploded() {
+    Archive archive = getArchive();
+    return (archive != null) && archive.isExploded();
   }
+
+  /**
+   * Return the archive being launched or {@code null} if there is no archive.
+   *
+   * @return the launched archive
+   */
+  @Nullable
+  protected abstract Archive getArchive();
 
   /**
    * Returns the main class that should be launched.
@@ -125,41 +131,6 @@ public abstract class Launcher {
    * @return the class path archives
    * @throws Exception if the class path archives cannot be obtained
    */
-  protected abstract Iterator<Archive> getClassPathArchivesIterator() throws Exception;
-
-  protected final Archive createArchive() throws Exception {
-    ProtectionDomain protectionDomain = getClass().getProtectionDomain();
-    CodeSource codeSource = protectionDomain.getCodeSource();
-    URI location = (codeSource != null) ? codeSource.getLocation().toURI() : null;
-    String path = (location != null) ? location.getSchemeSpecificPart() : null;
-    if (path == null) {
-      throw new IllegalStateException("Unable to determine code source archive");
-    }
-    File root = new File(path);
-    if (!root.exists()) {
-      throw new IllegalStateException("Unable to determine code source archive from " + root);
-    }
-    return (root.isDirectory() ? new ExplodedArchive(root) : new JarFileArchive(root));
-  }
-
-  /**
-   * Returns if the launcher is running in an exploded mode. If this method returns
-   * {@code true} then only regular JARs are supported and the additional URL and
-   * ClassLoader support infrastructure can be optimized.
-   *
-   * @return if the jar is exploded.
-   */
-  protected boolean isExploded() {
-    return false;
-  }
-
-  /**
-   * Return the root archive.
-   *
-   * @return the root archive
-   */
-  protected Archive getArchive() {
-    return null;
-  }
+  protected abstract Set<URL> getClassPathUrls() throws Exception;
 
 }

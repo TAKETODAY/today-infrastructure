@@ -27,32 +27,32 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ref.SoftReference;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
-import cn.taketoday.app.loader.archive.Archive;
-import cn.taketoday.app.loader.archive.ExplodedArchive;
-import cn.taketoday.app.loader.archive.JarFileArchive;
-import cn.taketoday.app.loader.jar.Handler;
-import cn.taketoday.app.loader.jar.JarFile;
+import cn.taketoday.app.loader.net.protocol.jar.JarUrl;
+import cn.taketoday.app.loader.testsupport.TestJar;
+import cn.taketoday.app.loader.zip.AssertFileChannelDataBlocksClosed;
 import cn.taketoday.core.io.FileSystemResource;
 import cn.taketoday.framework.test.system.CapturedOutput;
 import cn.taketoday.framework.test.system.OutputCaptureExtension;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.util.ReflectionTestUtils;
 import cn.taketoday.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.Matchers.containsString;
 
 /**
@@ -62,6 +62,7 @@ import static org.hamcrest.Matchers.containsString;
  * @author Andy Wilkinson
  */
 @ExtendWith(OutputCaptureExtension.class)
+@AssertFileChannelDataBlocksClosed
 class PropertiesLauncherTests {
 
   @TempDir
@@ -74,9 +75,8 @@ class PropertiesLauncherTests {
   private CapturedOutput output;
 
   @BeforeEach
-  void setup(CapturedOutput capturedOutput) throws Exception {
+  void setup(CapturedOutput capturedOutput) {
     this.contextClassLoader = Thread.currentThread().getContextClassLoader();
-    clearHandlerCache();
     System.setProperty("loader.home", new File("src/test/resources").getAbsolutePath());
     this.output = capturedOutput;
   }
@@ -91,26 +91,13 @@ class PropertiesLauncherTests {
     System.clearProperty("loader.config.location");
     System.clearProperty("loader.system");
     System.clearProperty("loader.classLoader");
-    clearHandlerCache();
     if (this.launcher != null) {
       this.launcher.close();
     }
   }
 
-  @SuppressWarnings("unchecked")
-  private void clearHandlerCache() throws Exception {
-    Map<File, JarFile> rootFileCache = ((SoftReference<Map<File, JarFile>>) ReflectionTestUtils
-            .getField(Handler.class, "rootFileCache")).get();
-    if (rootFileCache != null) {
-      for (JarFile rootJarFile : rootFileCache.values()) {
-        rootJarFile.close();
-      }
-      rootFileCache.clear();
-    }
-  }
-
   @Test
-  void testDefaultHome() {
+  void testDefaultHome() throws Exception {
     System.clearProperty("loader.home");
     this.launcher = new PropertiesLauncher();
     assertThat(this.launcher.getHomeDirectory()).isEqualTo(new File(System.getProperty("user.dir")));
@@ -127,9 +114,8 @@ class PropertiesLauncherTests {
   @Test
   void testNonExistentHome() {
     System.setProperty("loader.home", "src/test/resources/nonexistent");
-    assertThatIllegalStateException().isThrownBy(PropertiesLauncher::new)
-            .withMessageContaining("Invalid source directory")
-            .withCauseInstanceOf(IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(PropertiesLauncher::new)
+            .withMessageContaining("Invalid source directory");
   }
 
   @Test
@@ -144,7 +130,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.config.name", "foo");
     this.launcher = new PropertiesLauncher();
     assertThat(this.launcher.getMainClass()).isEqualTo("my.Application");
-    assertThat(getPaths()).hasToString("[etc/]");
+    assertThat(paths()).hasToString("[etc/]");
   }
 
   @Test
@@ -155,13 +141,14 @@ class PropertiesLauncherTests {
   }
 
   @Test
-  void testUserSpecifiedDotPath() {
+  void testUserSpecifiedDotPath() throws Exception {
     System.setProperty("loader.path", ".");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths()).hasToString("[.]");
+    assertThat(paths()).hasToString("[.]");
   }
 
-  private Object getPaths() {
+  @Nullable
+  private Object paths() {
     return ReflectionTestUtils.getField(this.launcher, "paths");
   }
 
@@ -169,10 +156,9 @@ class PropertiesLauncherTests {
   void testUserSpecifiedSlashPath() throws Exception {
     System.setProperty("loader.path", "jars/");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths()).hasToString("[jars/]");
-    List<Archive> archives = new ArrayList<>();
-    this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(archives).areExactly(1, endingWith("app.jar"));
+    assertThat(paths()).hasToString("[jars/]");
+    Set<URL> urls = this.launcher.getClassPathUrls();
+    assertThat(urls).areExactly(1, endingWith("app.jar"));
   }
 
   @Test
@@ -180,7 +166,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "jars/*");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths()).hasToString("[jars/]");
+    assertThat(paths()).hasToString("[jars/]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -190,67 +176,62 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "jars/app.jar");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths()).hasToString("[jars/app.jar]");
+    assertThat(paths()).hasToString("[jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
 
   @Test
   void testUserSpecifiedRootOfJarPath() throws Exception {
-    System.setProperty("loader.path", "jar:file:./src/test/resources/nested-jars1/app.jar!/");
+    System.setProperty("loader.path", "jar:file:./src/test/resources/nested-jars/app.jar!/");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths())
-            .hasToString("[jar:file:./src/test/resources/nested-jars1/app.jar!/]");
-    List<Archive> archives = new ArrayList<>();
-    this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(archives).areExactly(1, endingWith("foo.jar!/"));
-    assertThat(archives).areExactly(1, endingWith("app.jar"));
+    assertThat(paths())
+            .hasToString("[jar:file:./src/test/resources/nested-jars/app.jar!/]");
+    Set<URL> urls = this.launcher.getClassPathUrls();
+    assertThat(urls).areExactly(1, endingWith("foo.jar!/"));
+    assertThat(urls).areExactly(1, endingWith("app.jar!/"));
   }
 
   @Test
   void testUserSpecifiedRootOfJarPathWithDot() throws Exception {
-    System.setProperty("loader.path", "nested-jars1/app.jar!/./");
+    System.setProperty("loader.path", "nested-jars/app.jar!/./");
     this.launcher = new PropertiesLauncher();
-    List<Archive> archives = new ArrayList<>();
-    this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(archives).areExactly(1, endingWith("foo.jar!/"));
-    assertThat(archives).areExactly(1, endingWith("app.jar"));
+    Set<URL> urls = this.launcher.getClassPathUrls();
+    assertThat(urls).areExactly(1, endingWith("foo.jar!/"));
+    assertThat(urls).areExactly(1, endingWith("app.jar!/"));
   }
 
   @Test
   void testUserSpecifiedRootOfJarPathWithDotAndJarPrefix() throws Exception {
-    System.setProperty("loader.path", "jar:file:./src/test/resources/nested-jars1/app.jar!/./");
+    System.setProperty("loader.path", "jar:file:./src/test/resources/nested-jars/app.jar!/./");
     this.launcher = new PropertiesLauncher();
-    List<Archive> archives = new ArrayList<>();
-    this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(archives).areExactly(1, endingWith("foo.jar!/"));
+    Set<URL> urls = this.launcher.getClassPathUrls();
+    assertThat(urls).areExactly(1, endingWith("foo.jar!/"));
   }
 
   @Test
   void testUserSpecifiedJarFileWithNestedArchives() throws Exception {
-    System.setProperty("loader.path", "nested-jars1/app.jar");
+    System.setProperty("loader.path", "nested-jars/app.jar");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    List<Archive> archives = new ArrayList<>();
-    this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(archives).areExactly(1, endingWith("foo.jar!/"));
-    assertThat(archives).areExactly(1, endingWith("app.jar"));
+    Set<URL> urls = this.launcher.getClassPathUrls();
+    assertThat(urls).areExactly(1, endingWith("foo.jar!/"));
+    assertThat(urls).areExactly(1, endingWith("app.jar"));
   }
 
   @Test
   void testUserSpecifiedNestedJarPath() throws Exception {
-    System.setProperty("loader.path", "nested-jars1/nested-jar-app.jar!/BOOT-INF/classes/");
+    System.setProperty("loader.path", "nested-jars/nested-jar-app.jar!/BOOT-INF/classes/");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths())
-            .hasToString("[nested-jars1/nested-jar-app.jar!/BOOT-INF/classes/]");
+    assertThat(paths()).hasToString("[nested-jars/nested-jar-app.jar!/BOOT-INF/classes/]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
 
   @Test
   void testUserSpecifiedDirectoryContainingJarFileWithNestedArchives() throws Exception {
-    System.setProperty("loader.path", "nested-jars1");
+    System.setProperty("loader.path", "nested-jars");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
     this.launcher.launch(new String[0]);
@@ -262,7 +243,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "./jars/app.jar");
     System.setProperty("loader.main", "demo.Application");
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths()).hasToString("[jars/app.jar]");
+    assertThat(paths()).hasToString("[jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -272,7 +253,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "jars/app.jar");
     System.setProperty("loader.classLoader", URLClassLoader.class.getName());
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths()).hasToString("[jars/app.jar]");
+    assertThat(paths()).hasToString("[jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello World");
   }
@@ -282,7 +263,7 @@ class PropertiesLauncherTests {
     System.setProperty("loader.path", "more-jars/app.jar,jars/app.jar");
     System.setProperty("loader.classLoader", URLClassLoader.class.getName());
     this.launcher = new PropertiesLauncher();
-    assertThat(getPaths())
+    assertThat(paths())
             .hasToString("[more-jars/app.jar, jars/app.jar]");
     this.launcher.launch(new String[0]);
     waitFor("Hello Other World");
@@ -292,32 +273,21 @@ class PropertiesLauncherTests {
   void testCustomClassLoaderCreation() throws Exception {
     System.setProperty("loader.classLoader", TestLoader.class.getName());
     this.launcher = new PropertiesLauncher();
-    ClassLoader loader = this.launcher.createClassLoader(archives());
+    ClassLoader loader = this.launcher.createClassLoader(classPathUrls());
     assertThat(loader).isNotNull();
     assertThat(loader.getClass().getName()).isEqualTo(TestLoader.class.getName());
   }
 
-  private Iterator<Archive> archives() throws Exception {
-    List<Archive> archives = new ArrayList<>();
-    String path = System.getProperty("java.class.path");
-    for (String url : path.split(File.pathSeparator)) {
-      Archive archive = archive(url);
-      if (archive != null) {
-        archives.add(archive);
+  private Set<URL> classPathUrls() throws Exception {
+    Set<URL> urls = new LinkedHashSet<>();
+    String classPath = System.getProperty("java.class.path");
+    for (String path : classPath.split(File.pathSeparator)) {
+      File file = new FileSystemResource(path).getFile();
+      if (file.exists()) {
+        urls.add(file.toURI().toURL());
       }
     }
-    return archives.iterator();
-  }
-
-  private Archive archive(String url) throws IOException {
-    File file = new FileSystemResource(url).getFile();
-    if (!file.exists()) {
-      return null;
-    }
-    if (url.endsWith(".jar")) {
-      return new JarFileArchive(file);
-    }
-    return new ExplodedArchive(file);
+    return urls;
   }
 
   @Test
@@ -336,7 +306,7 @@ class PropertiesLauncherTests {
   }
 
   @Test
-  void testSystemPropertiesSet() {
+  void testSystemPropertiesSet() throws Exception {
     System.setProperty("loader.system", "true");
     new PropertiesLauncher();
     assertThat(System.getProperty("loader.main")).isEqualTo("demo.Application");
@@ -349,8 +319,8 @@ class PropertiesLauncherTests {
     assertThat(Arrays.asList(this.launcher.getArgs("bar"))).hasToString("[foo, bar]");
   }
 
-  @SuppressWarnings("unchecked")
   @Test
+  @SuppressWarnings("unchecked")
   void testLoadPathCustomizedUsingManifest() throws Exception {
     System.setProperty("loader.home", this.tempDir.getAbsolutePath());
     Manifest manifest = new Manifest();
@@ -379,18 +349,16 @@ class PropertiesLauncherTests {
     loaderPath.mkdir();
     System.setProperty("loader.path", loaderPath.toURI().toURL().toString());
     this.launcher = new PropertiesLauncher();
-    List<Archive> archives = new ArrayList<>();
-    this.launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(archives).hasSize(1);
-    File archiveRoot = ReflectionTestUtils.getField(archives.get(0), "root");
-    assertThat(archiveRoot).isEqualTo(loaderPath);
+    Set<URL> urls = this.launcher.getClassPathUrls();
+    assertThat(urls).hasSize(1);
+    assertThat(urls.iterator().next()).isEqualTo(loaderPath.toURI().toURL());
   }
 
   @Test
     // gh-21575
   void loadResourceFromJarFile() throws Exception {
-    File jarFile = new File(this.tempDir, "app.jar");
-    TestJarCreator.createTestJar(jarFile);
+    File file = new File(this.tempDir, "app.jar");
+    TestJar.create(file);
     System.setProperty("loader.home", this.tempDir.getAbsolutePath());
     System.setProperty("loader.path", "app.jar");
     this.launcher = new PropertiesLauncher();
@@ -399,24 +367,47 @@ class PropertiesLauncherTests {
     }
     catch (Exception ex) {
       // Expected ClassNotFoundException
-      LaunchedURLClassLoader classLoader = (LaunchedURLClassLoader) Thread.currentThread()
-              .getContextClassLoader();
+      LaunchedClassLoader classLoader = (LaunchedClassLoader) Thread.currentThread().getContextClassLoader();
       classLoader.close();
     }
-    URL resource = new URL("jar:" + jarFile.toURI() + "!/nested.jar!/3.dat");
+    URL resource = JarUrl.create(file, "nested.jar", "3.dat");
     byte[] bytes = FileCopyUtils.copyToByteArray(resource.openStream());
     assertThat(bytes).isNotEmpty();
+  }
+
+  @Test
+    // gh-37992
+  void classPathWithoutLoaderPathDefaultsToJarLauncherIncludes() throws Exception {
+    File file = new File(this.tempDir, "test.jar");
+    try (JarOutputStream out = new JarOutputStream(new FileOutputStream(file))) {
+      try (JarFile in = new JarFile(new File("src/test/resources/jars/app.jar"))) {
+        out.putNextEntry(new ZipEntry("APP-INF/"));
+        out.putNextEntry(new ZipEntry("APP-INF/classes/"));
+        out.putNextEntry(new ZipEntry("APP-INF/classes/demo/"));
+        out.putNextEntry(new ZipEntry("APP-INF/classes/demo/Application.class"));
+        try (InputStream classIn = in.getInputStream(in.getEntry("demo/Application.class"))) {
+          classIn.transferTo(out);
+        }
+        out.closeEntry();
+      }
+    }
+    Archive archive = new JarFileArchive(file);
+    System.setProperty("loader.main", "demo.Application");
+    this.launcher = new PropertiesLauncher(archive);
+    this.launcher.launch(new String[0]);
+    waitFor("Hello World");
+
   }
 
   private void waitFor(String value) {
     Awaitility.waitAtMost(Duration.ofSeconds(5)).until(this.output::toString, containsString(value));
   }
 
-  private Condition<Archive> endingWith(String value) {
+  private Condition<URL> endingWith(String value) {
     return new Condition<>() {
 
       @Override
-      public boolean matches(Archive archive) {
+      public boolean matches(URL archive) {
         return archive.toString().endsWith(value);
       }
 

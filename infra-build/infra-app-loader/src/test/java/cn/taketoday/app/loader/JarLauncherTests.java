@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
@@ -26,15 +26,14 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
-import cn.taketoday.app.loader.archive.Archive;
-import cn.taketoday.app.loader.archive.ExplodedArchive;
-import cn.taketoday.app.loader.archive.JarFileArchive;
+import cn.taketoday.app.loader.net.protocol.jar.JarUrl;
+import cn.taketoday.app.loader.zip.AssertFileChannelDataBlocksClosed;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.test.tools.SourceFile;
 import cn.taketoday.core.test.tools.TestCompiler;
@@ -48,19 +47,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Andy Wilkinson
  * @author Madhura Bhave
+ * @author Phillip Webb
  */
+@AssertFileChannelDataBlocksClosed
 class JarLauncherTests extends AbstractExecutableArchiveLauncherTests {
 
   @Test
   void explodedJarHasOnlyBootInfClassesAndContentsOfBootInfLibOnClasspath() throws Exception {
     File explodedRoot = explode(createJarArchive("archive.jar", "APP-INF"));
-    JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot, true));
-    List<Archive> archives = new ArrayList<>();
-    launcher.getClassPathArchivesIterator().forEachRemaining(archives::add);
-    assertThat(getUrls(archives)).containsExactlyInAnyOrder(getExpectedFileUrls(explodedRoot));
-    for (Archive archive : archives) {
-      archive.close();
-    }
+    JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot));
+    Set<URL> urls = launcher.getClassPathUrls();
+    assertThat(urls).containsExactlyInAnyOrder(getExpectedFileUrls(explodedRoot));
   }
 
   @Test
@@ -68,41 +65,33 @@ class JarLauncherTests extends AbstractExecutableArchiveLauncherTests {
     File jarRoot = createJarArchive("archive.jar", "APP-INF");
     try (JarFileArchive archive = new JarFileArchive(jarRoot)) {
       JarLauncher launcher = new JarLauncher(archive);
-      List<Archive> classPathArchives = new ArrayList<>();
-      launcher.getClassPathArchivesIterator().forEachRemaining(classPathArchives::add);
-      assertThat(classPathArchives).hasSize(4);
-      assertThat(getUrls(classPathArchives)).containsOnly(
-              new URL("jar:" + jarRoot.toURI().toURL() + "!/APP-INF/classes!/"),
-              new URL("jar:" + jarRoot.toURI().toURL() + "!/APP-INF/lib/foo.jar!/"),
-              new URL("jar:" + jarRoot.toURI().toURL() + "!/APP-INF/lib/bar.jar!/"),
-              new URL("jar:" + jarRoot.toURI().toURL() + "!/APP-INF/lib/baz.jar!/"));
-      for (Archive classPathArchive : classPathArchives) {
-        classPathArchive.close();
-      }
+      Set<URL> urls = launcher.getClassPathUrls();
+      List<URL> expectedUrls = new ArrayList<>();
+      expectedUrls.add(JarUrl.create(jarRoot, "APP-INF/classes/"));
+      expectedUrls.add(JarUrl.create(jarRoot, "APP-INF/lib/foo.jar"));
+      expectedUrls.add(JarUrl.create(jarRoot, "APP-INF/lib/bar.jar"));
+      expectedUrls.add(JarUrl.create(jarRoot, "APP-INF/lib/baz.jar"));
+      assertThat(urls).containsOnlyOnceElementsOf(expectedUrls);
     }
   }
 
   @Test
   void explodedJarShouldPreserveClasspathOrderWhenIndexPresent() throws Exception {
     File explodedRoot = explode(createJarArchive("archive.jar", "APP-INF", true, Collections.emptyList()));
-    JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot, true));
-    Iterator<Archive> archives = launcher.getClassPathArchivesIterator();
-    URLClassLoader classLoader = (URLClassLoader) launcher.createClassLoader(archives);
-    URL[] urls = classLoader.getURLs();
-    assertThat(urls).containsExactly(getExpectedFileUrls(explodedRoot));
+    JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot));
+    URLClassLoader classLoader = createClassLoader(launcher);
+    assertThat(classLoader.getURLs()).containsExactly(getExpectedFileUrls(explodedRoot));
   }
 
   @Test
   void jarFilesPresentInBootInfLibsAndNotInClasspathIndexShouldBeAddedAfterBootInfClasses() throws Exception {
     ArrayList<String> extraLibs = new ArrayList<>(Arrays.asList("extra-1.jar", "extra-2.jar"));
     File explodedRoot = explode(createJarArchive("archive.jar", "APP-INF", true, extraLibs));
-    JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot, true));
-    Iterator<Archive> archives = launcher.getClassPathArchivesIterator();
-    URLClassLoader classLoader = (URLClassLoader) launcher.createClassLoader(archives);
-    URL[] urls = classLoader.getURLs();
+    JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot));
+    URLClassLoader classLoader = createClassLoader(launcher);
     List<File> expectedFiles = getExpectedFilesWithExtraLibs(explodedRoot);
     URL[] expectedFileUrls = expectedFiles.stream().map(this::toUrl).toArray(URL[]::new);
-    assertThat(urls).containsExactly(expectedFileUrls);
+    assertThat(classLoader.getURLs()).containsExactly(expectedFileUrls);
   }
 
   @Test
@@ -120,19 +109,22 @@ class JarLauncherTests extends AbstractExecutableArchiveLauncherTests {
       target.getParentFile().mkdirs();
       FileCopyUtils.copy(compiled.getClassLoader().getResourceAsStream("explodedsample/ExampleClass.class"),
               new FileOutputStream(target));
-      JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot, true));
-      Iterator<Archive> archives = launcher.getClassPathArchivesIterator();
-      URLClassLoader classLoader = (URLClassLoader) launcher.createClassLoader(archives);
+      JarLauncher launcher = new JarLauncher(new ExplodedArchive(explodedRoot));
+      URLClassLoader classLoader = createClassLoader(launcher);
       Class<?> loaded = classLoader.loadClass("explodedsample.ExampleClass");
       assertThat(loaded.getPackage().getImplementationTitle()).isEqualTo("test");
     }));
   }
 
-  protected final URL[] getExpectedFileUrls(File explodedRoot) {
+  private URLClassLoader createClassLoader(JarLauncher launcher) throws Exception {
+    return (URLClassLoader) launcher.createClassLoader(launcher.getClassPathUrls());
+  }
+
+  private URL[] getExpectedFileUrls(File explodedRoot) {
     return getExpectedFiles(explodedRoot).stream().map(this::toUrl).toArray(URL[]::new);
   }
 
-  protected final List<File> getExpectedFiles(File parent) {
+  private List<File> getExpectedFiles(File parent) {
     List<File> expected = new ArrayList<>();
     expected.add(new File(parent, "APP-INF/classes"));
     expected.add(new File(parent, "APP-INF/lib/foo.jar"));
@@ -141,7 +133,7 @@ class JarLauncherTests extends AbstractExecutableArchiveLauncherTests {
     return expected;
   }
 
-  protected final List<File> getExpectedFilesWithExtraLibs(File parent) {
+  private List<File> getExpectedFilesWithExtraLibs(File parent) {
     List<File> expected = new ArrayList<>();
     expected.add(new File(parent, "APP-INF/classes"));
     expected.add(new File(parent, "APP-INF/lib/extra-1.jar"));

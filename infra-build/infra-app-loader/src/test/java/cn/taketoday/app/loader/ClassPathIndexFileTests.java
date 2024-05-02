@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ClassPathIndexFile}.
@@ -43,23 +42,16 @@ class ClassPathIndexFileTests {
   File temp;
 
   @Test
-  void loadIfPossibleWhenRootIsNotFileReturnsNull() {
-    assertThatIllegalArgumentException()
-            .isThrownBy(() -> ClassPathIndexFile.loadIfPossible(new URL("https://example.com/file"), "test.idx"))
-            .withMessage("URL does not reference a file");
-  }
-
-  @Test
   void loadIfPossibleWhenRootDoesNotExistReturnsNull() throws Exception {
     File root = new File(this.temp, "missing");
-    assertThat(ClassPathIndexFile.loadIfPossible(root.toURI().toURL(), "test.idx")).isNull();
+    assertThat(ClassPathIndexFile.loadIfPossible(root, "test.idx")).isNull();
   }
 
   @Test
   void loadIfPossibleWhenRootIsDirectoryThrowsException() throws Exception {
     File root = new File(this.temp, "directory");
     root.mkdirs();
-    assertThat(ClassPathIndexFile.loadIfPossible(root.toURI().toURL(), "test.idx")).isNull();
+    assertThat(ClassPathIndexFile.loadIfPossible(root, "test.idx")).isNull();
   }
 
   @Test
@@ -98,7 +90,7 @@ class ClassPathIndexFileTests {
 
   private ClassPathIndexFile copyAndLoadTestIndexFile() throws IOException {
     copyTestIndexFile();
-    ClassPathIndexFile indexFile = ClassPathIndexFile.loadIfPossible(this.temp.toURI().toURL(), "test.idx");
+    ClassPathIndexFile indexFile = ClassPathIndexFile.loadIfPossible(this.temp, "test.idx");
     return indexFile;
   }
 

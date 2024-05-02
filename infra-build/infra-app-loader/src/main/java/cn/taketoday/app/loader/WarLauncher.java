@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,10 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
-
-import cn.taketoday.app.loader.archive.Archive;
 
 /**
  * {@link Launcher} for WAR based archives. This launcher for standard WAR archives.
@@ -28,32 +26,33 @@ import cn.taketoday.app.loader.archive.Archive;
  * @author Andy Wilkinson
  * @author Scott Frederick
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @since 4.0
+ * @since 5.0
  */
 public class WarLauncher extends ExecutableArchiveLauncher {
 
-  public WarLauncher() { }
+  public WarLauncher() throws Exception {
+  }
 
-  protected WarLauncher(Archive archive) {
+  protected WarLauncher(Archive archive) throws Exception {
     super(archive);
   }
 
   @Override
-  protected boolean isPostProcessingClassPathArchives() {
-    return false;
+  public boolean isIncludedOnClassPath(Archive.Entry entry) {
+    return isLibraryFileOrClassesDirectory(entry);
   }
 
   @Override
-  public boolean isNestedArchive(Archive.Entry entry) {
-    if (entry.isDirectory()) {
-      return entry.getName().equals("WEB-INF/classes/");
-    }
-    return entry.getName().startsWith("WEB-INF/lib/") || entry.getName().startsWith("WEB-INF/lib-provided/");
-  }
-
-  @Override
-  protected String getArchiveEntryPathPrefix() {
+  protected String getEntryPathPrefix() {
     return "WEB-INF/";
+  }
+
+  static boolean isLibraryFileOrClassesDirectory(Archive.Entry entry) {
+    String name = entry.name();
+    if (entry.isDirectory()) {
+      return name.equals("WEB-INF/classes/");
+    }
+    return name.startsWith("WEB-INF/lib/") || name.startsWith("WEB-INF/lib-provided/");
   }
 
   public static void main(String[] args) throws Exception {

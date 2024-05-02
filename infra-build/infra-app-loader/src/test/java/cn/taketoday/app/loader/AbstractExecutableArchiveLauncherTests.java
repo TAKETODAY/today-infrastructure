@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.app.loader;
@@ -33,9 +30,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -43,7 +38,6 @@ import java.util.jar.Manifest;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 
-import cn.taketoday.app.loader.archive.Archive;
 import cn.taketoday.util.FileCopyUtils;
 
 /**
@@ -53,7 +47,7 @@ import cn.taketoday.util.FileCopyUtils;
  * @author Madhura Bhave
  * @author Scott Frederick
  */
-public abstract class AbstractExecutableArchiveLauncherTests {
+abstract class AbstractExecutableArchiveLauncherTests {
 
   @TempDir
   File tempDir;
@@ -62,13 +56,11 @@ public abstract class AbstractExecutableArchiveLauncherTests {
     return createJarArchive(name, entryPrefix, false, Collections.emptyList());
   }
 
-  @SuppressWarnings("resource")
   protected File createJarArchive(String name, String entryPrefix, boolean indexed, List<String> extraLibs)
           throws IOException {
     return createJarArchive(name, null, entryPrefix, indexed, extraLibs);
   }
 
-  @SuppressWarnings("resource")
   protected File createJarArchive(String name, Manifest manifest, String entryPrefix, boolean indexed,
           List<String> extraLibs) throws IOException {
     File archive = new File(this.tempDir, name);
@@ -131,14 +123,6 @@ public abstract class AbstractExecutableArchiveLauncherTests {
     }
     jarFile.close();
     return exploded;
-  }
-
-  protected Set<URL> getUrls(List<Archive> archives) throws MalformedURLException {
-    Set<URL> urls = new LinkedHashSet<>(archives.size());
-    for (Archive archive : archives) {
-      urls.add(archive.getUrl());
-    }
-    return urls;
   }
 
   protected final URL toUrl(File file) {
