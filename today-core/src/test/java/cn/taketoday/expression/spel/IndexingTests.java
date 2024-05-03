@@ -26,16 +26,21 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.awt.Color;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.math.BigDecimal;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import cn.taketoday.expression.EvaluationContext;
@@ -44,6 +49,8 @@ import cn.taketoday.expression.IndexAccessor;
 import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.expression.spel.standard.SpelExpressionParser;
+import cn.taketoday.expression.spel.support.ReflectiveIndexAccessor;
+import cn.taketoday.expression.spel.support.SimpleEvaluationContext;
 import cn.taketoday.expression.spel.support.StandardEvaluationContext;
 import cn.taketoday.expression.spel.testresources.Person;
 import cn.taketoday.lang.Nullable;
@@ -471,13 +478,15 @@ class IndexingTests {
   @Nested
   class IndexAccessorTests {  // gh-26478
 
+    private final StandardEvaluationContext context = new StandardEvaluationContext();
+    private final SpelExpressionParser parser = new SpelExpressionParser();
+
     @Test
     void addingAndRemovingIndexAccessors() {
       ObjectMapper objectMapper = new ObjectMapper();
       IndexAccessor accessor1 = new JacksonArrayNodeIndexAccessor(objectMapper);
       IndexAccessor accessor2 = new JacksonArrayNodeIndexAccessor(objectMapper);
 
-      StandardEvaluationContext context = new StandardEvaluationContext();
       List<IndexAccessor> indexAccessors = context.getIndexAccessors();
       assertThat(indexAccessors).isEmpty();
 
@@ -498,10 +507,8 @@ class IndexingTests {
 
     @Test
     void noSuitableIndexAccessorResultsInException() {
-      StandardEvaluationContext context = new StandardEvaluationContext();
       assertThat(context.getIndexAccessors()).isEmpty();
 
-      SpelExpressionParser parser = new SpelExpressionParser();
       Expression expr = parser.parseExpression("[0]");
       assertThatExceptionOfType(SpelEvaluationException.class)
               .isThrownBy(() -> expr.getValue(context, this))
@@ -511,7 +518,6 @@ class IndexingTests {
 
     @Test
     void canReadThrowsException() throws Exception {
-      StandardEvaluationContext context = new StandardEvaluationContext();
       RuntimeException exception = new RuntimeException("Boom!");
 
       IndexAccessor mock = mock();
@@ -519,7 +525,6 @@ class IndexingTests {
       given(mock.canRead(any(), eq(this), any())).willThrow(exception);
       context.addIndexAccessor(mock);
 
-      SpelExpressionParser parser = new SpelExpressionParser();
       Expression expr = parser.parseExpression("[0]");
       assertThatExceptionOfType(SpelEvaluationException.class)
               .isThrownBy(() -> expr.getValue(context, this))
@@ -535,7 +540,6 @@ class IndexingTests {
 
     @Test
     void readThrowsException() throws Exception {
-      StandardEvaluationContext context = new StandardEvaluationContext();
       RuntimeException exception = new RuntimeException("Boom!");
 
       IndexAccessor mock = mock();
@@ -544,7 +548,6 @@ class IndexingTests {
       given(mock.read(any(), eq(this), any())).willThrow(exception);
       context.addIndexAccessor(mock);
 
-      SpelExpressionParser parser = new SpelExpressionParser();
       Expression expr = parser.parseExpression("[0]");
       assertThatExceptionOfType(SpelEvaluationException.class)
               .isThrownBy(() -> expr.getValue(context, this))
@@ -561,7 +564,6 @@ class IndexingTests {
 
     @Test
     void canWriteThrowsException() throws Exception {
-      StandardEvaluationContext context = new StandardEvaluationContext();
       RuntimeException exception = new RuntimeException("Boom!");
 
       IndexAccessor mock = mock();
@@ -569,7 +571,6 @@ class IndexingTests {
       given(mock.canWrite(eq(context), eq(this), eq(0))).willThrow(exception);
       context.addIndexAccessor(mock);
 
-      SpelExpressionParser parser = new SpelExpressionParser();
       Expression expr = parser.parseExpression("[0]");
       assertThatExceptionOfType(SpelEvaluationException.class)
               .isThrownBy(() -> expr.setValue(context, this, 999))
@@ -585,7 +586,6 @@ class IndexingTests {
 
     @Test
     void writeThrowsException() throws Exception {
-      StandardEvaluationContext context = new StandardEvaluationContext();
       RuntimeException exception = new RuntimeException("Boom!");
 
       IndexAccessor mock = mock();
@@ -594,7 +594,6 @@ class IndexingTests {
       doThrow(exception).when(mock).write(any(), any(), any(), any());
       context.addIndexAccessor(mock);
 
-      SpelExpressionParser parser = new SpelExpressionParser();
       Expression expr = parser.parseExpression("[0]");
       assertThatExceptionOfType(SpelEvaluationException.class)
               .isThrownBy(() -> expr.setValue(context, this, 999))
@@ -611,8 +610,6 @@ class IndexingTests {
 
     @Test
     void readAndWriteIndex() {
-      StandardEvaluationContext context = new StandardEvaluationContext();
-
       ObjectMapper objectMapper = new ObjectMapper();
       context.addIndexAccessor(new JacksonArrayNodeIndexAccessor(objectMapper));
 
@@ -621,7 +618,6 @@ class IndexingTests {
       ArrayNode arrayNode = objectMapper.createArrayNode();
       arrayNode.addAll(List.of(node0, node1));
 
-      SpelExpressionParser parser = new SpelExpressionParser();
       Expression expr = parser.parseExpression("[0]");
       assertThat(expr.getValue(context, arrayNode)).isSameAs(node0);
 
@@ -644,6 +640,122 @@ class IndexingTests {
       assertThat(expr.getValue(context, arrayNode)).isNull();
     }
 
+    @Test
+    void readAndWriteIndexWithSimpleEvaluationContext() {
+      ObjectMapper objectMapper = new ObjectMapper();
+      SimpleEvaluationContext context = SimpleEvaluationContext.forReadWriteDataBinding()
+              .withIndexAccessors(new JacksonArrayNodeIndexAccessor(objectMapper))
+              .build();
+
+      TextNode node0 = new TextNode("node0");
+      TextNode node1 = new TextNode("node1");
+      ArrayNode arrayNode = objectMapper.createArrayNode();
+      arrayNode.addAll(List.of(node0, node1));
+
+      Expression expr = parser.parseExpression("[0]");
+      assertThat(expr.getValue(context, arrayNode)).isSameAs(node0);
+
+      TextNode nodeX = new TextNode("nodeX");
+      expr.setValue(context, arrayNode, nodeX);
+      // We use isEqualTo() instead of isSameAs(), since ObjectMapper.convertValue()
+      // converts the supplied TextNode to an equivalent JsonNode.
+      assertThat(expr.getValue(context, arrayNode)).isEqualTo(nodeX);
+
+      expr = parser.parseExpression("[1]");
+      assertThat(expr.getValue(context, arrayNode)).isSameAs(node1);
+    }
+
+    @Test
+      // gh-32706
+    void readIndexWithStringIndexType() {
+      BirdNameToColorMappings birdNameMappings = new BirdNameToColorMappings();
+
+      // Without a registered BirdNameToColorMappingsIndexAccessor, we should
+      // be able to index into an object via a property name.
+      Expression propertyExpression = parser.parseExpression("['property']");
+      assertThat(propertyExpression.getValue(context, birdNameMappings)).isEqualTo("enigma");
+
+      context.addIndexAccessor(new BirdNameToColorMappingsIndexAccessor());
+
+      Expression expression = parser.parseExpression("['cardinal']");
+      assertThat(expression.getValue(context, birdNameMappings)).isEqualTo(Color.RED);
+
+      // With a registered BirdNameToColorMappingsIndexAccessor, an attempt
+      // to index into an object via a property name should fail.
+      assertThatExceptionOfType(SpelEvaluationException.class)
+              .isThrownBy(() -> propertyExpression.getValue(context, birdNameMappings))
+              .withMessageEndingWith("A problem occurred while attempting to read index '%s' in '%s'",
+                      "property", BirdNameToColorMappings.class.getName())
+              .havingCause().withMessage("unknown bird: property");
+    }
+
+    @Test
+    void readIndexWithCollectionTargetType() {
+      context.addIndexAccessor(new ColorCollectionIndexAccessor());
+
+      Expression expression = parser.parseExpression("[0]");
+
+      // List.of() relies on built-in list support.
+      assertThat(expression.getValue(context, List.of(Color.RED))).isEqualTo(Color.RED);
+
+      ColorCollection colorCollection = new ColorCollection();
+
+      // Preconditions for this use case.
+      assertThat(colorCollection).isInstanceOf(Collection.class);
+      assertThat(colorCollection).isNotInstanceOf(List.class);
+
+      // ColorCollection relies on custom ColorCollectionIndexAccessor.
+      assertThat(expression.getValue(context, colorCollection)).isEqualTo(Color.RED);
+    }
+
+    static class BirdNameToColorMappings {
+
+      public final String property = "enigma";
+
+      public Color get(String name) {
+        return switch (name) {
+          case "cardinal" -> Color.RED;
+          case "blue jay" -> Color.BLUE;
+          default -> throw new NoSuchElementException("unknown bird: " + name);
+        };
+      }
+    }
+
+    static class BirdNameToColorMappingsIndexAccessor extends ReflectiveIndexAccessor {
+
+      BirdNameToColorMappingsIndexAccessor() {
+        super(BirdNameToColorMappings.class, String.class, "get");
+      }
+    }
+
+    static class ColorCollection extends AbstractCollection<Color> {
+
+      public Color get(int index) {
+        return switch (index) {
+          case 0 -> Color.RED;
+          case 1 -> Color.BLUE;
+          default -> throw new NoSuchElementException("No color at index " + index);
+        };
+      }
+
+      @Override
+      public Iterator<Color> iterator() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public int size() {
+        throw new UnsupportedOperationException();
+      }
+    }
+
+    static class ColorCollectionIndexAccessor extends ReflectiveIndexAccessor {
+
+      ColorCollectionIndexAccessor() {
+        super(ColorCollection.class, int.class, "get");
+      }
+    }
+
     /**
      * {@link IndexAccessor} that knows how to read and write indexes in a
      * Jackson {@link ArrayNode}.
@@ -658,7 +770,7 @@ class IndexingTests {
 
       @Override
       public Class<?>[] getSpecificTargetClasses() {
-        return new Class[] { ArrayNode.class };
+        return new Class<?>[] { ArrayNode.class };
       }
 
       @Override
