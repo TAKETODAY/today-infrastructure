@@ -30,6 +30,7 @@ import org.reactivestreams.Publisher;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -137,13 +138,16 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
       forceUseOfBigDecimal = true;
     }
 
+    boolean tokenizeArrays = !elementType.isArray()
+            && !Collection.class.isAssignableFrom(elementType.resolve(Object.class));
+
     Flux<DataBuffer> processed = processInput(input, elementType, mimeType, hints);
-    Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(
-            processed, mapper.getFactory(), mapper, true, forceUseOfBigDecimal, getMaxInMemorySize());
+    Flux<TokenBuffer> tokens = Jackson2Tokenizer.tokenize(processed, mapper.getFactory(), mapper,
+            tokenizeArrays, forceUseOfBigDecimal, getMaxInMemorySize());
 
     return Flux.deferContextual(contextView -> {
       Map<String, Object> hintsToUse = contextView.isEmpty() ? hints :
-                                       Hints.merge(hints, ContextView.class.getName(), contextView);
+              Hints.merge(hints, ContextView.class.getName(), contextView);
 
       ObjectReader reader = createObjectReader(mapper, elementType, hintsToUse);
 
@@ -186,7 +190,7 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
     return Mono.deferContextual(contextView -> {
       Map<String, Object> hintsToUse =
               contextView.isEmpty() ? hints :
-              Hints.merge(hints, ContextView.class.getName(), contextView);
+                      Hints.merge(hints, ContextView.class.getName(), contextView);
 
       return DataBufferUtils.join(input, this.maxInMemorySize)
               .flatMap(dataBuffer -> Mono.justOrEmpty(decode(dataBuffer, elementType, mimeType, hintsToUse)));
@@ -225,8 +229,8 @@ public abstract class AbstractJackson2Decoder extends Jackson2CodecSupport imple
     Class<?> jsonView = (hints != null ? (Class<?>) hints.get(Jackson2CodecSupport.JSON_VIEW_HINT) : null);
 
     ObjectReader objectReader = jsonView != null ?
-                                mapper.readerWithView(jsonView).forType(javaType) :
-                                mapper.readerFor(javaType);
+            mapper.readerWithView(jsonView).forType(javaType) :
+            mapper.readerFor(javaType);
 
     return customizeReader(objectReader, elementType, hints);
   }

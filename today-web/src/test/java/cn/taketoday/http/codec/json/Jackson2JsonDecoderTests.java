@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec.json;
@@ -47,6 +47,7 @@ import cn.taketoday.http.codec.Pojo;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView1;
 import cn.taketoday.http.codec.json.JacksonViewBean.MyJacksonView3;
 import cn.taketoday.util.MimeType;
+import cn.taketoday.util.MimeTypeUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -171,6 +172,23 @@ public class Jackson2JsonDecoderTests extends AbstractDecoderTests<Jackson2JsonD
             .expectNext(Arrays.asList(new Pojo("f1", "b1"), new Pojo("f2", "b2")))
             .expectComplete()
             .verify(), null, null);
+  }
+
+  @Test
+  protected void decodeToFluxWithListElements() {
+    Flux<DataBuffer> input = Flux.concat(
+            stringBuffer("[{\"bar\":\"b1\",\"foo\":\"f1\"},{\"bar\":\"b2\",\"foo\":\"f2\"}]"),
+            stringBuffer("[{\"bar\":\"b3\",\"foo\":\"f3\"},{\"bar\":\"b4\",\"foo\":\"f4\"}]"));
+
+    ResolvableType elementType = ResolvableType.forClassWithGenerics(List.class, Pojo.class);
+
+    testDecodeAll(input, elementType,
+            step -> step
+                    .expectNext(List.of(pojo1, pojo2))
+                    .expectNext(List.of(new Pojo("f3", "b3"), new Pojo("f4", "b4")))
+                    .verifyComplete(),
+            MimeTypeUtils.APPLICATION_JSON,
+            Collections.emptyMap());
   }
 
   @Test
