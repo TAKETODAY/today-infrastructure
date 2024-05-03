@@ -17,6 +17,11 @@
 
 package cn.taketoday.http.client.reactive;
 
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import cn.taketoday.core.io.buffer.DataBuffer;
@@ -54,26 +59,12 @@ public abstract class AbstractClientHttpResponse implements ClientHttpResponse {
     this.statusCode = statusCode;
     this.headers = headers;
     this.cookies = cookies;
-    this.body = singleSubscription(body);
-  }
-
-  private static Flux<DataBuffer> singleSubscription(Flux<DataBuffer> body) {
-    AtomicBoolean subscribed = new AtomicBoolean();
-    return body.doOnSubscribe(s -> {
-      if (!subscribed.compareAndSet(false, true)) {
-        throw new IllegalStateException("The client response body can only be consumed once");
-      }
-    });
+    this.body = Flux.from(new SingleSubscriberPublisher<>(body));
   }
 
   @Override
   public HttpStatusCode getStatusCode() {
     return this.statusCode;
-  }
-
-  @Override
-  public int getRawStatusCode() {
-    return statusCode.value();
   }
 
   @Override
@@ -89,5 +80,41 @@ public abstract class AbstractClientHttpResponse implements ClientHttpResponse {
   @Override
   public Flux<DataBuffer> getBody() {
     return this.body;
+  }
+
+  private static final class SingleSubscriberPublisher<T> implements Publisher<T> {
+
+    private static final Subscription NO_OP_SUBSCRIPTION = new Subscription() {
+
+      @Override
+      public void request(long l) {
+
+      }
+
+      @Override
+      public void cancel() {
+
+      }
+    };
+
+    private final Publisher<T> delegate;
+
+    private final AtomicBoolean subscribed = new AtomicBoolean();
+
+    public SingleSubscriberPublisher(Publisher<T> delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void subscribe(Subscriber<? super T> subscriber) {
+      Objects.requireNonNull(subscriber, "Subscriber is required");
+      if (this.subscribed.compareAndSet(false, true)) {
+        this.delegate.subscribe(subscriber);
+      }
+      else {
+        subscriber.onSubscribe(NO_OP_SUBSCRIPTION);
+        subscriber.onError(new IllegalStateException("The client response body can only be consumed once"));
+      }
+    }
   }
 }
