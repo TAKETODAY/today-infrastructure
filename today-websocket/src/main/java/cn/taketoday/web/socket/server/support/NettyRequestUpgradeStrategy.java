@@ -32,6 +32,7 @@ import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 
@@ -48,12 +49,31 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   @Nullable
   private final Decorator<WebSocketSession> sessionDecorator;
 
+  private WebSocketDecoderConfig decoderConfig = WebSocketDecoderConfig.newBuilder()
+          .maxFramePayloadLength(65536)
+          .expectMaskedFrames(true)
+          .allowMaskMismatch(false)
+          .allowExtensions(false)
+          .closeOnProtocolViolation(true)
+          .withUTF8Validator(true)
+          .build();
+
   public NettyRequestUpgradeStrategy(@Nullable Decorator<WebSocketSession> sessionDecorator) {
     this.sessionDecorator = sessionDecorator;
   }
 
+  /**
+   * set Frames decoder configuration.
+   *
+   * @param decoderConfig Frames decoder configuration.
+   */
+  public void setDecoderConfig(WebSocketDecoderConfig decoderConfig) {
+    this.decoderConfig = decoderConfig;
+  }
+
   protected WebSocketSession createSession(NettyRequestContext context, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(), context.config.secure, context.channelContext.channel());
+    WebSocketSession session = new NettyWebSocketSession(context.getHeaders(), context.config.secure,
+            context.channelContext.channel());
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);
@@ -86,7 +106,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     }
 
     FullHttpRequest request = nettyContext.nativeRequest();
-    WebSocketServerHandshaker handShaker = createHandshakeFactory(request).newHandshaker(request);
+    WebSocketServerHandshaker handShaker = createHandshakeFactory(request, selectedProtocol, selectedExtensions).newHandshaker(request);
     Channel channel = nettyContext.channelContext.channel();
     if (handShaker == null) {
       WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(channel);
@@ -100,8 +120,9 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
     return session;
   }
 
-  protected WebSocketServerHandshakerFactory createHandshakeFactory(FullHttpRequest request) {
-    return new WebSocketServerHandshakerFactory(request.uri(), null, true);
+  protected WebSocketServerHandshakerFactory createHandshakeFactory(FullHttpRequest request,
+          @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions) {
+    return new WebSocketServerHandshakerFactory(request.uri(), selectedProtocol, decoderConfig);
   }
 
 }
