@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel;
 
+import cn.taketoday.bytecode.MethodVisitor;
+import cn.taketoday.bytecode.core.CodeFlow;
 import cn.taketoday.expression.EvaluationException;
 import cn.taketoday.expression.TypedValue;
 import cn.taketoday.lang.Nullable;
@@ -28,6 +27,7 @@ import cn.taketoday.lang.Nullable;
  * Represents a node in the AST for a parsed expression.
  *
  * @author Andy Clement
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface SpelNode {
@@ -118,4 +118,41 @@ public interface SpelNode {
    */
   int getEndPosition();
 
+  /**
+   * Determine if this node can be compiled to bytecode.
+   * <p>The reasoning in each node may be different but will typically involve
+   * checking whether the exit type descriptor of the node is known and any
+   * relevant child nodes are compilable.
+   * <p>The default implementation returns {@code false}.
+   * <p>If you override this method, you must also override
+   * {@link #generateCode(MethodVisitor, CodeFlow)}.
+   *
+   * @return {@code true} if this node can be compiled to bytecode
+   * @see #generateCode(MethodVisitor, CodeFlow)
+   * @since 5.0
+   */
+  default boolean isCompilable() {
+    return false;
+  }
+
+  /**
+   * Generate the bytecode for this node into the supplied {@link MethodVisitor}.
+   * <p>Context information about the current expression being compiled is
+   * available in the supplied {@link CodeFlow} object &mdash; for example,
+   * information about the type of the object currently on the stack.
+   * <p>This method will not be invoked unless {@link #isCompilable()} returns
+   * {@code true}.
+   * <p>The default implementation throws an {@link IllegalStateException}
+   * since {@link #isCompilable()} returns {@code false} by default.
+   * <p>If you override this method, you must also override {@link #isCompilable()}.
+   *
+   * @param methodVisitor the ASM {@code MethodVisitor} into which code should
+   * be generated
+   * @param codeFlow a context object with information about what is on the stack
+   * @see #isCompilable()
+   * @since 5.0
+   */
+  default void generateCode(MethodVisitor methodVisitor, CodeFlow codeFlow) {
+    throw new IllegalStateException(getClass().getName() + " does not support bytecode generation");
+  }
 }
