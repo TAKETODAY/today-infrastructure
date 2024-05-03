@@ -18,6 +18,7 @@
 package cn.taketoday.context.support;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -425,16 +426,35 @@ public class GenericApplicationContext extends AbstractApplicationContext implem
             PostProcessorRegistrationDelegate.loadBeanPostProcessors(
                     beanFactory, SmartInstantiationAwareBeanPostProcessor.class);
 
-    for (String beanName : beanFactory.getBeanDefinitionNames()) {
-      Class<?> beanType = beanFactory.getType(beanName);
-      if (beanType != null) {
-        ClassHintUtils.registerProxyIfNecessary(beanType, runtimeHints);
-        for (SmartInstantiationAwareBeanPostProcessor bpp : bpps) {
-          Class<?> newBeanType = bpp.determineBeanType(beanType, beanName);
-          if (newBeanType != beanType) {
-            ClassHintUtils.registerProxyIfNecessary(newBeanType, runtimeHints);
-            beanType = newBeanType;
-          }
+    ArrayList<String> lazyBeans = new ArrayList<>();
+
+    // First round: non-lazy singleton beans in definition order,
+    // matching preInstantiateSingletons.
+    for (String beanName : this.beanFactory.getBeanDefinitionNames()) {
+      BeanDefinition bd = getBeanDefinition(beanName);
+      if (bd.isSingleton() && !bd.isLazyInit()) {
+        preDetermineBeanType(beanName, bpps, runtimeHints);
+      }
+      else {
+        lazyBeans.add(beanName);
+      }
+    }
+
+    // Second round: lazy singleton beans and scoped beans.
+    for (String beanName : lazyBeans) {
+      preDetermineBeanType(beanName, bpps, runtimeHints);
+    }
+  }
+
+  private void preDetermineBeanType(String beanName, List<SmartInstantiationAwareBeanPostProcessor> bpps, RuntimeHints runtimeHints) {
+    Class<?> beanType = this.beanFactory.getType(beanName);
+    if (beanType != null) {
+      ClassHintUtils.registerProxyIfNecessary(beanType, runtimeHints);
+      for (SmartInstantiationAwareBeanPostProcessor bpp : bpps) {
+        Class<?> newBeanType = bpp.determineBeanType(beanType, beanName);
+        if (newBeanType != beanType) {
+          ClassHintUtils.registerProxyIfNecessary(newBeanType, runtimeHints);
+          beanType = newBeanType;
         }
       }
     }
