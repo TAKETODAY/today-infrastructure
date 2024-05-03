@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -236,30 +236,31 @@ public class ConcurrentWebSocketSessionDecorator extends WebSocketSessionDecorat
 
   @Override
   public void close(CloseStatus status) throws IOException {
-    this.closeLock.lock();
-    try {
-      if (this.closeInProgress) {
-        return;
-      }
-      if (!CloseStatus.SESSION_NOT_RELIABLE.equals(status)) {
-        try {
-          checkSessionLimits();
+    if (closeLock.tryLock()) {
+      try {
+        if (this.closeInProgress) {
+          return;
         }
-        catch (SessionLimitExceededException ex) {
-          // Ignore
-        }
-        if (this.limitExceeded) {
-          if (logger.isDebugEnabled()) {
-            logger.debug("Changing close status {} to SESSION_NOT_RELIABLE.", status);
+        if (!CloseStatus.SESSION_NOT_RELIABLE.equals(status)) {
+          try {
+            checkSessionLimits();
           }
-          status = CloseStatus.SESSION_NOT_RELIABLE;
+          catch (SessionLimitExceededException ex) {
+            // Ignore
+          }
+          if (this.limitExceeded) {
+            if (logger.isDebugEnabled()) {
+              logger.debug("Changing close status {} to SESSION_NOT_RELIABLE.", status);
+            }
+            status = CloseStatus.SESSION_NOT_RELIABLE;
+          }
         }
+        this.closeInProgress = true;
+        super.close(status);
       }
-      this.closeInProgress = true;
-      super.close(status);
-    }
-    finally {
-      this.closeLock.unlock();
+      finally {
+        this.closeLock.unlock();
+      }
     }
   }
 
