@@ -233,12 +233,12 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
 
   /**
    * Generate code that handles building the argument values for the specified method.
-   * This method will take account of whether the invoked method is a varargs method
+   * <p>This method will take into account whether the invoked method is a varargs method,
    * and if it is then the argument values will be appropriately packaged into an array.
    *
    * @param mv the method visitor where code should be generated
    * @param cf the current codeflow
-   * @param member the method or constructor for which arguments are being setup
+   * @param member the method or constructor for which arguments are being set up
    * @param arguments the expression nodes for the expression supplied argument values
    */
   protected static void generateCodeForArguments(MethodVisitor mv, CodeFlow cf, Member member, SpelNodeImpl[] arguments) {
@@ -261,7 +261,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
 
       // Fulfill all the parameter requirements except the last one
       for (p = 0; p < paramDescriptors.length - 1; p++) {
-        generateCodeForArgument(mv, cf, arguments[p], paramDescriptors[p]);
+        cf.generateCodeForArgument(mv, arguments[p], paramDescriptors[p]);
       }
 
       SpelNodeImpl lastChild = (childCount == 0 ? null : arguments[childCount - 1]);
@@ -269,7 +269,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
       // Determine if the final passed argument is already suitably packaged in array
       // form to be passed to the method
       if (lastChild != null && arrayType.equals(lastChild.getExitDescriptor())) {
-        generateCodeForArgument(mv, cf, lastChild, paramDescriptors[p]);
+        cf.generateCodeForArgument(mv, lastChild, paramDescriptors[p]);
       }
       else {
         arrayType = arrayType.substring(1); // trim the leading '[', may leave other '['
@@ -281,7 +281,7 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
           SpelNodeImpl child = arguments[p];
           mv.visitInsn(DUP);
           CodeFlow.insertOptimalLoad(mv, arrayindex++);
-          generateCodeForArgument(mv, cf, child, arrayType);
+          cf.generateCodeForArgument(mv, child, arrayType);
           CodeFlow.insertArrayStore(mv, arrayType);
           p++;
         }
@@ -289,33 +289,9 @@ public abstract class SpelNodeImpl implements SpelNode, Opcodes {
     }
     else {
       for (int i = 0; i < paramDescriptors.length; i++) {
-        generateCodeForArgument(mv, cf, arguments[i], paramDescriptors[i]);
+        cf.generateCodeForArgument(mv, arguments[i], paramDescriptors[i]);
       }
     }
-  }
-
-  /**
-   * Ask an argument to generate its bytecode and then follow it up
-   * with any boxing/unboxing/checkcasting to ensure it matches the expected parameter descriptor.
-   */
-  protected static void generateCodeForArgument(MethodVisitor mv, CodeFlow cf, SpelNodeImpl argument, String paramDesc) {
-    cf.enterCompilationScope();
-    argument.generateCode(mv, cf);
-    String lastDesc = cf.lastDescriptor();
-    Assert.state(lastDesc != null, "No last descriptor");
-    boolean primitiveOnStack = CodeFlow.isPrimitive(lastDesc);
-    // Check if need to box it for the method reference?
-    if (primitiveOnStack && paramDesc.charAt(0) == 'L') {
-      CodeFlow.insertBoxIfNecessary(mv, lastDesc.charAt(0));
-    }
-    else if (paramDesc.length() == 1 && !primitiveOnStack) {
-      CodeFlow.insertUnboxInsns(mv, paramDesc.charAt(0), lastDesc);
-    }
-    else if (!paramDesc.equals(lastDesc)) {
-      // This would be unnecessary in the case of subtyping (e.g. method takes Number but Integer passed in)
-      CodeFlow.insertCheckCast(mv, paramDesc);
-    }
-    cf.exitCompilationScope();
   }
 
 }
