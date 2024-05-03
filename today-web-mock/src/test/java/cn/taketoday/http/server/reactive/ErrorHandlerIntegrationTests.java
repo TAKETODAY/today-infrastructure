@@ -24,7 +24,7 @@ import java.net.URI;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.ResponseEntity;
-import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.web.client.NoOpResponseErrorHandler;
 import cn.taketoday.web.client.ResponseErrorHandler;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
@@ -38,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @Execution(ExecutionMode.SAME_THREAD)
 class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
+
+  private static final ResponseErrorHandler NO_OP_ERROR_HANDLER = new NoOpResponseErrorHandler();
 
   private final ErrorHandler handler = new ErrorHandler();
 
@@ -53,7 +55,7 @@ class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
     RestTemplate restTemplate = new RestTemplate();
     restTemplate.setErrorHandler(NO_OP_ERROR_HANDLER);
 
-    URI url = new URI("http://localhost:" + port + "/response-body-error");
+    URI url = URI.create("http://localhost:" + port + "/response-body-error");
     ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -66,7 +68,7 @@ class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
     RestTemplate restTemplate = new RestTemplate();
     restTemplate.setErrorHandler(NO_OP_ERROR_HANDLER);
 
-    URI url = new URI("http://localhost:" + port + "/handling-error");
+    URI url = URI.create("http://localhost:" + port + "/handling-error");
     ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,7 +81,7 @@ class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
     RestTemplate restTemplate = new RestTemplate();
     restTemplate.setErrorHandler(NO_OP_ERROR_HANDLER);
 
-    URI url = new URI("http://localhost:" + port + "//");
+    URI url = URI.create("http://localhost:" + port + "//");
     ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
     HttpStatus expectedStatus = HttpStatus.OK;
     assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
@@ -102,17 +104,5 @@ class ErrorHandlerIntegrationTests extends AbstractHttpHandlerIntegrationTests {
       }
     }
   }
-
-  private static final ResponseErrorHandler NO_OP_ERROR_HANDLER = new ResponseErrorHandler() {
-
-    @Override
-    public boolean hasError(ClientHttpResponse response) {
-      return false;
-    }
-
-    @Override
-    public void handleError(ClientHttpResponse response) {
-    }
-  };
 
 }

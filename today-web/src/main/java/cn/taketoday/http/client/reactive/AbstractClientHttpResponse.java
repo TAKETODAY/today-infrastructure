@@ -68,6 +68,11 @@ public abstract class AbstractClientHttpResponse implements ClientHttpResponse {
   }
 
   @Override
+  public int getRawStatusCode() {
+    return statusCode.value();
+  }
+
+  @Override
   public HttpHeaders getHeaders() {
     return this.headers;
   }
