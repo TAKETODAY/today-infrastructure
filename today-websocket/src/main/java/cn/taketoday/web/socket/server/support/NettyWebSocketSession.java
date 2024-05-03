@@ -48,7 +48,7 @@ public class NettyWebSocketSession extends WebSocketSession {
 
   private final Channel channel;
 
-  public NettyWebSocketSession(HttpHeaders handshakeHeaders, boolean secure, Channel channel) {
+  protected NettyWebSocketSession(HttpHeaders handshakeHeaders, boolean secure, Channel channel) {
     super(handshakeHeaders);
     this.secure = secure;
     this.channel = channel;
@@ -93,36 +93,6 @@ public class NettyWebSocketSession extends WebSocketSession {
   @Override
   public boolean isOpen() {
     return channel.isOpen();
-  }
-
-  @Override
-  public long getMaxIdleTimeout() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMaxIdleTimeout(long timeout) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMaxBinaryMessageBufferSize(int max) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int getMaxBinaryMessageBufferSize() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setMaxTextMessageBufferSize(int max) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public int getMaxTextMessageBufferSize() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -175,50 +175,6 @@ public abstract class WebSocketSession extends AttributeAccessorSupport implemen
   public abstract boolean isOpen();
 
   /**
-   * Get the idle timeout for this session.
-   *
-   * @return The current idle timeout for this session in milliseconds. Zero
-   * or negative values indicate an infinite timeout.
-   */
-  public abstract long getMaxIdleTimeout();
-
-  /**
-   * Set the idle timeout for this session.
-   *
-   * @param timeout The new idle timeout for this session in milliseconds.
-   * Zero or negative values indicate an infinite timeout.
-   */
-  public abstract void setMaxIdleTimeout(long timeout);
-
-  /**
-   * Set the current maximum buffer size for binary messages.
-   *
-   * @param max The new maximum buffer size in bytes
-   */
-  public abstract void setMaxBinaryMessageBufferSize(int max);
-
-  /**
-   * Get the current maximum buffer size for binary messages.
-   *
-   * @return The current maximum buffer size in bytes
-   */
-  public abstract int getMaxBinaryMessageBufferSize();
-
-  /**
-   * Set the maximum buffer size for text messages.
-   *
-   * @param max The new maximum buffer size in characters.
-   */
-  public abstract void setMaxTextMessageBufferSize(int max);
-
-  /**
-   * Get the maximum buffer size for text messages.
-   *
-   * @return The maximum buffer size in characters.
-   */
-  public abstract int getMaxTextMessageBufferSize();
-
-  /**
    * Close the current conversation with a normal status code and no reason phrase.
    *
    * @throws IOException if there was a connection error closing the connection.
