@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.aop.aspectj.autoproxy;
@@ -32,8 +29,11 @@ import cn.taketoday.aop.Advisor;
 import cn.taketoday.aop.aspectj.AbstractAspectJAdvice;
 import cn.taketoday.aop.aspectj.AspectJPointcutAdvisor;
 import cn.taketoday.aop.aspectj.AspectJProxyUtils;
+import cn.taketoday.aop.aspectj.ShadowMatchUtils;
 import cn.taketoday.aop.framework.autoproxy.AbstractAdvisorAutoProxyCreator;
 import cn.taketoday.aop.interceptor.ExposeInvocationInterceptor;
+import cn.taketoday.beans.factory.DisposableBean;
+import cn.taketoday.beans.factory.SmartInitializingSingleton;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.util.ClassUtils;
 
@@ -45,10 +45,12 @@ import cn.taketoday.util.ClassUtils;
  * @author Adrian Colyer
  * @author Juergen Hoeller
  * @author Ramnivas Laddad
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @SuppressWarnings("serial")
-public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator {
+public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProxyCreator
+        implements SmartInitializingSingleton, DisposableBean {
 
   private static final Comparator<Advisor> DEFAULT_PRECEDENCE_COMPARATOR = new AspectJPrecedenceComparator();
 
@@ -109,6 +111,16 @@ public class AspectJAwareAdvisorAutoProxyCreator extends AbstractAdvisorAutoProx
       }
     }
     return super.shouldSkip(beanClass, beanName);
+  }
+
+  @Override
+  public void afterSingletonsInstantiated() {
+    ShadowMatchUtils.clearCache();
+  }
+
+  @Override
+  public void destroy() throws Exception {
+    ShadowMatchUtils.clearCache();
   }
 
   /**
