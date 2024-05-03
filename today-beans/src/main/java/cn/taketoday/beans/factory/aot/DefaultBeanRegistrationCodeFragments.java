@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 package cn.taketoday.beans.factory.aot;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.function.Predicate;
@@ -31,10 +30,12 @@ import cn.taketoday.aot.generate.MethodReference.ArgumentCodeGenerator;
 import cn.taketoday.aot.generate.ValueCodeGenerator;
 import cn.taketoday.aot.generate.ValueCodeGenerator.Delegate;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.aot.AotServices.Loader;
 import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanDefinitionHolder;
 import cn.taketoday.beans.factory.support.InstanceSupplier;
 import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.beans.factory.support.RegisteredBean.InstantiationDescriptor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.javapoet.ClassName;
@@ -63,7 +64,7 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
 
   private final BeanDefinitionMethodGeneratorFactory beanDefinitionMethodGeneratorFactory;
 
-  private final Supplier<Executable> constructorOrFactoryMethod;
+  private final Supplier<InstantiationDescriptor> instantiationDescriptor;
 
   DefaultBeanRegistrationCodeFragments(BeanRegistrationsCode beanRegistrationsCode,
           RegisteredBean registeredBean, BeanDefinitionMethodGeneratorFactory beanDefinitionMethodGeneratorFactory) {
@@ -71,7 +72,7 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
     this.registeredBean = registeredBean;
     this.beanRegistrationsCode = beanRegistrationsCode;
     this.beanDefinitionMethodGeneratorFactory = beanDefinitionMethodGeneratorFactory;
-    this.constructorOrFactoryMethod = SingletonSupplier.from(registeredBean::resolveConstructorOrFactoryMethod);
+    this.instantiationDescriptor = SingletonSupplier.from(registeredBean::resolveInstantiationDescriptor);
   }
 
   @Override
@@ -80,23 +81,23 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
       throw new IllegalStateException("Default code generation is not supported for bean definitions "
               + "declaring an instance supplier callback: " + registeredBean.getMergedBeanDefinition());
     }
-    Class<?> target = extractDeclaringClass(registeredBean.getBeanType(), this.constructorOrFactoryMethod.get());
+    Class<?> target = extractDeclaringClass(registeredBean, this.instantiationDescriptor.get());
     while (target.getName().startsWith("java.") && registeredBean.isInnerBean()) {
       RegisteredBean parent = registeredBean.getParent();
       Assert.state(parent != null, "No parent available for inner bean");
       target = parent.getBeanClass();
     }
-    return target.isArray() ? ClassName.get(target.getComponentType()) : ClassName.get(target);
+    return (target.isArray() ? ClassName.get(target.getComponentType()) : ClassName.get(target));
   }
 
-  private Class<?> extractDeclaringClass(ResolvableType beanType, Executable executable) {
-    Class<?> declaringClass = ClassUtils.getUserClass(executable.getDeclaringClass());
-    if (executable instanceof Constructor<?>
-            && AccessControl.forMember(executable).isPublic()
+  private Class<?> extractDeclaringClass(RegisteredBean registeredBean, InstantiationDescriptor instantiationDescriptor) {
+    Class<?> declaringClass = ClassUtils.getUserClass(instantiationDescriptor.targetClass());
+    if (instantiationDescriptor.executable() instanceof Constructor<?>
+            && AccessControl.forMember(instantiationDescriptor.executable()).isPublic()
             && FactoryBean.class.isAssignableFrom(declaringClass)) {
-      return extractTargetClassFromFactoryBean(declaringClass, beanType);
+      return extractTargetClassFromFactoryBean(declaringClass, registeredBean.getBeanType());
     }
-    return executable.getDeclaringClass();
+    return declaringClass;
   }
 
   /**
@@ -127,7 +128,7 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
     CodeBlock.Builder code = CodeBlock.builder();
     RootBeanDefinition mergedBeanDefinition = this.registeredBean.getMergedBeanDefinition();
     Class<?> beanClass = (mergedBeanDefinition.hasBeanClass()
-                          ? ClassUtils.getUserClass(mergedBeanDefinition.getBeanClass()) : null);
+            ? ClassUtils.getUserClass(mergedBeanDefinition.getBeanClass()) : null);
     CodeBlock beanClassCode = generateBeanClassCode(
             beanRegistrationCode.getClassName().packageName(),
             (beanClass != null ? beanClass : beanType.toClass()));
@@ -170,18 +171,15 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
   @Override
   public CodeBlock generateSetBeanDefinitionPropertiesCode(GenerationContext generationContext,
           BeanRegistrationCode beanRegistrationCode, RootBeanDefinition beanDefinition, Predicate<String> attributeFilter) {
-
-    var loader = AotServices.factories(this.registeredBean.getBeanFactory().getBeanClassLoader());
+    Loader loader = AotServices.factories(this.registeredBean.getBeanFactory().getBeanClassLoader());
     List<Delegate> additionalDelegates = loader.load(Delegate.class).asList();
     return new BeanDefinitionPropertiesCodeGenerator(generationContext.getRuntimeHints(),
-            attributeFilter, beanRegistrationCode.getMethods(), additionalDelegates,
-            (name, value) -> generateValueCode(generationContext, name, value)).generateCode(beanDefinition);
+            attributeFilter, beanRegistrationCode.getMethods(), additionalDelegates, (name, value) -> generateValueCode(generationContext, name, value))
+            .generateCode(beanDefinition);
   }
 
   @Nullable
-  protected CodeBlock generateValueCode(GenerationContext generationContext,
-          String name, Object value) {
-
+  protected CodeBlock generateValueCode(GenerationContext generationContext, String name, Object value) {
     RegisteredBean innerRegisteredBean = getInnerRegisteredBean(value);
     if (innerRegisteredBean != null) {
       BeanDefinitionMethodGenerator methodGenerator = this.beanDefinitionMethodGeneratorFactory
@@ -206,10 +204,8 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
   }
 
   @Override
-  public CodeBlock generateSetBeanInstanceSupplierCode(
-          GenerationContext generationContext,
-          BeanRegistrationCode beanRegistrationCode, CodeBlock instanceSupplierCode,
-          List<MethodReference> postProcessors) {
+  public CodeBlock generateSetBeanInstanceSupplierCode(GenerationContext generationContext,
+          BeanRegistrationCode beanRegistrationCode, CodeBlock instanceSupplierCode, List<MethodReference> postProcessors) {
 
     CodeBlock.Builder code = CodeBlock.builder();
     if (postProcessors.isEmpty()) {
@@ -235,15 +231,13 @@ class DefaultBeanRegistrationCodeFragments implements BeanRegistrationCodeFragme
       throw new IllegalStateException("Default code generation is not supported for bean definitions declaring "
               + "an instance supplier callback: " + this.registeredBean.getMergedBeanDefinition());
     }
-    return new InstanceSupplierCodeGenerator(generationContext,
-            beanRegistrationCode.getClassName(), beanRegistrationCode.getMethods(), allowDirectSupplierShortcut)
-            .generateCode(this.registeredBean, this.constructorOrFactoryMethod.get());
+    return new InstanceSupplierCodeGenerator(generationContext, beanRegistrationCode.getClassName(),
+            beanRegistrationCode.getMethods(), allowDirectSupplierShortcut).generateCode(
+            this.registeredBean, this.instantiationDescriptor.get());
   }
 
   @Override
-  public CodeBlock generateReturnCode(GenerationContext generationContext,
-          BeanRegistrationCode beanRegistrationCode) {
-
+  public CodeBlock generateReturnCode(GenerationContext generationContext, BeanRegistrationCode beanRegistrationCode) {
     CodeBlock.Builder code = CodeBlock.builder();
     code.addStatement("return $L", BEAN_DEFINITION_VARIABLE);
     return code.build();

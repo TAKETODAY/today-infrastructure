@@ -161,7 +161,7 @@ class BeanDefinitionMethodGeneratorTests {
 
   @Test
   void generateWithBeanClassAndFactoryMethodNameSetsTargetTypeAndBeanClass() {
-    this.beanFactory.registerSingleton("factory", new SimpleBeanConfiguration());
+    this.beanFactory.registerBeanDefinition("factory", new RootBeanDefinition(SimpleBeanConfiguration.class));
     RootBeanDefinition beanDefinition = new RootBeanDefinition(SimpleBean.class);
     beanDefinition.setFactoryBeanName("factory");
     beanDefinition.setFactoryMethodName("simpleBean");
@@ -182,7 +182,8 @@ class BeanDefinitionMethodGeneratorTests {
 
   @Test
   void generateWithTargetTypeAndFactoryMethodNameSetsOnlyBeanClass() {
-    this.beanFactory.registerSingleton("factory", new SimpleBeanConfiguration());
+    this.beanFactory.registerBeanDefinition("factory",
+            new RootBeanDefinition(SimpleBeanConfiguration.class));
     RootBeanDefinition beanDefinition = new RootBeanDefinition();
     beanDefinition.setTargetType(SimpleBean.class);
     beanDefinition.setFactoryBeanName("factory");
@@ -565,8 +566,8 @@ class BeanDefinitionMethodGeneratorTests {
       ManagedList<RootBeanDefinition> actualPropertyValue = (ManagedList<RootBeanDefinition>) actual
               .getPropertyValues().getPropertyValue("someList");
       assertThat(actualPropertyValue).hasSize(2);
-      assertThat(actualPropertyValue.get(0).getPropertyValues().getPropertyValue("name")).isEqualTo("one");
-      assertThat(actualPropertyValue.get(1).getPropertyValues().getPropertyValue("name")).isEqualTo("two");
+      assertThat(actualPropertyValue.get(0).getPropertyValues().get("name")).isEqualTo("one");
+      assertThat(actualPropertyValue.get(1).getPropertyValues().get("name")).isEqualTo("two");
       assertThat(compiled.getSourceFileFromPackage(TestBean.class.getPackageName()))
               .contains("getSomeListBeanDefinition()", "getSomeListBeanDefinition1()");
     });
@@ -620,7 +621,7 @@ class BeanDefinitionMethodGeneratorTests {
     MethodReference method = generator.generateBeanDefinitionMethod(
             this.generationContext, this.beanRegistrationsCode);
     compile(method, (actual, compiled) ->
-            assertThat(actual.getPropertyValues().getPropertyValue("customPropertyValue"))
+            assertThat(actual.getPropertyValues().get("customPropertyValue"))
                     .isInstanceOfSatisfying(CustomPropertyValue.class, customPropertyValue
                             -> assertThat(customPropertyValue.value()).isEqualTo("test")));
   }
@@ -688,7 +689,8 @@ class BeanDefinitionMethodGeneratorTests {
   void generateBeanDefinitionMethodWhenInstanceSupplierWithNoCustomization() {
     RegisteredBean registeredBean = registerBean(new RootBeanDefinition(TestBean.class, TestBean::new));
     BeanDefinitionMethodGenerator generator = new BeanDefinitionMethodGenerator(
-            this.methodGeneratorFactory, registeredBean, null, List.of());
+            this.methodGeneratorFactory, registeredBean, null,
+            List.of());
     assertThatIllegalStateException().isThrownBy(() -> generator.generateBeanDefinitionMethod(
             this.generationContext, this.beanRegistrationsCode)).withMessageStartingWith(
             "Default code generation is not supported for bean definitions declaring an instance supplier callback");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Executable;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -38,11 +37,15 @@ import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
 import cn.taketoday.beans.factory.support.InstanceSupplier;
 import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.beans.factory.support.RegisteredBean.InstantiationDescriptor;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.beans.testfixture.beans.TestBeanWithPrivateConstructor;
+import cn.taketoday.beans.testfixture.beans.factory.aot.DefaultSimpleBeanContract;
 import cn.taketoday.beans.testfixture.beans.factory.aot.DeferredTypeBuilder;
+import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBean;
+import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanContract;
 import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration;
 import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration.EnvironmentAwareComponent;
 import cn.taketoday.beans.testfixture.beans.factory.generator.InnerComponentConfiguration.NoDependencyComponent;
@@ -181,6 +184,23 @@ class InstanceSupplierCodeGeneratorTests {
               "getBeanFactory().getBean(SimpleConfiguration.class).stringBean()");
     });
     assertThat(getReflectionHints().getTypeHint(SimpleConfiguration.class))
+            .satisfies(hasMethodWithMode(ExecutableMode.INTROSPECT));
+  }
+
+  @Test
+  void generateWhenHasFactoryMethodOnInterface() {
+    BeanDefinition beanDefinition = BeanDefinitionBuilder
+            .rootBeanDefinition(SimpleBean.class)
+            .setFactoryMethodOnBean("simpleBean", "config").getBeanDefinition();
+    this.beanFactory.registerBeanDefinition("config", BeanDefinitionBuilder
+            .rootBeanDefinition(DefaultSimpleBeanContract.class).getBeanDefinition());
+    compile(beanDefinition, (instanceSupplier, compiled) -> {
+      Object bean = getBean(beanDefinition, instanceSupplier);
+      assertThat(bean).isInstanceOf(SimpleBean.class);
+      assertThat(compiled.getSourceFile()).contains(
+              "getBeanFactory().getBean(DefaultSimpleBeanContract.class).simpleBean()");
+    });
+    assertThat(getReflectionHints().getTypeHint(SimpleBeanContract.class))
             .satisfies(hasMethodWithMode(ExecutableMode.INTROSPECT));
   }
 
@@ -401,9 +421,9 @@ class InstanceSupplierCodeGeneratorTests {
     InstanceSupplierCodeGenerator generator = new InstanceSupplierCodeGenerator(
             this.generationContext, generateClass.getName(),
             generateClass.getMethods(), false);
-    Executable constructorOrFactoryMethod = registeredBean.resolveConstructorOrFactoryMethod();
-    assertThat(constructorOrFactoryMethod).isNotNull();
-    CodeBlock generatedCode = generator.generateCode(registeredBean, constructorOrFactoryMethod);
+    InstantiationDescriptor instantiationDescriptor = registeredBean.resolveInstantiationDescriptor();
+    assertThat(instantiationDescriptor).isNotNull();
+    CodeBlock generatedCode = generator.generateCode(registeredBean, instantiationDescriptor);
     typeBuilder.set(type -> {
       type.addModifiers(Modifier.PUBLIC);
       type.addSuperinterface(ParameterizedTypeName.get(Supplier.class, InstanceSupplier.class));

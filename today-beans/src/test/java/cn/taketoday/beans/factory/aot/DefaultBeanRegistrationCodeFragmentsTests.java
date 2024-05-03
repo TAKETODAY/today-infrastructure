@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.aot;
@@ -32,6 +32,7 @@ import cn.taketoday.beans.factory.support.RegisteredBean;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.beans.factory.support.StandardBeanFactory;
 import cn.taketoday.beans.testfixture.beans.factory.DummyFactory;
+import cn.taketoday.beans.testfixture.beans.factory.aot.DefaultSimpleBeanContract;
 import cn.taketoday.beans.testfixture.beans.factory.aot.GenericFactoryBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanRegistrationCode;
 import cn.taketoday.beans.testfixture.beans.factory.aot.MockBeanRegistrationsCode;
@@ -39,6 +40,7 @@ import cn.taketoday.beans.testfixture.beans.factory.aot.NumberFactoryBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanArrayFactoryBean;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanConfiguration;
+import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanContract;
 import cn.taketoday.beans.testfixture.beans.factory.aot.SimpleBeanFactoryBean;
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.javapoet.ClassName;
@@ -128,6 +130,21 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   }
 
   @Test
+  void getTargetOnMethodFromInterface() {
+    this.beanFactory.registerBeanDefinition("configuration",
+            new RootBeanDefinition(DefaultSimpleBeanContract.class));
+    Method method = ReflectionUtils.findMethod(SimpleBeanContract.class, "simpleBean");
+    assertThat(method).isNotNull();
+    RootBeanDefinition beanDefinition = new RootBeanDefinition(SimpleBean.class);
+    applyConstructorOrFactoryMethod(beanDefinition, method);
+    beanDefinition.setFactoryBeanName("configuration");
+    this.beanFactory.registerBeanDefinition("testBean", beanDefinition);
+    RegisteredBean registeredBean = RegisteredBean.of(this.beanFactory, "testBean");
+    assertTarget(createInstance(registeredBean).getTarget(registeredBean),
+            DefaultSimpleBeanContract.class);
+  }
+
+  @Test
   void getTargetOnMethodWithInnerBeanInJavaPackage() {
     RegisteredBean registeredBean = registerTestBean(SimpleBean.class);
     Method method = ReflectionUtils.findMethod(getClass(), "createString");
@@ -191,7 +208,7 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   }
 
   @Test
-  void customizedGetTargetDoesNotResolveConstructorOrFactoryMethod() {
+  void customizedGetTargetDoesNotResolveInstantiationDescriptor() {
     RegisteredBean registeredBean = spy(registerTestBean(SimpleBean.class));
     BeanRegistrationCodeFragments customCodeFragments = createCustomCodeFragments(registeredBean, codeFragments -> new BeanRegistrationCodeFragmentsDecorator(codeFragments) {
       @Override
@@ -200,11 +217,11 @@ class DefaultBeanRegistrationCodeFragmentsTests {
       }
     });
     assertTarget(customCodeFragments.getTarget(registeredBean), String.class);
-    verify(registeredBean, never()).resolveConstructorOrFactoryMethod();
+    verify(registeredBean, never()).resolveInstantiationDescriptor();
   }
 
   @Test
-  void customizedGenerateInstanceSupplierCodeDoesNotResolveConstructorOrFactoryMethod() {
+  void customizedGenerateInstanceSupplierCodeDoesNotResolveInstantiationDescriptor() {
     RegisteredBean registeredBean = spy(registerTestBean(SimpleBean.class));
     BeanRegistrationCodeFragments customCodeFragments = createCustomCodeFragments(registeredBean, codeFragments -> new BeanRegistrationCodeFragmentsDecorator(codeFragments) {
       @Override
@@ -215,7 +232,7 @@ class DefaultBeanRegistrationCodeFragmentsTests {
     });
     assertThat(customCodeFragments.generateInstanceSupplierCode(this.generationContext,
             new MockBeanRegistrationCode(this.generationContext), false)).hasToString("// Hello");
-    verify(registeredBean, never()).resolveConstructorOrFactoryMethod();
+    verify(registeredBean, never()).resolveInstantiationDescriptor();
   }
 
   private BeanRegistrationCodeFragments createCustomCodeFragments(RegisteredBean registeredBean, UnaryOperator<BeanRegistrationCodeFragments> customFragments) {
@@ -275,7 +292,7 @@ class DefaultBeanRegistrationCodeFragmentsTests {
   static class PrivilegedTestBeanFactoryBean implements FactoryBean<SimpleBean> {
 
     @Override
-    public SimpleBean getObject() throws Exception {
+    public SimpleBean getObject() {
       return new SimpleBean();
     }
 

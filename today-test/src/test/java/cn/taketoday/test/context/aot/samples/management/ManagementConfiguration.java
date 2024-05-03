@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.aot.samples.management;
@@ -23,6 +23,8 @@ import cn.taketoday.aot.generate.GenerationContext;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotContribution;
 import cn.taketoday.beans.factory.aot.BeanRegistrationAotProcessor;
 import cn.taketoday.beans.factory.aot.BeanRegistrationCode;
+import cn.taketoday.beans.factory.support.RegisteredBean;
+import cn.taketoday.beans.factory.support.RegisteredBean.InstantiationDescriptor;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.aot.ApplicationContextAotGenerator;
@@ -45,7 +47,8 @@ public class ManagementConfiguration {
   @Bean
   static BeanRegistrationAotProcessor beanRegistrationAotProcessor() {
     return registeredBean -> {
-      Executable factoryMethod = registeredBean.resolveConstructorOrFactoryMethod();
+      InstantiationDescriptor instantiationDescriptor = registeredBean.resolveInstantiationDescriptor();
+      Executable factoryMethod = instantiationDescriptor.executable();
       // Make AOT contribution for @Managed @Bean methods.
       if (AnnotatedElementUtils.hasAnnotation(factoryMethod, Managed.class)) {
         return new AotContribution(createManagementContext());

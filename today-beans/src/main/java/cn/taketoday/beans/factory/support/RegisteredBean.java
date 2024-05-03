@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,12 +12,14 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.beans.factory.support;
 
 import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -134,8 +136,7 @@ public final class RegisteredBean {
     Assert.notNull(parent, "'parent' is required");
     Assert.notNull(innerBeanDefinition, "'innerBeanDefinition' is required");
     InnerBeanResolver resolver = new InnerBeanResolver(parent, innerBeanName, innerBeanDefinition);
-    Supplier<String> beanName = (StringUtils.isNotEmpty(innerBeanName) ?
-                                 () -> innerBeanName : resolver::resolveBeanName);
+    Supplier<String> beanName = StringUtils.isNotEmpty(innerBeanName) ? () -> innerBeanName : resolver::resolveBeanName;
     return new RegisteredBean(parent.getBeanFactory(), beanName,
             innerBeanName == null, resolver::resolveMergedBeanDefinition, parent);
   }
@@ -225,6 +226,23 @@ public final class RegisteredBean {
   }
 
   /**
+   * Resolve the {@linkplain InstantiationDescriptor descriptor} to use to
+   * instantiate this bean. It defines the {@link java.lang.reflect.Constructor}
+   * or {@link java.lang.reflect.Method} to use as well as additional metadata.
+   */
+  public InstantiationDescriptor resolveInstantiationDescriptor() {
+    Executable executable = resolveConstructorOrFactoryMethod();
+    if (executable instanceof Method method && !Modifier.isStatic(method.getModifiers())) {
+      String factoryBeanName = getMergedBeanDefinition().getFactoryBeanName();
+      if (factoryBeanName != null && this.beanFactory.containsBean(factoryBeanName)) {
+        return new InstantiationDescriptor(executable,
+                this.beanFactory.getMergedBeanDefinition(factoryBeanName).getResolvableType().toClass());
+      }
+    }
+    return new InstantiationDescriptor(executable, executable.getDeclaringClass());
+  }
+
+  /**
    * Resolve an autowired argument.
    *
    * @param descriptor the descriptor for the dependency (field/method/constructor)
@@ -234,9 +252,7 @@ public final class RegisteredBean {
    * @return the resolved object, or {@code null} if none found
    */
   @Nullable
-  public Object resolveAutowiredArgument(DependencyDescriptor descriptor,
-          TypeConverter typeConverter, Set<String> autowiredBeanNames) {
-
+  public Object resolveAutowiredArgument(DependencyDescriptor descriptor, TypeConverter typeConverter, Set<String> autowiredBeanNames) {
     return new ConstructorResolver((AbstractAutowireCapableBeanFactory) getBeanFactory())
             .resolveAutowiredArgument(descriptor, descriptor.getDependencyType(),
                     getBeanName(), autowiredBeanNames, typeConverter, true);
@@ -246,6 +262,23 @@ public final class RegisteredBean {
   public String toString() {
     return new ToStringBuilder(this).append("beanName", getBeanName())
             .append("mergedBeanDefinition", getMergedBeanDefinition()).toString();
+  }
+
+  /**
+   * Descriptor for how a bean should be instantiated. While the {@code targetClass}
+   * is usually the declaring class of the {@code executable} (in case of a constructor
+   * or a locally declared factory method), there are cases where retaining the actual
+   * concrete class is necessary (e.g. for an inherited factory method).
+   *
+   * @param executable the {@link Executable} ({@link java.lang.reflect.Constructor}
+   * or {@link java.lang.reflect.Method}) to invoke
+   * @param targetClass the target {@link Class} of the executable
+   */
+  public record InstantiationDescriptor(Executable executable, Class<?> targetClass) {
+
+    public InstantiationDescriptor(Executable executable) {
+      this(executable, executable.getDeclaringClass());
+    }
   }
 
   /**
