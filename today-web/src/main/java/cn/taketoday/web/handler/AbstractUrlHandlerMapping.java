@@ -276,6 +276,42 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping {
     }
   }
 
+  /**
+   * Remove the mapping for the handler registered for the given URL path.
+   *
+   * @param urlPath the mapping to remove
+   */
+  public void unregisterHandler(String urlPath) {
+    Assert.notNull(urlPath, "URL path is required");
+    if (urlPath.equals("/")) {
+      if (logger.isTraceEnabled()) {
+        logger.trace("Removing root mapping: " + getRootHandler());
+      }
+      setRootHandler(null);
+    }
+    else if (urlPath.equals("/*")) {
+      if (logger.isTraceEnabled()) {
+        logger.trace("Removing default mapping: " + getDefaultHandler());
+      }
+      setDefaultHandler(null);
+    }
+    else {
+      Object mappedHandler = this.handlerMap.get(urlPath);
+      if (mappedHandler == null) {
+        if (logger.isTraceEnabled()) {
+          logger.trace("No mapping for [%s]".formatted(urlPath));
+        }
+      }
+      else {
+        if (logger.isTraceEnabled()) {
+          logger.trace("Removing mapping \"{}\": {}", urlPath, getHandlerDescription(mappedHandler));
+        }
+        this.handlerMap.remove(urlPath);
+        this.pathPatternHandlerMap.remove(getPatternParser().parse(urlPath));
+      }
+    }
+  }
+
   protected void doPutPathPattern(PathPattern pathPattern, Object resolvedHandler) {
     pathPatternHandlerMap.put(pathPattern, resolvedHandler);
   }
