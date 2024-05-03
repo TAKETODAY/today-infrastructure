@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -404,10 +404,12 @@ final class TypeMappedAnnotations implements MergedAnnotations {
 
     @Nullable
     private MergedAnnotation<A> process(Object type, int aggregateIndex, @Nullable Object source, Annotation annotation) {
-
       Annotation[] repeatedAnnotations = repeatableContainers.findRepeatedAnnotations(annotation);
       if (repeatedAnnotations != null) {
-        return doWithAnnotations(type, aggregateIndex, source, repeatedAnnotations);
+        MergedAnnotation<A> result = doWithAnnotations(type, aggregateIndex, source, repeatedAnnotations);
+        if (result != null) {
+          return result;
+        }
       }
       AnnotationTypeMappings mappings = AnnotationTypeMappings.forAnnotationType(
               annotation.annotationType(), repeatableContainers, annotationFilter);
