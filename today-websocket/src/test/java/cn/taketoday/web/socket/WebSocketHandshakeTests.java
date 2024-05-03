@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.socket;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestInfo;
 
 import java.net.URI;
@@ -38,7 +37,6 @@ import cn.taketoday.web.socket.config.WebSocketConfigurer;
 import cn.taketoday.web.socket.config.WebSocketHandlerRegistry;
 import cn.taketoday.web.socket.handler.TextWebSocketHandler;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
-import lombok.extern.slf4j.Slf4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,8 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Juergen Hoeller
  * @author Sam Brannen
  */
-@Slf4j
-@Disabled
 class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
 
   @Override
@@ -65,7 +61,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
     headers.setSecWebSocketProtocol("foo");
     URI url = URI.create(getWsBaseUrl() + "/ws");
-    WebSocketSession session = this.webSocketClient.doHandshake(new TextWebSocketHandler(), headers, url).get();
+    WebSocketSession session = this.webSocketClient.connect(new TextWebSocketHandler(), headers, url).await().obtain();
     assertThat(session.getAcceptedProtocol()).isEqualTo("foo");
     session.close();
   }
@@ -76,7 +72,7 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     super.setup(server, webSocketClient, testInfo);
 
     String url = getWsBaseUrl() + "/ws";
-    WebSocketSession session = this.webSocketClient.doHandshake(new WebSocketHandler() { }, url).get();
+    WebSocketSession session = this.webSocketClient.connect(new WebSocketHandler() { }, url).await().obtain();
 
     TestWebSocketHandler serverHandler = this.wac.getBean(TestWebSocketHandler.class);
     serverHandler.setWaitMessageCount(1);
@@ -100,8 +96,8 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
       handshakeHandler.setSupportedProtocols("foo", "bar", "baz");
       TestWebSocketHandler handler = handler();
-      log.error("handler: {}", handler);
       registry.addHandler(handler, "/ws")
+              .setAllowedOriginPatterns("*")
               .setHandshakeHandler(handshakeHandler);
     }
 
@@ -113,11 +109,10 @@ class WebSocketHandshakeTests extends AbstractWebSocketIntegrationTests {
     @Bean
     public HandlerExceptionHandler handlerExceptionHandler() {
       return new HandlerExceptionHandler() {
-        @Nullable
+
         @Override
         public Object handleException(RequestContext context,
                 Throwable exception, @Nullable Object handler) throws Exception {
-          log.error("出错啦", exception);
           return NONE_RETURN_VALUE;
         }
       };

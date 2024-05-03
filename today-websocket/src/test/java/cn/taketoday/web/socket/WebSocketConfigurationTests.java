@@ -17,7 +17,6 @@
 
 package cn.taketoday.web.socket;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.TestInfo;
 
 import java.util.concurrent.CountDownLatch;
@@ -40,7 +39,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rossen Stoyanchev
  * @author Sam Brannen
  */
-@Disabled
 class WebSocketConfigurationTests extends AbstractWebSocketIntegrationTests {
 
   @Override
@@ -49,11 +47,10 @@ class WebSocketConfigurationTests extends AbstractWebSocketIntegrationTests {
   }
 
   @ParameterizedWebSocketTest
-  void registerWebSocketHandler(WebSocketTestServer server,
-          WebSocketClient webSocketClient, TestInfo testInfo) throws Exception {
+  void registerWebSocketHandler(WebSocketTestServer server, WebSocketClient webSocketClient, TestInfo testInfo) throws Exception {
     super.setup(server, webSocketClient, testInfo);
 
-    WebSocketSession session = this.webSocketClient.doHandshake(
+    WebSocketSession session = this.webSocketClient.connect(
             new WebSocketHandler() { }, getWsBaseUrl() + "/ws").get();
 
     TestHandler serverHandler = this.wac.getBean(TestHandler.class);
@@ -72,6 +69,7 @@ class WebSocketConfigurationTests extends AbstractWebSocketIntegrationTests {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
       registry.addHandler(serverHandler(), "/ws")
+              .setAllowedOriginPatterns("*")
               .setHandshakeHandler(this.handshakeHandler);
     }
 
@@ -83,7 +81,7 @@ class WebSocketConfigurationTests extends AbstractWebSocketIntegrationTests {
 
   private static class TestHandler extends WebSocketHandler {
 
-    private CountDownLatch connectLatch = new CountDownLatch(1);
+    private final CountDownLatch connectLatch = new CountDownLatch(1);
 
     @Override
     public void onOpen(WebSocketSession session) {

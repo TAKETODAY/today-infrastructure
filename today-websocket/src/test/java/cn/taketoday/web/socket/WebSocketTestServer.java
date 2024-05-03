@@ -17,9 +17,7 @@
 
 package cn.taketoday.web.socket;
 
-import cn.taketoday.web.mock.Filter;
-import cn.taketoday.web.mock.ServletContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * Contract for a test server to use for WebSocket integration tests.
@@ -29,23 +27,12 @@ import cn.taketoday.web.servlet.WebApplicationContext;
  */
 public interface WebSocketTestServer {
 
-  void setup();
-
-  void deployConfig(WebApplicationContext cxt, Filter... filters);
-
-  void undeployConfig();
+  void setup(AnnotationConfigApplicationContext wac);
 
   void start() throws Exception;
 
   void stop() throws Exception;
 
   int getPort();
-
-  /**
-   * Get the {@link ServletContext} created by the underlying server.
-   * <p>The {@code ServletContext} is only guaranteed to be available
-   * after {@link #deployConfig} has been invoked.
-   */
-  ServletContext getServletContext();
 
 }

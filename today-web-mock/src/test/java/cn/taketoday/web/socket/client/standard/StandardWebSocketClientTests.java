@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.socket.client.standard;
@@ -70,7 +70,7 @@ public class StandardWebSocketClientTests {
   @Test
   public void testGetLocalAddress() throws Exception {
     URI uri = new URI("ws://localhost/abc");
-    WebSocketSession session = this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    WebSocketSession session = this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     assertThat(session.getLocalAddress()).isNotNull();
     assertThat(session.getLocalAddress().getPort()).isEqualTo(80);
@@ -79,7 +79,7 @@ public class StandardWebSocketClientTests {
   @Test
   public void testGetLocalAddressWss() throws Exception {
     URI uri = new URI("wss://localhost/abc");
-    WebSocketSession session = this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    WebSocketSession session = this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     assertThat(session.getLocalAddress()).isNotNull();
     assertThat(session.getLocalAddress().getPort()).isEqualTo(443);
@@ -89,13 +89,13 @@ public class StandardWebSocketClientTests {
   public void testGetLocalAddressNoScheme() throws Exception {
     URI uri = new URI("localhost/abc");
     assertThatIllegalArgumentException().isThrownBy(() ->
-            this.wsClient.doHandshake(this.wsHandler, this.headers, uri));
+            this.wsClient.connect(this.wsHandler, this.headers, uri));
   }
 
   @Test
   public void testGetRemoteAddress() throws Exception {
     URI uri = new URI("wss://localhost/abc");
-    WebSocketSession session = this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    WebSocketSession session = this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     assertThat(session.getRemoteAddress()).isNotNull();
     assertThat(session.getRemoteAddress().getHostName()).isEqualTo("localhost");
@@ -110,7 +110,7 @@ public class StandardWebSocketClientTests {
     this.headers.setSecWebSocketProtocol(protocols);
     this.headers.add("foo", "bar");
 
-    WebSocketSession session = this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    WebSocketSession session = this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     assertThat(session.getHandshakeHeaders().size()).isEqualTo(1);
     assertThat(session.getHandshakeHeaders().getFirst("foo")).isEqualTo("bar");
@@ -123,7 +123,7 @@ public class StandardWebSocketClientTests {
     List<String> protocols = Collections.singletonList("abc");
     this.headers.setSecWebSocketProtocol(protocols);
 
-    this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     ArgumentCaptor<ClientEndpointConfig> captor = ArgumentCaptor.forClass(ClientEndpointConfig.class);
     verify(this.wsContainer).connectToServer(ArgumentMatchers.any(Endpoint.class), captor.capture(), ArgumentMatchers.any(URI.class));
@@ -139,7 +139,7 @@ public class StandardWebSocketClientTests {
 
     URI uri = new URI("ws://localhost/abc");
     this.wsClient.setUserProperties(userProperties);
-    this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     ArgumentCaptor<ClientEndpointConfig> captor = ArgumentCaptor.forClass(ClientEndpointConfig.class);
     verify(this.wsContainer).connectToServer(ArgumentMatchers.any(Endpoint.class), captor.capture(), ArgumentMatchers.any(URI.class));
@@ -154,7 +154,7 @@ public class StandardWebSocketClientTests {
     URI uri = new URI("ws://localhost/abc");
     this.headers.add("foo", "bar");
 
-    this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     ArgumentCaptor<ClientEndpointConfig> captor = ArgumentCaptor.forClass(ClientEndpointConfig.class);
     verify(this.wsContainer).connectToServer(ArgumentMatchers.any(Endpoint.class), captor.capture(), ArgumentMatchers.any(URI.class));
@@ -169,7 +169,7 @@ public class StandardWebSocketClientTests {
   public void taskExecutor() throws Exception {
     URI uri = new URI("ws://localhost/abc");
     this.wsClient.setTaskExecutor(new SimpleAsyncTaskExecutor());
-    WebSocketSession session = this.wsClient.doHandshake(this.wsHandler, this.headers, uri).get();
+    WebSocketSession session = this.wsClient.connect(this.wsHandler, this.headers, uri).get();
 
     assertThat(session).isNotNull();
   }

@@ -28,23 +28,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import cn.taketoday.context.Lifecycle;
+import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
-import cn.taketoday.web.socket.server.support.NettyRequestUpgradeStrategy;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
 import cn.taketoday.web.handler.method.AnnotationHandlerFactory;
-import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.socket.client.WebSocketClient;
-import cn.taketoday.web.socket.client.standard.StandardWebSocketClient;
+import cn.taketoday.web.socket.client.support.NettyWebSocketClient;
 import cn.taketoday.web.socket.server.RequestUpgradeStrategy;
 import cn.taketoday.web.socket.server.support.DefaultHandshakeHandler;
+import cn.taketoday.web.socket.server.support.NettyRequestUpgradeStrategy;
 
 import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -58,10 +57,10 @@ public abstract class AbstractWebSocketIntegrationTests {
   private static final Map<Class<?>, Class<?>> upgradeStrategyConfigTypes = Map.of(
           NettyTestServer.class, NettyUpgradeStrategyConfig.class);
 
-  static Stream<Arguments> argumentsFactory() {
-    return Stream.of(
-            arguments(named("Standard", new StandardWebSocketClient()))
-    );
+  public static Stream<Arguments> argumentsFactory() {
+    return Stream.of(arguments(
+            named("Netty", new NettyTestServer()), named("Netty Client", new NettyWebSocketClient())
+    ));
   }
 
   @Retention(RetentionPolicy.RUNTIME)
@@ -77,41 +76,41 @@ public abstract class AbstractWebSocketIntegrationTests {
 
   protected WebSocketClient webSocketClient;
 
-  protected AnnotationConfigWebApplicationContext wac;
+  protected AnnotationConfigApplicationContext wac;
 
   protected void setup(WebSocketTestServer server, WebSocketClient webSocketClient, TestInfo testInfo) throws Exception {
     this.server = server;
     this.webSocketClient = webSocketClient;
 
-    logger.debug("Setting up '" + testInfo.getTestMethod().get().getName() + "', client=" +
-            this.webSocketClient.getClass().getSimpleName() + ", server=" +
-            this.server.getClass().getSimpleName());
+    logger.info("Setting up '%s', client=%s, server=%s".formatted(testInfo.getTestMethod().get().getName(),
+            webSocketClient.getClass().getSimpleName(), server.getClass().getSimpleName()));
 
-    this.wac = new AnnotationConfigWebApplicationContext();
+    this.wac = new AnnotationConfigApplicationContext();
     this.wac.register(getAnnotatedConfigClasses());
+
     wac.register(AnnotationHandlerFactory.class);
     wac.register(ParameterResolvingRegistry.class);
     wac.register(ReturnValueHandlerManager.class);
 
     this.wac.register(upgradeStrategyConfigTypes.get(this.server.getClass()));
 
-    if (this.webSocketClient instanceof Lifecycle) {
-      ((Lifecycle) this.webSocketClient).start();
+    if (this.webSocketClient instanceof Lifecycle lifecycle) {
+      lifecycle.start();
     }
 
-    this.server.setup();
-    this.server.deployConfig(this.wac);
+    this.server.setup(wac);
 
-    this.wac.setServletContext(this.server.getServletContext());
     this.wac.refresh();
 
     this.server.start();
+    logger.info("Setup complete.");
   }
 
   protected abstract Class<?>[] getAnnotatedConfigClasses();
 
   @AfterEach
   void teardown() throws Exception {
+    logger.info("Tearing down '{}'.", server.getClass().getSimpleName());
     try {
       if (this.webSocketClient instanceof Lifecycle) {
         ((Lifecycle) this.webSocketClient).stop();
@@ -120,12 +119,7 @@ public abstract class AbstractWebSocketIntegrationTests {
     catch (Throwable t) {
       logger.error("Failed to stop WebSocket client", t);
     }
-    try {
-      this.server.undeployConfig();
-    }
-    catch (Throwable t) {
-      logger.error("Failed to undeploy application config", t);
-    }
+
     try {
       this.server.stop();
     }
@@ -144,10 +138,6 @@ public abstract class AbstractWebSocketIntegrationTests {
     return "ws://localhost:" + this.server.getPort();
   }
 
-  protected CompletableFuture<WebSocketSession> execute(WebSocketHandler clientHandler, String endpointPath) {
-    return this.webSocketClient.execute(clientHandler, getWsBaseUrl() + endpointPath);
-  }
-
   static abstract class AbstractRequestUpgradeStrategyConfig {
 
     @Bean
@@ -158,7 +148,7 @@ public abstract class AbstractWebSocketIntegrationTests {
     public abstract RequestUpgradeStrategy requestUpgradeStrategy();
   }
 
-  @Configuration(proxyBeanMethods = false)
+  @Configuration
   static class NettyUpgradeStrategyConfig extends AbstractRequestUpgradeStrategyConfig {
 
     @Override

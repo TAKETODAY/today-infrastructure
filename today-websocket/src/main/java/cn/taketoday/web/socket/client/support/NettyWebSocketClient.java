@@ -22,9 +22,10 @@ import java.util.List;
 
 import cn.taketoday.core.Decorator;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.logging.Logger;
-import cn.taketoday.logging.LoggerFactory;
+import cn.taketoday.util.DataSize;
+import cn.taketoday.util.StringUtils;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.web.socket.Message;
@@ -32,7 +33,6 @@ import cn.taketoday.web.socket.WebSocketExtension;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.WebSocketSession;
 import cn.taketoday.web.socket.client.AbstractWebSocketClient;
-import cn.taketoday.web.socket.server.support.NettyWebSocketSession;
 import cn.taketoday.web.socket.server.support.WsNettyChannelHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -52,19 +52,17 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.util.CharsetUtil;
 
 import static cn.taketoday.web.socket.handler.ExceptionWebSocketHandlerDecorator.tryCloseWithError;
 
 /**
+ * Netty websocket client
+ *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 5.0 2024/5/2 20:39
  */
 public class NettyWebSocketClient extends AbstractWebSocketClient {
-
-  private static final Logger log = LoggerFactory.getLogger(NettyWebSocketClient.class);
 
   /**
    * the maximum length of the aggregated content.
@@ -72,7 +70,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
    *
    * @see HttpObjectAggregator#maxContentLength
    */
-  private int maxContentLength = 1024 * 1024 * 64;
+  private int maxContentLength = DataSize.ofKilobytes(64).toBytesInt();
 
   /**
    * If a 100-continue response is detected but the content
@@ -143,7 +141,12 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     this.sessionDecorator = sessionDecorator;
   }
 
+  /**
+   * set A configuration object for specifying the behaviour
+   * of {@link HttpObjectDecoder} and its subclasses.
+   */
   public void setHttpDecoderConfig(HttpDecoderConfig httpDecoderConfig) {
+    Assert.notNull(httpDecoderConfig, "httpDecoderConfig is required");
     this.httpDecoderConfig = httpDecoderConfig;
   }
 
@@ -156,7 +159,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     // If you change it to V00, ping is not supported and remember to change
     // HttpResponseDecoder to WebSocketHttpResponseDecoder in the pipeline.
     WebSocketClientHandshaker handshaker = createHandshaker(uri, subProtocols, extensions, createHeaders(headers));
-    WebSocketClientHandler handler = new WebSocketClientHandler(uri, headers, webSocketHandler, handshaker, future);
+    MessageHandler handler = new MessageHandler(uri, headers, webSocketHandler, handshaker, future);
 
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group(new NioEventLoopGroup())
@@ -185,13 +188,13 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
   protected WebSocketClientHandshaker createHandshaker(URI uri, List<String> subProtocols,
           List<WebSocketExtension> extensions, io.netty.handler.codec.http.HttpHeaders customHeaders) {
-    return WebSocketClientHandshakerFactory.newHandshaker(
-            uri, WebSocketVersion.V13, null, true, customHeaders);
+    return WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13,
+            StringUtils.collectionToCommaDelimitedString(subProtocols), true, customHeaders);
   }
 
-  protected WebSocketSession createSession(HttpHeaders headers, Channel channel,
-          boolean secure, @Nullable Decorator<WebSocketSession> sessionDecorator) {
-    WebSocketSession session = new NettyWebSocketSession(headers, secure, channel);
+  protected WebSocketSession createSession(HttpHeaders headers, Channel channel, boolean secure,
+          @Nullable Decorator<WebSocketSession> sessionDecorator, WebSocketClientHandshaker handshaker) {
+    WebSocketSession session = new NettyClientWebSocketSession(headers, secure, channel, handshaker);
 
     if (sessionDecorator != null) {
       session = sessionDecorator.decorate(session);
@@ -199,11 +202,21 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
     return session;
   }
 
+  /**
+   * init websocket channel
+   */
   protected void initChannel(SocketChannel ch) {
 
   }
 
-  final class WebSocketClientHandler extends ChannelInboundHandlerAdapter {
+  /**
+   * process close frame
+   */
+  protected void processCloseFrame(ChannelHandlerContext ctx) {
+    ctx.channel().close();
+  }
+
+  final class MessageHandler extends ChannelInboundHandlerAdapter {
 
     private final URI uri;
 
@@ -217,7 +230,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     private WebSocketSession session;
 
-    public WebSocketClientHandler(URI uri, HttpHeaders headers, WebSocketHandler handler,
+    MessageHandler(URI uri, HttpHeaders headers, WebSocketHandler handler,
             WebSocketClientHandshaker handshaker, SettableFuture<WebSocketSession> future) {
       this.uri = uri;
       this.headers = headers;
@@ -233,25 +246,6 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-      if (!handshaker.isHandshakeComplete()) {
-        Channel channel = ctx.channel();
-        try {
-          handshaker.finishHandshake(channel, (FullHttpResponse) msg);
-          session = createSession(headers, channel, "wss".equals(uri.getScheme()), sessionDecorator);
-          handler.onOpen(session);
-          future.setSuccess(session);
-        }
-        catch (WebSocketHandshakeException e) {
-          future.setFailure(e);
-        }
-        return;
-      }
-
-      if (msg instanceof FullHttpResponse response) {
-        throw new IllegalStateException("Unexpected FullHttpResponse (getStatus=%s, content=%s)"
-                .formatted(response.status(), response.content().toString(CharsetUtil.UTF_8)));
-      }
-
       if (msg instanceof WebSocketFrame frame) {
         Message<?> message = WsNettyChannelHandler.adaptMessage(frame);
         if (message != null) {
@@ -259,13 +253,30 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
             handler.handleMessage(session, message);
           }
           catch (Exception e) {
-            tryCloseWithError(session, e, log);
+            tryCloseWithError(session, e, logger);
           }
         }
 
         if (msg instanceof CloseWebSocketFrame) {
-          ctx.channel().close();
+          processCloseFrame(ctx);
         }
+      }
+      else if (msg instanceof FullHttpResponse response) {
+        if (!handshaker.isHandshakeComplete()) {
+          Channel channel = ctx.channel();
+          try {
+            handshaker.finishHandshake(channel, response);
+            session = createSession(headers, channel, "wss".equals(uri.getScheme()), sessionDecorator, handshaker);
+            handler.onOpen(session);
+            future.setSuccess(session);
+          }
+          catch (Exception e) {
+            future.setFailure(e);
+          }
+        }
+      }
+      else {
+        super.channelRead(ctx, msg);
       }
     }
 
@@ -279,7 +290,7 @@ public class NettyWebSocketClient extends AbstractWebSocketClient {
           handler.onError(session, cause);
         }
         catch (Exception e) {
-          tryCloseWithError(session, e, log);
+          tryCloseWithError(session, e, logger);
         }
       }
     }

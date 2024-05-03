@@ -50,7 +50,7 @@ class WsClientTests {
     Application.run(WsServerApp.class);
 
     CountDownLatch latch = new CountDownLatch(1);
-    Future<WebSocketSession> sessionFuture = client.doHandshake(new ClientWebSocketHandler(latch), "ws://localhost:8080/websocket");
+    Future<WebSocketSession> sessionFuture = client.connect(new ClientWebSocketHandler(latch), "ws://localhost:8080/websocket");
 
     sessionFuture.onSuccess(session -> session.sendText("Hello World"))
             .onFailure(Throwable::printStackTrace)

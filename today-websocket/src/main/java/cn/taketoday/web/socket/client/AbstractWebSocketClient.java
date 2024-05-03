@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.lang.Assert;
@@ -62,27 +61,15 @@ public abstract class AbstractWebSocketClient implements WebSocketClient {
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Override
-  public CompletableFuture<WebSocketSession> execute(WebSocketHandler handler, String uriTemplate, Object... uriVars) {
-    Assert.notNull(uriTemplate, "'uriTemplate' is required");
-    URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-    return execute(handler, null, uri);
-  }
-
-  @Override
-  public final CompletableFuture<WebSocketSession> execute(WebSocketHandler handler, @Nullable WebSocketHttpHeaders headers, URI uri) {
-    return doHandshake(handler, headers, uri).completable();
-  }
-
-  @Override
-  public Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
+  public Future<WebSocketSession> connect(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVars) {
     Assert.notNull(uriTemplate, "'uriTemplate' is required");
 
     URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-    return doHandshake(webSocketHandler, null, uri);
+    return connect(webSocketHandler, null, uri);
   }
 
   @Override
-  public final Future<WebSocketSession> doHandshake(WebSocketHandler handler, @Nullable WebSocketHttpHeaders headers, URI uri) {
+  public final Future<WebSocketSession> connect(WebSocketHandler handler, @Nullable WebSocketHttpHeaders headers, URI uri) {
     Assert.notNull(handler, "WebSocketHandler is required");
     assertUri(uri);
 

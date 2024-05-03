@@ -109,15 +109,15 @@ public class WebSocketConnectionManagerTests {
     }
 
     @Override
-    public Future<WebSocketSession> doHandshake(
+    public Future<WebSocketSession> connect(
             WebSocketHandler handler, String uriTemplate, Object... uriVars) {
 
       URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-      return doHandshake(handler, null, uri);
+      return connect(handler, null, uri);
     }
 
     @Override
-    public Future<WebSocketSession> doHandshake(
+    public Future<WebSocketSession> connect(
             WebSocketHandler handler, WebSocketHttpHeaders headers, URI uri) {
 
       this.webSocketHandler = handler;
@@ -126,23 +126,6 @@ public class WebSocketConnectionManagerTests {
       return Future.forFutureTask(() -> null);
     }
 
-    @Override
-    public CompletableFuture<WebSocketSession> execute(WebSocketHandler handler,
-            String uriTemplate, Object... uriVars) {
-
-      URI uri = UriComponentsBuilder.fromUriString(uriTemplate).buildAndExpand(uriVars).encode().toUri();
-      return execute(handler, null, uri);
-    }
-
-    @Override
-    public CompletableFuture<WebSocketSession> execute(WebSocketHandler handler,
-            WebSocketHttpHeaders headers, URI uri) {
-
-      this.webSocketHandler = handler;
-      this.headers = headers;
-      this.uri = uri;
-      return CompletableFuture.supplyAsync(() -> null);
-    }
 
   }
 

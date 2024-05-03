@@ -18,7 +18,6 @@
 package cn.taketoday.web.socket.client;
 
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.concurrent.Future;
@@ -38,10 +37,6 @@ import cn.taketoday.web.socket.WebSocketSession;
  */
 public interface WebSocketClient {
 
-  Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
-
-  Future<WebSocketSession> doHandshake(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
-
   /**
    * Execute a handshake request to the given url and handle the resulting
    * WebSocket session with the given handler.
@@ -51,7 +46,7 @@ public interface WebSocketClient {
    * @param uriVariables the variables to expand the template
    * @return a future that completes when the session is available
    */
-  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
+  Future<WebSocketSession> connect(WebSocketHandler webSocketHandler, String uriTemplate, Object... uriVariables);
 
   /**
    * Execute a handshake request to the given url and handle the resulting
@@ -61,6 +56,6 @@ public interface WebSocketClient {
    * @param uri the url
    * @return a future that completes when the session is available
    */
-  CompletableFuture<WebSocketSession> execute(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
+  Future<WebSocketSession> connect(WebSocketHandler webSocketHandler, @Nullable WebSocketHttpHeaders headers, URI uri);
 
 }
