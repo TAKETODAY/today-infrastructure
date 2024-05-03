@@ -566,8 +566,8 @@ class BeanDefinitionMethodGeneratorTests {
       ManagedList<RootBeanDefinition> actualPropertyValue = (ManagedList<RootBeanDefinition>) actual
               .getPropertyValues().getPropertyValue("someList");
       assertThat(actualPropertyValue).hasSize(2);
-      assertThat(actualPropertyValue.get(0).getPropertyValues().get("name")).isEqualTo("one");
-      assertThat(actualPropertyValue.get(1).getPropertyValues().get("name")).isEqualTo("two");
+      assertThat(actualPropertyValue.get(0).getPropertyValues().getPropertyValue("name")).isEqualTo("one");
+      assertThat(actualPropertyValue.get(1).getPropertyValues().getPropertyValue("name")).isEqualTo("two");
       assertThat(compiled.getSourceFileFromPackage(TestBean.class.getPackageName()))
               .contains("getSomeListBeanDefinition()", "getSomeListBeanDefinition1()");
     });
@@ -621,7 +621,7 @@ class BeanDefinitionMethodGeneratorTests {
     MethodReference method = generator.generateBeanDefinitionMethod(
             this.generationContext, this.beanRegistrationsCode);
     compile(method, (actual, compiled) ->
-            assertThat(actual.getPropertyValues().get("customPropertyValue"))
+            assertThat(actual.getPropertyValues().getPropertyValue("customPropertyValue"))
                     .isInstanceOfSatisfying(CustomPropertyValue.class, customPropertyValue
                             -> assertThat(customPropertyValue.value()).isEqualTo("test")));
   }

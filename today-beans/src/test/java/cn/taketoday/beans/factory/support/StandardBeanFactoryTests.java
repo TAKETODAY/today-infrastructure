@@ -3127,6 +3127,10 @@ class StandardBeanFactoryTests {
       return tb;
     }
 
+    public TestBean create(String name, int age) {
+      return new TestBean(name, age);
+    }
+
     public TestBean createWithArgs(String arg) {
       TestBean tb = new TestBean();
       tb.setName(arg);
