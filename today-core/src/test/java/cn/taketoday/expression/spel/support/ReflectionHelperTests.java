@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.expression.spel.support;
@@ -44,6 +41,8 @@ import cn.taketoday.expression.spel.support.ReflectionHelper.ArgumentsMatchKind;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.InstanceOfAssertFactories.array;
 
 /**
  * Tests for reflection helper code.
@@ -52,6 +51,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Andy Clement
  */
 public class ReflectionHelperTests extends AbstractExpressionTests {
+
+  private final StandardTypeConverter tc = new StandardTypeConverter();
 
   @Test
   void utilities() throws ParseException {
@@ -267,6 +268,101 @@ public class ReflectionHelperTests extends AbstractExpressionTests {
     assertThat(firstParam.getClass().getComponentType()).isEqualTo(String.class);
     Object[] firstParamArray = (Object[]) firstParam;
     assertThat(firstParamArray).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  void convertAllArguments() throws Exception {
+    Method oneArg = TestInterface.class.getMethod("oneArg", String.class);
+    Method twoArg = TestInterface.class.getMethod("twoArg", String.class, String[].class);
+
+    // Simple conversion: int to string
+    Object[] args = new Object[] { 3 };
+    ReflectionHelper.convertAllArguments(tc, args, oneArg);
+    checkArguments(args, "3");
+
+    // varargs conversion
+    args = new Object[] { 3, false, 3.0f };
+    ReflectionHelper.convertAllArguments(tc, args, twoArg);
+    checkArguments(args, "3", "false", "3.0");
+
+    // varargs conversion but no varargs
+    args = new Object[] { 3 };
+    ReflectionHelper.convertAllArguments(tc, args, twoArg);
+    checkArguments(args, "3");
+
+    // null value
+    args = new Object[] { 3, null, 3.0f };
+    ReflectionHelper.convertAllArguments(tc, args, twoArg);
+    checkArguments(args, "3", null, "3.0");
+  }
+
+  @Test
+  void setupArgumentsForVarargsInvocationPreconditions() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ReflectionHelper.setupArgumentsForVarargsInvocation(new Class[] {}, "a"))
+            .withMessage("Required parameter types array must not be empty");
+
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> ReflectionHelper.setupArgumentsForVarargsInvocation(
+                    new Class<?>[] { Integer.class, Integer.class }, 123))
+            .withMessage("The last required parameter type must be an array to support varargs invocation");
+  }
+
+  @Test
+  void setupArgumentsForVarargsInvocation() {
+    Object[] newArray;
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(new Class<?>[] { String[].class }, "a", "b", "c");
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(String[].class))
+            .containsExactly("a", "b", "c");
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(new Class<?>[] { Object[].class }, "a", "b", "c");
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(Object[].class))
+            .containsExactly("a", "b", "c");
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(
+            new Class<?>[] { Integer.class, Integer.class, String[].class }, 123, 456, "a", "b", "c");
+    assertThat(newArray).satisfiesExactly(
+            one -> assertThat(one).isEqualTo(123),
+            two -> assertThat(two).isEqualTo(456),
+            three -> assertThat(three).asInstanceOf(array(String[].class)).containsExactly("a", "b", "c"));
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(new Class<?>[] { String[].class });
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(String[].class))
+            .isEmpty();
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(
+            new Class<?>[] { String[].class }, new Object[] { new String[] { "a", "b", "c" } });
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(String[].class))
+            .containsExactly("a", "b", "c");
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(
+            new Class<?>[] { Object[].class }, new Object[] { new String[] { "a", "b", "c" } });
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(Object[].class))
+            .containsExactly("a", "b", "c");
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(new Class<?>[] { String[].class }, "a");
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(String[].class))
+            .containsExactly("a");
+
+    newArray = ReflectionHelper.setupArgumentsForVarargsInvocation(new Class<?>[] { String[].class }, new Object[] { null });
+    assertThat(newArray)
+            .singleElement()
+            .asInstanceOf(array(String[].class))
+            .singleElement()
+            .isNull();
   }
 
   @Test
