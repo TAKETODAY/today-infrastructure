@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +12,19 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
@@ -73,7 +72,9 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
    * Create a new, empty {@code ExtractingResponseErrorHandler}.
    * <p>Note that {@link #setMessageConverters(List)} must be called when using this constructor.
    */
-  public ExtractingResponseErrorHandler() { }
+  public ExtractingResponseErrorHandler() {
+
+  }
 
   /**
    * Create a new {@code ExtractingResponseErrorHandler} with the given
@@ -88,6 +89,7 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
   /**
    * Set the message converters to use by this extractor.
    */
+  @Override
   public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
     this.messageConverters = messageConverters;
   }
@@ -137,7 +139,12 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
   }
 
   @Override
-  public void handleError(ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
+  public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+    handleError(response, response.getStatusCode(), url, method);
+  }
+
+  @Override
+  protected void handleError(ClientHttpResponse response, HttpStatusCode statusCode, @Nullable URI url, @Nullable HttpMethod method) throws IOException {
     if (this.statusMapping.containsKey(statusCode)) {
       extract(this.statusMapping.get(statusCode), response);
     }
@@ -146,12 +153,11 @@ public class ExtractingResponseErrorHandler extends DefaultResponseErrorHandler 
       extract(this.seriesMapping.get(series), response);
     }
     else {
-      super.handleError(response, statusCode);
+      super.handleError(response, statusCode, url, method);
     }
   }
 
-  private void extract(@Nullable Class<? extends RestClientException> exceptionClass,
-          ClientHttpResponse response) throws IOException {
+  private void extract(@Nullable Class<? extends RestClientException> exceptionClass, ClientHttpResponse response) throws IOException {
     if (exceptionClass == null) {
       return;
     }

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,27 +12,30 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.client;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
+import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StreamUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -50,30 +50,26 @@ public class DefaultResponseErrorHandlerTests {
 
   private final DefaultResponseErrorHandler handler = new DefaultResponseErrorHandler();
 
-  private final ClientHttpResponse response = mock(ClientHttpResponse.class);
+  private final ClientHttpResponse response = mock();
 
   @Test
-  public void hasErrorTrue() throws Exception {
-    given(response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
+  void hasErrorTrue() throws Exception {
     given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
     assertThat(handler.hasError(response)).isTrue();
   }
 
   @Test
-  public void hasErrorFalse() throws Exception {
-    given(response.getRawStatusCode()).willReturn(HttpStatus.OK.value());
+  void hasErrorFalse() throws Exception {
     given(response.getStatusCode()).willReturn(HttpStatus.OK);
-
     assertThat(handler.hasError(response)).isFalse();
   }
 
   @Test
-  public void handleError() throws Exception {
+  void handleError() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
 
     given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
-    given(response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
     given(response.getStatusText()).willReturn("Not Found");
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willReturn(new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8)));
@@ -81,15 +77,50 @@ public class DefaultResponseErrorHandlerTests {
     assertThatExceptionOfType(HttpClientErrorException.class)
             .isThrownBy(() -> handler.handleError(response))
             .withMessage("404 Not Found: \"Hello World\"")
-            .satisfies(ex -> Assertions.assertThat(ex.getResponseHeaders()).isSameAs(headers));
+            .satisfies(ex -> assertThat(ex.getResponseHeaders()).isEqualTo(headers));
   }
 
   @Test
-  public void handleErrorIOException() throws Exception {
+  void handleErrorWithUrlAndMethod() throws Exception {
+    setupClientHttpResponse(HttpStatus.NOT_FOUND, "Hello World");
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> handler.handleError(URI.create("https://example.com"), HttpMethod.GET, response))
+            .withMessage("404 Not Found on GET request for \"https://example.com\": \"Hello World\"");
+  }
+
+  @Test
+  void handleErrorWithUrlAndQueryParameters() throws Exception {
+    setupClientHttpResponse(HttpStatus.NOT_FOUND, "Hello World");
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> handler.handleError(URI.create("https://example.com/resource?access_token=123"), HttpMethod.GET, response))
+            .withMessage("404 Not Found on GET request for \"https://example.com/resource\": \"Hello World\"");
+  }
+
+  @Test
+  void handleErrorWithUrlAndNoBody() throws Exception {
+    setupClientHttpResponse(HttpStatus.NOT_FOUND, null);
+    assertThatExceptionOfType(HttpClientErrorException.class)
+            .isThrownBy(() -> handler.handleError(URI.create("https://example.com"), HttpMethod.GET, response))
+            .withMessage("404 Not Found on GET request for \"https://example.com\": [no body]");
+  }
+
+  private void setupClientHttpResponse(HttpStatus status, @Nullable String textBody) throws Exception {
+    HttpHeaders headers = HttpHeaders.forWritable();
+    given(response.getStatusCode()).willReturn(status);
+    given(response.getStatusText()).willReturn(status.getReasonPhrase());
+    if (textBody != null) {
+      headers.setContentType(MediaType.TEXT_PLAIN);
+      given(response.getBody()).willReturn(new ByteArrayInputStream(textBody.getBytes(StandardCharsets.UTF_8)));
+    }
+    given(response.getHeaders()).willReturn(headers);
+  }
+
+  @Test
+  void handleErrorIOException() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
+
     given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
-    given(response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
     given(response.getStatusText()).willReturn("Not Found");
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willThrow(new IOException());
@@ -98,11 +129,11 @@ public class DefaultResponseErrorHandlerTests {
   }
 
   @Test
-  public void handleErrorNullResponse() throws Exception {
+  void handleErrorNullResponse() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
+
     given(response.getStatusCode()).willReturn(HttpStatus.NOT_FOUND);
-    given(response.getRawStatusCode()).willReturn(HttpStatus.NOT_FOUND.value());
     given(response.getStatusText()).willReturn("Not Found");
     given(response.getHeaders()).willReturn(headers);
 
@@ -114,8 +145,8 @@ public class DefaultResponseErrorHandlerTests {
   public void hasErrorForUnknownStatusCode() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
+
     given(response.getStatusCode()).willReturn(HttpStatusCode.valueOf(999));
-    given(response.getRawStatusCode()).willReturn(999);
     given(response.getStatusText()).willReturn("Custom status code");
     given(response.getHeaders()).willReturn(headers);
 
@@ -126,8 +157,8 @@ public class DefaultResponseErrorHandlerTests {
   public void handleErrorUnknownStatusCode() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
+
     given(response.getStatusCode()).willReturn(HttpStatusCode.valueOf(999));
-    given(response.getRawStatusCode()).willReturn(999);
     given(response.getStatusText()).willReturn("Custom status code");
     given(response.getHeaders()).willReturn(headers);
 
@@ -139,8 +170,8 @@ public class DefaultResponseErrorHandlerTests {
   public void hasErrorForCustomClientError() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
+
     given(response.getStatusCode()).willReturn(HttpStatusCode.valueOf(499));
-    given(response.getRawStatusCode()).willReturn(499);
     given(response.getStatusText()).willReturn("Custom status code");
     given(response.getHeaders()).willReturn(headers);
 
@@ -148,7 +179,7 @@ public class DefaultResponseErrorHandlerTests {
   }
 
   @Test
-  public void handleErrorForCustomClientError() throws Exception {
+  void handleErrorForCustomClientError() throws Exception {
     HttpStatusCode statusCode = HttpStatusCode.valueOf(499);
     String statusText = "Custom status code";
 
@@ -163,7 +194,7 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willReturn(body);
 
-    Throwable throwable = Assertions.catchThrowable(() -> handler.handleError(response));
+    Throwable throwable = catchThrowable(() -> handler.handleError(response));
 
     // validate exception
     assertThat(throwable).isInstanceOf(HttpClientErrorException.class);
@@ -179,9 +210,8 @@ public class DefaultResponseErrorHandlerTests {
   public void hasErrorForCustomServerError() throws Exception {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
-    given(response.getStatusCode()).willReturn(HttpStatusCode.valueOf(599));
 
-    given(response.getRawStatusCode()).willReturn(599);
+    given(response.getStatusCode()).willReturn(HttpStatusCode.valueOf(599));
     given(response.getStatusText()).willReturn("Custom status code");
     given(response.getHeaders()).willReturn(headers);
 
@@ -189,7 +219,7 @@ public class DefaultResponseErrorHandlerTests {
   }
 
   @Test
-  public void handleErrorForCustomServerError() throws Exception {
+  void handleErrorForCustomServerError() throws Exception {
     HttpStatusCode statusCode = HttpStatusCode.valueOf(599);
     String statusText = "Custom status code";
 
@@ -204,7 +234,7 @@ public class DefaultResponseErrorHandlerTests {
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willReturn(body);
 
-    Throwable throwable = Assertions.catchThrowable(() -> handler.handleError(response));
+    Throwable throwable = catchThrowable(() -> handler.handleError(response));
 
     // validate exception
     assertThat(throwable).isInstanceOf(HttpServerErrorException.class);
@@ -221,8 +251,8 @@ public class DefaultResponseErrorHandlerTests {
     HttpHeaders headers = HttpHeaders.forWritable();
     headers.setContentType(MediaType.TEXT_PLAIN);
     TestByteArrayInputStream body = new TestByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8));
+
     given(response.getStatusCode()).willReturn(HttpStatusCode.valueOf(999));
-    given(response.getRawStatusCode()).willReturn(999);
     given(response.getStatusText()).willReturn("Custom status code");
     given(response.getHeaders()).willReturn(headers);
     given(response.getBody()).willReturn(body);

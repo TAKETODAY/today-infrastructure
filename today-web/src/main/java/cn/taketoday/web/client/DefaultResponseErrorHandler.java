@@ -20,6 +20,7 @@ package cn.taketoday.web.client;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -28,17 +29,15 @@ import java.util.function.Function;
 
 import cn.taketoday.core.ResolvableType;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
-import cn.taketoday.http.MediaType;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.ClientHttpResponseDecorator;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.lang.Constant;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.util.LogFormatUtils;
 import cn.taketoday.util.ObjectUtils;
 
@@ -57,6 +56,7 @@ import cn.taketoday.util.ObjectUtils;
  * @author Arjen Poutsma
  * @author Rossen Stoyanchev
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see RestTemplate#setErrorHandler
  * @since 4.0
  */
@@ -99,6 +99,23 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
   }
 
   /**
+   * Template method called from {@link #hasError(ClientHttpResponse)}.
+   * <p>The default implementation checks if the given status code is
+   * {@link cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
+   * {@link cn.taketoday.http.HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
+   * Can be overridden in subclasses.
+   *
+   * @param statusCode the HTTP status code as raw value
+   * @return {@code true} if the response indicates an error; {@code false} otherwise
+   * @see cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR
+   * @see cn.taketoday.http.HttpStatus.Series#SERVER_ERROR
+   */
+  protected boolean hasError(int statusCode) {
+    HttpStatus.Series series = HttpStatus.Series.resolve(statusCode);
+    return (series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR);
+  }
+
+  /**
    * Handle the error in the given response with the given resolved status code.
    * <p>The default implementation throws:
    * <ul>
@@ -113,37 +130,74 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * </ul>
    *
    * @throws UnknownHttpStatusCodeException in case of an unresolvable status code
-   * @see #handleError(ClientHttpResponse, HttpStatusCode)
+   * @see #handleError(ClientHttpResponse, HttpStatusCode, URI, HttpMethod)
    */
   @Override
   public void handleError(ClientHttpResponse response) throws IOException {
     HttpStatusCode statusCode = response.getStatusCode();
-    handleError(response, statusCode);
+    handleError(response, statusCode, null, null);
+  }
+
+  /**
+   * Handle the error in the given response with the given resolved status code
+   * and extra information providing access to the request URL and HTTP method.
+   * <p>The default implementation throws:
+   * <ul>
+   * <li>{@link HttpClientErrorException} if the status code is in the 4xx
+   * series, or one of its sub-classes such as
+   * {@link HttpClientErrorException.BadRequest} and others.
+   * <li>{@link HttpServerErrorException} if the status code is in the 5xx
+   * series, or one of its sub-classes such as
+   * {@link HttpServerErrorException.InternalServerError} and others.
+   * <li>{@link UnknownHttpStatusCodeException} for error status codes not in the
+   * {@link HttpStatus} enum range.
+   * </ul>
+   *
+   * @throws UnknownHttpStatusCodeException in case of an unresolvable status code
+   * @see #handleError(ClientHttpResponse, HttpStatusCode, URI, HttpMethod)
+   */
+  @Override
+  public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
+    HttpStatusCode statusCode = response.getStatusCode();
+    handleError(response, statusCode, url, method);
   }
 
   /**
    * Return error message with details from the response body. For example:
    * <pre>
-   * 404 Not Found: [{'id': 123, 'message': 'my message'}]
+   * 404 Not Found on GET request for "https://example.com": [{'id': 123, 'message': 'my message'}]
    * </pre>
    */
-  private String getErrorMessage(
-      int rawStatusCode, String statusText, @Nullable byte[] responseBody, @Nullable Charset charset) {
+  private String getErrorMessage(int rawStatusCode, String statusText, @Nullable byte[] responseBody,
+          @Nullable Charset charset, @Nullable URI url, @Nullable HttpMethod method) {
 
-    String preface = "%d %s: ".formatted(rawStatusCode, statusText);
-
+    StringBuilder msg = new StringBuilder(rawStatusCode + " " + statusText);
+    if (method != null) {
+      msg.append(" on ").append(method).append(" request");
+    }
+    if (url != null) {
+      msg.append(" for \"");
+      String urlString = url.toString();
+      int idx = urlString.indexOf('?');
+      if (idx != -1) {
+        msg.append(urlString, 0, idx);
+      }
+      else {
+        msg.append(urlString);
+      }
+      msg.append("\"");
+    }
+    msg.append(": ");
     if (ObjectUtils.isEmpty(responseBody)) {
-      return preface + "[no body]";
+      msg.append("[no body]");
     }
-
-    if (charset == null) {
-      charset = StandardCharsets.UTF_8;
+    else {
+      charset = (charset != null ? charset : StandardCharsets.UTF_8);
+      String bodyText = new String(responseBody, charset);
+      bodyText = LogFormatUtils.formatValue(bodyText, -1, true);
+      msg.append(bodyText);
     }
-
-    String bodyText = new String(responseBody, charset);
-    bodyText = LogFormatUtils.formatValue(bodyText, -1, true);
-
-    return preface + bodyText;
+    return msg.toString();
   }
 
   /**
@@ -157,12 +211,14 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * @see HttpClientErrorException#create
    * @see HttpServerErrorException#create
    */
-  protected void handleError(ClientHttpResponse response, HttpStatusCode statusCode) throws IOException {
+  protected void handleError(ClientHttpResponse response, HttpStatusCode statusCode,
+          @Nullable URI url, @Nullable HttpMethod method) throws IOException {
+
     String statusText = response.getStatusText();
     HttpHeaders headers = response.getHeaders();
     byte[] body = getResponseBody(response);
     Charset charset = getCharset(response);
-    String message = getErrorMessage(statusCode.value(), statusText, body, charset);
+    String message = getErrorMessage(statusCode.value(), statusText, body, charset, url, method);
 
     RestClientResponseException ex;
     if (statusCode.is4xxClientError()) {
@@ -175,7 +231,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
       ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
     }
 
-    if (CollectionUtils.isNotEmpty(this.messageConverters)) {
+    if (!CollectionUtils.isEmpty(this.messageConverters)) {
       ex.setBodyConvertFunction(initBodyConvertFunction(response, body));
     }
 
@@ -186,12 +242,13 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * Return a function for decoding the error content. This can be passed to
    * {@link RestClientResponseException#setBodyConvertFunction(Function)}.
    */
+  @SuppressWarnings("NullAway")
   protected Function<ResolvableType, ?> initBodyConvertFunction(ClientHttpResponse response, byte[] body) {
-    Assert.state(CollectionUtils.isNotEmpty(messageConverters), "Expected message converters");
+    Assert.state(CollectionUtils.isNotEmpty(this.messageConverters), "Expected message converters");
     return resolvableType -> {
       try {
         HttpMessageConverterExtractor<?> extractor =
-            new HttpMessageConverterExtractor<>(resolvableType.getType(), this.messageConverters);
+                new HttpMessageConverterExtractor<>(resolvableType.getType(), messageConverters);
 
         return extractor.extractData(new ClientHttpResponseDecorator(response) {
           @Override
@@ -215,13 +272,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * or an empty byte array if the body could not be read
    */
   protected byte[] getResponseBody(ClientHttpResponse response) {
-    try {
-      return FileCopyUtils.copyToByteArray(response.getBody());
-    }
-    catch (IOException ex) {
-      // ignore
-    }
-    return Constant.EMPTY_BYTES;
+    return RestClientUtils.getBody(response);
   }
 
   /**
@@ -232,9 +283,7 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    */
   @Nullable
   protected Charset getCharset(ClientHttpResponse response) {
-    HttpHeaders headers = response.getHeaders();
-    MediaType contentType = headers.getContentType();
-    return contentType != null ? contentType.getCharset() : null;
+    return RestClientUtils.getCharset(response);
   }
 
 }
