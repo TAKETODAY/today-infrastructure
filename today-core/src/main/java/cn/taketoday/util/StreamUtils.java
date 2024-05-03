@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Constant;
+import cn.taketoday.lang.Contract;
 import cn.taketoday.lang.Nullable;
 
 /**
@@ -228,20 +229,14 @@ public abstract class StreamUtils {
     long bytesToCopy = end - start + 1;
     byte[] buffer = new byte[(int) Math.min(StreamUtils.BUFFER_SIZE, bytesToCopy)];
     while (bytesToCopy > 0) {
-      int bytesRead = in.read(buffer);
+      int bytesRead = bytesToCopy < buffer.length ? in.read(buffer, 0, (int) bytesToCopy) : in.read(buffer);
       if (bytesRead == -1) {
         break;
       }
-      else if (bytesRead <= bytesToCopy) {
-        out.write(buffer, 0, bytesRead);
-        bytesToCopy -= bytesRead;
-      }
-      else {
-        out.write(buffer, 0, (int) bytesToCopy);
-        bytesToCopy = 0;
-      }
+      out.write(buffer, 0, bytesRead);
+      bytesToCopy -= bytesRead;
     }
-    return end - start + 1 - bytesToCopy;
+    return (end - start + 1 - bytesToCopy);
   }
 
   /**
@@ -252,28 +247,12 @@ public abstract class StreamUtils {
    * @return the number of bytes read
    * @throws IOException in case of I/O errors
    */
-  public static int drain(InputStream in) throws IOException {
-    return drain(in, BUFFER_SIZE);
-  }
-
-  /**
-   * Drain the remaining content of the given InputStream.
-   * <p>Leaves the InputStream open when done.
-   *
-   * @param in the InputStream to drain
-   * @param bufferSize buffer size
-   * @return the number of bytes read
-   * @throws IOException in case of I/O errors
-   */
-  public static int drain(InputStream in, int bufferSize) throws IOException {
-    Assert.notNull(in, "No InputStream specified");
-    byte[] buffer = new byte[bufferSize];
-    int bytesRead;
-    int byteCount = 0;
-    while ((bytesRead = in.read(buffer, 0, buffer.length)) != -1) {
-      byteCount += bytesRead;
+  @Contract("null -> fail")
+  public static int drain(@Nullable InputStream in) throws IOException {
+    if (in == null) {
+      return 0;
     }
-    return byteCount;
+    return (int) in.transferTo(OutputStream.nullOutputStream());
   }
 
   /**

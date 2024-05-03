@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2021 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.util;
@@ -93,16 +90,35 @@ class StreamUtilsTests {
   }
 
   @Test
-  void copyRange() throws Exception {
+  void copyRangeWithinBuffer() throws Exception {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    StreamUtils.copyRange(new ByteArrayInputStream(bytes), out, 0, 100);
-    byte[] range = Arrays.copyOfRange(bytes, 0, 101);
-    assertThat(out.toByteArray()).isEqualTo(range);
+    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+    StreamUtils.copyRange(in, out, 0, 100);
+    assertThat(in.available()).isEqualTo(bytes.length - 101);
+    assertThat(out.toByteArray()).isEqualTo(Arrays.copyOfRange(bytes, 0, 101));
+  }
+
+  @Test
+  void copyRangeBeyondBuffer() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+    StreamUtils.copyRange(in, out, 0, 8200);
+    assertThat(in.available()).isEqualTo(1);
+    assertThat(out.toByteArray()).isEqualTo(Arrays.copyOfRange(bytes, 0, 8201));
+  }
+
+  @Test
+  void copyRangeBeyondAvailable() throws Exception {
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+    StreamUtils.copyRange(in, out, 0, 8300);
+    assertThat(in.available()).isEqualTo(0);
+    assertThat(out.toByteArray()).isEqualTo(Arrays.copyOfRange(bytes, 0, 8202));
   }
 
   @Test
   void nonClosingInputStream() throws Exception {
-    InputStream source = mock(InputStream.class);
+    InputStream source = mock();
     InputStream nonClosing = StreamUtils.nonClosing(source);
     nonClosing.read();
     nonClosing.read(bytes);
@@ -117,7 +133,7 @@ class StreamUtilsTests {
 
   @Test
   void nonClosingOutputStream() throws Exception {
-    OutputStream source = mock(OutputStream.class);
+    OutputStream source = mock();
     OutputStream nonClosing = StreamUtils.nonClosing(source);
     nonClosing.write(1);
     nonClosing.write(bytes);
@@ -129,4 +145,5 @@ class StreamUtilsTests {
     ordered.verify(source).write(bytes, 1, 2);
     ordered.verify(source, never()).close();
   }
+
 }
