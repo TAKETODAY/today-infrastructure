@@ -40,6 +40,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see PropertyAccessor
  * @see IndexAccessor
+ * @since 4.0
  */
 public interface TargetedAccessor {
 
