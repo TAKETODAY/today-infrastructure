@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation;
@@ -20,16 +20,19 @@ package cn.taketoday.context.annotation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Set;
 
 import cn.taketoday.beans.BeansException;
 import cn.taketoday.beans.factory.FactoryBean;
+import cn.taketoday.beans.factory.config.BeanDefinition;
 import cn.taketoday.beans.factory.config.BeanFactoryPostProcessor;
 import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.beans.factory.support.AbstractBeanFactory;
+import cn.taketoday.beans.factory.support.BeanDefinitionBuilder;
+import cn.taketoday.beans.factory.support.GenericBeanDefinition;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.context.BootstrapContext;
 import cn.taketoday.context.support.GenericApplicationContext;
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.type.AnnotationMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,62 +43,72 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
+class ConfigurationWithFactoryBeanEarlyDeductionTests {
 
   @Test
-  public void preFreezeDirect() {
+  void preFreezeDirect() {
     assertPreFreeze(DirectConfiguration.class);
   }
 
   @Test
-  public void postFreezeDirect() {
+  void postFreezeDirect() {
     assertPostFreeze(DirectConfiguration.class);
   }
 
   @Test
-  public void preFreezeGenericMethod() {
+  void preFreezeGenericMethod() {
     assertPreFreeze(GenericMethodConfiguration.class);
   }
 
   @Test
-  public void postFreezeGenericMethod() {
+  void postFreezeGenericMethod() {
     assertPostFreeze(GenericMethodConfiguration.class);
   }
 
   @Test
-  public void preFreezeGenericClass() {
+  void preFreezeGenericClass() {
     assertPreFreeze(GenericClassConfiguration.class);
   }
 
   @Test
-  public void postFreezeGenericClass() {
+  void postFreezeGenericClass() {
     assertPostFreeze(GenericClassConfiguration.class);
   }
 
   @Test
-  public void preFreezeAttribute() {
+  void preFreezeAttribute() {
     assertPreFreeze(AttributeClassConfiguration.class);
   }
 
   @Test
-  public void postFreezeAttribute() {
+  void postFreezeAttribute() {
     assertPostFreeze(AttributeClassConfiguration.class);
   }
 
   @Test
-  public void preFreezeUnresolvedGenericFactoryBean() {
+  void preFreezeTargetType() {
+    assertPreFreeze(TargetTypeConfiguration.class);
+  }
+
+  @Test
+  void postFreezeTargetType() {
+    assertPostFreeze(TargetTypeConfiguration.class);
+  }
+
+  @Test
+  void preFreezeUnresolvedGenericFactoryBean() {
     // Covers the case where a @Configuration is picked up via component scanning
     // and its bean definition only has a String bean class. In such cases
     // beanDefinition.hasBeanClass() returns false so we need to actually
     // call determineTargetType ourselves
-    RootBeanDefinition factoryBeanDefinition = new RootBeanDefinition();
+    GenericBeanDefinition factoryBeanDefinition = new GenericBeanDefinition();
     factoryBeanDefinition.setBeanClassName(GenericClassConfiguration.class.getName());
-    RootBeanDefinition beanDefinition = new RootBeanDefinition();
+    GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
     beanDefinition.setBeanClass(FactoryBean.class);
     beanDefinition.setFactoryBeanName("factoryBean");
     beanDefinition.setFactoryMethodName("myBean");
     GenericApplicationContext context = new GenericApplicationContext();
-    try {
+    try (context) {
       context.registerBeanDefinition("factoryBean", factoryBeanDefinition);
       context.registerBeanDefinition("myBean", beanDefinition);
       NameCollectingBeanFactoryPostProcessor postProcessor = new NameCollectingBeanFactoryPostProcessor();
@@ -103,76 +116,64 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
       context.refresh();
       assertContainsMyBeanName(postProcessor.getNames());
     }
-    finally {
-      context.close();
-    }
   }
 
   private void assertPostFreeze(Class<?> configurationClass) {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-            configurationClass);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(configurationClass);
     assertContainsMyBeanName(context);
   }
 
-  private void assertPreFreeze(Class<?> configurationClass,
-          BeanFactoryPostProcessor... postProcessors) {
+  private void assertPreFreeze(Class<?> configurationClass, BeanFactoryPostProcessor... postProcessors) {
     NameCollectingBeanFactoryPostProcessor postProcessor = new NameCollectingBeanFactoryPostProcessor();
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    try {
+    try (context) {
       Arrays.stream(postProcessors).forEach(context::addBeanFactoryPostProcessor);
       context.addBeanFactoryPostProcessor(postProcessor);
       context.register(configurationClass);
       context.refresh();
       assertContainsMyBeanName(postProcessor.getNames());
     }
-    finally {
-      context.close();
-    }
   }
 
   private void assertContainsMyBeanName(AnnotationConfigApplicationContext context) {
-    assertContainsMyBeanName(context.getBeanNamesForType(MyBean.class, true, false));
+    assertContainsMyBeanName(context.getBeanNamesForType(MyBean.class, true, false).toArray(String[]::new));
   }
 
-  private void assertContainsMyBeanName(Set<String> names) {
+  private void assertContainsMyBeanName(String[] names) {
     assertThat(names).containsExactly("myBean");
   }
 
-  private static class NameCollectingBeanFactoryPostProcessor
-          implements BeanFactoryPostProcessor {
+  private static class NameCollectingBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
 
-    private Set<String> names;
+    private String[] names;
 
     @Override
-    public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory)
-            throws BeansException {
-      this.names = beanFactory.getBeanNamesForType(MyBean.class, true, false);
+    public void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) throws BeansException {
+      ResolvableType typeToMatch = ResolvableType.forClassWithGenerics(MyBean.class, String.class);
+      this.names = beanFactory.getBeanNamesForType(typeToMatch, true, false).toArray(String[]::new);
     }
 
-    public Set<String> getNames() {
+    public String[] getNames() {
       return this.names;
     }
-
   }
 
   @Configuration
   static class DirectConfiguration {
 
     @Bean
-    MyBean myBean() {
-      return new MyBean();
+    MyBean<String> myBean() {
+      return new MyBean<>();
     }
-
   }
 
   @Configuration
   static class GenericMethodConfiguration {
 
     @Bean
-    FactoryBean<MyBean> myBean() {
-      return new TestFactoryBean<>(new MyBean());
+    FactoryBean<MyBean<String>> myBean() {
+      return new TestFactoryBean<>(new MyBean<>());
     }
-
   }
 
   @Configuration
@@ -182,29 +183,47 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
     MyFactoryBean myBean() {
       return new MyFactoryBean();
     }
-
   }
 
   @Configuration
   @Import(AttributeClassRegistrar.class)
   static class AttributeClassConfiguration {
-
   }
 
   static class AttributeClassRegistrar implements ImportBeanDefinitionRegistrar {
-
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
-      RootBeanDefinition definition = new RootBeanDefinition(RawWithAbstractObjectTypeFactoryBean.class);
-      definition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE, MyBean.class);
+
+      BeanDefinition definition = BeanDefinitionBuilder.genericBeanDefinition(
+              RawWithAbstractObjectTypeFactoryBean.class).getBeanDefinition();
+      definition.setAttribute(FactoryBean.OBJECT_TYPE_ATTRIBUTE,
+              ResolvableType.forClassWithGenerics(MyBean.class, String.class));
       context.registerBeanDefinition("myBean", definition);
     }
+
+  }
+
+  @Configuration
+  @Import(TargetTypeRegistrar.class)
+  static class TargetTypeConfiguration {
+  }
+
+  static class TargetTypeRegistrar implements ImportBeanDefinitionRegistrar {
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importMetadata, BootstrapContext context) {
+
+      RootBeanDefinition definition = new RootBeanDefinition(RawWithAbstractObjectTypeFactoryBean.class);
+      definition.setTargetType(ResolvableType.forClassWithGenerics(FactoryBean.class,
+              ResolvableType.forClassWithGenerics(MyBean.class, String.class)));
+      context.registerBeanDefinition("myBean", definition);
+    }
+
   }
 
   abstract static class AbstractMyBean {
   }
 
-  static class MyBean extends AbstractMyBean {
+  static class MyBean<T> extends AbstractMyBean {
   }
 
   static class TestFactoryBean<T> implements FactoryBean<T> {
@@ -216,7 +235,7 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
     }
 
     @Override
-    public T getObject() throws Exception {
+    public T getObject() {
       return this.instance;
     }
 
@@ -224,31 +243,26 @@ public class ConfigurationWithFactoryBeanBeanEarlyDeductionTests {
     public Class<?> getObjectType() {
       return this.instance.getClass();
     }
-
   }
 
-  static class MyFactoryBean extends TestFactoryBean<MyBean> {
+  static class MyFactoryBean extends TestFactoryBean<MyBean<String>> {
 
     public MyFactoryBean() {
-      super(new MyBean());
+      super(new MyBean<>());
     }
-
   }
 
   static class RawWithAbstractObjectTypeFactoryBean implements FactoryBean<Object> {
 
-    private final Object object = new MyBean();
-
     @Override
     public Object getObject() throws Exception {
-      return object;
+      throw new IllegalStateException();
     }
 
     @Override
     public Class<?> getObjectType() {
       return MyBean.class;
     }
-
   }
 
 }
