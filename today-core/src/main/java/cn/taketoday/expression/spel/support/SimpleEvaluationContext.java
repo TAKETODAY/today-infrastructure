@@ -26,7 +26,6 @@ import java.util.function.Supplier;
 import cn.taketoday.core.TypeDescriptor;
 import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.expression.BeanResolver;
-import cn.taketoday.expression.ConstructorResolver;
 import cn.taketoday.expression.EvaluationContext;
 import cn.taketoday.expression.Expression;
 import cn.taketoday.expression.MethodResolver;
@@ -139,15 +138,6 @@ public final class SimpleEvaluationContext implements EvaluationContext {
   @Override
   public List<PropertyAccessor> getPropertyAccessors() {
     return this.propertyAccessors;
-  }
-
-  /**
-   * Return an empty list, always, since this context does not support the
-   * use of type references.
-   */
-  @Override
-  public List<ConstructorResolver> getConstructorResolvers() {
-    return Collections.emptyList();
   }
 
   /**

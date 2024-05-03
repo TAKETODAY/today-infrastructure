@@ -49,25 +49,43 @@ public interface EvaluationContext {
 
   /**
    * Return the default root context object against which unqualified
-   * properties/methods/etc should be resolved. This can be overridden
-   * when evaluating an expression.
+   * properties, methods, etc. should be resolved.
+   * <p>This can be overridden when evaluating an expression.
    */
   TypedValue getRootObject();
 
   /**
    * Return a list of accessors that will be asked in turn to read/write a property.
+   * <p>The default implementation returns an empty list.
    */
-  List<PropertyAccessor> getPropertyAccessors();
+  default List<PropertyAccessor> getPropertyAccessors() {
+    return Collections.emptyList();
+  }
+
+  /**
+   * Return a list of index accessors that will be asked in turn to access or
+   * set an indexed value.
+   * <p>The default implementation returns an empty list.
+   */
+  default List<IndexAccessor> getIndexAccessors() {
+    return Collections.emptyList();
+  }
 
   /**
    * Return a list of resolvers that will be asked in turn to locate a constructor.
+   * <p>The default implementation returns an empty list.
    */
-  List<ConstructorResolver> getConstructorResolvers();
+  default List<ConstructorResolver> getConstructorResolvers() {
+    return Collections.emptyList();
+  }
 
   /**
    * Return a list of resolvers that will be asked in turn to locate a method.
+   * <p>The default implementation returns an empty list.
    */
-  List<MethodResolver> getMethodResolvers();
+  default List<MethodResolver> getMethodResolvers() {
+    return Collections.emptyList();
+  }
 
   /**
    * Return a bean resolver that can look up beans by name.
@@ -98,15 +116,6 @@ public interface EvaluationContext {
   OperatorOverloader getOperatorOverloader();
 
   /**
-   * Return a list of index accessors that will be asked in turn to access or
-   * set an indexed value.
-   * <p>The default implementation returns an empty list.
-   */
-  default List<IndexAccessor> getIndexAccessors() {
-    return Collections.emptyList();
-  }
-
-  /**
    * Assign the value created by the specified {@link Supplier} to a named variable
    * within this evaluation context.
    * <p>In contrast to {@link #setVariable(String, Object)}, this method should only
@@ -126,17 +135,22 @@ public interface EvaluationContext {
   }
 
   /**
-   * Set a named variable within this evaluation context to a specified value.
+   * Set a named variable in this evaluation context to a specified value.
+   * <p>In contrast to {@link #assignVariable(String, Supplier)}, this method
+   * should only be invoked programmatically when interacting directly with the
+   * {@code EvaluationContext} &mdash; for example, to provide initial
+   * configuration for the context.
    *
    * @param name the name of the variable to set
    * @param value the value to be placed in the variable
+   * @see #lookupVariable(String)
    */
   void setVariable(String name, @Nullable Object value);
 
   /**
    * Look up a named variable within this evaluation context.
    *
-   * @param name variable to lookup
+   * @param name the name of the variable to look up
    * @return the value of the variable, or {@code null} if not found
    */
   @Nullable
