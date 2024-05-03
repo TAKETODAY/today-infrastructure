@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.client;
@@ -28,10 +25,16 @@ import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.util.stream.Stream;
 
 import cn.taketoday.http.HttpMethod;
+import cn.taketoday.http.HttpStatus;
+import cn.taketoday.util.FileCopyUtils;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -147,6 +150,36 @@ public class HttpComponentsClientHttpRequestFactoryTests extends AbstractHttpReq
     RequestConfig requestConfig2 = retrieveRequestConfig(hrf);
     assertThat(requestConfig2.getConnectTimeout()).isEqualTo(Timeout.of(1234, MILLISECONDS));
     assertThat(requestConfig2.getConnectionRequestTimeout()).isEqualTo(Timeout.of(7000, MILLISECONDS));
+  }
+
+  @ParameterizedTest
+  @MethodSource("unsafeHttpMethods")
+  void shouldSetContentLengthWhenEmptyBody(HttpMethod method) throws Exception {
+    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/header/Content-Length"), method);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+      String result = FileCopyUtils.copyToString(new InputStreamReader(response.getBody()));
+      assertThat(result).as("Invalid body").isEqualTo("Content-Length:0");
+    }
+  }
+
+  static Stream<HttpMethod> unsafeHttpMethods() {
+    return Stream.of(HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH);
+  }
+
+  @ParameterizedTest
+  @MethodSource("safeHttpMethods")
+  void shouldNotSetContentLengthWhenEmptyBodyAndSafeMethod(HttpMethod method) throws Exception {
+    ClientHttpRequest request = factory.createRequest(URI.create(baseUrl + "/header/Content-Length"), method);
+    try (ClientHttpResponse response = request.execute()) {
+      assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
+      String result = FileCopyUtils.copyToString(new InputStreamReader(response.getBody()));
+      assertThat(result).as("Invalid body").isEqualTo("Content-Length:null");
+    }
+  }
+
+  static Stream<HttpMethod> safeHttpMethods() {
+    return Stream.of(HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.TRACE);
   }
 
   private RequestConfig retrieveRequestConfig(HttpComponentsClientHttpRequestFactory factory) throws Exception {
