@@ -301,7 +301,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
   /**
    * Determine the set of property accessors that should be used to try to
    * access a property on the specified context object.
-   * <p>Delegates to {@link AstUtils#getPropertyAccessorsToTry(Class, List)}.
+   * <p>Delegates to {@link AstUtils#getAccessorsToTry(Class, List)}.
    *
    * @param targetObject the object upon which property access is being attempted
    * @return a list of accessors that should be tried in order to access the
@@ -309,7 +309,7 @@ public class PropertyOrFieldReference extends SpelNodeImpl {
    */
   private List<PropertyAccessor> getPropertyAccessorsToTry(@Nullable Object targetObject, List<PropertyAccessor> propertyAccessors) {
     Class<?> targetType = (targetObject != null ? targetObject.getClass() : null);
-    return AstUtils.getPropertyAccessorsToTry(targetType, propertyAccessors);
+    return AstUtils.getAccessorsToTry(targetType, propertyAccessors);
   }
 
   @Override

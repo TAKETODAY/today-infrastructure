@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.taketoday.expression.PropertyAccessor;
 import cn.taketoday.expression.TargetedAccessor;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
@@ -34,7 +33,26 @@ import cn.taketoday.util.ObjectUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public abstract class AstUtils {
+abstract class AstUtils {
+
+  /**
+   * Determine the set of accessors that should be used to try to access an
+   * element on the specified target object.
+   * <p>Delegates to {@link #getAccessorsToTry(Class, List)} with the type of
+   * the supplied target object.
+   *
+   * @param targetObject the object upon which element access is being attempted
+   * @param accessors the list of element accessors to process
+   * @return a list of accessors that should be tried in order to access the
+   * element on the specified target type, or an empty list if no suitable
+   * accessor could be found
+   */
+  static <T extends TargetedAccessor> List<T> getAccessorsToTry(
+          @Nullable Object targetObject, List<T> accessors) {
+
+    Class<?> targetType = (targetObject != null ? targetObject.getClass() : null);
+    return getAccessorsToTry(targetType, accessors);
+  }
 
   /**
    * Determine the set of accessors that should be used to try to access an
@@ -54,14 +72,14 @@ public abstract class AstUtils {
    * element on the specified target type, or an empty list if no suitable
    * accessor could be found
    */
-  public static <T extends TargetedAccessor> List<T> getAccessorsToTry(@Nullable Class<?> targetType, List<T> accessors) {
+  static <T extends TargetedAccessor> List<T> getAccessorsToTry(@Nullable Class<?> targetType, List<T> accessors) {
     if (accessors.isEmpty()) {
       return Collections.emptyList();
     }
 
-    ArrayList<T> exactMatches = new ArrayList<>();
-    ArrayList<T> inexactMatches = new ArrayList<>();
-    ArrayList<T> genericMatches = new ArrayList<>();
+    List<T> exactMatches = new ArrayList<>();
+    List<T> inexactMatches = new ArrayList<>();
+    List<T> genericMatches = new ArrayList<>();
     for (T accessor : accessors) {
       Class<?>[] targets = accessor.getSpecificTargetClasses();
       if (ObjectUtils.isEmpty(targets)) {
@@ -91,31 +109,6 @@ public abstract class AstUtils {
       result.addAll(genericMatches);
       return result;
     }
-  }
-
-  /**
-   * Determine the set of property accessors that should be used to try to
-   * access a property on the specified target type.
-   * <p>The accessors are considered to be in an ordered list; however, in the
-   * returned list any accessors that are exact matches for the input target
-   * type (as opposed to 'generic' accessors that could work for any type) are
-   * placed at the start of the list. In addition, if there are specific
-   * accessors that exactly name the class in question and accessors that name
-   * a specific class which is a supertype of the class in question, the latter
-   * are put at the end of the specific accessors set and will be tried after
-   * exactly matching accessors but before generic accessors.
-   *
-   * @param targetType the type upon which property access is being attempted
-   * @param propertyAccessors the list of property accessors to process
-   * @return a list of accessors that should be tried in order to access the
-   * property on the specified target type, or an empty list if no suitable
-   * accessor could be found
-   * @see #getAccessorsToTry(Class, List)
-   */
-  public static List<PropertyAccessor> getPropertyAccessorsToTry(
-          @Nullable Class<?> targetType, List<PropertyAccessor> propertyAccessors) {
-
-    return getAccessorsToTry(targetType, propertyAccessors);
   }
 
 }
