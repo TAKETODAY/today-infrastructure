@@ -20,7 +20,9 @@ package cn.taketoday.core.env;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import cn.taketoday.core.testfixture.env.MockPropertySource;
 import cn.taketoday.lang.TodayStrategies;
@@ -184,9 +186,9 @@ public class StandardEnvironmentTests {
   @Test
   void addActiveProfile_whenActiveProfilesPropertyIsAlreadySet() {
     ConfigurableEnvironment env = new StandardEnvironment();
-    assertThat(env.getProperty(ConfigurableEnvironment.KEY_ACTIVE_PROFILES)).isNull();
-    env.getPropertySources().addFirst(new MockPropertySource().withProperty(ConfigurableEnvironment.KEY_ACTIVE_PROFILES, "p1"));
-    assertThat(env.getProperty(ConfigurableEnvironment.KEY_ACTIVE_PROFILES)).isEqualTo("p1");
+    assertThat(env.getProperty(KEY_ACTIVE_PROFILES)).isNull();
+    env.getPropertySources().addFirst(new MockPropertySource().withProperty(KEY_ACTIVE_PROFILES, "p1"));
+    assertThat(env.getProperty(KEY_ACTIVE_PROFILES)).isEqualTo("p1");
     env.addActiveProfile("p2");
     assertThat(env.getActiveProfiles()).containsExactly("p1", "p2");
   }
@@ -302,6 +304,12 @@ public class StandardEnvironmentTests {
       assertThat(systemProperties.get(DISALLOWED_PROPERTY_NAME)).isEqualTo(DISALLOWED_PROPERTY_VALUE);
       assertThat(systemProperties.get(STRING_PROPERTY_NAME)).isEqualTo(NON_STRING_PROPERTY_VALUE);
       assertThat(systemProperties.get(NON_STRING_PROPERTY_NAME)).isEqualTo(STRING_PROPERTY_VALUE);
+
+      PropertiesPropertySource systemPropertySource = (PropertiesPropertySource)
+              environment.getPropertySources().get(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME);
+      Set<String> expectedKeys = new HashSet<>(System.getProperties().stringPropertyNames());
+      expectedKeys.add(STRING_PROPERTY_NAME);  // filtered out by stringPropertyNames due to non-String value
+      assertThat(Set.of(systemPropertySource.getPropertyNames())).isEqualTo(expectedKeys);
     }
     finally {
       System.clearProperty(ALLOWED_PROPERTY_NAME);
@@ -440,7 +448,6 @@ public class StandardEnvironmentTests {
       environment.addActiveProfile("p2");
       assertThat(environment.acceptsProfiles(Profiles.parse("p1 & p2"))).isTrue();
     }
-
   }
 
   @Nested
@@ -542,7 +549,6 @@ public class StandardEnvironmentTests {
       assertThat(environment.matchesProfiles("p2 & (foo | p1)")).isTrue();
       assertThat(environment.matchesProfiles("foo", "(p2 & p1)")).isTrue();
     }
-
   }
 
 }
