@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.cache.aspectj;
@@ -23,6 +20,8 @@ package cn.taketoday.cache.aspectj;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import cn.taketoday.beans.factory.NoSuchBeanDefinitionException;
+import cn.taketoday.beans.factory.NoUniqueBeanDefinitionException;
 import cn.taketoday.cache.CacheManager;
 import cn.taketoday.cache.annotation.CachingConfigurer;
 import cn.taketoday.cache.annotation.EnableCaching;
@@ -91,8 +90,9 @@ public class AspectJEnableCachingIsolatedTests {
     try {
       load(MultiCacheManagerConfig.class);
     }
-    catch (IllegalStateException ex) {
-      assertThat(ex.getMessage().contains("bean of type CacheManager")).isTrue();
+    catch (NoUniqueBeanDefinitionException ex) {
+      assertThat(ex.getMessage()).contains(
+              "no CacheResolver specified and expected a single CacheManager bean, but found 2: [cm1,cm2]");
     }
   }
 
@@ -116,8 +116,8 @@ public class AspectJEnableCachingIsolatedTests {
     try {
       load(EmptyConfig.class);
     }
-    catch (IllegalStateException ex) {
-      assertThat(ex.getMessage().contains("no bean of type CacheManager")).isTrue();
+    catch (NoSuchBeanDefinitionException ex) {
+      assertThat(ex.getMessage()).contains("no CacheResolver specified");
     }
   }
 

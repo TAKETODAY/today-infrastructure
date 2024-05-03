@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,13 +90,12 @@ public class EnableCachingTests extends AbstractCacheAnnotationTests {
 
   @Test
   void multipleCacheManagerBeans() {
-    @SuppressWarnings("resource")
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(MultiCacheManagerConfig.class);
     assertThatThrownBy(ctx::refresh)
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("no unique bean of type CacheManager")
-            .hasCauseInstanceOf(NoUniqueBeanDefinitionException.class);
+            .isInstanceOf(NoUniqueBeanDefinitionException.class)
+            .hasMessageContaining("no CacheResolver specified and expected a single CacheManager bean, but found 2: [cm1,cm2]")
+            .hasNoCause();
   }
 
   @Test
@@ -118,13 +117,14 @@ public class EnableCachingTests extends AbstractCacheAnnotationTests {
 
   @Test
   void noCacheManagerBeans() {
-    @SuppressWarnings("resource")
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(EmptyConfig.class);
     assertThatThrownBy(ctx::refresh)
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessageContaining("no bean of type CacheManager")
-            .hasCauseInstanceOf(NoSuchBeanDefinitionException.class);
+            .isInstanceOf(NoSuchBeanDefinitionException.class)
+            .hasMessageContaining("no CacheResolver specified")
+            .hasMessageContaining(
+                    "register a CacheManager bean or remove the @EnableCaching annotation from your configuration.")
+            .hasNoCause();
   }
 
   @Test
