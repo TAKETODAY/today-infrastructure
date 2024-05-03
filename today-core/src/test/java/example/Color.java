@@ -15,14 +15,8 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.expression.spel;
+package example;
 
-/**
- * This is intentionally a top-level public interface.
- */
-public interface PublicInterface {
-
-  String getText();
-
-  String getFruit(int index);
+public enum Color {
+  RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE
 }
