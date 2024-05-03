@@ -189,7 +189,7 @@ class DefaultFutureTests {
 
   @Test
   public void testListenerNotifyOrder() throws Exception {
-    Executor executor = Future.defaultExecutor;
+    Executor executor = GlobalExecutor.INSTANCE;
     final BlockingQueue<FutureListener<Future<Void>>> listeners = new LinkedBlockingQueue<>();
     int runs = 100000;
 
@@ -221,12 +221,7 @@ class DefaultFutureTests {
         }
       };
 
-      GlobalExecutor.INSTANCE.execute(new Runnable() {
-        @Override
-        public void run() {
-          future.setSuccess(null);
-        }
-      });
+      GlobalExecutor.INSTANCE.execute(() -> future.setSuccess(null));
 
       future.onCompleted(listener1)
               .onCompleted(listener2)

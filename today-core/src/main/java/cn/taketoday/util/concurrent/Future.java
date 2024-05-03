@@ -227,6 +227,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with success and failure callbacks.
+   * <p>
+   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param successCallback the success callback
    * @param failureCallback the failure callback
@@ -238,6 +240,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with success callbacks.
+   * <p>
+   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param successCallback the success callback
    * @return this future object.
@@ -248,6 +252,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
 
   /**
    * Java 8 lambda-friendly alternative with failure callbacks.
+   * <p>
+   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param failureCallback the failure callback
    * @return this future object.
@@ -260,6 +266,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * Adds the specified listener to this future. The specified listener
    * is notified when this future is {@link #isDone() done}. If this
    * future is already completed, the specified listener is notified immediately.
+   * <p>
+   * The order in which listeners are called depends on the {@link #executor}
    *
    * @param listener The listener to be called when this future completes.
    * The listener will be passed the given context, and this future.
@@ -277,6 +285,8 @@ public abstract class Future<V> implements java.util.concurrent.Future<V> {
    * The specified listener is notified when this future is
    * {@linkplain #isDone() done}. If this future is already
    * completed, the specified listener is notified immediately.
+   * <p>
+   * The order in which listeners are called depends on the {@link #executor}
    *
    * @return this future object.
    */
