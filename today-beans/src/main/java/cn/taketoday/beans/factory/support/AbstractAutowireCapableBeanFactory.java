@@ -703,9 +703,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
               "Bean class isn't public, and non-public access not allowed: " + beanClass.getName());
     }
 
-    Supplier<?> instanceSupplier = merged.getInstanceSupplier();
-    if (instanceSupplier != null) {
-      return obtainFromSupplier(merged, instanceSupplier, beanName); // maybe null
+    if (args == null) {
+      Supplier<?> instanceSupplier = merged.getInstanceSupplier();
+      if (instanceSupplier != null) {
+        return obtainFromSupplier(merged, instanceSupplier, beanName); // maybe null
+      }
     }
 
     if (merged.getFactoryMethodName() != null) {
