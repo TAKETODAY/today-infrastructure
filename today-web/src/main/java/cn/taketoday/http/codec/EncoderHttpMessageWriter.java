@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ import cn.taketoday.core.codec.Encoder;
 import cn.taketoday.core.codec.Hints;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DataBufferUtils;
+import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpLogging;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ReactiveHttpOutputMessage;
@@ -124,6 +125,7 @@ public class EncoderHttpMessageWriter<T> implements HttpMessageWriter<T> {
     if (inputStream instanceof Mono) {
       return body.singleOrEmpty()
               .switchIfEmpty(Mono.defer(() -> {
+                message.getHeaders().remove(HttpHeaders.CONTENT_TYPE);
                 message.getHeaders().setContentLength(0);
                 return message.setComplete().then(Mono.empty());
               }))

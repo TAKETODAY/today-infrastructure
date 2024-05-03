@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +12,13 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.http.codec;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -35,7 +31,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cn.taketoday.core.ResolvableType;
 import cn.taketoday.core.codec.CharSequenceEncoder;
+import cn.taketoday.core.codec.Encoder;
 import cn.taketoday.core.io.buffer.DataBuffer;
 import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.MediaType;
@@ -194,15 +192,39 @@ class EncoderHttpMessageWriterTests {
   void isStreamingMediaType() throws InvocationTargetException, IllegalAccessException {
     configureEncoder(TEXT_HTML);
     MediaType streamingMediaType = new MediaType(TEXT_PLAIN, Collections.singletonMap("streaming", "true"));
-    given(this.encoder.getStreamingMediaTypes()).willReturn(Arrays.asList(streamingMediaType));
+    given(this.encoder.getStreamingMediaTypes()).willReturn(List.of(streamingMediaType));
 
     HttpMessageWriter<String> writer = new EncoderHttpMessageWriter<>(this.encoder);
     Method method = ReflectionUtils.findMethod(writer.getClass(), "isStreamingMediaType", MediaType.class);
     ReflectionUtils.makeAccessible(method);
 
-    assertThat((boolean) (Boolean) method.invoke(writer, streamingMediaType)).isTrue();
-    assertThat((boolean) (Boolean) method.invoke(writer, new MediaType(TEXT_PLAIN, Collections.singletonMap("streaming", "false")))).isFalse();
-    assertThat((boolean) (Boolean) method.invoke(writer, TEXT_HTML)).isFalse();
+    assertThat((Boolean) method.invoke(writer, streamingMediaType)).isTrue();
+    assertThat((Boolean) method.invoke(writer, new MediaType(TEXT_PLAIN, Collections.singletonMap("streaming", "false")))).isFalse();
+    assertThat((Boolean) method.invoke(writer, TEXT_HTML)).isFalse();
+  }
+
+  @Test
+  public void noContentTypeWithEmptyBody() {
+    Encoder<CharSequence> encoder = CharSequenceEncoder.textPlainOnly();
+    HttpMessageWriter<CharSequence> writer = new EncoderHttpMessageWriter<>(encoder);
+    Mono<Void> writerMono = writer.write(Mono.empty(), ResolvableType.forClass(String.class),
+            null, this.response, NO_HINTS);
+
+    StepVerifier.create(writerMono)
+            .verifyComplete();
+    assertThat(response.getHeaders().getContentType()).isNull();
+  }
+
+  @Test
+  public void zeroContentLengthWithEmptyBody() {
+    Encoder<CharSequence> encoder = CharSequenceEncoder.textPlainOnly();
+    HttpMessageWriter<CharSequence> writer = new EncoderHttpMessageWriter<>(encoder);
+    Mono<Void> writerMono = writer.write(Mono.empty(), ResolvableType.forClass(String.class),
+            null, this.response, NO_HINTS);
+
+    StepVerifier.create(writerMono)
+            .verifyComplete();
+    assertThat(this.response.getHeaders().getContentLength()).isEqualTo(0);
   }
 
   private void configureEncoder(MimeType... mimeTypes) {
@@ -212,7 +234,7 @@ class EncoderHttpMessageWriterTests {
   private void configureEncoder(Flux<DataBuffer> encodedStream, MimeType... mimeTypes) {
     List<MimeType> typeList = Arrays.asList(mimeTypes);
     given(this.encoder.getEncodableMimeTypes()).willReturn(typeList);
-    given(this.encoder.encode(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), this.mediaTypeCaptor.capture(), ArgumentMatchers.any()))
+    given(this.encoder.encode(any(), any(), any(), this.mediaTypeCaptor.capture(), any()))
             .willReturn(encodedStream);
   }
 
