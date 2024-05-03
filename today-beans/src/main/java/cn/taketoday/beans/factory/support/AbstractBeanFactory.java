@@ -270,6 +270,15 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
               throw new BeanCreationException(merged.getResourceDescription(), beanName,
                       "'%s' depends on missing bean '%s'".formatted(beanName, dep), ex);
             }
+            catch (BeanCreationException ex) {
+              if (requiredType != null) {
+                // Wrap exception with current bean metadata but only if specifically
+                // requested (indicated by required type), not for depends-on cascades.
+                throw new BeanCreationException(merged.getResourceDescription(), beanName, "Failed to initialize dependency '%s' of %s bean '%s': %s"
+                        .formatted(ex.getBeanName(), requiredType.getSimpleName(), beanName, ex.getMessage()), ex);
+              }
+              throw ex;
+            }
           }
         }
 
