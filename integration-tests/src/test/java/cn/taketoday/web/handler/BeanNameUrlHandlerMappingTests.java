@@ -27,15 +27,15 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.mock.ServletException;
 import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

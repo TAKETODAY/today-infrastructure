@@ -21,13 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import cn.taketoday.web.servlet.ServletForwardingController;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.ServletWrappingController;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.view.ModelAndView;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.mock.RequestDispatcher;
 import cn.taketoday.web.mock.Servlet;
 import cn.taketoday.web.mock.ServletConfig;
@@ -36,6 +31,11 @@ import cn.taketoday.web.mock.ServletRequest;
 import cn.taketoday.web.mock.ServletResponse;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.servlet.ServletForwardingController;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.servlet.ServletWrappingController;
+import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
+import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;

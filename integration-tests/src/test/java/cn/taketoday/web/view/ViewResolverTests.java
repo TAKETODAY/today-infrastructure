@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
+import cn.taketoday.mock.web.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

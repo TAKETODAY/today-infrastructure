@@ -33,9 +33,9 @@ import java.util.Map;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;

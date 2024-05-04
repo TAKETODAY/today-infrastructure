@@ -28,7 +28,7 @@ import java.util.Locale;
 
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 
 import static java.util.Locale.CANADA;
 import static java.util.Locale.ENGLISH;

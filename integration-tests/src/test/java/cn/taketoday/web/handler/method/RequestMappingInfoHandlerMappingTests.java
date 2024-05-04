@@ -34,6 +34,8 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ReflectionUtils;
@@ -51,8 +53,6 @@ import cn.taketoday.web.handler.MappedInterceptor;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.UriUtils;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 

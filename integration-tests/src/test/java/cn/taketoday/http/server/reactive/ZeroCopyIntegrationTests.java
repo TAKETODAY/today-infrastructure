@@ -27,9 +27,9 @@ import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.ZeroCopyHttpOutputMessage;
 import cn.taketoday.web.client.RestTemplate;
-import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.AbstractHttpHandlerIntegrationTests;
-import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.HttpServer;
-import cn.taketoday.web.testfixture.http.server.reactive.bootstrap.ReactorHttpServer;
+import cn.taketoday.web.http.server.reactive.AbstractHttpHandlerIntegrationTests;
+import cn.taketoday.web.http.server.reactive.HttpServer;
+import cn.taketoday.web.http.server.reactive.ReactorHttpServer;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;

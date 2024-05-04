@@ -26,8 +26,8 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

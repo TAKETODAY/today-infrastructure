@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © Harry Yang & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.context;
@@ -24,6 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.RequestContext;
@@ -33,8 +32,6 @@ import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.beans.testfixture.beans.TestBean;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

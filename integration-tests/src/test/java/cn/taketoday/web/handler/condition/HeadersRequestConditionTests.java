@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.handler.condition.HeadersRequestCondition.HeaderExpression;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

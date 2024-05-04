@@ -27,7 +27,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
 import cn.taketoday.http.server.ServletServerHttpRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

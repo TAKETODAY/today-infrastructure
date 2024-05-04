@@ -26,12 +26,12 @@ import java.lang.reflect.Method;
 import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.bind.resolver.ExpressionValueMethodArgumentResolver;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

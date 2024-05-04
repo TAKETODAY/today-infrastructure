@@ -23,14 +23,14 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

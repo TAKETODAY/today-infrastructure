@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.servlet.ContentCachingRequestWrapper;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

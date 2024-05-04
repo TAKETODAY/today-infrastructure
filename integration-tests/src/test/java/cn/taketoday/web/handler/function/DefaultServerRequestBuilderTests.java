@@ -28,9 +28,9 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
+import cn.taketoday.mock.web.MockCookie;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockCookie;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -32,13 +32,13 @@ import cn.taketoday.context.condition.ConditionalOnMissingBean;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.HttpMessageConverters;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.servlet.DispatcherServlet;
 import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockServletConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

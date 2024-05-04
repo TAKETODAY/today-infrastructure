@@ -23,12 +23,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 import java.util.Properties;
 
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.mock.http.HttpServletResponse;
+import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

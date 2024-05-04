@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.handler.method;
@@ -36,6 +36,8 @@ import cn.taketoday.core.env.PropertiesPropertySource;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.web.HandlerInterceptor;
@@ -47,8 +49,6 @@ import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;

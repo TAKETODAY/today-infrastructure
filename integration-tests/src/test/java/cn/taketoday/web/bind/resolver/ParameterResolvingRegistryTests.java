@@ -29,12 +29,12 @@ import cn.taketoday.core.MethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.MockResolvableMethodParameter;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

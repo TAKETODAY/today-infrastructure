@@ -55,7 +55,6 @@ dependencies {
   optional 'org.aspectj:aspectjweaver'
   optional 'jakarta.annotation:jakarta.annotation-api'
   optional 'jakarta.inject:jakarta.inject-api'
-  optional 'jakarta.websocket:jakarta.websocket-api'
   optional 'io.netty:netty-codec-http'
   optional 'io.netty:netty-transport-native-kqueue'
   optional 'org.hibernate:hibernate-core-jakarta'
@@ -103,7 +102,6 @@ dependencies {
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
   testImplementation 'org.apache.httpcomponents.client5:httpclient5'
-  testImplementation 'jakarta.websocket:jakarta.websocket-api'
   testImplementation 'jakarta.json.bind:jakarta.json.bind-api'
 
   testImplementation 'org.freemarker:freemarker'

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +12,23 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.testfixture.http.server.reactive.bootstrap;
+package cn.taketoday.web.http.server.reactive;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
 import cn.taketoday.http.server.reactive.ReactorHttpHandlerAdapter;
+import io.netty.handler.ssl.util.SelfSignedCertificate;
 import reactor.netty.DisposableServer;
+import reactor.netty.http.Http11SslContextSpec;
 
 /**
  * @author Stephane Maldini
  */
-public class ReactorHttpServer extends AbstractHttpServer {
+public class ReactorHttpsServer extends AbstractHttpServer {
 
   private ReactorHttpHandlerAdapter reactorHandler;
 
@@ -38,10 +37,15 @@ public class ReactorHttpServer extends AbstractHttpServer {
   private AtomicReference<DisposableServer> serverRef = new AtomicReference<>();
 
   @Override
-  protected void initServer() {
+  protected void initServer() throws Exception {
+    SelfSignedCertificate cert = new SelfSignedCertificate();
+    Http11SslContextSpec http11SslContextSpec = Http11SslContextSpec.forServer(cert.certificate(), cert.privateKey());
+
     this.reactorHandler = createHttpHandlerAdapter();
     this.reactorServer = reactor.netty.http.server.HttpServer.create()
-            .host(getHost()).port(getPort());
+            .host(getHost())
+            .port(getPort())
+            .secure(sslContextSpec -> sslContextSpec.sslContext(http11SslContextSpec));
   }
 
   private ReactorHttpHandlerAdapter createHttpHandlerAdapter() {

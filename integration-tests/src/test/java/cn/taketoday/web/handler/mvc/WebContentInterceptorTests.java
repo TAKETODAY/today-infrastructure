@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +77,7 @@ class WebContentInterceptorTests {
     interceptor.beforeProcess(request, handler);
 
     request.requestCompleted();
-    
+
     cacheControlHeaders = response.getHeaders("Cache-Control");
     assertThat(cacheControlHeaders).contains("max-age=10");
   }

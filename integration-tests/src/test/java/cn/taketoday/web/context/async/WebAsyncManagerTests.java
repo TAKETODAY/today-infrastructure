@@ -27,6 +27,7 @@ import java.util.function.Consumer;
 import cn.taketoday.beans.BeanWrapper;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.core.task.SimpleAsyncTaskExecutor;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.async.AsyncWebRequest;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
@@ -36,7 +37,6 @@ import cn.taketoday.web.async.TimeoutAsyncProcessingInterceptor;
 import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;

@@ -22,10 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
+import cn.taketoday.mock.web.MockAsyncContext;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
-import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.mock.AsyncEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;

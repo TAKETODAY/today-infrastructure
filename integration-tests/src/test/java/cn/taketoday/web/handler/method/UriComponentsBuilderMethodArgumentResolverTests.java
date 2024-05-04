@@ -23,11 +23,11 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.Method;
 
 import cn.taketoday.core.MethodParameter;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.UriComponentsBuilderParameterStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;

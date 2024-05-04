@@ -38,12 +38,15 @@ dependencies {
   testImplementation(testFixtures(project(":today-core")))
   testImplementation(testFixtures(project(":today-tx")))
   testImplementation(testFixtures(project(":today-web")))
+  testImplementation(testFixtures(project(":today-test")))
+
   testImplementation(project(":today-jdbc"))
   testImplementation(project(":today-test"))
   testImplementation(project(":today-tx"))
   testImplementation(project(":today-web"))
   testImplementation project(':today-websocket')
   testImplementation project(':today-orm')
+  testImplementation project(':today-oxm')
   testImplementation(project(":today-core-test"))
 
   testImplementation("jakarta.inject:jakarta.inject-api")
@@ -67,6 +70,7 @@ dependencies {
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation 'io.netty:netty-codec-http'
   testImplementation 'io.projectreactor.netty:reactor-netty-http'
+  testImplementation 'io.projectreactor.netty:reactor-netty5-http'
 
   testImplementation 'org.apache.httpcomponents.core5:httpcore5'
   testImplementation 'org.apache.httpcomponents.core5:httpcore5-reactive'
@@ -86,7 +90,7 @@ dependencies {
   testImplementation 'jakarta.persistence:jakarta.persistence-api'
   testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
   testImplementation 'com.fasterxml.jackson.module:jackson-module-parameter-names'
-//  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+  testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile'
   testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-cbor'
 
@@ -123,6 +127,55 @@ dependencies {
   testImplementation(testFixtures(project(":today-beans")))
   testImplementation(testFixtures(project(":today-tx")))
   testImplementation(testFixtures(project(":today-jcache")))
+
+  optional("com.github.librepdf:openpdf")
+  optional("org.apache.poi:poi-ooxml")
+  optional("com.google.code.gson:gson")
+  optional("com.google.protobuf:protobuf-java-util")
+  optional("com.rometools:rome")
+  optional("org.freemarker:freemarker")
+  optional("org.webjars:webjars-locator-core")
+  optional("org.webjars:webjars-locator-lite")
+  optional("com.github.librepdf:openpdf")
+  optional("org.apache.poi:poi-ooxml")
+  optional("org.reactivestreams:reactive-streams")
+  optional("jakarta.mail:jakarta.mail-api")
+  optional("org.apache.groovy:groovy-templates")
+  optional 'jakarta.websocket:jakarta.websocket-api'
+  optional 'jakarta.websocket:jakarta.websocket-client-api'
+
+  testImplementation("org.apache.groovy:groovy")
+  testImplementation("io.reactivex.rxjava3:rxjava")
+  testImplementation("commons-io:commons-io")
+  testImplementation("org.mozilla:rhino")
+  testImplementation("org.dom4j:dom4j") {
+    exclude group: "javax.xml.bind", module: "jaxb-api"
+    exclude group: "jaxen", module: "jaxen"
+    exclude group: "net.java.dev.msv", module: "xsdlib"
+    exclude group: "pull-parser", module: "pull-parser"
+    exclude group: "xpp3", module: "xpp3"
+  }
+  testImplementation("com.squareup.okhttp3:mockwebserver")
+  testImplementation("org.skyscreamer:jsonassert")
+  testImplementation("org.xmlunit:xmlunit-assertj")
+  testImplementation("org.xmlunit:xmlunit-matchers")
+  testImplementation("io.projectreactor.tools:blockhound")
+  testImplementation("io.micrometer:micrometer-observation-test")
+  testImplementation("io.projectreactor:reactor-core")
+  testImplementation("jaxen:jaxen")
+  testImplementation("org.hibernate.validator:hibernate-validator")
+  testImplementation("org.skyscreamer:jsonassert")
+  testImplementation("org.xmlunit:xmlunit-assertj")
+  testImplementation("org.xmlunit:xmlunit-matchers")
+  testImplementation("org.apache.httpcomponents.client5:httpclient5")
+
+  testRuntimeOnly("org.jruby:jruby")
+  testRuntimeOnly("org.python:jython-standalone")
+  testRuntimeOnly("org.webjars:underscorejs")
+  testRuntimeOnly("org.glassfish:jakarta.el")
+  testRuntimeOnly("com.sun.xml.bind:jaxb-core")
+  testRuntimeOnly("com.sun.xml.bind:jaxb-impl")
+  testRuntimeOnly("com.sun.activation:jakarta.activation")
 
 }
 

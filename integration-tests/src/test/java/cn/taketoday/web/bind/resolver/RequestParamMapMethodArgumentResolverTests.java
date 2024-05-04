@@ -30,9 +30,9 @@ import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.MockMultipartFile;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
 import cn.taketoday.web.mock.http.Part;
 
 import static org.assertj.core.api.Assertions.assertThat;

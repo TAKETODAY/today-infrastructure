@@ -36,9 +36,9 @@ import cn.taketoday.session.DefaultSessionManager;
 import cn.taketoday.session.InMemorySessionRepository;
 import cn.taketoday.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.session.SessionEventDispatcher;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;

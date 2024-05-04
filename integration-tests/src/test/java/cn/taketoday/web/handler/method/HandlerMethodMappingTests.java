@@ -32,6 +32,8 @@ import cn.taketoday.core.AntPathMatcher;
 import cn.taketoday.core.PathMatcher;
 import cn.taketoday.core.annotation.AnnotatedElementUtils;
 import cn.taketoday.http.HttpHeaders;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.HttpRequestHandler;
@@ -43,8 +45,6 @@ import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.HandlerMethodMappingNamingStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.taketoday.http.server.RequestPath;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.BindingContext;
@@ -35,7 +36,6 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.testfixture.ReflectionTestUtils;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;

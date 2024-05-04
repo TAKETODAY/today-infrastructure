@@ -30,14 +30,14 @@ import cn.taketoday.beans.PropertyValue;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockMultipartHttpServletRequest;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.MockMultipartServletRequestContext;
 import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.bind.ServletRequestParameterPropertyValues;
 import cn.taketoday.web.testfixture.MockMultipartFile;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockMultipartHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

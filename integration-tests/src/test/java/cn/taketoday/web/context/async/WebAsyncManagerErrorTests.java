@@ -23,6 +23,9 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import cn.taketoday.core.task.AsyncTaskExecutor;
+import cn.taketoday.mock.web.MockAsyncContext;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
 import cn.taketoday.web.async.DeferredResult;
@@ -31,9 +34,6 @@ import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
 import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
-import cn.taketoday.web.testfixture.servlet.MockAsyncContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
 import cn.taketoday.web.mock.AsyncEvent;
 
 import static cn.taketoday.web.async.CallableProcessingInterceptor.RESULT_NONE;

@@ -34,8 +34,8 @@ import cn.taketoday.validation.BeanPropertyBindingResult;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
 import jakarta.xml.bind.JAXBElement;
 
 import static org.assertj.core.api.Assertions.assertThat;

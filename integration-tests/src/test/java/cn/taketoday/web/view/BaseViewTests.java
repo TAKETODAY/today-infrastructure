@@ -31,9 +31,9 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.servlet.ServletUtils;
 import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletResponse;
-import cn.taketoday.web.testfixture.servlet.MockServletContext;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 import cn.taketoday.web.mock.http.HttpServletResponse;
 

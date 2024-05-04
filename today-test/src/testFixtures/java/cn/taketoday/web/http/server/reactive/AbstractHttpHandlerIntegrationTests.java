@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.testfixture.http.server.reactive.bootstrap;
+package cn.taketoday.web.http.server.reactive;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Named;

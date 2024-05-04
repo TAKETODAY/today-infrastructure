@@ -24,11 +24,11 @@ import java.util.Collection;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.NonNull;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
 import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.testfixture.servlet.MockHttpServletRequest;
 import cn.taketoday.web.mock.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
