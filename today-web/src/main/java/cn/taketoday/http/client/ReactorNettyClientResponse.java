@@ -72,8 +72,9 @@ final class ReactorNettyClientResponse implements ClientHttpResponse {
 
   @Override
   public InputStream getBody() throws IOException {
-    if (this.body == null) {
-      InputStream body = this.connection.inbound().receive()
+    InputStream body = this.body;
+    if (body == null) {
+      body = this.connection.inbound().receive()
               .aggregate().asInputStream().block(this.readTimeout);
       if (body != null) {
         this.body = body;
@@ -82,7 +83,7 @@ final class ReactorNettyClientResponse implements ClientHttpResponse {
         throw new IOException("Could not receive body");
       }
     }
-    return this.body;
+    return body;
   }
 
   @Override

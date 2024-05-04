@@ -67,7 +67,7 @@ class BufferingClientHttpRequestFactoryTests extends AbstractHttpRequestFactoryT
     try (ClientHttpResponse response = request.execute()) {
       assertThat(response.getStatusCode()).as("Invalid status code").isEqualTo(HttpStatus.OK);
       String result = FileCopyUtils.copyToString(new InputStreamReader(response.getBody()));
-      assertThat(result).as("Invalid body").isEqualTo("Content-Length:null");
+      assertThat(result).as("Invalid body").isEqualTo("Content-Length:0");
     }
   }
 

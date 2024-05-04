@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -413,7 +413,6 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
           "cn/taketoday/test/context/aot/samples/web/WebInfraJupiterTests__TestContext005_BeanFactoryRegistrations.java",
           "cn/taketoday/test/context/aot/samples/web/WebTestConfiguration__TestContext005_BeanDefinitions.java",
           "cn/taketoday/web/config/DelegatingWebMvcConfiguration__TestContext005_BeanDefinitions.java",
-          "cn/taketoday/web/config/WebMvcConfigurationSupport__TestContext005_BeanDefinitions.java",
           // XmlInfraJupiterTests
           "cn/taketoday/context/event/DefaultEventListenerFactory__TestContext006_BeanDefinitions.java",
           "cn/taketoday/context/event/EventListenerMethodProcessor__TestContext006_BeanDefinitions.java",
