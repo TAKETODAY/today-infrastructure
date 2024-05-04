@@ -26,7 +26,6 @@ import cn.taketoday.annotation.config.web.RandomPortWebServerConfig;
 import cn.taketoday.annotation.config.web.WebMvcAutoConfiguration;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
-import cn.taketoday.core.testfixture.DisabledIfInContinuousIntegration;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.framework.test.context.InfraTest.WebEnvironment;
 import cn.taketoday.framework.test.web.client.TestRestTemplate;
@@ -44,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @InfraTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = "server.error.path:/infra/error")
 @DirtiesContext
-@DisabledIfInContinuousIntegration
 class RemappedErrorViewIntegrationTests {
 
   @LocalServerPort
