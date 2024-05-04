@@ -33,7 +33,6 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 
-import java.io.IOException;
 import java.net.URI;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -56,10 +55,9 @@ import cn.taketoday.http.RequestEntity;
 import cn.taketoday.http.RequestEntity.UriTemplateRequestEntity;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.client.ClientHttpRequestFactory;
-import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.http.client.HttpComponentsClientHttpRequestFactory;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.client.DefaultResponseErrorHandler;
+import cn.taketoday.web.client.NoOpResponseErrorHandler;
 import cn.taketoday.web.client.RequestCallback;
 import cn.taketoday.web.client.ResponseExtractor;
 import cn.taketoday.web.client.RestTemplate;
@@ -1120,15 +1118,6 @@ public class TestRestTemplate {
       builder.setAuthenticationEnabled(false);
       builder.setRedirectsEnabled(this.enableRedirects);
       return builder.build();
-    }
-
-  }
-
-  private static class NoOpResponseErrorHandler extends DefaultResponseErrorHandler {
-
-    @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
-
     }
 
   }
