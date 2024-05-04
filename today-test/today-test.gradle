@@ -28,7 +28,6 @@ dependencies {
   optional(project(":today-web"))
   optional(project(":today-websocket"))
   optional(project(":today-framework"))
-  optional(project(":today-web-mock"))
 
   optional('info.picocli:picocli')
   optional("jakarta.activation:jakarta.activation-api")
@@ -40,6 +39,7 @@ dependencies {
   optional("junit:junit")
   optional("org.junit.platform:junit-platform-launcher")  // for AOT processing
   optional("org.junit.jupiter:junit-jupiter-api")
+  optional("org.junit.jupiter:junit-jupiter-params")
   optional("org.testng:testng")
   optional("org.aspectj:aspectjweaver")
   optional("org.apache.groovy:groovy")
@@ -77,6 +77,8 @@ dependencies {
   optional 'jakarta.json.bind:jakarta.json.bind-api'
   optional 'org.spockframework:spock-core:2.2-M1-groovy-4.0'
   optional("javax.inject:javax.inject")
+  optional("io.projectreactor.netty:reactor-netty-http")
+  optional("io.projectreactor.netty:reactor-netty5-http")
 
 
   testImplementation(project(":today-core-test"))
@@ -102,7 +104,6 @@ dependencies {
   testImplementation("org.hsqldb:hsqldb")
   testImplementation 'org.eclipse:yasson'
   testImplementation("ch.qos.logback:logback-classic")
-  testImplementation("io.projectreactor.netty:reactor-netty-http")
   testImplementation("de.bechte.junit:junit-hierarchicalcontextrunner")
   testImplementation("org.awaitility:awaitility")
   testRuntimeOnly("org.junit.vintage:junit-vintage-engine") {

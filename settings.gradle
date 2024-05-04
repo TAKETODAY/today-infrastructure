@@ -49,7 +49,6 @@ include 'today-instrument'
 include 'integration-tests'
 include 'today-test-support'
 include 'today-context-indexer'
-include 'today-web-mock'
 
 // Starters
 file("${rootDir}/today-starter").eachDirMatch(~/today-starter.*/) {

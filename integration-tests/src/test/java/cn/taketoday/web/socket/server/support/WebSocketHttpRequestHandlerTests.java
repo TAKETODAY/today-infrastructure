@@ -19,7 +19,6 @@ package cn.taketoday.web.socket.server.support;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -31,7 +30,6 @@ import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
 import cn.taketoday.web.socket.server.HandshakeInterceptor;
-import cn.taketoday.web.mock.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

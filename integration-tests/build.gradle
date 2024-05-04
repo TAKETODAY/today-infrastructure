@@ -25,7 +25,6 @@ dependencies {
 
   testImplementation project(':today-framework')
   testImplementation project(':today-test-support')
-  testImplementation project(':today-web-mock')
 
   testImplementation(project(":today-aop"))
   testImplementation(project(":today-beans"))

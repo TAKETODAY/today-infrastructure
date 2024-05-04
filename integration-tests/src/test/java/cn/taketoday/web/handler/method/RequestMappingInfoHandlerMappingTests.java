@@ -17,8 +17,6 @@
 
 package cn.taketoday.web.handler.method;
 
-import com.ctc.wstx.shaded.msv_core.util.Uri;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
