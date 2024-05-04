@@ -17,9 +17,7 @@
 
 package cn.taketoday.web.client;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -33,9 +31,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.HttpStatusCode;
 import cn.taketoday.http.client.ClientHttpResponse;
-import cn.taketoday.http.client.ClientHttpResponseDecorator;
 import cn.taketoday.http.converter.HttpMessageConverter;
-import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.LogFormatUtils;
@@ -96,23 +92,6 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    */
   protected boolean hasError(HttpStatusCode statusCode) {
     return statusCode.isError();
-  }
-
-  /**
-   * Template method called from {@link #hasError(ClientHttpResponse)}.
-   * <p>The default implementation checks if the given status code is
-   * {@link cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR CLIENT_ERROR} or
-   * {@link cn.taketoday.http.HttpStatus.Series#SERVER_ERROR SERVER_ERROR}.
-   * Can be overridden in subclasses.
-   *
-   * @param statusCode the HTTP status code as raw value
-   * @return {@code true} if the response indicates an error; {@code false} otherwise
-   * @see cn.taketoday.http.HttpStatus.Series#CLIENT_ERROR
-   * @see cn.taketoday.http.HttpStatus.Series#SERVER_ERROR
-   */
-  protected boolean hasError(int statusCode) {
-    HttpStatus.Series series = HttpStatus.Series.resolve(statusCode);
-    return (series == HttpStatus.Series.CLIENT_ERROR || series == HttpStatus.Series.SERVER_ERROR);
   }
 
   /**
@@ -231,8 +210,8 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
       ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
     }
 
-    if (!CollectionUtils.isEmpty(this.messageConverters)) {
-      ex.setBodyConvertFunction(initBodyConvertFunction(response, body));
+    if (CollectionUtils.isNotEmpty(this.messageConverters)) {
+      ex.setBodyConvertFunction(initBodyConvertFunction(response, body, messageConverters));
     }
 
     throw ex;
@@ -243,25 +222,8 @@ public class DefaultResponseErrorHandler implements ResponseErrorHandler {
    * {@link RestClientResponseException#setBodyConvertFunction(Function)}.
    */
   @SuppressWarnings("NullAway")
-  protected Function<ResolvableType, ?> initBodyConvertFunction(ClientHttpResponse response, byte[] body) {
-    Assert.state(CollectionUtils.isNotEmpty(this.messageConverters), "Expected message converters");
-    return resolvableType -> {
-      try {
-        HttpMessageConverterExtractor<?> extractor =
-                new HttpMessageConverterExtractor<>(resolvableType.getType(), messageConverters);
-
-        return extractor.extractData(new ClientHttpResponseDecorator(response) {
-          @Override
-          public InputStream getBody() {
-            return new ByteArrayInputStream(body);
-          }
-        });
-      }
-      catch (IOException ex) {
-        throw new RestClientException(
-                "Error while extracting response for type [%s]".formatted(resolvableType), ex);
-      }
-    };
+  protected Function<ResolvableType, ?> initBodyConvertFunction(ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
+    return StatusHandler.initBodyConvertFunction(response, body, messageConverters);
   }
 
   /**

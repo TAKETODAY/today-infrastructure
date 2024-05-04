@@ -97,9 +97,8 @@ final class StatusHandler {
     });
   }
 
-  private static Function<ResolvableType, ?> initBodyConvertFunction(
+  static Function<ResolvableType, ?> initBodyConvertFunction(
           ClientHttpResponse response, byte[] body, List<HttpMessageConverter<?>> messageConverters) {
-    Assert.state(CollectionUtils.isNotEmpty(messageConverters), "Expected message converters");
     return resolvableType -> {
       try {
         HttpMessageConverterExtractor<?> extractor =
