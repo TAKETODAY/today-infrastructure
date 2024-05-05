@@ -40,7 +40,7 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
    *
    * @see MockConfig
    */
-  String SERVLET_CONFIG_BEAN_NAME = "servletConfig";
+  String MOCK_CONFIG_BEAN_NAME = "mockConfig";
 
   /**
    * Set the namespace for this web application context,

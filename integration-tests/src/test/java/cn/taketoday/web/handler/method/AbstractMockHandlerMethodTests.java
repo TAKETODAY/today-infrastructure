@@ -56,16 +56,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractMockHandlerMethodTests {
 
   @Nullable
-  protected DispatcherServlet servlet;
+  protected DispatcherServlet mockapi;
 
   protected DispatcherServlet getServlet() {
-    assertThat(servlet).as("DispatcherServlet not initialized").isNotNull();
-    return servlet;
+    assertThat(mockapi).as("DispatcherServlet not initialized").isNotNull();
+    return mockapi;
   }
 
   @AfterEach
   public void tearDown() {
-    this.servlet = null;
+    this.mockapi = null;
   }
 
   protected WebApplicationContext initDispatcherServlet() {
@@ -88,7 +88,7 @@ public abstract class AbstractMockHandlerMethodTests {
 
     final GenericWebApplicationContext wac = new GenericWebApplicationContext();
 
-    servlet = new DispatcherServlet() {
+    mockapi = new DispatcherServlet() {
 
       @Override
       protected ApplicationContext createApplicationContext(@Nullable ApplicationContext parent) {
@@ -118,7 +118,7 @@ public abstract class AbstractMockHandlerMethodTests {
     wac.setMockConfig(config);
     wac.setMockContext(config.getMockContext());
 
-    servlet.init(config);
+    mockapi.init(config);
     return wac;
   }
 

@@ -681,8 +681,8 @@ package cn.taketoday.showcase.fortune.web
 
 import cn.taketoday.showcase.fortune.service.FortuneService
 import cn.taketoday.showcase.fortune.domain.Fortune
-import cn.taketoday.web.servlet.ModelAndView
-import cn.taketoday.web.servlet.mvc.Controller
+import cn.taketoday.web.mock.ModelAndView
+import cn.taketoday.web.mock.mvc.Controller
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse

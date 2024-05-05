@@ -57,7 +57,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
   private final MockContextImpl mockContext = new MockContextImpl();
 
-  private final MockMockConfig servletConfig = new MockMockConfig(this.mockContext);
+  private final MockMockConfig mockConfig = new MockMockConfig(this.mockContext);
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(
@@ -100,14 +100,14 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @Test
   void testNoResourceFoundException() throws Exception {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setMockConfig(this.servletConfig);
+    context.setMockConfig(this.mockConfig);
     context.register(WebConfig.class);
     context.register(GlobalExceptionHandler.class);
     context.refresh();
 
     DispatcherServlet servlet = new DispatcherServlet();
     servlet.setApplicationContext(context);
-    servlet.init(this.servletConfig);
+    servlet.init(this.mockConfig);
 
     HttpMockRequestImpl request = initRequest("/cp/non-existing");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -132,7 +132,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     context.refresh();
 
     DispatcherServlet servlet = new DispatcherServlet(context);
-    servlet.init(this.servletConfig);
+    servlet.init(this.mockConfig);
     return servlet;
   }
 

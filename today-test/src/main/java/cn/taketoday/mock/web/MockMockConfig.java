@@ -38,7 +38,7 @@ public class MockMockConfig implements MockConfig {
 
   private final MockContext mockContext;
 
-  private final String servletName;
+  private final String mockName;
 
   private final Map<String, String> initParameters = new LinkedHashMap<>();
 
@@ -52,10 +52,10 @@ public class MockMockConfig implements MockConfig {
   /**
    * Create a new MockServletConfig with a default {@link MockContextImpl}.
    *
-   * @param servletName the name of the servlet
+   * @param mockName the name of the servlet
    */
-  public MockMockConfig(String servletName) {
-    this(null, servletName);
+  public MockMockConfig(String mockName) {
+    this(null, mockName);
   }
 
   /**
@@ -71,16 +71,16 @@ public class MockMockConfig implements MockConfig {
    * Create a new MockServletConfig.
    *
    * @param mockContext the MockContext that the servlet runs in
-   * @param servletName the name of the servlet
+   * @param mockName the name of the servlet
    */
-  public MockMockConfig(@Nullable MockContext mockContext, String servletName) {
+  public MockMockConfig(@Nullable MockContext mockContext, String mockName) {
     this.mockContext = (mockContext != null ? mockContext : new MockContextImpl());
-    this.servletName = servletName;
+    this.mockName = mockName;
   }
 
   @Override
   public String getMockName() {
-    return this.servletName;
+    return this.mockName;
   }
 
   @Override

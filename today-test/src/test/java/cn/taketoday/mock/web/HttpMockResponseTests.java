@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2023 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.mock.web;
@@ -290,7 +287,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-  void servletOutputStreamCommittedWhenBufferSizeExceeded() throws IOException {
+  void outputStreamCommittedWhenBufferSizeExceeded() throws IOException {
     assertThat(response.isCommitted()).isFalse();
     response.getOutputStream().write('X');
     assertThat(response.isCommitted()).isFalse();
@@ -301,7 +298,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-  void servletOutputStreamCommittedOnFlushBuffer() throws IOException {
+  void outputStreamCommittedOnFlushBuffer() throws IOException {
     assertThat(response.isCommitted()).isFalse();
     response.getOutputStream().write('X');
     assertThat(response.isCommitted()).isFalse();
@@ -311,7 +308,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-  void servletWriterCommittedWhenBufferSizeExceeded() throws IOException {
+  void writerCommittedWhenBufferSizeExceeded() throws IOException {
     assertThat(response.isCommitted()).isFalse();
     response.getWriter().write("X");
     assertThat(response.isCommitted()).isFalse();
@@ -324,7 +321,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-  void servletOutputStreamCommittedOnOutputStreamFlush() throws IOException {
+  void outputStreamCommittedOnOutputStreamFlush() throws IOException {
     assertThat(response.isCommitted()).isFalse();
     response.getOutputStream().write('X');
     assertThat(response.isCommitted()).isFalse();
@@ -334,7 +331,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-  void servletWriterCommittedOnWriterFlush() throws IOException {
+  void writerCommittedOnWriterFlush() throws IOException {
     assertThat(response.isCommitted()).isFalse();
     response.getWriter().write("X");
     assertThat(response.isCommitted()).isFalse();
@@ -344,8 +341,7 @@ class HttpMockResponseTests {
   }
 
   @Test
-    // SPR-16683
-  void servletWriterCommittedOnWriterClose() throws IOException {
+  void writerCommittedOnWriterClose() throws IOException {
     assertThat(response.isCommitted()).isFalse();
     response.getWriter().write("X");
     assertThat(response.isCommitted()).isFalse();

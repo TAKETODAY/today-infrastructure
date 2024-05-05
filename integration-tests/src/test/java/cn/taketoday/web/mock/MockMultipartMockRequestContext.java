@@ -15,11 +15,10 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.servlet;
+package cn.taketoday.web.mock;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
-import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 

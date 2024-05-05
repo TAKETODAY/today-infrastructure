@@ -82,7 +82,7 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
 
   private String contextPath = "";
 
-  private String servletPath = "";
+  private String mockPath = "";
 
   @Nullable
   private String pathInfo = "";
@@ -558,8 +558,8 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
     if (!StringUtils.hasText(this.contextPath)) {
       this.contextPath = parentBuilder.contextPath;
     }
-    if (!StringUtils.hasText(this.servletPath)) {
-      this.servletPath = parentBuilder.servletPath;
+    if (!StringUtils.hasText(this.mockPath)) {
+      this.mockPath = parentBuilder.mockPath;
     }
     if ("".equals(this.pathInfo)) {
       this.pathInfo = parentBuilder.pathInfo;
@@ -772,11 +772,11 @@ public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<M
    */
   private void updatePathRequestProperties(HttpMockRequestImpl request, String requestUri) {
     if ("".equals(this.pathInfo)) {
-      if (!requestUri.startsWith(this.contextPath + this.servletPath)) {
+      if (!requestUri.startsWith(this.contextPath + this.mockPath)) {
         throw new IllegalArgumentException(
-                "Invalid servlet path [" + this.servletPath + "] for request URI [" + requestUri + "]");
+                "Invalid servlet path [" + this.mockPath + "] for request URI [" + requestUri + "]");
       }
-      String extraPath = requestUri.substring(this.contextPath.length() + this.servletPath.length());
+      String extraPath = requestUri.substring(this.contextPath.length() + this.mockPath.length());
       this.pathInfo = (StringUtils.hasText(extraPath) ?
               UriUtils.decode(extraPath, StandardCharsets.UTF_8) : null);
     }

@@ -15,7 +15,7 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.annotation.config.processor;
+package cn.taketoday.context.properties.sample;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -24,22 +24,18 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Alternative to Infra App's {@code @ConditionalOnWebApplication} for testing (removes
- * the need for a dependency on the real annotation).
+ * Alternative to Infra App's {@code @MockEndpoint} for testing (removes the need for
+ * a dependency on the real annotation).
  *
- * @author Phillip Webb
+ * @author Andy Wilkinson
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface TestConditionalOnWebApplication {
+public @interface MockEndpoint {
 
-	Type type() default Type.ANY;
+  String id() default "";
 
-	enum Type {
-
-		ANY, MOCK, REACTIVE
-
-	}
+  boolean enableByDefault() default true;
 
 }

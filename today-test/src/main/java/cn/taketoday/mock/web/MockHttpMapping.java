@@ -37,17 +37,15 @@ public class MockHttpMapping implements HttpMockMapping {
 
   private final String pattern;
 
-  private final String servletName;
+  private final String mockName;
 
   @Nullable
   private final MappingMatch mappingMatch;
 
-  public MockHttpMapping(
-          String matchValue, String pattern, String servletName, @Nullable MappingMatch match) {
-
+  public MockHttpMapping(String matchValue, String pattern, String mockName, @Nullable MappingMatch match) {
     this.matchValue = matchValue;
     this.pattern = pattern;
-    this.servletName = servletName;
+    this.mockName = mockName;
     this.mappingMatch = match;
   }
 
@@ -63,7 +61,7 @@ public class MockHttpMapping implements HttpMockMapping {
 
   @Override
   public String getServletName() {
-    return this.servletName;
+    return this.mockName;
   }
 
   @Override
@@ -75,7 +73,7 @@ public class MockHttpMapping implements HttpMockMapping {
   @Override
   public String toString() {
     return "MockHttpServletMapping [matchValue=\"" + this.matchValue + "\", " +
-            "pattern=\"" + this.pattern + "\", servletName=\"" + this.servletName + "\", " +
+            "pattern=\"" + this.pattern + "\", servletName=\"" + this.mockName + "\", " +
             "mappingMatch=" + this.mappingMatch + "]";
   }
 

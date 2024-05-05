@@ -206,12 +206,12 @@ public class WebApplicationContextUtils {
   public static void registerEnvironmentBeans(ConfigurableBeanFactory bf,
           @Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
 
-    if (mockContext != null && !bf.containsBean(WebApplicationContext.SERVLET_CONTEXT_BEAN_NAME)) {
-      bf.registerSingleton(WebApplicationContext.SERVLET_CONTEXT_BEAN_NAME, mockContext);
+    if (mockContext != null && !bf.containsBean(WebApplicationContext.MOCK_CONTEXT_BEAN_NAME)) {
+      bf.registerSingleton(WebApplicationContext.MOCK_CONTEXT_BEAN_NAME, mockContext);
     }
 
-    if (mockConfig != null && !bf.containsBean(ConfigurableWebApplicationContext.SERVLET_CONFIG_BEAN_NAME)) {
-      bf.registerSingleton(ConfigurableWebApplicationContext.SERVLET_CONFIG_BEAN_NAME, mockConfig);
+    if (mockConfig != null && !bf.containsBean(ConfigurableWebApplicationContext.MOCK_CONFIG_BEAN_NAME)) {
+      bf.registerSingleton(ConfigurableWebApplicationContext.MOCK_CONFIG_BEAN_NAME, mockConfig);
     }
 
     if (!bf.containsBean(WebApplicationContext.CONTEXT_PARAMETERS_BEAN_NAME)) {

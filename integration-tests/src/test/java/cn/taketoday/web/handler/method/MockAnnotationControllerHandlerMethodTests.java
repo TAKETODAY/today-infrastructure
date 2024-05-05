@@ -4121,7 +4121,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @RestController
-  static class ServletPartDataClassController {
+  static class MockPartDataClassController {
 
     @RequestMapping("/bind")
     public String handle(PartDataClass data) throws IOException {

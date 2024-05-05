@@ -62,7 +62,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
    * Prefix for the MockContext attribute for the ApplicationContext.
    * The completion is the servlet name.
    */
-  public static final String SERVLET_CONTEXT_PREFIX = DispatcherServlet.class.getName() + ".CONTEXT.";
+  public static final String CONTEXT_PREFIX = DispatcherServlet.class.getName() + ".CONTEXT.";
 
   private transient MockConfig mockConfig;
 
@@ -248,11 +248,11 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
    * <p>The default implementation returns
    * {@code SERVLET_CONTEXT_PREFIX + servlet name}.
    *
-   * @see #SERVLET_CONTEXT_PREFIX
+   * @see #CONTEXT_PREFIX
    * @see #getServletName
    */
   public String getMockContextAttributeName() {
-    return SERVLET_CONTEXT_PREFIX + getServletName();
+    return CONTEXT_PREFIX + getServletName();
   }
 
   @Override

@@ -77,7 +77,7 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
 public class MockForwardingController extends AbstractController implements BeanNameAware, MockContextAware {
 
   @Nullable
-  private String servletName;
+  private String mockName;
 
   @Nullable
   private String beanName;
@@ -94,7 +94,7 @@ public class MockForwardingController extends AbstractController implements Bean
    * <p>Default is the bean name of this controller.
    */
   public void setServletName(@Nullable String servletName) {
-    this.servletName = servletName;
+    this.mockName = servletName;
   }
 
   @Override
@@ -109,8 +109,8 @@ public class MockForwardingController extends AbstractController implements Bean
   @Override
   public void setBeanName(String name) {
     this.beanName = name;
-    if (this.servletName == null) {
-      this.servletName = name;
+    if (this.mockName == null) {
+      this.mockName = name;
     }
   }
 
@@ -119,9 +119,9 @@ public class MockForwardingController extends AbstractController implements Bean
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
     MockContext mockContext = getMockContext();
     Assert.state(mockContext != null, "No MockContext");
-    RequestDispatcher rd = mockContext.getNamedDispatcher(servletName);
+    RequestDispatcher rd = mockContext.getNamedDispatcher(mockName);
     if (rd == null) {
-      throw new MockException("No servlet with name '%s' defined in web.xml".formatted(servletName));
+      throw new MockException("No servlet with name '%s' defined in web.xml".formatted(mockName));
     }
 
     HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
@@ -131,13 +131,13 @@ public class MockForwardingController extends AbstractController implements Bean
     if (useInclude(servletRequest, servletResponse)) {
       rd.include(servletRequest, servletResponse);
       if (logger.isTraceEnabled()) {
-        logger.trace("Included servlet [{}] in ServletForwardingController '{}'", servletName, beanName);
+        logger.trace("Included servlet [{}] in ServletForwardingController '{}'", mockName, beanName);
       }
     }
     else {
       rd.forward(servletRequest, servletResponse);
       if (logger.isTraceEnabled()) {
-        logger.trace("Forwarded to servlet [{}] in ServletForwardingController '{}'", servletName, beanName);
+        logger.trace("Forwarded to servlet [{}] in ServletForwardingController '{}'", mockName, beanName);
       }
     }
 

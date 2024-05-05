@@ -85,7 +85,7 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void servletErrorWithMessage() {
+  void mockErrorWithMessage() {
     RuntimeException ex = new RuntimeException("Test");
     this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
@@ -98,7 +98,7 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void servletErrorWithoutMessage() {
+  void mockErrorWithoutMessage() {
     RuntimeException ex = new RuntimeException("Test");
     this.request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
@@ -111,7 +111,7 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void servletMessageWithMessage() {
+  void mockMessageWithMessage() {
     this.request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, "Test");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.of(Include.MESSAGE));
@@ -120,7 +120,7 @@ class DefaultErrorAttributesTests {
   }
 
   @Test
-  void servletMessageWithoutMessage() {
+  void mockMessageWithoutMessage() {
     this.request.setAttribute(WebUtils.ERROR_MESSAGE_ATTRIBUTE, "Test");
     Map<String, Object> attributes = this.errorAttributes.getErrorAttributes(this.webRequest,
             ErrorAttributeOptions.defaults());

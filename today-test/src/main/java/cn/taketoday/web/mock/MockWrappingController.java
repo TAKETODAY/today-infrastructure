@@ -26,13 +26,13 @@ import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockApi;
+import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
-import cn.taketoday.mock.api.MockConfig;
-import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -79,10 +79,10 @@ public class MockWrappingController extends AbstractController
         implements BeanNameAware, InitializingBean, DisposableBean, MockContextAware {
 
   @Nullable
-  private Class<? extends MockApi> servletClass;
+  private Class<? extends MockApi> mockClass;
 
   @Nullable
-  private String servletName;
+  private String mockName;
 
   private Properties initParameters = new Properties();
 
@@ -105,7 +105,7 @@ public class MockWrappingController extends AbstractController
    * @see MockApi
    */
   public void setServletClass(@Nullable Class<? extends MockApi> servletClass) {
-    this.servletClass = servletClass;
+    this.mockClass = servletClass;
   }
 
   /**
@@ -113,7 +113,7 @@ public class MockWrappingController extends AbstractController
    * Default is the bean name of this controller.
    */
   public void setServletName(@Nullable String servletName) {
-    this.servletName = servletName;
+    this.mockName = servletName;
   }
 
   /**
@@ -136,13 +136,13 @@ public class MockWrappingController extends AbstractController
    */
   @Override
   public void afterPropertiesSet() throws Exception {
-    if (this.servletClass == null) {
+    if (this.mockClass == null) {
       throw new IllegalArgumentException("'servletClass' is required");
     }
-    if (this.servletName == null) {
-      this.servletName = this.beanName;
+    if (this.mockName == null) {
+      this.mockName = this.beanName;
     }
-    this.mockApiInstance = ReflectionUtils.accessibleConstructor(this.servletClass).newInstance();
+    this.mockApiInstance = ReflectionUtils.accessibleConstructor(this.mockClass).newInstance();
     this.mockApiInstance.init(new DelegatingMockConfig());
   }
 
@@ -191,7 +191,7 @@ public class MockWrappingController extends AbstractController
     @Override
     @Nullable
     public String getMockName() {
-      return servletName;
+      return mockName;
     }
 
     @Override

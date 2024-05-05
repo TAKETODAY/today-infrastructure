@@ -44,7 +44,7 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   private HttpMockRequestImpl servletRequest;
 
   private ResolvableMethodParameter builderParam;
-  private ResolvableMethodParameter servletBuilderParam;
+  private ResolvableMethodParameter mockBuilderParam;
   private ResolvableMethodParameter intParam;
 
   @BeforeEach
@@ -57,14 +57,14 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
     Method method = this.getClass().getDeclaredMethod(
             "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);
     this.builderParam = new ResolvableMethodParameter(new MethodParameter(method, 0));
-    this.servletBuilderParam = new ResolvableMethodParameter(new MethodParameter(method, 1));
+    this.mockBuilderParam = new ResolvableMethodParameter(new MethodParameter(method, 1));
     this.intParam = new ResolvableMethodParameter(new MethodParameter(method, 2));
   }
 
   @Test
   public void supportsParameter() throws Exception {
     assertThat(this.resolver.supportsParameter(this.builderParam)).isTrue();
-    assertThat(this.resolver.supportsParameter(this.servletBuilderParam)).isTrue();
+    assertThat(this.resolver.supportsParameter(this.mockBuilderParam)).isTrue();
     assertThat(this.resolver.supportsParameter(this.intParam)).isFalse();
   }
 

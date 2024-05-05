@@ -64,27 +64,27 @@ class ControllerTests {
   }
 
   @Test
-  public void servletForwardingController() throws Throwable {
+  public void mockForwardingController() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
     sfc.setServletName("action");
-    doTestServletForwardingController(sfc, false);
+    doTestMockForwardingController(sfc, false);
   }
 
   @Test
-  public void servletForwardingControllerWithInclude() throws Throwable {
+  public void mockForwardingControllerWithInclude() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
     sfc.setServletName("action");
-    doTestServletForwardingController(sfc, true);
+    doTestMockForwardingController(sfc, true);
   }
 
   @Test
-  public void servletForwardingControllerWithBeanName() throws Throwable {
+  public void mockForwardingControllerWithBeanName() throws Throwable {
     MockForwardingController sfc = new MockForwardingController();
     sfc.setBeanName("action");
-    doTestServletForwardingController(sfc, false);
+    doTestMockForwardingController(sfc, false);
   }
 
-  private void doTestServletForwardingController(MockForwardingController sfc, boolean include)
+  private void doTestMockForwardingController(MockForwardingController sfc, boolean include)
           throws Throwable {
 
     HttpMockRequest request = mock(HttpMockRequest.class);

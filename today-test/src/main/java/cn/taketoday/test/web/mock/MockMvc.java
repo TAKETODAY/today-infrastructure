@@ -70,7 +70,7 @@ import cn.taketoday.web.mock.MockRequestContext;
  */
 public final class MockMvc {
 
-  private final TestDispatcherServlet servlet;
+  private final TestDispatcherServlet mock;
 
   private final Filter[] filters;
 
@@ -91,14 +91,14 @@ public final class MockMvc {
    *
    * @see cn.taketoday.test.web.mock.setup.MockMvcBuilders
    */
-  MockMvc(TestDispatcherServlet servlet, Filter... filters) {
-    Assert.notNull(servlet, "DispatcherServlet is required");
+  MockMvc(TestDispatcherServlet mock, Filter... filters) {
+    Assert.notNull(mock, "DispatcherServlet is required");
     Assert.notNull(filters, "Filters cannot be null");
     Assert.noNullElements(filters, "Filters cannot contain null values");
 
-    this.servlet = servlet;
+    this.mock = mock;
     this.filters = filters;
-    this.mockContext = servlet.getMockContext();
+    this.mockContext = mock.getMockContext();
   }
 
   /**
@@ -150,7 +150,7 @@ public final class MockMvc {
    * {@link DispatcherMockCustomizer} to the {@code MockMvcBuilder}.
    */
   public DispatcherServlet getDispatcherServlet() {
-    return this.servlet;
+    return this.mock;
   }
 
   /**
@@ -193,12 +193,12 @@ public final class MockMvc {
 
     RequestContext previous = RequestContextHolder.get();
 
-    var context = new MockRequestContext(servlet.getApplicationContext(), request, servletResponse, servlet);
+    var context = new MockRequestContext(mock.getApplicationContext(), request, servletResponse, mock);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
 
     RequestContextHolder.set(context);
 
-    MockFilterChain filterChain = new MockFilterChain(this.servlet, this.filters);
+    MockFilterChain filterChain = new MockFilterChain(this.mock, this.filters);
     filterChain.doFilter(request, servletResponse);
 
     RequestContext maybeNew = RequestContextHolder.getRequired();

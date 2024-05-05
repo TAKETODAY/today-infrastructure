@@ -236,7 +236,7 @@ public class ScriptTemplateViewTests {
     this.view.setEngine(engine);
     this.view.setRenderFunction("render");
     this.view.setApplicationContext(this.wac);
-    this.view.setUrl("cn/taketoday/web/servlet/view/script/empty.txt");
+    this.view.setUrl("cn/taketoday/web/mock/view/script/empty.txt");
     this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getContentAsString()).isEqualTo("foo");
 

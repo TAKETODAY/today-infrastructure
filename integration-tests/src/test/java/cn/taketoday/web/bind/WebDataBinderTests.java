@@ -35,7 +35,7 @@ import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.bind.MockRequestParameterPropertyValues;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
-import cn.taketoday.web.servlet.MockMultipartMockRequestContext;
+import cn.taketoday.web.mock.MockMultipartMockRequestContext;
 import cn.taketoday.web.testfixture.MockMultipartFile;
 
 import static org.assertj.core.api.Assertions.assertThat;

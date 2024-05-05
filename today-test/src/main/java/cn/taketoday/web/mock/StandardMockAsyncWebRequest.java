@@ -49,14 +49,14 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
 
   private final MockRequestContext request;
 
-  private final HttpMockRequest servletRequest;
+  private final HttpMockRequest mockRequest;
 
-  private final HttpMockResponse servletResponse;
+  private final HttpMockResponse mockResponse;
 
   public StandardMockAsyncWebRequest(MockRequestContext context) {
     this.request = context;
-    this.servletRequest = context.getRequest();
-    this.servletResponse = context.getResponse();
+    this.mockRequest = context.getRequest();
+    this.mockResponse = context.getResponse();
   }
 
   /**
@@ -67,18 +67,18 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
    */
   public StandardMockAsyncWebRequest(HttpMockRequest request, HttpMockResponse response) {
     this.request = new MockRequestContext(null, request, response);
-    this.servletRequest = request;
-    this.servletResponse = response;
+    this.mockRequest = request;
+    this.mockResponse = response;
   }
 
   @Override
   public boolean isAsyncStarted() {
-    return asyncContext != null && servletRequest.isAsyncStarted();
+    return asyncContext != null && mockRequest.isAsyncStarted();
   }
 
   @Override
   public void startAsync() {
-    Assert.state(servletRequest.isAsyncSupported(),
+    Assert.state(mockRequest.isAsyncSupported(),
             "Async support must be enabled on a servlet and for all filters involved " +
                     "in async request processing. This is done in Java code using the Servlet API " +
                     "or by adding \"<async-supported>true</async-supported>\" to servlet and " +
@@ -88,7 +88,7 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
     if (isAsyncStarted()) {
       return;
     }
-    this.asyncContext = servletRequest.startAsync(servletRequest, servletResponse);
+    this.asyncContext = mockRequest.startAsync(mockRequest, mockResponse);
     asyncContext.addListener(this);
     if (timeout != null) {
       asyncContext.setTimeout(this.timeout);
@@ -99,8 +99,8 @@ public class StandardMockAsyncWebRequest extends AsyncWebRequest implements Asyn
   public void dispatch(Object concurrentResult) {
     Assert.notNull(asyncContext, "Cannot dispatch without an AsyncContext");
 
-    servletRequest.setAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
-    servletRequest.setAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE, concurrentResult);
+    mockRequest.setAttribute(WebAsyncManager.WEB_ASYNC_REQUEST_ATTRIBUTE, request);
+    mockRequest.setAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE, concurrentResult);
 
     asyncContext.dispatch();
   }

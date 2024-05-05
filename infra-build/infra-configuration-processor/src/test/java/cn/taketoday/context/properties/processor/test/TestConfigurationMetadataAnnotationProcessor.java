@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.properties.processor.test;
@@ -41,7 +41,7 @@ import cn.taketoday.context.properties.processor.ConfigurationMetadataAnnotation
         TestConfigurationMetadataAnnotationProcessor.ENDPOINT_ANNOTATION,
         TestConfigurationMetadataAnnotationProcessor.JMX_ENDPOINT_ANNOTATION,
         TestConfigurationMetadataAnnotationProcessor.REST_CONTROLLER_ENDPOINT_ANNOTATION,
-        TestConfigurationMetadataAnnotationProcessor.SERVLET_ENDPOINT_ANNOTATION,
+        TestConfigurationMetadataAnnotationProcessor.MOCK_ENDPOINT_ANNOTATION,
         TestConfigurationMetadataAnnotationProcessor.WEB_ENDPOINT_ANNOTATION,
         "cn.taketoday.context.annotation.Configuration" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -67,7 +67,7 @@ public class TestConfigurationMetadataAnnotationProcessor extends ConfigurationM
 
   public static final String REST_CONTROLLER_ENDPOINT_ANNOTATION = "cn.taketoday.context.properties.sample.RestControllerEndpoint";
 
-  public static final String SERVLET_ENDPOINT_ANNOTATION = "cn.taketoday.context.properties.sample.ServletEndpoint";
+  public static final String MOCK_ENDPOINT_ANNOTATION = "cn.taketoday.context.properties.sample.MockEndpoint";
 
   public static final String WEB_ENDPOINT_ANNOTATION = "cn.taketoday.context.properties.sample.WebEndpoint";
 
@@ -111,7 +111,7 @@ public class TestConfigurationMetadataAnnotationProcessor extends ConfigurationM
   @Override
   protected Set<String> endpointAnnotations() {
     return new HashSet<>(Arrays.asList(CONTROLLER_ENDPOINT_ANNOTATION, ENDPOINT_ANNOTATION, JMX_ENDPOINT_ANNOTATION,
-            REST_CONTROLLER_ENDPOINT_ANNOTATION, SERVLET_ENDPOINT_ANNOTATION, WEB_ENDPOINT_ANNOTATION));
+            REST_CONTROLLER_ENDPOINT_ANNOTATION, MOCK_ENDPOINT_ANNOTATION, WEB_ENDPOINT_ANNOTATION));
   }
 
   @Override

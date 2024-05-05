@@ -15,14 +15,12 @@
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
-package cn.taketoday.web.servlet;
+package cn.taketoday.web.mock;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import cn.taketoday.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

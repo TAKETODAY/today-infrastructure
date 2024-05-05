@@ -64,14 +64,14 @@ public class NashornScriptTemplateTests {
     Map<String, Object> model = new HashMap<>();
     model.put("title", "Layout example");
     model.put("body", "This is the body");
-    String url = "cn/taketoday/web/servlet/view/script/nashorn/template.html";
+    String url = "cn/taketoday/web/mock/view/script/nashorn/template.html";
     MockHttpResponseImpl response = render(url, model, ScriptTemplatingConfiguration.class);
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
 
   @Test  // SPR-13453
   public void renderTemplateWithUrl() throws Exception {
-    String url = "cn/taketoday/web/servlet/view/script/nashorn/template.html";
+    String url = "cn/taketoday/web/mock/view/script/nashorn/template.html";
     MockHttpResponseImpl response = render(url, null, ScriptTemplatingWithUrlConfiguration.class);
     assertThat(response.getContentAsString()).isEqualTo(("<html><head><title>Check url parameter</title></head><body><p>" + url + "</p></body></html>"));
   }
@@ -105,7 +105,7 @@ public class NashornScriptTemplateTests {
     public ScriptTemplateConfigurer nashornConfigurer() {
       ScriptTemplateConfigurer configurer = new ScriptTemplateConfigurer();
       configurer.setEngineName("nashorn");
-      configurer.setScripts("cn/taketoday/web/servlet/view/script/nashorn/render.js");
+      configurer.setScripts("cn/taketoday/web/mock/view/script/nashorn/render.js");
       configurer.setRenderFunction("render");
       return configurer;
     }
@@ -118,7 +118,7 @@ public class NashornScriptTemplateTests {
     public ScriptTemplateConfigurer nashornConfigurer() {
       ScriptTemplateConfigurer configurer = new ScriptTemplateConfigurer();
       configurer.setEngineName("nashorn");
-      configurer.setScripts("cn/taketoday/web/servlet/view/script/nashorn/render.js");
+      configurer.setScripts("cn/taketoday/web/mock/view/script/nashorn/render.js");
       configurer.setRenderFunction("renderWithUrl");
       return configurer;
     }

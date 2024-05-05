@@ -57,8 +57,6 @@ import cn.taketoday.format.support.FormattingConversionService;
 import cn.taketoday.framework.test.context.assertj.AssertableApplicationContext;
 import cn.taketoday.framework.test.context.runner.ApplicationContextRunner;
 import cn.taketoday.framework.test.context.runner.ContextConsumer;
-import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
-import cn.taketoday.web.server.WebServerFactoryCustomizerBeanPostProcessor;
 import cn.taketoday.http.CacheControl;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.converter.HttpMessageConverter;
@@ -78,12 +76,12 @@ import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RedirectModelManager;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
+import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.CorsRegistry;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
-import cn.taketoday.web.async.WebAsyncManagerFactory;
 import cn.taketoday.web.handler.AbstractHandlerExceptionHandler;
 import cn.taketoday.web.handler.CompositeHandlerExceptionHandler;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
@@ -94,6 +92,7 @@ import cn.taketoday.web.handler.method.RequestMappingHandlerAdapter;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
 import cn.taketoday.web.i18n.FixedLocaleResolver;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.resource.CachingResourceResolver;
 import cn.taketoday.web.resource.CachingResourceTransformer;
 import cn.taketoday.web.resource.ContentVersionStrategy;
@@ -106,7 +105,8 @@ import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.VersionStrategy;
-import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.server.WebServerFactoryCustomizerBeanPostProcessor;
+import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
@@ -834,7 +834,7 @@ public class WebMvcAutoConfigurationTests {
 //    }
 
     @Bean
-    WebServerFactoryCustomizerBeanPostProcessor ServletWebServerCustomizerBeanPostProcessor() {
+    WebServerFactoryCustomizerBeanPostProcessor webServerCustomizerBeanPostProcessor() {
       return new WebServerFactoryCustomizerBeanPostProcessor();
     }
 
