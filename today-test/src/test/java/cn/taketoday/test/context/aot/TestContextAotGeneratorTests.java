@@ -54,6 +54,7 @@ import cn.taketoday.test.context.aot.samples.web.WebInfraVintageTests;
 import cn.taketoday.test.context.aot.samples.xml.XmlInfraJupiterTests;
 import cn.taketoday.test.context.aot.samples.xml.XmlInfraVintageTests;
 import cn.taketoday.test.context.env.YamlPropertySourceFactory;
+import cn.taketoday.test.context.web.MockTestExecutionListener;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.util.function.ThrowingConsumer;
 import cn.taketoday.web.mock.WebApplicationContext;
@@ -188,7 +189,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
             cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener.class,
             cn.taketoday.test.context.support.DirtiesContextTestExecutionListener.class,
             cn.taketoday.test.context.transaction.TransactionalTestExecutionListener.class,
-            cn.taketoday.test.context.web.ServletTestExecutionListener.class
+            MockTestExecutionListener.class
     ).forEach(type -> assertReflectionRegistered(runtimeHints, type, INVOKE_DECLARED_CONSTRUCTORS));
 
     // ContextCustomizerFactory

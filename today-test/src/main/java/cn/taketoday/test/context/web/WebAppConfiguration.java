@@ -53,7 +53,7 @@ import cn.taketoday.web.mock.WebApplicationContext;
  * @author Sam Brannen
  * @see WebApplicationContext
  * @see ContextConfiguration
- * @see ServletTestExecutionListener
+ * @see MockTestExecutionListener
  * @since 4.0
  */
 @Target(ElementType.TYPE)

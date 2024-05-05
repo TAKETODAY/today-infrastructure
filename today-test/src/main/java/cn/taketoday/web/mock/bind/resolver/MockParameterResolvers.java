@@ -21,9 +21,13 @@ import cn.taketoday.beans.factory.config.ConfigurableBeanFactory;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
-import cn.taketoday.web.mock.bind.MockContextAttribute;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import cn.taketoday.web.bind.resolver.MissingRequestCookieException;
@@ -31,17 +35,13 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.mock.MockUtils;
-import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.MockResponse;
-import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpSession;
+import cn.taketoday.web.mock.bind.MockContextAttribute;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2019-07-12 18:04
  */
-public class ServletParameterResolvers {
+public class MockParameterResolvers {
 
   public static void register(ConfigurableBeanFactory beanFactory,
           ParameterResolvingStrategies resolvers, MockContext context) {

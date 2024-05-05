@@ -2,12 +2,12 @@
 = Working with Web Mocks
 
 To provide comprehensive web testing support, the TestContext framework has a
-`ServletTestExecutionListener` that is enabled by default. When testing against a
+`MockTestExecutionListener` that is enabled by default. When testing against a
 `WebApplicationContext`, this xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`]
 sets up default thread-local state by using Infra Web's `RequestContextHolder` before
 each test method and creates a `HttpMockRequestImpl`, a `MockHttpResponseImpl`, and
 a `ServletWebRequest` based on the base resource path configured with
-`@WebAppConfiguration`. `ServletTestExecutionListener` also ensures that the
+`@WebAppConfiguration`. `MockTestExecutionListener` also ensures that the
 `MockHttpResponseImpl` and `ServletWebRequest` can be injected into the test instance,
 and, once the test is complete, it cleans up thread-local state.
 
@@ -16,7 +16,7 @@ need to interact with the web mocks -- for example, to set up your test fixture 
 perform assertions after invoking your web component. The following example shows which
 mocks can be autowired into your test instance. Note that the `WebApplicationContext` and
 `MockContextImpl` are both cached across the test suite, whereas the other mocks are
-managed per test method by the `ServletTestExecutionListener`.
+managed per test method by the `MockTestExecutionListener`.
 
 [tabs]
 ======

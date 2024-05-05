@@ -60,9 +60,10 @@ import cn.taketoday.web.mock.WebApplicationContext;
  *
  * @author Sam Brannen
  * @author Phillip Webb
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServletTestExecutionListener extends AbstractTestExecutionListener {
+public class MockTestExecutionListener extends AbstractTestExecutionListener {
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
@@ -72,7 +73,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          ServletTestExecutionListener.class, "resetRequestContextHolder");
+          MockTestExecutionListener.class, "resetRequestContextHolder");
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that
@@ -81,7 +82,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          ServletTestExecutionListener.class, "populatedRequestContextHolder");
+          MockTestExecutionListener.class, "populatedRequestContextHolder");
 
   /**
    * Attribute name for a request attribute which indicates that the
@@ -91,7 +92,7 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String CREATED_BY_THE_TESTCONTEXT_FRAMEWORK = Conventions.getQualifiedAttributeName(
-          ServletTestExecutionListener.class, "createdByTheTestContextFramework");
+          MockTestExecutionListener.class, "createdByTheTestContextFramework");
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that the
@@ -101,9 +102,9 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String ACTIVATE_LISTENER = Conventions.getQualifiedAttributeName(
-          ServletTestExecutionListener.class, "activateListener");
+          MockTestExecutionListener.class, "activateListener");
 
-  private static final Logger logger = LoggerFactory.getLogger(ServletTestExecutionListener.class);
+  private static final Logger logger = LoggerFactory.getLogger(MockTestExecutionListener.class);
 
   /**
    * Returns {@code 1000}.
@@ -187,10 +188,9 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
     if (context instanceof WebApplicationContext wac) {
       MockContext mockContext = wac.getMockContext();
       Assert.state(mockContext instanceof MockContextImpl,
-              () -> String.format(
-                      "The WebApplicationContext for test context %s must be configured with a MockContext.", testContext));
+              () -> "The WebApplicationContext for test context %s must be configured with a MockContext.".formatted(testContext));
 
-      logger.debug("Setting up MockHttpServletRequest, MockHttpServletResponse, ServletWebRequest, and RequestContextHolder for test context .",
+      logger.debug("Setting up MockHttpRequest, MockHttpResponse, WebRequest, and RequestContextHolder for test context .",
               testContext);
 
       HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext);

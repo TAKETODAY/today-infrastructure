@@ -31,7 +31,7 @@ import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.CookieParameterResolver;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
-import cn.taketoday.web.mock.bind.resolver.ServletParameterResolvers;
+import cn.taketoday.web.mock.bind.resolver.MockParameterResolvers;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.api.http.Cookie;
 
@@ -63,7 +63,7 @@ class CookieMethodArgumentResolversTests {
     context.refresh();
 
     CookieParameterResolver.register(strategies, context.getBeanFactory());
-    ServletParameterResolvers.register(context.getBeanFactory(), strategies, mockContext);
+    MockParameterResolvers.register(context.getBeanFactory(), strategies, mockContext);
 
     Method method = getClass().getMethod("params", Cookie.class, String.class, String.class);
     paramNamedCookie = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));

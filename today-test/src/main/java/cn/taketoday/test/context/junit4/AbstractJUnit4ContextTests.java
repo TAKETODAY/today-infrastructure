@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4;
@@ -35,7 +35,7 @@ import cn.taketoday.test.context.junit4.rules.InfraMethodRule;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextBeforeModesTestExecutionListener;
 import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
-import cn.taketoday.test.context.web.ServletTestExecutionListener;
+import cn.taketoday.test.context.web.MockTestExecutionListener;
 
 /**
  * Abstract base test class which integrates the <em>Infra TestContext
@@ -68,7 +68,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @see TestContext
  * @see TestContextManager
  * @see TestExecutionListeners
- * @see ServletTestExecutionListener
+ * @see MockTestExecutionListener
  * @see DirtiesContextBeforeModesTestExecutionListener
  * @see ApplicationEventsTestExecutionListener
  * @see DependencyInjectionTestExecutionListener
@@ -78,7 +78,7 @@ import cn.taketoday.test.context.web.ServletTestExecutionListener;
  * @since 4.0
  */
 @RunWith(InfraRunner.class)
-@TestExecutionListeners({ ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
+@TestExecutionListeners({ MockTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
         ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class, EventPublishingTestExecutionListener.class })
 public abstract class AbstractJUnit4ContextTests implements ApplicationContextAware {

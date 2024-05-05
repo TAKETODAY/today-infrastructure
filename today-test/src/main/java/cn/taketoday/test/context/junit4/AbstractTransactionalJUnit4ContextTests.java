@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.test.context.junit4;
@@ -42,7 +42,7 @@ import cn.taketoday.test.context.support.DirtiesContextTestExecutionListener;
 import cn.taketoday.test.context.transaction.AfterTransaction;
 import cn.taketoday.test.context.transaction.BeforeTransaction;
 import cn.taketoday.test.context.transaction.TransactionalTestExecutionListener;
-import cn.taketoday.test.context.web.ServletTestExecutionListener;
+import cn.taketoday.test.context.web.MockTestExecutionListener;
 import cn.taketoday.test.jdbc.JdbcTestUtils;
 import cn.taketoday.transaction.PlatformTransactionManager;
 import cn.taketoday.transaction.annotation.Transactional;
@@ -94,7 +94,7 @@ import cn.taketoday.transaction.annotation.Transactional;
  * @see JdbcTestUtils
  * @since 4.0
  */
-@TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
+@TestExecutionListeners(listeners = { MockTestExecutionListener.class, DirtiesContextBeforeModesTestExecutionListener.class,
         ApplicationEventsTestExecutionListener.class, DependencyInjectionTestExecutionListener.class,
         DirtiesContextTestExecutionListener.class, TransactionalTestExecutionListener.class,
         SqlScriptsTestExecutionListener.class, EventPublishingTestExecutionListener.class }, inheritListeners = false)

@@ -29,7 +29,7 @@ import cn.taketoday.web.mock.MockUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * JUnit-based integration tests for {@link ServletTestExecutionListener}.
+ * JUnit-based integration tests for {@link MockTestExecutionListener}.
  *
  * @author Sam Brannen
  * @since 4.0
