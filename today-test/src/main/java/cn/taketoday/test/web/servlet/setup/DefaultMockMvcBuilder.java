@@ -19,8 +19,8 @@ package cn.taketoday.test.web.servlet.setup;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Assert;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
+import cn.taketoday.web.mock.WebApplicationContext;
+import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 import cn.taketoday.mock.api.ServletContext;
 
 /**

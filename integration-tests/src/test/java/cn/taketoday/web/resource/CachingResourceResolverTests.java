@@ -30,7 +30,7 @@ import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

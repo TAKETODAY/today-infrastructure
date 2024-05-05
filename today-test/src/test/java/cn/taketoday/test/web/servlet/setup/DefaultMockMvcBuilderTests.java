@@ -27,9 +27,9 @@ import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
-import cn.taketoday.web.servlet.support.WebApplicationContextUtils;
+import cn.taketoday.web.mock.WebApplicationContext;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
+import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 
 import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;

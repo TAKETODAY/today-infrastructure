@@ -40,6 +40,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.stereotype.Controller;
@@ -55,12 +56,10 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
-import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.ServletRequestContext;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.mock.api.ServletException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -97,7 +96,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
 
     this.handler.afterPropertiesSet();
-    Object mav = this.handler.handleException(new MockServletRequestContext(this.request, this.response), null, handler);
+    Object mav = this.handler.handleException(new ServletRequestContext(this.request, this.response), null, handler);
     assertThat(mav).as("Exception can be resolved only if there is a HandlerMethod").isNull();
   }
 
@@ -210,7 +209,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       }
     };
 
-    MockServletRequestContext context = new MockServletRequestContext(null, request, response);
+    ServletRequestContext context = new ServletRequestContext(null, request, response);
     context.setBinding(new BindingContext());
 
     Object ret = this.handler.handleException(context, ex, handler);
@@ -375,7 +374,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException();
-    Object mav = this.handler.handleException(new MockServletRequestContext(this.request, this.response), ex, null);
+    Object mav = this.handler.handleException(new ServletRequestContext(this.request, this.response), ex, null);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
@@ -408,7 +407,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     IllegalStateException ex = new IllegalStateException();
     ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
     Object mav = this.handler.handleException(
-            new MockServletRequestContext(ctx, this.request, this.response), ex, handler);
+            new ServletRequestContext(ctx, this.request, this.response), ex, handler);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");

@@ -27,7 +27,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.UriComponentsBuilderParameterStrategy;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;

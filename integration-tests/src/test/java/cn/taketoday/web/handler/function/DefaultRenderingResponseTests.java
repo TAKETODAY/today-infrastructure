@@ -33,7 +33,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;

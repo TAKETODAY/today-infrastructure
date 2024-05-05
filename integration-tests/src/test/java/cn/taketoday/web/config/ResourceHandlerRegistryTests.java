@@ -39,8 +39,8 @@ import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 

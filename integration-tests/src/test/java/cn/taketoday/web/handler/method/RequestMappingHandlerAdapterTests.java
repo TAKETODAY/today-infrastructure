@@ -60,8 +60,8 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyAdviceChain;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

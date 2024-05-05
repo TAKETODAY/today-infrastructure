@@ -27,10 +27,10 @@ import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HandlerMatchingMetadata;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
+import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.WebApplicationContext;
+import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
 import static org.assertj.core.api.Assertions.assertThat;

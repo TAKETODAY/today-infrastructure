@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.handler.condition.ParamsRequestCondition.ParamExpression;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

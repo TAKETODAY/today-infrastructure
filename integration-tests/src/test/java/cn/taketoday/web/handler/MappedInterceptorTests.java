@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.i18n.LocaleChangeInterceptor;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 import cn.taketoday.web.view.PathPatternsTestUtils;

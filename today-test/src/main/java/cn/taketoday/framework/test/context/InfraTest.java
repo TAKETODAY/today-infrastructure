@@ -41,7 +41,7 @@ import cn.taketoday.test.context.BootstrapWith;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.ContextLoader;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * Annotation that can be specified on a test class that runs Infra based tests.

@@ -39,8 +39,8 @@ import javax.xml.transform.stream.StreamSource;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
+import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;

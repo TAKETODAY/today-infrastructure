@@ -127,7 +127,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
 
   /**
    * A more advanced that allows
-   * customizing any {@link cn.taketoday.web.servlet.DispatcherServlet}
+   * customizing any {@link cn.taketoday.web.mock.DispatcherServlet}
    * property.
    */
   <T extends B> T addDispatcherServletCustomizer(DispatcherServletCustomizer customizer);

@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;

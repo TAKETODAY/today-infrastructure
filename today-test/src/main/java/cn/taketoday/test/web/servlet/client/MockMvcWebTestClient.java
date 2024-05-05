@@ -43,7 +43,7 @@ import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
 import cn.taketoday.web.handler.result.HandlerMethodReturnValueHandler;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewResolver;
 import cn.taketoday.mock.api.Filter;

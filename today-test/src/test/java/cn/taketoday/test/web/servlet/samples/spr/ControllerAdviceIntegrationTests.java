@@ -37,7 +37,7 @@ import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.context.annotation.RequestScope;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;

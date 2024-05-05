@@ -31,9 +31,9 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.MockServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -66,7 +66,7 @@ public class RedirectViewTests {
 
     context.refresh();
 
-    this.context = new MockServletRequestContext(context, request, response);
+    this.context = new ServletRequestContext(context, request, response);
   }
 
   @Test
@@ -283,7 +283,7 @@ public class RedirectViewTests {
           throws Exception {
     if (this.context == null) {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-      this.context = new MockServletRequestContext(context, request, response);
+      this.context = new ServletRequestContext(context, request, response);
     }
 
     TestRedirectView rv = new TestRedirectView(url, contextRelative, map);

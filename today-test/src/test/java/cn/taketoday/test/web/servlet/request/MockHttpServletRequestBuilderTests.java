@@ -43,7 +43,7 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static cn.taketoday.http.HttpMethod.GET;

@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.i18n;
@@ -29,16 +26,16 @@ import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.SimpleLocaleContext;
 import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
-import cn.taketoday.web.LocaleContextResolver;
-import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.servlet.MockServletRequestContext;
+import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.session.DefaultSessionManager;
 import cn.taketoday.session.InMemorySessionRepository;
 import cn.taketoday.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.session.SessionEventDispatcher;
-import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.web.LocaleContextResolver;
+import cn.taketoday.web.LocaleResolver;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -78,7 +75,7 @@ public class LocaleResolverTests {
     MockHttpServletRequest request = new MockHttpServletRequest(context);
     request.addPreferredLocale(Locale.UK);
     MockHttpServletResponse response = new MockHttpServletResponse();
-    MockServletRequestContext requestContext = new MockServletRequestContext(request, response);
+    ServletRequestContext requestContext = new ServletRequestContext(request, response);
     // check original locale
     Locale locale = localeResolver.resolveLocale(requestContext);
     assertThat(locale).isEqualTo(Locale.UK);

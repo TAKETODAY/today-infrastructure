@@ -37,6 +37,7 @@ import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
 import cn.taketoday.http.server.ServletServerHttpRequest;
+import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletConfig;
@@ -59,11 +60,10 @@ import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
-import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

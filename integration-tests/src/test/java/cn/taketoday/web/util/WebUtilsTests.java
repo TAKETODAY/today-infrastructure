@@ -27,7 +27,7 @@ import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 

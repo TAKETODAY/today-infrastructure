@@ -29,7 +29,7 @@ fixes an important vulnerability for untrusted PDF content.
 == PDF Views
 
 A simple PDF view for a word list could extend
-`cn.taketoday.web.servlet.view.document.AbstractPdfView` and implement the
+`cn.taketoday.web.view.document.AbstractPdfView` and implement the
 `buildPdfDocument()` method, as the following example shows:
 
 [tabs]
@@ -62,7 +62,7 @@ A controller can return such a view either from an external view definition
 == Excel Views
 
 Since TODAY Framework 4.2,
-`cn.taketoday.web.servlet.view.document.AbstractXlsView` is provided as a base
+`cn.taketoday.web.mock.view.document.AbstractXlsView` is provided as a base
 class for Excel views. It is based on Apache POI, with specialized subclasses (`AbstractXlsxView`
 and `AbstractXlsxStreamingView`) that supersede the outdated `AbstractExcelView` class.
 

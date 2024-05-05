@@ -42,7 +42,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.mock.api.http.HttpServletRequest;
 
 /**

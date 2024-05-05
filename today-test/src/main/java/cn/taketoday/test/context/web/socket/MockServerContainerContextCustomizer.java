@@ -19,10 +19,10 @@ package cn.taketoday.test.context.web.socket;
 
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.lang.Nullable;
+import cn.taketoday.mock.api.ServletContext;
 import cn.taketoday.test.context.ContextCustomizer;
 import cn.taketoday.test.context.MergedContextConfiguration;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * {@link ContextCustomizer} that instantiates a new {@link MockServerContainer}

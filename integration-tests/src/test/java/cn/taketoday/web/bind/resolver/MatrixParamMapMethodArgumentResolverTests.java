@@ -34,7 +34,7 @@ import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.testfixture.ReflectionTestUtils;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;

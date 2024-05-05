@@ -35,7 +35,7 @@ import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.support.RequestScope;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 

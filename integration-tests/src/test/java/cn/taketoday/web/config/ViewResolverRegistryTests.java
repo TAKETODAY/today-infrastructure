@@ -25,7 +25,7 @@ import java.util.Arrays;
 import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.core.Ordered;
 import cn.taketoday.web.accept.ContentNegotiationManager;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.view.BeanNameViewResolver;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.ViewResolver;

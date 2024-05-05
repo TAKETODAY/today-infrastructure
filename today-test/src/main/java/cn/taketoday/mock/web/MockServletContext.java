@@ -53,10 +53,10 @@ import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletRegistration;
 import cn.taketoday.mock.api.SessionCookieConfig;
 import cn.taketoday.mock.api.SessionTrackingMode;
-import cn.taketoday.web.servlet.ServletUtils;
-import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
-import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
+import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
+import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 /**
  * Mock implementation of the {@link ServletContext} interface.

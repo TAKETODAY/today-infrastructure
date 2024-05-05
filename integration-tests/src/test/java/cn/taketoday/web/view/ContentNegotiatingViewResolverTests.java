@@ -38,11 +38,11 @@ import cn.taketoday.web.accept.HeaderContentNegotiationStrategy;
 import cn.taketoday.web.accept.MappingMediaTypeFileExtensionResolver;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
-import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.web.MockServletContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -68,7 +68,7 @@ public class ContentNegotiatingViewResolverTests {
     viewResolver.setApplicationContext(wac);
     request = new MockHttpServletRequest("GET", "/test");
     MockHttpServletResponse response = new MockHttpServletResponse();
-    this.requestContext = new MockServletRequestContext(wac, request, response);
+    this.requestContext = new ServletRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
   }
 
@@ -450,7 +450,7 @@ public class ContentNegotiatingViewResolverTests {
     View result = viewResolver.resolveViewName(viewName, locale);
     assertThat(result).as("Invalid view").isNotNull();
     MockHttpServletResponse response = new MockHttpServletResponse();
-    this.requestContext = new MockServletRequestContext(wac, request, response);
+    this.requestContext = new ServletRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
     result.render(null, requestContext);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);

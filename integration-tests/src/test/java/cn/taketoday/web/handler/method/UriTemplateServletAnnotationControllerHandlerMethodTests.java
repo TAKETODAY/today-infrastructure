@@ -43,7 +43,7 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.InitBinder;
 import cn.taketoday.web.bind.support.WebBindingInitializer;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.ViewRef;

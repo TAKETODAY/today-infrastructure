@@ -20,7 +20,7 @@ package cn.taketoday.web.util;
 import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.server.RequestPath;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

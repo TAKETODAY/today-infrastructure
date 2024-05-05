@@ -29,7 +29,7 @@ import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.ui.ModelMap;
 
 import static java.util.Arrays.asList;

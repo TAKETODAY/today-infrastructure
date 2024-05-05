@@ -31,7 +31,7 @@ import cn.taketoday.core.io.Resource;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.resource.EncodedResourceResolver.EncodedResource;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -46,7 +46,7 @@ properties, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes"]
 ----
-<bean id="freemarkerConfig" class="cn.taketoday.web.servlet.view.freemarker.FreeMarkerConfigurer">
+<bean id="freemarkerConfig" class="cn.taketoday.web.view.freemarker.FreeMarkerConfigurer">
   <property name="templateLoaderPath" value="/WEB-INF/freemarker/"/>
 </bean>
 ----

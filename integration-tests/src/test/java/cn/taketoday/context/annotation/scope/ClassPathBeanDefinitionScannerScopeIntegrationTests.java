@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.context.annotation.scope;
@@ -35,8 +35,8 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.annotation.RequestScope;
 import cn.taketoday.web.context.annotation.SessionScope;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 
 import static cn.taketoday.context.annotation.ScopedProxyMode.DEFAULT;
 import static cn.taketoday.context.annotation.ScopedProxyMode.INTERFACES;

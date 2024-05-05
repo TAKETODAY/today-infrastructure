@@ -55,7 +55,7 @@ import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.test.util.TestPropertyValues.Type;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 
 /**
  * A {@link ContextLoader} that can be used to test Infra applications (those that

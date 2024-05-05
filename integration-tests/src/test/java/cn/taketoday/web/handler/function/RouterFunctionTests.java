@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static cn.taketoday.http.HttpMethod.GET;

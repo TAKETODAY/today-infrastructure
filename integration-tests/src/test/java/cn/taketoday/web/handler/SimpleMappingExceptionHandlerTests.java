@@ -27,7 +27,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.mock.api.http.HttpServletResponse;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;

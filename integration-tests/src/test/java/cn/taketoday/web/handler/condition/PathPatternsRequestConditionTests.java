@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.api.http.HttpServletRequest;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 import static org.assertj.core.api.Assertions.assertThat;

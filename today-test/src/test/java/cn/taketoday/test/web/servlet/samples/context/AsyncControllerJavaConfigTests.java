@@ -44,7 +44,7 @@ import cn.taketoday.web.config.AsyncSupportConfigurer;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.async.CallableProcessingInterceptor;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;

@@ -43,7 +43,7 @@ import cn.taketoday.util.StringUtils;
  */
 public class DelegatingApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
 
-  // NOTE: Similar to cn.taketoday.web.servlet.ContextLoader
+  // NOTE: Similar to cn.taketoday.web.mock.ContextLoader
 
   private static final String PROPERTY_NAME = "context.initializer.classes";
 

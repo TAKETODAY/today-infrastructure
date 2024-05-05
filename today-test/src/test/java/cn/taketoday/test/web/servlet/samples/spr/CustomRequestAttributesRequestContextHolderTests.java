@@ -34,8 +34,8 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.WebMvcConfigurer;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.mock.api.ServletContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;

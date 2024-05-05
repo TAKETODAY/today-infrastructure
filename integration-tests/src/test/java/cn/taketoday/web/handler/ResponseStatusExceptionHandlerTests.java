@@ -40,7 +40,7 @@ import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.MethodNotAllowedException;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

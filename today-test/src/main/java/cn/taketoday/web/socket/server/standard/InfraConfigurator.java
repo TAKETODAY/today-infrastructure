@@ -30,8 +30,8 @@ import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.servlet.ContextLoader;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.ContextLoader;
+import cn.taketoday.web.mock.WebApplicationContext;
 import jakarta.websocket.server.ServerEndpoint;
 import jakarta.websocket.server.ServerEndpointConfig.Configurator;
 

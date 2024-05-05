@@ -19,12 +19,12 @@ package cn.taketoday.framework.test.context.runner;
 
 import java.util.function.Supplier;
 
-import cn.taketoday.web.servlet.AnnotationConfigServletWebApplicationContext;
+import cn.taketoday.web.mock.AnnotationConfigServletWebApplicationContext;
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
 import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.mock.web.MockServletContext;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * An {@link AbstractApplicationContextRunner ApplicationContext runner} for a Servlet

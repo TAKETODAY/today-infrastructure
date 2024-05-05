@@ -29,8 +29,8 @@ import java.security.Principal;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.bind.resolver.PrincipalMethodArgumentResolver;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.bind.resolver.PrincipalMethodArgumentResolver;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.mock.api.ServletRequest;

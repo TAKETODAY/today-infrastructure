@@ -20,7 +20,7 @@ package cn.taketoday.test.web.servlet.setup;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.test.web.servlet.request.RequestPostProcessor;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * Contract for customizing a {@code ConfigurableMockMvcBuilder} in some

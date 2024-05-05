@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
 import cn.taketoday.mock.api.AsyncEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -42,8 +42,8 @@ import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.ResponseEntityExceptionHandler;
-import cn.taketoday.web.servlet.DispatcherServlet;
-import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
+import cn.taketoday.web.mock.DispatcherServlet;
+import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

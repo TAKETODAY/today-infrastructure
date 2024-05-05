@@ -35,7 +35,7 @@ import cn.taketoday.util.StringUtils;
  * headers coming from an external source.
  *
  * <p>In most cases, you should not use this class directly but rather rely on
- * {@link cn.taketoday.web.servlet.filter.ForwardedHeaderFilter} for Web MVC or
+ * {@link cn.taketoday.web.mock.filter.ForwardedHeaderFilter} for Web MVC or
  * {@link cn.taketoday.http.server.reactive.ForwardedHeaderTransformer} in
  * order to extract the information from the headers as early as possible and discard
  * such headers. Underlying servers such as Tomcat, and Reactor Netty also

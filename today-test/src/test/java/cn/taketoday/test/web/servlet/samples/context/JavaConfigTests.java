@@ -38,7 +38,7 @@ import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.ViewControllerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.api.ServletContext;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;

@@ -25,7 +25,7 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

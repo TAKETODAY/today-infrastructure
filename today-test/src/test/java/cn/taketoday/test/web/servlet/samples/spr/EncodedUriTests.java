@@ -45,7 +45,7 @@ import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.ViewResolverRegistry;
 import cn.taketoday.web.config.WebMvcConfigurer;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;

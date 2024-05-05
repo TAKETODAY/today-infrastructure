@@ -31,10 +31,10 @@ import cn.taketoday.mock.api.ServletRequest;
 import cn.taketoday.mock.api.ServletResponse;
 import cn.taketoday.mock.api.http.HttpServletRequest;
 import cn.taketoday.mock.api.http.HttpServletResponse;
-import cn.taketoday.web.servlet.ServletForwardingController;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.ServletWrappingController;
-import cn.taketoday.web.servlet.support.StaticWebApplicationContext;
+import cn.taketoday.web.mock.ServletForwardingController;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.ServletWrappingController;
+import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;

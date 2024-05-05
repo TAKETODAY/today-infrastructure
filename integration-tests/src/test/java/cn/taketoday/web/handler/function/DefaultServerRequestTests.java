@@ -57,7 +57,7 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.web.multipart.Multipart;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

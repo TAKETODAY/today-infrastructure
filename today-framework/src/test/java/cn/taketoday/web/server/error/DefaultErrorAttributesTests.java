@@ -36,7 +36,7 @@ import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

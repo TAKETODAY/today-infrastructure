@@ -31,8 +31,8 @@ import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.CookieParameterResolver;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
-import cn.taketoday.web.servlet.bind.resolver.ServletParameterResolvers;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.bind.resolver.ServletParameterResolvers;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.api.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;

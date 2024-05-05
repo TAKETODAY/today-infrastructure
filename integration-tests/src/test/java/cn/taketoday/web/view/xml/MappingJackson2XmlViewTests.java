@@ -45,7 +45,7 @@ import java.util.TreeMap;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.view.View;

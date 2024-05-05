@@ -48,10 +48,10 @@ import cn.taketoday.mock.env.MockPropertySource;
 import cn.taketoday.mock.web.MockServletConfig;
 import cn.taketoday.mock.web.MockServletContext;
 import cn.taketoday.util.FileCopyUtils;
-import cn.taketoday.web.servlet.support.AbstractRefreshableWebApplicationContext;
-import cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.servlet.support.StandardServletEnvironment;
-import cn.taketoday.web.servlet.support.XmlWebApplicationContext;
+import cn.taketoday.web.mock.support.AbstractRefreshableWebApplicationContext;
+import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
+import cn.taketoday.web.mock.support.StandardServletEnvironment;
+import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
 import static cn.taketoday.core.env.Environment.ENVIRONMENT_BEAN_NAME;

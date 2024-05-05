@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 import cn.taketoday.framework.test.context.runner.WebApplicationContextRunner;
 import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.web.server.context.WebServerApplicationContext;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 
 /**
  * A {@link WebServerApplicationContext} that additionally supports AssertJ style assertions.

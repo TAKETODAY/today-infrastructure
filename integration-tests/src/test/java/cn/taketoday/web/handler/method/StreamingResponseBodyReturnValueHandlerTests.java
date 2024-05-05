@@ -33,10 +33,10 @@ import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

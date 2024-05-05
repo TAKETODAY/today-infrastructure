@@ -33,7 +33,7 @@ import java.util.Map;
 
 import cn.taketoday.core.testfixture.xml.XmlContent;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 

@@ -25,7 +25,7 @@ import cn.taketoday.beans.BeanUtils;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.async.DeferredResult;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;

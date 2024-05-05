@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.config;
@@ -27,12 +24,12 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import cn.taketoday.http.MediaType;
+import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationStrategy;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
-import cn.taketoday.web.servlet.MockServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletRequest;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,7 +48,7 @@ class ContentNegotiationConfigurerTests {
   @BeforeEach
   public void setup() {
     this.servletRequest = new MockHttpServletRequest();
-    this.webRequest = new MockServletRequestContext(this.servletRequest, null);
+    this.webRequest = new ServletRequestContext(this.servletRequest, null);
     this.configurer = new ContentNegotiationConfigurer();
   }
 

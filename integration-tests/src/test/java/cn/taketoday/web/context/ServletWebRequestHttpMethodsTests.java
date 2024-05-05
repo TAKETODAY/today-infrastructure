@@ -34,7 +34,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;

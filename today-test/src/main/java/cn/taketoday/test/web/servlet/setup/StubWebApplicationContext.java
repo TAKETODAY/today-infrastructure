@@ -25,9 +25,9 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.core.io.PatternResourceLoader;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.ObjectUtils;
-import cn.taketoday.web.servlet.WebApplicationContext;
-import cn.taketoday.web.servlet.support.GenericWebApplicationContext;
-import cn.taketoday.web.servlet.support.ServletContextResourcePatternLoader;
+import cn.taketoday.web.mock.WebApplicationContext;
+import cn.taketoday.web.mock.support.GenericWebApplicationContext;
+import cn.taketoday.web.mock.support.ServletContextResourcePatternLoader;
 import cn.taketoday.mock.api.ServletContext;
 
 /**

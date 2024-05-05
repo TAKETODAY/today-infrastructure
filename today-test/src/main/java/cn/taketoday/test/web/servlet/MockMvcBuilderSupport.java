@@ -22,9 +22,9 @@ import java.util.List;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockServletConfig;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.mock.api.Filter;
+import cn.taketoday.mock.web.MockServletConfig;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * Base class for MockMvc builder implementations, providing the capability to

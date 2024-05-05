@@ -27,7 +27,7 @@ import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 /**
  * Base class for tests using {@link ServerHttpRequest} and {@link ServerHttpResponse}.

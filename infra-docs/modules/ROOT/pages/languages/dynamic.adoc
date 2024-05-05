@@ -672,7 +672,7 @@ NOTE: To effect this automatic "`pickup`" of any changes to dynamic-language-bac
 beans, you have to enable the "`refreshable beans`" functionality. See
 xref:languages/dynamic.adoc#dynamic-language-refreshable-beans[Refreshable Beans] for a full treatment of this feature.
 
-The following example shows an `cn.taketoday.web.servlet.mvc.Controller` implemented
+The following example shows an `cn.taketoday.web.hanler.mvc.Controller` implemented
 by using the Groovy dynamic language:
 
 [source,groovy,indent=0,subs="verbatim,quotes",chomp="-packages"]

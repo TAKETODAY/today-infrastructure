@@ -21,8 +21,8 @@ import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.context.ApplicationContextInitializer;
 import cn.taketoday.context.ConfigurableApplicationContext;
 import cn.taketoday.core.Ordered;
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.api.ServletContext;
 
 /**

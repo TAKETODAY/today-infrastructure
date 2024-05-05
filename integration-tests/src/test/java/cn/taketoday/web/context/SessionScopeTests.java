@@ -54,7 +54,7 @@ import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.web.context.support.SessionScope;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.beans.testfixture.beans.DerivedTestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 

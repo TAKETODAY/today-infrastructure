@@ -33,9 +33,9 @@ import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.WebApplicationContext;
 import cn.taketoday.mock.api.ServletContext;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * {@code TestExecutionListener} which provides mock Servlet API support to

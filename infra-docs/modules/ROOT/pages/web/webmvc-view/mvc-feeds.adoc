@@ -4,7 +4,7 @@
 Both `AbstractAtomFeedView` and `AbstractRssFeedView` inherit from the
 `AbstractFeedView` base class and are used to provide Atom and RSS Feed views, respectively. They
 are based on https://rometools.github.io/rome/[ROME] project and are located in the
-package `cn.taketoday.web.servlet.view.feed`.
+package `cn.taketoday.web.view.feed`.
 
 `AbstractAtomFeedView` requires you to implement the `buildFeedEntries()` method and
 optionally override the `buildFeedMetadata()` method (the default implementation is

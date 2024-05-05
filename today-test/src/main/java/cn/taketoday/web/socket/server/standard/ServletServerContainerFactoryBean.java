@@ -21,7 +21,7 @@ import cn.taketoday.beans.factory.FactoryBean;
 import cn.taketoday.beans.factory.InitializingBean;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.web.servlet.ServletContextAware;
+import cn.taketoday.web.mock.ServletContextAware;
 import cn.taketoday.mock.api.ServletContext;
 import jakarta.websocket.WebSocketContainer;
 import jakarta.websocket.server.ServerContainer;

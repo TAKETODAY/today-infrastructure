@@ -19,7 +19,7 @@ package cn.taketoday.framework.test.context.assertj;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.web.servlet.ConfigurableWebApplicationContext;
+import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -56,7 +56,7 @@ import cn.taketoday.test.context.aot.samples.xml.XmlInfraVintageTests;
 import cn.taketoday.test.context.env.YamlPropertySourceFactory;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.util.function.ThrowingConsumer;
-import cn.taketoday.web.servlet.WebApplicationContext;
+import cn.taketoday.web.mock.WebApplicationContext;
 
 import static cn.taketoday.aot.hint.MemberCategory.INVOKE_DECLARED_CONSTRUCTORS;
 import static cn.taketoday.aot.hint.MemberCategory.INVOKE_DECLARED_METHODS;
@@ -279,7 +279,7 @@ class TestContextAotGeneratorTests extends AbstractAotTests {
     MessageService messageService = context.getBean(MessageService.class);
     ConfigurableApplicationContext cac = (ConfigurableApplicationContext) context;
     String expectedMessage = cac.getEnvironment().matchesProfiles("spanish") ?
-                             "¡Hola, AOT!" : "Hello, AOT!";
+            "¡Hola, AOT!" : "Hello, AOT!";
     assertThat(messageService.generateMessage()).isEqualTo(expectedMessage);
   }
 

@@ -47,7 +47,7 @@ import cn.taketoday.stereotype.Component;
  *
  * <p>{@code @Configuration} classes are typically bootstrapped using either
  * {@link AnnotationConfigApplicationContext} or its web-capable variant,
- * {@link cn.taketoday.web.servlet.support.AnnotationConfigWebApplicationContext
+ * {@link cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext
  * AnnotationConfigWebApplicationContext}. A simple example with the former follows:
  *
  * <pre class="code">

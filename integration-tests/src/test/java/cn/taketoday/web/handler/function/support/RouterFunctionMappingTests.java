@@ -34,7 +34,7 @@ import cn.taketoday.web.handler.function.HandlerFunction;
 import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.handler.function.RouterFunctions;
 import cn.taketoday.web.handler.function.ServerResponse;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

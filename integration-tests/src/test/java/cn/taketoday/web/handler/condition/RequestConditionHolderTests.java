@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.mock.web.MockHttpServletRequest;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.mock.api.http.HttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;

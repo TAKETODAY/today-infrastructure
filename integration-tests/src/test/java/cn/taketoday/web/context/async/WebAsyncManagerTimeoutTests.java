@@ -34,8 +34,8 @@ import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.async.DeferredResultProcessingInterceptor;
 import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
-import cn.taketoday.web.servlet.ServletRequestContext;
-import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
 import cn.taketoday.mock.api.AsyncEvent;
 
 import static cn.taketoday.web.async.CallableProcessingInterceptor.RESULT_NONE;

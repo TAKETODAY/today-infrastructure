@@ -35,9 +35,9 @@ import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.MockHttpServletRequest;
 import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.servlet.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
 import cn.taketoday.web.async.WebAsyncManager;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 

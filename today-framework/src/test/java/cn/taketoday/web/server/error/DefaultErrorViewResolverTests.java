@@ -40,7 +40,7 @@ import cn.taketoday.mock.web.MockHttpServletResponse;
 import cn.taketoday.ui.template.TemplateAvailabilityProvider;
 import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -23,8 +23,8 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.servlet.ServletContextAware;
-import cn.taketoday.web.servlet.ServletUtils;
+import cn.taketoday.web.mock.ServletContextAware;
+import cn.taketoday.web.mock.ServletUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.ServletContext;
@@ -49,7 +49,7 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  * <p>Typical usage with {@link InternalResourceViewResolver} looks as follows,
  * from the perspective of the DispatcherServlet context definition:
  *
- * <pre class="code">&lt;bean id="viewResolver" class="cn.taketoday.web.servlet.view.InternalResourceViewResolver"&gt;
+ * <pre class="code">&lt;bean id="viewResolver" class="cn.taketoday.web.mock.view.InternalResourceViewResolver"&gt;
  *   &lt;property name="prefix" value="/WEB-INF/jsp/"/&gt;
  *   &lt;property name="suffix" value=".jsp"/&gt;
  * &lt;/bean&gt;</pre>

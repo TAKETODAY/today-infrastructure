@@ -30,7 +30,7 @@ import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.async.DeferredResult;
-import cn.taketoday.web.servlet.ServletRequestContext;
+import cn.taketoday.web.mock.ServletRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -42,7 +42,7 @@ import cn.taketoday.lang.Nullable;
  * typically delegating to one or more specific bean definition readers.
  *
  * <p><b>Note that there is a similar base class for WebApplicationContexts.</b>
- * {@link cn.taketoday.web.servlet.support.AbstractRefreshableWebApplicationContext}
+ * {@link cn.taketoday.web.mock.support.AbstractRefreshableWebApplicationContext}
  * provides the same subclassing strategy, but additionally pre-implements
  * all context functionality for web environments. There is also a
  * pre-defined way to receive config locations for a web context.
@@ -52,7 +52,7 @@ import cn.taketoday.lang.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #loadBeanDefinitions
  * @see cn.taketoday.beans.factory.support.StandardBeanFactory
- * @see cn.taketoday.web.servlet.support.AbstractRefreshableWebApplicationContext
+ * @see cn.taketoday.web.mock.support.AbstractRefreshableWebApplicationContext
  * @since 4.0 2022/2/20 17:36
  */
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext
