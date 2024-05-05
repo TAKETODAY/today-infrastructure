@@ -25,13 +25,13 @@ import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.TestPropertySource;
 import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.test.context.web.WebAppConfiguration;
-import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.web.mock.WebApplicationContext;
 
-import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.content;
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
-import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static cn.taketoday.test.web.mock.request.MockMvcRequestBuilders.get;
+import static cn.taketoday.test.web.mock.result.MockMvcResultMatchers.content;
+import static cn.taketoday.test.web.mock.result.MockMvcResultMatchers.status;
+import static cn.taketoday.test.web.mock.setup.MockMvcBuilders.webAppContextSetup;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

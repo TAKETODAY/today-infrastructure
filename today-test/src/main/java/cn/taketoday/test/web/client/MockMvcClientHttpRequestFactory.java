@@ -32,10 +32,10 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
-import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.util.StringUtils;
 
-import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static cn.taketoday.test.web.mock.request.MockMvcRequestBuilders.request;
 
 /**
  * A {@link ClientHttpRequestFactory} for requests executed via {@link MockMvc}.

@@ -28,7 +28,7 @@ import cn.taketoday.http.client.ClientHttpRequestFactory;
 import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
-import cn.taketoday.test.web.servlet.MockMvc;
+import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.web.client.RestClient;
 import cn.taketoday.web.client.RestTemplate;
 import cn.taketoday.web.client.support.RestGatewaySupport;

@@ -39,13 +39,13 @@ import cn.taketoday.framework.Application;
 import cn.taketoday.framework.test.context.InfraTest;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.test.annotation.DirtiesContext;
-import cn.taketoday.test.web.servlet.MockMvc;
-import cn.taketoday.test.web.servlet.MvcResult;
-import cn.taketoday.test.web.servlet.setup.MockMvcBuilders;
+import cn.taketoday.test.web.mock.MockMvc;
+import cn.taketoday.test.web.mock.MvcResult;
+import cn.taketoday.test.web.mock.setup.MockMvcBuilders;
 import cn.taketoday.web.util.WebUtils;
 
-import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
+import static cn.taketoday.test.web.mock.request.MockMvcRequestBuilders.get;
+import static cn.taketoday.test.web.mock.result.MockMvcResultMatchers.status;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

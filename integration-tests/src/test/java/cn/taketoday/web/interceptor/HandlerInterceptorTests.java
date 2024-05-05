@@ -30,10 +30,10 @@ import cn.taketoday.web.annotation.GET;
 import cn.taketoday.web.annotation.Interceptor;
 import cn.taketoday.web.annotation.RestController;
 
-import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.status;
-import static cn.taketoday.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
+import static cn.taketoday.test.web.mock.request.MockMvcRequestBuilders.get;
+import static cn.taketoday.test.web.mock.result.MockMvcResultMatchers.jsonPath;
+import static cn.taketoday.test.web.mock.result.MockMvcResultMatchers.status;
+import static cn.taketoday.test.web.mock.setup.MockMvcBuilders.standaloneSetup;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>

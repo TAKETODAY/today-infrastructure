@@ -214,7 +214,7 @@ public class ExchangeResult {
    * Return the result from the mock server exchange, if applicable, for
    * further assertions on the state of the server response.
    *
-   * @see cn.taketoday.test.web.servlet.client.MockMvcWebTestClient#resultActionsFor(ExchangeResult)
+   * @see cn.taketoday.test.web.mock.client.MockMvcWebTestClient#resultActionsFor(ExchangeResult)
    */
   @Nullable
   public Object getMockServerResult() {

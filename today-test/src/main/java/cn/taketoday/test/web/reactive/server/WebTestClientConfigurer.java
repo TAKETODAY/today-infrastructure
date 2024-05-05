@@ -19,7 +19,7 @@ package cn.taketoday.test.web.reactive.server;
 
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.web.servlet.client.MockMvcHttpConnector;
+import cn.taketoday.test.web.mock.client.MockMvcHttpConnector;
 
 /**
  * Contract to encapsulate customizations to a {@link WebTestClient.Builder}.
