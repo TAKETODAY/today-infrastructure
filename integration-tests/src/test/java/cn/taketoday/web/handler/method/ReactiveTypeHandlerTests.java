@@ -38,13 +38,13 @@ import cn.taketoday.core.task.SyncTaskExecutor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.codec.ServerSentEvent;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleEmitter;
 import reactor.core.publisher.Flux;
@@ -64,7 +64,7 @@ class ReactiveTypeHandlerTests {
 
   private HttpMockRequestImpl servletRequest;
 
-  private MockHttpServletResponse servletResponse;
+  private MockHttpResponseImpl servletResponse;
 
   private RequestContext webRequest;
 
@@ -80,8 +80,8 @@ class ReactiveTypeHandlerTests {
 
   private void resetRequest() {
     this.servletRequest = new HttpMockRequestImpl();
-    this.servletResponse = new MockHttpServletResponse();
-    this.webRequest = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
+    this.servletResponse = new MockHttpResponseImpl();
+    this.webRequest = new MockRequestContext(null, this.servletRequest, this.servletResponse);
 
     this.servletRequest.setAsyncSupported(true);
   }
@@ -282,7 +282,7 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    ServletRequestContext requestContext = new ServletRequestContext(null, null, servletResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, null, servletResponse);
 //    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     emitter.extendResponse(requestContext);
 
@@ -309,7 +309,7 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    ServletRequestContext requestContext = new ServletRequestContext(null, null, servletResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, null, servletResponse);
 //    ServletServerHttpResponse message = new ServletServerHttpResponse(this.servletResponse);
     emitter.extendResponse(requestContext);
 

@@ -148,7 +148,7 @@ public class MockMultipartHttpServletRequestBuilder extends MockHttpServletReque
 
   /**
    * Create a new {@link MockMultipartHttpMockRequest} based on the
-   * supplied {@code ServletContext} and the {@code MockMultipartFiles}
+   * supplied {@code MockContext} and the {@code MockMultipartFiles}
    * added to this builder.
    */
   @Override

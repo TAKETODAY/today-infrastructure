@@ -44,9 +44,9 @@ import cn.taketoday.http.ResponseCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ExceptionUtils;
@@ -66,37 +66,37 @@ import cn.taketoday.web.multipart.MultipartRequest;
  * @author TODAY 2019-07-07 22:27
  * @since 2.3.7
  */
-public class ServletRequestContext extends RequestContext implements MockIndicator {
+public class MockRequestContext extends RequestContext implements MockIndicator {
 
   @Serial
   private static final long serialVersionUID = 1L;
 
   private final HttpMockRequest request;
-  private final HttpServletResponse response;
+  private final HttpMockResponse response;
   private final long requestTimeMillis = System.currentTimeMillis();
 
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
 
-  public ServletRequestContext() {
+  public MockRequestContext() {
     this(null);
   }
 
-  public ServletRequestContext(ApplicationContext context) {
-    this(context, new HttpMockRequestImpl(), new MockHttpServletResponse());
+  public MockRequestContext(ApplicationContext context) {
+    this(context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
   }
 
-  public ServletRequestContext(HttpMockRequest request, HttpServletResponse response) {
+  public MockRequestContext(HttpMockRequest request, HttpMockResponse response) {
     this(null, request, response);
   }
 
-  public ServletRequestContext(ApplicationContext context,
-          HttpMockRequest request, HttpServletResponse response) {
+  public MockRequestContext(ApplicationContext context,
+          HttpMockRequest request, HttpMockResponse response) {
     this(context, request, response, null);
   }
 
-  public ServletRequestContext(ApplicationContext context, HttpMockRequest request,
-          HttpServletResponse response, DispatcherHandler dispatcherHandler) {
+  public MockRequestContext(ApplicationContext context, HttpMockRequest request,
+          HttpMockResponse response, DispatcherHandler dispatcherHandler) {
     super(context, dispatcherHandler);
     this.request = request;
     this.response = response;
@@ -108,7 +108,7 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
   }
 
   @Override
-  public HttpServletResponse getResponse() {
+  public HttpMockResponse getResponse() {
     return response;
   }
 
@@ -399,12 +399,12 @@ public class ServletRequestContext extends RequestContext implements MockIndicat
     if (request instanceof MultipartRequest) {
       return (MultipartRequest) request;
     }
-    return new ServletMultipartRequest(request);
+    return new MockMultipartRequest(request);
   }
 
   @Override
   protected AsyncWebRequest createAsyncWebRequest() {
-    return new StandardServletAsyncWebRequest(this);
+    return new StandardMockAsyncWebRequest(this);
   }
 
   @Override

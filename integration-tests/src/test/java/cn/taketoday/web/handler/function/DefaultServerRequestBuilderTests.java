@@ -30,7 +30,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.mock.web.MockCookie;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +52,7 @@ class DefaultServerRequestBuilderTests {
     request.setRemoteHost("127.0.0.1");
     request.setRemotePort(80);
 
-    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    MockRequestContext context = new MockRequestContext(null, request, null);
     context.setAttribute("foo", "bar");
 
     ServerRequest other = ServerRequest.create(context, messageConverters);

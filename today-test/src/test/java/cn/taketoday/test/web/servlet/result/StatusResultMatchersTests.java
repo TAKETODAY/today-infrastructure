@@ -29,7 +29,7 @@ import java.util.List;
 import cn.taketoday.core.Conventions;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 import cn.taketoday.test.web.servlet.StubMvcResult;
@@ -53,7 +53,7 @@ public class StatusResultMatchersTests {
   public void testHttpStatusCodeResultMatchers() throws Exception {
     List<AssertionError> failures = new ArrayList<>();
     for (HttpStatus status : HttpStatus.values()) {
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      MockHttpResponseImpl response = new MockHttpResponseImpl();
       response.setStatus(status.value());
       MvcResult mvcResult = new StubMvcResult(request, null, null, null, null, null, response);
       try {
@@ -84,7 +84,7 @@ public class StatusResultMatchersTests {
   @Test
   public void statusRanges() throws Exception {
     for (HttpStatus status : HttpStatus.values()) {
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      MockHttpResponseImpl response = new MockHttpResponseImpl();
       response.setStatus(status.value());
       MvcResult mvcResult = new StubMvcResult(request, null, null, null, null, null, response);
       switch (status.series().value()) {

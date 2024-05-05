@@ -27,7 +27,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.WebSessionRequiredException;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.ui.Model;
@@ -43,7 +43,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
 import cn.taketoday.web.handler.ReturnValueHandlerManager;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.mock;
  */
 class ModelHandlerTests {
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private SessionAttributesHandler attributeHandler;
 
@@ -78,8 +78,8 @@ class ModelHandlerTests {
 
   @BeforeEach
   public void setUp() throws Throwable {
-    this.webRequest = new ServletRequestContext(
-            context, new HttpMockRequestImpl(), new MockHttpServletResponse());
+    this.webRequest = new MockRequestContext(
+            context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
     this.attributeStore = new DefaultSessionAttributeStore();
 

@@ -40,7 +40,7 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RequestContextHolder;
@@ -52,7 +52,7 @@ import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.config.EnableWebMvc;
 import cn.taketoday.web.config.PathMatchConfigurer;
 import cn.taketoday.web.config.WebMvcConfigurer;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.util.UriComponents;
 import cn.taketoday.web.util.UriComponentsBuilder;
@@ -74,11 +74,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 class MvcUriComponentsBuilderTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
-  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   @BeforeEach
   public void setup() {
-    RequestContextHolder.set(new ServletRequestContext(
+    RequestContextHolder.set(new MockRequestContext(
             null, this.request, response));
   }
 
@@ -471,10 +471,10 @@ class MvcUriComponentsBuilderTests {
 
   private void initWebApplicationContext(Class<?> configClass) {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
     context.register(configClass);
     context.refresh();
-    RequestContextHolder.set(new ServletRequestContext(context, request, new MockHttpServletResponse()));
+    RequestContextHolder.set(new MockRequestContext(context, request, new MockHttpResponseImpl()));
   }
 
   static class Person {

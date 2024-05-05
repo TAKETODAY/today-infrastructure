@@ -27,8 +27,8 @@ import java.util.function.Function;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,7 +102,7 @@ class PathResourceLookupFunctionTests {
 
   private ServerRequest initRequest(String httpMethod, String requestUri) {
     HttpMockRequestImpl request = PathPatternsTestUtils.initRequest(httpMethod, requestUri, true);
-    var requestContext = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    var requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
     return new DefaultServerRequest(
             requestContext,
             Collections.emptyList());

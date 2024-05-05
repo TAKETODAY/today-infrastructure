@@ -25,7 +25,7 @@ import java.util.concurrent.Callable;
 import cn.taketoday.core.task.AsyncTaskExecutor;
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.AsyncRequestTimeoutException;
@@ -34,8 +34,8 @@ import cn.taketoday.web.async.DeferredResult;
 import cn.taketoday.web.async.DeferredResultProcessingInterceptor;
 import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
-import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
 import cn.taketoday.mock.api.AsyncEvent;
 
 import static cn.taketoday.web.async.CallableProcessingInterceptor.RESULT_NONE;
@@ -58,23 +58,23 @@ public class WebAsyncManagerTimeoutTests {
 
   private WebAsyncManager asyncManager;
 
-  private StandardServletAsyncWebRequest asyncWebRequest;
+  private StandardMockAsyncWebRequest asyncWebRequest;
 
   private HttpMockRequestImpl servletRequest;
 
-  private MockHttpServletResponse servletResponse;
+  private MockHttpResponseImpl servletResponse;
 
-  private ServletRequestContext request;
+  private MockRequestContext request;
 
   @BeforeEach
   public void setup() {
     this.servletRequest = new HttpMockRequestImpl("GET", "/test");
     this.servletRequest.setAsyncSupported(true);
-    this.servletResponse = new MockHttpServletResponse();
-    this.asyncWebRequest = new StandardServletAsyncWebRequest(servletRequest, servletResponse);
+    this.servletResponse = new MockHttpResponseImpl();
+    this.asyncWebRequest = new StandardMockAsyncWebRequest(servletRequest, servletResponse);
 
     AsyncTaskExecutor executor = mock(AsyncTaskExecutor.class);
-    request = new ServletRequestContext(null, servletRequest, servletResponse);
+    request = new MockRequestContext(null, servletRequest, servletResponse);
     this.asyncManager = request.getAsyncManager();
     this.asyncManager.setTaskExecutor(executor);
     this.asyncManager.setAsyncRequest(this.asyncWebRequest);

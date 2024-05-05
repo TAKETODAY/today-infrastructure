@@ -35,9 +35,9 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.ResourceHttpMessageConverter;
 import cn.taketoday.http.converter.ResourceRegionHttpMessageConverter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,8 +66,8 @@ public class ResourceHandlerFunctionTests {
   public void get() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -93,9 +93,9 @@ public class ResourceHandlerFunctionTests {
   public void getRange() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-5");
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
-    ServletRequestContext requestContext = new ServletRequestContext(
+    MockRequestContext requestContext = new MockRequestContext(
             null, servletRequest, servletResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
@@ -127,8 +127,8 @@ public class ResourceHandlerFunctionTests {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     servletRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(
             null, servletRequest, servletResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
@@ -156,8 +156,8 @@ public class ResourceHandlerFunctionTests {
   public void head() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 
@@ -183,8 +183,8 @@ public class ResourceHandlerFunctionTests {
   public void options() throws Throwable {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
 
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.singletonList(messageConverter));
 

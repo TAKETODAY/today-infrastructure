@@ -25,10 +25,10 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.HttpRequestHandler;
 import cn.taketoday.web.handler.HandlerExecutionChain;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.socket.WebSocketHandler;
 
@@ -51,7 +51,7 @@ public class WebSocketHandlerMappingTests {
     mapping.setApplicationContext(new StaticWebApplicationContext());
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
-    ServletRequestContext context = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(null, request, new MockHttpResponseImpl());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isSameAs(handler);
@@ -62,13 +62,13 @@ public class WebSocketHandlerMappingTests {
     assertThat(chain).isNull();
 
     request.addHeader("Upgrade", "websocket");
-    context = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    context = new MockRequestContext(null, request, new MockHttpResponseImpl());
     chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNotNull();
     assertThat(chain.getRawHandler()).isSameAs(handler);
 
     request.setMethod("POST");
-    context = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    context = new MockRequestContext(null, request, new MockHttpResponseImpl());
     chain = (HandlerExecutionChain) mapping.getHandler(context);
     assertThat(chain).isNull();
   }

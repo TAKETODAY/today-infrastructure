@@ -28,7 +28,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.socket.StandardEndpoint;
 import cn.taketoday.web.socket.StandardWebSocketSession;
 import cn.taketoday.web.socket.WebSocketExtension;
@@ -66,10 +66,10 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
   }
 
   protected ServerContainer getContainer(HttpMockRequest request) {
-    MockContext mockContext = request.getServletContext();
+    MockContext mockContext = request.getMockContext();
     String attrName = "jakarta.websocket.server.ServerContainer";
     ServerContainer container = (ServerContainer) mockContext.getAttribute(attrName);
-    Assert.notNull(container, "No 'jakarta.websocket.server.ServerContainer' ServletContext attribute. " +
+    Assert.notNull(container, "No 'jakarta.websocket.server.ServerContainer' MockContext attribute. " +
             "Are you running in a Servlet container that supports JSR-356?");
     return container;
   }
@@ -78,7 +78,7 @@ public abstract class AbstractStandardUpgradeStrategy implements RequestUpgradeS
   public List<WebSocketExtension> getSupportedExtensions(RequestContext request) {
     List<WebSocketExtension> extensions = this.extensions;
     if (extensions == null) {
-      HttpMockRequest servletRequest = ServletUtils.getServletRequest(request);
+      HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
       extensions = getInstalledExtensions(getContainer(servletRequest));
       this.extensions = extensions;
     }

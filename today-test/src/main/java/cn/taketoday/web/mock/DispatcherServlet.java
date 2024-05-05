@@ -32,9 +32,9 @@ import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
@@ -59,18 +59,18 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   private static final long serialVersionUID = 1L;
 
   /**
-   * Prefix for the ServletContext attribute for the ApplicationContext.
+   * Prefix for the MockContext attribute for the ApplicationContext.
    * The completion is the servlet name.
    */
   public static final String SERVLET_CONTEXT_PREFIX = DispatcherServlet.class.getName() + ".CONTEXT.";
 
   private transient MockConfig mockConfig;
 
-  /** ServletContext attribute to find the WebApplicationContext in. */
+  /** MockContext attribute to find the WebApplicationContext in. */
   @Nullable
   private String contextAttribute;
 
-  /** Should we publish the context as a ServletContext attribute?. */
+  /** Should we publish the context as a MockContext attribute?. */
   private boolean publishContext = true;
 
   public DispatcherServlet() { }
@@ -95,7 +95,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    * will be set as the parent.</li>
    * <li>If the given context has not already been assigned an {@linkplain
    * ConfigurableApplicationContext#setId id}, one will be assigned to it</li>
-   * <li>{@code ServletContext} and {@code ServletConfig} objects will be delegated to
+   * <li>{@code MockContext} and {@code ServletConfig} objects will be delegated to
    * the application context</li>
    * <li>{@link #postProcessApplicationContext} will be called</li>
    * <li>Any {@link ApplicationContextInitializer ApplicationContextInitializers} specified through the
@@ -117,7 +117,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   /**
-   * Set the name of the ServletContext attribute which should be used to retrieve the
+   * Set the name of the MockContext attribute which should be used to retrieve the
    * {@link WebApplicationContext} that this servlet is supposed to use.
    *
    * @since 4.0
@@ -127,7 +127,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   /**
-   * Return the name of the ServletContext attribute which should be used to retrieve the
+   * Return the name of the MockContext attribute which should be used to retrieve the
    * {@link WebApplicationContext} that this servlet is supposed to use.
    *
    * @since 4.0
@@ -138,7 +138,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   /**
-   * Set whether to publish this servlet's context as a ServletContext attribute,
+   * Set whether to publish this servlet's context as a MockContext attribute,
    * available to all objects in the web container. Default is "true".
    * <p>This is especially handy during testing, although it is debatable whether
    * it's good practice to let other application objects access the context this way.
@@ -168,7 +168,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   protected void afterApplicationContextInit() {
     if (publishContext) {
       // Publish the context as a servlet context attribute.
-      String attrName = getServletContextAttributeName();
+      String attrName = getMockContextAttributeName();
       getMockContext().setAttribute(attrName, getApplicationContext());
     }
   }
@@ -178,8 +178,8 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
     super.postProcessApplicationContext(context);
 
     if (context instanceof ConfigurableWebApplicationContext wac) {
-      wac.setServletContext(getMockContext());
-      wac.setServletConfig(getServletConfig());
+      wac.setMockContext(getMockContext());
+      wac.setMockConfig(getServletConfig());
     }
 
     // The wac environment's #initPropertySources will be called in any case when the context
@@ -211,7 +211,7 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
    * This method is supplied for convenience. It gets the context
    * from the servlet's <code>ServletConfig</code> object.
    *
-   * @return ServletContext the <code>ServletContext</code>
+   * @return MockContext the <code>MockContext</code>
    * object passed to this servlet by the <code>init</code> method
    */
   public MockContext getMockContext() {
@@ -219,10 +219,10 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   /**
-   * Retrieve a {@code ApplicationContext} from the {@code ServletContext}
+   * Retrieve a {@code ApplicationContext} from the {@code MockContext}
    * attribute with the {@link #setContextAttribute configured name}. The
    * {@code ApplicationContext} must have already been loaded and stored in the
-   * {@code ServletContext} before this servlet gets initialized (or invoked).
+   * {@code MockContext} before this servlet gets initialized (or invoked).
    * <p>Subclasses may override this method to provide a different
    * {@code ApplicationContext} retrieval strategy.
    *
@@ -244,19 +244,19 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
   }
 
   /**
-   * Return the ServletContext attribute name for this servlet's WebApplicationContext.
+   * Return the MockContext attribute name for this servlet's WebApplicationContext.
    * <p>The default implementation returns
    * {@code SERVLET_CONTEXT_PREFIX + servlet name}.
    *
    * @see #SERVLET_CONTEXT_PREFIX
    * @see #getServletName
    */
-  public String getServletContextAttributeName() {
+  public String getMockContextAttributeName() {
     return SERVLET_CONTEXT_PREFIX + getServletName();
   }
 
   @Override
-  public void service(MockRequest request, ServletResponse response) throws ServletException {
+  public void service(MockRequest request, MockResponse response) throws ServletException {
     if (request.getDispatcherType() == DispatcherType.ASYNC) {
       // send async results
       Object concurrentResult = request.getAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE);
@@ -276,8 +276,8 @@ public class DispatcherServlet extends DispatcherHandler implements Servlet, Ser
 
     boolean reset = false;
     if (context == null) {
-      context = new ServletRequestContext(getApplicationContext(),
-              (HttpMockRequest) request, (HttpServletResponse) response, this);
+      context = new MockRequestContext(getApplicationContext(),
+              (HttpMockRequest) request, (HttpMockResponse) response, this);
       RequestContextHolder.set(context);
       reset = true;
     }

@@ -33,7 +33,7 @@ public interface SessionCookieConfig {
 
   /**
    * Sets the name that will be assigned to any session tracking cookies created on behalf of the application represented
-   * by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * <p>
    * NOTE: Changing the name of session tracking cookies may break other tiers (for example, a load balancing frontend)
@@ -41,14 +41,14 @@ public interface SessionCookieConfig {
    * cautiously.
    *
    * @param name the cookie name to use
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    */
   public void setName(String name);
 
   /**
    * Gets the name that will be assigned to any session tracking cookies created on behalf of the application represented
-   * by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * <p>
    * By default, <tt>JSESSIONID</tt> will be used as the cookie name.
@@ -60,10 +60,10 @@ public interface SessionCookieConfig {
 
   /**
    * Sets the domain name that will be assigned to any session tracking cookies created on behalf of the application
-   * represented by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * represented by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * @param domain the cookie domain to use
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setDomain(String)
    */
@@ -71,7 +71,7 @@ public interface SessionCookieConfig {
 
   /**
    * Gets the domain name that will be assigned to any session tracking cookies created on behalf of the application
-   * represented by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * represented by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * @return the cookie domain set via {@link #setDomain}, or <tt>null</tt> if {@link #setDomain} was never called
    * @see Cookie#getDomain()
@@ -80,10 +80,10 @@ public interface SessionCookieConfig {
 
   /**
    * Sets the path that will be assigned to any session tracking cookies created on behalf of the application represented
-   * by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * @param path the cookie path to use
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setPath(String)
    */
@@ -91,10 +91,10 @@ public interface SessionCookieConfig {
 
   /**
    * Gets the path that will be assigned to any session tracking cookies created on behalf of the application represented
-   * by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * <p>
-   * By default, the context path of the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired
+   * By default, the context path of the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired
    * will be used.
    *
    * @return the cookie path set via {@link #setPath}, or <tt>null</tt> if {@link #setPath} was never called
@@ -108,7 +108,7 @@ public interface SessionCookieConfig {
    * If called, this method has no effect.
    *
    * @param comment ignore
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setComment(String)
    * @see Cookie#getVersion
@@ -129,7 +129,7 @@ public interface SessionCookieConfig {
 
   /**
    * Marks or unmarks the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired as <i>HttpOnly</i>.
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired as <i>HttpOnly</i>.
    *
    * <p>
    * A cookie is marked as <tt>HttpOnly</tt> by adding the <tt>HttpOnly</tt> attribute to it. <i>HttpOnly</i> cookies are
@@ -137,9 +137,9 @@ public interface SessionCookieConfig {
    * scripting attacks.
    *
    * @param httpOnly true if the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired shall be marked as <i>HttpOnly</i>,
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired shall be marked as <i>HttpOnly</i>,
    * false otherwise
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setHttpOnly(boolean)
    */
@@ -147,10 +147,10 @@ public interface SessionCookieConfig {
 
   /**
    * Checks if the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>HttpOnly</i>.
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>HttpOnly</i>.
    *
    * @return true if the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>HttpOnly</i>,
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>HttpOnly</i>,
    * false otherwise
    * @see Cookie#isHttpOnly()
    */
@@ -158,7 +158,7 @@ public interface SessionCookieConfig {
 
   /**
    * Marks or unmarks the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired as <i>secure</i>.
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired as <i>secure</i>.
    *
    * <p>
    * One use case for marking a session tracking cookie as <tt>secure</tt>, even though the request that initiated the
@@ -167,10 +167,10 @@ public interface SessionCookieConfig {
    * between the load balancer and the web container will be over HTTP.
    *
    * @param secure true if the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired shall be marked as <i>secure</i>
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired shall be marked as <i>secure</i>
    * even if the request that initiated the corresponding session is using plain HTTP instead of HTTPS, and false if they
    * shall be marked as <i>secure</i> only if the request that initiated the corresponding session was also secure
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setSecure(boolean)
    * @see MockRequest#isSecure()
@@ -179,11 +179,11 @@ public interface SessionCookieConfig {
 
   /**
    * Checks if the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>secure</i>
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>secure</i>
    * even if the request that initiated the corresponding session is using plain HTTP instead of HTTPS.
    *
    * @return true if the session tracking cookies created on behalf of the application represented by the
-   * <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>secure</i>
+   * <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired will be marked as <i>secure</i>
    * even if the request that initiated the corresponding session is using plain HTTP instead of HTTPS, and false if they
    * will be marked as <i>secure</i> only if the request that initiated the corresponding session was also secure
    * @see Cookie#getSecure()
@@ -193,11 +193,11 @@ public interface SessionCookieConfig {
 
   /**
    * Sets the lifetime (in seconds) for the session tracking cookies created on behalf of the application represented by
-   * the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * @param maxAge the lifetime (in seconds) of the session tracking cookies created on behalf of the application
-   * represented by the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
-   * @throws IllegalStateException if the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was
+   * represented by the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * @throws IllegalStateException if the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was
    * acquired has already been initialized
    * @see Cookie#setMaxAge
    */
@@ -205,13 +205,13 @@ public interface SessionCookieConfig {
 
   /**
    * Gets the lifetime (in seconds) of the session tracking cookies created on behalf of the application represented by
-   * the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
+   * the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired.
    *
    * <p>
    * By default, <tt>-1</tt> is returned.
    *
    * @return the lifetime (in seconds) of the session tracking cookies created on behalf of the application represented by
-   * the <tt>ServletContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired, or <tt>-1</tt> (the default)
+   * the <tt>MockContext</tt> from which this <tt>SessionCookieConfig</tt> was acquired, or <tt>-1</tt> (the default)
    * @see Cookie#getMaxAge
    */
   public int getMaxAge();
@@ -222,7 +222,7 @@ public interface SessionCookieConfig {
    *
    * @param name Name of attribute to set, case insensitive
    * @param value Value of attribute
-   * @throws IllegalStateException if the associated ServletContext has already been initialised
+   * @throws IllegalStateException if the associated MockContext has already been initialised
    * @throws IllegalArgumentException If the attribute name is null or contains any characters not permitted for use in
    * Cookie names.
    * @throws NumberFormatException If the attribute is known to be numerical but the provided value cannot be parsed to a

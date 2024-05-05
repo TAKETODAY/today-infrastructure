@@ -27,7 +27,7 @@ import cn.taketoday.validation.Errors;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.resolver.ErrorsMethodArgumentResolver;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -45,13 +45,13 @@ public class ErrorsMethodArgumentResolverTests {
 
   private ResolvableMethodParameter paramErrors;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
     paramErrors = new ResolvableMethodParameter(new MethodParameter(getClass().getDeclaredMethod("handle", Errors.class), 0));
     bindingResult = new WebDataBinder(new Object(), "attr").getBindingResult();
-    webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
   }
 
   @Test

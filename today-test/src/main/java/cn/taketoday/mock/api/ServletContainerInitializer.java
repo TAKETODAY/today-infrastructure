@@ -57,7 +57,7 @@ public interface ServletContainerInitializer {
 
   /**
    * Notifies this <tt>ServletContainerInitializer</tt> of the startup of the application represented by the given
-   * <tt>ServletContext</tt>.
+   * <tt>MockContext</tt>.
    *
    * <p>
    * If this <tt>ServletContainerInitializer</tt> is bundled in a JAR file inside the <tt>WEB-INF/lib</tt> directory of an
@@ -69,7 +69,7 @@ public interface ServletContainerInitializer {
    * @param c the Set of application classes that extend, implement, or have been annotated with the class types specified
    * by the {@link HandlesTypes HandlesTypes} annotation, or <tt>null</tt> if there are no
    * matches, or this <tt>ServletContainerInitializer</tt> has not been annotated with <tt>HandlesTypes</tt>
-   * @param ctx the <tt>ServletContext</tt> of the web application that is being started and in which the classes
+   * @param ctx the <tt>MockContext</tt> of the web application that is being started and in which the classes
    * contained in <tt>c</tt> were found
    * @throws ServletException if an error has occurred
    */

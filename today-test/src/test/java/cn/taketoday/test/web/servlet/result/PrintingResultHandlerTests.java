@@ -32,7 +32,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.StubMvcResult;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -66,7 +66,7 @@ class PrintingResultHandlerTests {
     }
   };
 
-  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   private final StubMvcResult mvcResult = new StubMvcResult(
           this.request, null, null, null, null, null, this.response);

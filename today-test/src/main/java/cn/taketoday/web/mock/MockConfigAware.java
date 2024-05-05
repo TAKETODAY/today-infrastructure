@@ -36,7 +36,7 @@ import cn.taketoday.mock.api.MockConfig;
  * @see MockContextAware
  * @since 4.0 2022/2/20 20:59
  */
-public interface ServletConfigAware extends Aware {
+public interface MockConfigAware extends Aware {
 
   /**
    * Set the {@link MockConfig} that this object runs in.
@@ -49,7 +49,7 @@ public interface ServletConfigAware extends Aware {
    * @see InitializingBean#afterPropertiesSet
    * @see ApplicationContextAware#setApplicationContext
    */
-  void setServletConfig(MockConfig mockConfig);
+  void setMockConfig(MockConfig mockConfig);
 
 }
 

@@ -30,7 +30,7 @@ import cn.taketoday.test.web.servlet.result.PrintingResultHandler;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 import static cn.taketoday.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static cn.taketoday.test.web.servlet.result.MockMvcResultHandlers.log;
@@ -80,7 +80,7 @@ public class PrintingResultHandlerSmokeTests {
 
     @RequestMapping("/")
     @ResponseBody
-    public String hello(HttpServletResponse response) {
+    public String hello(HttpMockResponse response) {
       response.addCookie(new Cookie("enigma", "42"));
       return "Hello Response";
     }

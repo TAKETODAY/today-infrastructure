@@ -24,7 +24,7 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,7 +66,7 @@ class ServletTestExecutionListenerJUnitIntegrationTests {
   }
 
   private void assertInjectedServletRequestEqualsRequestInRequestContextHolder() {
-    assertThat(ServletUtils.getServletRequest(RequestContextHolder.get()))
+    assertThat(MockUtils.getServletRequest(RequestContextHolder.get()))
             .as("Injected ServletRequest must be stored in the RequestContextHolder")
             .isEqualTo(servletRequest);
   }

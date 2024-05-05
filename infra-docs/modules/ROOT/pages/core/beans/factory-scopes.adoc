@@ -498,7 +498,7 @@ see xref:core/aop/proxying.adoc[Proxying Mechanisms].
 === Injecting Request/Session References Directly
 
 As an alternative to factory scopes, a Infra `WebApplicationContext` also supports
-the injection of `HttpMockRequest`, `HttpServletResponse`, `HttpSession`,
+the injection of `HttpMockRequest`, `HttpMockResponse`, `HttpSession`,
 `WebRequest` and (if JSF is present) `FacesContext` and `ExternalContext` into
 Infra-managed beans, simply through type-based autowiring next to regular injection
 points for other beans. Infra generally injects proxies for such request and session

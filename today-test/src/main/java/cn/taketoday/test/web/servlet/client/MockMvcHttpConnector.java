@@ -47,7 +47,7 @@ import cn.taketoday.mock.http.client.reactive.MockClientHttpRequest;
 import cn.taketoday.mock.http.client.reactive.MockClientHttpResponse;
 import cn.taketoday.mock.http.server.reactive.MockServerHttpRequest;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockPart;
 import cn.taketoday.test.web.reactive.server.MockServerClientHttpResponse;
 import cn.taketoday.test.web.servlet.MockMvc;
@@ -190,7 +190,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
 
   private MockClientHttpResponse adaptResponse(MvcResult mvcResult) {
     MockClientHttpResponse clientResponse = new MockMvcServerClientHttpResponse(mvcResult);
-    MockHttpServletResponse servletResponse = mvcResult.getResponse();
+    MockHttpResponseImpl servletResponse = mvcResult.getResponse();
     for (String header : servletResponse.getHeaderNames()) {
       for (String value : servletResponse.getHeaders(header)) {
         clientResponse.getHeaders().add(header, value);
@@ -255,7 +255,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public MockHttpServletResponse getResponse() {
+    public MockHttpResponseImpl getResponse() {
       return this.mvcResult.getResponse();
     }
 

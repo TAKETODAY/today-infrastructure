@@ -35,7 +35,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.web.annotation.ControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
@@ -71,7 +71,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @MethodSource("argumentSource")
   void cssFile(boolean usePathPatterns, String pathPrefix) throws Exception {
     HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo.css");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
     servlet.service(request, response);
@@ -86,7 +86,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @MethodSource("argumentSource")
   void classpathLocationWithEncodedPath(boolean usePathPatterns, String pathPrefix) throws Exception {
     HttpMockRequestImpl request = initRequest(pathPrefix + "/test/foo with spaces.css");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     DispatcherServlet servlet = initDispatcherServlet(WebConfig.class);
     servlet.service(request, response);
@@ -100,7 +100,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
   @Test
   void testNoResourceFoundException() throws Exception {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletConfig(this.servletConfig);
+    context.setMockConfig(this.servletConfig);
     context.register(WebConfig.class);
     context.register(GlobalExceptionHandler.class);
     context.refresh();
@@ -110,7 +110,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
     servlet.init(this.servletConfig);
 
     HttpMockRequestImpl request = initRequest("/cp/non-existing");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     servlet.service(request, response);
 
@@ -127,7 +127,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
   private DispatcherServlet initDispatcherServlet(Class<?>... configClasses) {
     var context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(this.servletContext);
+    context.setMockContext(this.servletContext);
     context.register(configClasses);
     context.refresh();
 

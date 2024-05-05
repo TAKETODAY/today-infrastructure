@@ -49,7 +49,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockPart;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
@@ -57,7 +57,7 @@ import cn.taketoday.validation.BindException;
 import cn.taketoday.web.HttpMediaTypeNotSupportedException;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.web.multipart.Multipart;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -77,7 +77,7 @@ class DefaultServerRequestTests {
   @Test
   void method() {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    MockRequestContext context = new MockRequestContext(null, servletRequest, null);
 
     DefaultServerRequest request = new DefaultServerRequest(context, this.messageConverters);
 
@@ -91,7 +91,7 @@ class DefaultServerRequestTests {
     servletRequest.setScheme("https");
     servletRequest.setServerPort(443);
 
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    MockRequestContext context = new MockRequestContext(null, servletRequest, null);
 
     DefaultServerRequest request =
             new DefaultServerRequest(context, this.messageConverters);
@@ -103,7 +103,7 @@ class DefaultServerRequestTests {
   void uriBuilder() {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/path", true);
     servletRequest.setQueryString("a=1");
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    MockRequestContext context = new MockRequestContext(null, servletRequest, null);
     DefaultServerRequest request =
             new DefaultServerRequest(context, this.messageConverters);
 
@@ -128,7 +128,7 @@ class DefaultServerRequestTests {
   @Test
   void attributes() {
     HttpMockRequestImpl servletRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    MockRequestContext context = new MockRequestContext(null, servletRequest, null);
     context.setAttribute("foo", "bar");
     context.setAttribute("baz", "qux");
 
@@ -163,7 +163,7 @@ class DefaultServerRequestTests {
   }
 
   private DefaultServerRequest getRequest(HttpMockRequestImpl servletRequest) {
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
     return new DefaultServerRequest(context, this.messageConverters);
   }
 
@@ -325,7 +325,7 @@ class DefaultServerRequestTests {
     servletRequest.setContentType(MediaType.APPLICATION_JSON_VALUE);
     servletRequest.setContent("[\"foo\",\"bar\"]".getBytes(UTF_8));
 
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    MockRequestContext context = new MockRequestContext(null, servletRequest, null);
 
     DefaultServerRequest request = new DefaultServerRequest(context,
             Collections.singletonList(new MappingJackson2HttpMessageConverter()));
@@ -342,7 +342,7 @@ class DefaultServerRequestTests {
     servletRequest.setContentType(MediaType.TEXT_PLAIN_VALUE);
     servletRequest.setContent("foo".getBytes(UTF_8));
 
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, null);
+    MockRequestContext context = new MockRequestContext(null, servletRequest, null);
 
     DefaultServerRequest request =
             new DefaultServerRequest(context, Collections.emptyList());

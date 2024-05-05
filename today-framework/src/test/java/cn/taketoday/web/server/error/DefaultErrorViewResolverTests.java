@@ -36,11 +36,11 @@ import cn.taketoday.core.io.ResourceLoader;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.ui.template.TemplateAvailabilityProvider;
 import cn.taketoday.ui.template.TemplateAvailabilityProviders;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,9 +67,9 @@ class DefaultErrorViewResolverTests {
 
   private final Map<String, Object> model = new HashMap<>();
 
-  private final MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+  private final MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
-  private final RequestContext request = new ServletRequestContext(null,
+  private final RequestContext request = new MockRequestContext(null,
           new HttpMockRequestImpl(), servletResponse);
 
   @BeforeEach
@@ -144,7 +144,7 @@ class DefaultErrorViewResolverTests {
   void resolveWhenExactResourceMatchShouldReturnResource() throws Exception {
     setResourceLocation("/exact");
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.NOT_FOUND, this.model);
-    MockHttpServletResponse response = render(resolved);
+    MockHttpResponseImpl response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("exact/404");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -153,7 +153,7 @@ class DefaultErrorViewResolverTests {
   void resolveWhenSeries4xxResourceMatchShouldReturnResource() throws Exception {
     setResourceLocation("/4xx");
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.NOT_FOUND, this.model);
-    MockHttpServletResponse response = render(resolved);
+    MockHttpResponseImpl response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("4xx/4xx");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -162,7 +162,7 @@ class DefaultErrorViewResolverTests {
   void resolveWhenSeries5xxResourceMatchShouldReturnResource() throws Exception {
     setResourceLocation("/5xx");
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.INTERNAL_SERVER_ERROR, this.model);
-    MockHttpServletResponse response = render(resolved);
+    MockHttpResponseImpl response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("5xx/5xx");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -185,7 +185,7 @@ class DefaultErrorViewResolverTests {
             .willReturn(false);
     ModelAndView resolved = this.resolver.resolveErrorView(this.request, HttpStatus.NOT_FOUND, this.model);
     then(this.templateAvailabilityProvider).shouldHaveNoMoreInteractions();
-    MockHttpServletResponse response = render(resolved);
+    MockHttpResponseImpl response = render(resolved);
     assertThat(response.getContentAsString().trim()).isEqualTo("exact/404");
     assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_HTML_VALUE);
   }
@@ -208,7 +208,7 @@ class DefaultErrorViewResolverTests {
     setup();
   }
 
-  private MockHttpServletResponse render(ModelAndView modelAndView) throws Exception {
+  private MockHttpResponseImpl render(ModelAndView modelAndView) throws Exception {
     modelAndView.getView().render(this.model, this.request);
     return servletResponse;
   }

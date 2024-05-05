@@ -29,7 +29,7 @@ import java.util.Map;
 import javax.xml.xpath.XPathExpressionException;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.util.XpathExpectationsHelper;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 
@@ -68,7 +68,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher node(Matcher<? super Node> matcher) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertNode(response.getContentAsByteArray(), getDefinedEncoding(response), matcher);
     };
   }
@@ -79,7 +79,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher nodeList(Matcher<? super NodeList> matcher) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertNodeList(response.getContentAsByteArray(), getDefinedEncoding(response), matcher);
     };
   }
@@ -88,7 +88,7 @@ public class XpathResultMatchers {
    * Get the response encoding if explicitly defined in the response, {@code null} otherwise.
    */
   @Nullable
-  private String getDefinedEncoding(MockHttpServletResponse response) {
+  private String getDefinedEncoding(MockHttpResponseImpl response) {
     return (response.isCharset() ? response.getCharacterEncoding() : null);
   }
 
@@ -97,7 +97,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher exists() {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.exists(response.getContentAsByteArray(), getDefinedEncoding(response));
     };
   }
@@ -107,7 +107,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher doesNotExist() {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.doesNotExist(response.getContentAsByteArray(), getDefinedEncoding(response));
     };
   }
@@ -118,7 +118,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher nodeCount(Matcher<? super Integer> matcher) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertNodeCount(response.getContentAsByteArray(), getDefinedEncoding(response), matcher);
     };
   }
@@ -128,7 +128,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher nodeCount(int expectedCount) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertNodeCount(response.getContentAsByteArray(), getDefinedEncoding(response), expectedCount);
     };
   }
@@ -139,7 +139,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher string(Matcher<? super String> matcher) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertString(response.getContentAsByteArray(), getDefinedEncoding(response), matcher);
     };
   }
@@ -149,7 +149,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher string(String expectedValue) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertString(response.getContentAsByteArray(), getDefinedEncoding(response), expectedValue);
     };
   }
@@ -160,7 +160,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher number(Matcher<? super Double> matcher) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertNumber(response.getContentAsByteArray(), getDefinedEncoding(response), matcher);
     };
   }
@@ -170,7 +170,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher number(Double expectedValue) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertNumber(response.getContentAsByteArray(), getDefinedEncoding(response), expectedValue);
     };
   }
@@ -180,7 +180,7 @@ public class XpathResultMatchers {
    */
   public ResultMatcher booleanValue(Boolean value) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       this.xpathHelper.assertBoolean(response.getContentAsByteArray(), getDefinedEncoding(response), value);
     };
   }

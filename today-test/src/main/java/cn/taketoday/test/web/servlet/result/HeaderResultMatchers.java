@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.ResultMatcher;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
@@ -115,7 +115,7 @@ public class HeaderResultMatchers {
    */
   public ResultMatcher longValue(String name, long value) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       assertTrue("Response does not contain header '" + name + "'", response.containsHeader(name));
       String headerValue = response.getHeader(name);
       if (headerValue != null) {
@@ -135,7 +135,7 @@ public class HeaderResultMatchers {
    */
   public ResultMatcher dateValue(String name, long value) {
     return result -> {
-      MockHttpServletResponse response = result.getResponse();
+      MockHttpResponseImpl response = result.getResponse();
       String headerValue = response.getHeader(name);
       assertNotNull("Response does not contain header '" + name + "'", headerValue);
 

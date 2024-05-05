@@ -24,13 +24,13 @@ import java.util.concurrent.CompletableFuture;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.concurrent.Future;
 import cn.taketoday.util.concurrent.SettableFuture;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.async.DeferredResult;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,14 +44,14 @@ class DeferredResultReturnValueHandlerTests {
 
   private HttpMockRequestImpl request;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
     this.handler = new DeferredResultReturnValueHandler();
     this.request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    this.webRequest = new ServletRequestContext(null, this.request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    this.webRequest = new MockRequestContext(null, this.request, response);
 
     this.request.setAsyncSupported(true);
   }

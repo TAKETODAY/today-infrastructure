@@ -33,9 +33,9 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.annotation.RequestHeader;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -80,7 +80,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addHeader(name, value);
 
-    ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     Object result = resolver.resolveArgument(webRequest, paramMap);
 
@@ -103,7 +103,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     expected.add(name, value1);
     expected.add(name, value2);
 
-    ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     Object result = resolver.resolveArgument(webRequest, paramMultiValueMap);
 
@@ -125,7 +125,7 @@ class RequestHeaderMapMethodArgumentResolverTests {
     expected.add(name, value1);
     expected.add(name, value2);
 
-    ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
     Object result = resolver.resolveArgument(webRequest, paramHttpHeaders);
 
     boolean condition = result instanceof HttpHeaders;

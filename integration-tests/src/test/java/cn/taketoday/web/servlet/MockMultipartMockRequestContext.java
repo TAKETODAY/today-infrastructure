@@ -19,25 +19,25 @@ package cn.taketoday.web.servlet;
 
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.multipart.MultipartRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/3/5 17:04
  */
 @SuppressWarnings("serial")
-public class MockMultipartServletRequestContext extends ServletRequestContext {
+public class MockMultipartMockRequestContext extends MockRequestContext {
 
   private final MockMultipartHttpMockRequest request;
 
-  public MockMultipartServletRequestContext(MockMultipartHttpMockRequest request, HttpServletResponse response) {
+  public MockMultipartMockRequestContext(MockMultipartHttpMockRequest request, HttpMockResponse response) {
     super(request, response);
     this.request = request;
   }
 
-  public MockMultipartServletRequestContext(ApplicationContext applicationContext, MockMultipartHttpMockRequest request, HttpServletResponse response) {
+  public MockMultipartMockRequestContext(ApplicationContext applicationContext, MockMultipartHttpMockRequest request, HttpMockResponse response) {
     super(applicationContext, request, response);
     this.request = request;
   }

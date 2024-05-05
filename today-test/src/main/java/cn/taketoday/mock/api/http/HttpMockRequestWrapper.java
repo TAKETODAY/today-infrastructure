@@ -254,7 +254,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.0
    */
   @Override
-  public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpMockResponse response) throws IOException, ServletException {
     return this._getHttpServletRequest().authenticate(response);
   }
 

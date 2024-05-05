@@ -759,7 +759,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
 
   /**
    * Create a new {@link HttpMockRequestImpl} based on the supplied
-   * {@code ServletContext}.
+   * {@code MockContext}.
    * <p>Can be overridden in subclasses.
    */
   protected HttpMockRequestImpl createServletRequest(MockContext mockContext) {

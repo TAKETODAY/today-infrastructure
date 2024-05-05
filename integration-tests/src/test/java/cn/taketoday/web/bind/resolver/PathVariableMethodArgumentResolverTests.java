@@ -27,7 +27,7 @@ import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.http.server.RequestPath;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
@@ -35,7 +35,7 @@ import cn.taketoday.web.annotation.PathVariable;
 import cn.taketoday.web.bind.MissingPathVariableException;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
@@ -50,7 +50,7 @@ class PathVariableMethodArgumentResolverTests {
 
   private PathVariableMethodArgumentResolver resolver;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private HttpMockRequestImpl request;
 
@@ -63,7 +63,7 @@ class PathVariableMethodArgumentResolverTests {
   public void setup() throws Throwable {
     resolver = new PathVariableMethodArgumentResolver();
     request = new HttpMockRequestImpl();
-    webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     webRequest.setMatchingMetadata(new HandlerMatchingMetadata(webRequest));
 

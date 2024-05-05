@@ -27,7 +27,7 @@ import cn.taketoday.context.annotation.AnnotatedBeanDefinitionReader;
 import cn.taketoday.context.annotation.ClassPathBeanDefinitionScanner;
 import cn.taketoday.context.annotation.ScopedProxyMode;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.stereotype.Component;
@@ -35,7 +35,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.annotation.RequestScope;
 import cn.taketoday.web.context.annotation.SessionScope;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 
 import static cn.taketoday.context.annotation.ScopedProxyMode.DEFAULT;
@@ -55,8 +55,8 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   private static final String DEFAULT_NAME = "default";
   private static final String MODIFIED_NAME = "modified";
 
-  private RequestContext oldRequestAttributes = new ServletRequestContext(null, new HttpMockRequestImpl(), new MockHttpServletResponse());
-  private RequestContext newRequestAttributes = new ServletRequestContext(null, new HttpMockRequestImpl(), new MockHttpServletResponse());
+  private RequestContext oldRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
+  private RequestContext newRequestAttributes = new MockRequestContext(null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
   private RequestContext oldRequestAttributesWithSession;
   private RequestContext newRequestAttributesWithSession;
@@ -65,13 +65,13 @@ class ClassPathBeanDefinitionScannerScopeIntegrationTests {
   void setup() {
     HttpMockRequestImpl oldRequestWithSession = new HttpMockRequestImpl();
     oldRequestWithSession.setSession(new MockHttpSession());
-    this.oldRequestAttributesWithSession = new ServletRequestContext(
-            null, oldRequestWithSession, new MockHttpServletResponse());
+    this.oldRequestAttributesWithSession = new MockRequestContext(
+            null, oldRequestWithSession, new MockHttpResponseImpl());
 
     HttpMockRequestImpl newRequestWithSession = new HttpMockRequestImpl();
     newRequestWithSession.setSession(new MockHttpSession());
-    this.newRequestAttributesWithSession = new ServletRequestContext(
-            null, newRequestWithSession, new MockHttpServletResponse());
+    this.newRequestAttributesWithSession = new MockRequestContext(
+            null, newRequestWithSession, new MockHttpResponseImpl());
 
   }
 

@@ -33,7 +33,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 
@@ -78,7 +78,7 @@ public class ResourceUrlProviderTests {
   void getStaticResourceUrlRequestWithQueryOrHash() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setRequestURI("/");
-    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+    MockRequestContext requestContext = new MockRequestContext(null, request, null);
 
     String url = "/resources/foo.css?foo=bar&url=https://example.org";
     String resolvedUrl = this.urlProvider.getForRequestUrl(requestContext, url);
@@ -131,7 +131,7 @@ public class ResourceUrlProviderTests {
   @SuppressWarnings("resource")
   void initializeOnce() throws Exception {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
     context.register(HandlerMappingConfiguration.class);
     context.refresh();
 
@@ -144,12 +144,12 @@ public class ResourceUrlProviderTests {
   @SuppressWarnings("resource")
   void initializeOnCurrentContext() {
     AnnotationConfigWebApplicationContext parentContext = new AnnotationConfigWebApplicationContext();
-    parentContext.setServletContext(new MockContextImpl());
+    parentContext.setMockContext(new MockContextImpl());
     parentContext.register(ParentHandlerMappingConfiguration.class);
 
     AnnotationConfigWebApplicationContext childContext = new AnnotationConfigWebApplicationContext();
     childContext.setParent(parentContext);
-    childContext.setServletContext(new MockContextImpl());
+    childContext.setMockContext(new MockContextImpl());
     childContext.register(HandlerMappingConfiguration.class);
 
     parentContext.refresh();

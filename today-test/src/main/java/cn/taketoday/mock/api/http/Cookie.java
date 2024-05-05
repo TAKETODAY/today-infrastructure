@@ -35,7 +35,7 @@ import java.util.TreeMap;
  * sparingly to improve the interoperability of your servlets.
  *
  * <p>
- * The servlet sends cookies to the browser by using the {@link HttpServletResponse#addCookie} method, which adds fields
+ * The servlet sends cookies to the browser by using the {@link HttpMockResponse#addCookie} method, which adds fields
  * to HTTP response headers to send cookies to the browser, one at a time. The browser is expected to support 20 cookies
  * for each Web server, 300 cookies total, and may limit cookie size to 4 KB each.
  *

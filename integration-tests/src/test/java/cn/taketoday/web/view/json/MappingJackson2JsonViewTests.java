@@ -49,9 +49,9 @@ import cn.taketoday.beans.DirectFieldAccessor;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.view.View;
 
@@ -70,7 +70,7 @@ public class MappingJackson2JsonViewTests {
 
   private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private MockHttpServletResponse response = new MockHttpServletResponse();
+  private MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   private Context jsContext = ContextFactory.getGlobal().enterContext();
 
@@ -78,7 +78,7 @@ public class MappingJackson2JsonViewTests {
 
   private final StaticWebApplicationContext wac = new StaticWebApplicationContext();
   private final MockContextImpl sc = new MockContextImpl();
-  RequestContext requestContext = new ServletRequestContext(wac, request, response);
+  RequestContext requestContext = new MockRequestContext(wac, request, response);
 
   @Test
   public void isExposePathVars() {

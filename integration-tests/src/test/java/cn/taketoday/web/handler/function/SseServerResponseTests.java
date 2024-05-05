@@ -27,8 +27,8 @@ import java.util.Collections;
 
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,13 +39,13 @@ class SseServerResponseTests {
 
   private HttpMockRequestImpl mockRequest;
 
-  private MockHttpServletResponse mockResponse;
+  private MockHttpResponseImpl mockResponse;
 
   @BeforeEach
   void setUp() {
     this.mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
-    this.mockResponse = new MockHttpServletResponse();
+    this.mockResponse = new MockHttpResponseImpl();
   }
 
   @Test
@@ -64,7 +64,7 @@ class SseServerResponseTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
-    var requestContext = new ServletRequestContext(null, request, mockResponse);
+    var requestContext = new MockRequestContext(null, request, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -88,7 +88,7 @@ class SseServerResponseTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
-    var requestContext = new ServletRequestContext(null, request, mockResponse);
+    var requestContext = new MockRequestContext(null, request, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -112,7 +112,7 @@ class SseServerResponseTests {
     converter.setPrettyPrint(true);
     ServerResponse.Context context = () -> Collections.singletonList(converter);
 
-    var requestContext = new ServletRequestContext(null, this.mockRequest, mockResponse);
+    var requestContext = new MockRequestContext(null, this.mockRequest, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
@@ -144,7 +144,7 @@ class SseServerResponseTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
-    var requestContext = new ServletRequestContext(null, request, mockResponse);
+    var requestContext = new MockRequestContext(null, request, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -174,7 +174,7 @@ class SseServerResponseTests {
     ServerResponse.Context context = Collections::emptyList;
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setAsyncSupported(true);
-    var requestContext = new ServletRequestContext(null, request, mockResponse);
+    var requestContext = new MockRequestContext(null, request, mockResponse);
 
     assertThat(response.writeTo(requestContext, context)).isSameAs(ServerResponse.NONE_RETURN_VALUE);
 

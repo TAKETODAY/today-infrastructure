@@ -33,7 +33,7 @@ import cn.taketoday.web.mock.WebApplicationContext;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class ServletContextApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
+public class MockContextApplicationContextInitializer implements ApplicationContextInitializer, Ordered {
 
   private int order = Ordered.HIGHEST_PRECEDENCE;
 
@@ -42,22 +42,22 @@ public class ServletContextApplicationContextInitializer implements ApplicationC
   private final boolean addApplicationContextAttribute;
 
   /**
-   * Create a new {@link ServletContextApplicationContextInitializer} instance.
+   * Create a new {@link MockContextApplicationContextInitializer} instance.
    *
    * @param mockContext the servlet that should be ultimately set.
    */
-  public ServletContextApplicationContextInitializer(MockContext mockContext) {
+  public MockContextApplicationContextInitializer(MockContext mockContext) {
     this(mockContext, false);
   }
 
   /**
-   * Create a new {@link ServletContextApplicationContextInitializer} instance.
+   * Create a new {@link MockContextApplicationContextInitializer} instance.
    *
    * @param mockContext the servlet that should be ultimately set.
    * @param addApplicationContextAttribute if the {@link ApplicationContext} should be
    * stored as an attribute in the {@link MockContext}
    */
-  public ServletContextApplicationContextInitializer(MockContext mockContext,
+  public MockContextApplicationContextInitializer(MockContext mockContext,
           boolean addApplicationContextAttribute) {
     this.mockContext = mockContext;
     this.addApplicationContextAttribute = addApplicationContextAttribute;
@@ -75,7 +75,7 @@ public class ServletContextApplicationContextInitializer implements ApplicationC
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
     if (applicationContext instanceof ConfigurableWebApplicationContext cwa) {
-      cwa.setServletContext(this.mockContext);
+      cwa.setMockContext(this.mockContext);
 
       if (this.addApplicationContextAttribute) {
         this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);

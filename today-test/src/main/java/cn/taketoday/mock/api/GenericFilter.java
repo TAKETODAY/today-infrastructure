@@ -125,23 +125,23 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
   /**
    * <p>
    * Returns a reference to the {@link MockContext} in which this filter is running. See
-   * {@link FilterConfig#getServletContext}.
+   * {@link FilterConfig#getMockContext}.
    * </p>
    *
    * <p>
    * This method is supplied for convenience. It gets the context from the filter's <code>FilterConfig</code> object.
    *
-   * @return ServletContext the <code>ServletContext</code> object passed to this filter by the <code>init</code> method
+   * @return MockContext the <code>MockContext</code> object passed to this filter by the <code>init</code> method
    * @since Servlet 4.0
    */
   @Override
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     FilterConfig sc = getFilterConfig();
     if (sc == null) {
       throw new IllegalStateException(lStrings.getString("err.filter_config_not_initialized"));
     }
 
-    return sc.getServletContext();
+    return sc.getMockContext();
   }
 
   /**

@@ -118,7 +118,7 @@ public abstract class InfraHandler implements ApplicationContextAware, Environme
    * will be set as the parent.</li>
    * <li>If the given context has not already been assigned an {@linkplain
    * ConfigurableApplicationContext#setId id}, one will be assigned to it</li>
-   * <li>{@code ServletContext} and {@code ServletConfig} objects will be delegated to
+   * <li>{@code MockContext} and {@code ServletConfig} objects will be delegated to
    * the application context</li>
    * <li>{@link #postProcessApplicationContext} will be called</li>
    * <li>Any {@link ApplicationContextInitializer ApplicationContextInitializers} specified through the

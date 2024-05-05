@@ -67,7 +67,7 @@ class ParameterResolvingRegistryTests {
     assertThat(registry.getDefaultStrategies()).hasSize(0);
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
 
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
@@ -106,7 +106,7 @@ class ParameterResolvingRegistryTests {
 
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();
     registry.trimToSize();
@@ -141,7 +141,7 @@ class ParameterResolvingRegistryTests {
     assertThat(registry.getConversionService()).isNull();
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
 
     registry.setApplicationContext(context);
     registry.registerDefaultStrategies();

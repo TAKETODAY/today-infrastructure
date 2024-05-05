@@ -26,7 +26,7 @@ import java.util.List;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +40,11 @@ public class ServletServerHttpResponseTests {
 
   private ServletServerHttpResponse response;
 
-  private MockHttpServletResponse mockResponse;
+  private MockHttpResponseImpl mockResponse;
 
   @BeforeEach
   void create() {
-    mockResponse = new MockHttpServletResponse();
+    mockResponse = new MockHttpResponseImpl();
     response = new ServletServerHttpResponse(mockResponse);
   }
 

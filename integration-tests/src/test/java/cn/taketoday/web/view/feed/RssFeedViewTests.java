@@ -33,9 +33,9 @@ import java.util.Map;
 
 import cn.taketoday.core.testfixture.xml.XmlContent;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,13 +49,13 @@ public class RssFeedViewTests {
   @Test
   public void render() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     Map<String, String> model = new LinkedHashMap<>();
     model.put("2", "This is entry 2");
     model.put("1", "This is entry 1");
 
-    view.render(model, ServletUtils.getRequestContext(request, response));
+    view.render(model, MockUtils.getRequestContext(request, response));
     assertThat(response.getContentType()).as("Invalid content-type").isEqualTo("application/rss+xml");
     String expected = "<rss version=\"2.0\">" +
             "<channel><title>Test Feed</title>" +

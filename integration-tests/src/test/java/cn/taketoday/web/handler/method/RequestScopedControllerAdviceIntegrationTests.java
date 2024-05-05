@@ -45,7 +45,7 @@ class RequestScopedControllerAdviceIntegrationTests {
     // gh-23985
   void loadContextWithRequestScopedControllerAdvice() {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
     context.register(Config.class);
 
     assertThatCode(context::refresh).doesNotThrowAnyException();

@@ -33,10 +33,10 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.CollectionUtils;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
- * {@link ServerHttpResponse} implementation that is based on a {@link HttpServletResponse}.
+ * {@link ServerHttpResponse} implementation that is based on a {@link HttpMockResponse}.
  *
  * @author Arjen Poutsma
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -49,17 +49,17 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
   private boolean headersWritten = false;
 
   private final HttpHeaders headers;
-  private final HttpServletResponse servletResponse;
+  private final HttpMockResponse servletResponse;
 
   @Nullable
   private HttpHeaders readOnlyHeaders;
 
   /**
-   * Construct a new instance of the ServletServerHttpResponse based on the given {@link HttpServletResponse}.
+   * Construct a new instance of the ServletServerHttpResponse based on the given {@link HttpMockResponse}.
    *
    * @param servletResponse the servlet response
    */
-  public ServletServerHttpResponse(HttpServletResponse servletResponse) {
+  public ServletServerHttpResponse(HttpMockResponse servletResponse) {
     Assert.notNull(servletResponse, "HttpServletResponse is required");
     this.servletResponse = servletResponse;
     this.headers = new ServletResponseHttpHeaders();
@@ -68,7 +68,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
   /**
    * Return the {@code HttpServletResponse} this object is based on.
    */
-  public HttpServletResponse getServletResponse() {
+  public HttpMockResponse getServletResponse() {
     return this.servletResponse;
   }
 

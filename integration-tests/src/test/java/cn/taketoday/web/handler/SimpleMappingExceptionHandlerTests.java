@@ -24,10 +24,10 @@ import java.util.Collections;
 import java.util.Properties;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.mock.api.http.HttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.api.http.HttpMockResponse;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -40,7 +40,7 @@ class SimpleMappingExceptionHandlerTests {
 
   private SimpleMappingExceptionHandler exceptionHandler;
   private HttpMockRequestImpl request;
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
   private Object handler1;
   private Object handler2;
   private Exception genericException;
@@ -51,7 +51,7 @@ class SimpleMappingExceptionHandlerTests {
     handler1 = new String();
     handler2 = new Object();
     request = new HttpMockRequestImpl();
-    response = new MockHttpServletResponse();
+    response = new MockHttpResponseImpl();
     request.setMethod("GET");
     genericException = new Exception();
   }
@@ -97,7 +97,7 @@ class SimpleMappingExceptionHandlerTests {
 
   private ModelAndView handleException(Object handler, Exception ex) {
     try {
-      Object ret = this.exceptionHandler.handleException(new ServletRequestContext(null, request, response), ex, handler);
+      Object ret = this.exceptionHandler.handleException(new MockRequestContext(null, request, response), ex, handler);
       if (ret instanceof ModelAndView mav) {
         return mav;
       }
@@ -127,34 +127,34 @@ class SimpleMappingExceptionHandlerTests {
   public void noDefaultStatusCode() {
     exceptionHandler.setDefaultErrorView("default-view");
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_OK);
   }
 
   @Test
   public void setDefaultStatusCode() {
     exceptionHandler.setDefaultErrorView("default-view");
-    exceptionHandler.setDefaultStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+    exceptionHandler.setDefaultStatusCode(HttpMockResponse.SC_BAD_REQUEST);
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_BAD_REQUEST);
   }
 
   @Test
   public void noDefaultStatusCodeInInclude() {
     exceptionHandler.setDefaultErrorView("default-view");
-    exceptionHandler.setDefaultStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+    exceptionHandler.setDefaultStatusCode(HttpMockResponse.SC_BAD_REQUEST);
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_BAD_REQUEST);
   }
 
   @Test
   public void specificStatusCode() {
     exceptionHandler.setDefaultErrorView("default-view");
-    exceptionHandler.setDefaultStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+    exceptionHandler.setDefaultStatusCode(HttpMockResponse.SC_BAD_REQUEST);
     Properties statusCodes = new Properties();
     statusCodes.setProperty("default-view", "406");
     exceptionHandler.setStatusCodes(statusCodes);
     handleException(handler1, genericException);
-    assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_ACCEPTABLE);
+    assertThat(response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_ACCEPTABLE);
   }
 
   @Test

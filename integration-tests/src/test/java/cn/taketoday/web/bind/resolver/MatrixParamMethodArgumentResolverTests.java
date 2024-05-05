@@ -34,7 +34,7 @@ import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.annotation.MatrixParam;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.testfixture.ReflectionTestUtils;
 import cn.taketoday.web.util.pattern.PathMatchInfo;
 import cn.taketoday.web.util.pattern.PathPattern;
@@ -51,7 +51,7 @@ class MatrixParamMethodArgumentResolverTests {
 
   private MatrixParamMethodArgumentResolver resolver;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private final ResolvableMethod testMethod = ResolvableMethod.on(this.getClass()).named("handle").build();
 
@@ -60,7 +60,7 @@ class MatrixParamMethodArgumentResolverTests {
     this.resolver = new MatrixParamMethodArgumentResolver();
 
     BindingContext binding = new BindingContext();
-    this.webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    this.webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
     webRequest.setBinding(binding);
 
     PathMatchInfo info = new MockPathMatchInfo();

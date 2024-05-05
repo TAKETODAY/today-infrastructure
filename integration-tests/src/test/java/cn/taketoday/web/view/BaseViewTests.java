@@ -30,12 +30,12 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -56,10 +56,10 @@ public class BaseViewTests {
   @Test
   public void renderWithoutStaticAttributes() throws Exception {
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getServletContext()).willReturn(new MockContextImpl());
+    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     HttpMockRequest request = new HttpMockRequestImpl();
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
     TestView tv = new TestView(wac);
 
     // Check superclass handles duplicate init
@@ -70,7 +70,7 @@ public class BaseViewTests {
     model.put("foo", "bar");
     model.put("something", new Object());
 
-    RequestContext requestContext = ServletUtils.getRequestContext(request, response);
+    RequestContext requestContext = MockUtils.getRequestContext(request, response);
 
     tv.render(model, requestContext);
 
@@ -85,10 +85,10 @@ public class BaseViewTests {
   @Test
   public void renderWithStaticAttributesNoCollision() throws Exception {
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getServletContext()).willReturn(new MockContextImpl());
+    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     HttpMockRequest request = new HttpMockRequestImpl();
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
     TestView tv = new TestView(wac);
 
     tv.setApplicationContext(wac);
@@ -101,7 +101,7 @@ public class BaseViewTests {
     model.put("one", new HashMap<>());
     model.put("two", new Object());
 
-    RequestContext requestContext = ServletUtils.getRequestContext(request, response);
+    RequestContext requestContext = MockUtils.getRequestContext(request, response);
 
     tv.render(model, requestContext);
 
@@ -114,10 +114,10 @@ public class BaseViewTests {
   @Test
   public void pathVarsOverrideStaticAttributes() throws Exception {
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getServletContext()).willReturn(new MockContextImpl());
+    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     HttpMockRequest request = new HttpMockRequestImpl();
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
 
     TestView tv = new TestView(wac);
     tv.setApplicationContext(wac);
@@ -130,7 +130,7 @@ public class BaseViewTests {
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", new HashMap<>());
     pathVars.put("two", new Object());
-    RequestContext requestContext = ServletUtils.getRequestContext(wac, request, response);
+    RequestContext requestContext = MockUtils.getRequestContext(wac, request, response);
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
     metadata.getPathVariables().putAll(pathVars);
     requestContext.setMatchingMetadata(metadata);
@@ -147,10 +147,10 @@ public class BaseViewTests {
   @Test
   public void dynamicModelOverridesStaticAttributesIfCollision() throws Exception {
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getServletContext()).willReturn(new MockContextImpl());
+    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     HttpMockRequest request = new HttpMockRequestImpl();
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
     TestView tv = new TestView(wac);
 
     tv.setApplicationContext(wac);
@@ -162,7 +162,7 @@ public class BaseViewTests {
     Map<String, Object> model = new HashMap<>();
     model.put("one", new HashMap<>());
     model.put("two", new Object());
-    RequestContext requestContext = ServletUtils.getRequestContext(request, response);
+    RequestContext requestContext = MockUtils.getRequestContext(request, response);
 
     tv.render(model, requestContext);
 
@@ -177,18 +177,18 @@ public class BaseViewTests {
   @Test
   public void dynamicModelOverridesPathVariables() throws Exception {
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
-    given(wac.getServletContext()).willReturn(new MockContextImpl());
+    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     TestView tv = new TestView(wac);
     tv.setApplicationContext(wac);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     Map<String, Object> pathVars = new HashMap<>();
     pathVars.put("one", "bar");
     pathVars.put("something", "else");
-    RequestContext requestContext = ServletUtils.getRequestContext(request, response);
+    RequestContext requestContext = MockUtils.getRequestContext(request, response);
 
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(requestContext);
     metadata.getPathVariables().putAll(pathVars);

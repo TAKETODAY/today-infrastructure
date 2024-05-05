@@ -27,7 +27,7 @@ import java.io.IOException;
  *
  * <p>
  * Filters perform filtering in the <code>doFilter</code> method. Every Filter has access to a FilterConfig object from
- * which it can obtain its initialization parameters, and a reference to the ServletContext which it can use, for
+ * which it can obtain its initialization parameters, and a reference to the MockContext which it can use, for
  * example, to load resources needed for filtering tasks.
  *
  * <p>
@@ -109,7 +109,7 @@ public interface Filter {
    * @throws ServletException if an exception occurs that interferes with the filter's normal operation
    * @see UnavailableException
    */
-  void doFilter(MockRequest request, ServletResponse response, FilterChain chain)
+  void doFilter(MockRequest request, MockResponse response, FilterChain chain)
           throws IOException, ServletException;
 
   /**

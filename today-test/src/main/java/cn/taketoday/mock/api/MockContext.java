@@ -47,7 +47,7 @@ import cn.taketoday.mock.api.http.HttpSessionListener;
  * information (because the information won't be truly global). Use an external resource like a database instead.
  *
  * <p>
- * The <code>ServletContext</code> object is contained within the {@link MockConfig} object, which the Web server
+ * The <code>MockContext</code> object is contained within the {@link MockConfig} object, which the Web server
  * provides the servlet when the servlet is initialized.
  *
  * @author Various
@@ -73,27 +73,27 @@ public interface MockContext {
   int getMinorVersion();
 
   /**
-   * Gets the major version of the Servlet specification that the application represented by this ServletContext is based
+   * Gets the major version of the Servlet specification that the application represented by this MockContext is based
    * on.
    *
    * <p>
    * The value returned may be different from {@link #getMajorVersion}, which returns the major version of the Servlet
    * specification supported by the Servlet container.
    *
-   * @return the major version of the Servlet specification that the application represented by this ServletContext is
+   * @return the major version of the Servlet specification that the application represented by this MockContext is
    * based on
    */
   int getEffectiveMajorVersion();
 
   /**
-   * Gets the minor version of the Servlet specification that the application represented by this ServletContext is based
+   * Gets the minor version of the Servlet specification that the application represented by this MockContext is based
    * on.
    *
    * <p>
    * The value returned may be different from {@link #getMinorVersion}, which returns the minor version of the Servlet
    * specification supported by the Servlet container.
    *
-   * @return the minor version of the Servlet specification that the application represented by this ServletContext is
+   * @return the minor version of the Servlet specification that the application represented by this MockContext is
    * based on
    */
   int getEffectiveMinorVersion();
@@ -121,8 +121,8 @@ public interface MockContext {
    * and have a leading <tt>/</tt>.
    *
    * <p>
-   * The returned set is not backed by the {@code ServletContext} object, so changes in the returned set are not reflected
-   * in the {@code ServletContext} object, and vice-versa.
+   * The returned set is not backed by the {@code MockContext} object, so changes in the returned set are not reflected
+   * in the {@code MockContext} object, and vice-versa.
    * </p>
    *
    * <p>
@@ -237,12 +237,12 @@ public interface MockContext {
    * <code>getContext</code> to obtain a <code>RequestDispatcher</code> for resources in foreign contexts.
    *
    * <p>
-   * This method returns <code>null</code> if the <code>ServletContext</code> cannot return a
+   * This method returns <code>null</code> if the <code>MockContext</code> cannot return a
    * <code>RequestDispatcher</code>.
    *
    * @param path a <code>String</code> specifying the pathname to the resource
    * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the resource at the specified path, or
-   * <code>null</code> if the <code>ServletContext</code> cannot return a <code>RequestDispatcher</code>
+   * <code>null</code> if the <code>MockContext</code> cannot return a <code>RequestDispatcher</code>
    * @see RequestDispatcher
    */
   RequestDispatcher getRequestDispatcher(String path);
@@ -255,12 +255,12 @@ public interface MockContext {
    * descriptor. A servlet instance can determine its name using {@link MockConfig#getMockName}.
    *
    * <p>
-   * This method returns <code>null</code> if the <code>ServletContext</code> cannot return a
+   * This method returns <code>null</code> if the <code>MockContext</code> cannot return a
    * <code>RequestDispatcher</code> for any reason.
    *
    * @param name a <code>String</code> specifying the name of a servlet to wrap
    * @return a <code>RequestDispatcher</code> object that acts as a wrapper for the named servlet, or <code>null</code> if
-   * the <code>ServletContext</code> cannot return a <code>RequestDispatcher</code>
+   * the <code>MockContext</code> cannot return a <code>RequestDispatcher</code>
    * @see RequestDispatcher
    * @see MockConfig#getMockName
    */
@@ -295,7 +295,7 @@ public interface MockContext {
    * For example, if <tt>path</tt> is equal to <tt>/index.html</tt>, this method will return the absolute file path on the
    * server's filesystem to which a request of the form
    * <tt>http://&lt;host&gt;:&lt;port&gt;/&lt;contextPath&gt;/index.html</tt> would be mapped, where
-   * <tt>&lt;contextPath&gt;</tt> corresponds to the context path of this ServletContext.
+   * <tt>&lt;contextPath&gt;</tt> corresponds to the context path of this MockContext.
    *
    * <p>
    * The real path returned will be in a form appropriate to the computer and operating system on which the servlet
@@ -357,17 +357,17 @@ public interface MockContext {
   Enumeration<String> getInitParameterNames();
 
   /**
-   * Sets the context initialization parameter with the given name and value on this ServletContext.
+   * Sets the context initialization parameter with the given name and value on this MockContext.
    *
    * @param name the name of the context initialization parameter to set
    * @param value the value of the context initialization parameter to set
    * @return true if the context initialization parameter with the given name and value was set successfully on this
-   * ServletContext, and false if it was not set because this ServletContext already contains a context initialization
+   * MockContext, and false if it was not set because this MockContext already contains a context initialization
    * parameter with a matching name
-   * @throws IllegalStateException if this ServletContext has already been initialized
+   * @throws IllegalStateException if this MockContext has already been initialized
    * @throws NullPointerException if the name parameter is {@code null}
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -398,7 +398,7 @@ public interface MockContext {
   Object getAttribute(String name);
 
   /**
-   * Returns an <code>Enumeration</code> containing the attribute names available within this ServletContext.
+   * Returns an <code>Enumeration</code> containing the attribute names available within this MockContext.
    *
    * <p>
    * Use the {@link #getAttribute} method with an attribute name to get the value of an attribute.
@@ -409,10 +409,10 @@ public interface MockContext {
   Enumeration<String> getAttributeNames();
 
   /**
-   * Binds an object to a given attribute name in this ServletContext. If the name specified is already used for an
+   * Binds an object to a given attribute name in this MockContext. If the name specified is already used for an
    * attribute, this method will replace the attribute with the new to the new attribute.
    * <p>
-   * If listeners are configured on the <code>ServletContext</code> the container notifies them accordingly.
+   * If listeners are configured on the <code>MockContext</code> the container notifies them accordingly.
    * <p>
    * If a null value is passed, the effect is the same as calling <code>removeAttribute()</code>.
    *
@@ -427,23 +427,23 @@ public interface MockContext {
   void setAttribute(String name, Object object);
 
   /**
-   * Removes the attribute with the given name from this ServletContext. After removal, subsequent calls to
+   * Removes the attribute with the given name from this MockContext. After removal, subsequent calls to
    * {@link #getAttribute} to retrieve the attribute's value will return <code>null</code>.
    *
    * <p>
-   * If listeners are configured on the <code>ServletContext</code> the container notifies them accordingly.
+   * If listeners are configured on the <code>MockContext</code> the container notifies them accordingly.
    *
    * @param name a <code>String</code> specifying the name of the attribute to be removed
    */
   void removeAttribute(String name);
 
   /**
-   * Returns the name of this web application corresponding to this ServletContext as specified in the deployment
+   * Returns the name of this web application corresponding to this MockContext as specified in the deployment
    * descriptor for this web application by the display-name element.
    *
    * @return The name of the web application or null if no name has been declared in the deployment descriptor.
    */
-  String getServletContextName();
+  String getMockContextName();
 
   /**
    * Adds the servlet with the given name and class name to this servlet context.
@@ -453,10 +453,10 @@ public interface MockContext {
    *
    * <p>
    * The specified <tt>className</tt> will be loaded using the classloader associated with the application represented by
-   * this ServletContext.
+   * this MockContext.
    *
    * <p>
-   * If this ServletContext already contains a preliminary ServletRegistration for a servlet with the given
+   * If this MockContext already contains a preliminary ServletRegistration for a servlet with the given
    * <tt>servletName</tt>, it will be completed (by assigning the given <tt>className</tt> to it) and returned.
    *
    * <p>
@@ -470,36 +470,36 @@ public interface MockContext {
    * @param servletName the name of the servlet
    * @param className the fully qualified class name of the servlet
    * @return a ServletRegistration object that may be used to further configure the registered servlet, or <tt>null</tt>
-   * if this ServletContext already contains a complete ServletRegistration for a servlet with the given
+   * if this MockContext already contains a complete ServletRegistration for a servlet with the given
    * <tt>servletName</tt>
-   * @throws IllegalStateException if this ServletContext has already been initialized
+   * @throws IllegalStateException if this MockContext has already been initialized
    * @throws IllegalArgumentException if <code>servletName</code> is null or an empty String
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   ServletRegistration.Dynamic addServlet(String servletName, String className);
 
   /**
-   * Registers the given servlet instance with this ServletContext under the given <tt>servletName</tt>.
+   * Registers the given servlet instance with this MockContext under the given <tt>servletName</tt>.
    *
    * <p>
    * The registered servlet may be further configured via the returned {@link ServletRegistration} object.
    *
    * <p>
-   * If this ServletContext already contains a preliminary ServletRegistration for a servlet with the given
+   * If this MockContext already contains a preliminary ServletRegistration for a servlet with the given
    * <tt>servletName</tt>, it will be completed (by assigning the class name of the given servlet instance to it) and
    * returned.
    *
    * @param servletName the name of the servlet
    * @param servlet the servlet instance to register
    * @return a ServletRegistration object that may be used to further configure the given servlet, or <tt>null</tt> if
-   * this ServletContext already contains a complete ServletRegistration for a servlet with the given <tt>servletName</tt>
-   * or if the same servlet instance has already been registered with this or another ServletContext in the same container
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * this MockContext already contains a complete ServletRegistration for a servlet with the given <tt>servletName</tt>
+   * or if the same servlet instance has already been registered with this or another MockContext in the same container
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    * @throws IllegalArgumentException if <code>servletName</code> is null or an empty String
@@ -513,7 +513,7 @@ public interface MockContext {
    * The registered servlet may be further configured via the returned {@link ServletRegistration} object.
    *
    * <p>
-   * If this ServletContext already contains a preliminary ServletRegistration for a servlet with the given
+   * If this MockContext already contains a preliminary ServletRegistration for a servlet with the given
    * <tt>servletName</tt>, it will be completed (by assigning the name of the given <tt>servletClass</tt> to it) and
    * returned.
    *
@@ -527,11 +527,11 @@ public interface MockContext {
    * @param servletName the name of the servlet
    * @param servletClass the class object from which the servlet will be instantiated
    * @return a ServletRegistration object that may be used to further configure the registered servlet, or <tt>null</tt>
-   * if this ServletContext already contains a complete ServletRegistration for the given <tt>servletName</tt>
-   * @throws IllegalStateException if this ServletContext has already been initialized
+   * if this MockContext already contains a complete ServletRegistration for the given <tt>servletName</tt>
+   * @throws IllegalStateException if this MockContext has already been initialized
    * @throws IllegalArgumentException if <code>servletName</code> is null or an empty String
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -541,7 +541,7 @@ public interface MockContext {
    * Instantiates the given Servlet class.
    *
    * <p>
-   * The returned Servlet instance may be further customized before it is registered with this ServletContext via a call
+   * The returned Servlet instance may be further customized before it is registered with this MockContext via a call
    * to {@link #addServlet(String, Servlet)}.
    *
    * <p>
@@ -558,8 +558,8 @@ public interface MockContext {
    * @param clazz the Servlet class to instantiate
    * @return the new Servlet instance
    * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -571,8 +571,8 @@ public interface MockContext {
    * @param servletName the name of a servlet
    * @return the (complete or preliminary) ServletRegistration for the servlet with the given <tt>servletName</tt>, or
    * null if no ServletRegistration exists under that name
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -580,7 +580,7 @@ public interface MockContext {
 
   /**
    * Gets a (possibly empty) Map of the ServletRegistration objects (keyed by servlet name) corresponding to all servlets
-   * registered with this ServletContext.
+   * registered with this MockContext.
    *
    * <p>
    * The returned Map includes the ServletRegistration objects corresponding to all declared and annotated servlets, as
@@ -588,12 +588,12 @@ public interface MockContext {
    * <tt>addServlet</tt> and <tt>addJspFile</tt> methods.
    *
    * <p>
-   * If permitted, any changes to the returned Map must not affect this ServletContext.
+   * If permitted, any changes to the returned Map must not affect this MockContext.
    *
    * @return Map of the (complete and preliminary) ServletRegistration objects corresponding to all servlets currently
-   * registered with this ServletContext
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * registered with this MockContext
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -607,10 +607,10 @@ public interface MockContext {
    *
    * <p>
    * The specified <tt>className</tt> will be loaded using the classloader associated with the application represented by
-   * this ServletContext.
+   * this MockContext.
    *
    * <p>
-   * If this ServletContext already contains a preliminary FilterRegistration for a filter with the given
+   * If this MockContext already contains a preliminary FilterRegistration for a filter with the given
    * <tt>filterName</tt>, it will be completed (by assigning the given <tt>className</tt> to it) and returned.
    *
    * <p>
@@ -620,36 +620,36 @@ public interface MockContext {
    * @param filterName the name of the filter
    * @param className the fully qualified class name of the filter
    * @return a FilterRegistration object that may be used to further configure the registered filter, or <tt>null</tt> if
-   * this ServletContext already contains a complete FilterRegistration for a filter with the given <tt>filterName</tt>
-   * @throws IllegalStateException if this ServletContext has already been initialized
+   * this MockContext already contains a complete FilterRegistration for a filter with the given <tt>filterName</tt>
+   * @throws IllegalStateException if this MockContext has already been initialized
    * @throws IllegalArgumentException if <code>filterName</code> is null or an empty String
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   FilterRegistration.Dynamic addFilter(String filterName, String className);
 
   /**
-   * Registers the given filter instance with this ServletContext under the given <tt>filterName</tt>.
+   * Registers the given filter instance with this MockContext under the given <tt>filterName</tt>.
    *
    * <p>
    * The registered filter may be further configured via the returned {@link FilterRegistration} object.
    *
    * <p>
-   * If this ServletContext already contains a preliminary FilterRegistration for a filter with the given
+   * If this MockContext already contains a preliminary FilterRegistration for a filter with the given
    * <tt>filterName</tt>, it will be completed (by assigning the class name of the given filter instance to it) and
    * returned.
    *
    * @param filterName the name of the filter
    * @param filter the filter instance to register
    * @return a FilterRegistration object that may be used to further configure the given filter, or <tt>null</tt> if this
-   * ServletContext already contains a complete FilterRegistration for a filter with the given <tt>filterName</tt> or if
-   * the same filter instance has already been registered with this or another ServletContext in the same container
-   * @throws IllegalStateException if this ServletContext has already been initialized
+   * MockContext already contains a complete FilterRegistration for a filter with the given <tt>filterName</tt> or if
+   * the same filter instance has already been registered with this or another MockContext in the same container
+   * @throws IllegalStateException if this MockContext has already been initialized
    * @throws IllegalArgumentException if <code>filterName</code> is null or an empty String
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -662,7 +662,7 @@ public interface MockContext {
    * The registered filter may be further configured via the returned {@link FilterRegistration} object.
    *
    * <p>
-   * If this ServletContext already contains a preliminary FilterRegistration for a filter with the given
+   * If this MockContext already contains a preliminary FilterRegistration for a filter with the given
    * <tt>filterName</tt>, it will be completed (by assigning the name of the given <tt>filterClass</tt> to it) and
    * returned.
    *
@@ -673,11 +673,11 @@ public interface MockContext {
    * @param filterName the name of the filter
    * @param filterClass the class object from which the filter will be instantiated
    * @return a FilterRegistration object that may be used to further configure the registered filter, or <tt>null</tt> if
-   * this ServletContext already contains a complete FilterRegistration for a filter with the given <tt>filterName</tt>
-   * @throws IllegalStateException if this ServletContext has already been initialized
+   * this MockContext already contains a complete FilterRegistration for a filter with the given <tt>filterName</tt>
+   * @throws IllegalStateException if this MockContext has already been initialized
    * @throws IllegalArgumentException if <code>filterName</code> is null or an empty String
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -687,7 +687,7 @@ public interface MockContext {
    * Instantiates the given Filter class.
    *
    * <p>
-   * The returned Filter instance may be further customized before it is registered with this ServletContext via a call to
+   * The returned Filter instance may be further customized before it is registered with this MockContext via a call to
    * {@link #addFilter(String, Filter)}.
    *
    * <p>
@@ -701,8 +701,8 @@ public interface MockContext {
    * @param clazz the Filter class to instantiate
    * @return the new Filter instance
    * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -714,8 +714,8 @@ public interface MockContext {
    * @param filterName the name of a filter
    * @return the (complete or preliminary) FilterRegistration for the filter with the given <tt>filterName</tt>, or null
    * if no FilterRegistration exists under that name
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -723,7 +723,7 @@ public interface MockContext {
 
   /**
    * Gets a (possibly empty) Map of the FilterRegistration objects (keyed by filter name) corresponding to all filters
-   * registered with this ServletContext.
+   * registered with this MockContext.
    *
    * <p>
    * The returned Map includes the FilterRegistration objects corresponding to all declared and annotated filters, as well
@@ -731,12 +731,12 @@ public interface MockContext {
    * methods.
    *
    * <p>
-   * Any changes to the returned Map must not affect this ServletContext.
+   * Any changes to the returned Map must not affect this MockContext.
    *
    * @return Map of the (complete and preliminary) FilterRegistration objects corresponding to all filters currently
-   * registered with this ServletContext
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * registered with this MockContext
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -744,31 +744,31 @@ public interface MockContext {
 
   /**
    * Gets the {@link SessionCookieConfig} object through which various properties of the session tracking cookies created
-   * on behalf of this <tt>ServletContext</tt> may be configured.
+   * on behalf of this <tt>MockContext</tt> may be configured.
    *
    * <p>
    * Repeated invocations of this method will return the same <tt>SessionCookieConfig</tt> instance.
    *
    * @return the <tt>SessionCookieConfig</tt> object through which various properties of the session tracking cookies
-   * created on behalf of this <tt>ServletContext</tt> may be configured
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * created on behalf of this <tt>MockContext</tt> may be configured
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   SessionCookieConfig getSessionCookieConfig();
 
   /**
-   * Sets the session tracking modes that are to become effective for this <tt>ServletContext</tt>.
+   * Sets the session tracking modes that are to become effective for this <tt>MockContext</tt>.
    *
    * <p>
    * The given <tt>sessionTrackingModes</tt> replaces any session tracking modes set by a previous invocation of this
-   * method on this <tt>ServletContext</tt>.
+   * method on this <tt>MockContext</tt>.
    *
-   * @param sessionTrackingModes the set of session tracking modes to become effective for this <tt>ServletContext</tt>
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @param sessionTrackingModes the set of session tracking modes to become effective for this <tt>MockContext</tt>
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    * @throws IllegalArgumentException if <tt>sessionTrackingModes</tt> specifies a combination of
@@ -778,40 +778,40 @@ public interface MockContext {
   void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes);
 
   /**
-   * Gets the session tracking modes that are supported by default for this <tt>ServletContext</tt>.
+   * Gets the session tracking modes that are supported by default for this <tt>MockContext</tt>.
    *
    * <p>
-   * The returned set is not backed by the {@code ServletContext} object, so changes in the returned set are not reflected
-   * in the {@code ServletContext} object, and vice-versa.
+   * The returned set is not backed by the {@code MockContext} object, so changes in the returned set are not reflected
+   * in the {@code MockContext} object, and vice-versa.
    * </p>
    *
-   * @return set of the session tracking modes supported by default for this <tt>ServletContext</tt>
+   * @return set of the session tracking modes supported by default for this <tt>MockContext</tt>
    */
   Set<SessionTrackingMode> getDefaultSessionTrackingModes();
 
   /**
-   * Gets the session tracking modes that are in effect for this <tt>ServletContext</tt>.
+   * Gets the session tracking modes that are in effect for this <tt>MockContext</tt>.
    *
    * <p>
    * The session tracking modes in effect are those provided to {@link #setSessionTrackingModes setSessionTrackingModes}.
    *
    * <p>
-   * The returned set is not backed by the {@code ServletContext} object, so changes in the returned set are not reflected
-   * in the {@code ServletContext} object, and vice-versa.
+   * The returned set is not backed by the {@code MockContext} object, so changes in the returned set are not reflected
+   * in the {@code MockContext} object, and vice-versa.
    * </p>
    *
-   * @return set of the session tracking modes in effect for this <tt>ServletContext</tt>
+   * @return set of the session tracking modes in effect for this <tt>MockContext</tt>
    */
   Set<SessionTrackingMode> getEffectiveSessionTrackingModes();
 
   /**
-   * Adds the listener with the given class name to this ServletContext.
+   * Adds the listener with the given class name to this MockContext.
    *
    * <p>
    * The class with the given name will be loaded using the classloader associated with the application represented by
-   * this ServletContext, and must implement one or more of the following interfaces:
+   * this MockContext, and must implement one or more of the following interfaces:
    * <ul>
-   * <li>{@link ServletContextAttributeListener}
+   * <li>{@link MockContextAttributeListener}
    * <li>{@link ServletRequestListener}
    * <li>{@link ServletRequestAttributeListener}
    * <li>{@link HttpSessionAttributeListener}
@@ -820,8 +820,8 @@ public interface MockContext {
    * </ul>
    *
    * <p>
-   * If this ServletContext was passed to {@link ServletContainerInitializer#onStartup}, then the class with the given
-   * name may also implement {@link ServletContextListener}, in addition to the interfaces listed above.
+   * If this MockContext was passed to {@link ServletContainerInitializer#onStartup}, then the class with the given
+   * name may also implement {@link MockContextListener}, in addition to the interfaces listed above.
    *
    * <p>
    * As part of this method call, the container must load the class with the specified class name to ensure that it
@@ -829,7 +829,7 @@ public interface MockContext {
    *
    * <p>
    * If the class with the given name implements a listener interface whose invocation order corresponds to the
-   * declaration order (i.e., if it implements {@link ServletRequestListener}, {@link ServletContextListener}, or
+   * declaration order (i.e., if it implements {@link ServletRequestListener}, {@link MockContextListener}, or
    * {@link HttpSessionListener}), then the new listener will be added to the end of the ordered list
    * of listeners of that interface.
    *
@@ -839,23 +839,23 @@ public interface MockContext {
    *
    * @param className the fully qualified class name of the listener
    * @throws IllegalArgumentException if the class with the given name does not implement any of the above interfaces, or
-   * if it implements {@link ServletContextListener} and this ServletContext was not passed to
+   * if it implements {@link MockContextListener} and this MockContext was not passed to
    * {@link ServletContainerInitializer#onStartup}
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   void addListener(String className);
 
   /**
-   * Adds the given listener to this ServletContext.
+   * Adds the given listener to this MockContext.
    *
    * <p>
    * The given listener must be an instance of one or more of the following interfaces:
    * <ul>
-   * <li>{@link ServletContextAttributeListener}
+   * <li>{@link MockContextAttributeListener}
    * <li>{@link ServletRequestListener}
    * <li>{@link ServletRequestAttributeListener}
    * <li>{@link HttpSessionAttributeListener}
@@ -864,35 +864,35 @@ public interface MockContext {
    * </ul>
    *
    * <p>
-   * If this ServletContext was passed to {@link ServletContainerInitializer#onStartup}, then the given listener may also
-   * be an instance of {@link ServletContextListener}, in addition to the interfaces listed above.
+   * If this MockContext was passed to {@link ServletContainerInitializer#onStartup}, then the given listener may also
+   * be an instance of {@link MockContextListener}, in addition to the interfaces listed above.
    *
    * <p>
    * If the given listener is an instance of a listener interface whose invocation order corresponds to the declaration
-   * order (i.e., if it is an instance of {@link ServletRequestListener}, {@link ServletContextListener}, or
+   * order (i.e., if it is an instance of {@link ServletRequestListener}, {@link MockContextListener}, or
    * {@link HttpSessionListener}), then the listener will be added to the end of the ordered list of
    * listeners of that interface.
    *
    * @param <T> the class of the EventListener to add
    * @param t the listener to be added
    * @throws IllegalArgumentException if the given listener is not an instance of any of the above interfaces, or if it is
-   * an instance of {@link ServletContextListener} and this ServletContext was not passed to
+   * an instance of {@link MockContextListener} and this MockContext was not passed to
    * {@link ServletContainerInitializer#onStartup}
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   <T extends EventListener> void addListener(T t);
 
   /**
-   * Adds a listener of the given class type to this ServletContext.
+   * Adds a listener of the given class type to this MockContext.
    *
    * <p>
    * The given <tt>listenerClass</tt> must implement one or more of the following interfaces:
    * <ul>
-   * <li>{@link ServletContextAttributeListener}
+   * <li>{@link MockContextAttributeListener}
    * <li>{@link ServletRequestListener}
    * <li>{@link ServletRequestAttributeListener}
    * <li>{@link HttpSessionAttributeListener}
@@ -901,12 +901,12 @@ public interface MockContext {
    * </ul>
    *
    * <p>
-   * If this ServletContext was passed to {@link ServletContainerInitializer#onStartup}, then the given
-   * <tt>listenerClass</tt> may also implement {@link ServletContextListener}, in addition to the interfaces listed above.
+   * If this MockContext was passed to {@link ServletContainerInitializer#onStartup}, then the given
+   * <tt>listenerClass</tt> may also implement {@link MockContextListener}, in addition to the interfaces listed above.
    *
    * <p>
    * If the given <tt>listenerClass</tt> implements a listener interface whose invocation order corresponds to the
-   * declaration order (i.e., if it implements {@link ServletRequestListener}, {@link ServletContextListener}, or
+   * declaration order (i.e., if it implements {@link ServletRequestListener}, {@link MockContextListener}, or
    * {@link HttpSessionListener}), then the new listener will be added to the end of the ordered list
    * of listeners of that interface.
    *
@@ -916,11 +916,11 @@ public interface MockContext {
    *
    * @param listenerClass the listener class to be instantiated
    * @throws IllegalArgumentException if the given <tt>listenerClass</tt> does not implement any of the above interfaces,
-   * or if it implements {@link ServletContextListener} and this ServletContext was not passed to
+   * or if it implements {@link MockContextListener} and this MockContext was not passed to
    * {@link ServletContainerInitializer#onStartup}
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
@@ -930,13 +930,13 @@ public interface MockContext {
    * Instantiates the given EventListener class.
    *
    * <p>
-   * The specified EventListener class must implement at least one of the {@link ServletContextListener},
-   * {@link ServletContextAttributeListener}, {@link ServletRequestListener}, {@link ServletRequestAttributeListener},
+   * The specified EventListener class must implement at least one of the {@link MockContextListener},
+   * {@link MockContextAttributeListener}, {@link ServletRequestListener}, {@link ServletRequestAttributeListener},
    * {@link HttpSessionAttributeListener}, {@link HttpSessionIdListener}, or
    * {@link HttpSessionListener} interfaces.
    *
    * <p>
-   * The returned EventListener instance may be further customized before it is registered with this ServletContext via a
+   * The returned EventListener instance may be further customized before it is registered with this MockContext via a
    * call to {@link #addListener(EventListener)}.
    *
    * <p>
@@ -950,19 +950,19 @@ public interface MockContext {
    * @param clazz the EventListener class to instantiate
    * @return the new EventListener instance
    * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    * @throws IllegalArgumentException if the specified EventListener class does not implement any of the
-   * {@link ServletContextListener}, {@link ServletContextAttributeListener}, {@link ServletRequestListener},
+   * {@link MockContextListener}, {@link MockContextAttributeListener}, {@link ServletRequestListener},
    * {@link ServletRequestAttributeListener}, {@link HttpSessionAttributeListener},
    * {@link HttpSessionIdListener}, or {@link HttpSessionListener} interfaces.
    */
   <T extends EventListener> T createListener(Class<T> clazz) throws ServletException;
 
   /**
-   * Gets the class loader of the web application represented by this ServletContext.
+   * Gets the class loader of the web application represented by this MockContext.
    *
    * <p>
    * If a security manager exists, and the caller's class loader is not the same as, or an ancestor of the requested class
@@ -970,7 +970,7 @@ public interface MockContext {
    * <code>RuntimePermission("getClassLoader")</code> permission to check whether access to the requested class loader
    * should be granted.
    *
-   * @return the class loader of the web application represented by this ServletContext
+   * @return the class loader of the web application represented by this MockContext
    * @throws SecurityException if a security manager denies access to the requested class loader
    */
   ClassLoader getClassLoader();
@@ -985,17 +985,17 @@ public interface MockContext {
    * need not be declared.
    *
    * @param roleNames the role names being declared
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    * @throws IllegalArgumentException if any of the argument roleNames is null or the empty string
-   * @throws IllegalStateException if the ServletContext has already been initialized
+   * @throws IllegalStateException if the MockContext has already been initialized
    */
   void declareRoles(String... roleNames);
 
   /**
-   * Returns the configuration name of the logical host on which the ServletContext is deployed.
+   * Returns the configuration name of the logical host on which the MockContext is deployed.
    *
    * Servlet containers may support multiple logical hosts. This method must return the same name for all the servlet
    * contexts deployed on a logical host, and the name returned by this method must be distinct, stable per logical host,
@@ -1008,61 +1008,61 @@ public interface MockContext {
   String getVirtualServerName();
 
   /**
-   * Gets the session timeout in minutes that are supported by default for this <tt>ServletContext</tt>.
+   * Gets the session timeout in minutes that are supported by default for this <tt>MockContext</tt>.
    *
-   * @return the session timeout in minutes that are supported by default for this <tt>ServletContext</tt>
+   * @return the session timeout in minutes that are supported by default for this <tt>MockContext</tt>
    */
   int getSessionTimeout();
 
   /**
-   * Sets the session timeout in minutes for this ServletContext.
+   * Sets the session timeout in minutes for this MockContext.
    *
    * @param sessionTimeout session timeout in minutes
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   void setSessionTimeout(int sessionTimeout);
 
   /**
-   * Gets the request character encoding that are supported by default for this <tt>ServletContext</tt>. This method
+   * Gets the request character encoding that are supported by default for this <tt>MockContext</tt>. This method
    * returns null if no request encoding character encoding has been specified in deployment descriptor or container
    * specific configuration (for all web applications in the container).
    *
-   * @return the request character encoding that are supported by default for this <tt>ServletContext</tt>
+   * @return the request character encoding that are supported by default for this <tt>MockContext</tt>
    */
   String getRequestCharacterEncoding();
 
   /**
-   * Sets the request character encoding for this ServletContext.
+   * Sets the request character encoding for this MockContext.
    *
    * @param encoding request character encoding
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
   void setRequestCharacterEncoding(String encoding);
 
   /**
-   * Gets the response character encoding that are supported by default for this <tt>ServletContext</tt>. This method
+   * Gets the response character encoding that are supported by default for this <tt>MockContext</tt>. This method
    * returns null if no response encoding character encoding has been specified in deployment descriptor or container
    * specific configuration (for all web applications in the container).
    *
-   * @return the request character encoding that are supported by default for this <tt>ServletContext</tt>
+   * @return the request character encoding that are supported by default for this <tt>MockContext</tt>
    */
   String getResponseCharacterEncoding();
 
   /**
-   * Sets the response character encoding for this ServletContext.
+   * Sets the response character encoding for this MockContext.
    *
    * @param encoding response character encoding
-   * @throws IllegalStateException if this ServletContext has already been initialized
-   * @throws UnsupportedOperationException if this ServletContext was passed to the
-   * {@link ServletContextListener#contextInitialized} method of a {@link ServletContextListener} that was neither
+   * @throws IllegalStateException if this MockContext has already been initialized
+   * @throws UnsupportedOperationException if this MockContext was passed to the
+   * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */

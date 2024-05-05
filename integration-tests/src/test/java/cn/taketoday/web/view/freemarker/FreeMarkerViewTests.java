@@ -33,12 +33,12 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.LocaleResolver;
 import cn.taketoday.web.i18n.AcceptHeaderLocaleResolver;
-import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.RedirectView;
 import cn.taketoday.web.view.View;
@@ -46,7 +46,7 @@ import freemarker.template.Configuration;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -67,7 +67,7 @@ public class FreeMarkerViewTests {
 
     WebApplicationContext wac = Mockito.mock(WebApplicationContext.class);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(new HashMap<>());
-    given(wac.getServletContext()).willReturn(new MockContextImpl());
+    given(wac.getMockContext()).willReturn(new MockContextImpl());
 
     fv.setUrl("anythingButNull");
 
@@ -97,7 +97,7 @@ public class FreeMarkerViewTests {
     configurer.setConfiguration(new TestConfiguration());
     configs.put("configurer", configurer);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
-    given(wac.getServletContext()).willReturn(sc);
+    given(wac.getMockContext()).willReturn(sc);
 
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
@@ -107,11 +107,11 @@ public class FreeMarkerViewTests {
     given(wac.getBean(LocaleResolver.BEAN_NAME)).willReturn(new AcceptHeaderLocaleResolver());
     given(wac.getBean(LocaleResolver.BEAN_NAME, LocaleResolver.class)).willReturn(new AcceptHeaderLocaleResolver());
 
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
 
     Map<String, Object> model = new HashMap<>();
     model.put("myattr", "myvalue");
-    ServletRequestContext context = new ServletRequestContext(wac, request, response);
+    MockRequestContext context = new MockRequestContext(wac, request, response);
     fv.render(model, context);
     assertThat(response.getContentType()).isEqualTo(AbstractView.DEFAULT_CONTENT_TYPE);
   }
@@ -128,7 +128,7 @@ public class FreeMarkerViewTests {
     configurer.setConfiguration(new TestConfiguration());
     configs.put("configurer", configurer);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
-    given(wac.getServletContext()).willReturn(sc);
+    given(wac.getMockContext()).willReturn(sc);
     given(wac.getBean(LocaleResolver.BEAN_NAME)).willReturn(new AcceptHeaderLocaleResolver());
     given(wac.getBean(LocaleResolver.BEAN_NAME, LocaleResolver.class)).willReturn(new AcceptHeaderLocaleResolver());
 
@@ -138,12 +138,12 @@ public class FreeMarkerViewTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.US);
 
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
     response.setContentType("myContentType");
 
     Map<String, Object> model = new HashMap<>();
     model.put("myattr", "myvalue");
-    ServletRequestContext context = new ServletRequestContext(wac, request, response);
+    MockRequestContext context = new MockRequestContext(wac, request, response);
     fv.render(model, context);
 
     assertThat(response.getContentType()).isEqualTo("myContentType");
@@ -161,18 +161,18 @@ public class FreeMarkerViewTests {
     configurer.setConfiguration(new TestConfiguration());
     configs.put("configurer", configurer);
     given(wac.getBeansOfType(FreeMarkerConfig.class, true, false)).willReturn(configs);
-    given(wac.getServletContext()).willReturn(sc);
+    given(wac.getMockContext()).willReturn(sc);
 
     fv.setUrl("templateName");
     fv.setApplicationContext(wac);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.US);
-    request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
-    HttpServletResponse response = new MockHttpServletResponse();
+    request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+    HttpMockResponse response = new MockHttpResponseImpl();
 
     request.setAttribute("myattr", "myvalue");
-    fv.render(null, new ServletRequestContext(wac, request, response));
+    fv.render(null, new MockRequestContext(wac, request, response));
   }
 
   @Test
@@ -183,7 +183,7 @@ public class FreeMarkerViewTests {
     configurer.setConfiguration(new TestConfiguration());
 
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
-    wac.setServletContext(sc);
+    wac.setMockContext(sc);
     wac.getBeanFactory().registerSingleton("configurer", configurer);
     wac.refresh();
 

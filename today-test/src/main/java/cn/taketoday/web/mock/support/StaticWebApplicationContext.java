@@ -26,9 +26,9 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
-import cn.taketoday.web.mock.ServletConfigAware;
+import cn.taketoday.web.mock.MockConfigAware;
 import cn.taketoday.web.mock.MockContextAware;
-import cn.taketoday.web.mock.ServletContextAwareProcessor;
+import cn.taketoday.web.mock.MockContextAwareProcessor;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -66,25 +66,25 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
 
   public StaticWebApplicationContext(@Nullable MockContext context) {
     this();
-    setServletContext(context);
+    setMockContext(context);
   }
 
   /**
-   * Set the ServletContext that this WebApplicationContext runs in.
+   * Set the MockContext that this WebApplicationContext runs in.
    */
   @Override
-  public void setServletContext(@Nullable MockContext mockContext) {
+  public void setMockContext(@Nullable MockContext mockContext) {
     this.mockContext = mockContext;
   }
 
   @Override
   @Nullable
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return this.mockContext;
   }
 
   @Override
-  public void setServletConfig(@Nullable MockConfig mockConfig) {
+  public void setMockConfig(@Nullable MockConfig mockConfig) {
     this.mockConfig = mockConfig;
     if (mockConfig != null && this.mockContext == null) {
       this.mockContext = mockConfig.getMockContext();
@@ -93,7 +93,7 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
 
   @Override
   @Nullable
-  public MockConfig getServletConfig() {
+  public MockConfig getMockConfig() {
     return this.mockConfig;
   }
 
@@ -137,38 +137,38 @@ public class StaticWebApplicationContext extends StaticApplicationContext implem
   }
 
   /**
-   * Register request/session scopes, a {@link ServletContextAwareProcessor}, etc.
+   * Register request/session scopes, a {@link MockContextAwareProcessor}, etc.
    */
   @Override
   protected void postProcessBeanFactory(ConfigurableBeanFactory beanFactory) {
     super.postProcessBeanFactory(beanFactory);
-    beanFactory.addBeanPostProcessor(new ServletContextAwareProcessor(this.mockContext, this.mockConfig));
+    beanFactory.addBeanPostProcessor(new MockContextAwareProcessor(this.mockContext, this.mockConfig));
     beanFactory.ignoreDependencyInterface(MockContextAware.class);
-    beanFactory.ignoreDependencyInterface(ServletConfigAware.class);
+    beanFactory.ignoreDependencyInterface(MockConfigAware.class);
 
     WebApplicationContextUtils.registerWebApplicationScopes(beanFactory, this.mockContext);
     WebApplicationContextUtils.registerEnvironmentBeans(beanFactory, this.mockContext, this.mockConfig);
   }
 
   /**
-   * This implementation supports file paths beneath the root of the ServletContext.
+   * This implementation supports file paths beneath the root of the MockContext.
    *
-   * @see ServletContextResource
+   * @see MockContextResource
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    Assert.state(this.mockContext != null, "No ServletContext available");
-    return new ServletContextResource(this.mockContext, path);
+    Assert.state(this.mockContext != null, "No MockContext available");
+    return new MockContextResource(this.mockContext, path);
   }
 
   /**
    * This implementation supports pattern matching in unexpanded WARs too.
    *
-   * @see ServletContextResourcePatternLoader
+   * @see MockContextResourcePatternLoader
    */
   @Override
-  protected ServletContextResourcePatternLoader getPatternResourceLoader() {
-    return new ServletContextResourcePatternLoader(this);
+  protected MockContextResourcePatternLoader getPatternResourceLoader() {
+    return new MockContextResourcePatternLoader(this);
   }
 
   /**

@@ -22,7 +22,7 @@ import java.util.EventListener;
 import cn.taketoday.mock.api.annotation.WebListener;
 
 /**
- * Interface for receiving notification events about ServletContext attribute changes.
+ * Interface for receiving notification events about MockContext attribute changes.
  *
  * <p>
  * In order to receive these notification events, the implementation class must be either declared in the deployment
@@ -32,38 +32,38 @@ import cn.taketoday.mock.api.annotation.WebListener;
  * <p>
  * The order in which implementations of this interface are invoked is unspecified.
  *
- * @see ServletContextAttributeEvent
+ * @see MockContextAttributeEvent
  * @since Servlet 2.3
  */
-public interface ServletContextAttributeListener extends EventListener {
+public interface MockContextAttributeListener extends EventListener {
 
   /**
-   * Receives notification that an attribute has been added to the ServletContext.
+   * Receives notification that an attribute has been added to the MockContext.
    *
-   * @param event the ServletContextAttributeEvent containing the ServletContext to which the attribute was added, along
+   * @param event the MockContextAttributeEvent containing the MockContext to which the attribute was added, along
    * with the attribute name and value
    * @implSpec The default implementation takes no action.
    */
-  default void attributeAdded(ServletContextAttributeEvent event) {
+  default void attributeAdded(MockContextAttributeEvent event) {
   }
 
   /**
-   * Receives notification that an attribute has been removed from the ServletContext.
+   * Receives notification that an attribute has been removed from the MockContext.
    *
-   * @param event the ServletContextAttributeEvent containing the ServletContext from which the attribute was removed,
+   * @param event the MockContextAttributeEvent containing the MockContext from which the attribute was removed,
    * along with the attribute name and value
    * @implSpec The default implementation takes no action.
    */
-  default void attributeRemoved(ServletContextAttributeEvent event) {
+  default void attributeRemoved(MockContextAttributeEvent event) {
   }
 
   /**
-   * Receives notification that an attribute has been replaced in the ServletContext.
+   * Receives notification that an attribute has been replaced in the MockContext.
    *
-   * @param event the ServletContextAttributeEvent containing the ServletContext in which the attribute was replaced,
+   * @param event the MockContextAttributeEvent containing the MockContext in which the attribute was replaced,
    * along with the attribute name and its old value
    * @implSpec The default implementation takes no action.
    */
-  default void attributeReplaced(ServletContextAttributeEvent event) {
+  default void attributeReplaced(MockContextAttributeEvent event) {
   }
 }

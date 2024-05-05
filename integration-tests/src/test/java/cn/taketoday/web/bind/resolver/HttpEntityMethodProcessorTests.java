@@ -38,12 +38,12 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,9 +59,9 @@ class HttpEntityMethodProcessorTests {
 
   private HttpMockRequestImpl servletRequest;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
-  private MockHttpServletResponse servletResponse;
+  private MockHttpResponseImpl servletResponse;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -70,9 +70,9 @@ class HttpEntityMethodProcessorTests {
     paramSimpleBean = new ResolvableMethodParameter(new MethodParameter(method, 1));
 
     servletRequest = new HttpMockRequestImpl();
-    servletResponse = new MockHttpServletResponse();
+    servletResponse = new MockHttpResponseImpl();
     servletRequest.setMethod("POST");
-    webRequest = new ServletRequestContext(null, servletRequest, servletResponse);
+    webRequest = new MockRequestContext(null, servletRequest, servletResponse);
   }
 
   @Test

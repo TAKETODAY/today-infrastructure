@@ -64,7 +64,7 @@ import java.util.Set;
  * <li>The Referer(sic) header will be set to {@link HttpMockRequest#getRequestURL()} plus any
  * {@link HttpMockRequest#getQueryString()}</li>
  *
- * <li>If {@link HttpServletResponse#addCookie(Cookie)} has been called on the associated response, then a corresponding
+ * <li>If {@link HttpMockResponse#addCookie(Cookie)} has been called on the associated response, then a corresponding
  * Cookie header will be added to the PushBuilder, unless the {@link Cookie#getMaxAge()} is &lt;=0, in which case the
  * Cookie will be removed from the builder.</li>
  *

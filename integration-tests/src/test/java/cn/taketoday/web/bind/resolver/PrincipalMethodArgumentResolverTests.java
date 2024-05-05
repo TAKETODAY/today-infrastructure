@@ -29,10 +29,10 @@ import java.security.Principal;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.bind.resolver.PrincipalMethodArgumentResolver;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.MockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,8 +47,8 @@ class PrincipalMethodArgumentResolverTests {
 
   private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "");
 
-  private final ServletRequestContext webRequest = new ServletRequestContext(
-          null, servletRequest, new MockHttpServletResponse());
+  private final MockRequestContext webRequest = new MockRequestContext(
+          null, servletRequest, new MockHttpResponseImpl());
 
   private Method method;
 

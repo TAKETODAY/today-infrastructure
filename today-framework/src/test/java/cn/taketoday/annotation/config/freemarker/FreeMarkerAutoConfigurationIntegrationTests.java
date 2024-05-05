@@ -30,12 +30,12 @@ import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.context.annotation.Import;
 import cn.taketoday.context.annotation.config.ImportAutoConfiguration;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.util.TestPropertyValues;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.web.server.context.AnnotationConfigWebServerApplicationContext;
-import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.view.AbstractTemplateViewResolver;
 import cn.taketoday.web.view.View;
 import cn.taketoday.web.view.freemarker.FreeMarkerConfig;
@@ -73,7 +73,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @Test
   void defaultViewResolution() throws Exception {
     load();
-    MockHttpServletResponse response = render("home");
+    MockHttpResponseImpl response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("text/html;charset=UTF-8");
@@ -82,7 +82,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @Test
   void customContentType() throws Exception {
     load("freemarker.contentType=application/json");
-    MockHttpServletResponse response = render("home");
+    MockHttpResponseImpl response = render("home");
     String result = response.getContentAsString();
     assertThat(result).contains("home");
     assertThat(response.getContentType()).isEqualTo("application/json;charset=UTF-8");
@@ -91,7 +91,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @Test
   void customPrefix() throws Exception {
     load("freemarker.prefix:prefix/");
-    MockHttpServletResponse response = render("prefixed");
+    MockHttpResponseImpl response = render("prefixed");
     String result = response.getContentAsString();
     assertThat(result).contains("prefixed");
   }
@@ -99,7 +99,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @Test
   void customSuffix() throws Exception {
     load("freemarker.suffix:.freemarker");
-    MockHttpServletResponse response = render("suffixed");
+    MockHttpResponseImpl response = render("suffixed");
     String result = response.getContentAsString();
     assertThat(result).contains("suffixed");
   }
@@ -107,7 +107,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
   @Test
   void customTemplateLoaderPath() throws Exception {
     load("freemarker.templateLoaderPath:classpath:/custom-templates/");
-    MockHttpServletResponse response = render("custom");
+    MockHttpResponseImpl response = render("custom");
     String result = response.getContentAsString();
     assertThat(result).contains("custom");
   }
@@ -153,15 +153,15 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     this.context.refresh();
   }
 
-  private MockHttpServletResponse render(String viewName) throws Exception {
+  private MockHttpResponseImpl render(String viewName) throws Exception {
     FreeMarkerViewResolver resolver = this.context.getBean(FreeMarkerViewResolver.class);
     View view = resolver.resolveViewName(viewName, Locale.UK);
     assertThat(view).isNotNull();
     HttpMockRequest request = new HttpMockRequestImpl();
-    request.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    request.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    ServletRequestContext requestContext = new ServletRequestContext(null, request, response);
+    MockRequestContext requestContext = new MockRequestContext(null, request, response);
     view.render(null, requestContext);
     return response;
   }

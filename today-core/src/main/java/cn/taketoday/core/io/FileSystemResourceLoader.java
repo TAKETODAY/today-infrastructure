@@ -42,7 +42,7 @@ public class FileSystemResourceLoader extends DefaultResourceLoader {
    * @param path the path to the resource
    * @return the corresponding Resource handle
    * @see FileSystemResource
-   * @see cn.taketoday.web.mock.support.ServletContextResourceLoader#getResourceByPath
+   * @see cn.taketoday.web.mock.support.MockContextResourceLoader#getResourceByPath
    */
   @Override
   protected Resource getResourceByPath(String path) {

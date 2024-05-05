@@ -31,7 +31,7 @@ import cn.taketoday.mock.api.DispatcherType;
  *
  * <h3>Integration with the Infra TestContext Framework</h3>
  * <p>Methods in this class will reuse a
- * {@link MockContextImpl MockServletContext}
+ * {@link MockContextImpl MockContext}
  * that was created by the Infra TestContext Framework.
  *
  * <h3>Eclipse Users</h3>

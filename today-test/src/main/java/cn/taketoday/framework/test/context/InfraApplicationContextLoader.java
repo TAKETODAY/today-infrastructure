@@ -263,15 +263,15 @@ public class InfraApplicationContextLoader extends AbstractContextLoader {
 
     void configure(MergedContextConfiguration configuration, Application application, List<ApplicationContextInitializer> initializers) {
       WebMergedContextConfiguration webConfiguration = (WebMergedContextConfiguration) configuration;
-      addMockServletContext(initializers, webConfiguration);
+      addMockContext(initializers, webConfiguration);
       application.setApplicationContextFactory(webApplicationType -> new GenericWebApplicationContext());
     }
 
-    private void addMockServletContext(List<ApplicationContextInitializer> initializers,
+    private void addMockContext(List<ApplicationContextInitializer> initializers,
             WebMergedContextConfiguration webConfiguration) {
       InfraMockContext servletContext = new InfraMockContext(
               webConfiguration.getResourceBasePath());
-      initializers.add(0, new ServletContextApplicationContextInitializer(servletContext, true));
+      initializers.add(0, new MockContextApplicationContextInitializer(servletContext, true));
     }
   }
 

@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.socket.WebSocketHandler;
 import cn.taketoday.web.socket.server.HandshakeFailureException;
 import cn.taketoday.web.socket.server.HandshakeHandler;
@@ -50,13 +50,13 @@ public class WebSocketHttpRequestHandlerTests {
 
   private final WebSocketHttpRequestHandler requestHandler = new WebSocketHttpRequestHandler(mock(WebSocketHandler.class), this.handshakeHandler);
 
-  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   @Test
   public void success() throws Throwable {
     TestInterceptor interceptor = new TestInterceptor(true);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
-    ServletRequestContext request = new ServletRequestContext(
+    MockRequestContext request = new MockRequestContext(
             null, new HttpMockRequestImpl(), this.response);
     this.requestHandler.handleRequest(request);
     request.requestCompleted();
@@ -73,7 +73,7 @@ public class WebSocketHttpRequestHandlerTests {
     given(this.handshakeHandler.doHandshake(any(), any(), any()))
             .willThrow(new IllegalStateException("bad state"));
 
-    ServletRequestContext request = new ServletRequestContext(
+    MockRequestContext request = new MockRequestContext(
             null, new HttpMockRequestImpl(), this.response);
     assertThatThrownBy(() -> this.requestHandler.handleRequest(request))
             .isInstanceOf(HandshakeFailureException.class)
@@ -91,7 +91,7 @@ public class WebSocketHttpRequestHandlerTests {
     TestInterceptor interceptor = new TestInterceptor(false);
     this.requestHandler.setHandshakeInterceptors(Collections.singletonList(interceptor));
 
-    ServletRequestContext request = new ServletRequestContext(
+    MockRequestContext request = new MockRequestContext(
             null, new HttpMockRequestImpl(), this.response);
     this.requestHandler.handleRequest(request);
     request.requestCompleted();

@@ -35,12 +35,12 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.HandlerExceptionHandler;
 import cn.taketoday.web.MethodNotAllowedException;
 import cn.taketoday.web.ResponseStatusException;
 import cn.taketoday.web.annotation.ResponseStatus;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,7 +54,7 @@ class ResponseStatusExceptionHandlerTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "");
 
-  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   @BeforeEach
   public void setup() {
@@ -111,7 +111,7 @@ class ResponseStatusExceptionHandlerTests {
 
   @Nullable
   private Object handleException(Exception ex) throws Exception {
-    ServletRequestContext context = new ServletRequestContext(null, request, response);
+    MockRequestContext context = new MockRequestContext(null, request, response);
     try {
       return exceptionHandler.handleException(context, ex, null);
     }

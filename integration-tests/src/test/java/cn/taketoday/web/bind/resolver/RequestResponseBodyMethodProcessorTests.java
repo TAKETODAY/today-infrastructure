@@ -73,9 +73,9 @@ import cn.taketoday.web.handler.method.JsonViewRequestBodyAdvice;
 import cn.taketoday.web.handler.method.JsonViewResponseBodyAdvice;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.json.MappingJackson2JsonView;
 
@@ -93,9 +93,9 @@ class RequestResponseBodyMethodProcessorTests {
 
   private HttpMockRequestImpl servletRequest;
 
-  private MockHttpServletResponse servletResponse;
+  private MockHttpResponseImpl servletResponse;
 
-  private ServletRequestContext request;
+  private MockRequestContext request;
 
   private ResolvableMethodParameter paramGenericList;
   private ResolvableMethodParameter paramSimpleBean;
@@ -109,8 +109,8 @@ class RequestResponseBodyMethodProcessorTests {
   public void setup() throws Throwable {
     servletRequest = new HttpMockRequestImpl();
     servletRequest.setMethod("POST");
-    servletResponse = new MockHttpServletResponse();
-    request = new ServletRequestContext(null, servletRequest, servletResponse);
+    servletResponse = new MockHttpResponseImpl();
+    request = new MockRequestContext(null, servletRequest, servletResponse);
 
     Method method = getClass().getDeclaredMethod("handle",
             List.class, SimpleBean.class, MultiValueMap.class, String.class);
@@ -847,8 +847,8 @@ class RequestResponseBodyMethodProcessorTests {
     }
 
     this.servletRequest = new HttpMockRequestImpl();
-    this.servletResponse = new MockHttpServletResponse();
-    this.request = new ServletRequestContext(null, servletRequest, servletResponse);
+    this.servletResponse = new MockHttpResponseImpl();
+    this.request = new MockRequestContext(null, servletRequest, servletResponse);
   }
 
   String handle(

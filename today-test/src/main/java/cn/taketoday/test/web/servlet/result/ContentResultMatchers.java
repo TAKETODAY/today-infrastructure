@@ -34,7 +34,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.test.util.JsonExpectationsHelper;
 import cn.taketoday.test.util.XmlExpectationsHelper;
 import cn.taketoday.test.web.servlet.ResultMatcher;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 import static cn.taketoday.test.util.AssertionErrors.assertEquals;
 import static cn.taketoday.test.util.AssertionErrors.assertNotNull;
@@ -124,7 +124,7 @@ public class ContentResultMatchers {
   /**
    * Assert the character encoding in the ServletResponse.
    *
-   * @see HttpServletResponse#getCharacterEncoding()
+   * @see HttpMockResponse#getCharacterEncoding()
    */
   public ResultMatcher encoding(String characterEncoding) {
     return result -> {

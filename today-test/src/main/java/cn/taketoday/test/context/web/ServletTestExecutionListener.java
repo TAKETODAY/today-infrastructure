@@ -26,15 +26,15 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.test.context.TestExecutionListener;
 import cn.taketoday.test.context.support.AbstractTestExecutionListener;
 import cn.taketoday.test.context.support.DependencyInjectionTestExecutionListener;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -46,7 +46,7 @@ import cn.taketoday.web.mock.WebApplicationContext;
  * state via Infra Web's {@link RequestContextHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
- * HttpMockRequestImpl}, {@link MockHttpServletResponse}, and
+ * HttpMockRequestImpl}, {@link MockHttpResponseImpl}, and
  * {@link cn.taketoday.web.RequestContext} based on the {@link MockContextImpl} present in
  * the {@code WebApplicationContext}. This listener also ensures that the
  * {@code MockHttpServletResponse} and {@code ServletWebRequest} can be injected
@@ -185,27 +185,26 @@ public class ServletTestExecutionListener extends AbstractTestExecutionListener 
     ApplicationContext context = testContext.getApplicationContext();
 
     if (context instanceof WebApplicationContext wac) {
-      MockContext mockContext = wac.getServletContext();
+      MockContext mockContext = wac.getMockContext();
       Assert.state(mockContext instanceof MockContextImpl,
               () -> String.format(
-                      "The WebApplicationContext for test context %s must be configured with a MockServletContext.", testContext));
+                      "The WebApplicationContext for test context %s must be configured with a MockContext.", testContext));
 
       logger.debug("Setting up MockHttpServletRequest, MockHttpServletResponse, ServletWebRequest, and RequestContextHolder for test context .",
               testContext);
 
-      MockContextImpl mockServletContext = (MockContextImpl) mockContext;
-      HttpMockRequestImpl request = new HttpMockRequestImpl(mockServletContext);
+      HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext);
       request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-      RequestContextHolder.set(new ServletRequestContext(wac, request, response));
+      RequestContextHolder.set(new MockRequestContext(wac, request, response));
 //      RequestContextHolder.setRequestAttributes(servletWebRequest);
       testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
       testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
 
       if (wac instanceof ConfigurableApplicationContext configurableApplicationContext) {
         ConfigurableBeanFactory bf = configurableApplicationContext.getBeanFactory();
-        bf.registerResolvableDependency(MockHttpServletResponse.class, response);
+        bf.registerResolvableDependency(MockHttpResponseImpl.class, response);
       }
     }
   }

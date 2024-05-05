@@ -41,10 +41,10 @@ import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletRegistration;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMock;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * Adapt {@link HttpHandler} to an {@link HttpMock} using Servlet Async support
@@ -148,7 +148,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
   }
 
   @Override
-  public void service(MockRequest request, ServletResponse response) throws ServletException, IOException {
+  public void service(MockRequest request, MockResponse response) throws ServletException, IOException {
     // Check for existing error attribute first
     if (DispatcherType.ASYNC == request.getDispatcherType()) {
       Throwable ex = (Throwable) request.getAttribute(WRITE_ERROR_ATTRIBUTE_NAME);
@@ -171,12 +171,12 @@ public class ServletHttpHandlerAdapter implements Servlet {
       if (logger.isDebugEnabled()) {
         logger.debug("Failed to get request  URL: {}", ex.getMessage());
       }
-      ((HttpServletResponse) response).setStatus(400);
+      ((HttpMockResponse) response).setStatus(400);
       asyncContext.complete();
       return;
     }
 
-    ServerHttpResponse httpResponse = createResponse(((HttpServletResponse) response), asyncContext, httpRequest);
+    ServerHttpResponse httpResponse = createResponse(((HttpMockResponse) response), asyncContext, httpRequest);
     AsyncListener responseListener = ((ServletServerHttpResponse) httpResponse).getAsyncListener();
     if (httpRequest.getMethod() == HttpMethod.HEAD) {
       httpResponse = new HttpHeadResponseDecorator(httpResponse);
@@ -200,7 +200,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
   }
 
   protected ServletServerHttpResponse createResponse(
-          HttpServletResponse response,
+          HttpMockResponse response,
           AsyncContext context, ServletServerHttpRequest request) throws IOException {
 
     return new ServletServerHttpResponse(response, context, getDataBufferFactory(), getBufferSize(), request);
@@ -378,7 +378,7 @@ public class ServletHttpHandlerAdapter implements Servlet {
           try {
             logger.trace("{}Setting ServletResponse status to 500 Server Error", this.logPrefix);
             this.asyncContext.getResponse().resetBuffer();
-            ((HttpServletResponse) this.asyncContext.getResponse()).setStatus(500);
+            ((HttpMockResponse) this.asyncContext.getResponse()).setStatus(500);
           }
           finally {
             this.asyncContext.complete();

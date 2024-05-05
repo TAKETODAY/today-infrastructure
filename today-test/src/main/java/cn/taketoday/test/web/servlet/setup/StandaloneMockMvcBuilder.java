@@ -384,7 +384,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
   }
 
   private void registerMvcSingletons(StubWebApplicationContext wac) {
-    MockContext sc = wac.getServletContext();
+    MockContext sc = wac.getMockContext();
     wac.addBeans(this);
 
     wac.addBeans(this.controllers);
@@ -425,7 +425,7 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
    * MVC infrastructure such as additional {@code HandlerMapping},
    * {@code HandlerAdapter}, and others.
    *
-   * @param mockContext the ServletContext
+   * @param mockContext the MockContext
    * @return a map with additional MVC infrastructure object instances
    */
   protected Map<String, Object> extendMvcSingletons(@Nullable MockContext mockContext) {

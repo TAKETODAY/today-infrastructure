@@ -26,7 +26,7 @@ import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * A {@link ServerHttpAsyncRequestControl} to use on Servlet containers (Servlet 3.0+).
@@ -87,7 +87,7 @@ public class ServletServerHttpAsyncRequestControl implements ServerHttpAsyncRequ
     }
 
     HttpMockRequest servletRequest = this.request.getServletRequest();
-    HttpServletResponse servletResponse = this.response.getServletResponse();
+    HttpMockResponse servletResponse = this.response.getServletResponse();
 
     this.asyncContext = servletRequest.startAsync(servletRequest, servletResponse);
     this.asyncContext.addListener(this);

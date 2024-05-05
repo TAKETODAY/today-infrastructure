@@ -76,9 +76,9 @@ public class DispatcherWacRootWacEarTests extends RootWacEarTests {
     boolean condition1 = grandParent instanceof WebApplicationContext;
     assertThat(condition1).isFalse();
 
-    MockContext dispatcherMockContext = wac.getServletContext();
+    MockContext dispatcherMockContext = wac.getMockContext();
     assertThat(dispatcherMockContext).isNotNull();
-    MockContext rootMockContext = ((WebApplicationContext) parent).getServletContext();
+    MockContext rootMockContext = ((WebApplicationContext) parent).getMockContext();
     assertThat(rootMockContext).isNotNull();
     assertThat(rootMockContext).isSameAs(dispatcherMockContext);
 

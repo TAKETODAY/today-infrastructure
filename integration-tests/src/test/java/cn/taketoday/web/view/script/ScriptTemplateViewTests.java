@@ -43,10 +43,10 @@ import cn.taketoday.context.ApplicationContextException;
 import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +80,7 @@ public class ScriptTemplateViewTests {
   @Test
   public void missingTemplate() throws Exception {
     MockContextImpl servletContext = new MockContextImpl();
-    this.wac.setServletContext(servletContext);
+    this.wac.setMockContext(servletContext);
     this.wac.refresh();
     this.view.setResourceLoaderPath("classpath:cn/taketoday/web/servlet/view/script/");
     this.view.setUrl("missing.txt");
@@ -226,10 +226,10 @@ public class ScriptTemplateViewTests {
   @Test // SPR-14210
   public void resourceLoaderPath() throws Exception {
     MockContextImpl servletContext = new MockContextImpl();
-    this.wac.setServletContext(servletContext);
+    this.wac.setMockContext(servletContext);
     this.wac.refresh();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     Map<String, Object> model = new HashMap<>();
     InvocableScriptEngine engine = mock(InvocableScriptEngine.class);
     given(engine.invokeFunction(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn("foo");
@@ -237,29 +237,29 @@ public class ScriptTemplateViewTests {
     this.view.setRenderFunction("render");
     this.view.setApplicationContext(this.wac);
     this.view.setUrl("cn/taketoday/web/servlet/view/script/empty.txt");
-    this.view.render(model, new ServletRequestContext(wac, request, response));
+    this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getContentAsString()).isEqualTo("foo");
 
-    response = new MockHttpServletResponse();
+    response = new MockHttpResponseImpl();
     this.view.setResourceLoaderPath("classpath:cn/taketoday/web/servlet/view/script/");
     this.view.setUrl("empty.txt");
-    this.view.render(model, new ServletRequestContext(wac, request, response));
+    this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getContentAsString()).isEqualTo("foo");
 
-    response = new MockHttpServletResponse();
+    response = new MockHttpResponseImpl();
     this.view.setResourceLoaderPath("classpath:cn/taketoday/web/servlet/view/script");
     this.view.setUrl("empty.txt");
-    this.view.render(model, new ServletRequestContext(wac, request, response));
+    this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getContentAsString()).isEqualTo("foo");
   }
 
   @Test // SPR-13379
   public void contentType() throws Exception {
     MockContextImpl servletContext = new MockContextImpl();
-    this.wac.setServletContext(servletContext);
+    this.wac.setMockContext(servletContext);
     this.wac.refresh();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     Map<String, Object> model = new HashMap<>();
     this.view.setEngine(Mockito.mock(InvocableScriptEngine.class));
     this.view.setRenderFunction("render");
@@ -267,19 +267,19 @@ public class ScriptTemplateViewTests {
     this.view.setUrl("empty.txt");
     this.view.setApplicationContext(this.wac);
 
-    this.view.render(model, new ServletRequestContext(wac, request, response));
+    this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo((MediaType.TEXT_HTML_VALUE + ";charset=" +
             StandardCharsets.UTF_8));
 
-    response = new MockHttpServletResponse();
+    response = new MockHttpResponseImpl();
     this.view.setContentType(MediaType.TEXT_PLAIN_VALUE);
-    this.view.render(model, new ServletRequestContext(wac, request, response));
+    this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo((MediaType.TEXT_PLAIN_VALUE + ";charset=" +
             StandardCharsets.UTF_8));
 
-    response = new MockHttpServletResponse();
+    response = new MockHttpResponseImpl();
     this.view.setCharset(StandardCharsets.ISO_8859_1);
-    this.view.render(model, new ServletRequestContext(wac, request, response));
+    this.view.render(model, new MockRequestContext(wac, request, response));
     assertThat(response.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo((MediaType.TEXT_PLAIN_VALUE + ";charset=" +
             StandardCharsets.ISO_8859_1));
 

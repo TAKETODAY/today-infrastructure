@@ -24,7 +24,7 @@ import java.util.List;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.bind.RequestBindingException;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -37,7 +37,7 @@ class RequestContextUtilsTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  RequestContext context = new ServletRequestContext(null, request, null);
+  RequestContext context = new MockRequestContext(null, request, null);
 
   @Test
   void testIntParameter() throws RequestBindingException {

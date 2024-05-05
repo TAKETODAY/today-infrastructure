@@ -279,7 +279,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * Configuration</em>" below).
    * <p>Otherwise the context hierarchy of the supplied WAC will be traversed
    * to find the top-most WAC (i.e., the root); and the {@link MockContextImpl}
-   * of the Root WAC will be set as the {@code ServletContext} for the supplied
+   * of the Root WAC will be set as the {@code MockContext} for the supplied
    * WAC.
    * <h4>Root WAC Configuration</h4>
    * <ul>
@@ -289,12 +289,12 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
    * if the resource base path is prefixed with "{@code classpath:}", a
    * {@link DefaultResourceLoader} will be used; otherwise, a
    * {@link FileSystemResourceLoader} will be used.</li>
-   * <li>A {@code MockServletContext} will be created using the resource base
+   * <li>A {@code MockContext} will be created using the resource base
    * path and resource loader.</li>
    * <li>The supplied {@link GenericWebApplicationContext} is then stored in
-   * the {@code MockServletContext} under the
+   * the {@code MockContext} under the
    * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.</li>
-   * <li>Finally, the {@code MockServletContext} is set in the
+   * <li>Finally, the {@code MockContext} is set in the
    * {@code WebApplicationContext}.</li>
    * </ul>
    *
@@ -314,7 +314,7 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
               new DefaultResourceLoader() : new FileSystemResourceLoader());
       MockContextImpl mockContext = new MockContextImpl(resourceBasePath, resourceLoader);
       mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
-      context.setServletContext(mockContext);
+      context.setMockContext(mockContext);
     }
     else {
       MockContext mockContext = null;
@@ -322,13 +322,13 @@ public abstract class AbstractGenericWebContextLoader extends AbstractContextLoa
       while (parent != null) {
         if (parent instanceof WebApplicationContext parentWac &&
                 !(parent.getParent() instanceof WebApplicationContext)) {
-          mockContext = parentWac.getServletContext();
+          mockContext = parentWac.getMockContext();
           break;
         }
         parent = parent.getParent();
       }
       Assert.state(mockContext != null, "Failed to find root WebApplicationContext in the context hierarchy");
-      context.setServletContext(mockContext);
+      context.setMockContext(mockContext);
     }
   }
 

@@ -42,10 +42,10 @@ import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,7 +227,7 @@ class DefaultServerResponseBuilderTests {
             .build();
 
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
     Object mav = getObject(response, mockRequest, mockResponse);
     assertThat(mav).isNull();
@@ -239,8 +239,8 @@ class DefaultServerResponseBuilderTests {
 
   @Nullable
   private static Object getObject(
-          ServerResponse response, HttpMockRequestImpl mockRequest, MockHttpServletResponse mockResponse) throws Throwable {
-    ServletRequestContext context = new ServletRequestContext(null, mockRequest, mockResponse);
+          ServerResponse response, HttpMockRequestImpl mockRequest, MockHttpResponseImpl mockResponse) throws Throwable {
+    MockRequestContext context = new MockRequestContext(null, mockRequest, mockResponse);
     try {
       return response.writeTo(context, EMPTY_CONTEXT);
     }
@@ -259,7 +259,7 @@ class DefaultServerResponseBuilderTests {
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
 
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
     Object mav = getObject(response, mockRequest, mockResponse);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -278,7 +278,7 @@ class DefaultServerResponseBuilderTests {
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
 
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
     Object mav = getObject(response, mockRequest, mockResponse);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     assertThat(mockResponse.getStatus()).isEqualTo(HttpStatus.NOT_MODIFIED.value());
@@ -290,9 +290,9 @@ class DefaultServerResponseBuilderTests {
     ServerResponse response = ServerResponse.ok().body(body);
 
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
-    ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
 
     Object mav = response.writeTo(requestContext, context);
 
@@ -308,10 +308,10 @@ class DefaultServerResponseBuilderTests {
     ServerResponse response = ServerResponse.ok().body(body, new ParameterizedTypeReference<List<String>>() { });
 
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
     ServerResponse.Context context = () -> Collections.singletonList(new MappingJackson2HttpMessageConverter());
 
-    ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
@@ -326,12 +326,12 @@ class DefaultServerResponseBuilderTests {
     ServerResponse response = ServerResponse.ok().body(completionStage);
 
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
     mockRequest.setAsyncSupported(true);
 
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
 
-    ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
@@ -346,12 +346,12 @@ class DefaultServerResponseBuilderTests {
     ServerResponse response = ServerResponse.ok().body(publisher);
 
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
     mockRequest.setAsyncSupported(true);
 
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
 
-    ServletRequestContext requestContext = new ServletRequestContext(null, mockRequest, mockResponse);
+    MockRequestContext requestContext = new MockRequestContext(null, mockRequest, mockResponse);
     Object mav = response.writeTo(requestContext, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 

@@ -32,8 +32,8 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -53,7 +53,7 @@ public class RedirectViewTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   private RequestContext context;
 
@@ -62,11 +62,11 @@ public class RedirectViewTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
     this.request = new HttpMockRequestImpl();
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
 
     context.refresh();
 
-    this.context = new ServletRequestContext(context, request, response);
+    this.context = new MockRequestContext(context, request, response);
   }
 
   @Test
@@ -132,10 +132,10 @@ public class RedirectViewTests {
   public void contextRelativeWithValidatedContextPath() throws Exception {
     String url = "/myUrl";
 
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
     this.context = null;
     doTest(new HashMap<>(), url, true, url);
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
     this.context = null;
     doTest(new HashMap<>(), url, true, url);
   }
@@ -283,7 +283,7 @@ public class RedirectViewTests {
           throws Exception {
     if (this.context == null) {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-      this.context = new ServletRequestContext(context, request, response);
+      this.context = new MockRequestContext(context, request, response);
     }
 
     TestRedirectView rv = new TestRedirectView(url, contextRelative, map);

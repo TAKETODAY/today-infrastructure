@@ -29,7 +29,7 @@ import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.core.io.UrlResource;
 import cn.taketoday.lang.NonNull;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,15 +155,15 @@ public class PathResourceResolverTests {
 
     // UTF-8 by default
     this.resolver.setLocationCharsets(Collections.emptyMap());
-    ServletRequestContext request = getContext();
+    MockRequestContext request = getContext();
     this.resolver.resolveResource(request, "/Ä ;ä.txt", locations, null);
 
     assertThat(location.getSavedRelativePath()).isEqualTo("%C3%84%20%3B%C3%A4.txt");
   }
 
   @NonNull
-  private ServletRequestContext getContext() {
-    return new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+  private MockRequestContext getContext() {
+    return new MockRequestContext(null, new HttpMockRequestImpl(), null);
   }
 
   private Resource getResource(String filePath) {

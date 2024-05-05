@@ -29,12 +29,12 @@ import cn.taketoday.util.CollectionUtils;
  *
  * @author Chris Beams
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see ServletConfigPropertySource
+ * @see MockConfigPropertySource
  * @since 4.0 2022/2/20 17:10
  */
-public class ServletContextPropertySource extends EnumerablePropertySource<MockContext> {
+public class MockContextPropertySource extends EnumerablePropertySource<MockContext> {
 
-  public ServletContextPropertySource(String name, MockContext mockContext) {
+  public MockContextPropertySource(String name, MockContext mockContext) {
     super(name, mockContext);
   }
 

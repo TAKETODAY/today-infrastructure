@@ -29,15 +29,15 @@ import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.web.mock.ConfigurableWebEnvironment;
-import cn.taketoday.web.mock.ServletConfigPropertySource;
-import cn.taketoday.web.mock.ServletContextPropertySource;
+import cn.taketoday.web.mock.MockConfigPropertySource;
+import cn.taketoday.web.mock.MockContextPropertySource;
 
 /**
  * {@link Environment} implementation to be used by {@code Servlet}-based web
  * applications. All web-related (servlet-based) {@code ApplicationContext} classes
  * initialize an instance by default.
  *
- * <p>Contributes {@code ServletConfig}, {@code ServletContext}, and JNDI-based
+ * <p>Contributes {@code ServletConfig}, {@code MockContext}, and JNDI-based
  * {@link PropertySource} instances. See {@link #customizePropertySources} method
  * documentation for details.
  *
@@ -98,8 +98,8 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
    *
    * @see StandardEnvironment#customizePropertySources
    * @see cn.taketoday.core.env.AbstractEnvironment#customizePropertySources
-   * @see ServletConfigPropertySource
-   * @see ServletContextPropertySource
+   * @see MockConfigPropertySource
+   * @see MockContextPropertySource
    * @see cn.taketoday.jndi.JndiPropertySource
    * @see cn.taketoday.context.support.AbstractApplicationContext#initPropertySources
    * @see #initPropertySources(MockContext, MockConfig)

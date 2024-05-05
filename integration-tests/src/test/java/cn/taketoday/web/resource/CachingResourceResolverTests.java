@@ -30,7 +30,7 @@ import cn.taketoday.cache.concurrent.ConcurrentMapCache;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.web.resource.GzipSupport.GzippedFiles;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -119,7 +119,7 @@ public class CachingResourceResolverTests {
     // 1. Resolve plain resource
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", file);
-    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+    MockRequestContext requestContext = new MockRequestContext(null, request, null);
 
     Resource expected = this.chain.resolveResource(requestContext, file, this.locations);
 
@@ -130,7 +130,7 @@ public class CachingResourceResolverTests {
 
     request = new HttpMockRequestImpl("GET", file);
     request.addHeader("Accept-Encoding", "gzip ; a=b  , deflate ,  br  ; c=d ");
-    requestContext = new ServletRequestContext(null, request, null);
+    requestContext = new MockRequestContext(null, request, null);
 
     expected = this.chain.resolveResource(requestContext, file, this.locations);
 
@@ -141,7 +141,7 @@ public class CachingResourceResolverTests {
 
     request = new HttpMockRequestImpl("GET", file);
     request.addHeader("Accept-Encoding", "deflate");
-    requestContext = new ServletRequestContext(null, request, null);
+    requestContext = new MockRequestContext(null, request, null);
 
     expected = this.chain.resolveResource(requestContext, file, this.locations);
 
@@ -153,7 +153,7 @@ public class CachingResourceResolverTests {
   public void resolveResourceNoAcceptEncoding() {
     String file = "bar.css";
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", file);
-    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+    MockRequestContext requestContext = new MockRequestContext(null, request, null);
 
     Resource expected = this.chain.resolveResource(requestContext, file, this.locations);
 
@@ -171,13 +171,13 @@ public class CachingResourceResolverTests {
     this.cache.put(resourceKey("bar.css+encoding=gzip"), gzipped);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "bar.css");
-    ServletRequestContext requestContext = new ServletRequestContext(null, request, null);
+    MockRequestContext requestContext = new MockRequestContext(null, request, null);
 
     assertThat(this.chain.resolveResource(requestContext, "bar.css", this.locations)).isSameAs(resource);
 
     request = new HttpMockRequestImpl("GET", "bar.css");
     request.addHeader("Accept-Encoding", "gzip");
-    requestContext = new ServletRequestContext(null, request, null);
+    requestContext = new MockRequestContext(null, request, null);
 
     assertThat(this.chain.resolveResource(requestContext, "bar.css", this.locations)).isSameAs(gzipped);
   }

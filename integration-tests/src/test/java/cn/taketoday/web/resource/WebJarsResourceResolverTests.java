@@ -28,9 +28,9 @@ import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ public class WebJarsResourceResolverTests {
 
   private final HttpMockRequest request = new HttpMockRequestImpl();
 
-  private ServletRequestContext requestContext;
+  private MockRequestContext requestContext;
 
   @BeforeEach
   public void setup() {
@@ -64,7 +64,7 @@ public class WebJarsResourceResolverTests {
     this.locations = Collections.singletonList(new ClassPathResource("/META-INF/resources/webjars"));
     this.resolver = new WebJarsResourceResolver();
     this.chain = mock(ResourceResolvingChain.class);
-    this.requestContext = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    this.requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
   }
 
   @Test

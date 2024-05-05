@@ -38,7 +38,7 @@ public interface MockContextAware extends Aware {
    * custom init-method. Invoked after ApplicationContextAware's
    * {@code setApplicationContext}.
    *
-   * @param mockContext the ServletContext object to be used by this object
+   * @param mockContext the MockContext object to be used by this object
    * @see cn.taketoday.beans.factory.InitializingBean#afterPropertiesSet
    * @see ApplicationContextAware#setApplicationContext
    */

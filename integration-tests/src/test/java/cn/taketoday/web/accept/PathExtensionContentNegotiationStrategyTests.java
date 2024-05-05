@@ -29,7 +29,7 @@ import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBeanTests.TestMockContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -43,7 +43,7 @@ class PathExtensionContentNegotiationStrategyTests {
 
   private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
-  private final RequestContext webRequest = new ServletRequestContext(null, servletRequest, null);
+  private final RequestContext webRequest = new MockRequestContext(null, servletRequest, null);
 
   private PathExtensionContentNegotiationStrategy strategy = new PathExtensionContentNegotiationStrategy();
 

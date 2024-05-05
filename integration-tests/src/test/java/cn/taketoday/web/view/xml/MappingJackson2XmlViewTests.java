@@ -45,9 +45,9 @@ import java.util.TreeMap;
 
 import cn.taketoday.http.MediaType;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.view.View;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,12 +63,12 @@ public class MappingJackson2XmlViewTests {
 
   private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private MockHttpServletResponse response = new MockHttpServletResponse();
+  private MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   private Context jsContext = ContextFactory.getGlobal().enterContext();
 
   private ScriptableObject jsScope = jsContext.initStandardObjects();
-  RequestContext context = new ServletRequestContext(null, request, response);
+  RequestContext context = new MockRequestContext(null, request, response);
 
   @Test
   public void isExposePathVars() {
@@ -79,7 +79,7 @@ public class MappingJackson2XmlViewTests {
   public void renderSimpleMap() throws Exception {
     Map<String, Object> model = new HashMap<>();
     model.put("foo", "bar");
-    RequestContext context = new ServletRequestContext(null, request, response);
+    RequestContext context = new MockRequestContext(null, request, response);
 
     view.setUpdateContentLength(true);
     view.render(model, context);
@@ -100,7 +100,7 @@ public class MappingJackson2XmlViewTests {
   public void renderWithSelectedContentType() throws Exception {
     Map<String, Object> model = new HashMap<>();
     model.put("foo", "bar");
-    RequestContext context = new ServletRequestContext(null, request, response);
+    RequestContext context = new MockRequestContext(null, request, response);
 
     view.render(model, context);
     MediaType mediaType = MediaType.parseMediaType(response.getContentType());

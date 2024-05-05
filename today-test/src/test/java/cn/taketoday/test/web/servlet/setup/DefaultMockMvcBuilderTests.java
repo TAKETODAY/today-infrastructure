@@ -69,7 +69,7 @@ public class DefaultMockMvcBuilderTests {
 
     StaticWebApplicationContext child = new StaticWebApplicationContext();
     child.setParent(root);
-    child.setServletContext(this.servletContext);
+    child.setMockContext(this.servletContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(child);
     assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.servletContext)).isSameAs(builder.initWebAppContext().getParent());
@@ -95,10 +95,10 @@ public class DefaultMockMvcBuilderTests {
     StaticApplicationContext ear = new StaticApplicationContext();
     StaticWebApplicationContext root = new StaticWebApplicationContext();
     root.setParent(ear);
-    root.setServletContext(this.servletContext);
+    root.setMockContext(this.servletContext);
     StaticWebApplicationContext dispatcher = new StaticWebApplicationContext();
     dispatcher.setParent(root);
-    dispatcher.setServletContext(this.servletContext);
+    dispatcher.setMockContext(this.servletContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(dispatcher);
     ApplicationContext wac = builder.initWebAppContext();

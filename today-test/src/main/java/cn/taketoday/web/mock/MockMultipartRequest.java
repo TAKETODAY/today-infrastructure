@@ -39,7 +39,7 @@ import cn.taketoday.mock.api.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 17:22
  */
-public class ServletMultipartRequest extends AbstractMultipartRequest {
+public class MockMultipartRequest extends AbstractMultipartRequest {
 
   private final HttpMockRequest request;
 
@@ -50,7 +50,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
    * @param request the servlet request to wrap
    * @throws MultipartException if parsing failed
    */
-  public ServletMultipartRequest(HttpMockRequest request) throws MultipartException {
+  public MockMultipartRequest(HttpMockRequest request) throws MultipartException {
     this(request, true);
   }
 
@@ -62,7 +62,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
    * first access of multipart files or parameters
    * @throws MultipartException if an immediate parsing attempt failed
    */
-  public ServletMultipartRequest(HttpMockRequest request, boolean lazyParsing) throws MultipartException {
+  public MockMultipartRequest(HttpMockRequest request, boolean lazyParsing) throws MultipartException {
     this.request = request;
     if (!lazyParsing) {
       parseRequest(request);
@@ -78,7 +78,7 @@ public class ServletMultipartRequest extends AbstractMultipartRequest {
         String headerValue = part.getHeader(HttpHeaders.CONTENT_DISPOSITION);
         ContentDisposition disposition = ContentDisposition.parse(headerValue);
         String filename = disposition.getFilename();
-        files.add(part.getName(), new ServletMultipartFile(part, filename));
+        files.add(part.getName(), new MockMultipartFile(part, filename));
       }
       return files;
     }

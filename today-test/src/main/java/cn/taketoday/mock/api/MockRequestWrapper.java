@@ -320,8 +320,8 @@ public class MockRequestWrapper implements MockRequest {
    * @since Servlet 3.0
    */
   @Override
-  public MockContext getServletContext() {
-    return request.getServletContext();
+  public MockContext getMockContext() {
+    return request.getMockContext();
   }
 
   /**
@@ -342,24 +342,24 @@ public class MockRequestWrapper implements MockRequest {
   }
 
   /**
-   * The default behavior of this method is to invoke {@link MockRequest#startAsync(MockRequest, ServletResponse)}
+   * The default behavior of this method is to invoke {@link MockRequest#startAsync(MockRequest, MockResponse)}
    * on the wrapped request object.
    *
    * @param mockRequest the ServletRequest used to initialize the AsyncContext
-   * @param servletResponse the ServletResponse used to initialize the AsyncContext
+   * @param mockResponse the ServletResponse used to initialize the AsyncContext
    * @return the (re)initialized AsyncContext
    * @throws IllegalStateException if the request is within the scope of a filter or servlet that does not support
    * asynchronous operations (that is, {@link #isAsyncSupported} returns false), or if this method is called again without
    * any asynchronous dispatch (resulting from one of the {@link AsyncContext#dispatch} methods), is called outside the
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
-   * @see MockRequest#startAsync(MockRequest, ServletResponse)
+   * @see MockRequest#startAsync(MockRequest, MockResponse)
    * @since Servlet 3.0
    */
   @Override
-  public AsyncContext startAsync(MockRequest mockRequest, ServletResponse servletResponse)
+  public AsyncContext startAsync(MockRequest mockRequest, MockResponse mockResponse)
           throws IllegalStateException {
-    return request.startAsync(mockRequest, servletResponse);
+    return request.startAsync(mockRequest, mockResponse);
   }
 
   /**
@@ -388,12 +388,12 @@ public class MockRequestWrapper implements MockRequest {
 
   /**
    * Gets the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(MockRequest, ServletResponse)} on the wrapped request.
+   * {@link #startAsync(MockRequest, MockResponse)} on the wrapped request.
    *
    * @return the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(MockRequest, ServletResponse)} on the wrapped request
+   * {@link #startAsync(MockRequest, MockResponse)} on the wrapped request
    * @throws IllegalStateException if this request has not been put into asynchronous mode, i.e., if neither
-   * {@link #startAsync} nor {@link #startAsync(MockRequest, ServletResponse)} has been called
+   * {@link #startAsync} nor {@link #startAsync(MockRequest, MockResponse)} has been called
    * @see MockRequest#getAsyncContext
    * @since Servlet 3.0
    */

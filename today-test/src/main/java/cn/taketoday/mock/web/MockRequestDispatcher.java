@@ -22,8 +22,8 @@ import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
+import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.http.HttpMockResponseWrapper;
 
 /**
  * Mock implementation of the {@link RequestDispatcher} interface.
@@ -52,7 +52,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
   }
 
   @Override
-  public void forward(MockRequest request, ServletResponse response) {
+  public void forward(MockRequest request, MockResponse response) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     Assert.state(!response.isCommitted(), "Cannot perform forward - response is already committed");
@@ -63,7 +63,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
   }
 
   @Override
-  public void include(MockRequest request, ServletResponse response) {
+  public void include(MockRequest request, MockResponse response) {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     getMockHttpServletResponse(response).addIncludedUrl(this.resource);
@@ -73,15 +73,15 @@ public class MockRequestDispatcher implements RequestDispatcher {
   }
 
   /**
-   * Obtain the underlying {@link MockHttpServletResponse}, unwrapping
-   * {@link HttpServletResponseWrapper} decorators if necessary.
+   * Obtain the underlying {@link MockHttpResponseImpl}, unwrapping
+   * {@link HttpMockResponseWrapper} decorators if necessary.
    */
-  protected MockHttpServletResponse getMockHttpServletResponse(ServletResponse response) {
-    if (response instanceof MockHttpServletResponse) {
-      return (MockHttpServletResponse) response;
+  protected MockHttpResponseImpl getMockHttpServletResponse(MockResponse response) {
+    if (response instanceof MockHttpResponseImpl) {
+      return (MockHttpResponseImpl) response;
     }
-    if (response instanceof HttpServletResponseWrapper) {
-      return getMockHttpServletResponse(((HttpServletResponseWrapper) response).getResponse());
+    if (response instanceof HttpMockResponseWrapper) {
+      return getMockHttpServletResponse(((HttpMockResponseWrapper) response).getResponse());
     }
     throw new IllegalArgumentException("MockRequestDispatcher requires MockHttpServletResponse");
   }

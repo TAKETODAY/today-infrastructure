@@ -23,16 +23,16 @@ import java.util.Properties;
 
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.web.mock.MockForwardingController;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.MockWrappingController;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
@@ -56,7 +56,7 @@ class ControllerTests {
     // We don't care about the params.
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.refresh();
-    ServletRequestContext context = new ServletRequestContext(wac, new HttpMockRequestImpl("GET", "foo.html"), new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(wac, new HttpMockRequestImpl("GET", "foo.html"), new MockHttpResponseImpl());
     ModelAndView mv = (ModelAndView) pvc.handleRequest(context);
     assertThat(mv.getModel().size() == 0).as("model has no data").isTrue();
     assertThat(mv.getViewName().equals(viewName)).as("model has correct viewname").isTrue();
@@ -88,7 +88,7 @@ class ControllerTests {
           throws Throwable {
 
     HttpMockRequest request = mock(HttpMockRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
+    HttpMockResponse response = mock(HttpMockResponse.class);
     MockContext context = mock(MockContext.class);
     RequestDispatcher dispatcher = mock(RequestDispatcher.class);
 
@@ -102,14 +102,14 @@ class ControllerTests {
     }
 
     StaticWebApplicationContext sac = new StaticWebApplicationContext();
-    sac.setServletContext(context);
+    sac.setMockContext(context);
     sfc.setApplicationContext(sac);
 
     sfc.setMockContext(context);
 
-    ServletRequestContext servletRequestContext = new ServletRequestContext(sac, request, response);
+    MockRequestContext mockRequestContext = new MockRequestContext(sac, request, response);
 
-    assertThat(sfc.handleRequest(servletRequestContext)).isNull();
+    assertThat(sfc.handleRequest(mockRequestContext)).isNull();
 
     if (include) {
       verify(dispatcher).include(request, response);
@@ -122,7 +122,7 @@ class ControllerTests {
   @Test
   public void servletWrappingController() throws Throwable {
     HttpMockRequest request = new HttpMockRequestImpl("GET", "/somePath");
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
     swc.setServletClass(TestServlet.class);
@@ -137,9 +137,9 @@ class ControllerTests {
     assertThat(TestServlet.config.getInitParameter("config")).isEqualTo("myValue");
     assertThat(TestServlet.request).isNull();
     assertThat(TestServlet.destroyed).isFalse();
-    ServletRequestContext servletRequestContext = new ServletRequestContext(null, request, response);
+    MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
 
-    assertThat(swc.handleRequest(servletRequestContext)).isNull();
+    assertThat(swc.handleRequest(mockRequestContext)).isNull();
     assertThat(TestServlet.request).isEqualTo(request);
     assertThat(TestServlet.response).isEqualTo(response);
     assertThat(TestServlet.destroyed).isFalse();
@@ -151,7 +151,7 @@ class ControllerTests {
   @Test
   public void servletWrappingControllerWithBeanName() throws Throwable {
     HttpMockRequest request = new HttpMockRequestImpl("GET", "/somePath");
-    HttpServletResponse response = new MockHttpServletResponse();
+    HttpMockResponse response = new MockHttpResponseImpl();
 
     MockWrappingController swc = new MockWrappingController();
     swc.setServletClass(TestServlet.class);
@@ -162,9 +162,9 @@ class ControllerTests {
     assertThat(TestServlet.config.getMockName()).isEqualTo("action");
     assertThat(TestServlet.request).isNull();
     assertThat(TestServlet.destroyed).isFalse();
-    ServletRequestContext servletRequestContext = new ServletRequestContext(null, request, response);
+    MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
 
-    assertThat(swc.handleRequest(servletRequestContext)).isNull();
+    assertThat(swc.handleRequest(mockRequestContext)).isNull();
     assertThat(TestServlet.request).isEqualTo(request);
     assertThat(TestServlet.response).isEqualTo(response);
     assertThat(TestServlet.destroyed).isFalse();
@@ -177,7 +177,7 @@ class ControllerTests {
 
     private static MockConfig config;
     private static MockRequest request;
-    private static ServletResponse response;
+    private static MockResponse response;
     private static boolean destroyed;
 
     public TestServlet() {
@@ -198,9 +198,9 @@ class ControllerTests {
     }
 
     @Override
-    public void service(MockRequest mockRequest, ServletResponse servletResponse) {
+    public void service(MockRequest mockRequest, MockResponse mockResponse) {
       request = mockRequest;
-      response = servletResponse;
+      response = mockResponse;
     }
 
     @Override

@@ -254,7 +254,7 @@ public class FreeMarkerConfigurationFactory {
    * File system access enables hot detection of template changes.
    * <p>If this is enabled, FreeMarkerConfigurationFactory will try to resolve
    * the specified "templateLoaderPath" as file system resource (which will work
-   * for expanded class path resources and ServletContext resources too).
+   * for expanded class path resources and MockContext resources too).
    * <p>Default is "true". Turn this off to always load via InfraTemplateLoader
    * (i.e. as stream, without hot detection of template changes), which might
    * be necessary if some of your templates reside in an expanded classes

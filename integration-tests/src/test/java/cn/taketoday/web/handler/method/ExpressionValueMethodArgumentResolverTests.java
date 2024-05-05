@@ -27,10 +27,10 @@ import cn.taketoday.beans.factory.annotation.Value;
 import cn.taketoday.core.DefaultParameterNameDiscoverer;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.bind.resolver.ExpressionValueMethodArgumentResolver;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class ExpressionValueMethodArgumentResolverTests {
   private ResolvableMethodParameter paramNotSupported;
   HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   @BeforeEach
   @SuppressWarnings("resource")
@@ -71,7 +71,7 @@ public class ExpressionValueMethodArgumentResolverTests {
     paramContextPath.getParameter().initParameterNameDiscovery(discoverer);
     paramNotSupported.getParameter().initParameterNameDiscovery(discoverer);
 
-    webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
     // Expose request to the current thread (for SpEL expressions)
     RequestContextHolder.set(webRequest);

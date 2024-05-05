@@ -30,7 +30,7 @@ import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -46,7 +46,7 @@ class ModelMethodProcessorTests {
   private MethodParameter paramModel;
   private MethodParameter redirectModelParam;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   HandlerMethod redirectModelHandler;
 
@@ -60,7 +60,7 @@ class ModelMethodProcessorTests {
     paramModel = new MethodParameter(method, 0);
     redirectModelParam = new MethodParameter(redirectModel, 0);
 
-    webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
     webRequest.setBinding(new BindingContext());
   }
 

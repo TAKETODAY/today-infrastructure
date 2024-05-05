@@ -143,9 +143,9 @@ public class JavaConfigTests {
     assertThat(parent).isInstanceOf(WebApplicationContext.class);
     WebApplicationContext root = (WebApplicationContext) parent;
 
-    MockContext childMockContext = wac.getServletContext();
+    MockContext childMockContext = wac.getMockContext();
     assertThat(childMockContext).isNotNull();
-    MockContext rootMockContext = root.getServletContext();
+    MockContext rootMockContext = root.getMockContext();
     assertThat(rootMockContext).isNotNull();
     assertThat(rootMockContext).isSameAs(childMockContext);
 

@@ -189,7 +189,7 @@ Resource template = loader.getResource("some/resource/path/myTemplate.txt");
 
 针对 `ClassPathXmlApplicationContext`，该代码返回 `ClassPathResource`。 如果
 对 `FileSystemXmlApplicationContext` 实例运行相同的方法，它会返回一个 `FileSystemResource`。
-对于 `WebApplicationContext`，它将返回 `ServletContextResource`。 它同样会为每个上下文返回适当的对象。
+对于 `WebApplicationContext`，它将返回 `MockContextResource`。 它同样会为每个上下文返回适当的对象。
 
 因此，你可以使用特定的加载器去获取不同类型的资源。
 
@@ -353,7 +353,7 @@ public class MyBean {
 ----
 
 请注意，资源路径没有前缀。因此 `ApplicationContext` 本身将被用作 `ResourceLoader`，资源可能是
-`ClassPathResource`、`FileSystemResource` 或 `ServletContextResource`，具体取决于
+`ClassPathResource`、`FileSystemResource` 或 `MockContextResource`，具体取决于
 应用程序上下文的确切类型。
 
 如果需要强制使用特定的 `Resource` 类型，可以使用前缀。这以下两个示例展示了如何强制使用 `ClassPathResource`

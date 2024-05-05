@@ -33,12 +33,12 @@ import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
-import cn.taketoday.web.mock.ServletConfigPropertySource;
-import cn.taketoday.web.mock.ServletContextPropertySource;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockConfigPropertySource;
+import cn.taketoday.web.mock.MockContextPropertySource;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
@@ -62,7 +62,7 @@ public class WebApplicationContextUtils {
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *
-   * @param sc the ServletContext to find the web application context for
+   * @param sc the MockContext to find the web application context for
    * @return the root WebServletApplicationContext for this web app
    * @throws IllegalStateException if the root WebServletApplicationContext could not be found
    * @see WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
@@ -80,7 +80,7 @@ public class WebApplicationContextUtils {
    * <p>Will rethrow an exception that happened on root context startup,
    * to differentiate between a failed context startup and no context at all.
    *
-   * @param sc the ServletContext to find the web application context for
+   * @param sc the MockContext to find the web application context for
    * @return the root WebServletApplicationContext for this web app, or {@code null} if none
    * @see WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE
    */
@@ -92,13 +92,13 @@ public class WebApplicationContextUtils {
   /**
    * Find a custom {@code WebServletApplicationContext} for this web app.
    *
-   * @param sc the ServletContext to find the web application context for
-   * @param attrName the name of the ServletContext attribute to look for
+   * @param sc the MockContext to find the web application context for
+   * @param attrName the name of the MockContext attribute to look for
    * @return the desired WebServletApplicationContext for this web app, or {@code null} if none
    */
   @Nullable
   public static WebApplicationContext getWebApplicationContext(MockContext sc, String attrName) {
-    Assert.notNull(sc, "ServletContext is required");
+    Assert.notNull(sc, "MockContext is required");
     Object attr = sc.getAttribute(attrName);
     if (attr instanceof WebApplicationContext) {
       return (WebApplicationContext) attr;
@@ -121,14 +121,14 @@ public class WebApplicationContextUtils {
   /**
    * Find a unique {@code WebServletApplicationContext} for this web app: either the
    * root web app context (preferred) or a unique {@code WebServletApplicationContext}
-   * among the registered {@code ServletContext} attributes (typically coming
+   * among the registered {@code MockContext} attributes (typically coming
    * from a single {@code DispatcherServlet} in the current web application).
    * <p>Note that {@code DispatcherServlet}'s exposure of its context can be
    * controlled through its {@code publishContext} property, which is {@code true}
    * by default but can be selectively switched to only publish a single context
    * despite multiple {@code DispatcherServlet} registrations in the web app.
    *
-   * @param sc the ServletContext to find the web application context for
+   * @param sc the MockContext to find the web application context for
    * @return the desired WebServletApplicationContext for this web app, or {@code null} if none
    * @see #getWebApplicationContext(MockContext)
    * @see MockContext#getAttributeNames()
@@ -168,7 +168,7 @@ public class WebApplicationContextUtils {
    * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param beanFactory the BeanFactory to configure
-   * @param sc the ServletContext that we're running within
+   * @param sc the MockContext that we're running within
    */
   public static void registerWebApplicationScopes(
           ConfigurableBeanFactory beanFactory, @Nullable MockContext sc) {
@@ -180,7 +180,7 @@ public class WebApplicationContextUtils {
 
     beanFactory.registerResolvableDependency(HttpSession.class, new SessionObjectSupplier());
     beanFactory.registerResolvableDependency(MockRequest.class, new RequestObjectSupplier());
-    beanFactory.registerResolvableDependency(ServletResponse.class, new ResponseObjectSupplier());
+    beanFactory.registerResolvableDependency(MockResponse.class, new ResponseObjectSupplier());
 
   }
 
@@ -189,7 +189,7 @@ public class WebApplicationContextUtils {
    * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param bf the BeanFactory to configure
-   * @param sc the ServletContext that we're running within
+   * @param sc the MockContext that we're running within
    */
   public static void registerEnvironmentBeans(ConfigurableBeanFactory bf, @Nullable MockContext sc) {
     registerEnvironmentBeans(bf, sc, null);
@@ -200,7 +200,7 @@ public class WebApplicationContextUtils {
    * with the given BeanFactory, as used by the WebServletApplicationContext.
    *
    * @param bf the BeanFactory to configure
-   * @param mockContext the ServletContext that we're running within
+   * @param mockContext the MockContext that we're running within
    * @param mockConfig the ServletConfig
    */
   public static void registerEnvironmentBeans(ConfigurableBeanFactory bf,
@@ -284,11 +284,11 @@ public class WebApplicationContextUtils {
 
     String name = StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME;
     if (mockContext != null && sources.get(name) instanceof StubPropertySource) {
-      sources.replace(name, new ServletContextPropertySource(name, mockContext));
+      sources.replace(name, new MockContextPropertySource(name, mockContext));
     }
     name = StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME;
     if (mockConfig != null && sources.get(name) instanceof StubPropertySource) {
-      sources.replace(name, new ServletConfigPropertySource(name, mockConfig));
+      sources.replace(name, new MockConfigPropertySource(name, mockConfig));
     }
   }
 
@@ -300,7 +300,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public MockRequest get() {
-      return ServletUtils.getServletRequest(RequestContextHolder.get());
+      return MockUtils.getServletRequest(RequestContextHolder.get());
     }
 
     @Override
@@ -314,11 +314,11 @@ public class WebApplicationContextUtils {
    * Factory that exposes the current response object on demand.
    */
   @SuppressWarnings("serial")
-  private static class ResponseObjectSupplier implements Supplier<ServletResponse>, Serializable {
+  private static class ResponseObjectSupplier implements Supplier<MockResponse>, Serializable {
 
     @Override
-    public ServletResponse get() {
-      return ServletUtils.getServletResponse(RequestContextHolder.get());
+    public MockResponse get() {
+      return MockUtils.getServletResponse(RequestContextHolder.get());
     }
 
     @Override
@@ -335,7 +335,7 @@ public class WebApplicationContextUtils {
 
     @Override
     public HttpSession get() {
-      return ServletUtils.getHttpSession(RequestContextHolder.get());
+      return MockUtils.getHttpSession(RequestContextHolder.get());
     }
 
     @Override

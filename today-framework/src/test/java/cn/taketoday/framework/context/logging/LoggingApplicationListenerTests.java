@@ -574,7 +574,6 @@ class LoggingApplicationListenerTests {
     assertTraceEnabled("cn.taketoday.http", true);
     assertTraceEnabled("cn.taketoday.web", true);
     assertTraceEnabled("cn.taketoday.actuate.endpoint.web", true);
-    assertTraceEnabled("cn.taketoday.framework.web.servlet.ServletContextInitializerBeans", true);
   }
 
   @Test

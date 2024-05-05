@@ -24,12 +24,12 @@ import java.util.HashSet;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.SessionManager;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.ui.ModelMap;
 
 import static java.util.Arrays.asList;
@@ -47,8 +47,8 @@ class SessionAttributesHandlerTests {
           SessionAttributeHandler.class, sessionAttributeStore);
   AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SessionConfig.class);
 
-  private final ServletRequestContext request = new ServletRequestContext(
-          context, new HttpMockRequestImpl(), new MockHttpServletResponse());
+  private final MockRequestContext request = new MockRequestContext(
+          context, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
   @EnableWebSession
   static class SessionConfig {

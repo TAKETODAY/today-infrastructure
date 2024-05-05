@@ -61,7 +61,7 @@ public class MockMockConfig implements MockConfig {
   /**
    * Create a new MockServletConfig.
    *
-   * @param mockContext the ServletContext that the servlet runs in
+   * @param mockContext the MockContext that the servlet runs in
    */
   public MockMockConfig(@Nullable MockContext mockContext) {
     this(mockContext, "");
@@ -70,7 +70,7 @@ public class MockMockConfig implements MockConfig {
   /**
    * Create a new MockServletConfig.
    *
-   * @param mockContext the ServletContext that the servlet runs in
+   * @param mockContext the MockContext that the servlet runs in
    * @param servletName the name of the servlet
    */
   public MockMockConfig(@Nullable MockContext mockContext, String servletName) {

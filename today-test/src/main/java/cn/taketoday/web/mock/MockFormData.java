@@ -34,13 +34,13 @@ import cn.taketoday.mock.api.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/5/13 11:05
  */
-public final class ServletFormData extends AbstractMultipart {
+public final class MockFormData extends AbstractMultipart {
   private final Part part;
 
   @Nullable
   private String value;
 
-  public ServletFormData(Part part) {
+  public MockFormData(Part part) {
     this.part = part;
   }
 

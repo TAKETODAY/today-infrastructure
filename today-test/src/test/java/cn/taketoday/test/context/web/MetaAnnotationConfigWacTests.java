@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.File;
 
 import cn.taketoday.beans.factory.annotation.Autowired;
-import cn.taketoday.mock.web.MockContextImpl;
+import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.test.context.ContextConfiguration;
 import cn.taketoday.test.context.junit.jupiter.InfraExtension;
 import cn.taketoday.web.mock.WebApplicationContext;
@@ -46,7 +46,7 @@ class MetaAnnotationConfigWacTests {
   WebApplicationContext wac;
 
   @Autowired
-  MockContextImpl mockServletContext;
+  MockContext mockContext;
 
   @Autowired
   String foo;
@@ -58,17 +58,17 @@ class MetaAnnotationConfigWacTests {
 
   @Test
   void basicWacFeatures() throws Exception {
-    assertThat(wac.getServletContext()).as("ServletContext should be set in the WAC.").isNotNull();
+    assertThat(wac.getMockContext()).as("MockContext should be set in the WAC.").isNotNull();
 
-    assertThat(mockServletContext).as("ServletContext should have been autowired from the WAC.").isNotNull();
+    assertThat(mockContext).as("MockContext should have been autowired from the WAC.").isNotNull();
 
-    Object rootWac = mockServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-    assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
+    Object rootWac = mockContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    assertThat(rootWac).as("Root WAC must be stored in the MockContext as: "
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
-    assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
-    assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
+    assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
+    assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContext);
 
-    assertThat(mockServletContext.getRealPath("index.jsp")).as("Getting real path for ServletContext resource.").isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
+    assertThat(mockContext.getRealPath("index.jsp")).as("Getting real path for MockContext resource.").isEqualTo(new File("src/main/webapp/index.jsp").getCanonicalPath());
   }
 
 }

@@ -83,7 +83,7 @@ public class MockHttpSession implements HttpSession {
   /**
    * Create a new MockHttpSession.
    *
-   * @param mockContext the ServletContext that the session runs in
+   * @param mockContext the MockContext that the session runs in
    */
   public MockHttpSession(@Nullable MockContext mockContext) {
     this(mockContext, null);
@@ -92,7 +92,7 @@ public class MockHttpSession implements HttpSession {
   /**
    * Create a new MockHttpSession.
    *
-   * @param mockContext the ServletContext that the session runs in
+   * @param mockContext the MockContext that the session runs in
    * @param id a unique identifier for this session
    */
   public MockHttpSession(@Nullable MockContext mockContext, @Nullable String id) {
@@ -133,7 +133,7 @@ public class MockHttpSession implements HttpSession {
   }
 
   @Override
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return this.mockContext;
   }
 

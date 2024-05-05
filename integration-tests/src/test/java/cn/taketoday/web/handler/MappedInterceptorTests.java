@@ -34,7 +34,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.i18n.LocaleChangeInterceptor;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 import cn.taketoday.web.view.PathPatternsTestUtils;
@@ -51,7 +51,7 @@ class MappedInterceptorTests {
 
   private static final LocaleChangeInterceptor delegate = new LocaleChangeInterceptor();
 
-  public static Stream<Named<Function<String, ServletRequestContext>>> requestArguments(@Nullable String contextPath) {
+  public static Stream<Named<Function<String, MockRequestContext>>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
             Named.named("ServletRequestPathUtils",
                     path -> PathPatternsTestUtils.createRequest("GET", contextPath, path)
@@ -60,12 +60,12 @@ class MappedInterceptorTests {
   }
 
   @SuppressWarnings("unused")
-  private static Stream<Named<Function<String, ServletRequestContext>>> pathPatternsArguments() {
+  private static Stream<Named<Function<String, MockRequestContext>>> pathPatternsArguments() {
     return requestArguments(null);
   }
 
   @PathPatternsParameterizedTest
-  void noPatterns(Function<String, ServletRequestContext> requestFactory) {
+  void noPatterns(Function<String, MockRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(null, null, delegate);
     Assertions.assertThat(interceptor.matches(requestFactory.apply("/foo"))).isTrue();
   }
@@ -85,7 +85,7 @@ class MappedInterceptorTests {
   }
 
   @PathPatternsParameterizedTest
-  void excludePattern(Function<String, ServletRequestContext> requestFactory) {
+  void excludePattern(Function<String, MockRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(null, new String[] { "/admin/**" }, delegate);
 
     Assertions.assertThat(interceptor.matches(requestFactory.apply("/foo"))).isTrue();
@@ -112,7 +112,7 @@ class MappedInterceptorTests {
 
   @Disabled
   @PathPatternsParameterizedTest
-  void customPathMatcher(Function<String, ServletRequestContext> requestFactory) {
+  void customPathMatcher(Function<String, MockRequestContext> requestFactory) {
     MappedInterceptor interceptor = new MappedInterceptor(new String[] { "/foo/[0-9]*" }, null, delegate);
     interceptor.setPathMatcher(new TestPathMatcher());
 

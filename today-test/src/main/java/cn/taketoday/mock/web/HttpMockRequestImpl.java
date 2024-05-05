@@ -62,11 +62,11 @@ import cn.taketoday.mock.api.ServletConnection;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.ServletInputStream;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpServletMapping;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.mock.api.http.HttpUpgradeHandler;
 import cn.taketoday.mock.api.http.MappingMatch;
@@ -298,7 +298,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   /**
    * Create a new {@code MockHttpServletRequest} with the supplied {@link MockContext}.
    *
-   * @param mockContext the ServletContext that the request runs in
+   * @param mockContext the MockContext that the request runs in
    * (may be {@code null} to use a default {@link MockContextImpl})
    * @see #HttpMockRequestImpl(MockContext, String, String)
    */
@@ -311,7 +311,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
    * {@code method}, and {@code requestURI}.
    * <p>The preferred locale will be set to {@link Locale#ENGLISH}.
    *
-   * @param mockContext the ServletContext that the request runs in (may be
+   * @param mockContext the MockContext that the request runs in (may be
    * {@code null} to use a default {@link MockContextImpl})
    * @param method the request method (may be {@code null})
    * @param requestURI the request URI (may be {@code null})
@@ -332,11 +332,11 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   // ---------------------------------------------------------------------
 
   /**
-   * Return the ServletContext that this request is associated with. (Not
+   * Return the MockContext that this request is associated with. (Not
    * available in the standard HttpServletRequest interface for some reason.)
    */
   @Override
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return this.mockContext;
   }
 
@@ -916,7 +916,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public AsyncContext startAsync(MockRequest request, @Nullable ServletResponse response) {
+  public AsyncContext startAsync(MockRequest request, @Nullable MockResponse response) {
     Assert.state(this.asyncSupported, "Async not supported");
     this.asyncStarted = true;
     this.asyncContext = new MockAsyncContext(request, response);
@@ -1360,7 +1360,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpMockResponse response) throws IOException, ServletException {
     throw new UnsupportedOperationException();
   }
 

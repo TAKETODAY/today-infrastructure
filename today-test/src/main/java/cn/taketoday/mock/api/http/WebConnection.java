@@ -20,7 +20,7 @@ package cn.taketoday.mock.api.http;
 import java.io.IOException;
 
 import cn.taketoday.mock.api.ServletInputStream;
-import cn.taketoday.mock.api.ServletOutputStream;
+import cn.taketoday.mock.api.MockOutputStream;
 
 /**
  * This interface encapsulates the connection for an upgrade request. It allows the protocol handler to send service
@@ -43,5 +43,5 @@ public interface WebConnection extends AutoCloseable {
    * @return a ServletOutputStream for writing binary data
    * @throws IOException if an I/O error occurs
    */
-  public ServletOutputStream getOutputStream() throws IOException;
+  public MockOutputStream getOutputStream() throws IOException;
 }

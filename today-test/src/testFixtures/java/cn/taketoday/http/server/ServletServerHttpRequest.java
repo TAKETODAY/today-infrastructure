@@ -43,7 +43,7 @@ import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.util.ArrayIterator;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
@@ -207,7 +207,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
 
   @Override
   public InputStream getBody() throws IOException {
-    if (ServletUtils.isPostForm(this.servletRequest) && this.servletRequest.getQueryString() == null) {
+    if (MockUtils.isPostForm(this.servletRequest) && this.servletRequest.getQueryString() == null) {
       return getBodyFromServletRequestParameters(this.servletRequest);
     }
     else {

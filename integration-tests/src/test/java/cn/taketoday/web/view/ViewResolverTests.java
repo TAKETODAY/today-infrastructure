@@ -45,7 +45,7 @@ public class ViewResolverTests {
 
   @BeforeEach
   public void setUp() {
-    this.wac.setServletContext(this.sc);
+    this.wac.setMockContext(this.sc);
   }
 
   @Test

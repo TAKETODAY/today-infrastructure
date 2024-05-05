@@ -30,13 +30,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
 import cn.taketoday.web.handler.StreamingResponseBody;
 import cn.taketoday.web.handler.result.StreamingResponseBodyReturnValueHandler;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,17 +51,17 @@ public class StreamingResponseBodyReturnValueHandlerTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   @BeforeEach
   public void setup() throws Exception {
     this.handler = new StreamingResponseBodyReturnValueHandler();
 
     this.request = new HttpMockRequestImpl("GET", "/path");
-    this.response = new MockHttpServletResponse();
-    this.webRequest = new ServletRequestContext(null, this.request, this.response);
+    this.response = new MockHttpResponseImpl();
+    this.webRequest = new MockRequestContext(null, this.request, this.response);
 
-    AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, this.response);
+    AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
     webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }

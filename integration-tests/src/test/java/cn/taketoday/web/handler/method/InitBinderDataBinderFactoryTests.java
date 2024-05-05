@@ -32,7 +32,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestParamMethodArgumentResolver;
 import cn.taketoday.web.bind.support.ConfigurableWebBindingInitializer;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -51,7 +51,7 @@ class InitBinderDataBinderFactoryTests {
 
   HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private final ServletRequestContext webRequest = new ServletRequestContext(null, request, null);
+  private final MockRequestContext webRequest = new MockRequestContext(null, request, null);
 
   @Test
   public void createBinder() throws Throwable {

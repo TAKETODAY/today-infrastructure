@@ -53,7 +53,7 @@ import cn.taketoday.mock.api.SessionTrackingMode;
 import cn.taketoday.util.ClassUtils;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
@@ -73,8 +73,8 @@ import cn.taketoday.web.mock.support.XmlWebApplicationContext;
  * <p>For setting up a full {@code WebApplicationContext} in a test environment, you can
  * use {@code AnnotationConfigWebApplicationContext}, {@code XmlWebApplicationContext},
  * or {@code GenericWebApplicationContext}, passing in a corresponding
- * {@code MockServletContext} instance. Consider configuring your
- * {@code MockServletContext} with a {@code FileSystemResourceLoader} in order to
+ * {@code MockContext} instance. Consider configuring your
+ * {@code MockContext} with a {@code FileSystemResourceLoader} in order to
  * interpret resource paths as relative filesystem locations.
  *
  * @author Rod Johnson
@@ -123,7 +123,7 @@ public class MockContextImpl implements MockContext {
 
   private final Map<String, Object> attributes = new LinkedHashMap<>();
 
-  private String servletContextName = "MockServletContext";
+  private String mockContextName = "MockContext";
 
   private final Set<String> declaredRoles = new LinkedHashSet<>();
 
@@ -143,7 +143,7 @@ public class MockContextImpl implements MockContext {
   private final Map<String, MediaType> mimeTypes = new LinkedHashMap<>();
 
   /**
-   * Create a new {@code MockServletContext}, using no base path and a
+   * Create a new {@code MockContext}, using no base path and a
    * {@link DefaultResourceLoader} (i.e. the classpath root as WAR root).
    */
   public MockContextImpl() {
@@ -151,7 +151,7 @@ public class MockContextImpl implements MockContext {
   }
 
   /**
-   * Create a new {@code MockServletContext}, using a {@link DefaultResourceLoader}.
+   * Create a new {@code MockContext}, using a {@link DefaultResourceLoader}.
    *
    * @param resourceBasePath the root directory of the WAR (should not end with a slash)
    */
@@ -160,7 +160,7 @@ public class MockContextImpl implements MockContext {
   }
 
   /**
-   * Create a new {@code MockServletContext}, using the specified {@link ResourceLoader}
+   * Create a new {@code MockContext}, using the specified {@link ResourceLoader}
    * and no base path.
    *
    * @param resourceLoader the ResourceLoader to use (or null for the default)
@@ -170,7 +170,7 @@ public class MockContextImpl implements MockContext {
   }
 
   /**
-   * Create a new {@code MockServletContext} using the supplied resource base
+   * Create a new {@code MockContext} using the supplied resource base
    * path and resource loader.
    * <p>Registers a {@link MockRequestDispatcher} for the Servlet named
    * {@literal 'default'}.
@@ -182,17 +182,17 @@ public class MockContextImpl implements MockContext {
   public MockContextImpl(String resourceBasePath, @Nullable ResourceLoader resourceLoader) {
     this.resourceLoader = (resourceLoader != null ? resourceLoader : new DefaultResourceLoader());
     this.resourceBasePath = resourceBasePath;
-    // Use JVM temp dir as ServletContext temp dir.
+    // Use JVM temp dir as MockContext temp dir.
     String tempDir = System.getProperty(TEMP_DIR_SYSTEM_PROPERTY);
     if (tempDir != null) {
-      this.attributes.put(ServletUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
+      this.attributes.put(MockUtils.TEMP_DIR_CONTEXT_ATTRIBUTE, new File(tempDir));
     }
     registerNamedDispatcher(this.defaultServletName, new MockRequestDispatcher(this.defaultServletName));
   }
 
   /**
    * Build a full resource location for the given path, prepending the resource
-   * base path of this {@code MockServletContext}.
+   * base path of this {@code MockContext}.
    *
    * @param path the path as specified
    * @return the full resource path
@@ -345,7 +345,7 @@ public class MockContextImpl implements MockContext {
   @Override
   public RequestDispatcher getRequestDispatcher(String path) {
     Assert.isTrue(path.startsWith("/"),
-            () -> "RequestDispatcher path [" + path + "] at ServletContext level must start with '/'");
+            () -> "RequestDispatcher path [" + path + "] at MockContext level must start with '/'");
     return new MockRequestDispatcher(path);
   }
 
@@ -439,7 +439,7 @@ public class MockContextImpl implements MockContext {
 
   @Override
   public String getServerInfo() {
-    return "MockServletContext";
+    return "MockContext";
   }
 
   @Override
@@ -497,13 +497,13 @@ public class MockContextImpl implements MockContext {
     this.attributes.remove(name);
   }
 
-  public void setServletContextName(String servletContextName) {
-    this.servletContextName = servletContextName;
+  public void setMockContextName(String servletContextName) {
+    this.mockContextName = servletContextName;
   }
 
   @Override
-  public String getServletContextName() {
-    return this.servletContextName;
+  public String getMockContextName() {
+    return this.mockContextName;
   }
 
   @Override

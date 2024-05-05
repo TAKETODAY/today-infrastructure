@@ -33,10 +33,10 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.core.i18n.LocaleContextHolder;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 import groovy.text.Template;
 import groovy.text.TemplateEngine;
@@ -63,7 +63,7 @@ public class GroovyMarkupViewTests {
   public void setup() {
     this.webAppContext = Mockito.mock(WebApplicationContext.class);
     this.mockContext = new MockContextImpl();
-    this.mockContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
+    this.mockContext.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }
 
   @Test
@@ -130,7 +130,7 @@ public class GroovyMarkupViewTests {
   public void renderMarkupTemplate() throws Exception {
     Map<String, Object> model = new HashMap<>();
     model.put("name", "Spring");
-    MockHttpServletResponse response = renderViewWithModel("test.tpl", model, Locale.US);
+    MockHttpResponseImpl response = renderViewWithModel("test.tpl", model, Locale.US);
     assertThat(response.getContentAsString()).contains("<h1>Hello Spring</h1>");
   }
 
@@ -138,7 +138,7 @@ public class GroovyMarkupViewTests {
   public void renderI18nTemplate() throws Exception {
     Map<String, Object> model = new HashMap<>();
     model.put("name", "Spring");
-    MockHttpServletResponse response = renderViewWithModel("i18n.tpl", model, Locale.FRANCE);
+    MockHttpResponseImpl response = renderViewWithModel("i18n.tpl", model, Locale.FRANCE);
     assertThat(response.getContentAsString()).isEqualTo("<p>Bonjour Spring</p>");
 
     response = renderViewWithModel("i18n.tpl", model, Locale.GERMANY);
@@ -151,19 +151,19 @@ public class GroovyMarkupViewTests {
   @Test
   public void renderLayoutTemplate() throws Exception {
     Map<String, Object> model = new HashMap<>();
-    MockHttpServletResponse response = renderViewWithModel("content.tpl", model, Locale.US);
+    MockHttpResponseImpl response = renderViewWithModel("content.tpl", model, Locale.US);
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
 
-  private MockHttpServletResponse renderViewWithModel(String viewUrl, Map<String,
+  private MockHttpResponseImpl renderViewWithModel(String viewUrl, Map<String,
           Object> model, Locale locale) throws Exception {
 
     GroovyMarkupView view = createViewWithUrl(viewUrl);
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(locale);
     LocaleContextHolder.setLocale(locale);
-    view.renderMergedTemplateModel(model, ServletUtils.getRequestContext(request, response));
+    view.renderMergedTemplateModel(model, MockUtils.getRequestContext(request, response));
     return response;
   }
 

@@ -34,7 +34,7 @@ import cn.taketoday.mock.api.http.HttpMock;
  * <p>
  * <code>GenericServlet</code> makes writing servlets easier. It provides simple versions of the lifecycle methods
  * <code>init</code> and <code>destroy</code> and of the methods in the <code>ServletConfig</code> interface.
- * <code>GenericServlet</code> also implements the <code>log</code> method, declared in the <code>ServletContext</code>
+ * <code>GenericServlet</code> also implements the <code>log</code> method, declared in the <code>MockContext</code>
  * interface.
  *
  * <p>
@@ -121,7 +121,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    * <p>
    * This method is supplied for convenience. It gets the context from the servlet's <code>ServletConfig</code> object.
    *
-   * @return ServletContext the <code>ServletContext</code> object passed to this servlet by the <code>init</code> method
+   * @return MockContext the <code>MockContext</code> object passed to this servlet by the <code>init</code> method
    */
   @Override
   public MockContext getMockContext() {
@@ -209,7 +209,7 @@ public abstract class GenericMock implements Servlet, MockConfig, java.io.Serial
    * @throws IOException if an input or output exception occurs
    */
   @Override
-  public abstract void service(MockRequest req, ServletResponse res) throws ServletException, IOException;
+  public abstract void service(MockRequest req, MockResponse res) throws ServletException, IOException;
 
   /**
    * Returns the name of this servlet instance. See {@link MockConfig#getMockName}.

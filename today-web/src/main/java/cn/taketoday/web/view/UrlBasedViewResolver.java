@@ -215,7 +215,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
   /**
    * Set whether to interpret a given redirect URL that starts with a
-   * slash ("/") as relative to the current ServletContext, i.e. as
+   * slash ("/") as relative to the current MockContext, i.e. as
    * relative to the web application root.
    * <p>Default is "true": A redirect URL that starts with a slash will be
    * interpreted as relative to the web application root, i.e. the context
@@ -231,7 +231,7 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
 
   /**
    * Return whether to interpret a given redirect URL that starts with a
-   * slash ("/") as relative to the current ServletContext, i.e. as
+   * slash ("/") as relative to the current MockContext, i.e. as
    * relative to the web application root.
    */
   protected boolean isRedirectContextRelative() {

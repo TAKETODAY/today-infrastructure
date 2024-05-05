@@ -20,7 +20,7 @@ package cn.taketoday.web.mock.bind;
 import cn.taketoday.beans.PropertyValues;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 
 /**
  * PropertyValues implementation created from parameters in a ServletRequest.
@@ -36,7 +36,7 @@ import cn.taketoday.web.mock.ServletUtils;
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
- * @see cn.taketoday.web.mock.ServletUtils#getParametersStartingWith
+ * @see MockUtils#getParametersStartingWith
  * @since 4.0 2022/3/2 16:31
  */
 @SuppressWarnings("serial")
@@ -80,7 +80,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    */
   public ServletRequestParameterPropertyValues(
           MockRequest request, @Nullable String prefix, @Nullable String prefixSeparator) {
-    super(ServletUtils.getParametersStartingWith(
+    super(MockUtils.getParametersStartingWith(
             request, (prefix != null ? prefix + prefixSeparator : null)));
   }
 

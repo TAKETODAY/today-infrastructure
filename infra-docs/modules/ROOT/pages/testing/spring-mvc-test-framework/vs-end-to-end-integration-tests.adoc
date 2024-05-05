@@ -10,7 +10,7 @@ The easiest way to think about this is by starting with a blank `HttpMockRequest
 Whatever you add to it is what the request becomes. Things that may catch you by surprise
 are that there is no context path by default; no `jsessionid` cookie; no forwarding,
 error, or async dispatches; and, therefore, no actual JSP rendering. Instead,
-"`forwarded`" and "`redirected`" URLs are saved in the `MockHttpServletResponse` and can
+"`forwarded`" and "`redirected`" URLs are saved in the `MockHttpResponseImpl` and can
 be asserted with expectations.
 
 This means that, if you use JSPs, you can verify the JSP page to which the request was

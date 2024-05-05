@@ -26,10 +26,10 @@ import java.util.Enumeration;
 
 import cn.taketoday.mock.api.GenericMock;
 import cn.taketoday.mock.api.MockConfig;
-import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletOutputStream;
+import cn.taketoday.mock.api.MockOutputStream;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.WriteListener;
 
 /**
@@ -78,7 +78,7 @@ public abstract class HttpMock extends GenericMock {
 
   /**
    * The parameter obtained {@link MockConfig#getInitParameter(String)} to determine if legacy processing of
-   * {@link #doHead(HttpMockRequest, HttpServletResponse)} is provided.
+   * {@link #doHead(HttpMockRequest, HttpMockResponse)} is provided.
    *
    * @since Servlet 6.0
    * @deprecated may be removed in future releases
@@ -119,7 +119,7 @@ public abstract class HttpMock extends GenericMock {
    * before the response body.
    *
    * <p>
-   * Where possible, set the Content-Length header (with the {@link ServletResponse#setContentLength}
+   * Where possible, set the Content-Length header (with the {@link MockResponse#setContentLength}
    * method), to allow the servlet container to use a persistent connection to return its response to the client,
    * improving performance. The content length is automatically set if the entire response fits inside the response
    * buffer.
@@ -142,12 +142,12 @@ public abstract class HttpMock extends GenericMock {
    * If the request is incorrectly formatted, <code>doGet</code> returns an HTTP "Bad Request" message.
    *
    * @param req an {@link HttpMockRequest} object that contains the request the client has made of the servlet
-   * @param resp an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+   * @param resp an {@link HttpMockResponse} object that contains the response the servlet sends to the client
    * @throws IOException if an input or output error is detected when the servlet handles the GET request
    * @throws ServletException if the request for the GET could not be handled
-   * @see ServletResponse#setContentType
+   * @see MockResponse#setContentType
    */
-  protected void doGet(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doGet(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol),
             "HTTP method GET is not supported by this URL");
@@ -181,7 +181,7 @@ public abstract class HttpMock extends GenericMock {
    * protects itself from being called multiple times for one HTTP HEAD request).
    *
    * <p>
-   * The default implementation calls {@link #doGet(HttpMockRequest, HttpServletResponse)}. If the
+   * The default implementation calls {@link #doGet(HttpMockRequest, HttpMockResponse)}. If the
    * {@link MockConfig} init parameter {@link #LEGACY_DO_HEAD} is set to "TRUE", then the response instance is wrapped
    * so that the response body is discarded.
    *
@@ -193,7 +193,7 @@ public abstract class HttpMock extends GenericMock {
    * @throws IOException if an input or output error occurs
    * @throws ServletException if the request for the HEAD could not be handled
    */
-  protected void doHead(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doHead(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     if (legacyHeadHandling) {
       NoBodyResponse response = new NoBodyResponse(resp);
       doGet(req, response);
@@ -221,7 +221,7 @@ public abstract class HttpMock extends GenericMock {
    * before the response body.
    *
    * <p>
-   * Where possible, set the Content-Length header (with the {@link ServletResponse#setContentLength}
+   * Where possible, set the Content-Length header (with the {@link MockResponse#setContentLength}
    * method), to allow the servlet container to use a persistent connection to return its response to the client,
    * improving performance. The content length is automatically set if the entire response fits inside the response
    * buffer.
@@ -238,13 +238,13 @@ public abstract class HttpMock extends GenericMock {
    * If the HTTP POST request is incorrectly formatted, <code>doPost</code> returns an HTTP "Bad Request" message.
    *
    * @param req an {@link HttpMockRequest} object that contains the request the client has made of the servlet
-   * @param resp an {@link HttpServletResponse} object that contains the response the servlet sends to the client
+   * @param resp an {@link HttpMockResponse} object that contains the response the servlet sends to the client
    * @throws IOException if an input or output error is detected when the servlet handles the request
    * @throws ServletException if the request for the POST could not be handled
-   * @see ServletOutputStream
-   * @see ServletResponse#setContentType
+   * @see MockOutputStream
+   * @see MockResponse#setContentType
    */
-  protected void doPost(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPost(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol), "HTTP method POST is not supported by this URL");
   }
@@ -270,11 +270,11 @@ public abstract class HttpMock extends GenericMock {
    * If the HTTP PUT request is incorrectly formatted, <code>doPut</code> returns an HTTP "Bad Request" message.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
-   * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
+   * @param resp the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the PUT request
    * @throws ServletException if the request for the PUT cannot be handled
    */
-  protected void doPut(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doPut(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol), "HTTP method PUT is not supported by this URL");
   }
@@ -293,19 +293,19 @@ public abstract class HttpMock extends GenericMock {
    * If the HTTP DELETE request is incorrectly formatted, <code>doDelete</code> returns an HTTP "Bad Request" message.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
-   * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
+   * @param resp the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the DELETE request
    * @throws ServletException if the request for the DELETE cannot be handled
    */
-  protected void doDelete(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doDelete(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     String protocol = req.getProtocol();
     resp.sendError(getMethodNotSupportedCode(protocol), "Http method DELETE is not supported by this URL");
   }
 
   private int getMethodNotSupportedCode(String protocol) {
     return switch (protocol) {
-      case "HTTP/0.9", "HTTP/1.0" -> HttpServletResponse.SC_BAD_REQUEST;
-      default -> HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+      case "HTTP/0.9", "HTTP/1.0" -> HttpMockResponse.SC_BAD_REQUEST;
+      default -> HttpMockResponse.SC_METHOD_NOT_ALLOWED;
     };
   }
 
@@ -346,11 +346,11 @@ public abstract class HttpMock extends GenericMock {
    * HTTP 1.1.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
-   * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
+   * @param resp the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the OPTIONS request
    * @throws ServletException if the request for the OPTIONS cannot be handled
    */
-  protected void doOptions(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doOptions(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     Method[] methods = getAllDeclaredMethods(this.getClass());
 
     boolean ALLOW_GET = false;
@@ -433,11 +433,11 @@ public abstract class HttpMock extends GenericMock {
    * no need to override this method.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
-   * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
+   * @param resp the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the TRACE request
    * @throws ServletException if the request for the TRACE cannot be handled
    */
-  protected void doTrace(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void doTrace(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
 
     int responseLength;
 
@@ -458,7 +458,7 @@ public abstract class HttpMock extends GenericMock {
 
     resp.setContentType("message/http");
     resp.setContentLength(responseLength);
-    ServletOutputStream out = resp.getOutputStream();
+    MockOutputStream out = resp.getOutputStream();
     out.print(buffer.toString());
   }
 
@@ -468,12 +468,12 @@ public abstract class HttpMock extends GenericMock {
    * {@link cn.taketoday.mock.api.Servlet#service} method. There's no need to override this method.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
-   * @param resp the {@link HttpServletResponse} object that contains the response the servlet returns to the client
+   * @param resp the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the HTTP request
    * @throws ServletException if the HTTP request cannot be handled
    * @see cn.taketoday.mock.api.Servlet#service
    */
-  protected void service(HttpMockRequest req, HttpServletResponse resp) throws ServletException, IOException {
+  protected void service(HttpMockRequest req, HttpMockResponse resp) throws ServletException, IOException {
     String method = req.getMethod();
 
     switch (method) {
@@ -494,7 +494,7 @@ public abstract class HttpMock extends GenericMock {
             doGet(req, resp);
           }
           else {
-            resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            resp.setStatus(HttpMockResponse.SC_NOT_MODIFIED);
           }
         }
 
@@ -514,7 +514,7 @@ public abstract class HttpMock extends GenericMock {
       // Note that this means NO servlet supports whatever
       // method was requested, anywhere on this server.
       //
-      default -> resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, "Method %s is not defined in RFC 2068 and is not supported"
+      default -> resp.sendError(HttpMockResponse.SC_NOT_IMPLEMENTED, "Method %s is not defined in RFC 2068 and is not supported"
               .formatted(method));
     }
   }
@@ -524,7 +524,7 @@ public abstract class HttpMock extends GenericMock {
    * before doGet, to ensure that headers are set before response data is written. A subclass might have set this header
    * already, so we check.
    */
-  private void maybeSetLastModified(HttpServletResponse resp, long lastModified) {
+  private void maybeSetLastModified(HttpMockResponse resp, long lastModified) {
     if (resp.containsHeader(HEADER_LASTMOD))
       return;
     if (lastModified >= 0)
@@ -535,23 +535,23 @@ public abstract class HttpMock extends GenericMock {
    * Dispatches client requests to the protected <code>service</code> method. There's no need to override this method.
    *
    * @param req the {@link HttpMockRequest} object that contains the request the client made of the servlet
-   * @param res the {@link HttpServletResponse} object that contains the response the servlet returns to the client
+   * @param res the {@link HttpMockResponse} object that contains the response the servlet returns to the client
    * @throws IOException if an input or output error occurs while the servlet is handling the HTTP request
    * @throws ServletException if the HTTP request cannot be handled or if either parameter is not an instance of its
-   * respective {@link HttpMockRequest} or {@link HttpServletResponse} counterparts.
+   * respective {@link HttpMockRequest} or {@link HttpMockResponse} counterparts.
    * @see cn.taketoday.mock.api.Servlet#service
    */
   @Override
-  public void service(MockRequest req, ServletResponse res) throws ServletException, IOException {
+  public void service(MockRequest req, MockResponse res) throws ServletException, IOException {
     HttpMockRequest request;
-    HttpServletResponse response;
+    HttpMockResponse response;
 
-    if (!(req instanceof HttpMockRequest && res instanceof HttpServletResponse)) {
+    if (!(req instanceof HttpMockRequest && res instanceof HttpMockResponse)) {
       throw new ServletException("non-HTTP request or response");
     }
 
     request = (HttpMockRequest) req;
-    response = (HttpServletResponse) res;
+    response = (HttpMockResponse) res;
 
     service(request, response);
   }
@@ -564,7 +564,7 @@ public abstract class HttpMock extends GenericMock {
  */
 // file private
 //@Deprecated(forRemoval = true, since = "Servlet 6.0")
-class NoBodyResponse extends HttpServletResponseWrapper {
+class NoBodyResponse extends HttpMockResponseWrapper {
 
   private NoBodyOutputStream noBody;
   private PrintWriter writer;
@@ -572,7 +572,7 @@ class NoBodyResponse extends HttpServletResponseWrapper {
   private boolean usingOutputStream;
 
   // file private
-  NoBodyResponse(HttpServletResponse r) {
+  NoBodyResponse(HttpMockResponse r) {
     super(r);
     noBody = new NoBodyOutputStream();
   }
@@ -654,7 +654,7 @@ class NoBodyResponse extends HttpServletResponseWrapper {
   }
 
   @Override
-  public ServletOutputStream getOutputStream() throws IOException {
+  public MockOutputStream getOutputStream() throws IOException {
 
     if (writer != null) {
       throw new IllegalStateException("Illegal to call getOutputStream() after getWriter() has been called");
@@ -681,11 +681,10 @@ class NoBodyResponse extends HttpServletResponseWrapper {
 }
 
 /*
- * Servlet output stream that gobbles up all its data.
+ * output stream that gobbles up all its data.
  */
 // file private
-//@Deprecated(forRemoval = true, since = "Servlet 6.0")
-class NoBodyOutputStream extends ServletOutputStream {
+class NoBodyOutputStream extends MockOutputStream {
 
   static ThreadLocal<Boolean> disableFlush = new ThreadLocal<>();
 

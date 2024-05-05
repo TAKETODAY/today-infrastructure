@@ -39,9 +39,9 @@ import cn.taketoday.web.accept.MappingMediaTypeFileExtensionResolver;
 import cn.taketoday.web.accept.ParameterContentNegotiationStrategy;
 import cn.taketoday.web.accept.PathExtensionContentNegotiationStrategy;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,13 +62,13 @@ public class ContentNegotiatingViewResolverTests {
 
   @BeforeEach
   public void createViewResolver() {
-    wac.setServletContext(new MockContextImpl());
+    wac.setMockContext(new MockContextImpl());
     wac.refresh();
     viewResolver = new ContentNegotiatingViewResolver();
     viewResolver.setApplicationContext(wac);
     request = new HttpMockRequestImpl("GET", "/test");
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    this.requestContext = new ServletRequestContext(wac, request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    this.requestContext = new MockRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
   }
 
@@ -449,8 +449,8 @@ public class ContentNegotiatingViewResolverTests {
 
     View result = viewResolver.resolveViewName(viewName, locale);
     assertThat(result).as("Invalid view").isNotNull();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    this.requestContext = new ServletRequestContext(wac, request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    this.requestContext = new MockRequestContext(wac, request, response);
     RequestContextHolder.set(requestContext);
     result.render(null, requestContext);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);

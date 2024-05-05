@@ -28,16 +28,16 @@ import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.http.HttpServletResponse;
-import cn.taketoday.mock.api.http.HttpServletResponseWrapper;
+import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
+import cn.taketoday.mock.api.http.HttpMockResponseWrapper;
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.mock.DispatcherServlet;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 /**
  * <strong>Main entry point for server-side Web MVC test support.</strong>
@@ -172,14 +172,14 @@ public final class MockMvc {
     HttpMockRequestImpl request = requestBuilder.buildRequest(this.mockContext);
 
     AsyncContext asyncContext = request.getAsyncContext();
-    MockHttpServletResponse mockResponse;
-    HttpServletResponse servletResponse;
+    MockHttpResponseImpl mockResponse;
+    HttpMockResponse servletResponse;
     if (asyncContext != null) {
-      servletResponse = (HttpServletResponse) asyncContext.getResponse();
+      servletResponse = (HttpMockResponse) asyncContext.getResponse();
       mockResponse = unwrapResponseIfNecessary(servletResponse);
     }
     else {
-      mockResponse = new MockHttpServletResponse();
+      mockResponse = new MockHttpResponseImpl();
       servletResponse = mockResponse;
     }
 
@@ -193,7 +193,7 @@ public final class MockMvc {
 
     RequestContext previous = RequestContextHolder.get();
 
-    var context = new ServletRequestContext(servlet.getApplicationContext(), request, servletResponse, servlet);
+    var context = new MockRequestContext(servlet.getApplicationContext(), request, servletResponse, servlet);
     DefaultMvcResult mvcResult = new DefaultMvcResult(request, mockResponse, context);
 
     RequestContextHolder.set(context);
@@ -216,12 +216,12 @@ public final class MockMvc {
     return ResultActions.forMvcResult(mvcResult);
   }
 
-  private MockHttpServletResponse unwrapResponseIfNecessary(ServletResponse servletResponse) {
-    while (servletResponse instanceof HttpServletResponseWrapper wrapper) {
-      servletResponse = wrapper.getResponse();
+  private MockHttpResponseImpl unwrapResponseIfNecessary(MockResponse mockResponse) {
+    while (mockResponse instanceof HttpMockResponseWrapper wrapper) {
+      mockResponse = wrapper.getResponse();
     }
-    Assert.isInstanceOf(MockHttpServletResponse.class, servletResponse);
-    return (MockHttpServletResponse) servletResponse;
+    Assert.isInstanceOf(MockHttpResponseImpl.class, mockResponse);
+    return (MockHttpResponseImpl) mockResponse;
   }
 
   private void applyDefaultResultActions(MvcResult mvcResult) throws Exception {

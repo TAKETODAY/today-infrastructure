@@ -26,7 +26,7 @@ import cn.taketoday.mock.api.MockContext;
 
 /**
  * {@link BeanPostProcessor} implementation
- * that passes the ServletContext to beans that implement the
+ * that passes the MockContext to beans that implement the
  * {@link MockContextAware} interface.
  *
  * <p>Web application contexts will automatically register this with their
@@ -38,39 +38,25 @@ import cn.taketoday.mock.api.MockContext;
  * @see MockContextAware
  * @since 4.0 2022/2/20 20:57
  */
-public class ServletContextAwareProcessor implements InitializationBeanPostProcessor {
+public class MockContextAwareProcessor implements InitializationBeanPostProcessor {
 
   @Nullable
-  private MockContext mockContext;
+  private final MockContext mockContext;
 
   @Nullable
-  private MockConfig mockConfig;
+  private final MockConfig mockConfig;
 
   /**
-   * Create a new ServletContextAwareProcessor without an initial context or config.
-   * When this constructor is used the {@link #getServletContext()} and/or
-   * {@link #getServletConfig()} methods should be overridden.
+   * Create a new MockContextAwareProcessor for the given context.
    */
-  protected ServletContextAwareProcessor() { }
-
-  /**
-   * Create a new ServletContextAwareProcessor for the given context.
-   */
-  public ServletContextAwareProcessor(MockContext mockContext) {
+  public MockContextAwareProcessor(MockContext mockContext) {
     this(mockContext, null);
   }
 
   /**
-   * Create a new ServletContextAwareProcessor for the given config.
+   * Create a new MockContextAwareProcessor for the given context and config.
    */
-  public ServletContextAwareProcessor(MockConfig mockConfig) {
-    this(null, mockConfig);
-  }
-
-  /**
-   * Create a new ServletContextAwareProcessor for the given context and config.
-   */
-  public ServletContextAwareProcessor(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
+  public MockContextAwareProcessor(@Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
     this.mockContext = mockContext;
     this.mockConfig = mockConfig;
   }
@@ -81,9 +67,9 @@ public class ServletContextAwareProcessor implements InitializationBeanPostProce
    * has been registered.
    */
   @Nullable
-  protected MockContext getServletContext() {
-    if (this.mockContext == null && getServletConfig() != null) {
-      return getServletConfig().getMockContext();
+  protected MockContext getMockContext() {
+    if (this.mockContext == null && getMockConfig() != null) {
+      return getMockConfig().getMockContext();
     }
     return this.mockContext;
   }
@@ -94,17 +80,17 @@ public class ServletContextAwareProcessor implements InitializationBeanPostProce
    * has been registered.
    */
   @Nullable
-  protected MockConfig getServletConfig() {
+  protected MockConfig getMockConfig() {
     return this.mockConfig;
   }
 
   @Override
   public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-    if (getServletContext() != null && bean instanceof MockContextAware) {
-      ((MockContextAware) bean).setMockContext(getServletContext());
+    if (getMockContext() != null && bean instanceof MockContextAware) {
+      ((MockContextAware) bean).setMockContext(getMockContext());
     }
-    if (getServletConfig() != null && bean instanceof ServletConfigAware) {
-      ((ServletConfigAware) bean).setServletConfig(getServletConfig());
+    if (getMockConfig() != null && bean instanceof MockConfigAware) {
+      ((MockConfigAware) bean).setMockConfig(getMockConfig());
     }
     return bean;
   }

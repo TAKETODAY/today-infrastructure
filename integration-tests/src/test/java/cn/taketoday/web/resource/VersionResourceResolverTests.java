@@ -31,7 +31,7 @@ import java.util.Map;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -146,7 +146,7 @@ public class VersionResourceResolverTests {
     String file = "bar.css";
     Resource expected = new ClassPathResource("test/" + file, getClass());
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/resources/bar-version.css");
-    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    MockRequestContext context = new MockRequestContext(null, request, null);
     given(this.chain.resolveResource(context, versionFile, this.locations)).willReturn(null);
     given(this.chain.resolveResource(context, file, this.locations)).willReturn(expected);
     given(this.versionStrategy.extractVersion(versionFile)).willReturn(version);

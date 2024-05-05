@@ -27,7 +27,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  * Interface to provide configuration for a servlet web application. This is read-only while
  * the application is running, but may be reloaded if the implementation supports this.
  *
- * <p>This interface adds a {@code getServletContext()} method to the generic
+ * <p>This interface adds a {@code getMockContext()} method to the generic
  * ApplicationContext interface, and defines a well-known application attribute name
  * that the root context must be bound to in the bootstrap process.
  *
@@ -37,7 +37,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  *
  * <p>In addition to standard application context lifecycle capabilities,
  * WebApplicationContext implementations need to detect {@link MockContextAware}
- * beans and invoke the {@code setServletContext} method accordingly.
+ * beans and invoke the {@code setMockContext} method accordingly.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see MockContextAware#setMockContext
@@ -57,16 +57,16 @@ public interface WebApplicationContext extends ApplicationContext {
   String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE = WebApplicationContext.class.getName() + ".ROOT";
 
   /**
-   * Name of the ServletContext environment bean in the factory.
+   * Name of the MockContext environment bean in the factory.
    *
    * @see MockContext
    */
-  String SERVLET_CONTEXT_BEAN_NAME = "servletContext";
+  String SERVLET_CONTEXT_BEAN_NAME = "mockContext";
 
   /**
-   * Name of the ServletContext init-params environment bean in the factory.
+   * Name of the MockContext init-params environment bean in the factory.
    * <p>Note: Possibly merged with ServletConfig parameters.
-   * ServletConfig parameters override ServletContext parameters of the same name.
+   * ServletConfig parameters override MockContext parameters of the same name.
    *
    * @see MockContext#getInitParameterNames()
    * @see MockContext#getInitParameter(String)
@@ -76,7 +76,7 @@ public interface WebApplicationContext extends ApplicationContext {
   String CONTEXT_PARAMETERS_BEAN_NAME = "contextParameters";
 
   /**
-   * Name of the ServletContext attributes environment bean in the factory.
+   * Name of the MockContext attributes environment bean in the factory.
    *
    * @see MockContext#getAttributeNames()
    * @see MockContext#getAttribute(String)
@@ -84,9 +84,9 @@ public interface WebApplicationContext extends ApplicationContext {
   String CONTEXT_ATTRIBUTES_BEAN_NAME = "contextAttributes";
 
   /**
-   * Return the standard Servlet API ServletContext for this application.
+   * Return the standard Servlet API MockContext for this application.
    */
   @Nullable
-  MockContext getServletContext();
+  MockContext getMockContext();
 
 }

@@ -30,7 +30,7 @@ import cn.taketoday.web.annotation.RequestBody;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +44,7 @@ class MapMethodProcessorTests {
 
   private BindingContext mavContainer;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private final ResolvableMethod resolvable =
           ResolvableMethod.on(getClass()).annotPresent(RequestMapping.class).build();
@@ -55,7 +55,7 @@ class MapMethodProcessorTests {
   public void setUp() throws Exception {
     this.processor = new MapMethodProcessor();
     this.mavContainer = new BindingContext();
-    this.webRequest = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    this.webRequest = new MockRequestContext(null, new HttpMockRequestImpl(), null);
     webRequest.setBinding(mavContainer);
 
   }

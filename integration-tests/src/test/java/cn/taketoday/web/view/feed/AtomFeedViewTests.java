@@ -33,9 +33,9 @@ import java.util.Map;
 
 import cn.taketoday.core.testfixture.xml.XmlContent;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -49,12 +49,12 @@ public class AtomFeedViewTests {
   @Test
   public void render() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     Map<String, String> model = new LinkedHashMap<>();
     model.put("2", "This is entry 2");
     model.put("1", "This is entry 1");
-    view.render(model, new ServletRequestContext(null, request, response));
+    view.render(model, new MockRequestContext(null, request, response));
 
     assertThat(response.getContentType()).as("Invalid content-type").isEqualTo("application/atom+xml");
     String expected = "<feed xmlns=\"http://www.w3.org/2005/Atom\">" + "<title>Test Feed</title>" +

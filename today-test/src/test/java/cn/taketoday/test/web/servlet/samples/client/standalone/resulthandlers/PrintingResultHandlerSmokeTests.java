@@ -32,7 +32,7 @@ import cn.taketoday.test.web.servlet.client.MockMvcWebTestClient;
 import cn.taketoday.web.annotation.PostMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * {@link MockMvcWebTestClient} equivalent of the MockMvc
@@ -77,7 +77,7 @@ public class PrintingResultHandlerSmokeTests {
   private static class SimpleController {
 
     @PostMapping("/")
-    public String hello(HttpServletResponse response) {
+    public String hello(HttpMockResponse response) {
       response.addCookie(new Cookie("enigma", "42"));
       return "Hello Response";
     }

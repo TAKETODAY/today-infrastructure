@@ -78,13 +78,13 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
   String[] getConfigLocations();
 
   /**
-   * Set the ServletContext for this web application context.
+   * Set the MockContext for this web application context.
    * <p>Does not cause an initialization of the context: refresh needs to be
    * called after the setting of all configuration properties.
    *
    * @see #refresh()
    */
-  void setServletContext(@Nullable MockContext mockContext);
+  void setMockContext(@Nullable MockContext mockContext);
 
   /**
    * Set the ServletConfig for this web application context.
@@ -92,12 +92,12 @@ public interface ConfigurableWebApplicationContext extends WebApplicationContext
    *
    * @see #refresh()
    */
-  void setServletConfig(@Nullable MockConfig mockConfig);
+  void setMockConfig(@Nullable MockConfig mockConfig);
 
   /**
    * Return the ServletConfig for this web application context, if any.
    */
   @Nullable
-  MockConfig getServletConfig();
+  MockConfig getMockConfig();
 
 }

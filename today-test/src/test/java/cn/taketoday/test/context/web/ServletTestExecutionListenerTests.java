@@ -24,11 +24,11 @@ import org.mockito.BDDMockito;
 import cn.taketoday.context.ApplicationContext;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.context.TestContext;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 import static cn.taketoday.test.context.web.ServletTestExecutionListener.POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE;
@@ -50,18 +50,18 @@ class ServletTestExecutionListenerTests {
   private static final String SET_UP_OUTSIDE_OF_STEL = "setUpOutsideOfStel";
 
   private final WebApplicationContext wac = mock(WebApplicationContext.class);
-  private final MockContextImpl mockServletContext = new MockContextImpl();
+  private final MockContextImpl mockContext = new MockContextImpl();
   private final TestContext testContext = mock(TestContext.class);
   private final ServletTestExecutionListener listener = new ServletTestExecutionListener();
 
   @BeforeEach
   void setUp() {
-    given(wac.getServletContext()).willReturn(mockServletContext);
+    given(wac.getMockContext()).willReturn(mockContext);
     given(testContext.getApplicationContext()).willReturn(wac);
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(mockServletContext);
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    RequestContext servletWebRequest = new ServletRequestContext(null, request, response);
+    HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    RequestContext servletWebRequest = new MockRequestContext(null, request, response);
 
     request.setAttribute(SET_UP_OUTSIDE_OF_STEL, "true");
 

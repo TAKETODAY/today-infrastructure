@@ -383,7 +383,7 @@ public class EnvironmentSystemIntegrationTests {
 
     AbstractRefreshableWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
     ctx.setConfigLocation(EnvironmentAwareBean.class.getName());
-    ctx.setServletConfig(servletConfig);
+    ctx.setMockConfig(servletConfig);
     ctx.refresh();
 
     ConfigurableEnvironment environment = ctx.getEnvironment();

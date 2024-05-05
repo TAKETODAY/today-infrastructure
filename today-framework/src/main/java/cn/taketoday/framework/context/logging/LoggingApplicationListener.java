@@ -155,7 +155,6 @@ public class LoggingApplicationListener implements GenericApplicationListener {
     loggers.add("web", "cn.taketoday.session");
     loggers.add("web", "cn.taketoday.framework.web");
     loggers.add("web", "cn.taketoday.actuate.endpoint.web");
-    loggers.add("web", "cn.taketoday.framework.web.servlet.ServletContextInitializerBeans");
     loggers.add("sql", "cn.taketoday.jdbc.core");
     loggers.add("sql", "org.hibernate.SQL");
     loggers.add("sql", "today.SQL");

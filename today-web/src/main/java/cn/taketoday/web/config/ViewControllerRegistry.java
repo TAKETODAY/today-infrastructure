@@ -139,7 +139,7 @@ public class ViewControllerRegistry extends ApplicationObjectSupport {
    * to another URL.
    *
    * <p>By default the redirect URL is expected to be relative to the current
-   * ServletContext, i.e. as relative to the web application root.
+   * context, i.e. as relative to the web application root.
    */
   public RedirectViewControllerRegistration addRedirectViewController(String pathPattern, String redirectUrl) {
     RedirectViewControllerRegistration registration = new RedirectViewControllerRegistration(pathPattern, redirectUrl);

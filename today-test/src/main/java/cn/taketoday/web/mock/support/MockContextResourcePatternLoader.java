@@ -37,7 +37,7 @@ import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
 
 /**
- * ServletContext-aware subclass of {@link PathMatchingPatternResourceLoader},
+ * MockContext-aware subclass of {@link PathMatchingPatternResourceLoader},
  * able to find matching resources below the web application root directory
  * via {@link MockContext#getResourcePaths}. Falls back to the superclass'
  * file system checking for other resources.
@@ -46,46 +46,46 @@ import cn.taketoday.util.StringUtils;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/2/21 16:35
  */
-public class ServletContextResourcePatternLoader extends PathMatchingPatternResourceLoader {
-  private static final Logger logger = LoggerFactory.getLogger(ServletContextResourcePatternLoader.class);
+public class MockContextResourcePatternLoader extends PathMatchingPatternResourceLoader {
+  private static final Logger logger = LoggerFactory.getLogger(MockContextResourcePatternLoader.class);
 
   /**
-   * Create a new ServletContextPatternResourceLoader.
+   * Create a new MockContextPatternResourceLoader.
    *
-   * @param mockContext the ServletContext to load resources with
-   * @see ServletContextResourceLoader#ServletContextResourceLoader(MockContext)
+   * @param mockContext the MockContext to load resources with
+   * @see MockContextResourceLoader#MockContextResourceLoader(MockContext)
    */
-  public ServletContextResourcePatternLoader(MockContext mockContext) {
-    super(new ServletContextResourceLoader(mockContext));
+  public MockContextResourcePatternLoader(MockContext mockContext) {
+    super(new MockContextResourceLoader(mockContext));
   }
 
   /**
-   * Create a new ServletContextPatternResourceLoader.
+   * Create a new MockContextPatternResourceLoader.
    *
    * @param resourceLoader the ResourceLoader to load root directories and
    * actual resources with
    */
-  public ServletContextResourcePatternLoader(ResourceLoader resourceLoader) {
+  public MockContextResourcePatternLoader(ResourceLoader resourceLoader) {
     super(resourceLoader);
   }
 
   /**
-   * Overridden version which checks for ServletContextResource
-   * and uses {@code ServletContext.getResourcePaths} to find
+   * Overridden version which checks for MockContextResource
+   * and uses {@code MockContext.getResourcePaths} to find
    * matching resources below the web application root directory.
    * In case of other resources, delegates to the superclass version.
    *
-   * @see #doRetrieveMatchingServletContextResources
-   * @see ServletContextResource
+   * @see #doRetrieveMatchingMockContextResources
+   * @see MockContextResource
    * @see MockContext#getResourcePaths
    */
   @Override
   protected void doFindPathMatchingFileResources(
           Resource rootDirResource, String subPattern, ResourceConsumer consumer) throws IOException {
-    if (rootDirResource instanceof ServletContextResource scResource) {
-      MockContext sc = scResource.getServletContext();
+    if (rootDirResource instanceof MockContextResource scResource) {
+      MockContext sc = scResource.getMockContext();
       String fullPattern = scResource.getPath() + subPattern;
-      doRetrieveMatchingServletContextResources(sc, fullPattern, scResource.getPath(), consumer);
+      doRetrieveMatchingMockContextResources(sc, fullPattern, scResource.getPath(), consumer);
     }
     else {
       super.doFindPathMatchingFileResources(rootDirResource, subPattern, consumer);
@@ -93,19 +93,19 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
   }
 
   /**
-   * Recursively retrieve ServletContextResources that match the given pattern,
+   * Recursively retrieve MockContextResources that match the given pattern,
    * adding them to the given result set.
    *
-   * @param mockContext the ServletContext to work on
+   * @param mockContext the MockContext to work on
    * @param fullPattern the pattern to match against,
    * with preprended root directory path
    * @param dir the current directory
    * @param consumer Resource how to use
    * @throws IOException if directory contents could not be retrieved
-   * @see ServletContextResource
+   * @see MockContextResource
    * @see MockContext#getResourcePaths
    */
-  protected void doRetrieveMatchingServletContextResources(
+  protected void doRetrieveMatchingMockContextResources(
           MockContext mockContext, String fullPattern, String dir, ResourceConsumer consumer)
           throws IOException {
 
@@ -132,9 +132,9 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
         }
         if (currPath.endsWith("/") && (dirDepthNotFixed
                 || StringUtils.countOccurrencesOf(currPath, "/") <= StringUtils.countOccurrencesOf(fullPattern, "/"))) {
-          // Search subdirectories recursively: ServletContext.getResourcePaths
+          // Search subdirectories recursively: MockContext.getResourcePaths
           // only returns entries for one directory level.
-          doRetrieveMatchingServletContextResources(mockContext, fullPattern, currPath, consumer);
+          doRetrieveMatchingMockContextResources(mockContext, fullPattern, currPath, consumer);
         }
         if (jarFilePath != null && pathMatcher.match(jarFilePath, currPath)) {
           // Base pattern matches a jar file - search for matching entries within.
@@ -144,7 +144,7 @@ public class ServletContextResourcePatternLoader extends PathMatchingPatternReso
           }
         }
         if (pathMatcher.match(fullPattern, currPath)) {
-          consumer.accept(new ServletContextResource(mockContext, currPath));
+          consumer.accept(new MockContextResource(mockContext, currPath));
         }
       }
     }

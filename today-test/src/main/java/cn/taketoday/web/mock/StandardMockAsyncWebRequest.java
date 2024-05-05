@@ -28,32 +28,32 @@ import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
- * A Servlet implementation of {@link AsyncWebRequest}.
+ * A Mock implementation of {@link AsyncWebRequest}.
  *
  * <p>The servlet and all filters involved in an async request must have async
- * support enabled using the Servlet API or by adding an
- * <code>&lt;async-supported&gt;true&lt;/async-supported&gt;</code> element to servlet and filter
+ * support enabled using the Mock API or by adding an
+ * <code>&lt;async-supported&gt;true&lt;/async-supported&gt;</code> element to Mock and filter
  * declarations in {@code web.xml}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class StandardServletAsyncWebRequest extends AsyncWebRequest implements AsyncListener {
+public class StandardMockAsyncWebRequest extends AsyncWebRequest implements AsyncListener {
 
   @Nullable
   private AsyncContext asyncContext;
 
-  private final ServletRequestContext request;
+  private final MockRequestContext request;
 
   private final HttpMockRequest servletRequest;
 
-  private final HttpServletResponse servletResponse;
+  private final HttpMockResponse servletResponse;
 
-  public StandardServletAsyncWebRequest(ServletRequestContext context) {
+  public StandardMockAsyncWebRequest(MockRequestContext context) {
     this.request = context;
     this.servletRequest = context.getRequest();
     this.servletResponse = context.getResponse();
@@ -65,8 +65,8 @@ public class StandardServletAsyncWebRequest extends AsyncWebRequest implements A
    * @param request current HTTP request
    * @param response current HTTP response
    */
-  public StandardServletAsyncWebRequest(HttpMockRequest request, HttpServletResponse response) {
-    this.request = new ServletRequestContext(null, request, response);
+  public StandardMockAsyncWebRequest(HttpMockRequest request, HttpMockResponse response) {
+    this.request = new MockRequestContext(null, request, response);
     this.servletRequest = request;
     this.servletResponse = response;
   }

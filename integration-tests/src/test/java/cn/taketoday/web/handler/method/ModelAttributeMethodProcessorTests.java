@@ -41,7 +41,7 @@ import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.bind.annotation.ModelAttribute;
 import cn.taketoday.web.bind.annotation.SessionAttributes;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
@@ -63,7 +63,7 @@ import static org.mockito.Mockito.verify;
  */
 class ModelAttributeMethodProcessorTests {
 
-  private ServletRequestContext request;
+  private MockRequestContext request;
 
   private BindingContext container;
 
@@ -82,7 +82,7 @@ class ModelAttributeMethodProcessorTests {
 
   @BeforeEach
   public void setup() throws Throwable {
-    this.request = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    this.request = new MockRequestContext(null, new HttpMockRequestImpl(), null);
     this.container = new BindingContext();
     request.setBinding(container);
     this.processor = new ModelAttributeMethodProcessor(false);
@@ -307,7 +307,7 @@ class ModelAttributeMethodProcessorTests {
   public void resolveConstructorListArgumentFromCommaSeparatedRequestParameter() throws Throwable {
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl();
     mockRequest.addParameter("listOfStrings", "1,2");
-    ServletRequestContext requestWithParam = new ServletRequestContext(null, mockRequest, null);
+    MockRequestContext requestWithParam = new MockRequestContext(null, mockRequest, null);
 
     BindingContext factory = new BindingContext() {
       @Override

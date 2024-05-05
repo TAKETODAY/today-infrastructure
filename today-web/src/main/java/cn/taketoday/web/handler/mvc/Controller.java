@@ -81,7 +81,6 @@ import cn.taketoday.web.RequestContext;
  * <ul>
  * <li>{@code cn.taketoday.context.ApplicationContextAware}</li>
  * <li>{@code cn.taketoday.context.ResourceLoaderAware}</li>
- * <li>{@code cn.taketoday.web.mock.ServletContextAware}</li>
  * </ul>
  *
  * <p>Such environment references can easily be passed in testing environments,
@@ -98,7 +97,6 @@ import cn.taketoday.web.RequestContext;
  * @see AbstractController
  * @see ApplicationContextAware
  * @see ResourceLoaderAware
- * @see cn.taketoday.web.mock.ServletContextAware
  * @since 4.0
  */
 @FunctionalInterface

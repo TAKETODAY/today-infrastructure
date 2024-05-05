@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import cn.taketoday.mock.api.ServletResponseWrapper;
+import cn.taketoday.mock.api.MockResponseWrapper;
 
 /**
  * Provides a convenient implementation of the HttpServletResponse interface that can be subclassed by developers
@@ -30,23 +30,23 @@ import cn.taketoday.mock.api.ServletResponseWrapper;
  * to calling through to the wrapped response object.
  *
  * @author Various
- * @see HttpServletResponse
+ * @see HttpMockResponse
  * @since Servlet 2.3
  */
-public class HttpServletResponseWrapper extends ServletResponseWrapper implements HttpServletResponse {
+public class HttpMockResponseWrapper extends MockResponseWrapper implements HttpMockResponse {
 
   /**
    * Constructs a response adaptor wrapping the given response.
    *
-   * @param response the {@link HttpServletResponse} to be wrapped.
+   * @param response the {@link HttpMockResponse} to be wrapped.
    * @throws IllegalArgumentException if the response is null
    */
-  public HttpServletResponseWrapper(HttpServletResponse response) {
+  public HttpMockResponseWrapper(HttpMockResponse response) {
     super(response);
   }
 
-  private HttpServletResponse _getHttpServletResponse() {
-    return (HttpServletResponse) super.getResponse();
+  private HttpMockResponse _getHttpServletResponse() {
+    return (HttpMockResponse) super.getResponse();
   }
 
   /**
@@ -162,7 +162,7 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
   }
 
   /**
-   * The default behaviour of this method is to call {@link HttpServletResponse#getStatus} on the wrapped response object.
+   * The default behaviour of this method is to call {@link HttpMockResponse#getStatus} on the wrapped response object.
    *
    * @return the current status code of the wrapped response
    * @since Servlet 3.0
@@ -173,7 +173,7 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
   }
 
   /**
-   * The default behaviour of this method is to call {@link HttpServletResponse#getHeader} on the wrapped response object.
+   * The default behaviour of this method is to call {@link HttpMockResponse#getHeader} on the wrapped response object.
    *
    * @param name the name of the response header whose value to return
    * @return the value of the response header with the given name, or <tt>null</tt> if no header with the given name has
@@ -186,7 +186,7 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
   }
 
   /**
-   * The default behaviour of this method is to call {@link HttpServletResponse#getHeaders} on the wrapped response
+   * The default behaviour of this method is to call {@link HttpMockResponse#getHeaders} on the wrapped response
    * object.
    *
    * <p>
@@ -202,7 +202,7 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
   }
 
   /**
-   * The default behaviour of this method is to call {@link HttpServletResponse#getHeaderNames} on the wrapped response
+   * The default behaviour of this method is to call {@link HttpMockResponse#getHeaderNames} on the wrapped response
    * object.
    *
    * <p>
@@ -217,7 +217,7 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
   }
 
   /**
-   * The default behaviour of this method is to call {@link HttpServletResponse#setTrailerFields} on the wrapped response
+   * The default behaviour of this method is to call {@link HttpMockResponse#setTrailerFields} on the wrapped response
    * object.
    *
    * @param supplier of trailer headers
@@ -229,7 +229,7 @@ public class HttpServletResponseWrapper extends ServletResponseWrapper implement
   }
 
   /**
-   * The default behaviour of this method is to call {@link HttpServletResponse#getTrailerFields} on the wrapped response
+   * The default behaviour of this method is to call {@link HttpMockResponse#getTrailerFields} on the wrapped response
    * object.
    *
    * @return supplier of trailer headers

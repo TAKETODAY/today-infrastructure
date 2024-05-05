@@ -36,7 +36,7 @@ public interface FilterRegistration extends Registration {
    *
    * <p>
    * Depending on the value of the <tt>isMatchAfter</tt> parameter, the given filter mapping will be considered after or
-   * before any <i>declared</i> filter mappings of the ServletContext from which this FilterRegistration was obtained.
+   * before any <i>declared</i> filter mappings of the MockContext from which this FilterRegistration was obtained.
    *
    * <p>
    * If this method is called multiple times, each successive call adds to the effects of the former.
@@ -44,11 +44,11 @@ public interface FilterRegistration extends Registration {
    * @param dispatcherTypes the dispatcher types of the filter mapping, or null if the default
    * <tt>DispatcherType.REQUEST</tt> is to be used
    * @param isMatchAfter true if the given filter mapping should be matched after any declared filter mappings, and false
-   * if it is supposed to be matched before any declared filter mappings of the ServletContext from which this
+   * if it is supposed to be matched before any declared filter mappings of the MockContext from which this
    * FilterRegistration was obtained
    * @param servletNames the servlet names of the filter mapping
    * @throws IllegalArgumentException if <tt>servletNames</tt> is null or empty
-   * @throws IllegalStateException if the ServletContext from which this FilterRegistration was obtained has already been
+   * @throws IllegalStateException if the MockContext from which this FilterRegistration was obtained has already been
    * initialized
    */
   public void addMappingForServletNames(EnumSet<DispatcherType> dispatcherTypes, boolean isMatchAfter,
@@ -75,7 +75,7 @@ public interface FilterRegistration extends Registration {
    *
    * <p>
    * Depending on the value of the <tt>isMatchAfter</tt> parameter, the given filter mapping will be considered after or
-   * before any <i>declared</i> filter mappings of the ServletContext from which this FilterRegistration was obtained.
+   * before any <i>declared</i> filter mappings of the MockContext from which this FilterRegistration was obtained.
    *
    * <p>
    * If this method is called multiple times, each successive call adds to the effects of the former.
@@ -83,11 +83,11 @@ public interface FilterRegistration extends Registration {
    * @param dispatcherTypes the dispatcher types of the filter mapping, or null if the default
    * <tt>DispatcherType.REQUEST</tt> is to be used
    * @param isMatchAfter true if the given filter mapping should be matched after any declared filter mappings, and false
-   * if it is supposed to be matched before any declared filter mappings of the ServletContext from which this
+   * if it is supposed to be matched before any declared filter mappings of the MockContext from which this
    * FilterRegistration was obtained
    * @param urlPatterns the url patterns of the filter mapping
    * @throws IllegalArgumentException if <tt>urlPatterns</tt> is null or empty
-   * @throws IllegalStateException if the ServletContext from which this FilterRegistration was obtained has already been
+   * @throws IllegalStateException if the MockContext from which this FilterRegistration was obtained has already been
    * initialized
    */
   public void addMappingForUrlPatterns(EnumSet<DispatcherType> dispatcherTypes, boolean isMatchAfter,

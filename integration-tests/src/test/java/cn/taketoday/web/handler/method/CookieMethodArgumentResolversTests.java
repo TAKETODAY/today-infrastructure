@@ -25,14 +25,14 @@ import java.lang.reflect.Method;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.core.annotation.SynthesizingMethodParameter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.annotation.CookieValue;
 import cn.taketoday.web.bind.RequestBindingException;
 import cn.taketoday.web.bind.resolver.CookieParameterResolver;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.mock.bind.resolver.ServletParameterResolvers;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.api.http.Cookie;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,7 @@ class CookieMethodArgumentResolversTests {
 
   private ResolvableMethodParameter paramString;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private HttpMockRequestImpl request;
 
@@ -71,7 +71,7 @@ class CookieMethodArgumentResolversTests {
     paramString = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 2));
 
     request = new HttpMockRequestImpl();
-    webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
   }
 
   @Test

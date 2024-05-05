@@ -34,10 +34,10 @@ import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -181,9 +181,9 @@ class DefaultEntityResponseBuilderTests {
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
 
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
 
-    ServletRequestContext context = new ServletRequestContext(null, mockRequest, mockResponse);
+    MockRequestContext context = new MockRequestContext(null, mockRequest, mockResponse);
 
     Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
@@ -203,8 +203,8 @@ class DefaultEntityResponseBuilderTests {
     HttpMockRequestImpl mockRequest = new HttpMockRequestImpl("GET", "https://example.com");
     mockRequest.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
 
-    MockHttpServletResponse mockResponse = new MockHttpServletResponse();
-    ServletRequestContext context = new ServletRequestContext(null, mockRequest, mockResponse);
+    MockHttpResponseImpl mockResponse = new MockHttpResponseImpl();
+    MockRequestContext context = new MockRequestContext(null, mockRequest, mockResponse);
 
     Object mav = entityResponse.writeTo(context, EMPTY_CONTEXT);
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);

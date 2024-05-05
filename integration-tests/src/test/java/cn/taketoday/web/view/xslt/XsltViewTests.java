@@ -40,10 +40,10 @@ import javax.xml.transform.stream.StreamSource;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
@@ -61,7 +61,7 @@ public class XsltViewTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   private final MockContextImpl servletContext = new MockContextImpl();
 
@@ -69,7 +69,7 @@ public class XsltViewTests {
   public void withNoSource() throws Exception {
     final XsltView view = getXsltView(HTML_OUTPUT);
     assertThatIllegalArgumentException().isThrownBy(() ->
-            view.render(emptyMap(), ServletUtils.getRequestContext(request, response)));
+            view.render(emptyMap(), MockUtils.getRequestContext(request, response)));
   }
 
   @Test
@@ -121,7 +121,7 @@ public class XsltViewTests {
     model.put("actualData", getProductDataResource());
     model.put("otherData", new ClassPathResource("dummyData.xsl", getClass()));
 
-    view.render(model, ServletUtils.getRequestContext(request, response));
+    view.render(model, MockUtils.getRequestContext(request, response));
     assertHtmlOutput(this.response.getContentAsString());
   }
 
@@ -130,7 +130,7 @@ public class XsltViewTests {
     XsltView view = getXsltView(HTML_OUTPUT);
 
     Source source = new StreamSource(getProductDataResource().getInputStream());
-    view.render(singletonMap("someKey", source), ServletUtils.getRequestContext(request, response));
+    view.render(singletonMap("someKey", source), MockUtils.getRequestContext(request, response));
     assertThat(this.response.getContentType().startsWith("text/html")).isTrue();
     assertThat(this.response.getCharacterEncoding()).isEqualTo("UTF-8");
   }
@@ -154,7 +154,7 @@ public class XsltViewTests {
     model.put("actualData", getProductDataResource());
     model.put("otherData", new ClassPathResource("dummyData.xsl", getClass()));
 
-    view.render(model, ServletUtils.getRequestContext(request, response));
+    view.render(model, MockUtils.getRequestContext(request, response));
     assertHtmlOutput(this.response.getContentAsString());
     assertThat(this.response.getContentAsString().contains("Product List")).isTrue();
 
@@ -169,7 +169,7 @@ public class XsltViewTests {
 
   private void doTestWithModel(Map<String, Object> model) throws Exception {
     XsltView view = getXsltView(HTML_OUTPUT);
-    view.render(model, ServletUtils.getRequestContext(request, response));
+    view.render(model, MockUtils.getRequestContext(request, response));
     assertHtmlOutput(this.response.getContentAsString());
   }
 

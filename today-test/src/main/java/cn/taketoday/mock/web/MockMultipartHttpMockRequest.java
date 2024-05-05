@@ -73,7 +73,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
   /**
    * Create a new {@code MockMultipartHttpServletRequest} with the supplied {@link MockContext}.
    *
-   * @param mockContext the ServletContext that the request runs in
+   * @param mockContext the MockContext that the request runs in
    * (may be {@code null} to use a default {@link MockContextImpl})
    */
   public MockMultipartHttpMockRequest(@Nullable MockContext mockContext) {

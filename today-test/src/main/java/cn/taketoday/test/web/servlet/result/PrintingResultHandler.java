@@ -31,7 +31,7 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.ResultHandler;
 import cn.taketoday.util.LinkedMultiValueMap;
@@ -249,7 +249,7 @@ public class PrintingResultHandler implements ResultHandler {
   /**
    * Print the response.
    */
-  protected void printResponse(MockHttpServletResponse response) throws Exception {
+  protected void printResponse(MockHttpResponseImpl response) throws Exception {
     this.printer.printValue("Status", response.getStatus());
     this.printer.printValue("Error message", response.getErrorMessage());
     this.printer.printValue("Headers", getResponseHeaders(response));
@@ -288,7 +288,7 @@ public class PrintingResultHandler implements ResultHandler {
     this.printer.printValue("Cookies", cookieStrings);
   }
 
-  protected final HttpHeaders getResponseHeaders(MockHttpServletResponse response) {
+  protected final HttpHeaders getResponseHeaders(MockHttpResponseImpl response) {
     HttpHeaders headers = HttpHeaders.forWritable();
     for (String name : response.getHeaderNames()) {
       headers.put(name, response.getHeaders(name));

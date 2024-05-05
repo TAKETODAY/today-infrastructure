@@ -28,13 +28,13 @@ import java.util.Optional;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.function.HandlerFunction;
 import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.handler.function.RouterFunctions;
 import cn.taketoday.web.handler.function.ServerResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +56,7 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    ServletRequestContext request = createTestRequest("/match");
+    MockRequestContext request = createTestRequest("/match");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
@@ -70,7 +70,7 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    ServletRequestContext request = createTestRequest("/match");
+    MockRequestContext request = createTestRequest("/match");
     Object result = mapping.getHandler(request);
 
     assertThat(result).isNull();
@@ -86,7 +86,7 @@ class RouterFunctionMappingTests {
     mapping.setApplicationContext(context);
     mapping.afterPropertiesSet();
 
-    ServletRequestContext request = createTestRequest("/match");
+    MockRequestContext request = createTestRequest("/match");
     Object result = mapping.getHandler(request);
 
     assertThat(result).isNull();
@@ -148,7 +148,7 @@ class RouterFunctionMappingTests {
     mapping.setUseCaseSensitiveMatch(false);
     mapping.afterPropertiesSet();
 
-    ServletRequestContext request = createTestRequest("/FOO");
+    MockRequestContext request = createTestRequest("/FOO");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
@@ -165,15 +165,15 @@ class RouterFunctionMappingTests {
     RouterFunctionMapping mapping = new RouterFunctionMapping(routerFunction);
     mapping.setMessageConverters(this.messageConverters);
 
-    ServletRequestContext request = createTestRequest("/match");
+    MockRequestContext request = createTestRequest("/match");
     HandlerExecutionChain result = (HandlerExecutionChain) mapping.getHandler(request);
 
     assertThat(result).isNotNull();
   }
 
-  private ServletRequestContext createTestRequest(String path) {
+  private MockRequestContext createTestRequest(String path) {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", path);
-    return new ServletRequestContext(null, request, new MockHttpServletResponse());
+    return new MockRequestContext(null, request, new MockHttpResponseImpl());
   }
 
 }

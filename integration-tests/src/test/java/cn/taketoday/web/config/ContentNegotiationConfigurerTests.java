@@ -29,7 +29,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationStrategy;
 import cn.taketoday.web.accept.FixedContentNegotiationStrategy;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +48,7 @@ class ContentNegotiationConfigurerTests {
   @BeforeEach
   public void setup() {
     this.servletRequest = new HttpMockRequestImpl();
-    this.webRequest = new ServletRequestContext(this.servletRequest, null);
+    this.webRequest = new MockRequestContext(this.servletRequest, null);
     this.configurer = new ContentNegotiationConfigurer();
   }
 

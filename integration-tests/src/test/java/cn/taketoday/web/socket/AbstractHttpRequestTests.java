@@ -25,9 +25,9 @@ import org.junit.jupiter.api.BeforeEach;
 import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServerHttpResponse;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 /**
  * Base class for tests using {@link ServerHttpRequest} and {@link ServerHttpResponse}.
@@ -40,7 +40,7 @@ public abstract class AbstractHttpRequestTests {
 
   protected HttpMockRequestImpl servletRequest;
 
-  protected MockHttpServletResponse servletResponse;
+  protected MockHttpResponseImpl servletResponse;
 
   @BeforeEach
   protected void setup() {
@@ -50,7 +50,7 @@ public abstract class AbstractHttpRequestTests {
   protected void setRequest(String method, String requestUri) {
     this.servletRequest.setMethod(method);
     this.servletRequest.setRequestURI(requestUri);
-    this.request = new ServletRequestContext(null, this.servletRequest, servletResponse);
+    this.request = new MockRequestContext(null, this.servletRequest, servletResponse);
   }
 
   protected void resetRequestAndResponse() {
@@ -61,11 +61,11 @@ public abstract class AbstractHttpRequestTests {
   protected void resetRequest() {
     this.servletRequest = new HttpMockRequestImpl();
     this.servletRequest.setAsyncSupported(true);
-    this.request = new ServletRequestContext(null, this.servletRequest, servletResponse);
+    this.request = new MockRequestContext(null, this.servletRequest, servletResponse);
   }
 
   protected void resetResponse() {
-    this.servletResponse = new MockHttpServletResponse();
+    this.servletResponse = new MockHttpResponseImpl();
   }
 
 }

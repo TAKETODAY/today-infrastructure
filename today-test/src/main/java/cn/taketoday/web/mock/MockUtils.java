@@ -31,10 +31,10 @@ import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockRequestWrapper;
-import cn.taketoday.mock.api.ServletResponse;
-import cn.taketoday.mock.api.ServletResponseWrapper;
+import cn.taketoday.mock.api.MockResponse;
+import cn.taketoday.mock.api.MockResponseWrapper;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.MockIndicator;
@@ -46,14 +46,14 @@ import cn.taketoday.web.util.WebUtils;
  * @author TODAY 2020/12/8 23:07
  * @since 3.0
  */
-public abstract class ServletUtils {
+public abstract class MockUtils {
 
   /**
    * Request attribute to hold the current web application context.
    * Otherwise only the global web app context is obtainable by tags etc.
    */
   public static final String WEB_APPLICATION_CONTEXT_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          ServletUtils.class, "CONTEXT");
+          MockUtils.class, "CONTEXT");
 
   /** Name suffixes in case of image buttons.  @since 4.0 */
   public static final String[] SUBMIT_IMAGE_SUFFIXES = { ".x", ".y" };
@@ -68,14 +68,14 @@ public abstract class ServletUtils {
 
   // context
 
-  public static RequestContext getRequestContext(MockRequest request, ServletResponse response) {
+  public static RequestContext getRequestContext(MockRequest request, MockResponse response) {
     HttpMockRequest servletRequest = (HttpMockRequest) request;
-    return getRequestContext(findWebApplicationContext(servletRequest), servletRequest, (HttpServletResponse) response);
+    return getRequestContext(findWebApplicationContext(servletRequest), servletRequest, (HttpMockResponse) response);
   }
 
   public static RequestContext getRequestContext(
-          WebApplicationContext webApplicationContext, HttpMockRequest request, HttpServletResponse response) {
-    return new ServletRequestContext(webApplicationContext, request, response);
+          WebApplicationContext webApplicationContext, HttpMockRequest request, HttpMockResponse response) {
+    return new MockRequestContext(webApplicationContext, request, response);
   }
 
   /**
@@ -153,12 +153,12 @@ public abstract class ServletUtils {
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  public static <T> T getNativeResponse(ServletResponse response, @Nullable Class<T> requiredType) {
+  public static <T> T getNativeResponse(MockResponse response, @Nullable Class<T> requiredType) {
     if (requiredType != null) {
       if (requiredType.isInstance(response)) {
         return (T) response;
       }
-      else if (response instanceof ServletResponseWrapper wrapper) {
+      else if (response instanceof MockResponseWrapper wrapper) {
         return getNativeResponse(wrapper.getResponse(), requiredType);
       }
     }
@@ -187,8 +187,8 @@ public abstract class ServletUtils {
    * @return the servlet context to which this ServletRequest was last dispatched
    * @since 4.0
    */
-  public static MockContext getServletContext(RequestContext context) {
-    return getServletRequest(context).getServletContext();
+  public static MockContext getmockContext(RequestContext context) {
+    return getServletRequest(context).getMockContext();
   }
 
   /**
@@ -198,7 +198,7 @@ public abstract class ServletUtils {
    * @return the matching response object
    * @see WebUtils#getNativeContext(RequestContext, Class)
    */
-  public static HttpServletResponse getServletResponse(RequestContext context) {
+  public static HttpMockResponse getServletResponse(RequestContext context) {
     if (context instanceof MockIndicator mockIndicator) {
       return mockIndicator.getResponse();
     }
@@ -211,27 +211,27 @@ public abstract class ServletUtils {
    * Look for the WebApplicationContext associated with the DispatcherServlet
    * that has initiated request processing, and for the global context if none
    * was found associated with the current request. The global context will
-   * be found via the ServletContext or via ContextLoader's current context.
+   * be found via the MockContext or via ContextLoader's current context.
    *
    * @param request current HTTP request
    * @return the request-specific WebApplicationContext, or the global one
    * if no request-specific context has been found, or {@code null} if none
    * @see #findWebApplicationContext(MockRequest, MockContext)
-   * @see MockRequest#getServletContext()
+   * @see MockRequest#getMockContext()
    * @since 4.0
    */
   @Nullable
   public static WebApplicationContext findWebApplicationContext(MockRequest request) {
-    return findWebApplicationContext(request, request.getServletContext());
+    return findWebApplicationContext(request, request.getMockContext());
   }
 
   /**
    * Look for the WebApplicationContext associated with the DispatcherServlet
    * that has initiated request processing, and for the global context if none
    * was found associated with the current request. The global context will
-   * be found via the ServletContext or via ContextLoader's current context.
+   * be found via the MockContext or via ContextLoader's current context.
    * <p>NOTE: This variant remains compatible with Servlet 2.5, explicitly
-   * checking a given ServletContext instead of deriving it from the request.
+   * checking a given MockContext instead of deriving it from the request.
    *
    * @param request current HTTP request
    * @param mockContext current servlet context
@@ -384,7 +384,7 @@ public abstract class ServletUtils {
   }
 
   //---------------------------------------------------------------------
-  // ServletContext
+  // MockContext
   //---------------------------------------------------------------------
 
   /**
@@ -392,7 +392,7 @@ public abstract class ServletUtils {
    * as provided by the servlet container.
    * <p>Prepends a slash if the path does not already start with a slash,
    * and throws a FileNotFoundException if the path cannot be resolved to
-   * a resource (in contrast to ServletContext's {@code getRealPath},
+   * a resource (in contrast to MockContext's {@code getRealPath},
    * which returns null).
    *
    * @param mockContext the servlet context of the web application
@@ -402,7 +402,7 @@ public abstract class ServletUtils {
    * @see MockContext#getRealPath
    */
   public static String getRealPath(MockContext mockContext, String path) throws FileNotFoundException {
-    Assert.notNull(mockContext, "ServletContext is required");
+    Assert.notNull(mockContext, "MockContext is required");
     // Interpret location as relative to the web application root directory.
     if (!path.startsWith("/")) {
       path = "/" + path;
@@ -410,7 +410,7 @@ public abstract class ServletUtils {
     String realPath = mockContext.getRealPath(path);
     if (realPath == null) {
       throw new FileNotFoundException(
-              "ServletContext resource [" + path + "] cannot be resolved to absolute file path - " +
+              "MockContext resource [" + path + "] cannot be resolved to absolute file path - " +
                       "web application archive not expanded?");
     }
     return realPath;

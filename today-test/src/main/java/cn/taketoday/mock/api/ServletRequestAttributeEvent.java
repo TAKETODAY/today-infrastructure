@@ -34,7 +34,7 @@ public class ServletRequestAttributeEvent extends ServletRequestEvent {
    * Construct a ServletRequestAttributeEvent giving the servlet context of this web application, the ServletRequest whose
    * attributes are changing and the name and value of the attribute.
    *
-   * @param sc the ServletContext that is sending the event.
+   * @param sc the MockContext that is sending the event.
    * @param request the ServletRequest that is sending the event.
    * @param name the name of the request attribute.
    * @param value the value of the request attribute.

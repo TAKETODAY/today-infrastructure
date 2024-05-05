@@ -106,7 +106,7 @@ import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.VersionStrategy;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.AbstractView;
 import cn.taketoday.web.view.ContentNegotiatingViewResolver;
 import cn.taketoday.web.view.View;
@@ -289,7 +289,7 @@ public class WebMvcAutoConfigurationTests {
               request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "nl_NL");
               LocaleResolver localeResolver = loader.getBean(LocaleResolver.class);
               assertThat(localeResolver).isInstanceOf(FixedLocaleResolver.class);
-              Locale locale = localeResolver.resolveLocale(new ServletRequestContext(null, request, null));
+              Locale locale = localeResolver.resolveLocale(new MockRequestContext(null, request, null));
               // test locale resolver uses fixed locale and not user preferred
               // locale
               assertThat(locale.toString()).isEqualTo("en_UK");
@@ -305,7 +305,7 @@ public class WebMvcAutoConfigurationTests {
       request.addHeader(HttpHeaders.ACCEPT_LANGUAGE, "nl_NL");
       LocaleResolver localeResolver = loader.getBean(LocaleResolver.class);
       assertThat(localeResolver).isInstanceOf(AcceptHeaderLocaleResolver.class);
-      Locale locale = localeResolver.resolveLocale(new ServletRequestContext(null, request, null));
+      Locale locale = localeResolver.resolveLocale(new MockRequestContext(null, request, null));
       // test locale resolver uses user preferred locale
       assertThat(locale.toString()).isEqualTo("nl_NL");
     });
@@ -318,7 +318,7 @@ public class WebMvcAutoConfigurationTests {
       HttpMockRequestImpl request = new HttpMockRequestImpl();
       LocaleResolver localeResolver = context.getBean(LocaleResolver.class);
       assertThat(localeResolver).isInstanceOf(AcceptHeaderLocaleResolver.class);
-      Locale locale = localeResolver.resolveLocale(new ServletRequestContext(null, request, null));
+      Locale locale = localeResolver.resolveLocale(new MockRequestContext(null, request, null));
       // test locale resolver uses default locale if no header is set
       assertThat(locale.toString()).isEqualTo("en_UK");
     });

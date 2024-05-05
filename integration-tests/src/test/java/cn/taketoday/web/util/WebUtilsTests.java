@@ -27,9 +27,9 @@ import java.util.List;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -166,7 +166,7 @@ public class WebUtilsTests {
       servletRequest.setServerPort(port);
     }
     servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
     return WebUtils.isValidOrigin(context, allowed);
   }
 
@@ -179,7 +179,7 @@ public class WebUtilsTests {
     }
     servletRequest.addHeader(HttpHeaders.ORIGIN, originHeader);
 
-    ServletRequestContext context = new ServletRequestContext(null, servletRequest, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(null, servletRequest, new MockHttpResponseImpl());
     return WebUtils.isSameOrigin(context);
   }
 

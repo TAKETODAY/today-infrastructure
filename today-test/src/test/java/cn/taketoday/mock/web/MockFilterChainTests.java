@@ -28,7 +28,7 @@ import cn.taketoday.mock.api.FilterConfig;
 import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -45,12 +45,12 @@ class MockFilterChainTests {
 
 	private MockRequest request;
 
-	private ServletResponse response;
+	private MockResponse response;
 
 	@BeforeEach
 	void setup() {
 		this.request = new HttpMockRequestImpl();
-		this.response = new MockHttpServletResponse();
+		this.response = new MockHttpResponseImpl();
 	}
 
 	@Test
@@ -135,7 +135,7 @@ class MockFilterChainTests {
 		}
 
 		@Override
-		public void doFilter(MockRequest request, ServletResponse response, FilterChain chain)
+		public void doFilter(MockRequest request, MockResponse response, FilterChain chain)
 				throws IOException, ServletException {
 
 			this.invoked = true;

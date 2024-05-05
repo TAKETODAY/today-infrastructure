@@ -28,7 +28,7 @@ import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
-import cn.taketoday.web.mock.support.ServletContextResourcePatternLoader;
+import cn.taketoday.web.mock.support.MockContextResourcePatternLoader;
 
 /**
  * A stub WebApplicationContext that accepts registrations of object instances.
@@ -48,8 +48,8 @@ class StubWebApplicationContext extends GenericWebApplicationContext implements 
   private final PatternResourceLoader resourcePatternResolver;
 
   public StubWebApplicationContext(MockContext mockContext) {
-    setServletContext(mockContext);
-    this.resourcePatternResolver = new ServletContextResourcePatternLoader(mockContext);
+    setMockContext(mockContext);
+    this.resourcePatternResolver = new MockContextResourcePatternLoader(mockContext);
   }
 
   @Override

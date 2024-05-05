@@ -24,7 +24,7 @@ import java.util.List;
 import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.session.config.EnableWebSession;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ class DefaultWebSessionManagerTests {
     applicationContext.register(AppConfig.class);
     applicationContext.refresh();
     SessionManager sessionManager = applicationContext.getBean(SessionManager.class);
-    ServletRequestContext context = new ServletRequestContext();
+    MockRequestContext context = new MockRequestContext();
 
     WebSession noneExistingSession = sessionManager.getSession(context, false);
 

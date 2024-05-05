@@ -36,7 +36,7 @@ import cn.taketoday.web.async.DeferredResultProcessingInterceptor;
 import cn.taketoday.web.async.TimeoutAsyncProcessingInterceptor;
 import cn.taketoday.web.async.WebAsyncManager;
 import cn.taketoday.web.async.WebAsyncTask;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
@@ -61,7 +61,7 @@ class WebAsyncManagerTests {
 
   private HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
-  private ServletRequestContext request = new ServletRequestContext(null, servletRequest, null);
+  private MockRequestContext request = new MockRequestContext(null, servletRequest, null);
 
   @BeforeEach
   public void setup() {

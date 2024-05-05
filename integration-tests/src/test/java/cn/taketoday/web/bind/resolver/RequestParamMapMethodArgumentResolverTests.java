@@ -28,10 +28,10 @@ import cn.taketoday.web.ResolvableMethod;
 import cn.taketoday.web.annotation.RequestParam;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
 import cn.taketoday.web.multipart.MultipartFile;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.testfixture.MockMultipartFile;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.mock.api.http.Part;
 
@@ -47,7 +47,7 @@ class RequestParamMapMethodArgumentResolverTests {
 
   private HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private ServletRequestContext webRequest = new ServletRequestContext(null, request, new MockHttpServletResponse());
+  private MockRequestContext webRequest = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
   private ResolvableMethod testMethod = ResolvableMethod.on(getClass()).named("handle").build();
 
@@ -108,7 +108,7 @@ class RequestParamMapMethodArgumentResolverTests {
     MultipartFile expected2 = new MockMultipartFile("other", "Hello World 3".getBytes());
     request.addFile(expected1);
     request.addFile(expected2);
-    webRequest = new ServletRequestContext(null, request, null);
+    webRequest = new MockRequestContext(null, request, null);
 
     ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(Map.class, String.class, MultipartFile.class);
     Object result = resolver.resolveArgument(webRequest, param);
@@ -131,7 +131,7 @@ class RequestParamMapMethodArgumentResolverTests {
     request.addFile(expected1);
     request.addFile(expected2);
     request.addFile(expected3);
-    webRequest = new ServletRequestContext(null, request, null);
+    webRequest = new MockRequestContext(null, request, null);
 
     ResolvableMethodParameter param = this.testMethod.annot(MvcAnnotationPredicates.requestParam().noName()).arg(MultiValueMap.class, String.class, MultipartFile.class);
     Object result = resolver.resolveArgument(webRequest, param);

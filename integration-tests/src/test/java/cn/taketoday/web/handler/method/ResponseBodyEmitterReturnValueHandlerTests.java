@@ -33,11 +33,11 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.async.AsyncWebRequest;
-import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
+import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
 import cn.taketoday.web.async.WebAsyncManager;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -58,9 +58,9 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -70,10 +70,10 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     this.handler = new ResponseBodyEmitterReturnValueHandler(converters);
     this.request = new HttpMockRequestImpl();
-    this.response = new MockHttpServletResponse();
-    this.webRequest = new ServletRequestContext(null, this.request, this.response);
+    this.response = new MockHttpResponseImpl();
+    this.webRequest = new MockRequestContext(null, this.request, this.response);
 
-    AsyncWebRequest asyncWebRequest = new StandardServletAsyncWebRequest(this.request, this.response);
+    AsyncWebRequest asyncWebRequest = new StandardMockAsyncWebRequest(this.request, this.response);
     webRequest.getAsyncManager().setAsyncRequest(asyncWebRequest);
     this.request.setAsyncSupported(true);
   }

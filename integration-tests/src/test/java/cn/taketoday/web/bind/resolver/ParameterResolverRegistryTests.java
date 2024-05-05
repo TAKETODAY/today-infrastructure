@@ -130,7 +130,7 @@ class ParameterResolverRegistryTests {
 
     var context = new AnnotationConfigWebApplicationContext();
     context.refresh();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
 
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);
@@ -153,7 +153,7 @@ class ParameterResolverRegistryTests {
   void lookupStrategy() {
 
     var context = new AnnotationConfigWebApplicationContext();
-    context.setServletContext(new MockContextImpl());
+    context.setMockContext(new MockContextImpl());
     context.refresh();
     ParameterResolvingRegistry registry = new ParameterResolvingRegistry();
     registry.setApplicationContext(context);

@@ -23,8 +23,8 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpSession;
@@ -48,7 +48,7 @@ import cn.taketoday.mock.api.http.PushBuilder;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/4/28 10:34
  */
-public class ServletRequestMethodArgumentResolver implements ParameterResolvingStrategy {
+public class MockRequestMethodArgumentResolver implements ParameterResolvingStrategy {
 
   @Override
   public boolean supportsParameter(ResolvableMethodParameter resolvable) {
@@ -62,7 +62,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    HttpMockRequest request = ((ServletRequestContext) context).getRequest();
+    HttpMockRequest request = ((MockRequestContext) context).getRequest();
 
     Class<?> paramType = resolvable.getParameterType();
     if (HttpSession.class.isAssignableFrom(paramType)) {
@@ -91,7 +91,7 @@ public class ServletRequestMethodArgumentResolver implements ParameterResolvingS
     }
 
     // ServletRequest / HttpServletRequest
-    return ServletUtils.getNativeRequest(request, paramType);
+    return MockUtils.getNativeRequest(request, paramType);
   }
 
 }

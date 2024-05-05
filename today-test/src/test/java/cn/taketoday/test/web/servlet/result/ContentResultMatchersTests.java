@@ -23,7 +23,7 @@ package cn.taketoday.test.web.servlet.result;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.StubMvcResult;
 
 import static cn.taketoday.http.MediaType.APPLICATION_JSON_VALUE;
@@ -116,7 +116,7 @@ class ContentResultMatchersTests {
   private static final String UTF8_CONTENT = "{\"name\":\"Jürgen\"}";
 
   private StubMvcResult getStubMvcResult(String content) throws Exception {
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     response.addHeader("Content-Type", APPLICATION_JSON_VALUE);
     response.getOutputStream().write(content.getBytes(UTF_8));
     return new StubMvcResult(null, null, null, null, null, null, response);

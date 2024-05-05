@@ -23,21 +23,22 @@ import java.io.OutputStream;
 
 /**
  * Provides an output stream for sending binary data to the client. A <code>ServletOutputStream</code> object is
- * normally retrieved via the {@link ServletResponse#getOutputStream} method.
+ * normally retrieved via the {@link MockResponse#getOutputStream} method.
  *
  * <p>
  * This is an abstract class that the servlet container implements. Subclasses of this class must implement the
  * <code>java.io.OutputStream.write(int)</code> method.
  *
  * @author Various
- * @see ServletResponse
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
+ * @see MockResponse
  */
-public abstract class ServletOutputStream extends OutputStream {
+public abstract class MockOutputStream extends OutputStream {
 
   /**
    * Does nothing, because this is an abstract class.
    */
-  protected ServletOutputStream() {
+  protected MockOutputStream() {
   }
 
   /**
@@ -217,7 +218,6 @@ public abstract class ServletOutputStream extends OutputStream {
    *
    * @return <code>true</code> if data can be written without blocking, otherwise returns <code>false</code>.
    * @see WriteListener
-   * @since Servlet 3.1
    */
   public abstract boolean isReady();
 
@@ -232,7 +232,6 @@ public abstract class ServletOutputStream extends OutputStream {
    * <li>setWriteListener is called more than once within the scope of the same request.
    * </ul>
    * @throws NullPointerException if writeListener is null
-   * @since Servlet 3.1
    */
   public abstract void setWriteListener(WriteListener writeListener);
 

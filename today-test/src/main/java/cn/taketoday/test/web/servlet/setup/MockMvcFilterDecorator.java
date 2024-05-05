@@ -34,7 +34,7 @@ import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
@@ -136,7 +136,7 @@ final class MockMvcFilterDecorator implements Filter {
   }
 
   @Override
-  public void doFilter(MockRequest request, ServletResponse response, FilterChain filterChain)
+  public void doFilter(MockRequest request, MockResponse response, FilterChain filterChain)
           throws IOException, ServletException {
 
     HttpMockRequest httpRequest = (HttpMockRequest) request;

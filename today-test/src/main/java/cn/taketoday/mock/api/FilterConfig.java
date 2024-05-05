@@ -23,7 +23,6 @@ import java.util.Enumeration;
  * A filter configuration object used by a servlet container to pass information to a filter during initialization.
  *
  * @see Filter
- * @since Servlet 2.3
  */
 public interface FilterConfig {
 
@@ -40,7 +39,7 @@ public interface FilterConfig {
    * @return a {@link MockContext} object, used by the caller to interact with its servlet container
    * @see MockContext
    */
-  public MockContext getServletContext();
+  public MockContext getMockContext();
 
   /**
    * Returns a <code>String</code> containing the value of the named initialization parameter, or <code>null</code> if the

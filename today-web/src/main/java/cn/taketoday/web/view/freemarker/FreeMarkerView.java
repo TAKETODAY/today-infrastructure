@@ -238,8 +238,7 @@ public class FreeMarkerView extends AbstractTemplateView {
    * {@code processTemplate} method to merge the template instance with
    * the given template model.
    * <p>Adds the standard Freemarker hash models to the model: request parameters,
-   * request, session and application (ServletContext), as well as the JSP tag
-   * library hash model.
+   * request, session, as well as the JSP tag library hash model.
    * <p>Can be overridden to customize the behavior, for example to render
    * multiple templates into a single view.
    *

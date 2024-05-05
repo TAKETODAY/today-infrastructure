@@ -29,7 +29,7 @@ import jakarta.websocket.server.ServerContainer;
 /**
  * A {@link FactoryBean} for configuring {@link ServerContainer}.
  * Since there is usually only one {@code ServerContainer} instance accessible under a
- * well-known {@code cn.taketoday.mock.api.ServletContext} attribute, simply declaring this
+ * well-known {@code cn.taketoday.mock.api.MockContext} attribute, simply declaring this
  * FactoryBean and using its setters allows for configuring the {@code ServerContainer}
  * through Infra configuration.
  *
@@ -103,11 +103,11 @@ public class MockServerContainerFactoryBean
   @Override
   public void afterPropertiesSet() {
     Assert.state(this.mockContext != null,
-            "A ServletContext is required to access the jakarta.websocket.server.ServerContainer instance");
+            "A MockContext is required to access the jakarta.websocket.server.ServerContainer instance");
     this.serverContainer = (ServerContainer) this.mockContext.getAttribute(
             "jakarta.websocket.server.ServerContainer");
     Assert.state(this.serverContainer != null,
-            "Attribute 'jakarta.websocket.server.ServerContainer' not found in ServletContext");
+            "Attribute 'jakarta.websocket.server.ServerContainer' not found in MockContext");
 
     if (this.asyncSendTimeout != null) {
       this.serverContainer.setAsyncSendTimeout(this.asyncSendTimeout);

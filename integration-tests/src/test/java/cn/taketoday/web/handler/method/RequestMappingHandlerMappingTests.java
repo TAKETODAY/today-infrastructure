@@ -47,7 +47,7 @@ import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.annotation.RestController;
 import cn.taketoday.web.handler.condition.ConsumesRequestCondition;
 import cn.taketoday.web.service.annotation.HttpExchange;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.util.pattern.PathPattern;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
@@ -128,11 +128,11 @@ class RequestMappingHandlerMappingTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/api/get");
 
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
 
     request = new HttpMockRequestImpl("GET", "/api/get.pdf");
 
-    assertThat(info.getPathPatternsCondition().getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
+    assertThat(info.getPathPatternsCondition().getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
   }
 
   @PathPatternsParameterizedTest

@@ -42,7 +42,7 @@ import cn.taketoday.http.converter.json.MappingJackson2HttpMessageConverter;
 import cn.taketoday.http.converter.json.MappingJacksonValue;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.ui.Model;
@@ -60,7 +60,7 @@ import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyAdviceChain;
 import cn.taketoday.web.bind.resolver.RequestResponseBodyMethodProcessor;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.testfixture.ReflectionTestUtils;
 
@@ -76,11 +76,11 @@ class RequestMappingHandlerAdapterTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   private StaticWebApplicationContext webAppContext;
 
-  private ServletRequestContext context;
+  private MockRequestContext context;
 
   private final AnnotationConfigApplicationContext parent = new AnnotationConfigApplicationContext(Config.class);
 
@@ -102,9 +102,9 @@ class RequestMappingHandlerAdapterTests {
     handlerAdapter.setResolvingRegistry(webAppContext.getBean(ParameterResolvingRegistry.class));
 
     this.request = new HttpMockRequestImpl("GET", "/");
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
 
-    context = new ServletRequestContext(null, request, response);
+    context = new MockRequestContext(null, request, response);
   }
 
   @EnableWebMvc
@@ -162,7 +162,7 @@ class RequestMappingHandlerAdapterTests {
     ModelMap model = context.binding().getModel();
 
     Object instance = model.get("instance");
-    context = new ServletRequestContext(null, request, response);
+    context = new MockRequestContext(null, request, response);
     context.setBinding(new BindingContext());
     model = context.binding().getModel();
     this.handlerAdapter.handle(context, handlerMethod);

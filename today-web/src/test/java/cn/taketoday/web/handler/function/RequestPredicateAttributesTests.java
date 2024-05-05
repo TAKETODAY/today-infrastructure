@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collections;
 
 import cn.taketoday.http.converter.StringHttpMessageConverter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +34,7 @@ class RequestPredicateAttributesTests {
   @BeforeEach
   public void createRequest() {
 
-    ServletRequestContext context = new ServletRequestContext();
+    MockRequestContext context = new MockRequestContext();
     context.setRequestURI("https://example.com/path");
 
     context.getAttributes().put("exchange", "bar");

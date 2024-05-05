@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Chris Beams
  * @author Sam Brannen
  */
-@DisplayName("MockServletContext unit tests")
+@DisplayName("MockContext unit tests")
 class MockContextTests {
 
   @Nested
@@ -120,7 +120,7 @@ class MockContextTests {
       mockContext.registerNamedDispatcher(name, new MockRequestDispatcher(url));
       RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(name);
       assertThat(namedDispatcher).isNotNull();
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      MockHttpResponseImpl response = new MockHttpResponseImpl();
       namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
       assertThat(response.getForwardedUrl()).isEqualTo(url);
 
@@ -134,7 +134,7 @@ class MockContextTests {
       RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(name);
       assertThat(namedDispatcher).isNotNull();
 
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      MockHttpResponseImpl response = new MockHttpResponseImpl();
       namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
       assertThat(response.getForwardedUrl()).isEqualTo(name);
     }
@@ -151,7 +151,7 @@ class MockContextTests {
 
       RequestDispatcher namedDispatcher = mockContext.getNamedDispatcher(newDefault);
       assertThat(namedDispatcher).isNotNull();
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      MockHttpResponseImpl response = new MockHttpResponseImpl();
       namedDispatcher.forward(new HttpMockRequestImpl(mockContext), response);
       assertThat(response.getForwardedUrl()).isEqualTo(newDefault);
     }

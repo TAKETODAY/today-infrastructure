@@ -21,13 +21,14 @@ import cn.taketoday.beans.factory.BeanNameAware;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * Controller implementation that forwards to a named servlet,
@@ -101,7 +102,7 @@ public class MockForwardingController extends AbstractController implements Bean
     this.mockContext = mockContext;
   }
 
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return mockContext;
   }
 
@@ -116,15 +117,15 @@ public class MockForwardingController extends AbstractController implements Bean
   @Nullable
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
-    MockContext mockContext = getServletContext();
-    Assert.state(mockContext != null, "No ServletContext");
+    MockContext mockContext = getMockContext();
+    Assert.state(mockContext != null, "No MockContext");
     RequestDispatcher rd = mockContext.getNamedDispatcher(servletName);
     if (rd == null) {
       throw new ServletException("No servlet with name '%s' defined in web.xml".formatted(servletName));
     }
 
-    HttpMockRequest servletRequest = ServletUtils.getServletRequest(request);
-    HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
+    HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
+    HttpMockResponse servletResponse = MockUtils.getServletResponse(request);
 
     // If already included, include again, else forward.
     if (useInclude(servletRequest, servletResponse)) {
@@ -154,11 +155,11 @@ public class MockForwardingController extends AbstractController implements Bean
    * @return {@code true} for include, {@code false} for forward
    * @see cn.taketoday.mock.api.RequestDispatcher#forward
    * @see cn.taketoday.mock.api.RequestDispatcher#include
-   * @see cn.taketoday.mock.api.ServletResponse#isCommitted
-   * @see ServletUtils#isIncludeRequest
+   * @see MockResponse#isCommitted
+   * @see MockUtils#isIncludeRequest
    */
-  protected boolean useInclude(HttpMockRequest request, HttpServletResponse response) {
-    return ServletUtils.isIncludeRequest(request) || response.isCommitted();
+  protected boolean useInclude(HttpMockRequest request, HttpMockResponse response) {
+    return MockUtils.isIncludeRequest(request) || response.isCommitted();
   }
 
 }

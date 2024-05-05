@@ -32,7 +32,7 @@ import cn.taketoday.core.annotation.AnnotationUtils;
 import cn.taketoday.logging.Logger;
 import cn.taketoday.logging.LoggerFactory;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.ui.Model;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.web.BindingContext;
@@ -42,7 +42,7 @@ import cn.taketoday.web.bind.resolver.ModelMethodProcessor;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.bind.support.DefaultSessionAttributeStore;
 import cn.taketoday.web.bind.support.SessionAttributeStore;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,8 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ModelHandlerOrderingTests {
   private static final Logger logger = LoggerFactory.getLogger(ModelHandlerOrderingTests.class);
 
-  private final ServletRequestContext webRequest = new ServletRequestContext(
-          null, new HttpMockRequestImpl(), new MockHttpServletResponse());
+  private final MockRequestContext webRequest = new MockRequestContext(
+          null, new HttpMockRequestImpl(), new MockHttpResponseImpl());
 
   private final BindingContext mavContainer = new BindingContext();
 

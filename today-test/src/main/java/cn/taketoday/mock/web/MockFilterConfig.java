@@ -65,7 +65,7 @@ public class MockFilterConfig implements FilterConfig {
   /**
    * Create a new MockFilterConfig.
    *
-   * @param mockContext the ServletContext that the servlet runs in
+   * @param mockContext the MockContext that the servlet runs in
    */
   public MockFilterConfig(@Nullable MockContext mockContext) {
     this(mockContext, "");
@@ -74,7 +74,7 @@ public class MockFilterConfig implements FilterConfig {
   /**
    * Create a new MockFilterConfig.
    *
-   * @param mockContext the ServletContext that the servlet runs in
+   * @param mockContext the MockContext that the servlet runs in
    * @param filterName the name of the filter
    */
   public MockFilterConfig(@Nullable MockContext mockContext, String filterName) {
@@ -88,7 +88,7 @@ public class MockFilterConfig implements FilterConfig {
   }
 
   @Override
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return this.mockContext;
   }
 

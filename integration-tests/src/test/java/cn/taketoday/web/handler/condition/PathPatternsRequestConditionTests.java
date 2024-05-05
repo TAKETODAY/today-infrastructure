@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.util.pattern.PathPatternParser;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +90,7 @@ public class PathPatternsRequestConditionTests {
     HttpMockRequestImpl request = createRequest("/foo");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
 
     assertThat(match).isNotNull();
   }
@@ -100,7 +100,7 @@ public class PathPatternsRequestConditionTests {
     HttpMockRequestImpl request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
 
     assertThat(match).isNotNull();
   }
@@ -110,7 +110,7 @@ public class PathPatternsRequestConditionTests {
     HttpMockRequestImpl request = createRequest("", "/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/foo/*");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
 
     assertThat(match).isNotNull();
   }
@@ -120,7 +120,7 @@ public class PathPatternsRequestConditionTests {
     HttpMockRequestImpl request = createRequest("/foo/bar");
 
     PathPatternsRequestCondition condition = createCondition("/**", "/foo/bar", "/foo/*");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
     PathPatternsRequestCondition expected = createCondition("/foo/bar", "/foo/*", "/**");
 
     assertThat(match).isEqualTo(expected);
@@ -131,7 +131,7 @@ public class PathPatternsRequestConditionTests {
     HttpMockRequestImpl request = createRequest("/foo/");
 
     PathPatternsRequestCondition condition = createCondition("/foo");
-    PathPatternsRequestCondition match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    PathPatternsRequestCondition match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
 
     assertThat(match).isNotNull();
     assertThat(match.getPatternValues().iterator().next()).as("Should match by default").isEqualTo("/foo");
@@ -140,7 +140,7 @@ public class PathPatternsRequestConditionTests {
     strictParser.setMatchOptionalTrailingSeparator(false);
 
     condition = new PathPatternsRequestCondition(strictParser, "/foo");
-    match = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    match = condition.getMatchingCondition(new MockRequestContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -149,7 +149,7 @@ public class PathPatternsRequestConditionTests {
   void matchPatternContainsExtension() {
     HttpMockRequestImpl request = createRequest("/foo.html");
     PathPatternsRequestCondition match = createCondition("/foo.jpg")
-            .getMatchingCondition(new ServletRequestContext(null, request, null));
+            .getMatchingCondition(new MockRequestContext(null, request, null));
 
     assertThat(match).isNull();
   }
@@ -189,22 +189,22 @@ public class PathPatternsRequestConditionTests {
     PathPatternsRequestCondition c1 = createCondition("/foo", "/bar");
     PathPatternsRequestCondition c2 = createCondition("/foo", "/f*");
 
-    PathPatternsRequestCondition match1 = c1.getMatchingCondition(new ServletRequestContext(null, request, null));
-    PathPatternsRequestCondition match2 = c2.getMatchingCondition(new ServletRequestContext(null, request, null));
+    PathPatternsRequestCondition match1 = c1.getMatchingCondition(new MockRequestContext(null, request, null));
+    PathPatternsRequestCondition match2 = c2.getMatchingCondition(new MockRequestContext(null, request, null));
 
-    assertThat(match1.compareTo(match2, new ServletRequestContext(null, request, null))).isEqualTo(1);
+    assertThat(match1.compareTo(match2, new MockRequestContext(null, request, null))).isEqualTo(1);
   }
 
   private HttpMockRequestImpl createRequest(String requestURI) {
     return createRequest("", requestURI);
   }
 
-  private ServletRequestContext createContext(String requestURI) {
-    return new ServletRequestContext(null, createRequest("", requestURI), null);
+  private MockRequestContext createContext(String requestURI) {
+    return new MockRequestContext(null, createRequest("", requestURI), null);
   }
 
-  private ServletRequestContext createContext(String contextPath, String requestURI) {
-    return new ServletRequestContext(null, createRequest(contextPath, requestURI), null);
+  private MockRequestContext createContext(String contextPath, String requestURI) {
+    return new MockRequestContext(null, createRequest(contextPath, requestURI), null);
   }
 
   private HttpMockRequestImpl createRequest(String contextPath, String requestURI) {

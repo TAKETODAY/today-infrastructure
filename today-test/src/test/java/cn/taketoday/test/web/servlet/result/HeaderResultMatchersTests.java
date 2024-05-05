@@ -27,7 +27,7 @@ import java.time.ZonedDateTime;
 
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.MvcResult;
 import cn.taketoday.test.web.servlet.StubMvcResult;
 
@@ -40,7 +40,7 @@ public class HeaderResultMatchersTests {
 
   private final HeaderResultMatchers matchers = new HeaderResultMatchers();
 
-  private final MockHttpServletResponse response = new MockHttpServletResponse();
+  private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   private final MvcResult mvcResult =
           new StubMvcResult(new HttpMockRequestImpl(), null, null, null, null, null, this.response);

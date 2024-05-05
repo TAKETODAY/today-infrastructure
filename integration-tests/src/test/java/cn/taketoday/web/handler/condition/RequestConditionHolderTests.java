@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.lang.NonNull;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,8 +115,8 @@ public class RequestConditionHolderTests {
   }
 
   @NonNull
-  private ServletRequestContext createContext(HttpMockRequest request) {
-    return new ServletRequestContext(null, request, null);
+  private MockRequestContext createContext(HttpMockRequest request) {
+    return new MockRequestContext(null, request, null);
   }
 
   @Test

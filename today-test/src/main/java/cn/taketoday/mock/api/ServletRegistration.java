@@ -46,7 +46,7 @@ public interface ServletRegistration extends Registration {
    * @param urlPatterns the URL patterns of the servlet mapping
    * @return the (possibly empty) Set of URL patterns that are already mapped to a different Servlet
    * @throws IllegalArgumentException if <tt>urlPatterns</tt> is null or empty
-   * @throws IllegalStateException if the ServletContext from which this ServletRegistration was obtained has already been
+   * @throws IllegalStateException if the MockContext from which this ServletRegistration was obtained has already been
    * initialized
    */
   public Set<String> addMapping(String... urlPatterns);
@@ -82,8 +82,8 @@ public interface ServletRegistration extends Registration {
      * <p>
      * A <tt>loadOnStartup</tt> value of greater than or equal to zero indicates to the container the initialization
      * priority of the Servlet. In this case, the container must instantiate and initialize the Servlet during the
-     * initialization phase of the ServletContext, that is, after it has invoked all of the ServletContextListener objects
-     * configured for the ServletContext at their {@link ServletContextListener#contextInitialized} method.
+     * initialization phase of the MockContext, that is, after it has invoked all of the MockContextListener objects
+     * configured for the MockContext at their {@link MockContextListener#contextInitialized} method.
      *
      * <p>
      * If <tt>loadOnStartup</tt> is a negative integer, the container is free to instantiate and initialize the Servlet
@@ -96,7 +96,7 @@ public interface ServletRegistration extends Registration {
      * A call to this method overrides any previous setting.
      *
      * @param loadOnStartup the initialization priority of the Servlet
-     * @throws IllegalStateException if the ServletContext from which this ServletRegistration was obtained has already been
+     * @throws IllegalStateException if the MockContext from which this ServletRegistration was obtained has already been
      * initialized
      */
     public void setLoadOnStartup(int loadOnStartup);
@@ -107,7 +107,7 @@ public interface ServletRegistration extends Registration {
      *
      * <p>
      * This method applies to all mappings added to this <code>ServletRegistration</code> up until the point that the
-     * <code>ServletContext</code> from which it was obtained has been initialized.
+     * <code>MockContext</code> from which it was obtained has been initialized.
      *
      * <p>
      * If a URL pattern of this ServletRegistration is an exact target of a <code>security-constraint</code> that was

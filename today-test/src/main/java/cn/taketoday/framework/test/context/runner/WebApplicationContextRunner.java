@@ -46,10 +46,10 @@ public final class WebApplicationContextRunner
    * {@link AnnotationConfigServletWebApplicationContext} with a
    * {@link MockContextImpl} as the underlying source.
    *
-   * @see #withMockServletContext(Supplier)
+   * @see #withMockContext(Supplier)
    */
   public WebApplicationContextRunner() {
-    this(withMockServletContext(AnnotationConfigServletWebApplicationContext::new));
+    this(withMockContext(AnnotationConfigServletWebApplicationContext::new));
   }
 
   /**
@@ -73,11 +73,11 @@ public final class WebApplicationContextRunner
    * @param contextFactory the context factory to decorate
    * @return an updated supplier that will set the {@link MockContextImpl}
    */
-  public static Supplier<ConfigurableWebApplicationContext> withMockServletContext(
+  public static Supplier<ConfigurableWebApplicationContext> withMockContext(
           Supplier<ConfigurableWebApplicationContext> contextFactory) {
     return (contextFactory != null) ? () -> {
       ConfigurableWebApplicationContext context = contextFactory.get();
-      context.setServletContext(new MockContextImpl());
+      context.setMockContext(new MockContextImpl());
       return context;
     } : null;
   }

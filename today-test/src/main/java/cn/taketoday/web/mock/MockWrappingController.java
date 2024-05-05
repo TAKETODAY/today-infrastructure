@@ -32,7 +32,7 @@ import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.mock.api.Servlet;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
 
@@ -149,11 +149,11 @@ public class MockWrappingController extends AbstractController
   /**
    * Invoke the wrapped Servlet instance.
    *
-   * @see Servlet#service(MockRequest, ServletResponse)
+   * @see Servlet#service(MockRequest, MockResponse)
    */
   @Override
   protected ModelAndView handleRequestInternal(RequestContext request) throws Exception {
-    ServletRequestContext nativeContext = WebUtils.getNativeContext(request, ServletRequestContext.class);
+    MockRequestContext nativeContext = WebUtils.getNativeContext(request, MockRequestContext.class);
     Assert.state(nativeContext != null, "Not run in servlet");
     Assert.state(this.servletInstance != null, "No Servlet instance");
     this.servletInstance.service(nativeContext.getRequest(), nativeContext.getResponse());
@@ -177,7 +177,7 @@ public class MockWrappingController extends AbstractController
     this.mockContext = mockContext;
   }
 
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return mockContext;
   }
 
@@ -197,7 +197,7 @@ public class MockWrappingController extends AbstractController
     @Override
     @Nullable
     public MockContext getMockContext() {
-      return MockWrappingController.this.getServletContext();
+      return MockWrappingController.this.getMockContext();
     }
 
     @Override

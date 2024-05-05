@@ -22,13 +22,13 @@ import org.junit.jupiter.api.Test;
 import cn.taketoday.beans.factory.BeanCreationException;
 import cn.taketoday.beans.factory.support.RootBeanDefinition;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.WebSession;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.RequestContextUtils;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.beans.testfixture.beans.TestBean;
@@ -56,7 +56,7 @@ public class RequestAndSessionScopedBeanTests {
     wac.refresh();
 
     HttpMockRequest request = new HttpMockRequestImpl();
-    RequestContextHolder.set(new ServletRequestContext(null, request, null));
+    RequestContextHolder.set(new MockRequestContext(null, request, null));
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target);
@@ -67,7 +67,7 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target2);
 
     request = new HttpMockRequestImpl();
-    RequestContextHolder.set(new ServletRequestContext(null, request, null));
+    RequestContextHolder.set(new MockRequestContext(null, request, null));
     TestBean target3 = (TestBean) wac.getBean(targetBeanName);
     assertThat(target3.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target3);
@@ -86,7 +86,7 @@ public class RequestAndSessionScopedBeanTests {
 
     AnnotationConfigWebApplicationContext wac = new AnnotationConfigWebApplicationContext();
 
-    ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
     RequestContextHolder.set(context);
 
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);

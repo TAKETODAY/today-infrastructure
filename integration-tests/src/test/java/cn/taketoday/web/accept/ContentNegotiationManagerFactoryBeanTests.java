@@ -32,7 +32,7 @@ import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -48,7 +48,7 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   private HttpMockRequestImpl servletRequest;
 
-  ServletRequestContext webRequest;
+  MockRequestContext webRequest;
 
   @BeforeEach
   void setup() {
@@ -56,7 +56,7 @@ class ContentNegotiationManagerFactoryBeanTests {
     servletContext.getMimeTypes().put("foo", "application/foo");
 
     this.servletRequest = new HttpMockRequestImpl(servletContext);
-    webRequest = new ServletRequestContext(servletRequest, null);
+    webRequest = new MockRequestContext(servletRequest, null);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }
 
@@ -122,14 +122,14 @@ class ContentNegotiationManagerFactoryBeanTests {
     this.servletRequest.setRequestURI("/flower.foo");
 
     this.servletRequest.setRequestURI("/flower.bar");
-    webRequest = new ServletRequestContext(servletRequest, null);
+    webRequest = new MockRequestContext(servletRequest, null);
 
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(new MediaType("application", "bar")));
 
     this.servletRequest.setRequestURI("/flower.gif");
 
-    webRequest = new ServletRequestContext(servletRequest, null);
+    webRequest = new MockRequestContext(servletRequest, null);
     assertThat(manager.resolveMediaTypes(this.webRequest))
             .isEqualTo(Collections.singletonList(MediaType.IMAGE_GIF));
   }

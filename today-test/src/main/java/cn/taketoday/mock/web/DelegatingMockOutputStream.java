@@ -21,20 +21,20 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import cn.taketoday.lang.Assert;
-import cn.taketoday.mock.api.ServletOutputStream;
+import cn.taketoday.mock.api.MockOutputStream;
 import cn.taketoday.mock.api.WriteListener;
 
 /**
- * Delegating implementation of {@link ServletOutputStream}.
+ * Delegating implementation of {@link MockOutputStream}.
  *
- * <p>Used by {@link MockHttpServletResponse}; typically not directly
+ * <p>Used by {@link MockHttpResponseImpl}; typically not directly
  * used for testing application controllers.
  *
  * @author Juergen Hoeller
- * @see MockHttpServletResponse
+ * @see MockHttpResponseImpl
  * @since 4.0
  */
-public class DelegatingServletOutputStream extends ServletOutputStream {
+public class DelegatingMockOutputStream extends MockOutputStream {
 
   private final OutputStream targetStream;
 
@@ -43,7 +43,7 @@ public class DelegatingServletOutputStream extends ServletOutputStream {
    *
    * @param targetStream the target stream (never {@code null})
    */
-  public DelegatingServletOutputStream(OutputStream targetStream) {
+  public DelegatingMockOutputStream(OutputStream targetStream) {
     Assert.notNull(targetStream, "Target OutputStream is required");
     this.targetStream = targetStream;
   }

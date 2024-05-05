@@ -26,7 +26,7 @@ import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
  * {@link ContextCustomizer} that instantiates a new {@link MockServerContainer}
- * and stores it in the {@code ServletContext} under the attribute named
+ * and stores it in the {@code MockContext} under the attribute named
  * {@code "jakarta.websocket.server.ServerContainer"}.
  *
  * @author Sam Brannen
@@ -37,7 +37,7 @@ class MockServerContainerContextCustomizer implements ContextCustomizer {
   @Override
   public void customizeContext(ConfigurableApplicationContext context, MergedContextConfiguration mergedConfig) {
     if (context instanceof WebApplicationContext wac) {
-      MockContext sc = wac.getServletContext();
+      MockContext sc = wac.getMockContext();
       if (sc != null) {
         sc.setAttribute("jakarta.websocket.server.ServerContainer", new MockServerContainer());
       }

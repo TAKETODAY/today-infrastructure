@@ -25,7 +25,7 @@ import java.io.File;
 import cn.taketoday.beans.factory.annotation.Autowired;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.test.context.junit4.InfraRunner;
 import cn.taketoday.web.RequestContext;
@@ -48,13 +48,13 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
   protected WebApplicationContext wac;
 
   @Autowired
-  protected MockContext mockServletContext;
+  protected MockContext mockContextIn;
 
   @Autowired
   protected HttpMockRequest request;
 
   @Autowired
-  protected MockHttpServletResponse response;
+  protected MockHttpResponseImpl response;
 
   @Autowired
   protected MockHttpSession session;
@@ -72,24 +72,24 @@ public abstract class AbstractBasicWacTests implements MockContextAware {
 
   @Test
   public void basicWacFeatures() throws Exception {
-    assertThat(wac.getServletContext()).as("ServletContext should be set in the WAC.").isNotNull();
+    assertThat(wac.getMockContext()).as("MockContext should be set in the WAC.").isNotNull();
 
-    assertThat(mockContext).as("ServletContext should have been set via ServletContextAware.").isNotNull();
+    assertThat(mockContext).as("MockContext should have been set via MockContextAware.").isNotNull();
 
-    assertThat(mockServletContext).as("ServletContext should have been autowired from the WAC.").isNotNull();
+    assertThat(mockContextIn).as("MockContext should have been autowired from the WAC.").isNotNull();
     assertThat(request).as("MockHttpServletRequest should have been autowired from the WAC.").isNotNull();
     assertThat(response).as("MockHttpServletResponse should have been autowired from the WAC.").isNotNull();
     assertThat(session).as("MockHttpSession should have been autowired from the WAC.").isNotNull();
     assertThat(webRequest).as("ServletWebRequest should have been autowired from the WAC.").isNotNull();
 
-    Object rootWac = mockServletContext.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
-    assertThat(rootWac).as("Root WAC must be stored in the ServletContext as: "
+    Object rootWac = mockContextIn.getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    assertThat(rootWac).as("Root WAC must be stored in the MockContext as: "
             + WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE).isNotNull();
-    assertThat(rootWac).as("test WAC and Root WAC in ServletContext must be the same object.").isSameAs(wac);
-    assertThat(wac.getServletContext()).as("ServletContext instances must be the same object.").isSameAs(mockServletContext);
-    assertThat(request.getServletContext()).as("ServletContext in the WAC and in the mock request").isSameAs(mockServletContext);
+    assertThat(rootWac).as("test WAC and Root WAC in MockContext must be the same object.").isSameAs(wac);
+    assertThat(wac.getMockContext()).as("MockContext instances must be the same object.").isSameAs(mockContextIn);
+    assertThat(request.getMockContext()).as("MockContext in the WAC and in the mock request").isSameAs(mockContextIn);
 
-    assertThat(mockServletContext.getRealPath("index.jsp")).as("Getting real path for ServletContext resource.")
+    assertThat(mockContextIn.getRealPath("index.jsp")).as("Getting real path for MockContext resource.")
             .isEqualTo(new File("src/main/webapp/index.jsp")
                     .getCanonicalPath());
 

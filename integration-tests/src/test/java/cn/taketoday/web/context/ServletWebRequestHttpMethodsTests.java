@@ -34,8 +34,8 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.util.ExceptionUtils;
-import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,9 +56,9 @@ class ServletWebRequestHttpMethodsTests {
 
   private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
-  private final MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+  private final MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
-  private final ServletRequestContext request = new ServletRequestContext(null, servletRequest, servletResponse);
+  private final MockRequestContext request = new MockRequestContext(null, servletRequest, servletResponse);
 
   @Test
   void ifMatchWildcardShouldMatchWhenETagPresent() {

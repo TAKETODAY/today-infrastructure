@@ -47,9 +47,9 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.handler.method.ControllerAdviceBean;
 import cn.taketoday.web.handler.method.RequestBodyAdvice;
 import cn.taketoday.web.handler.method.ResponseBodyAdvice;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -72,7 +72,7 @@ class RequestResponseBodyAdviceChainTests {
 
   private ServerHttpRequest request;
   private ServerHttpResponse response;
-  private ServletRequestContext requestContext;
+  private MockRequestContext requestContext;
 
   @BeforeEach
   public void setup() {
@@ -84,10 +84,10 @@ class RequestResponseBodyAdviceChainTests {
     HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
     this.request = new ServletServerHttpRequest(servletRequest);
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
     this.response = new ServletServerHttpResponse(servletResponse);
-    this.requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
+    this.requestContext = new MockRequestContext(null, servletRequest, servletResponse);
   }
 
   @SuppressWarnings("unchecked")

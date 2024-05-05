@@ -24,8 +24,8 @@ import java.util.function.Consumer;
 
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.StandardServletAsyncWebRequest;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.StandardMockAsyncWebRequest;
 import cn.taketoday.mock.api.AsyncEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,20 +37,20 @@ import static org.mockito.Mockito.verify;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 19:01
  */
-class StandardServletAsyncWebRequestTests {
+class StandardMockAsyncWebRequestTests {
 
-  private StandardServletAsyncWebRequest asyncRequest;
+  private StandardMockAsyncWebRequest asyncRequest;
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   @BeforeEach
   public void setup() {
     this.request = new HttpMockRequestImpl();
     this.request.setAsyncSupported(true);
-    this.response = new MockHttpServletResponse();
-    this.asyncRequest = new StandardServletAsyncWebRequest(this.request, this.response);
+    this.response = new MockHttpResponseImpl();
+    this.asyncRequest = new StandardMockAsyncWebRequest(this.request, this.response);
     this.asyncRequest.setTimeout(44 * 1000L);
   }
 

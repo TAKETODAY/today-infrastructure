@@ -27,7 +27,7 @@ import java.util.Map;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.ReflectionUtils;
 import cn.taketoday.validation.BindException;
 import cn.taketoday.validation.BindingResult;
@@ -36,7 +36,7 @@ import cn.taketoday.validation.ObjectError;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,8 +54,8 @@ class DefaultErrorAttributesTests {
 
   private final HttpMockRequestImpl request = new HttpMockRequestImpl();
 
-  private final RequestContext webRequest = new ServletRequestContext(
-          null, this.request, new MockHttpServletResponse());
+  private final RequestContext webRequest = new MockRequestContext(
+          null, this.request, new MockHttpResponseImpl());
 
   @Test
   void includeTimeStamp() {

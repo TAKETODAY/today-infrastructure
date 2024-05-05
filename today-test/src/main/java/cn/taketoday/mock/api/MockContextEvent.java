@@ -20,28 +20,27 @@ package cn.taketoday.mock.api;
 /**
  * This is the event class for notifications about changes to the servlet context of a web application.
  *
- * @see ServletContextListener
- * @since Servlet 2.3
+ * @see MockContextListener
  */
-public class ServletContextEvent extends java.util.EventObject {
+public class MockContextEvent extends java.util.EventObject {
 
   private static final long serialVersionUID = -7501701636134222423L;
 
   /**
-   * Construct a ServletContextEvent from the given context.
+   * Construct a MockContextEvent from the given context.
    *
-   * @param source - the ServletContext that is sending the event.
+   * @param source - the MockContext that is sending the event.
    */
-  public ServletContextEvent(MockContext source) {
+  public MockContextEvent(MockContext source) {
     super(source);
   }
 
   /**
-   * Return the ServletContext that changed.
+   * Return the MockContext that changed.
    *
-   * @return the ServletContext that sent the event.
+   * @return the MockContext that sent the event.
    */
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return (MockContext) super.getSource();
   }
 }

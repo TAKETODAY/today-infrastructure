@@ -47,7 +47,7 @@ import cn.taketoday.mock.api.fileupload.FileItemFactory;
  * implementation in an environment with local, untrusted users,
  * {@link #setRepository(File)} MUST be used to configure a repository location
  * that is not publicly writable. In a Servlet container the location identified
- * by the ServletContext attribute {@code cn.taketoday.mock.api.context.tempdir}
+ * by the MockContext attribute {@code cn.taketoday.mock.api.context.tempdir}
  * may be used.
  * </p>
  *

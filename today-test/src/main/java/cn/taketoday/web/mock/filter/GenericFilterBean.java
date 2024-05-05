@@ -46,7 +46,7 @@ import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.MockContextAware;
-import cn.taketoday.web.mock.support.ServletContextResourceLoader;
+import cn.taketoday.web.mock.support.MockContextResourceLoader;
 import cn.taketoday.web.mock.support.StandardServletEnvironment;
 import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 
@@ -68,7 +68,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  * {@link cn.taketoday.context.ApplicationContext} concept.
  * Filters usually don't load their own context but rather access service
  * beans from the Framework root application context, accessible via the
- * filter's {@link #getServletContext() ServletContext} (see
+ * filter's {@link #getMockContext() MockContext} (see
  * {@link WebApplicationContextUtils}).
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -147,12 +147,12 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
   }
 
   /**
-   * Stores the ServletContext that the bean factory runs in.
-   * <p>Only relevant in case of initialization as bean, to have a ServletContext
+   * Stores the MockContext that the bean factory runs in.
+   * <p>Only relevant in case of initialization as bean, to have a MockContext
    * as fallback to the context usually provided by a FilterConfig instance.
    *
    * @see MockContextAware
-   * @see #getServletContext()
+   * @see #getMockContext()
    */
   @Override
   public void setMockContext(MockContext mockContext) {
@@ -216,7 +216,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
     if (!pvs.isEmpty()) {
       try {
         BeanWrapper bw = BeanWrapper.forBeanPropertyAccess(this);
-        ResourceLoader resourceLoader = new ServletContextResourceLoader(filterConfig.getServletContext());
+        ResourceLoader resourceLoader = new MockContextResourceLoader(filterConfig.getMockContext());
         Environment env = this.environment;
         if (env == null) {
           env = new StandardServletEnvironment();
@@ -257,12 +257,12 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * method is invoked.
    * <p>Note: This method will be called from standard filter initialization
    * as well as filter bean initialization in a Framework application context.
-   * Filter name and ServletContext will be available in both cases.
+   * Filter name and MockContext will be available in both cases.
    * <p>This default implementation is empty.
    *
    * @throws ServletException if subclass initialization fails
    * @see #getFilterName()
-   * @see #getServletContext()
+   * @see #getMockContext()
    */
   protected void initFilterBean() throws ServletException { }
 
@@ -298,27 +298,27 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
   }
 
   /**
-   * Make the ServletContext of this filter available to subclasses.
-   * Analogous to GenericServlet's {@code getServletContext()}.
-   * <p>Takes the FilterConfig's ServletContext by default.
+   * Make the MockContext of this filter available to subclasses.
+   * Analogous to GenericServlet's {@code getMockContext()}.
+   * <p>Takes the FilterConfig's MockContext by default.
    * If initialized as bean in a Framework application context,
-   * it falls back to the ServletContext that the bean factory runs in.
+   * it falls back to the MockContext that the bean factory runs in.
    *
-   * @return the ServletContext instance
-   * @throws IllegalStateException if no ServletContext is available
+   * @return the MockContext instance
+   * @throws IllegalStateException if no MockContext is available
    * @see GenericMock#getMockContext()
-   * @see cn.taketoday.mock.api.FilterConfig#getServletContext()
+   * @see cn.taketoday.mock.api.FilterConfig#getMockContext()
    * @see #setMockContext
    */
-  protected MockContext getServletContext() {
+  protected MockContext getMockContext() {
     if (this.filterConfig != null) {
-      return this.filterConfig.getServletContext();
+      return this.filterConfig.getMockContext();
     }
     else if (this.mockContext != null) {
       return this.mockContext;
     }
     else {
-      throw new IllegalStateException("No ServletContext");
+      throw new IllegalStateException("No MockContext");
     }
   }
 

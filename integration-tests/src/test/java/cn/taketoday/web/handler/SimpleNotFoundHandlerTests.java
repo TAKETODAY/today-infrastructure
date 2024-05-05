@@ -21,9 +21,9 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.HttpRequestHandler;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,12 +35,12 @@ class SimpleNotFoundHandlerTests {
   SimpleNotFoundHandler notFoundHandler = new SimpleNotFoundHandler();
 
   HttpMockRequestImpl request = new HttpMockRequestImpl();
-  MockHttpServletResponse response = new MockHttpServletResponse();
+  MockHttpResponseImpl response = new MockHttpResponseImpl();
 
   @Test
   void handleNotFound() throws Throwable {
     request.setRequestURI("/not-found");
-    ServletRequestContext requestContext = new ServletRequestContext(null, request, response);
+    MockRequestContext requestContext = new MockRequestContext(null, request, response);
     assertThat(notFoundHandler.handleNotFound(requestContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
     assertThat(requestContext.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
     assertThat(response.isCommitted()).isTrue();

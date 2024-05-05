@@ -79,7 +79,7 @@ public interface Servlet {
    * @throws ServletException if an exception occurs that interferes with the servlet's normal operation
    * @throws IOException if an input or output exception occurs
    */
-  public void service(MockRequest req, ServletResponse res) throws ServletException, IOException;
+  public void service(MockRequest req, MockResponse res) throws ServletException, IOException;
 
   /**
    * Returns information about the servlet, such as author, version, and copyright.

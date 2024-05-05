@@ -29,11 +29,11 @@ import cn.taketoday.context.annotation.Bean;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.web.mock.ServletRequestContext;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockRequestContext;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,7 +53,7 @@ public class JythonScriptTemplateTests {
   public void setup() {
     this.webAppContext = Mockito.mock(WebApplicationContext.class);
     this.mockContext = new MockContextImpl();
-    this.mockContext.setAttribute(ServletUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
+    this.mockContext.setAttribute(MockUtils.WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.webAppContext);
   }
 
   @Test
@@ -62,15 +62,15 @@ public class JythonScriptTemplateTests {
     model.put("title", "Layout example");
     model.put("body", "This is the body");
     String url = "cn/taketoday/web/view/script/jython/template.html";
-    MockHttpServletResponse response = render(url, model);
+    MockHttpResponseImpl response = render(url, model);
     assertThat(response.getContentAsString()).isEqualTo("<html><head><title>Layout example</title></head><body><p>This is the body</p></body></html>");
   }
 
-  private MockHttpServletResponse render(String viewUrl, Map<String, Object> model) throws Exception {
+  private MockHttpResponseImpl render(String viewUrl, Map<String, Object> model) throws Exception {
     ScriptTemplateView view = createViewWithUrl(viewUrl);
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    view.renderMergedOutputModel(model, new ServletRequestContext(webAppContext, request, response));
+    view.renderMergedOutputModel(model, new MockRequestContext(webAppContext, request, response));
     return response;
   }
 

@@ -167,7 +167,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
     MockMockConfig mockServletConfig;
 
     if (ctx instanceof WebApplicationContext wac) {
-      mockContext = wac.getServletContext();
+      mockContext = wac.getMockContext();
       mockServletConfig = new MockMockConfig(mockContext);
     }
     else {

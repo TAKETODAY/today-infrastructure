@@ -31,7 +31,7 @@ import cn.taketoday.http.client.ClientHttpResponse;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.http.client.MockClientHttpRequest;
 import cn.taketoday.mock.http.client.MockClientHttpResponse;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.MockMvc;
 import cn.taketoday.util.StringUtils;
 
@@ -67,7 +67,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
           HttpMethod httpMethod, URI uri, HttpHeaders requestHeaders, byte[] requestBody) {
 
     try {
-      MockHttpServletResponse servletResponse = this.mockMvc
+      MockHttpResponseImpl servletResponse = this.mockMvc
               .perform(request(httpMethod, uri).content(requestBody).headers(requestHeaders))
               .andReturn()
               .getResponse();
@@ -92,7 +92,7 @@ public class MockMvcClientHttpRequestFactory implements ClientHttpRequestFactory
     }
   }
 
-  private HttpHeaders getResponseHeaders(MockHttpServletResponse response) {
+  private HttpHeaders getResponseHeaders(MockHttpResponseImpl response) {
     HttpHeaders headers = HttpHeaders.forWritable();
     for (String name : response.getHeaderNames()) {
       List<String> values = response.getHeaders(name);

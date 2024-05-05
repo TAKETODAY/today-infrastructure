@@ -169,7 +169,7 @@ public class ContextLoader {
    * <p>This constructor is typically used when declaring the {@code
    * ContextLoaderListener} subclass as a {@code <listener>} within {@code web.xml}, as
    * a no-arg constructor is required.
-   * <p>The created application context will be registered into the ServletContext under
+   * <p>The created application context will be registered into the MockContext under
    * the attribute name {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
    * and subclasses are free to call the {@link #closeWebApplicationContext} method on
    * container shutdown to close the application context.
@@ -191,7 +191,7 @@ public class ContextLoader {
    * <ul>
    * <li>If the given context has not already been assigned an {@linkplain
    * ConfigurableApplicationContext#setId id}, one will be assigned to it</li>
-   * <li>{@code ServletContext} and {@code ServletConfig} objects will be delegated to
+   * <li>{@code MockContext} and {@code ServletConfig} objects will be delegated to
    * the application context</li>
    * <li>{@link #customizeContext} will be called</li>
    * <li>Any {@link ApplicationContextInitializer ApplicationContextInitializers} specified through the
@@ -204,7 +204,7 @@ public class ContextLoader {
    * specific needs.
    * <p>See {@link cn.taketoday.context.ApplicationContextInitializer} for usage examples.
    * <p>In any case, the given application context will be registered into the
-   * ServletContext under the attribute name {@link
+   * MockContext under the attribute name {@link
    * WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} and subclasses are
    * free to call the {@link #closeWebApplicationContext} method on container shutdown
    * to close the application context.
@@ -258,7 +258,7 @@ public class ContextLoader {
 
     try {
       // Store context in local instance variable, to guarantee that
-      // it is available on ServletContext shutdown.
+      // it is available on MockContext shutdown.
       if (this.context == null) {
         this.context = createWebApplicationContext(mockContext);
       }
@@ -376,7 +376,7 @@ public class ContextLoader {
       }
     }
 
-    wac.setServletContext(sc);
+    wac.setMockContext(sc);
     String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);
     if (configLocationParam != null) {
       wac.setConfigLocation(configLocationParam);
@@ -494,7 +494,7 @@ public class ContextLoader {
    * <p>If overriding {@link #loadParentContext(MockContext)}, you may have
    * to override this method as well.
    *
-   * @param mockContext the ServletContext that the WebApplicationContext runs in
+   * @param mockContext the MockContext that the WebApplicationContext runs in
    */
   public void closeWebApplicationContext(MockContext mockContext) {
     mockContext.log("Closing Framework root WebApplicationContext");

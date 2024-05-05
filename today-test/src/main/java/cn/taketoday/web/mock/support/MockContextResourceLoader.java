@@ -23,42 +23,42 @@ import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 
 /**
- * ResourceLoader implementation that resolves paths as ServletContext
+ * ResourceLoader implementation that resolves paths as MockContext
  * resources, for use outside a WebApplicationContext (for example,
  * in an HttpServletBean or GenericFilterBean subclass).
  *
  * <p>Within a WebApplicationContext, resource paths are automatically
- * resolved as ServletContext resources by the context implementation.
+ * resolved as MockContext resources by the context implementation.
  *
  * @author Juergen Hoeller
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see #getResourceByPath
- * @see ServletContextResource
+ * @see MockContextResource
  * @see WebApplicationContext
  * @see cn.taketoday.web.mock.filter.GenericFilterBean
  * @since 4.0 2022/2/20 16:16
  */
-public class ServletContextResourceLoader extends DefaultResourceLoader {
+public class MockContextResourceLoader extends DefaultResourceLoader {
 
   private final MockContext mockContext;
 
   /**
-   * Create a new ServletContextResourceLoader.
+   * Create a new MockContextResourceLoader.
    *
-   * @param mockContext the ServletContext to load resources with
+   * @param mockContext the MockContext to load resources with
    */
-  public ServletContextResourceLoader(MockContext mockContext) {
+  public MockContextResourceLoader(MockContext mockContext) {
     this.mockContext = mockContext;
   }
 
   /**
    * This implementation supports file paths beneath the root of the web application.
    *
-   * @see ServletContextResource
+   * @see MockContextResource
    */
   @Override
   protected Resource getResourceByPath(String path) {
-    return new ServletContextResource(mockContext, path);
+    return new MockContextResource(mockContext, path);
   }
 
 }

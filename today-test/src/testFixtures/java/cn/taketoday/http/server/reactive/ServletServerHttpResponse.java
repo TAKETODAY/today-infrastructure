@@ -39,12 +39,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
-import cn.taketoday.mock.api.ServletOutputStream;
+import cn.taketoday.mock.api.MockOutputStream;
 import cn.taketoday.mock.api.WriteListener;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
- * Adapt {@link ServerHttpResponse} to the Servlet {@link HttpServletResponse}.
+ * Adapt {@link ServerHttpResponse} to the Servlet {@link HttpMockResponse}.
  *
  * @author Rossen Stoyanchev
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -56,9 +56,9 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   private volatile boolean flushOnNext;
 
-  private final HttpServletResponse response;
+  private final HttpMockResponse response;
 
-  private final ServletOutputStream outputStream;
+  private final MockOutputStream outputStream;
 
   private final ServletServerHttpRequest request;
 
@@ -70,13 +70,13 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
   @Nullable
   private volatile ResponseBodyFlushProcessor bodyFlushProcessor;
 
-  public ServletServerHttpResponse(HttpServletResponse response, AsyncContext asyncContext,
+  public ServletServerHttpResponse(HttpMockResponse response, AsyncContext asyncContext,
           DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
 
     this(HttpHeaders.forWritable(), response, asyncContext, bufferFactory, bufferSize, request);
   }
 
-  public ServletServerHttpResponse(HttpHeaders headers, HttpServletResponse response, AsyncContext asyncContext,
+  public ServletServerHttpResponse(HttpHeaders headers, HttpMockResponse response, AsyncContext asyncContext,
           DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
     super(bufferFactory, headers);
 
@@ -185,21 +185,21 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
   }
 
   /**
-   * Return the {@link ServletOutputStream} for the current response.
+   * Return the {@link MockOutputStream} for the current response.
    */
-  protected final ServletOutputStream getOutputStream() {
+  protected final MockOutputStream getOutputStream() {
     return this.outputStream;
   }
 
   /**
    * Write the DataBuffer to the response body OutputStream.
-   * Invoked only when {@link ServletOutputStream#isReady()} returns "true"
+   * Invoked only when {@link MockOutputStream#isReady()} returns "true"
    * and the readable bytes in the DataBuffer is greater than 0.
    *
    * @return the number of bytes written
    */
   protected int writeToOutputStream(DataBuffer dataBuffer) throws IOException {
-    ServletOutputStream outputStream = this.outputStream;
+    MockOutputStream outputStream = this.outputStream;
     InputStream input = dataBuffer.asInputStream();
     int bytesWritten = 0;
     byte[] buffer = new byte[this.bufferSize];
@@ -212,7 +212,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
   }
 
   private void flush() throws IOException {
-    ServletOutputStream outputStream = this.outputStream;
+    MockOutputStream outputStream = this.outputStream;
     if (outputStream.isReady()) {
       try {
         outputStream.flush();

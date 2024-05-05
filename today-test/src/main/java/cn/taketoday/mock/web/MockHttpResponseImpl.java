@@ -46,12 +46,12 @@ import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.mock.api.ServletOutputStream;
+import cn.taketoday.mock.api.MockOutputStream;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
- * Mock implementation of the {@link HttpServletResponse} interface.
+ * Mock implementation of the {@link HttpMockResponse} interface.
  *
  * <p>this set of mocks is designed on a Servlet 4.0 baseline.
  *
@@ -63,7 +63,7 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  * @author Sam Brannen
  * @since 4.0
  */
-public class MockHttpServletResponse implements HttpServletResponse {
+public class MockHttpResponseImpl implements HttpMockResponse {
 
   private static final String CHARSET_PREFIX = "charset=";
 
@@ -85,14 +85,14 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /**
    * {@code true} if the character encoding has been explicitly set through
-   * {@link HttpServletResponse} methods or through a {@code charset} parameter
+   * {@link HttpMockResponse} methods or through a {@code charset} parameter
    * on the {@code Content-Type}.
    */
   private boolean characterEncodingSet = false;
 
   private final ByteArrayOutputStream content = new ByteArrayOutputStream(1024);
 
-  private final ServletOutputStream outputStream = new ResponseServletOutputStream(this.content);
+  private final MockOutputStream outputStream = new ResponseMockOutputStream(this.content);
 
   @Nullable
   private PrintWriter writer;
@@ -116,7 +116,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
 
-  private int status = HttpServletResponse.SC_OK;
+  private int status = HttpMockResponse.SC_OK;
 
   @Nullable
   private String errorMessage;
@@ -187,7 +187,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /**
    * Determine whether the character encoding has been explicitly set through
-   * {@link HttpServletResponse} methods or through a {@code charset} parameter
+   * {@link HttpMockResponse} methods or through a {@code charset} parameter
    * on the {@code Content-Type}.
    * <p>If {@code false}, {@link #getCharacterEncoding()} will return the
    * {@linkplain #setDefaultCharacterEncoding(String) default character encoding}.
@@ -252,7 +252,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   @Override
-  public ServletOutputStream getOutputStream() {
+  public MockOutputStream getOutputStream() {
     Assert.state(this.outputStreamAccessAllowed, "OutputStream access not allowed");
     return this.outputStream;
   }
@@ -274,7 +274,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Get the content of the response body as a {@code String}, using the charset
    * specified for the response by the application, either through
-   * {@link HttpServletResponse} methods or through a charset parameter on the
+   * {@link HttpMockResponse} methods or through a charset parameter on the
    * {@code Content-Type}. If no charset has been explicitly defined, the
    * {@linkplain #setDefaultCharacterEncoding(String) default character encoding}
    * will be used.
@@ -293,7 +293,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Get the content of the response body as a {@code String}, using the provided
    * {@code fallbackCharset} if no charset has been explicitly defined and otherwise
    * using the charset specified for the response by the application, either
-   * through {@link HttpServletResponse} methods or through a charset parameter on the
+   * through {@link HttpMockResponse} methods or through a charset parameter on the
    * {@code Content-Type}.
    *
    * @return the content as a {@code String}
@@ -404,7 +404,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     this.locale = Locale.getDefault();
     this.cookies.clear();
     this.headers.clear();
-    this.status = HttpServletResponse.SC_OK;
+    this.status = HttpMockResponse.SC_OK;
     this.errorMessage = null;
   }
 
@@ -504,7 +504,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /**
    * Return the names of all specified headers as a Set of Strings.
-   * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
+   * <p>As of Servlet 3.0, this method is also defined in {@link HttpMockResponse}.
    *
    * @return the {@code Set} of header name {@code Strings}, or an empty {@code Set} if none
    */
@@ -516,7 +516,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /**
    * Return the primary value for the given header as a String, if any.
    * Will return the first value in case of multiple values.
-   * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
+   * <p>As of Servlet 3.0, this method is also defined in {@link HttpMockResponse}.
    * it returns a stringified value for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValue(String)} for raw Object access.
    *
@@ -532,7 +532,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /**
    * Return all values for the given header as a List of Strings.
-   * <p>As of Servlet 3.0, this method is also defined in {@link HttpServletResponse}.
+   * <p>As of Servlet 3.0, this method is also defined in {@link HttpMockResponse}.
    * it returns a List of stringified values for Servlet 3.0 compatibility.
    * Consider using {@link #getHeaderValues(String)} for raw Object access.
    *
@@ -621,7 +621,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     Assert.state(!isCommitted(), "Cannot send redirect - response is already committed");
     Assert.notNull(url, "Redirect URL is required");
     setHeader(HttpHeaders.LOCATION, url);
-    setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+    setStatus(HttpMockResponse.SC_MOVED_TEMPORARILY);
     setCommitted(true);
   }
 
@@ -826,9 +826,9 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Inner class that adapts the ServletOutputStream to mark the
    * response as committed once the buffer size is exceeded.
    */
-  private class ResponseServletOutputStream extends DelegatingServletOutputStream {
+  private class ResponseMockOutputStream extends DelegatingMockOutputStream {
 
-    public ResponseServletOutputStream(OutputStream out) {
+    public ResponseMockOutputStream(OutputStream out) {
       super(out);
     }
 

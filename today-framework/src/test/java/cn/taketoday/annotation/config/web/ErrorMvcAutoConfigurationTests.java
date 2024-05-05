@@ -32,8 +32,8 @@ import cn.taketoday.web.server.error.ErrorAttributeOptions;
 import cn.taketoday.web.server.error.ErrorAttributeOptions.Include;
 import cn.taketoday.web.server.error.ErrorAttributes;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.View;
 
@@ -57,11 +57,11 @@ class ErrorMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       View errorView = context.getBean("error", View.class);
       ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
-      ServletRequestContext webRequest = createWebRequest(
+      MockRequestContext webRequest = createWebRequest(
               new IllegalStateException("Exception message"), false);
       errorView.render(errorAttributes.getErrorAttributes(webRequest, withAllOptions()), webRequest);
       assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
-      String responseString = ((MockHttpServletResponse) webRequest.getResponse()).getContentAsString();
+      String responseString = ((MockHttpResponseImpl) webRequest.getResponse()).getContentAsString();
       assertThat(responseString).contains(
                       "<p>This application has no explicit mapping for /error, so you are seeing this as a fallback.</p>")
               .contains("<div>Exception message</div>")
@@ -74,13 +74,13 @@ class ErrorMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       View errorView = context.getBean("error", View.class);
       ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
-      ServletRequestContext webRequest = createWebRequest(new IllegalStateException("Exception message"),
+      MockRequestContext webRequest = createWebRequest(new IllegalStateException("Exception message"),
               false);
       Map<String, Object> attributes = errorAttributes.getErrorAttributes(webRequest, withAllOptions());
       attributes.put("timestamp", Clock.systemUTC().instant());
       errorView.render(attributes, webRequest);
       assertThat(webRequest.getResponse().getContentType()).isEqualTo("text/html");
-      String responseString = ((MockHttpServletResponse) webRequest.getResponse()).getContentAsString();
+      String responseString = ((MockHttpResponseImpl) webRequest.getResponse()).getContentAsString();
       assertThat(responseString).contains("This application has no explicit mapping for /error");
     });
   }
@@ -90,7 +90,7 @@ class ErrorMvcAutoConfigurationTests {
     this.contextRunner.run((context) -> {
       View errorView = context.getBean("error", View.class);
       ErrorAttributes errorAttributes = context.getBean(ErrorAttributes.class);
-      ServletRequestContext webRequest = createWebRequest(
+      MockRequestContext webRequest = createWebRequest(
               new IllegalStateException("Exception message"), true);
       errorView.render(errorAttributes.getErrorAttributes(webRequest, withAllOptions()), webRequest);
       assertThat(output).contains("Cannot render error page for request [/path] "
@@ -99,11 +99,11 @@ class ErrorMvcAutoConfigurationTests {
     });
   }
 
-  private ServletRequestContext createWebRequest(Exception ex, boolean committed) {
+  private MockRequestContext createWebRequest(Exception ex, boolean committed) {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/path");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    ServletRequestContext context = new ServletRequestContext(null, request, response);
+    MockRequestContext context = new MockRequestContext(null, request, response);
 
     context.setAttribute("cn.taketoday.mock.api.error.exception", ex);
     context.setAttribute("cn.taketoday.mock.api.error.request_uri", "/path");

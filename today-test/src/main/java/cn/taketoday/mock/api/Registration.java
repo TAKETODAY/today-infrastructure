@@ -60,7 +60,7 @@ public interface Registration {
    * @param value the initialization parameter value
    * @return true if the update was successful, i.e., an initialization parameter with the given name did not already
    * exist for the Servlet or Filter represented by this Registration, and false otherwise
-   * @throws IllegalStateException if the ServletContext from which this Registration was obtained has already been
+   * @throws IllegalStateException if the MockContext from which this Registration was obtained has already been
    * initialized
    * @throws IllegalArgumentException if the given name or value is <tt>null</tt>
    */
@@ -93,7 +93,7 @@ public interface Registration {
    *
    * @param initParameters the initialization parameters
    * @return the (possibly empty) Set of initialization parameter names that are in conflict
-   * @throws IllegalStateException if the ServletContext from which this Registration was obtained has already been
+   * @throws IllegalStateException if the MockContext from which this Registration was obtained has already been
    * initialized
    * @throws IllegalArgumentException if the given map contains an initialization parameter with a <tt>null</tt> name or
    * value
@@ -127,7 +127,7 @@ public interface Registration {
      *
      * @param isAsyncSupported true if the Servlet or Filter represented by this dynamic Registration supports asynchronous
      * operations, false otherwise
-     * @throws IllegalStateException if the ServletContext from which this dynamic Registration was obtained has already
+     * @throws IllegalStateException if the MockContext from which this dynamic Registration was obtained has already
      * been initialized
      */
     public void setAsyncSupported(boolean isAsyncSupported);

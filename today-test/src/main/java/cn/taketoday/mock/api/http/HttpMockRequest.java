@@ -25,6 +25,7 @@ import java.util.Map;
 
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.annotation.MultipartConfig;
@@ -168,14 +169,14 @@ public interface HttpMockRequest extends MockRequest {
    *
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#INCLUDE}</dt>
    * <dd>Return the mapping as prior to the current dispatch. i.e the mapping returned is unchanged by a call to</dd>
-   * {@link RequestDispatcher#include(MockRequest, cn.taketoday.mock.api.ServletResponse)}.
+   * {@link RequestDispatcher#include(MockRequest, MockResponse)}.
    *
    * <dt>{@link cn.taketoday.mock.api.DispatcherType#FORWARD}</dt>
    * <dd>Return the mapping for the target of the dispatch i.e. the mapping for the current
    * {@link cn.taketoday.mock.api.Servlet}, unless the {@link RequestDispatcher} was obtained via
    * {@link MockContext#getNamedDispatcher(String)}, in which case return the mapping as prior to the
    * current dispatch. i.e the mapping returned is changed during a call to
-   * {@link RequestDispatcher#forward(MockRequest, cn.taketoday.mock.api.ServletResponse)} only if the dispatcher is not a
+   * {@link RequestDispatcher#forward(MockRequest, MockResponse)} only if the dispatcher is not a
    * named dispatcher.</dd>
    * </dl>
    * </p>
@@ -462,7 +463,7 @@ public interface HttpMockRequest extends MockRequest {
   boolean isRequestedSessionIdFromURL();
 
   /**
-   * Use the container login mechanism configured for the <code>ServletContext</code> to authenticate the user making this
+   * Use the container login mechanism configured for the <code>MockContext</code> to authenticate the user making this
    * request.
    *
    * <p>
@@ -480,15 +481,15 @@ public interface HttpMockRequest extends MockRequest {
    * underlying login mechanism did NOT establish the message and HTTP status code to be returned to the user)
    * @since Servlet 3.0
    */
-  boolean authenticate(HttpServletResponse response) throws IOException, ServletException;
+  boolean authenticate(HttpMockResponse response) throws IOException, ServletException;
 
   /**
    * Validate the provided username and password in the password validation realm used by the web container login
-   * mechanism configured for the <code>ServletContext</code>.
+   * mechanism configured for the <code>MockContext</code>.
    *
    * <p>
    * This method returns without throwing a <code>ServletException</code> when the login mechanism configured for the
-   * <code>ServletContext</code> supports username password validation, and when, at the time of the call to login, the
+   * <code>MockContext</code> supports username password validation, and when, at the time of the call to login, the
    * identity of the caller of the request had not been established (i.e, all of <code>getUserPrincipal</code>,
    * <code>getRemoteUser</code>, and <code>getAuthType</code> return null), and when validation of the provided
    * credentials is successful. Otherwise, this method throws a <code>ServletException</code> as described below.

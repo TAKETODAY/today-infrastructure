@@ -29,12 +29,12 @@ import cn.taketoday.core.env.MapPropertySource;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +52,7 @@ class BeanNameUrlHandlerMappingTests {
   public void setUp() throws Exception {
     MockContextImpl sc = new MockContextImpl("");
     wac = new XmlWebApplicationContext();
-    wac.setServletContext(sc);
+    wac.setMockContext(sc);
     wac.setConfigLocations("/cn/taketoday/web/handler/map1.xml");
     wac.refresh();
   }
@@ -62,12 +62,12 @@ class BeanNameUrlHandlerMappingTests {
     HandlerMapping hm = (HandlerMapping) wac.getBean("handlerMapping");
 
     HttpMockRequestImpl req = new HttpMockRequestImpl("GET", "/mypath/nonsense.html");
-    ServletRequestContext request = new ServletRequestContext(null, req, new MockHttpServletResponse());
+    MockRequestContext request = new MockRequestContext(null, req, new MockHttpResponseImpl());
     Object h = hm.getHandler(request);
     assertThat(h).as("Handler is null").isNull();
 
     req = new HttpMockRequestImpl("GET", "/foo/bar/baz.html");
-    h = hm.getHandler(new ServletRequestContext(null, req, new MockHttpServletResponse()));
+    h = hm.getHandler(new MockRequestContext(null, req, new MockHttpResponseImpl()));
     assertThat(h).as("Handler is null").isNull();
   }
 
@@ -120,7 +120,7 @@ class BeanNameUrlHandlerMappingTests {
 
   @Nullable
   private static HandlerExecutionChain getChain(HandlerMapping hm, HttpMockRequestImpl req) throws Exception {
-    return (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null, req, new MockHttpServletResponse()));
+    return (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null, req, new MockHttpResponseImpl()));
   }
 
   @Test

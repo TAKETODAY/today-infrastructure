@@ -29,7 +29,7 @@ import cn.taketoday.util.ObjectUtils;
  * Abstract base class representing a source of name/value property pairs. The underlying
  * {@linkplain #getSource() source object} may be of any type {@code T} that encapsulates
  * properties. Examples include {@link java.util.Properties} objects, {@link java.util.Map}
- * objects, {@code ServletContext} and {@code ServletConfig} objects (for access to init
+ * objects, {@code MockContext} and {@code ServletConfig} objects (for access to init
  * parameters). Explore the {@code PropertySource} type hierarchy to see provided
  * implementations.
  *
@@ -188,8 +188,8 @@ public abstract class PropertySource<T> {
   /**
    * {@code PropertySource} to be used as a placeholder in cases where an actual
    * property source cannot be eagerly initialized at application context
-   * creation time.  For example, a {@code ServletContext}-based property source
-   * must wait until the {@code ServletContext} object is available to its enclosing
+   * creation time.  For example, a {@code MockContext}-based property source
+   * must wait until the {@code MockContext} object is available to its enclosing
    * {@code ApplicationContext}.  In such cases, a stub should be used to hold the
    * intended default position/order of the property source, then be replaced
    * during context refresh.

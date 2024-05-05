@@ -35,9 +35,9 @@ import cn.taketoday.context.expression.StandardBeanExpressionResolver;
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.context.support.RequestScope;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static cn.taketoday.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,7 +71,7 @@ public class RequestScopeTests {
   @Test
   public void getFromScope() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedObject";
@@ -85,7 +85,7 @@ public class RequestScopeTests {
   @Test
   public void destructionAtRequestCompletion() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse());
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl());
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedDisposableObject";
@@ -101,7 +101,7 @@ public class RequestScopeTests {
   @Test
   public void getFromFactoryBeanInScope() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedFactoryBean";
@@ -115,7 +115,7 @@ public class RequestScopeTests {
   @Test
   public void circleLeadsToException() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, null);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
 
     String name = "requestScopedObjectCircle1";
@@ -128,7 +128,7 @@ public class RequestScopeTests {
   @Test
   public void innerBeanInheritsContainingBeanScopeByDefault() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse()); RequestContextHolder.set(requestAttributes);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "requestScopedOuterBean";
     assertThat(request.getAttribute(outerBeanName)).isNull();
@@ -140,7 +140,7 @@ public class RequestScopeTests {
     assertThat(outer1.wasDestroyed()).isTrue();
     assertThat(inner1.wasDestroyed()).isTrue();
     request = new HttpMockRequestImpl();
-    requestAttributes = new ServletRequestContext(null, request, null);
+    requestAttributes = new MockRequestContext(null, request, null);
     RequestContextHolder.set(requestAttributes);
     TestBean outer2 = (TestBean) this.beanFactory.getBean(outerBeanName);
     assertThat(outer2).isNotSameAs(outer1);
@@ -150,7 +150,7 @@ public class RequestScopeTests {
   @Test
   public void requestScopedInnerBeanDestroyedWhileContainedBySingleton() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestAttributes = new ServletRequestContext(null, request, new MockHttpServletResponse()); RequestContextHolder.set(requestAttributes);
+    MockRequestContext requestAttributes = new MockRequestContext(null, request, new MockHttpResponseImpl()); RequestContextHolder.set(requestAttributes);
 
     String outerBeanName = "singletonOuterBean";
     TestBean outer1 = (TestBean) this.beanFactory.getBean(outerBeanName);

@@ -5,10 +5,10 @@ To provide comprehensive web testing support, the TestContext framework has a
 `ServletTestExecutionListener` that is enabled by default. When testing against a
 `WebApplicationContext`, this xref:testing/testcontext-framework/key-abstractions.adoc[`TestExecutionListener`]
 sets up default thread-local state by using Infra Web's `RequestContextHolder` before
-each test method and creates a `HttpMockRequestImpl`, a `MockHttpServletResponse`, and
+each test method and creates a `HttpMockRequestImpl`, a `MockHttpResponseImpl`, and
 a `ServletWebRequest` based on the base resource path configured with
 `@WebAppConfiguration`. `ServletTestExecutionListener` also ensures that the
-`MockHttpServletResponse` and `ServletWebRequest` can be injected into the test instance,
+`MockHttpResponseImpl` and `ServletWebRequest` can be injected into the test instance,
 and, once the test is complete, it cleans up thread-local state.
 
 Once you have a `WebApplicationContext` loaded for your test, you might find that you

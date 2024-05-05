@@ -54,9 +54,9 @@ import cn.taketoday.web.bind.MethodArgumentNotValidException;
 import cn.taketoday.web.bind.WebDataBinder;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -88,9 +88,9 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
   private HttpMockRequestImpl servletRequest;
 
-  private MockHttpServletResponse servletResponse;
+  private MockHttpResponseImpl servletResponse;
 
-  private ServletRequestContext webRequest;
+  private MockRequestContext webRequest;
 
   private ResolvableMethodParameter paramRequestBodyString;
   private ResolvableMethodParameter paramInt;
@@ -126,8 +126,8 @@ public class RequestResponseBodyMethodProcessorMockTests {
 
     servletRequest = new HttpMockRequestImpl();
     servletRequest.setMethod("POST");
-    servletResponse = new MockHttpServletResponse();
-    webRequest = new ServletRequestContext(null, servletRequest, servletResponse);
+    servletResponse = new MockHttpResponseImpl();
+    webRequest = new MockRequestContext(null, servletRequest, servletResponse);
 
     Method methodHandle1 = getClass().getMethod("handle1", String.class, Integer.TYPE);
     paramRequestBodyString = new ResolvableMethodParameter(new MethodParameter(methodHandle1, 0));

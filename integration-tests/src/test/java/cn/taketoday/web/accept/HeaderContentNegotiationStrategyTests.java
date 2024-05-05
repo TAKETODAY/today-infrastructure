@@ -25,7 +25,7 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.HttpMediaTypeNotAcceptableException;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -42,7 +42,7 @@ public class HeaderContentNegotiationStrategyTests {
 
   private final HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
 
-  final RequestContext context = new ServletRequestContext(null, servletRequest, null);
+  final RequestContext context = new MockRequestContext(null, servletRequest, null);
 
   @Test
   public void resolveMediaTypes() throws Exception {

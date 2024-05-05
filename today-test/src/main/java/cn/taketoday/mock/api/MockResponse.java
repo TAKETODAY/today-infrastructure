@@ -23,14 +23,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 /**
- * Defines an object to assist a servlet in sending a response to the client. The servlet container creates a
- * <code>ServletResponse</code> object and passes it as an argument to the servlet's <code>service</code> method.
+ * Defines an object to assist a mock in sending a response to the client. The mock container creates a
+ * <code>MockResponse</code> object and passes it as an argument to the mock's <code>service</code> method.
  *
  * <p>
- * To send binary data in a MIME body response, use the {@link ServletOutputStream} returned by
+ * To send binary data in a MIME body response, use the {@link MockOutputStream} returned by
  * {@link #getOutputStream}. To send character data, use the <code>PrintWriter</code> object returned by
  * {@link #getWriter}. To mix binary and text data, for example, to create a multipart response, use a
- * <code>ServletOutputStream</code> and manage the character sections manually.
+ * <code>MockOutputStream</code> and manage the character sections manually.
  *
  * <p>
  * The charset for the MIME body response can be specified explicitly using any of the following techniques: per
@@ -48,9 +48,9 @@ import java.util.Locale;
  * MIME. Protocols such as SMTP and HTTP define profiles of MIME, and those standards are still evolving.
  *
  * @author Various
- * @see ServletOutputStream
+ * @see MockOutputStream
  */
-public interface ServletResponse {
+public interface MockResponse {
 
   /**
    * Returns the name of the character encoding (MIME charset) used for the body sent in this response. The following
@@ -78,27 +78,27 @@ public interface ServletResponse {
    *
    * @return a <code>String</code> specifying the content type, for example, <code>text/html; charset=UTF-8</code>, or
    * null
-   * @since Servlet 2.4
+   * @since mock 2.4
    */
   public String getContentType();
 
   /**
-   * Returns a {@link ServletOutputStream} suitable for writing binary data in the response. The servlet container does
+   * Returns a {@link MockOutputStream} suitable for writing binary data in the response. The mock container does
    * not encode the binary data.
    *
    * <p>
-   * Calling flush() on the ServletOutputStream commits the response.
+   * Calling flush() on the MockOutputStream commits the response.
    *
    * Either this method or {@link #getWriter} may be called to write the body, not both, except when {@link #reset} has
    * been called.
    *
-   * @return a {@link ServletOutputStream} for writing binary data
+   * @return a {@link MockOutputStream} for writing binary data
    * @throws IllegalStateException if the <code>getWriter</code> method has been called on this response
    * @throws IOException if an input or output exception occurred
    * @see #getWriter
    * @see #reset
    */
-  public ServletOutputStream getOutputStream() throws IOException;
+  public MockOutputStream getOutputStream() throws IOException;
 
   /**
    * Returns a <code>PrintWriter</code> object that can send character text to the client. The <code>PrintWriter</code>
@@ -141,26 +141,25 @@ public interface ServletResponse {
    * <p>
    * If this method is called with an invalid or unrecognised character encoding, then a subsequent call to
    * {@link #getWriter()} will throw a {@link UnsupportedEncodingException}. Content for an unknown encoding can be sent
-   * with the {@link ServletOutputStream} returned from {@link #getOutputStream()}.
+   * with the {@link MockOutputStream} returned from {@link #getOutputStream()}.
    * <p>
    * Containers may choose to log calls to this method that use an invalid or unrecognised character encoding.
    * <p>
-   * Containers must communicate the character encoding used for the servlet response's writer to the client if the
+   * Containers must communicate the character encoding used for the mock response's writer to the client if the
    * protocol provides a way for doing so. In the case of HTTP, the character encoding is communicated as part of the
    * <code>Content-Type</code> header for text media types. Note that the character encoding cannot be communicated via
-   * HTTP headers if the servlet does not specify a content type; however, it is still used to encode text written via the
-   * servlet response's writer.
+   * HTTP headers if the mock does not specify a content type; however, it is still used to encode text written via the
+   * mock response's writer.
    *
    * @param charset a String specifying only the character set defined by IANA Character Sets
    * (http://www.iana.org/assignments/character-sets) or {@code null}
    * @see #setContentType
    * @see #setLocale
-   * @since Servlet 2.4
    */
   public void setCharacterEncoding(String charset);
 
   /**
-   * Sets the length of the content body in the response In HTTP servlets, this method sets the HTTP Content-Length
+   * Sets the length of the content body in the response In HTTP mocks, this method sets the HTTP Content-Length
    * header.
    *
    * @param len an integer specifying the length of the content being returned to the client; sets the Content-Length
@@ -169,11 +168,10 @@ public interface ServletResponse {
   public void setContentLength(int len);
 
   /**
-   * Sets the length of the content body in the response In HTTP servlets, this method sets the HTTP Content-Length
+   * Sets the length of the content body in the response In HTTP mocks, this method sets the HTTP Content-Length
    * header.
    *
    * @param len a long specifying the length of the content being returned to the client; sets the Content-Length header
-   * @since Servlet 3.1
    */
   public void setContentLengthLong(long len);
 
@@ -194,11 +192,11 @@ public interface ServletResponse {
    * <p>
    * If this method is called with an invalid or unrecognised character encoding, then a subsequent call to
    * {@link #getWriter()} will throw a {@link UnsupportedEncodingException}. Content for an unknown encoding can be sent
-   * with the {@link ServletOutputStream} returned from {@link #getOutputStream()}.
+   * with the {@link MockOutputStream} returned from {@link #getOutputStream()}.
    * <p>
    * Containers may choose to log calls to this method that use an invalid or unrecognised character encoding.
    * <p>
-   * Containers must communicate the content type and the character encoding used for the servlet response's writer to the
+   * Containers must communicate the content type and the character encoding used for the mock response's writer to the
    * client if the protocol provides a way for doing so. In the case of HTTP, the <code>Content-Type</code> header is
    * used.
    *
@@ -211,11 +209,11 @@ public interface ServletResponse {
   public void setContentType(String type);
 
   /**
-   * Sets the preferred buffer size for the body of the response. The servlet container will use a buffer at least as
+   * Sets the preferred buffer size for the body of the response. The mock container will use a buffer at least as
    * large as the size requested. The actual buffer size used can be found using <code>getBufferSize</code>.
    *
    * <p>
-   * A larger buffer allows more content to be written before anything is actually sent, thus providing the servlet with
+   * A larger buffer allows more content to be written before anything is actually sent, thus providing the mock with
    * more time to set appropriate status codes and headers. A smaller buffer decreases server memory load and allows the
    * client to start receiving data more quickly.
    *
@@ -263,7 +261,6 @@ public interface ServletResponse {
    * @see #getBufferSize
    * @see #isCommitted
    * @see #reset
-   * @since Servlet 2.3
    */
   public void resetBuffer();
 
@@ -312,11 +309,11 @@ public interface ServletResponse {
    * {@code null} clears any locale set via a previous call to this method. If calling this method has an effect on the
    * character encoding, calling this method with {@code null} clears the previously set character encoding.
    * <p>
-   * Containers must communicate the locale and the character encoding used for the servlet response's writer to the
+   * Containers must communicate the locale and the character encoding used for the mock response's writer to the
    * client if the protocol provides a way for doing so. In the case of HTTP, the locale is communicated via the
    * <code>Content-Language</code> header, the character encoding as part of the <code>Content-Type</code> header for text
-   * media types. Note that the character encoding cannot be communicated via HTTP headers if the servlet does not specify
-   * a content type; however, it is still used to encode text written via the servlet response's writer.
+   * media types. Note that the character encoding cannot be communicated via HTTP headers if the mock does not specify
+   * a content type; however, it is still used to encode text written via the mock response's writer.
    *
    * @param loc the locale of the response or {code @null}
    * @see #getLocale

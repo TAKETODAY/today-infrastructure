@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,7 +91,7 @@ class CompositeRequestConditionTests {
 
     CompositeRequestCondition condition = new CompositeRequestCondition(this.param1, getPostCond);
     CompositeRequestCondition matchingCondition = new CompositeRequestCondition(this.param1, getCond);
-    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    MockRequestContext context = new MockRequestContext(null, request, null);
 
     assertThat(condition.getMatchingCondition(context)).isEqualTo(matchingCondition);
   }
@@ -100,7 +100,7 @@ class CompositeRequestConditionTests {
   public void noMatch() {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     CompositeRequestCondition cond = new CompositeRequestCondition(this.param1);
-    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    MockRequestContext context = new MockRequestContext(null, request, null);
 
     assertThat(cond.getMatchingCondition(context)).isNull();
   }
@@ -108,7 +108,7 @@ class CompositeRequestConditionTests {
   @Test
   public void matchEmpty() {
     CompositeRequestCondition empty = new CompositeRequestCondition();
-    ServletRequestContext context = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    MockRequestContext context = new MockRequestContext(null, new HttpMockRequestImpl(), null);
 
     assertThat(empty.getMatchingCondition(context)).isSameAs(empty);
   }
@@ -119,7 +119,7 @@ class CompositeRequestConditionTests {
 
     CompositeRequestCondition cond1 = new CompositeRequestCondition(this.param1);
     CompositeRequestCondition cond3 = new CompositeRequestCondition(this.param3);
-    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    MockRequestContext context = new MockRequestContext(null, request, null);
     assertThat(cond1.compareTo(cond3, context)).isEqualTo(1);
     assertThat(cond3.compareTo(cond1, context)).isEqualTo(-1);
   }
@@ -130,7 +130,7 @@ class CompositeRequestConditionTests {
 
     CompositeRequestCondition empty = new CompositeRequestCondition();
     CompositeRequestCondition notEmpty = new CompositeRequestCondition(this.param1);
-    ServletRequestContext context = new ServletRequestContext(null, request, null);
+    MockRequestContext context = new MockRequestContext(null, request, null);
 
     assertThat(empty.compareTo(empty, context)).isEqualTo(0);
     assertThat(notEmpty.compareTo(empty, context)).isEqualTo(-1);
@@ -139,7 +139,7 @@ class CompositeRequestConditionTests {
 
   @Test
   public void compareDifferentLength() {
-    ServletRequestContext context = new ServletRequestContext(null, new HttpMockRequestImpl(), null);
+    MockRequestContext context = new MockRequestContext(null, new HttpMockRequestImpl(), null);
 
     CompositeRequestCondition cond1 = new CompositeRequestCondition(this.param1);
     CompositeRequestCondition cond2 = new CompositeRequestCondition(this.param1, this.header1);

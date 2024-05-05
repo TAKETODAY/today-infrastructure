@@ -27,8 +27,8 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -37,7 +37,7 @@ class RedirectViewUriTemplateTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   RequestContext context;
 
@@ -45,10 +45,10 @@ class RedirectViewUriTemplateTests {
   public void setUp() throws Exception {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     this.request = new HttpMockRequestImpl();
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
     context.refresh();
 
-    this.context = new ServletRequestContext(context, request, response);
+    this.context = new MockRequestContext(context, request, response);
   }
 
   @Test

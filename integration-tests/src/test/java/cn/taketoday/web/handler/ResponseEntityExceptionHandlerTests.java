@@ -40,7 +40,7 @@ import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.validation.BindException;
@@ -61,7 +61,7 @@ import cn.taketoday.web.bind.resolver.MissingRequestPartException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingRegistry;
 import cn.taketoday.web.handler.method.ExceptionHandlerAnnotationExceptionHandler;
 import cn.taketoday.web.mock.DispatcherServlet;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 
@@ -79,9 +79,9 @@ class ResponseEntityExceptionHandlerTests {
 
   private HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/");
 
-  private MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+  private MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
-  private RequestContext request = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
+  private RequestContext request = new MockRequestContext(null, this.servletRequest, this.servletResponse);
 
   @SuppressWarnings("unchecked")
   @Test
@@ -122,7 +122,7 @@ class ResponseEntityExceptionHandlerTests {
   @Test
   public void patchHttpMediaTypeNotSupported() {
     this.servletRequest = new HttpMockRequestImpl("PATCH", "/");
-    this.request = new ServletRequestContext(null, this.servletRequest, this.servletResponse);
+    this.request = new MockRequestContext(null, this.servletRequest, this.servletResponse);
 
     List<MediaType> acceptable = Arrays.asList(MediaType.APPLICATION_ATOM_XML, MediaType.APPLICATION_XML);
     Exception ex = new HttpMediaTypeNotSupportedException(MediaType.APPLICATION_JSON, acceptable, HttpMethod.PATCH);
@@ -235,7 +235,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
 
-    ctx.setServletContext(new MockContextImpl());
+    ctx.setMockContext(new MockContextImpl());
     ctx.refresh();
 
     ReturnValueHandlerManager manager = ctx.getBean(ReturnValueHandlerManager.class);
@@ -259,7 +259,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
-    ctx.setServletContext(new MockContextImpl());
+    ctx.setMockContext(new MockContextImpl());
     ctx.refresh();
 
     ExceptionHandlerAnnotationExceptionHandler resolver = new ExceptionHandlerAnnotationExceptionHandler();
@@ -267,7 +267,7 @@ class ResponseEntityExceptionHandlerTests {
     resolver.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException(new RequestBindingException("message"));
-    assertThat(resolver.handleException(new ServletRequestContext(null, this.servletRequest, this.servletResponse), ex, null)).isNull();
+    assertThat(resolver.handleException(new MockRequestContext(null, this.servletRequest, this.servletResponse), ex, null)).isNull();
   }
 
   @Test
@@ -279,7 +279,7 @@ class ResponseEntityExceptionHandlerTests {
 
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
-    ctx.setServletContext(new MockContextImpl());
+    ctx.setMockContext(new MockContextImpl());
 
     ctx.refresh();
 
@@ -302,7 +302,7 @@ class ResponseEntityExceptionHandlerTests {
     ctx.registerSingleton("exceptionHandler", ApplicationExceptionHandler.class);
     ctx.registerSingleton("parameterResolvingRegistry", ParameterResolvingRegistry.class);
     ctx.registerSingleton("returnValueHandlerManager", ReturnValueHandlerManager.class);
-    ctx.setServletContext(new MockContextImpl());
+    ctx.setMockContext(new MockContextImpl());
 
     ctx.refresh();
 

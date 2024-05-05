@@ -47,7 +47,7 @@ import cn.taketoday.web.annotation.PostMapping;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.cors.CorsConfiguration;
 import cn.taketoday.web.handler.HandlerExecutionChain;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
 
@@ -64,7 +64,7 @@ class CrossOriginTests {
   @SuppressWarnings("unused")
   static Stream<TestRequestMappingInfoHandlerMapping> pathPatternsArguments() {
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
-    wac.setServletContext(new MockContextImpl());
+    wac.setMockContext(new MockContextImpl());
     Properties props = new Properties();
     props.setProperty("myOrigin", "https://example.com");
     props.setProperty("myDomainPattern", "http://*.example.com");
@@ -297,7 +297,7 @@ class CrossOriginTests {
 
   @Nullable
   private HandlerExecutionChain getHandler(TestRequestMappingInfoHandlerMapping mapping, HttpMockRequestImpl request) throws Exception {
-    Object handler = mapping.getHandler(new ServletRequestContext(null, request, null));
+    Object handler = mapping.getHandler(new MockRequestContext(null, request, null));
     if (handler instanceof HandlerExecutionChain chain) {
       return chain;
     }

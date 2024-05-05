@@ -25,7 +25,7 @@ import cn.taketoday.core.Conventions;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.ui.ModelMap;
 import cn.taketoday.web.BindingContext;
 import cn.taketoday.web.HandlerInterceptor;
@@ -50,7 +50,7 @@ class DefaultMvcResult implements MvcResult {
   private static final Object RESULT_NONE = new Object();
 
   private final HttpMockRequestImpl mockRequest;
-  private final MockHttpServletResponse mockResponse;
+  private final MockHttpResponseImpl mockResponse;
 
   private RequestContext requestContext;
 
@@ -75,7 +75,7 @@ class DefaultMvcResult implements MvcResult {
    * Create a new instance with the given request and response.
    */
   public DefaultMvcResult(HttpMockRequestImpl request,
-          MockHttpServletResponse response, RequestContext requestContext) {
+          MockHttpResponseImpl response, RequestContext requestContext) {
     this.mockRequest = request;
     this.mockResponse = response;
     this.requestContext = requestContext;
@@ -88,7 +88,7 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public MockHttpServletResponse getResponse() {
+  public MockHttpResponseImpl getResponse() {
     return this.mockResponse;
   }
 

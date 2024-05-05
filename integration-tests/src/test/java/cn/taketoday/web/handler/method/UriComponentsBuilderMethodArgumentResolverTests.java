@@ -24,10 +24,10 @@ import java.lang.reflect.Method;
 
 import cn.taketoday.core.MethodParameter;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.UriComponentsBuilderParameterStrategy;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,8 +51,8 @@ public class UriComponentsBuilderMethodArgumentResolverTests {
   public void setup() throws Exception {
     this.resolver = new UriComponentsBuilderParameterStrategy();
     this.servletRequest = new HttpMockRequestImpl();
-    this.webRequest = new ServletRequestContext(
-            null, this.servletRequest, new MockHttpServletResponse());
+    this.webRequest = new MockRequestContext(
+            null, this.servletRequest, new MockHttpResponseImpl());
 
     Method method = this.getClass().getDeclaredMethod(
             "handle", UriComponentsBuilder.class, UriComponentsBuilder.class, int.class);

@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.Optional;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +36,10 @@ import static org.mockito.Mockito.mock;
  */
 public class RouterFunctionsTests {
 
-  MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+  MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
   private final ServerRequest request = new DefaultServerRequest(
-          new ServletRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), servletResponse), Collections.emptyList());
+          new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), servletResponse), Collections.emptyList());
 
   @Test
   public void routeMatch() {
@@ -113,8 +113,8 @@ public class RouterFunctionsTests {
 
     HttpMockRequestImpl servletRequest = new HttpMockRequestImpl("GET", "/bar");
 
-    MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-    var requestContext = new ServletRequestContext(null, servletRequest, servletResponse);
+    MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
+    var requestContext = new MockRequestContext(null, servletRequest, servletResponse);
     ServerRequest request = new DefaultServerRequest(requestContext, Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> resultHandlerFunction = result.route(request);

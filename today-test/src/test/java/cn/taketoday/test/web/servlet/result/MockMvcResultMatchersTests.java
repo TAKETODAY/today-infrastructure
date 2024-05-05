@@ -22,7 +22,7 @@ package cn.taketoday.test.web.servlet.result;
 
 import org.junit.jupiter.api.Test;
 
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.test.web.servlet.StubMvcResult;
 
 import static cn.taketoday.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
@@ -141,13 +141,13 @@ public class MockMvcResultMatchersTests {
   }
 
   private StubMvcResult redirectedUrlStub(String redirectUrl) throws Exception {
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     response.sendRedirect(redirectUrl);
     return new StubMvcResult(null, null, null, null, null, null, response);
   }
 
   private StubMvcResult forwardedUrlStub(String forwardedUrl) {
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     response.setForwardedUrl(forwardedUrl);
     return new StubMvcResult(null, null, null, null, null, null, response);
   }

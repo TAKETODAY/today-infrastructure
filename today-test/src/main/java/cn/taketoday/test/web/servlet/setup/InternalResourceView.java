@@ -22,15 +22,16 @@ import java.util.Map;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.mock.MockContextAware;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
 import cn.taketoday.mock.api.RequestDispatcher;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * Wrapper for a JSP or other resource within the same web application.
@@ -63,7 +64,7 @@ import cn.taketoday.mock.api.http.HttpServletResponse;
  * @author Rob Harrop
  * @see RequestDispatcher#forward
  * @see RequestDispatcher#include
- * @see cn.taketoday.mock.api.ServletResponse#flushBuffer
+ * @see MockResponse#flushBuffer
  * @see InternalResourceViewResolver
  * @since 4.0
  */
@@ -112,7 +113,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
    *
    * @see RequestDispatcher#forward
    * @see RequestDispatcher#include
-   * @see #useInclude(HttpMockRequest, HttpServletResponse)
+   * @see #useInclude(HttpMockRequest, HttpMockResponse)
    */
   public void setAlwaysInclude(boolean alwaysInclude) {
     this.alwaysInclude = alwaysInclude;
@@ -149,8 +150,8 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
     exposeModelAsRequestAttributes(model, request);
 
     // Determine the path for the request dispatcher.
-    HttpMockRequest servletRequest = ServletUtils.getServletRequest(request);
-    HttpServletResponse servletResponse = ServletUtils.getServletResponse(request);
+    HttpMockRequest servletRequest = MockUtils.getServletRequest(request);
+    HttpMockResponse servletResponse = MockUtils.getServletResponse(request);
 
     // Expose helpers as request attributes, if any.
     exposeHelpers(servletRequest, request);
@@ -207,7 +208,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
    * @throws Exception if preparations failed
    * @see #getUrl()
    */
-  protected String prepareForRendering(HttpMockRequest request, HttpServletResponse response)
+  protected String prepareForRendering(HttpMockRequest request, HttpMockResponse response)
           throws Exception {
 
     String path = getUrl();
@@ -251,24 +252,24 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
    * @return {@code true} for include, {@code false} for forward
    * @see cn.taketoday.mock.api.RequestDispatcher#forward
    * @see cn.taketoday.mock.api.RequestDispatcher#include
-   * @see cn.taketoday.mock.api.ServletResponse#isCommitted
-   * @see ServletUtils#isIncludeRequest
+   * @see MockResponse#isCommitted
+   * @see MockUtils#isIncludeRequest
    */
-  protected boolean useInclude(HttpMockRequest request, HttpServletResponse response) {
-    return alwaysInclude || ServletUtils.isIncludeRequest(request) || response.isCommitted();
+  protected boolean useInclude(HttpMockRequest request, HttpMockResponse response) {
+    return alwaysInclude || MockUtils.isIncludeRequest(request) || response.isCommitted();
   }
 
   @Override
   public final void setMockContext(MockContext mockContext) {
     if (mockContext != this.mockContext) {
-      initServletContext(this.mockContext = mockContext);
+      initMockContext(this.mockContext = mockContext);
     }
   }
 
-  protected void initServletContext(MockContext mockContext) { }
+  protected void initMockContext(MockContext mockContext) { }
 
   @Nullable
-  public MockContext getServletContext() {
+  public MockContext getMockContext() {
     return mockContext;
   }
 }

@@ -42,7 +42,7 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.ui.Model;
 import cn.taketoday.ui.ModelMap;
@@ -56,7 +56,7 @@ import cn.taketoday.web.annotation.ResponseBody;
 import cn.taketoday.web.annotation.ResponseStatus;
 import cn.taketoday.web.annotation.RestControllerAdvice;
 import cn.taketoday.web.config.EnableWebMvc;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.resource.ResourceHttpRequestHandler;
 import cn.taketoday.web.util.WebUtils;
 import cn.taketoday.web.view.ModelAndView;
@@ -73,7 +73,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   @EnableWebMvc
   @Configuration(proxyBeanMethods = false)
@@ -87,7 +87,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.setWarnLogCategory(this.handler.getClass().getName());
 
     this.request = new HttpMockRequestImpl("GET", "/");
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
   }
 
   @Test
@@ -96,7 +96,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.setApplicationContext(new AnnotationConfigApplicationContext(Config.class));
 
     this.handler.afterPropertiesSet();
-    Object mav = this.handler.handleException(new ServletRequestContext(this.request, this.response), null, handler);
+    Object mav = this.handler.handleException(new MockRequestContext(this.request, this.response), null, handler);
     assertThat(mav).as("Exception can be resolved only if there is a HandlerMethod").isNull();
   }
 
@@ -134,7 +134,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
   private ModelAndView handleException(
           ApplicationContext context, Exception ex, HandlerMethod handlerMethod) throws Exception {
-    ServletRequestContext context1 = new ServletRequestContext(context, request, response);
+    MockRequestContext context1 = new MockRequestContext(context, request, response);
     context1.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex);
 
     context1.setBinding(new BindingContext());
@@ -209,7 +209,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
       }
     };
 
-    ServletRequestContext context = new ServletRequestContext(null, request, response);
+    MockRequestContext context = new MockRequestContext(null, request, response);
     context.setBinding(new BindingContext());
 
     Object ret = this.handler.handleException(context, ex, handler);
@@ -374,7 +374,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     this.handler.afterPropertiesSet();
 
     IllegalStateException ex = new IllegalStateException();
-    Object mav = this.handler.handleException(new ServletRequestContext(this.request, this.response), ex, null);
+    Object mav = this.handler.handleException(new MockRequestContext(this.request, this.response), ex, null);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");
@@ -407,7 +407,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
     IllegalStateException ex = new IllegalStateException();
     ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
     Object mav = this.handler.handleException(
-            new ServletRequestContext(ctx, this.request, this.response), ex, handler);
+            new MockRequestContext(ctx, this.request, this.response), ex, handler);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(this.response.getContentAsString()).isEqualTo("DefaultTestExceptionResolver: IllegalStateException");

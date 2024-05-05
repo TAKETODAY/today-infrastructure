@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import cn.taketoday.http.HttpCookie;
 import cn.taketoday.session.config.CookieProperties;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,7 +62,7 @@ class CookieSessionIdResolverTests {
   @Test
   void getSessionId() {
     CookieSessionIdResolver resolver = new CookieSessionIdResolver();
-    ServletRequestContext context = new ServletRequestContext();
+    MockRequestContext context = new MockRequestContext();
     // no response cookie
     assertThat(resolver.getSessionId(context)).isNull();
 
@@ -81,7 +81,7 @@ class CookieSessionIdResolverTests {
   @Test
   void setSessionId() {
     CookieSessionIdResolver resolver = new CookieSessionIdResolver();
-    ServletRequestContext context = new ServletRequestContext();
+    MockRequestContext context = new MockRequestContext();
 
     context.addRequestCookies(new HttpCookie(resolver.getCookieName(), "session-id"));
     assertThat(resolver.getSessionId(context)).isEqualTo("session-id");
@@ -95,7 +95,7 @@ class CookieSessionIdResolverTests {
   @Test
   void expireSession() {
     CookieSessionIdResolver resolver = new CookieSessionIdResolver();
-    ServletRequestContext context = new ServletRequestContext();
+    MockRequestContext context = new MockRequestContext();
 
     resolver.setSessionId(context, "new-value");
     assertThat(resolver.getSessionId(context)).isEqualTo("new-value");

@@ -39,10 +39,10 @@ import cn.taketoday.web.resource.ResourceResolver;
 import cn.taketoday.web.resource.ResourceTransformer;
 import cn.taketoday.web.resource.VersionResourceResolver;
 import cn.taketoday.web.resource.LiteWebJarsResourceResolver;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.GenericWebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +57,7 @@ class ResourceHandlerRegistryTests {
 
   private ResourceHandlerRegistration registration;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   @BeforeEach
   public void setup() {
@@ -68,7 +68,7 @@ class ResourceHandlerRegistryTests {
 
     this.registration = this.registry.addResourceHandler("/resources/**");
     this.registration.addResourceLocations("classpath:cn/taketoday/web/config/");
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
   }
 
   private ResourceHttpRequestHandler getHandler(String pathPattern) {
@@ -89,7 +89,7 @@ class ResourceHandlerRegistryTests {
     request.setRequestURI("/testStylesheet.css");
 
     ResourceHttpRequestHandler handler = getHandler("/resources/**");
-    handler.handleRequest(new ServletRequestContext(null, request, this.response));
+    handler.handleRequest(new MockRequestContext(null, request, this.response));
 
     assertThat(this.response.getContentAsString()).isEqualTo("test stylesheet content");
   }

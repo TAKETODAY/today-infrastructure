@@ -25,7 +25,7 @@ import cn.taketoday.session.DefaultSessionManager;
 import cn.taketoday.session.InMemorySessionRepository;
 import cn.taketoday.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.session.SessionEventDispatcher;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -62,7 +62,7 @@ class SessionManagerDiscoverTests {
   void obtain() {
     AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
     applicationContext.refresh();
-    ServletRequestContext context = new ServletRequestContext(applicationContext);
+    MockRequestContext context = new MockRequestContext(applicationContext);
 
     StandardBeanFactory beanFactory = new StandardBeanFactory();
     SessionManagerDiscover discover = new SessionManagerDiscover(beanFactory);

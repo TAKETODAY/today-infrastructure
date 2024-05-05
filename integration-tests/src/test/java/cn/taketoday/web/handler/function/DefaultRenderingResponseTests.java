@@ -30,10 +30,10 @@ import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create(name).build();
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     ModelAndView mav = getModelAndView(result, request, response);
 
@@ -64,7 +64,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo").status(status).build();
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(response.getStatus()).isEqualTo(status.value());
@@ -72,10 +72,10 @@ public class DefaultRenderingResponseTests {
 
   @Nullable
   private static ModelAndView getModelAndView(
-          RenderingResponse result, HttpMockRequestImpl request, MockHttpServletResponse response) throws Throwable {
-    ServletRequestContext servletRequestContext = new ServletRequestContext(null, request, response);
-    Object write = result.writeTo(servletRequestContext, EMPTY_CONTEXT);
-    servletRequestContext.flush();
+          RenderingResponse result, HttpMockRequestImpl request, MockHttpResponseImpl response) throws Throwable {
+    MockRequestContext mockRequestContext = new MockRequestContext(null, request, response);
+    Object write = result.writeTo(mockRequestContext, EMPTY_CONTEXT);
+    mockRequestContext.flush();
     if (write instanceof ModelAndView andView) {
       return andView;
     }
@@ -91,7 +91,7 @@ public class DefaultRenderingResponseTests {
             .build();
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
 
@@ -104,7 +104,7 @@ public class DefaultRenderingResponseTests {
             .modelAttribute("foo", "bar").build();
 
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
 
@@ -116,7 +116,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttribute("bar").build();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(mav.getModel().get("string")).isEqualTo("bar");
@@ -128,7 +128,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes(model).build();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(mav.getModel().get("foo")).isEqualTo("bar");
@@ -139,7 +139,7 @@ public class DefaultRenderingResponseTests {
     RenderingResponse result = RenderingResponse.create("foo")
             .modelAttributes("bar").build();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(mav.getModel().get("string")).isEqualTo("bar");
@@ -151,7 +151,7 @@ public class DefaultRenderingResponseTests {
     newCookies.add("name", new HttpCookie("name", "value"));
     RenderingResponse result = RenderingResponse.create("foo").cookies(cookies -> cookies.addAll(newCookies)).build();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNotNull();
     assertThat(response.getCookies().length).isEqualTo(1);
@@ -168,7 +168,7 @@ public class DefaultRenderingResponseTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "https://example.com");
     request.addHeader(HttpHeaders.IF_NONE_MATCH, etag);
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNull();
@@ -186,7 +186,7 @@ public class DefaultRenderingResponseTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "https://example.com");
     request.addHeader(HttpHeaders.IF_MODIFIED_SINCE, DateTimeFormatter.RFC_1123_DATE_TIME.format(now));
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
     ModelAndView mav = getModelAndView(result, request, response);
     assertThat(mav).isNull();

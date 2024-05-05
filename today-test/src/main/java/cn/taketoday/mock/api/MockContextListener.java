@@ -22,7 +22,7 @@ import java.util.EventListener;
 import cn.taketoday.mock.api.annotation.WebListener;
 
 /**
- * Interface for receiving notification events about ServletContext lifecycle changes.
+ * Interface for receiving notification events about MockContext lifecycle changes.
  *
  * <p>
  * In order to receive these notification events, the implementation class must be either declared in the deployment
@@ -33,34 +33,33 @@ import cn.taketoday.mock.api.annotation.WebListener;
  * Implementations of this interface are invoked at their {@link #contextInitialized} method in the order in which they
  * have been declared, and at their {@link #contextDestroyed} method in reverse order.
  *
- * @see ServletContextEvent
- * @since Servlet 2.3
+ * @see MockContextEvent
  */
-public interface ServletContextListener extends EventListener {
+public interface MockContextListener extends EventListener {
 
   /**
    * Receives notification that the web application initialization process is starting.
    *
    * <p>
-   * All ServletContextListeners are notified of context initialization before any filters or servlets in the web
+   * All MockContextListeners are notified of context initialization before any filters or servlets in the web
    * application are initialized.
    *
-   * @param sce the ServletContextEvent containing the ServletContext that is being initialized
+   * @param sce the MockContextEvent containing the MockContext that is being initialized
    * @implSpec The default implementation takes no action.
    */
-  default public void contextInitialized(ServletContextEvent sce) {
+  default public void contextInitialized(MockContextEvent sce) {
   }
 
   /**
-   * Receives notification that the ServletContext is about to be shut down.
+   * Receives notification that the MockContext is about to be shut down.
    *
    * <p>
-   * All servlets and filters will have been destroyed before any ServletContextListeners are notified of context
+   * All servlets and filters will have been destroyed before any MockContextListeners are notified of context
    * destruction.
    *
-   * @param sce the ServletContextEvent containing the ServletContext that is being destroyed
+   * @param sce the MockContextEvent containing the MockContext that is being destroyed
    * @implSpec The default implementation takes no action.
    */
-  default public void contextDestroyed(ServletContextEvent sce) {
+  default public void contextDestroyed(MockContextEvent sce) {
   }
 }

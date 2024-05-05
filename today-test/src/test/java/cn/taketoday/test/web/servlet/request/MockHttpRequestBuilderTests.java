@@ -34,7 +34,7 @@ import java.util.Map;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.util.FileCopyUtils;
@@ -42,7 +42,7 @@ import cn.taketoday.util.LinkedMultiValueMap;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.util.UriComponentsBuilder;
 
 import static cn.taketoday.http.HttpMethod.GET;
@@ -495,7 +495,7 @@ class MockHttpRequestBuilderTests {
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     RedirectModel flashMap =
-            new ServletRequestContext(null, request, new MockHttpServletResponse()).getInputRedirectModel();
+            new MockRequestContext(null, request, new MockHttpResponseImpl()).getInputRedirectModel();
 
     assertThat(flashMap.get("foo")).isEqualTo("bar");
   }

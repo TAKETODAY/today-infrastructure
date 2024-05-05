@@ -23,7 +23,7 @@ import java.util.Collection;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.web.handler.condition.HeadersRequestCondition.HeaderExpression;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +48,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("Accept", "");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -58,7 +58,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("bar", "");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
   }
 
   @Test
@@ -67,7 +67,7 @@ public class HeadersRequestConditionTests {
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -77,7 +77,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -87,7 +87,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bazz");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
   }
 
   @Test
@@ -97,7 +97,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
   }
 
   @Test
@@ -106,7 +106,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "baz");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNotNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNotNull();
   }
 
   @Test
@@ -115,7 +115,7 @@ public class HeadersRequestConditionTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/");
     request.addHeader("foo", "bar");
 
-    assertThat(condition.getMatchingCondition(new ServletRequestContext(null, request, null))).isNull();
+    assertThat(condition.getMatchingCondition(new MockRequestContext(null, request, null))).isNull();
   }
 
   @Test
@@ -125,10 +125,10 @@ public class HeadersRequestConditionTests {
     HeadersRequestCondition condition1 = new HeadersRequestCondition("foo", "bar", "baz");
     HeadersRequestCondition condition2 = new HeadersRequestCondition("foo=a", "bar");
 
-    int result = condition1.compareTo(condition2, new ServletRequestContext(null, request, null));
+    int result = condition1.compareTo(condition2, new MockRequestContext(null, request, null));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
 
-    result = condition2.compareTo(condition1, new ServletRequestContext(null, request, null));
+    result = condition2.compareTo(condition1, new MockRequestContext(null, request, null));
     assertThat(result > 0).as("Invalid comparison result: " + result).isTrue();
   }
 
@@ -139,10 +139,10 @@ public class HeadersRequestConditionTests {
     HeadersRequestCondition condition1 = new HeadersRequestCondition("foo=a");
     HeadersRequestCondition condition2 = new HeadersRequestCondition("foo");
 
-    int result = condition1.compareTo(condition2, new ServletRequestContext(null, request, null));
+    int result = condition1.compareTo(condition2, new MockRequestContext(null, request, null));
     assertThat(result < 0).as("Invalid comparison result: " + result).isTrue();
 
-    result = condition2.compareTo(condition1, new ServletRequestContext(null, request, null));
+    result = condition2.compareTo(condition1, new MockRequestContext(null, request, null));
     assertThat(result > 0).as("Invalid comparison result: " + result).isTrue();
   }
 
@@ -153,7 +153,7 @@ public class HeadersRequestConditionTests {
     HeadersRequestCondition condition1 = new HeadersRequestCondition("foo!=a");
     HeadersRequestCondition condition2 = new HeadersRequestCondition("foo");
 
-    assertThat(condition1.compareTo(condition2, new ServletRequestContext(null, request, null)))
+    assertThat(condition1.compareTo(condition2, new MockRequestContext(null, request, null)))
             .as("Negated match should not count as more specific")
             .isEqualTo(0);
   }
@@ -175,12 +175,12 @@ public class HeadersRequestConditionTests {
 
     HeadersRequestCondition condition = new HeadersRequestCondition("foo");
 
-    HeadersRequestCondition result = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    HeadersRequestCondition result = condition.getMatchingCondition(new MockRequestContext(null, request, null));
     assertThat(result).isEqualTo(condition);
 
     condition = new HeadersRequestCondition("bar");
 
-    result = condition.getMatchingCondition(new ServletRequestContext(null, request, null));
+    result = condition.getMatchingCondition(new MockRequestContext(null, request, null));
     assertThat(result).isNull();
   }
 

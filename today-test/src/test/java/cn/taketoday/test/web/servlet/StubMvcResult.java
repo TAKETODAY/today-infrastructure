@@ -18,10 +18,10 @@
 package cn.taketoday.test.web.servlet;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.RedirectModel;
 
@@ -44,7 +44,7 @@ public class StubMvcResult implements MvcResult {
 
   private RedirectModel flashMap;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
   final RequestContext requestContext;
 
   public StubMvcResult(HttpMockRequestImpl request,
@@ -53,7 +53,7 @@ public class StubMvcResult implements MvcResult {
           Exception resolvedException,
           ModelAndView mav,
           RedirectModel flashMap,
-          MockHttpServletResponse response) {
+          MockHttpResponseImpl response) {
     this.request = request;
     this.handler = handler;
     this.interceptors = interceptors;
@@ -62,7 +62,7 @@ public class StubMvcResult implements MvcResult {
     this.flashMap = flashMap;
     this.response = response;
 
-    this.requestContext = new ServletRequestContext(null, request, response);
+    this.requestContext = new MockRequestContext(null, request, response);
   }
 
   @Override
@@ -96,7 +96,7 @@ public class StubMvcResult implements MvcResult {
   }
 
   @Override
-  public MockHttpServletResponse getResponse() {
+  public MockHttpResponseImpl getResponse() {
     return response;
   }
 
@@ -133,7 +133,7 @@ public class StubMvcResult implements MvcResult {
     this.flashMap = flashMap;
   }
 
-  public void setResponse(MockHttpServletResponse response) {
+  public void setResponse(MockHttpResponseImpl response) {
     this.response = response;
   }
 

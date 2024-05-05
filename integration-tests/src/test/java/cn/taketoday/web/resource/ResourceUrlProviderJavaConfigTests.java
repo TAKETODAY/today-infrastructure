@@ -24,12 +24,12 @@ import cn.taketoday.context.annotation.AnnotationConfigApplicationContext;
 import cn.taketoday.context.annotation.Configuration;
 import cn.taketoday.mock.web.MockFilterChain;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.config.ResourceHandlerRegistry;
 import cn.taketoday.web.config.WebMvcConfigurationSupport;
 import cn.taketoday.mock.api.http.HttpMock;
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +46,7 @@ public class ResourceUrlProviderJavaConfigTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   @BeforeEach
   public void setup() throws Exception {
@@ -55,7 +55,7 @@ public class ResourceUrlProviderJavaConfigTests {
     context.refresh();
 
     this.request = new HttpMockRequestImpl("GET", "/");
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
 
     this.filterChain = new MockFilterChain(this.servlet/*,
             new ResourceUrlEncodingFilter(),
@@ -101,10 +101,10 @@ public class ResourceUrlProviderJavaConfigTests {
   @SuppressWarnings("serial")
   private static class TestMock extends HttpMock {
 
-    private HttpServletResponse wrappedResponse;
+    private HttpMockResponse wrappedResponse;
 
     @Override
-    protected void doGet(HttpMockRequest request, HttpServletResponse response) {
+    protected void doGet(HttpMockRequest request, HttpMockResponse response) {
       this.wrappedResponse = response;
     }
   }

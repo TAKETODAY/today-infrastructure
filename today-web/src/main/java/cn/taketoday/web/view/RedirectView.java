@@ -108,7 +108,7 @@ public class RedirectView extends AbstractUrlBasedView implements SmartView {
   /**
    * Create a new RedirectView with the given URL.
    * <p>The given URL will be considered as relative to the web server,
-   * not as relative to the current ServletContext.
+   * not as relative to the current MockContext.
    *
    * @param url the URL to redirect to
    * @see #RedirectView(String)

@@ -22,10 +22,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 
 /**
- * Extends the {@link ServletResponse} interface to provide HTTP-specific functionality in sending a response. For
+ * Extends the {@link MockResponse} interface to provide HTTP-specific functionality in sending a response. For
  * example, it has methods to access HTTP headers and cookies.
  *
  * <p>
@@ -33,9 +33,9 @@ import cn.taketoday.mock.api.ServletResponse;
  * servlet's service methods (<code>doGet</code>, <code>doPost</code>, etc).
  *
  * @author Various
- * @see ServletResponse
+ * @see MockResponse
  */
-public interface HttpServletResponse extends ServletResponse {
+public interface HttpMockResponse extends MockResponse {
 
   /**
    * Adds the specified cookie to the response. This method can be called multiple times to set more than one cookie.

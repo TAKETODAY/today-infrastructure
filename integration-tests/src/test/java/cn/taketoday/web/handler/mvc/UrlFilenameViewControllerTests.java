@@ -23,10 +23,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.RequestContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UrlFilenameViewControllerTests {
 
   @SuppressWarnings("unused")
-  private static Stream<Function<String, ServletRequestContext>> pathPatternsArguments() {
+  private static Stream<Function<String, MockRequestContext>> pathPatternsArguments() {
     return PathPatternsTestUtils.requestArguments();
   }
 
@@ -141,7 +141,7 @@ class UrlFilenameViewControllerTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/docs/cvs/commit.html");
     StaticWebApplicationContext wac = new StaticWebApplicationContext();
     wac.refresh();
-    ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
     ModelAndView mv = getModelAndView(controller, context);
     assertThat(mv.getViewName()).isEqualTo("docs/cvs/commit");
     assertThat(mv.getModel().isEmpty()).isTrue();

@@ -28,13 +28,13 @@ import java.util.Map;
 
 import cn.taketoday.http.converter.json.BeanFactoryHandlerInstantiator;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.web.annotation.RequestMapping;
 import cn.taketoday.web.handler.HandlerExecutionChain;
 import cn.taketoday.web.handler.method.HandlerMethod;
 import cn.taketoday.web.handler.method.RequestMappingHandlerMapping;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 import cn.taketoday.mock.api.DispatcherType;
@@ -66,8 +66,8 @@ class StandaloneMockMvcBuilderTests {
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/foo");
-    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null,
-            request, new MockHttpServletResponse()));
+    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
+            request, new MockHttpResponseImpl()));
 
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("handleWithPlaceholders");
@@ -81,14 +81,14 @@ class StandaloneMockMvcBuilderTests {
     RequestMappingHandlerMapping hm = builder.wac.getBean(RequestMappingHandlerMapping.class);
 
     HttpMockRequestImpl request = new HttpMockRequestImpl("GET", "/persons");
-    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null,
-            request, new MockHttpServletResponse()));
+    HandlerExecutionChain chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
+            request, new MockHttpResponseImpl()));
     assertThat(chain).isNotNull();
     assertThat(((HandlerMethod) chain.getRawHandler()).getMethod().getName()).isEqualTo("persons");
 
     request = new HttpMockRequestImpl("GET", "/persons.xml");
-    chain = (HandlerExecutionChain) hm.getHandler(new ServletRequestContext(null,
-            request, new MockHttpServletResponse()));
+    chain = (HandlerExecutionChain) hm.getHandler(new MockRequestContext(null,
+            request, new MockHttpResponseImpl()));
     assertThat(chain).isNull();
   }
 
@@ -98,7 +98,7 @@ class StandaloneMockMvcBuilderTests {
     TestStandaloneMockMvcBuilder builder = new TestStandaloneMockMvcBuilder(new PlaceholderController());
     builder.addPlaceholderValue("sys.login.ajax", "/foo");
     WebApplicationContext wac = builder.initWebAppContext();
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(wac.getServletContext())).isEqualTo(wac);
+    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(wac.getMockContext())).isEqualTo(wac);
   }
 
   @Test

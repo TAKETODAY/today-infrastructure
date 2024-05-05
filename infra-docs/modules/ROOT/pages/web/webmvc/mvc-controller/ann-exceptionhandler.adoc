@@ -225,7 +225,7 @@ see xref:web/webmvc/mvc-ann-rest-exceptions.adoc[Error Responses]
 
 | `void`
 | A method with a `void` return type (or `null` return value) is considered to have fully
-  handled the response if it also has a `ServletResponse` an `OutputStream` argument, or
+  handled the response if it also has a `MockResponse` an `OutputStream` argument, or
   a `@ResponseStatus` annotation. The same is also true if the controller has made a positive
   `ETag` or `lastModified` timestamp check (see xref:web/webmvc/mvc-caching.adoc#mvc-caching-etag-lastmodified[Controllers] for details).
 

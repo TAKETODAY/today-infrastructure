@@ -18,7 +18,7 @@
 package cn.taketoday.web;
 
 import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 
 /**
  * Interface to indicate {@link RequestContext} running in servlet
@@ -31,6 +31,6 @@ public interface MockIndicator {
 
   HttpMockRequest getRequest();
 
-  HttpServletResponse getResponse();
+  HttpMockResponse getResponse();
 
 }

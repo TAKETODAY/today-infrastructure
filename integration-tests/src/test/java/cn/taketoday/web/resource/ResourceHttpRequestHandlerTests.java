@@ -36,12 +36,12 @@ import cn.taketoday.web.HttpRequestMethodNotSupportedException;
 import cn.taketoday.web.accept.ContentNegotiationManager;
 import cn.taketoday.web.accept.ContentNegotiationManagerFactoryBean;
 import cn.taketoday.web.handler.SimpleNotFoundHandler;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.mock.api.http.HttpServletResponse;
+import cn.taketoday.mock.api.http.HttpMockResponse;
 import lombok.SneakyThrows;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,8 +73,8 @@ public class ResourceHttpRequestHandlerTests {
 
     private HttpMockRequestImpl request;
 
-    private MockHttpServletResponse response;
-    private ServletRequestContext requestContext;
+    private MockHttpResponseImpl response;
+    private MockRequestContext requestContext;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -83,8 +83,8 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
       this.request = new HttpMockRequestImpl(servletContext, "GET", "");
-      this.response = new MockHttpServletResponse();
-      requestContext = new ServletRequestContext(null, request, response);
+      this.response = new MockHttpResponseImpl();
+      requestContext = new MockRequestContext(null, request, response);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class ResourceHttpRequestHandlerTests {
 
       List<Resource> paths = List.of(new ClassPathResource("test/", getClass()));
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-//      handler.setServletContext(new MockServletContext());
+//      handler.setMockContext(new MockContext());
       handler.setLocations(paths);
       handler.setContentNegotiationManager(manager);
       handler.afterPropertiesSet();
@@ -158,7 +158,7 @@ public class ResourceHttpRequestHandlerTests {
 
       List<Resource> paths = List.of(new ClassPathResource("test/", getClass()));
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-//      handler.setServletContext(new MockServletContext());
+//      handler.setMockContext(new MockContext());
       handler.setLocations(paths);
       handler.setContentNegotiationManager(manager);
       handler.afterPropertiesSet();
@@ -171,7 +171,7 @@ public class ResourceHttpRequestHandlerTests {
     }
 
     @Test
-    void getResourceWithMediaTypeResolvedThroughServletContext() throws Throwable {
+    void getResourceWithMediaTypeResolvedThroughMockContext() throws Throwable {
       MockContextImpl servletContext = new MockContextImpl() {
         @Override
         public String getMimeType(String filePath) {
@@ -181,13 +181,13 @@ public class ResourceHttpRequestHandlerTests {
 
       List<Resource> paths = List.of(new ClassPathResource("test/", getClass()));
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-//      handler.setServletContext(servletContext);
+//      handler.setMockContext(servletContext);
       handler.setLocations(paths);
       handler.afterPropertiesSet();
 
       HttpMockRequestImpl request = new HttpMockRequestImpl(servletContext, "GET", "");
       request.setRequestURI("foo.css");
-      handler.handleRequest(new ServletRequestContext(null, request, response));
+      handler.handleRequest(new MockRequestContext(null, request, response));
 
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
@@ -207,8 +207,8 @@ public class ResourceHttpRequestHandlerTests {
         this.request = new HttpMockRequestImpl("GET", "");
         this.request.setRequestURI("not-there.css");
         this.request.setMethod(method.name());
-        this.response = new MockHttpServletResponse();
-        requestContext = new ServletRequestContext(null, request, response);
+        this.response = new MockHttpResponseImpl();
+        requestContext = new MockRequestContext(null, request, response);
 
         assertThat(this.handler.handleRequest(requestContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
       }
@@ -223,9 +223,9 @@ public class ResourceHttpRequestHandlerTests {
 
     private HttpMockRequestImpl request;
 
-    private MockHttpServletResponse response;
+    private MockHttpResponseImpl response;
 
-    private ServletRequestContext requestContext;
+    private MockRequestContext requestContext;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -234,8 +234,8 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
       this.request = new HttpMockRequestImpl(servletContext, "GET", "");
-      this.response = new MockHttpServletResponse();
-      requestContext = new ServletRequestContext(null, request, response);
+      this.response = new MockHttpResponseImpl();
+      requestContext = new MockRequestContext(null, request, response);
     }
 
     @Test
@@ -373,7 +373,7 @@ public class ResourceHttpRequestHandlerTests {
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
       handler.setResourceResolvers(List.of(new EncodedResourceResolver(), new PathResourceResolver()));
       handler.setLocations(List.of(testResource));
-      //handler.setServletContext(new MockServletContext());
+      //handler.setMockContext(new MockContext());
       handler.afterPropertiesSet();
 
       this.request.addHeader("Accept-Encoding", "gzip");
@@ -418,8 +418,8 @@ public class ResourceHttpRequestHandlerTests {
 
     private HttpMockRequestImpl request;
 
-    private MockHttpServletResponse response;
-    private ServletRequestContext requestContext;
+    private MockHttpResponseImpl response;
+    private MockRequestContext requestContext;
 
     @BeforeEach
     void setup() {
@@ -427,8 +427,8 @@ public class ResourceHttpRequestHandlerTests {
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new HttpMockRequestImpl(servletContext, "GET", "");
-      this.response = new MockHttpServletResponse();
-      requestContext = new ServletRequestContext(null, request, response);
+      this.response = new MockHttpResponseImpl();
+      requestContext = new MockRequestContext(null, request, response);
     }
 
     @Test
@@ -480,7 +480,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_MODIFIED);
+      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
     }
 
     @Test
@@ -489,7 +489,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css") / 1000 * 1000 - 1);
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_OK);
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
 
@@ -500,7 +500,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_MODIFIED);
+      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
     }
 
     @Test
@@ -510,7 +510,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_OK);
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
 
@@ -522,7 +522,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
       this.handler.handleRequest(requestContext);
-      assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_MODIFIED);
+      assertThat(this.response.getStatus()).isEqualTo(HttpMockResponse.SC_NOT_MODIFIED);
     }
 
     @Test
@@ -566,9 +566,9 @@ public class ResourceHttpRequestHandlerTests {
 
     private HttpMockRequestImpl request;
 
-    private MockHttpServletResponse response;
+    private MockHttpResponseImpl response;
 
-    private ServletRequestContext requestContext;
+    private MockRequestContext requestContext;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -576,8 +576,8 @@ public class ResourceHttpRequestHandlerTests {
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new HttpMockRequestImpl(servletContext, "GET", "");
-      this.response = new MockHttpServletResponse();
-      requestContext = new ServletRequestContext(null, request, response);
+      this.response = new MockHttpResponseImpl();
+      requestContext = new MockRequestContext(null, request, response);
     }
 
     @Test
@@ -660,8 +660,8 @@ public class ResourceHttpRequestHandlerTests {
 
     private void testInvalidPath(String requestPath) {
       this.request.setRequestURI(requestPath);
-      this.response = new MockHttpServletResponse();
-      requestContext = new ServletRequestContext(null, request, response);
+      this.response = new MockHttpResponseImpl();
+      requestContext = new MockRequestContext(null, request, response);
       assertNotFound();
     }
 
@@ -675,7 +675,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       for (HttpMethod method : HttpMethod.values()) {
         this.request = new HttpMockRequestImpl("GET", "");
-        this.response = new MockHttpServletResponse();
+        this.response = new MockHttpResponseImpl();
         shouldRejectPathWithTraversal(method);
       }
     }
@@ -708,8 +708,8 @@ public class ResourceHttpRequestHandlerTests {
 
     private void testResolvePathWithTraversal(Resource location, String requestPath) {
       this.request.setRequestURI(requestPath);
-      this.response = new MockHttpServletResponse();
-      requestContext = new ServletRequestContext(null, request, response);
+      this.response = new MockHttpResponseImpl();
+      requestContext = new MockRequestContext(null, request, response);
       assertNotFound();
     }
 
@@ -717,7 +717,7 @@ public class ResourceHttpRequestHandlerTests {
     void ignoreInvalidEscapeSequence() throws Throwable {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("/%foo%/bar.txt");
-      this.response = new MockHttpServletResponse();
+      this.response = new MockHttpResponseImpl();
       assertNotFound();
     }
 

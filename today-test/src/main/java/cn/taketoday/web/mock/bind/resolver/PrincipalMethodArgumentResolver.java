@@ -23,12 +23,12 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
  * Resolves an argument of type {@link Principal}, similar to
- * {@link ServletRequestMethodArgumentResolver} but irrespective of whether the
+ * {@link MockRequestMethodArgumentResolver} but irrespective of whether the
  * argument is annotated or not. This is done to enable custom argument
  * resolution of a {@link Principal} argument (with a custom annotation).
  *
@@ -46,7 +46,7 @@ public class PrincipalMethodArgumentResolver implements ParameterResolvingStrate
   @Nullable
   @Override
   public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-    HttpMockRequest servletRequest = ServletUtils.getServletRequest(context);
+    HttpMockRequest servletRequest = MockUtils.getServletRequest(context);
 
     Principal principal = servletRequest.getUserPrincipal();
     if (principal != null && !resolvable.getParameterType().isInstance(principal)) {

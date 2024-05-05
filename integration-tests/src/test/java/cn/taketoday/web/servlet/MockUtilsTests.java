@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/26 15:07
  */
-class ServletUtilsTests {
+class MockUtilsTests {
 
   @Test
   public void findParameterValue() {
@@ -40,11 +40,11 @@ class ServletUtilsTests {
     params.put("myKey3_myValue3.x", "xxx");
     params.put("myKey4_myValue4.y", new String[] { "yyy" });
 
-    assertThat(ServletUtils.findParameterValue(params, "myKey0")).isNull();
-    assertThat(ServletUtils.findParameterValue(params, "myKey1")).isEqualTo("myValue1");
-    assertThat(ServletUtils.findParameterValue(params, "myKey2")).isEqualTo("myValue2");
-    assertThat(ServletUtils.findParameterValue(params, "myKey3")).isEqualTo("myValue3");
-    assertThat(ServletUtils.findParameterValue(params, "myKey4")).isEqualTo("myValue4");
+    assertThat(MockUtils.findParameterValue(params, "myKey0")).isNull();
+    assertThat(MockUtils.findParameterValue(params, "myKey1")).isEqualTo("myValue1");
+    assertThat(MockUtils.findParameterValue(params, "myKey2")).isEqualTo("myValue2");
+    assertThat(MockUtils.findParameterValue(params, "myKey3")).isEqualTo("myValue3");
+    assertThat(MockUtils.findParameterValue(params, "myKey4")).isEqualTo("myValue4");
   }
 
 }

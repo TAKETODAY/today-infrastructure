@@ -23,17 +23,17 @@ import cn.taketoday.http.HttpCookie;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.annotation.CookieValue;
-import cn.taketoday.web.annotation.ServletContextAttribute;
+import cn.taketoday.web.mock.bind.MockContextAttribute;
 import cn.taketoday.web.annotation.SessionAttribute;
 import cn.taketoday.web.bind.resolver.AbstractNamedValueResolvingStrategy;
 import cn.taketoday.web.bind.resolver.MissingRequestCookieException;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategies;
 import cn.taketoday.web.bind.resolver.ParameterResolvingStrategy;
 import cn.taketoday.web.handler.method.ResolvableMethodParameter;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletResponse;
+import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpSession;
 
@@ -45,7 +45,7 @@ public class ServletParameterResolvers {
 
   public static void register(ConfigurableBeanFactory beanFactory,
           ParameterResolvingStrategies resolvers, MockContext context) {
-    resolvers.add(new ServletRequestMethodArgumentResolver());
+    resolvers.add(new MockRequestMethodArgumentResolver());
     // Servlet cookies parameter
     // ----------------------------
     resolvers.add(new ForCookie(beanFactory));
@@ -54,17 +54,17 @@ public class ServletParameterResolvers {
     // Servlet components parameter
     // ----------------------------
     resolvers.add(new ForHttpSession());
-    resolvers.add(new ForServletRequest());
-    resolvers.add(new ForServletResponse());
-    resolvers.add(new ForServletContext(context));
+    resolvers.add(new ForMockRequest());
+    resolvers.add(new ForMockResponse());
+    resolvers.add(new ForMockContext(context));
     // Attributes
     // ------------------------
     resolvers.add(new ForHttpSessionAttribute());
-    resolvers.add(new ForServletContextAttribute(beanFactory, context));
+    resolvers.add(new ForMockContextAttribute(beanFactory, context));
     resolvers.add(new PrincipalMethodArgumentResolver());
   }
 
-  static class ForServletRequest implements ParameterResolvingStrategy {
+  static class ForMockRequest implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
@@ -73,20 +73,20 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return ServletUtils.getServletRequest(context);
+      return MockUtils.getServletRequest(context);
     }
   }
 
-  static class ForServletResponse implements ParameterResolvingStrategy {
+  static class ForMockResponse implements ParameterResolvingStrategy {
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.isInterface() && parameter.isAssignableTo(ServletResponse.class);
+      return parameter.isInterface() && parameter.isAssignableTo(MockResponse.class);
     }
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return ServletUtils.getServletResponse(context);
+      return MockUtils.getServletResponse(context);
     }
   }
 
@@ -100,7 +100,7 @@ public class ServletParameterResolvers {
     @Override
     public Object resolveArgument(
             RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return ServletUtils.getHttpSession(context);
+      return MockUtils.getHttpSession(context);
     }
   }
 
@@ -113,7 +113,7 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      HttpSession httpSession = ServletUtils.getHttpSession(context, false);
+      HttpSession httpSession = MockUtils.getHttpSession(context, false);
       if (httpSession == null) {
         return null;
       }
@@ -121,11 +121,11 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ForServletContext implements ParameterResolvingStrategy {
+  static class ForMockContext implements ParameterResolvingStrategy {
 
     private final MockContext mockContext;
 
-    public ForServletContext(MockContext mockContext) {
+    public ForMockContext(MockContext mockContext) {
       this.mockContext = mockContext;
     }
 
@@ -157,7 +157,7 @@ public class ServletParameterResolvers {
     @Nullable
     @Override
     protected Object resolveName(String name, ResolvableMethodParameter resolvable, RequestContext context) throws Exception {
-      return ServletUtils.getServletRequest(context).getCookies();
+      return MockUtils.getServletRequest(context).getCookies();
     }
 
   }
@@ -172,7 +172,7 @@ public class ServletParameterResolvers {
 
     @Override
     public Object resolveArgument(RequestContext context, ResolvableMethodParameter resolvable) throws Throwable {
-      return ServletUtils.getServletRequest(context).getCookies();
+      return MockUtils.getServletRequest(context).getCookies();
     }
   }
 
@@ -216,17 +216,17 @@ public class ServletParameterResolvers {
     }
   }
 
-  static class ForServletContextAttribute extends AbstractNamedValueResolvingStrategy {
+  static class ForMockContextAttribute extends AbstractNamedValueResolvingStrategy {
     private final MockContext mockContext;
 
-    public ForServletContextAttribute(ConfigurableBeanFactory beanFactory, MockContext mockContext) {
+    public ForMockContextAttribute(ConfigurableBeanFactory beanFactory, MockContext mockContext) {
       super(beanFactory);
       this.mockContext = mockContext;
     }
 
     @Override
     public boolean supportsParameter(ResolvableMethodParameter parameter) {
-      return parameter.hasParameterAnnotation(ServletContextAttribute.class);
+      return parameter.hasParameterAnnotation(MockContextAttribute.class);
     }
 
     @Nullable

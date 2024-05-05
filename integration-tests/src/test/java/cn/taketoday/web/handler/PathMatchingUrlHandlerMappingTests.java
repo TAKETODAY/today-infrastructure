@@ -22,13 +22,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.util.stream.Stream;
 
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.web.HandlerInterceptor;
 import cn.taketoday.web.HandlerMapping;
 import cn.taketoday.web.HandlerMatchingMetadata;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 import cn.taketoday.web.view.PathPatternsParameterizedTest;
@@ -60,7 +60,7 @@ public class PathMatchingUrlHandlerMappingTests {
   private static WebApplicationContext initConfig(String... configLocations) {
     MockContextImpl sc = new MockContextImpl("");
     ConfigurableWebApplicationContext context = new XmlWebApplicationContext();
-    context.setServletContext(sc);
+    context.setMockContext(sc);
     context.setConfigLocations(configLocations);
     context.refresh();
     return context;
@@ -274,7 +274,7 @@ public class PathMatchingUrlHandlerMappingTests {
           HandlerMapping mapping, WebApplicationContext wac, HttpMockRequestImpl request)
           throws Throwable {
 
-    ServletRequestContext context = new ServletRequestContext(wac, request, new MockHttpServletResponse());
+    MockRequestContext context = new MockRequestContext(wac, request, new MockHttpResponseImpl());
     HandlerExecutionChain chain = (HandlerExecutionChain) mapping.getHandler(context);
 
     HandlerInterceptor[] interceptors = chain.getInterceptors();

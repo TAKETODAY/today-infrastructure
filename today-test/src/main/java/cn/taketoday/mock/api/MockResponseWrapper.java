@@ -27,19 +27,19 @@ import java.util.Locale;
  * through to the wrapped response object.
  *
  * @author Various
- * @see ServletResponse
+ * @see MockResponse
  * @since Servlet 2.3
  */
-public class ServletResponseWrapper implements ServletResponse {
-  private ServletResponse response;
+public class MockResponseWrapper implements MockResponse {
+  private MockResponse response;
 
   /**
    * Creates a ServletResponse adaptor wrapping the given response object.
    *
-   * @param response the {@link ServletResponse} to be wrapped
+   * @param response the {@link MockResponse} to be wrapped
    * @throws IllegalArgumentException if the response is null.
    */
-  public ServletResponseWrapper(ServletResponse response) {
+  public MockResponseWrapper(MockResponse response) {
     if (response == null) {
       throw new IllegalArgumentException("Response cannot be null");
     }
@@ -49,19 +49,19 @@ public class ServletResponseWrapper implements ServletResponse {
   /**
    * Return the wrapped ServletResponse object.
    *
-   * @return the wrapped {@link ServletResponse}
+   * @return the wrapped {@link MockResponse}
    */
-  public ServletResponse getResponse() {
+  public MockResponse getResponse() {
     return this.response;
   }
 
   /**
    * Sets the response being wrapped.
    *
-   * @param response the {@link ServletResponse} to be installed
+   * @param response the {@link MockResponse} to be installed
    * @throws IllegalArgumentException if the response is null.
    */
-  public void setResponse(ServletResponse response) {
+  public void setResponse(MockResponse response) {
     if (response == null) {
       throw new IllegalArgumentException("Response cannot be null");
     }
@@ -90,7 +90,7 @@ public class ServletResponseWrapper implements ServletResponse {
    * The default behavior of this method is to return getOutputStream() on the wrapped response object.
    */
   @Override
-  public ServletOutputStream getOutputStream() throws IOException {
+  public MockOutputStream getOutputStream() throws IOException {
     return this.response.getOutputStream();
   }
 
@@ -203,18 +203,18 @@ public class ServletResponseWrapper implements ServletResponse {
   }
 
   /**
-   * Checks (recursively) if this ServletResponseWrapper wraps the given {@link ServletResponse} instance.
+   * Checks (recursively) if this ServletResponseWrapper wraps the given {@link MockResponse} instance.
    *
    * @param wrapped the ServletResponse instance to search for
    * @return true if this ServletResponseWrapper wraps the given ServletResponse instance, false otherwise
    * @since Servlet 3.0
    */
-  public boolean isWrapperFor(ServletResponse wrapped) {
+  public boolean isWrapperFor(MockResponse wrapped) {
     if (response == wrapped) {
       return true;
     }
-    else if (response instanceof ServletResponseWrapper) {
-      return ((ServletResponseWrapper) response).isWrapperFor(wrapped);
+    else if (response instanceof MockResponseWrapper) {
+      return ((MockResponseWrapper) response).isWrapperFor(wrapped);
     }
     else {
       return false;
@@ -222,23 +222,23 @@ public class ServletResponseWrapper implements ServletResponse {
   }
 
   /**
-   * Checks (recursively) if this ServletResponseWrapper wraps a {@link ServletResponse} of the given class type.
+   * Checks (recursively) if this ServletResponseWrapper wraps a {@link MockResponse} of the given class type.
    *
    * @param wrappedType the ServletResponse class type to search for
    * @return true if this ServletResponseWrapper wraps a ServletResponse of the given class type, false otherwise
-   * @throws IllegalArgumentException if the given class does not implement {@link ServletResponse}
+   * @throws IllegalArgumentException if the given class does not implement {@link MockResponse}
    * @since Servlet 3.0
    */
   public boolean isWrapperFor(Class<?> wrappedType) {
-    if (!ServletResponse.class.isAssignableFrom(wrappedType)) {
+    if (!MockResponse.class.isAssignableFrom(wrappedType)) {
       throw new IllegalArgumentException("Given class " + wrappedType.getName() + " not a subinterface of "
-              + ServletResponse.class.getName());
+              + MockResponse.class.getName());
     }
     if (wrappedType.isAssignableFrom(response.getClass())) {
       return true;
     }
-    else if (response instanceof ServletResponseWrapper) {
-      return ((ServletResponseWrapper) response).isWrapperFor(wrappedType);
+    else if (response instanceof MockResponseWrapper) {
+      return ((MockResponseWrapper) response).isWrapperFor(wrappedType);
     }
     else {
       return false;

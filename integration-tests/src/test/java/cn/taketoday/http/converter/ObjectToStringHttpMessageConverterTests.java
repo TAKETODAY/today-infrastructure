@@ -34,7 +34,7 @@ import cn.taketoday.http.server.ServletServerHttpRequest;
 import cn.taketoday.http.server.ServletServerHttpResponse;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -49,7 +49,7 @@ public class ObjectToStringHttpMessageConverterTests {
 
   private ObjectToStringHttpMessageConverter converter;
 
-  private MockHttpServletResponse servletResponse;
+  private MockHttpResponseImpl servletResponse;
 
   private ServletServerHttpResponse response;
 
@@ -58,7 +58,7 @@ public class ObjectToStringHttpMessageConverterTests {
     ConversionService conversionService = new DefaultConversionService();
     this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
-    this.servletResponse = new MockHttpServletResponse();
+    this.servletResponse = new MockHttpResponseImpl();
     this.response = new ServletServerHttpResponse(this.servletResponse);
   }
 

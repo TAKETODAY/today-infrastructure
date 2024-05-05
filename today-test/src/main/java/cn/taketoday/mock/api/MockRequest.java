@@ -59,7 +59,7 @@ public interface MockRequest {
    * @return an <code>Object</code> containing the value of the attribute, or <code>null</code> if the attribute does not
    * exist
    */
-  public Object getAttribute(String name);
+  Object getAttribute(String name);
 
   /**
    * Returns an <code>Enumeration</code> containing the names of the attributes available to this request. This method
@@ -67,7 +67,7 @@ public interface MockRequest {
    *
    * @return an <code>Enumeration</code> of strings containing the names of the request's attributes
    */
-  public Enumeration<String> getAttributeNames();
+  Enumeration<String> getAttributeNames();
 
   /**
    * Returns the name of the character encoding used in the body of this request. This method returns <code>null</code> if
@@ -79,7 +79,7 @@ public interface MockRequest {
    * @return a <code>String</code> containing the name of the character encoding, or <code>null</code> if the request does
    * not specify a character encoding
    */
-  public String getCharacterEncoding();
+  String getCharacterEncoding();
 
   /**
    * Overrides the name of the character encoding used in the body of this request. This method must be called prior to
@@ -89,7 +89,7 @@ public interface MockRequest {
    * @throws UnsupportedEncodingException if this ServletRequest is still in a state where a character encoding may be
    * set, but the specified encoding is invalid
    */
-  public void setCharacterEncoding(String env) throws UnsupportedEncodingException;
+  void setCharacterEncoding(String env) throws UnsupportedEncodingException;
 
   /**
    * Returns the length, in bytes, of the request body and made available by the input stream, or -1 if the length is not
@@ -98,23 +98,22 @@ public interface MockRequest {
    * @return an integer containing the length of the request body or -1 if the length is not known or is greater than
    * Integer.MAX_VALUE.
    */
-  public int getContentLength();
+  int getContentLength();
 
   /**
    * Returns the length, in bytes, of the request body and made available by the input stream, or -1 if the length is not
    * known.
    *
    * @return a long containing the length of the request body or -1L if the length is not known
-   * @since Servlet 3.1
    */
-  public long getContentLengthLong();
+  long getContentLengthLong();
 
   /**
    * Returns the MIME type of the body of the request, or <code>null</code> if the type is not known.
    *
    * @return a <code>String</code> containing the name of the MIME type of the request, or null if the type is not known
    */
-  public String getContentType();
+  String getContentType();
 
   /**
    * Retrieves the body of the request as binary data using a {@link ServletInputStream}. Either this method or
@@ -124,7 +123,7 @@ public interface MockRequest {
    * @throws IllegalStateException if the {@link #getReader} method has already been called for this request
    * @throws IOException if an input or output exception occurred
    */
-  public ServletInputStream getInputStream() throws IOException;
+  ServletInputStream getInputStream() throws IOException;
 
   /**
    * Returns the value of a request parameter as a <code>String</code>, or <code>null</code> if the parameter does not
@@ -147,7 +146,7 @@ public interface MockRequest {
    * @return a <code>String</code> representing the single value of the parameter
    * @see #getParameterValues
    */
-  public String getParameter(String name);
+  String getParameter(String name);
 
   /**
    * Returns an <code>Enumeration</code> of <code>String</code> objects containing the names of the parameters contained
@@ -156,7 +155,7 @@ public interface MockRequest {
    * @return an <code>Enumeration</code> of <code>String</code> objects, each <code>String</code> containing the name of a
    * request parameter; or an empty <code>Enumeration</code> if the request has no parameters
    */
-  public Enumeration<String> getParameterNames();
+  Enumeration<String> getParameterNames();
 
   /**
    * Returns an array of <code>String</code> objects containing all of the values the given request parameter has, or
@@ -169,7 +168,7 @@ public interface MockRequest {
    * @return an array of <code>String</code> objects containing the parameter's values
    * @see #getParameter
    */
-  public String[] getParameterValues(String name);
+  String[] getParameterValues(String name);
 
   /**
    * Returns a java.util.Map of the parameters of this request.
@@ -181,7 +180,7 @@ public interface MockRequest {
    * @return an immutable java.util.Map containing parameter names as keys and parameter values as map values. The keys in
    * the parameter map are of type String. The values in the parameter map are of type String array.
    */
-  public Map<String, String[]> getParameterMap();
+  Map<String, String[]> getParameterMap();
 
   /**
    * Returns the name and version of the protocol the request uses in the form <i>protocol/majorVersion.minorVersion</i>,
@@ -189,7 +188,7 @@ public interface MockRequest {
    *
    * @return a <code>String</code> containing the protocol name and version number
    */
-  public String getProtocol();
+  String getProtocol();
 
   /**
    * Returns the name of the scheme used to make this request, for example, <code>http</code>, <code>https</code>, or
@@ -197,7 +196,7 @@ public interface MockRequest {
    *
    * @return a <code>String</code> containing the name of the scheme used to make this request
    */
-  public String getScheme();
+  String getScheme();
 
   /**
    * Returns the host name of the server to which the request was sent. It may be derived from a protocol specific
@@ -207,7 +206,7 @@ public interface MockRequest {
    *
    * @return a <code>String</code> containing the name of the server
    */
-  public String getServerName();
+  String getServerName();
 
   /**
    * Returns the port number to which the request was sent. It may be derived from a protocol specific mechanism, such as
@@ -216,7 +215,7 @@ public interface MockRequest {
    *
    * @return an integer specifying the port number
    */
-  public int getServerPort();
+  int getServerPort();
 
   /**
    * Retrieves the body of the request as character data using a <code>BufferedReader</code>. The reader translates the
@@ -230,7 +229,7 @@ public interface MockRequest {
    * @throws IOException if an input or output exception occurred
    * @see #getInputStream
    */
-  public BufferedReader getReader() throws IOException;
+  BufferedReader getReader() throws IOException;
 
   /**
    * Returns the Internet Protocol (IP) of the remote end of the connection on which the request was received. By default
@@ -240,7 +239,7 @@ public interface MockRequest {
    *
    * @return a <code>String</code> containing an IP address
    */
-  public String getRemoteAddr();
+  String getRemoteAddr();
 
   /**
    * Returns the fully qualified name of the address returned by {@link #getRemoteAddr()}. If the engine cannot or chooses
@@ -248,7 +247,7 @@ public interface MockRequest {
    *
    * @return a <code>String</code> containing a fully qualified name or IP address.
    */
-  public String getRemoteHost();
+  String getRemoteHost();
 
   /**
    * Stores an attribute in this request. Attributes are reset between requests. This method is most often used in
@@ -263,7 +262,7 @@ public interface MockRequest {
    * @param name a <code>String</code> specifying the name of the attribute
    * @param o the <code>Object</code> to be stored
    */
-  public void setAttribute(String name, Object o);
+  void setAttribute(String name, Object o);
 
   /**
    * Removes an attribute from this request. This method is not generally needed as attributes only persist as long as the
@@ -275,7 +274,7 @@ public interface MockRequest {
    *
    * @param name a <code>String</code> specifying the name of the attribute to remove
    */
-  public void removeAttribute(String name);
+  void removeAttribute(String name);
 
   /**
    * Returns the preferred <code>Locale</code> that the client will accept content in, based on the Accept-Language
@@ -284,7 +283,7 @@ public interface MockRequest {
    *
    * @return the preferred <code>Locale</code> for the client
    */
-  public Locale getLocale();
+  Locale getLocale();
 
   /**
    * Returns an <code>Enumeration</code> of <code>Locale</code> objects indicating, in decreasing order starting with the
@@ -294,14 +293,14 @@ public interface MockRequest {
    *
    * @return an <code>Enumeration</code> of preferred <code>Locale</code> objects for the client
    */
-  public Enumeration<Locale> getLocales();
+  Enumeration<Locale> getLocales();
 
   /**
    * Returns a boolean indicating whether this request was made using a secure channel, such as HTTPS.
    *
    * @return a boolean indicating if the request was made using a secure channel
    */
-  public boolean isSecure();
+  boolean isSecure();
 
   /**
    * Returns a {@link RequestDispatcher} object that acts as a wrapper for the resource located at the given path. A
@@ -330,7 +329,7 @@ public interface MockRequest {
    * @see RequestDispatcher
    * @see MockContext#getRequestDispatcher
    */
-  public RequestDispatcher getRequestDispatcher(String path);
+  RequestDispatcher getRequestDispatcher(String path);
 
   /**
    * Returns the Internet Protocol (IP) source port the remote end of the connection on which the request was received. By
@@ -341,7 +340,7 @@ public interface MockRequest {
    * @return an integer specifying the port number
    * @since Servlet 2.4
    */
-  public int getRemotePort();
+  int getRemotePort();
 
   /**
    * Returns the fully qualified name of the address returned by {@link #getLocalAddr()}. If the engine cannot or chooses
@@ -350,7 +349,7 @@ public interface MockRequest {
    * @return a <code>String</code> containing the host name of the IP on which the request was received.
    * @since Servlet 2.4
    */
-  public String getLocalName();
+  String getLocalName();
 
   /**
    * Returns the Internet Protocol (IP) address representing the interface on which the request was received. In some
@@ -360,7 +359,7 @@ public interface MockRequest {
    * @return a <code>String</code> containing an IP address.
    * @since Servlet 2.4
    */
-  public String getLocalAddr();
+  String getLocalAddr();
 
   /**
    * Returns the Internet Protocol (IP) port number representing the interface on which the request was received. In some
@@ -368,17 +367,15 @@ public interface MockRequest {
    * to obtain an address different to that of the actual TCP/IP connection.
    *
    * @return an integer specifying a port number
-   * @since Servlet 2.4
    */
-  public int getLocalPort();
+  int getLocalPort();
 
   /**
    * Gets the servlet context to which this ServletRequest was last dispatched.
    *
    * @return the servlet context to which this ServletRequest was last dispatched
-   * @since Servlet 3.0
    */
-  public MockContext getServletContext();
+  MockContext getMockContext();
 
   /**
    * Puts this request into asynchronous mode, and initializes its {@link AsyncContext} with the original (unwrapped)
@@ -411,9 +408,8 @@ public interface MockRequest {
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
    * @see AsyncContext#dispatch()
-   * @since Servlet 3.0
    */
-  public AsyncContext startAsync() throws IllegalStateException;
+  AsyncContext startAsync() throws IllegalStateException;
 
   /**
    * Puts this request into asynchronous mode, and initializes its {@link AsyncContext} with the given request and
@@ -421,7 +417,7 @@ public interface MockRequest {
    *
    * <p>
    * The ServletRequest and ServletResponse arguments must be the same instances, or instances of
-   * {@link MockRequestWrapper} and {@link ServletResponseWrapper} that wrap them, that were passed to the
+   * {@link MockRequestWrapper} and {@link MockResponseWrapper} that wrap them, that were passed to the
    * {@link Servlet#service service} method of the Servlet or the {@link Filter#doFilter doFilter} method of the Filter,
    * respectively, in whose scope this method is being called.
    *
@@ -453,16 +449,15 @@ public interface MockRequest {
    * AsyncContext.
    *
    * @param mockRequest the ServletRequest used to initialize the AsyncContext
-   * @param servletResponse the ServletResponse used to initialize the AsyncContext
+   * @param mockResponse the ServletResponse used to initialize the AsyncContext
    * @return the (re)initialized AsyncContext
    * @throws IllegalStateException if this request is within the scope of a filter or servlet that does not support
    * asynchronous operations (that is, {@link #isAsyncSupported} returns false), or if this method is called again without
    * any asynchronous dispatch (resulting from one of the {@link AsyncContext#dispatch} methods), is called outside the
    * scope of any such dispatch, or is called again within the scope of the same dispatch, or if the response has already
    * been closed
-   * @since Servlet 3.0
    */
-  public AsyncContext startAsync(MockRequest mockRequest, ServletResponse servletResponse)
+  AsyncContext startAsync(MockRequest mockRequest, MockResponse mockResponse)
           throws IllegalStateException;
 
   /**
@@ -470,7 +465,7 @@ public interface MockRequest {
    *
    * <p>
    * A ServletRequest is put into asynchronous mode by calling {@link #startAsync} or
-   * {@link #startAsync(MockRequest, ServletResponse)} on it.
+   * {@link #startAsync(MockRequest, MockResponse)} on it.
    *
    * <p>
    * This method returns <tt>false</tt> if this request was put into asynchronous mode, but has since been dispatched
@@ -481,9 +476,8 @@ public interface MockRequest {
    * {@link MockRequest#startAsync()} has returned to the container.
    *
    * @return true if this request has been put into asynchronous mode, false otherwise
-   * @since Servlet 3.0
    */
-  public boolean isAsyncStarted();
+  boolean isAsyncStarted();
 
   /**
    * Checks if this request supports asynchronous operation.
@@ -495,19 +489,18 @@ public interface MockRequest {
    * @return true if this request supports asynchronous operation, false otherwise
    * @since Servlet 3.0
    */
-  public boolean isAsyncSupported();
+  boolean isAsyncSupported();
 
   /**
    * Gets the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(MockRequest, ServletResponse)} on this request.
+   * {@link #startAsync(MockRequest, MockResponse)} on this request.
    *
    * @return the AsyncContext that was created or reinitialized by the most recent invocation of {@link #startAsync} or
-   * {@link #startAsync(MockRequest, ServletResponse)} on this request
+   * {@link #startAsync(MockRequest, MockResponse)} on this request
    * @throws IllegalStateException if this request has not been put into asynchronous mode, i.e., if neither
-   * {@link #startAsync} nor {@link #startAsync(MockRequest, ServletResponse)} has been called
-   * @since Servlet 3.0
+   * {@link #startAsync} nor {@link #startAsync(MockRequest, MockResponse)} has been called
    */
-  public AsyncContext getAsyncContext();
+  AsyncContext getAsyncContext();
 
   /**
    * Gets the dispatcher type of this request.
@@ -522,8 +515,8 @@ public interface MockRequest {
    *
    * <p>
    * The initial dispatcher type of a request is defined as <code>DispatcherType.REQUEST</code>. The dispatcher type of a
-   * request dispatched via {@link RequestDispatcher#forward(MockRequest, ServletResponse)} or
-   * {@link RequestDispatcher#include(MockRequest, ServletResponse)} is given as <code>DispatcherType.FORWARD</code> or
+   * request dispatched via {@link RequestDispatcher#forward(MockRequest, MockResponse)} or
+   * {@link RequestDispatcher#include(MockRequest, MockResponse)} is given as <code>DispatcherType.FORWARD</code> or
    * <code>DispatcherType.INCLUDE</code>, respectively, while the dispatcher type of an asynchronous request dispatched
    * via one of the {@link AsyncContext#dispatch} methods is given as <code>DispatcherType.ASYNC</code>. Finally, the
    * dispatcher type of a request dispatched to an error page by the container's error handling mechanism is given as
@@ -531,9 +524,8 @@ public interface MockRequest {
    *
    * @return the dispatcher type of this request
    * @see DispatcherType
-   * @since Servlet 3.0
    */
-  public DispatcherType getDispatcherType();
+  DispatcherType getDispatcherType();
 
   /**
    * Obtain a unique (within the lifetime of the Servlet container) identifier string for this request.
@@ -541,7 +533,6 @@ public interface MockRequest {
    * There is no defined format for this string. The format is implementation dependent.
    *
    * @return A unique identifier for the request
-   * @since Servlet 6.0
    */
   String getRequestId();
 
@@ -562,7 +553,6 @@ public interface MockRequest {
    * </dl>
    *
    * @return The request identifier if one is defined, otherwise an empty string
-   * @since Servlet 6.0
    */
   String getProtocolRequestId();
 
@@ -572,7 +562,6 @@ public interface MockRequest {
    * adjustments for, example, use of reverse proxies that may be applied elsewhere in the Servlet API.
    *
    * @return The network connection details.
-   * @since Servlet 6.0
    */
   ServletConnection getServletConnection();
 }

@@ -31,7 +31,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
  * {@code WebApplicationContext} does not contain an entry for the
  * {@link WebApplicationContext#ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE}
  * key, the root {@code WebApplicationContext} will be detected and stored
- * in the {@code ServletContext} under the
+ * in the {@code MockContext} under the
  * {@code ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE} key.
  *
  * @author Rossen Stoyanchev
@@ -56,8 +56,8 @@ public class DefaultMockMvcBuilder extends AbstractMockMvcBuilder<DefaultMockMvc
   @Override
   protected ApplicationContext initWebAppContext() {
     if (context instanceof WebApplicationContext applicationContext) {
-      MockContext mockContext = applicationContext.getServletContext();
-      Assert.state(mockContext != null, "No ServletContext");
+      MockContext mockContext = applicationContext.getMockContext();
+      Assert.state(mockContext != null, "No MockContext");
       ApplicationContext rootWac = WebApplicationContextUtils.getWebApplicationContext(mockContext);
 
       if (rootWac == null) {

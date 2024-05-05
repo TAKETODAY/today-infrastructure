@@ -23,9 +23,9 @@ import java.util.List;
 
 import cn.taketoday.core.io.ClassPathResource;
 import cn.taketoday.core.io.Resource;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +50,7 @@ class LiteWebJarsResourceResolverTests {
 
   private final HttpMockRequest request = new HttpMockRequestImpl();
 
-  private final ServletRequestContext requestContext = new ServletRequestContext(null, request, new MockHttpServletResponse());
+  private final MockRequestContext requestContext = new MockRequestContext(null, request, new MockHttpResponseImpl());
 
   @Test
   void resolveUrlExisting() {

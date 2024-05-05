@@ -27,9 +27,9 @@ import cn.taketoday.context.support.StaticApplicationContext;
 import cn.taketoday.http.HttpStatus;
 import cn.taketoday.web.handler.SimpleUrlHandlerMapping;
 import cn.taketoday.web.handler.mvc.ParameterizableViewController;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.web.view.RedirectView;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,13 +44,13 @@ class ViewControllerRegistryTests {
 
   private HttpMockRequestImpl request;
 
-  private MockHttpServletResponse response;
+  private MockHttpResponseImpl response;
 
   @BeforeEach
   public void setup() {
     this.registry = new ViewControllerRegistry(new StaticApplicationContext());
     this.request = new HttpMockRequestImpl("GET", "/");
-    this.response = new MockHttpServletResponse();
+    this.response = new MockHttpResponseImpl();
   }
 
   @Test
@@ -85,7 +85,7 @@ class ViewControllerRegistryTests {
     this.registry.addRedirectViewController("/path", "/redirectTo");
     RedirectView redirectView = getRedirectView("/path");
     this.request.setQueryString("a=b");
-    redirectView.render(Collections.emptyMap(), new ServletRequestContext(null, this.request, this.response));
+    redirectView.render(Collections.emptyMap(), new MockRequestContext(null, this.request, this.response));
 
     assertThat(this.response.getStatus()).isEqualTo(302);
     assertThat(this.response.getRedirectedUrl()).isEqualTo("/redirectTo");
@@ -101,7 +101,7 @@ class ViewControllerRegistryTests {
 
     RedirectView redirectView = getRedirectView("/path");
     this.request.setQueryString("a=b");
-    ServletRequestContext context = new ServletRequestContext(null, this.request, this.response);
+    MockRequestContext context = new MockRequestContext(null, this.request, this.response);
     redirectView.render(Collections.emptyMap(), context);
 
     context.flush();

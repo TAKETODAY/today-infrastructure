@@ -32,7 +32,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.util.ResourceUtils;
 import cn.taketoday.util.StringUtils;
-import cn.taketoday.web.mock.ServletUtils;
+import cn.taketoday.web.mock.MockUtils;
 
 /**
  * {@link cn.taketoday.core.io.Resource} implementation for
@@ -50,25 +50,25 @@ import cn.taketoday.web.mock.ServletUtils;
  * @see MockContext#getRealPath
  * @since 4.0 2022/2/20 16:27
  */
-public class ServletContextResource extends AbstractFileResolvingResource implements ContextResource {
+public class MockContextResource extends AbstractFileResolvingResource implements ContextResource {
 
   private final MockContext mockContext;
 
   private final String path;
 
   /**
-   * Create a new ServletContextResource.
+   * Create a new MockContextResource.
    * <p>The Servlet spec requires that resource paths start with a slash,
    * even if many containers accept paths without leading slash too.
    * Consequently, the given path will be prepended with a slash if it
    * doesn't already start with one.
    *
-   * @param mockContext the ServletContext to load from
+   * @param mockContext the MockContext to load from
    * @param path the path of the resource
    */
-  public ServletContextResource(MockContext mockContext, String path) {
-    // check ServletContext
-    Assert.notNull(mockContext, "Cannot resolve ServletContextResource without ServletContext");
+  public MockContextResource(MockContext mockContext, String path) {
+    // check MockContext
+    Assert.notNull(mockContext, "Cannot resolve MockContextResource without MockContext");
     this.mockContext = mockContext;
 
     // check path
@@ -81,9 +81,9 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * Return the ServletContext for this resource.
+   * Return the MockContext for this resource.
    */
-  public final MockContext getServletContext() {
+  public final MockContext getMockContext() {
     return this.mockContext;
   }
 
@@ -95,7 +95,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * This implementation checks {@code ServletContext.getResource}.
+   * This implementation checks {@code MockContext.getResource}.
    *
    * @see MockContext#getResource(String)
    */
@@ -110,7 +110,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * This implementation delegates to {@code ServletContext.getResourceAsStream},
+   * This implementation delegates to {@code MockContext.getResourceAsStream},
    * which returns {@code null} in case of a non-readable resource (e.g. a directory).
    *
    * @see MockContext#getResourceAsStream(String)
@@ -154,7 +154,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * This implementation delegates to {@code ServletContext.getResourceAsStream},
+   * This implementation delegates to {@code MockContext.getResourceAsStream},
    * but throws a FileNotFoundException if no resource found.
    *
    * @see MockContext#getResourceAsStream(String)
@@ -169,7 +169,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * This implementation delegates to {@code ServletContext.getResource},
+   * This implementation delegates to {@code MockContext.getResource},
    * but throws a FileNotFoundException if no resource found.
    *
    * @see MockContext#getResource(String)
@@ -186,7 +186,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
 
   /**
    * This implementation resolves "file:" URLs or alternatively delegates to
-   * {@code ServletContext.getRealPath}, throwing a FileNotFoundException
+   * {@code MockContext.getRealPath}, throwing a FileNotFoundException
    * if not found or not resolvable.
    *
    * @see MockContext#getResource(String)
@@ -200,13 +200,13 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
       return super.getFile();
     }
     else {
-      String realPath = ServletUtils.getRealPath(mockContext, path);
+      String realPath = MockUtils.getRealPath(mockContext, path);
       return new File(realPath);
     }
   }
 
   /**
-   * This implementation creates a ServletContextResource, applying the given path
+   * This implementation creates a MockContextResource, applying the given path
    * relative to the path of the underlying file of this resource descriptor.
    *
    * @see cn.taketoday.util.StringUtils#applyRelativePath(String, String)
@@ -214,11 +214,11 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   @Override
   public Resource createRelative(String relativePath) {
     String pathToUse = StringUtils.applyRelativePath(path, relativePath);
-    return new ServletContextResource(mockContext, pathToUse);
+    return new MockContextResource(mockContext, pathToUse);
   }
 
   /**
-   * This implementation returns the name of the file that this ServletContext
+   * This implementation returns the name of the file that this MockContext
    * resource refers to.
    *
    * @see cn.taketoday.util.StringUtils#getFilename(String)
@@ -230,12 +230,12 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * This implementation returns a description that includes the ServletContext
+   * This implementation returns a description that includes the MockContext
    * resource location.
    */
   @Override
   public String toString() {
-    return "ServletContext resource [" + path + "]";
+    return "MockContext resource [" + path + "]";
   }
 
   @Override
@@ -244,14 +244,14 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
   }
 
   /**
-   * This implementation compares the underlying ServletContext resource locations.
+   * This implementation compares the underlying MockContext resource locations.
    */
   @Override
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
     }
-    if (!(other instanceof ServletContextResource otherRes)) {
+    if (!(other instanceof MockContextResource otherRes)) {
       return false;
     }
     return mockContext.equals(otherRes.mockContext) && path.equals(otherRes.path);
@@ -259,7 +259,7 @@ public class ServletContextResource extends AbstractFileResolvingResource implem
 
   /**
    * This implementation returns the hash code of the underlying
-   * ServletContext resource location.
+   * MockContext resource location.
    */
   @Override
   public int hashCode() {

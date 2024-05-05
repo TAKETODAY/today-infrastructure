@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.view.PathPatternsTestUtils;
 
 import static cn.taketoday.http.HttpMethod.GET;
@@ -40,10 +40,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class RouterFunctionTests {
 
-  MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+  MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
   private final ServerRequest request = new DefaultServerRequest(
-          new ServletRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), servletResponse), Collections.emptyList());
+          new MockRequestContext(null, PathPatternsTestUtils.initRequest("GET", "", true), servletResponse), Collections.emptyList());
 
   @Test
   void and() {

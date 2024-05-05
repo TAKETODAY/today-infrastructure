@@ -28,14 +28,14 @@ import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.DefaultSessionManager;
 import cn.taketoday.session.InMemorySessionRepository;
 import cn.taketoday.session.SecureRandomSessionIdGenerator;
 import cn.taketoday.session.SessionEventDispatcher;
 import cn.taketoday.web.LocaleContextResolver;
 import cn.taketoday.web.LocaleResolver;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -74,8 +74,8 @@ public class LocaleResolverTests {
     MockContextImpl context = new MockContextImpl();
     HttpMockRequestImpl request = new HttpMockRequestImpl(context);
     request.addPreferredLocale(Locale.UK);
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
     // check original locale
     Locale locale = localeResolver.resolveLocale(requestContext);
     assertThat(locale).isEqualTo(Locale.UK);

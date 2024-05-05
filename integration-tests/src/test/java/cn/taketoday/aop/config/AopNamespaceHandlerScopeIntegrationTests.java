@@ -32,11 +32,11 @@ import cn.taketoday.beans.testfixture.beans.ITestBean;
 import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.context.annotation.ImportResource;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.config.EnableWebSession;
 import cn.taketoday.test.context.junit.jupiter.web.JUnitWebConfig;
 import cn.taketoday.web.RequestContextHolder;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -91,7 +91,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
   void testRequestScoping() throws Exception {
     HttpMockRequestImpl oldRequest = new HttpMockRequestImpl();
     HttpMockRequestImpl newRequest = new HttpMockRequestImpl();
-    RequestContextHolder.set(new ServletRequestContext(null, oldRequest, null));
+    RequestContextHolder.set(new MockRequestContext(null, oldRequest, null));
 
     assertThat(AopUtils.isAopProxy(requestScoped)).as("Should be AOP proxy").isTrue();
     boolean condition = requestScoped instanceof TestBean;
@@ -106,9 +106,9 @@ class AopNamespaceHandlerScopeIntegrationTests {
 
     assertThat(requestScoped.getName()).isEqualTo(rob);
     requestScoped.setName(bram);
-    RequestContextHolder.set(new ServletRequestContext(null, newRequest, null));
+    RequestContextHolder.set(new MockRequestContext(null, newRequest, null));
     assertThat(requestScoped.getName()).isEqualTo(rob);
-    RequestContextHolder.set(new ServletRequestContext(null, oldRequest, null));
+    RequestContextHolder.set(new MockRequestContext(null, oldRequest, null));
     assertThat(requestScoped.getName()).isEqualTo(bram);
 
     assertThat(((Advised) requestScoped).getAdvisors().length > 0).as("Should have advisors").isTrue();
@@ -117,7 +117,7 @@ class AopNamespaceHandlerScopeIntegrationTests {
   @Test
   void testSessionScoping() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    RequestContextHolder.set(new ServletRequestContext(null, request, new MockHttpServletResponse()));
+    RequestContextHolder.set(new MockRequestContext(null, request, new MockHttpResponseImpl()));
 
     assertThat(AopUtils.isAopProxy(sessionScoped)).as("Should be AOP proxy").isTrue();
     boolean condition1 = sessionScoped instanceof TestBean;

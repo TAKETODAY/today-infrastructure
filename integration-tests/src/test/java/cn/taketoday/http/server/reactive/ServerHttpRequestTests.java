@@ -31,7 +31,7 @@ import cn.taketoday.lang.Constant;
 import cn.taketoday.mock.web.DelegatingServletInputStream;
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.ReadListener;
@@ -216,7 +216,7 @@ public class ServerHttpRequestTests {
   private ServerHttpRequest createRequest(String uriString) throws Exception {
     URI uri = URI.create(uriString);
     HttpMockRequestImpl request = new TestHttpMockRequest(uri);
-    AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpServletResponse());
+    AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpResponseImpl());
     return new ServletServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
   }
 

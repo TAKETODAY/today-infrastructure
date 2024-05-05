@@ -30,9 +30,9 @@ import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
 import cn.taketoday.mock.api.ServletException;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.session.config.EnableWebSession;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
 import cn.taketoday.web.util.WebUtils;
 
@@ -63,7 +63,7 @@ public class CookieLocaleResolverTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     Cookie cookie = new Cookie("LanguageKoekje", "nl");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setCookieName("LanguageKoekje");
@@ -76,7 +76,7 @@ public class CookieLocaleResolverTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     Cookie cookie = new Cookie("LanguageKoekje", "nl");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setCookieName("LanguageKoekje");
@@ -92,7 +92,7 @@ public class CookieLocaleResolverTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     Cookie cookie = new Cookie("LanguageKoekje", "nl GMT+1");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setCookieName("LanguageKoekje");
@@ -108,7 +108,7 @@ public class CookieLocaleResolverTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     Cookie cookie = new Cookie("LanguageKoekje", "++ GMT+1");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setCookieName("LanguageKoekje");
@@ -121,7 +121,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testResolveLocaleContextWithInvalidLocaleOnErrorDispatch() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     request.addPreferredLocale(Locale.GERMAN);
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new ServletException());
@@ -143,7 +143,7 @@ public class CookieLocaleResolverTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     Cookie cookie = new Cookie("LanguageKoekje", "nl X-MT");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setCookieName("LanguageKoekje");
@@ -159,7 +159,7 @@ public class CookieLocaleResolverTests {
     request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new ServletException());
     Cookie cookie = new Cookie("LanguageKoekje", "nl X-MT");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setDefaultTimeZone(TimeZone.getTimeZone("GMT+2"));
@@ -174,8 +174,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocale() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocale(requestContext, new Locale("nl", ""));
@@ -198,8 +198,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleContext() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocaleContext(requestContext, new SimpleLocaleContext(new Locale("nl", "")));
@@ -219,8 +219,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleContextWithTimeZone() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocaleContext(requestContext,
@@ -241,8 +241,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleContextWithTimeZoneOnly() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocaleContext(requestContext,
@@ -253,7 +253,7 @@ public class CookieLocaleResolverTests {
     request.addPreferredLocale(Locale.GERMANY);
     request.setCookies(cookie);
 
-    requestContext = new ServletRequestContext(request, response);
+    requestContext = new MockRequestContext(request, response);
 
     resolver = new CookieLocaleResolver();
     LocaleContext loc = resolver.resolveLocaleContext(requestContext);
@@ -266,8 +266,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleWithCountry() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLocale(requestContext, new Locale("de", "AT"));
@@ -292,8 +292,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetAndResolveLocaleWithCountryAsLegacyJava() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setLanguageTagCompliant(false);
@@ -319,8 +319,8 @@ public class CookieLocaleResolverTests {
   @Test
   public void testCustomCookie() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setCookieName("LanguageKoek");
@@ -351,7 +351,7 @@ public class CookieLocaleResolverTests {
   public void testResolveLocaleWithoutCookie() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.TAIWAN);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
 
@@ -363,7 +363,7 @@ public class CookieLocaleResolverTests {
   public void testResolveLocaleContextWithoutCookie() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.TAIWAN);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
 
@@ -378,7 +378,7 @@ public class CookieLocaleResolverTests {
   public void testResolveLocaleWithoutCookieAndDefaultLocale() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.TAIWAN);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setDefaultLocale(Locale.GERMAN);
@@ -391,7 +391,7 @@ public class CookieLocaleResolverTests {
   public void testResolveLocaleContextWithoutCookieAndDefaultLocale() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.TAIWAN);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setDefaultLocale(Locale.GERMAN);
@@ -410,7 +410,7 @@ public class CookieLocaleResolverTests {
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, "");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
 
@@ -424,7 +424,7 @@ public class CookieLocaleResolverTests {
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, "");
     request.setCookies(cookie);
-    ServletRequestContext requestContext = new ServletRequestContext(request, null);
+    MockRequestContext requestContext = new MockRequestContext(request, null);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
 
@@ -438,9 +438,9 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetLocaleToNull() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
@@ -462,9 +462,9 @@ public class CookieLocaleResolverTests {
   public void testSetLocaleContextToNull() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.addPreferredLocale(Locale.TAIWAN);
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
@@ -489,8 +489,8 @@ public class CookieLocaleResolverTests {
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());
     request.setCookies(cookie);
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     CookieLocaleResolver resolver = new CookieLocaleResolver();
     resolver.setDefaultLocale(Locale.CANADA_FRENCH);
@@ -508,9 +508,9 @@ public class CookieLocaleResolverTests {
   @Test
   public void testSetLocaleContextToNullWithDefault() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-    ServletRequestContext requestContext = new ServletRequestContext(request, response);
+    MockRequestContext requestContext = new MockRequestContext(request, response);
 
     request.addPreferredLocale(Locale.TAIWAN);
     Cookie cookie = new Cookie(CookieLocaleResolver.DEFAULT_COOKIE_NAME, Locale.UK.toString());

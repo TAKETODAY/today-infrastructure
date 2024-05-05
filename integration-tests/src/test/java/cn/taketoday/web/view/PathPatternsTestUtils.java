@@ -23,34 +23,34 @@ import java.util.stream.Stream;
 
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
-import cn.taketoday.mock.web.MockHttpServletResponse;
-import cn.taketoday.web.mock.ServletRequestContext;
+import cn.taketoday.mock.web.MockHttpResponseImpl;
+import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.StaticWebApplicationContext;
 
 public abstract class PathPatternsTestUtils {
 
-  public static Stream<Function<String, ServletRequestContext>> requestArguments() {
+  public static Stream<Function<String, MockRequestContext>> requestArguments() {
     return requestArguments(null);
   }
 
-  public static Stream<Function<String, ServletRequestContext>> requestArguments(@Nullable String contextPath) {
+  public static Stream<Function<String, MockRequestContext>> requestArguments(@Nullable String contextPath) {
     return Stream.of(
             path -> createRequest("GET", contextPath, path)
     );
   }
 
-  public static ServletRequestContext createRequest(String method, @Nullable String contextPath, String path) {
+  public static MockRequestContext createRequest(String method, @Nullable String contextPath, String path) {
     StaticWebApplicationContext context = new StaticWebApplicationContext();
     context.refresh();
     if (contextPath != null) {
       String requestUri = contextPath + (path.startsWith("/") ? "" : "/") + path;
 
       HttpMockRequestImpl servletRequest = new HttpMockRequestImpl(method, requestUri);
-      return new ServletRequestContext(context, servletRequest, new MockHttpServletResponse());
+      return new MockRequestContext(context, servletRequest, new MockHttpResponseImpl());
     }
     else {
       HttpMockRequestImpl servletRequest = new HttpMockRequestImpl(method, path);
-      return new ServletRequestContext(context, servletRequest, new MockHttpServletResponse());
+      return new MockRequestContext(context, servletRequest, new MockHttpResponseImpl());
     }
   }
 

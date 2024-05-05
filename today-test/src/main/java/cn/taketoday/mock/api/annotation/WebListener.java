@@ -23,6 +23,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.mock.api.MockContextAttributeListener;
+import cn.taketoday.mock.api.MockContextListener;
 import cn.taketoday.mock.api.http.HttpSessionAttributeListener;
 import cn.taketoday.mock.api.http.HttpSessionIdListener;
 import cn.taketoday.mock.api.http.HttpSessionListener;
@@ -31,7 +33,7 @@ import cn.taketoday.mock.api.http.HttpSessionListener;
  * This annotation is used to declare a WebListener.
  *
  * Any class annotated with WebListener must implement one or more of the
- * {@link cn.taketoday.mock.api.ServletContextListener}, {@link cn.taketoday.mock.api.ServletContextAttributeListener},
+ * {@link MockContextListener}, {@link MockContextAttributeListener},
  * {@link cn.taketoday.mock.api.ServletRequestListener}, {@link cn.taketoday.mock.api.ServletRequestAttributeListener},
  * {@link HttpSessionListener}, or {@link HttpSessionAttributeListener}, or
  * {@link HttpSessionIdListener} interfaces.

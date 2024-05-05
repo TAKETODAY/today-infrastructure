@@ -38,13 +38,13 @@ import cn.taketoday.mock.api.http.Part;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2018-06-28 22:40:32
  */
-final class ServletMultipartFile extends AbstractMultipartFile implements MultipartFile {
+final class MockMultipartFile extends AbstractMultipartFile implements MultipartFile {
 
   private final Part part;
 
   private final String filename;
 
-  public ServletMultipartFile(Part part, @Nullable String filename) {
+  public MockMultipartFile(Part part, @Nullable String filename) {
     this.part = part;
     this.filename = filename == null ? part.getSubmittedFileName() : filename;
   }
@@ -76,7 +76,7 @@ final class ServletMultipartFile extends AbstractMultipartFile implements Multip
 
   @Override
   protected DefaultHttpHeaders createHttpHeaders() {
-    return ServletFormData.createHeaders(part);
+    return MockFormData.createHeaders(part);
   }
 
   /**
@@ -144,7 +144,7 @@ final class ServletMultipartFile extends AbstractMultipartFile implements Multip
   @Override
   public boolean equals(Object obj) {
     return this == obj
-            || (obj instanceof ServletMultipartFile && Objects.equals(part, ((ServletMultipartFile) obj).part));
+            || (obj instanceof MockMultipartFile && Objects.equals(part, ((MockMultipartFile) obj).part));
   }
 
 }
