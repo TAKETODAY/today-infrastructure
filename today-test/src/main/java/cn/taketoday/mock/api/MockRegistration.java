@@ -100,7 +100,7 @@ public interface MockRegistration extends Registration {
     void setLoadOnStartup(int loadOnStartup);
 
     /**
-     * Sets the {@link ServletSecurityElement} to be applied to the mappings defined for this
+     * Sets the {@link MockSecurityElement} to be applied to the mappings defined for this
      * <code>ServletRegistration</code>.
      *
      * <p>
@@ -128,7 +128,7 @@ public interface MockRegistration extends Registration {
      * {@code Dynamic} object, and vice-versa.
      * </p>
      *
-     * @param constraint the {@link ServletSecurityElement} to be applied to the patterns mapped to this ServletRegistration
+     * @param constraint the {@link MockSecurityElement} to be applied to the patterns mapped to this ServletRegistration
      * @return the (possibly empty) Set of URL patterns that were already the exact target of a
      * <code>security-constraint</code> that was established via the portable deployment descriptor. This method has no
      * effect on the patterns included in the returned set
@@ -136,7 +136,7 @@ public interface MockRegistration extends Registration {
      * @throws IllegalStateException if the {@link MockContext} from which this <code>ServletRegistration</code> was
      * obtained has already been initialized
      */
-    Set<String> setServletSecurity(ServletSecurityElement constraint);
+    Set<String> setServletSecurity(MockSecurityElement constraint);
 
     /**
      * Sets the {@link MultipartConfigElement} to be applied to the mappings defined for this

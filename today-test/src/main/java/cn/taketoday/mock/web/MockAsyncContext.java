@@ -30,7 +30,7 @@ import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
@@ -150,7 +150,7 @@ public class MockAsyncContext implements AsyncContext {
   }
 
   @Override
-  public <T extends AsyncListener> T createListener(Class<T> clazz) throws ServletException {
+  public <T extends AsyncListener> T createListener(Class<T> clazz) throws MockException {
     return BeanUtils.newInstance(clazz);
   }
 

@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 /**
  * Unit tests for building a {@link HttpMockRequestImpl} with
- * {@link MockHttpServletRequestBuilder}.
+ * {@link MockHttpRequestBuilder}.
  *
  * @author Rossen Stoyanchev
  * @author Sam Brannen
@@ -63,7 +63,7 @@ class MockHttpRequestBuilderTests {
 
   private final MockContextImpl mockContext = new MockContextImpl();
 
-  private MockHttpServletRequestBuilder builder = new MockHttpServletRequestBuilder(GET, "/foo/bar");
+  private MockHttpRequestBuilder builder = new MockHttpRequestBuilder(GET, "/foo/bar");
 
   @Test
   void method() {
@@ -75,7 +75,7 @@ class MockHttpRequestBuilderTests {
   @Test
   void uri() {
     String uri = "https://java.sun.com:8080/javase/6/docs/api/java/util/BitSet.html?foo=bar#and(java.util.BitSet)";
-    this.builder = new MockHttpServletRequestBuilder(GET, uri);
+    this.builder = new MockHttpRequestBuilder(GET, uri);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getScheme()).isEqualTo("https");
@@ -89,7 +89,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void requestUriWithEncoding() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/foo bar");
+    this.builder = new MockHttpRequestBuilder(GET, "/foo bar");
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getRequestURI()).isEqualTo("/foo%20bar");
@@ -98,7 +98,7 @@ class MockHttpRequestBuilderTests {
   @Test
     // SPR-13435
   void requestUriWithDoubleSlashes() throws URISyntaxException {
-    this.builder = new MockHttpServletRequestBuilder(GET, URI.create("/test//currentlyValid/0"));
+    this.builder = new MockHttpRequestBuilder(GET, URI.create("/test//currentlyValid/0"));
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getRequestURI()).isEqualTo("/test//currentlyValid/0");
@@ -114,7 +114,7 @@ class MockHttpRequestBuilderTests {
   @Test
     // gh-28823, gh-29933
   void emptyPath() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "");
+    this.builder = new MockHttpRequestBuilder(GET, "");
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getRequestURI()).isEqualTo("/");
@@ -124,7 +124,7 @@ class MockHttpRequestBuilderTests {
   @Test
     // SPR-16453
   void pathInfoIsDecoded() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/travel/hotels 42");
+    this.builder = new MockHttpRequestBuilder(GET, "/travel/hotels 42");
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getPathInfo()).isEqualTo("/travel/hotels 42");
@@ -152,7 +152,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void requestUriAndFragment() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/foo#bar");
+    this.builder = new MockHttpRequestBuilder(GET, "/foo#bar");
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getRequestURI()).isEqualTo("/foo");
@@ -170,7 +170,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void requestParameterFromQuery() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/?foo=bar&foo=baz");
+    this.builder = new MockHttpRequestBuilder(GET, "/?foo=bar&foo=baz");
 
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
     Map<String, String[]> parameterMap = request.getParameterMap();
@@ -181,7 +181,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void requestParameterFromQueryList() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/?foo[0]=bar&foo[1]=baz");
+    this.builder = new MockHttpRequestBuilder(GET, "/?foo[0]=bar&foo[1]=baz");
 
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
@@ -192,7 +192,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void queryParameter() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/");
+    this.builder = new MockHttpRequestBuilder(GET, "/");
     this.builder.queryParam("foo", "bar");
     this.builder.queryParam("foo", "baz");
 
@@ -204,7 +204,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void queryParameterMap() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/");
+    this.builder = new MockHttpRequestBuilder(GET, "/");
     MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
     List<String> values = new ArrayList<>();
     values.add("bar");
@@ -220,7 +220,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void queryParameterList() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/");
+    this.builder = new MockHttpRequestBuilder(GET, "/");
     this.builder.queryParam("foo[0]", "bar");
     this.builder.queryParam("foo[1]", "baz");
 
@@ -233,7 +233,7 @@ class MockHttpRequestBuilderTests {
 
   @Test
   void requestParameterFromQueryWithEncoding() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/?foo={value}", "bar=baz");
+    this.builder = new MockHttpRequestBuilder(GET, "/?foo={value}", "bar=baz");
 
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
@@ -244,7 +244,7 @@ class MockHttpRequestBuilderTests {
   @Test
     // SPR-11043
   void requestParameterFromQueryNull() {
-    this.builder = new MockHttpServletRequestBuilder(GET, "/?foo");
+    this.builder = new MockHttpRequestBuilder(GET, "/?foo");
 
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
     Map<String, String[]> parameterMap = request.getParameterMap();
@@ -259,7 +259,7 @@ class MockHttpRequestBuilderTests {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
     params.add("foo", "bar");
     params.add("foo", "baz");
-    this.builder = new MockHttpServletRequestBuilder(POST, "/foo");
+    this.builder = new MockHttpRequestBuilder(POST, "/foo");
     this.builder.params(params);
 
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
@@ -272,7 +272,7 @@ class MockHttpRequestBuilderTests {
     String contentType = "application/x-www-form-urlencoded;charset=UTF-8";
     String body = "name+1=value+1&name+2=value+A&name+2=value+B&name+3";
 
-    HttpMockRequestImpl request = new MockHttpServletRequestBuilder(POST, "/foo")
+    HttpMockRequestImpl request = new MockHttpRequestBuilder(POST, "/foo")
             .contentType(contentType).content(body.getBytes(UTF_8))
             .buildRequest(this.mockContext);
 
@@ -524,8 +524,8 @@ class MockHttpRequestBuilderTests {
     final String ATTR = "ATTR";
     final String EXPECTED = "override";
 
-    MockHttpServletRequestBuilder defaultBuilder =
-            new MockHttpServletRequestBuilder(GET, "/foo/bar")
+    MockHttpRequestBuilder defaultBuilder =
+            new MockHttpRequestBuilder(GET, "/foo/bar")
                     .with(requestAttr(ATTR).value("default"))
                     .with(requestAttr(ATTR).value(EXPECTED));
 
@@ -542,7 +542,7 @@ class MockHttpRequestBuilderTests {
   void arbitraryMethod() {
     String httpMethod = "REPort";
     URI url = UriComponentsBuilder.fromPath("/foo/{bar}").buildAndExpand(42).toUri();
-    this.builder = new MockHttpServletRequestBuilder(httpMethod, url);
+    this.builder = new MockHttpRequestBuilder(httpMethod, url);
     HttpMockRequestImpl request = this.builder.buildRequest(this.mockContext);
 
     assertThat(request.getMethod()).isEqualTo(httpMethod);

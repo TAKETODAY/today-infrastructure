@@ -68,7 +68,7 @@
       <props>
         <prop key="setA*">PROPAGATION_REQUIRED</prop>
         <prop key="rollbackOnly">PROPAGATION_REQUIRED</prop>
-        <prop key="echoException">PROPAGATION_REQUIRED,+cn.taketoday.mock.api.ServletException,-java.lang.Exception</prop>
+        <prop key="echoException">PROPAGATION_REQUIRED,+cn.taketoday.mock.api.MockException,-java.lang.Exception</prop>
       </props>
     </property>
   </bean>

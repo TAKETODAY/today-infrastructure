@@ -19,7 +19,7 @@ package cn.taketoday.mock.api;
 
 import java.io.IOException;
 
-import cn.taketoday.mock.api.http.HttpServletMapping;
+import cn.taketoday.mock.api.http.HttpMockMapping;
 
 /**
  * Defines an object that receives requests from the client and sends them to any resource (such as a servlet, HTML
@@ -54,7 +54,7 @@ public interface RequestDispatcher {
   static final String FORWARD_CONTEXT_PATH = "cn.taketoday.mock.api.forward.context_path";
 
   /**
-   * The name of the request attribute under which the original {@link HttpServletMapping} is made
+   * The name of the request attribute under which the original {@link HttpMockMapping} is made
    * available to the target of a {@link #forward(MockRequest, MockResponse) forward}
    *
    * @since Servlet 4.0
@@ -110,7 +110,7 @@ public interface RequestDispatcher {
   static final String INCLUDE_PATH_INFO = "cn.taketoday.mock.api.include.path_info";
 
   /**
-   * The name of the request attribute under which the {@link HttpServletMapping} of the target of an
+   * The name of the request attribute under which the {@link HttpMockMapping} of the target of an
    * {@link #include(MockRequest, MockResponse) include} is stored
    *
    * @since Servlet 4.0
@@ -202,12 +202,12 @@ public interface RequestDispatcher {
    *
    * @param request a {@link MockRequest} object that represents the request the client makes of the servlet
    * @param response a {@link MockResponse} object that represents the response the servlet returns to the client
-   * @throws ServletException if the target resource throws this exception
+   * @throws MockException if the target resource throws this exception
    * @throws IOException if the target resource throws this exception
    * @throws IllegalStateException if the response was already committed
    * @see MockRequest#getDispatcherType
    */
-  public void forward(MockRequest request, MockResponse response) throws ServletException, IOException;
+  public void forward(MockRequest request, MockResponse response) throws MockException, IOException;
 
   /**
    * Includes the content of a resource (servlet, JSP page, HTML file) in the response. In essence, this method enables
@@ -227,9 +227,9 @@ public interface RequestDispatcher {
    *
    * @param request a {@link MockRequest} object that contains the client's request
    * @param response a {@link MockResponse} object that contains the servlet's response
-   * @throws ServletException if the included resource throws this exception
+   * @throws MockException if the included resource throws this exception
    * @throws IOException if the included resource throws this exception
    * @see MockRequest#getDispatcherType
    */
-  public void include(MockRequest request, MockResponse response) throws ServletException, IOException;
+  public void include(MockRequest request, MockResponse response) throws MockException, IOException;
 }

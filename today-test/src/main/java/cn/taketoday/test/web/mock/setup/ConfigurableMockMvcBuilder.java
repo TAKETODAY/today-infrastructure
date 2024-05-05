@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import java.util.Map;
 
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.test.web.mock.DispatcherServletCustomizer;
+import cn.taketoday.test.web.mock.DispatcherMockCustomizer;
 import cn.taketoday.test.web.mock.MockMvcBuilder;
 import cn.taketoday.test.web.mock.RequestBuilder;
 import cn.taketoday.test.web.mock.ResultHandler;
@@ -130,7 +130,7 @@ public interface ConfigurableMockMvcBuilder<B extends ConfigurableMockMvcBuilder
    * customizing any {@link cn.taketoday.web.mock.DispatcherServlet}
    * property.
    */
-  <T extends B> T addDispatcherServletCustomizer(DispatcherServletCustomizer customizer);
+  <T extends B> T addDispatcherServletCustomizer(DispatcherMockCustomizer customizer);
 
   /**
    * Add a {@code MockMvcConfigurer} that automates MockMvc setup and

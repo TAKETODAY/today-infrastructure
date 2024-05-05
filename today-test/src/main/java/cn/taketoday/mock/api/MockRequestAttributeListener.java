@@ -36,10 +36,8 @@ import cn.taketoday.mock.api.annotation.WebListener;
  *
  * <p>
  * The order in which implementations of this interface are invoked is unspecified.
- *
- * @since Servlet 2.4
  */
-public interface ServletRequestAttributeListener extends EventListener {
+public interface MockRequestAttributeListener extends EventListener {
 
   /**
    * Receives notification that an attribute has been added to the ServletRequest.
@@ -48,7 +46,7 @@ public interface ServletRequestAttributeListener extends EventListener {
    * that was added
    * @implSpec The default implementation takes no action.
    */
-  default public void attributeAdded(ServletRequestAttributeEvent srae) {
+  default void attributeAdded(MockRequestAttributeEvent srae) {
   }
 
   /**
@@ -58,7 +56,7 @@ public interface ServletRequestAttributeListener extends EventListener {
    * that was removed
    * @implSpec The default implementation takes no action.
    */
-  default public void attributeRemoved(ServletRequestAttributeEvent srae) {
+  default void attributeRemoved(MockRequestAttributeEvent srae) {
   }
 
   /**
@@ -68,6 +66,6 @@ public interface ServletRequestAttributeListener extends EventListener {
    * attribute that was replaced
    * @implSpec The default implementation takes no action.
    */
-  default public void attributeReplaced(ServletRequestAttributeEvent srae) {
+  default void attributeReplaced(MockRequestAttributeEvent srae) {
   }
 }

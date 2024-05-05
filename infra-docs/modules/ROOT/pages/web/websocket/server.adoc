@@ -101,7 +101,7 @@ This is a significant limitation of JSR-356 that Infra WebSocket support address
 Such strategies currently exist for Tomcat, Jetty, GlassFish, WebLogic, WebSphere, and Undertow (and WildFly).
 As of Jakarta WebSocket 2.1, a standard request upgrade strategy is available which Infra chooses on Jakarta EE 10 based web containers such as Tomcat 10.1 and Jetty 12.
 
-A secondary consideration is that Servlet containers with JSR-356 support are expected to perform a `ServletContainerInitializer` (SCI) scan that can slow down application startup -- in some cases, dramatically.
+A secondary consideration is that Servlet containers with JSR-356 support are expected to perform a `MockContainerInitializer` (SCI) scan that can slow down application startup -- in some cases, dramatically.
 If a significant impact is observed after an upgrade to a Servlet container version with JSR-356 support, it should be possible to selectively enable or disable web fragments (and SCI scanning) through the use of the `<absolute-ordering />` element in `web.xml`, as the following example shows:
 
 [source,xml,indent=0,subs="verbatim,quotes,attributes"]

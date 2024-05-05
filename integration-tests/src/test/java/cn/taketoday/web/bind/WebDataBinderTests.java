@@ -33,7 +33,7 @@ import cn.taketoday.beans.testfixture.beans.TestBean;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockMultipartHttpMockRequest;
 import cn.taketoday.web.mock.MockRequestContext;
-import cn.taketoday.web.mock.bind.ServletRequestParameterPropertyValues;
+import cn.taketoday.web.mock.bind.MockRequestParameterPropertyValues;
 import cn.taketoday.web.multipart.support.StringMultipartFileEditor;
 import cn.taketoday.web.servlet.MockMultipartMockRequestContext;
 import cn.taketoday.web.testfixture.MockMultipartFile;
@@ -298,7 +298,7 @@ public class WebDataBinderTests {
     request.addParameter("surname", "Blair");
     request.addParameter("age", "" + 50);
 
-    ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
+    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
     doTestTony(pvs);
   }
 
@@ -309,12 +309,12 @@ public class WebDataBinderTests {
     request.addParameter("test_surname", "Blair");
     request.addParameter("test_age", "" + 50);
 
-    ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
+    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
     boolean condition = !pvs.contains("forname");
     assertThat(condition).as("Didn't find normal when given prefix").isTrue();
     assertThat(pvs.contains("test_forname")).as("Did treat prefix as normal when not given prefix").isTrue();
 
-    pvs = new ServletRequestParameterPropertyValues(request, "test");
+    pvs = new MockRequestParameterPropertyValues(request, "test");
     doTestTony(pvs);
   }
 
@@ -348,7 +348,7 @@ public class WebDataBinderTests {
   @Test
   public void testNoParameters() throws Exception {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
+    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
     assertThat(pvs.toArray().length == 0).as("Found no parameters").isTrue();
   }
 
@@ -358,7 +358,7 @@ public class WebDataBinderTests {
     String[] original = new String[] { "Tony", "Rod" };
     request.addParameter("forname", original);
 
-    ServletRequestParameterPropertyValues pvs = new ServletRequestParameterPropertyValues(request);
+    MockRequestParameterPropertyValues pvs = new MockRequestParameterPropertyValues(request);
     assertThat(pvs.toArray().length == 1).as("Found 1 parameter").isTrue();
     boolean condition = pvs.getPropertyValue("forname") instanceof String[];
     assertThat(condition).as("Found array value").isTrue();

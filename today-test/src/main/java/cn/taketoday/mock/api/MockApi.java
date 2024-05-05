@@ -40,11 +40,11 @@ public interface MockApi {
    *
    * @param config a <code>ServletConfig</code> object containing the mock's configuration and initialization
    * parameters
-   * @throws ServletException if an exception has occurred that interferes with the mock's normal operation
+   * @throws MockException if an exception has occurred that interferes with the mock's normal operation
    * @see UnavailableException
    * @see #getMockConfig
    */
-  void init(MockConfig config) throws ServletException;
+  void init(MockConfig config) throws MockException;
 
   /**
    * Returns a {@link MockConfig} object, which contains initialization and startup parameters for this mock. The
@@ -76,10 +76,10 @@ public interface MockApi {
    *
    * @param req the <code>ServletRequest</code> object that contains the client's request
    * @param res the <code>ServletResponse</code> object that contains the mock's response
-   * @throws ServletException if an exception occurs that interferes with the mock's normal operation
+   * @throws MockException if an exception occurs that interferes with the mock's normal operation
    * @throws IOException if an input or output exception occurs
    */
-  void service(MockRequest req, MockResponse res) throws ServletException, IOException;
+  void service(MockRequest req, MockResponse res) throws MockException, IOException;
 
   /**
    * Returns information about the mock, such as author, version, and copyright.

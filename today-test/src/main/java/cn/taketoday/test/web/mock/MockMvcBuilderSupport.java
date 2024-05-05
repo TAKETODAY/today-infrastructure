@@ -52,10 +52,10 @@ public abstract class MockMvcBuilderSupport {
           ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           @Nullable Charset defaultResponseCharacterEncoding,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
-          @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {
+          @Nullable List<DispatcherMockCustomizer> dispatcherMockCustomizers) {
 
     MockMvc mockMvc = createMockMvc(filters, servletConfig, webAppContext, defaultRequestBuilder,
-            globalResultMatchers, globalResultHandlers, dispatcherServletCustomizers);
+            globalResultMatchers, globalResultHandlers, dispatcherMockCustomizers);
 
     mockMvc.setDefaultResponseCharacterEncoding(defaultResponseCharacterEncoding);
     return mockMvc;
@@ -64,11 +64,11 @@ public abstract class MockMvcBuilderSupport {
   protected final MockMvc createMockMvc(Filter[] filters, MockMockConfig servletConfig,
           ApplicationContext webAppContext, @Nullable RequestBuilder defaultRequestBuilder,
           List<ResultMatcher> globalResultMatchers, List<ResultHandler> globalResultHandlers,
-          @Nullable List<DispatcherServletCustomizer> dispatcherServletCustomizers) {
+          @Nullable List<DispatcherMockCustomizer> dispatcherMockCustomizers) {
 
     TestDispatcherServlet dispatcherServlet = new TestDispatcherServlet(webAppContext);
-    if (dispatcherServletCustomizers != null) {
-      for (DispatcherServletCustomizer customizers : dispatcherServletCustomizers) {
+    if (dispatcherMockCustomizers != null) {
+      for (DispatcherMockCustomizer customizers : dispatcherMockCustomizers) {
         customizers.customize(dispatcherServlet);
       }
     }

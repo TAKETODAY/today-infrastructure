@@ -43,7 +43,7 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
  * @author Rossen Stoyanchev
  * @since 3.0
  */
-public class ServletServerHttpResponse implements ServerHttpResponse {
+public class MockServerHttpResponse implements ServerHttpResponse {
 
   private boolean bodyUsed = false;
   private boolean headersWritten = false;
@@ -59,10 +59,10 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
    *
    * @param servletResponse the servlet response
    */
-  public ServletServerHttpResponse(HttpMockResponse servletResponse) {
+  public MockServerHttpResponse(HttpMockResponse servletResponse) {
     Assert.notNull(servletResponse, "HttpServletResponse is required");
     this.servletResponse = servletResponse;
-    this.headers = new ServletResponseHttpHeaders();
+    this.headers = new MockResponseHttpHeaders();
   }
 
   /**
@@ -148,7 +148,7 @@ public class ServletServerHttpResponse implements ServerHttpResponse {
    * map-related operations (e.g. iteration, removal, etc) apply only to values
    * added directly through HttpHeaders methods.
    */
-  private class ServletResponseHttpHeaders extends DefaultHttpHeaders {
+  private class MockResponseHttpHeaders extends DefaultHttpHeaders {
     @Serial
     private static final long serialVersionUID = 3410708522401046302L;
 

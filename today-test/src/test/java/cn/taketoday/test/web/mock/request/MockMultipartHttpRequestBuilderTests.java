@@ -32,7 +32,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Unit tests for {@link MockMultipartHttpServletRequestBuilder}.
+ * Unit tests for {@link MockMultipartHttpRequestBuilder}.
  *
  * @author Rossen Stoyanchev
  */
@@ -42,7 +42,7 @@ public class MockMultipartHttpRequestBuilderTests {
     // gh-26166
   void addFileAndParts() throws Exception {
     MockMultipartHttpMockRequest mockRequest =
-            (MockMultipartHttpMockRequest) new MockMultipartHttpServletRequestBuilder("/upload")
+            (MockMultipartHttpMockRequest) new MockMultipartHttpRequestBuilder("/upload")
                     .file(new MockMultipartFile("file", "test.txt", "text/plain", "Test".getBytes(UTF_8)))
                     .part(new MockPart("name", "value".getBytes(UTF_8)))
                     .buildRequest(new MockContextImpl());
@@ -59,7 +59,7 @@ public class MockMultipartHttpRequestBuilderTests {
     jsonPart.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
     MockMultipartHttpMockRequest mockRequest =
-            (MockMultipartHttpMockRequest) new MockMultipartHttpServletRequestBuilder("/upload")
+            (MockMultipartHttpMockRequest) new MockMultipartHttpRequestBuilder("/upload")
                     .file(new MockMultipartFile("file", "Test".getBytes(UTF_8)))
                     .part(jsonPart)
                     .buildRequest(new MockContextImpl());
@@ -72,14 +72,14 @@ public class MockMultipartHttpRequestBuilderTests {
 
   @Test
   void mergeAndBuild() {
-    MockHttpServletRequestBuilder parent = new MockHttpServletRequestBuilder(HttpMethod.GET, "/");
+    MockHttpRequestBuilder parent = new MockHttpRequestBuilder(HttpMethod.GET, "/");
     parent.characterEncoding("UTF-8");
-    Object result = new MockMultipartHttpServletRequestBuilder("/fileUpload").merge(parent);
+    Object result = new MockMultipartHttpRequestBuilder("/fileUpload").merge(parent);
 
     assertThat(result).isNotNull();
-    assertThat(result.getClass()).isEqualTo(MockMultipartHttpServletRequestBuilder.class);
+    assertThat(result.getClass()).isEqualTo(MockMultipartHttpRequestBuilder.class);
 
-    MockMultipartHttpServletRequestBuilder builder = (MockMultipartHttpServletRequestBuilder) result;
+    MockMultipartHttpRequestBuilder builder = (MockMultipartHttpRequestBuilder) result;
     HttpMockRequestImpl request = builder.buildRequest(new MockContextImpl());
     assertThat(request.getCharacterEncoding()).isEqualTo("UTF-8");
   }

@@ -38,7 +38,7 @@ import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.MultipartFile;
 import cn.taketoday.web.multipart.MultipartRequest;
 import cn.taketoday.web.util.WebUtils;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.http.Part;
 
 /**
@@ -153,7 +153,7 @@ public class MockMultipartHttpMockRequest extends HttpMockRequestImpl implements
         return part.getContentType();
       }
     }
-    catch (ServletException | IOException ex) {
+    catch (MockException | IOException ex) {
       // Should never happen (we're not actually parsing)
       throw new IllegalStateException(ex);
     }

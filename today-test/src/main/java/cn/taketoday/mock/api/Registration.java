@@ -31,7 +31,7 @@ import java.util.Set;
  * <tt>addFilter</tt> methods on {@link MockContext}, and passing in the Servlet or Filter name (obtained via
  * {@link #getName}) along with the supporting Servlet or Filter implementation class name, Class object, or instance,
  * respectively. In most cases, preliminary registrations will be completed by an appropriate, container-provided
- * {@link ServletContainerInitializer}.
+ * {@link MockContainerInitializer}.
  */
 public interface Registration {
 

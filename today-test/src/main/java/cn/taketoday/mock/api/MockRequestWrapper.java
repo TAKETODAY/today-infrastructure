@@ -133,7 +133,7 @@ public class MockRequestWrapper implements MockRequest {
    * The default behavior of this method is to return getInputStream() on the wrapped request object.
    */
   @Override
-  public ServletInputStream getInputStream() throws IOException {
+  public MockInputStream getInputStream() throws IOException {
     return this.request.getInputStream();
   }
 
@@ -486,7 +486,7 @@ public class MockRequestWrapper implements MockRequest {
    * @since Servlet 6.0
    */
   @Override
-  public ServletConnection getServletConnection() {
+  public MockConnection getServletConnection() {
     return request.getServletConnection();
   }
 }

@@ -40,7 +40,7 @@ import cn.taketoday.web.mock.MockUtils;
  * @since 4.0 2022/3/2 16:31
  */
 @SuppressWarnings("serial")
-public class ServletRequestParameterPropertyValues extends PropertyValues {
+public class MockRequestParameterPropertyValues extends PropertyValues {
 
   /** Default prefix separator. */
   public static final String DEFAULT_PREFIX_SEPARATOR = "_";
@@ -51,7 +51,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    *
    * @param request the HTTP request
    */
-  public ServletRequestParameterPropertyValues(MockRequest request) {
+  public MockRequestParameterPropertyValues(MockRequest request) {
     this(request, null, null);
   }
 
@@ -64,7 +64,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    * consist of this plus the separator)
    * @see #DEFAULT_PREFIX_SEPARATOR
    */
-  public ServletRequestParameterPropertyValues(MockRequest request, @Nullable String prefix) {
+  public MockRequestParameterPropertyValues(MockRequest request, @Nullable String prefix) {
     this(request, prefix, DEFAULT_PREFIX_SEPARATOR);
   }
 
@@ -78,7 +78,7 @@ public class ServletRequestParameterPropertyValues extends PropertyValues {
    * @param prefixSeparator separator delimiting prefix (e.g. "spring")
    * and the rest of the parameter name ("param1", "param2")
    */
-  public ServletRequestParameterPropertyValues(
+  public MockRequestParameterPropertyValues(
           MockRequest request, @Nullable String prefix, @Nullable String prefixSeparator) {
     super(MockUtils.getParametersStartingWith(
             request, (prefix != null ? prefix + prefixSeparator : null)));

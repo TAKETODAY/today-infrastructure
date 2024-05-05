@@ -40,6 +40,10 @@ import cn.taketoday.http.converter.FormHttpMessageConverter;
 import cn.taketoday.lang.Assert;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
+import cn.taketoday.mock.api.MockRequest;
+import cn.taketoday.mock.api.http.Cookie;
+import cn.taketoday.mock.api.http.HttpMockRequest;
+import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpSession;
 import cn.taketoday.test.web.mock.MockMvc;
@@ -48,10 +52,6 @@ import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.RedirectModel;
-import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpMockRequest;
-import cn.taketoday.mock.api.http.HttpSession;
 import cn.taketoday.web.util.UriComponentsBuilder;
 import cn.taketoday.web.util.UriUtils;
 
@@ -71,9 +71,10 @@ import cn.taketoday.web.util.UriUtils;
  * @author Arjen Poutsma
  * @author Sam Brannen
  * @author Kamill Sokol
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBuilder<MockHttpServletRequestBuilder>, Mergeable {
+public class MockHttpRequestBuilder implements ConfigurableSmartRequestBuilder<MockHttpRequestBuilder>, Mergeable {
 
   private final String method;
 
@@ -136,7 +137,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param url a URL template; the resulting URL will be encoded
    * @param vars zero or more URI variables
    */
-  MockHttpServletRequestBuilder(HttpMethod httpMethod, String url, Object... vars) {
+  MockHttpRequestBuilder(HttpMethod httpMethod, String url, Object... vars) {
     this(httpMethod.name(), initUri(url, vars));
   }
 
@@ -149,13 +150,13 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
   }
 
   /**
-   * Alternative to {@link #MockHttpServletRequestBuilder(HttpMethod, String, Object...)}
+   * Alternative to {@link #MockHttpRequestBuilder(HttpMethod, String, Object...)}
    * with a pre-built URI.
    *
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param url the URL
    */
-  MockHttpServletRequestBuilder(HttpMethod httpMethod, URI url) {
+  MockHttpRequestBuilder(HttpMethod httpMethod, URI url) {
     this(httpMethod.name(), url);
   }
 
@@ -165,7 +166,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param httpMethod the HTTP method (GET, POST, etc)
    * @param url the URL
    */
-  MockHttpServletRequestBuilder(String httpMethod, URI url) {
+  MockHttpRequestBuilder(String httpMethod, URI url) {
     Assert.notNull(httpMethod, "'httpMethod' is required");
     Assert.notNull(url, "'url' is required");
     this.method = httpMethod;
@@ -181,7 +182,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @see HttpMockRequest#getPathInfo()
    */
-  public MockHttpServletRequestBuilder pathInfo(@Nullable String pathInfo) {
+  public MockHttpRequestBuilder pathInfo(@Nullable String pathInfo) {
     if (StringUtils.hasText(pathInfo)) {
       Assert.isTrue(pathInfo.startsWith("/"), "Path info must start with a '/'");
     }
@@ -195,7 +196,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param secure whether the request is using a secure channel
    */
-  public MockHttpServletRequestBuilder secure(boolean secure) {
+  public MockHttpRequestBuilder secure(boolean secure) {
     this.secure = secure;
     return this;
   }
@@ -207,7 +208,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @see StandardCharsets
    * @see #characterEncoding(String)
    */
-  public MockHttpServletRequestBuilder characterEncoding(Charset encoding) {
+  public MockHttpRequestBuilder characterEncoding(Charset encoding) {
     return this.characterEncoding(encoding.name());
   }
 
@@ -216,7 +217,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param encoding the character encoding
    */
-  public MockHttpServletRequestBuilder characterEncoding(String encoding) {
+  public MockHttpRequestBuilder characterEncoding(String encoding) {
     this.characterEncoding = encoding;
     return this;
   }
@@ -230,7 +231,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param content the body content
    */
-  public MockHttpServletRequestBuilder content(byte[] content) {
+  public MockHttpRequestBuilder content(byte[] content) {
     this.content = content;
     return this;
   }
@@ -244,7 +245,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param content the body content
    */
-  public MockHttpServletRequestBuilder content(String content) {
+  public MockHttpRequestBuilder content(String content) {
     this.content = content.getBytes(StandardCharsets.UTF_8);
     return this;
   }
@@ -258,7 +259,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param contentType the content type
    */
-  public MockHttpServletRequestBuilder contentType(MediaType contentType) {
+  public MockHttpRequestBuilder contentType(MediaType contentType) {
     Assert.notNull(contentType, "'contentType' is required");
     this.contentType = contentType.toString();
     return this;
@@ -270,7 +271,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param contentType the content type
    */
-  public MockHttpServletRequestBuilder contentType(String contentType) {
+  public MockHttpRequestBuilder contentType(String contentType) {
     Assert.notNull(contentType, "'contentType' is required");
     this.contentType = contentType;
     return this;
@@ -281,7 +282,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param mediaTypes one or more media types
    */
-  public MockHttpServletRequestBuilder accept(MediaType... mediaTypes) {
+  public MockHttpRequestBuilder accept(MediaType... mediaTypes) {
     Assert.notEmpty(mediaTypes, "'mediaTypes' must not be empty");
     this.headers.set("Accept", MediaType.toString(Arrays.asList(mediaTypes)));
     return this;
@@ -294,7 +295,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param mediaTypes one or more media types; internally joined as
    * comma-separated String
    */
-  public MockHttpServletRequestBuilder accept(String... mediaTypes) {
+  public MockHttpRequestBuilder accept(String... mediaTypes) {
     Assert.notEmpty(mediaTypes, "'mediaTypes' must not be empty");
     this.headers.set("Accept", String.join(", ", mediaTypes));
     return this;
@@ -306,7 +307,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param name the header name
    * @param values one or more header values
    */
-  public MockHttpServletRequestBuilder header(String name, Object... values) {
+  public MockHttpRequestBuilder header(String name, Object... values) {
     addToMultiValueMap(this.headers, name, values);
     return this;
   }
@@ -316,7 +317,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param httpHeaders the headers and values to add
    */
-  public MockHttpServletRequestBuilder headers(HttpHeaders httpHeaders) {
+  public MockHttpRequestBuilder headers(HttpHeaders httpHeaders) {
     httpHeaders.forEach(this.headers::addAll);
     return this;
   }
@@ -338,7 +339,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param name the parameter name
    * @param values one or more values
    */
-  public MockHttpServletRequestBuilder param(String name, String... values) {
+  public MockHttpRequestBuilder param(String name, String... values) {
     addToMultiValueMap(this.parameters, name, values);
     return this;
   }
@@ -349,7 +350,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param params the parameters to add
    * @since 4.0.4
    */
-  public MockHttpServletRequestBuilder params(MultiValueMap<String, String> params) {
+  public MockHttpRequestBuilder params(MultiValueMap<String, String> params) {
     params.forEach((name, values) -> {
       for (String value : values) {
         this.parameters.add(name, value);
@@ -367,7 +368,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param values one or more values
    * @since 4.0
    */
-  public MockHttpServletRequestBuilder queryParam(String name, String... values) {
+  public MockHttpRequestBuilder queryParam(String name, String... values) {
     param(name, values);
     this.queryParams.addAll(name, Arrays.asList(values));
     return this;
@@ -381,7 +382,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param params the parameters to add
    * @since 4.0
    */
-  public MockHttpServletRequestBuilder queryParams(MultiValueMap<String, String> params) {
+  public MockHttpRequestBuilder queryParams(MultiValueMap<String, String> params) {
     params(params);
     this.queryParams.addAll(params);
     return this;
@@ -392,7 +393,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param cookies the cookies to add
    */
-  public MockHttpServletRequestBuilder cookie(Cookie... cookies) {
+  public MockHttpRequestBuilder cookie(Cookie... cookies) {
     Assert.notEmpty(cookies, "'cookies' must not be empty");
     this.cookies.addAll(Arrays.asList(cookies));
     return this;
@@ -404,7 +405,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param locales the locales to add
    * @see #locale(Locale)
    */
-  public MockHttpServletRequestBuilder locale(Locale... locales) {
+  public MockHttpRequestBuilder locale(Locale... locales) {
     Assert.notEmpty(locales, "'locales' must not be empty");
     this.locales.addAll(Arrays.asList(locales));
     return this;
@@ -416,7 +417,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param locale the locale, or {@code null} to reset it
    * @see #locale(Locale...)
    */
-  public MockHttpServletRequestBuilder locale(@Nullable Locale locale) {
+  public MockHttpRequestBuilder locale(@Nullable Locale locale) {
     this.locales.clear();
     if (locale != null) {
       this.locales.add(locale);
@@ -430,7 +431,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param name the attribute name
    * @param value the attribute value
    */
-  public MockHttpServletRequestBuilder requestAttr(String name, Object value) {
+  public MockHttpRequestBuilder requestAttr(String name, Object value) {
     addToMap(this.requestAttributes, name, value);
     return this;
   }
@@ -441,7 +442,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param name the session attribute name
    * @param value the session attribute value
    */
-  public MockHttpServletRequestBuilder sessionAttr(String name, Object value) {
+  public MockHttpRequestBuilder sessionAttr(String name, Object value) {
     addToMap(this.sessionAttributes, name, value);
     return this;
   }
@@ -451,7 +452,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param sessionAttributes the session attributes
    */
-  public MockHttpServletRequestBuilder sessionAttrs(Map<String, Object> sessionAttributes) {
+  public MockHttpRequestBuilder sessionAttrs(Map<String, Object> sessionAttributes) {
     Assert.notEmpty(sessionAttributes, "'sessionAttributes' must not be empty");
     sessionAttributes.forEach(this::sessionAttr);
     return this;
@@ -463,7 +464,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param name the flash attribute name
    * @param value the flash attribute value
    */
-  public MockHttpServletRequestBuilder flashAttr(String name, Object value) {
+  public MockHttpRequestBuilder flashAttr(String name, Object value) {
     addToMap(this.flashAttributes, name, value);
     return this;
   }
@@ -473,7 +474,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param flashAttributes the flash attributes
    */
-  public MockHttpServletRequestBuilder flashAttrs(Map<String, Object> flashAttributes) {
+  public MockHttpRequestBuilder flashAttrs(Map<String, Object> flashAttributes) {
     Assert.notEmpty(flashAttributes, "'flashAttributes' must not be empty");
     flashAttributes.forEach(this::flashAttr);
     return this;
@@ -486,7 +487,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param session the HTTP session
    */
-  public MockHttpServletRequestBuilder session(MockHttpSession session) {
+  public MockHttpRequestBuilder session(MockHttpSession session) {
     Assert.notNull(session, "'session' is required");
     this.session = session;
     return this;
@@ -497,7 +498,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param principal the principal
    */
-  public MockHttpServletRequestBuilder principal(Principal principal) {
+  public MockHttpRequestBuilder principal(Principal principal) {
     Assert.notNull(principal, "'principal' is required");
     this.principal = principal;
     return this;
@@ -508,7 +509,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    *
    * @param remoteAddress the remote address (IP)
    */
-  public MockHttpServletRequestBuilder remoteAddress(String remoteAddress) {
+  public MockHttpRequestBuilder remoteAddress(String remoteAddress) {
     Assert.hasText(remoteAddress, "'remoteAddress' must not be null or blank");
     this.remoteAddress = remoteAddress;
     return this;
@@ -523,7 +524,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
    * @param postProcessor a post-processor to add
    */
   @Override
-  public MockHttpServletRequestBuilder with(RequestPostProcessor postProcessor) {
+  public MockHttpRequestBuilder with(RequestPostProcessor postProcessor) {
     Assert.notNull(postProcessor, "postProcessor is required");
     this.postProcessors.add(postProcessor);
     return this;
@@ -551,7 +552,7 @@ public class MockHttpServletRequestBuilder implements ConfigurableSmartRequestBu
     if (parent == null) {
       return this;
     }
-    if (!(parent instanceof MockHttpServletRequestBuilder parentBuilder)) {
+    if (!(parent instanceof MockHttpRequestBuilder parentBuilder)) {
       throw new IllegalArgumentException("Cannot merge with [" + parent.getClass().getName() + "]");
     }
     if (!StringUtils.hasText(this.contextPath)) {

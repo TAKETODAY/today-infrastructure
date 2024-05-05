@@ -14,17 +14,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
+
 package cn.taketoday.mock.api;
 
 /**
- * Provides information about the connection made to the Servlet container. This interface is intended primarily for
+ * Provides information about the connection made to the mock container. This interface is intended primarily for
  * debugging purposes and as such provides the raw information as seen by the container. Unless explicitly stated
  * otherwise in the Javadoc for a method, no adjustment is made for the presence of reverse proxies or similar
  * configurations.
- *
- * @since Servlet 6.0
  */
-public interface ServletConnection {
+public interface MockConnection {
 
   /**
    * Obtain a unique (within the lifetime of the JVM) identifier string for the network connection to the JVM that is

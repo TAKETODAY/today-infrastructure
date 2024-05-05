@@ -36,8 +36,8 @@ public interface FilterChain {
    * @param request the request to pass along the chain.
    * @param response the response to pass along the chain.
    * @throws IOException if an I/O related error has occurred during the processing
-   * @throws ServletException if an exception has occurred that interferes with the filterChain's normal operation
+   * @throws MockException if an exception has occurred that interferes with the filterChain's normal operation
    */
-  void doFilter(MockRequest request, MockResponse response) throws IOException, ServletException;
+  void doFilter(MockRequest request, MockResponse response) throws IOException, MockException;
 
 }

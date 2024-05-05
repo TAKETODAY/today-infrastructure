@@ -50,7 +50,7 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
+class MockServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   private final int bufferSize;
 
@@ -60,7 +60,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
   private final MockOutputStream outputStream;
 
-  private final ServletServerHttpRequest request;
+  private final MockServerHttpRequest request;
 
   private final ResponseAsyncListener asyncListener;
 
@@ -70,14 +70,14 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
   @Nullable
   private volatile ResponseBodyFlushProcessor bodyFlushProcessor;
 
-  public ServletServerHttpResponse(HttpMockResponse response, AsyncContext asyncContext,
-          DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
+  public MockServerHttpResponse(HttpMockResponse response, AsyncContext asyncContext,
+          DataBufferFactory bufferFactory, int bufferSize, MockServerHttpRequest request) throws IOException {
 
     this(HttpHeaders.forWritable(), response, asyncContext, bufferFactory, bufferSize, request);
   }
 
-  public ServletServerHttpResponse(HttpHeaders headers, HttpMockResponse response, AsyncContext asyncContext,
-          DataBufferFactory bufferFactory, int bufferSize, ServletServerHttpRequest request) throws IOException {
+  public MockServerHttpResponse(HttpHeaders headers, HttpMockResponse response, AsyncContext asyncContext,
+          DataBufferFactory bufferFactory, int bufferSize, MockServerHttpRequest request) throws IOException {
     super(bufferFactory, headers);
 
     Assert.notNull(response, "HttpServletResponse is required");
@@ -301,7 +301,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     @Override
     public void onError(Throwable ex) {
-      ServletServerHttpResponse.this.asyncListener.handleError(ex);
+      MockServerHttpResponse.this.asyncListener.handleError(ex);
     }
   }
 
@@ -323,12 +323,12 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
       if (rsWriteFlushLogger.isTraceEnabled()) {
         rsWriteFlushLogger.trace("{}flushing", getLogPrefix());
       }
-      ServletServerHttpResponse.this.flush();
+      MockServerHttpResponse.this.flush();
     }
 
     @Override
     protected boolean isWritePossible() {
-      return ServletServerHttpResponse.this.isWritePossible();
+      return MockServerHttpResponse.this.isWritePossible();
     }
 
     @Override
@@ -345,7 +345,7 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     @Override
     protected boolean isWritePossible() {
-      return ServletServerHttpResponse.this.isWritePossible();
+      return MockServerHttpResponse.this.isWritePossible();
     }
 
     @Override
@@ -355,14 +355,14 @@ class ServletServerHttpResponse extends AbstractListenerServerHttpResponse {
 
     @Override
     protected boolean write(DataBuffer dataBuffer) throws IOException {
-      if (ServletServerHttpResponse.this.flushOnNext) {
+      if (MockServerHttpResponse.this.flushOnNext) {
         if (rsWriteLogger.isTraceEnabled()) {
           rsWriteLogger.trace("{}flushing", getLogPrefix());
         }
         flush();
       }
 
-      boolean ready = ServletServerHttpResponse.this.isWritePossible();
+      boolean ready = MockServerHttpResponse.this.isWritePossible();
       int remaining = dataBuffer.readableByteCount();
       if (ready && remaining > 0) {
         // In case of IOException, onError handling should call discardData(DataBuffer)..

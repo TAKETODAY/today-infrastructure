@@ -28,14 +28,14 @@ import cn.taketoday.core.io.buffer.DefaultDataBufferFactory;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.lang.Constant;
-import cn.taketoday.mock.web.DelegatingServletInputStream;
+import cn.taketoday.mock.web.DelegatingMockInputStream;
 import cn.taketoday.mock.web.MockAsyncContext;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.util.MultiValueMap;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.ReadListener;
-import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.MockInputStream;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -217,7 +217,7 @@ public class ServerHttpRequestTests {
     URI uri = URI.create(uriString);
     HttpMockRequestImpl request = new TestHttpMockRequest(uri);
     AsyncContext asyncContext = new MockAsyncContext(request, new MockHttpResponseImpl());
-    return new ServletServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
+    return new MockServerHttpRequest(request, asyncContext, "", DefaultDataBufferFactory.sharedInstance, 1024);
   }
 
   private static class TestHttpMockRequest extends HttpMockRequestImpl {
@@ -239,8 +239,8 @@ public class ServerHttpRequestTests {
     }
 
     @Override
-    public ServletInputStream getInputStream() {
-      return new DelegatingServletInputStream(new ByteArrayInputStream(Constant.EMPTY_BYTES)) {
+    public MockInputStream getInputStream() {
+      return new DelegatingMockInputStream(new ByteArrayInputStream(Constant.EMPTY_BYTES)) {
         @Override
         public void setReadListener(ReadListener readListener) {
           // Ignore

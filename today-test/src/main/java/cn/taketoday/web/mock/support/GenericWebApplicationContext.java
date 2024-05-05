@@ -137,11 +137,11 @@ public class GenericWebApplicationContext extends GenericApplicationContext
   }
 
   /**
-   * Create and return a new {@link StandardServletEnvironment}.
+   * Create and return a new {@link StandardMockEnvironment}.
    */
   @Override
   protected ConfigurableEnvironment createEnvironment() {
-    return new StandardServletEnvironment();
+    return new StandardMockEnvironment();
   }
 
   /**

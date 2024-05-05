@@ -155,12 +155,12 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * overriding this form of the method, call <code>super.init(config)</code>.
    *
    * @param config the <code>FilterConfig</code> object that contains configuration information for this filter
-   * @throws ServletException if an exception occurs that interrupts the servlet's normal operation
+   * @throws MockException if an exception occurs that interrupts the servlet's normal operation
    * @see UnavailableException
    * @since Servlet 4.0
    */
   @Override
-  public void init(FilterConfig config) throws ServletException {
+  public void init(FilterConfig config) throws MockException {
     this.config = config;
     this.init();
   }
@@ -175,10 +175,10 @@ public abstract class GenericFilter implements Filter, FilterConfig, java.io.Ser
    * <code>GenericFilter.init(FilterConfig config)</code>. The <code>FilterConfig</code> object can still be retrieved via
    * {@link #getFilterConfig}.
    *
-   * @throws ServletException if an exception occurs that interrupts the servlet's normal operation
+   * @throws MockException if an exception occurs that interrupts the servlet's normal operation
    * @since Servlet 4.0
    */
-  public void init() throws ServletException {
+  public void init() throws MockException {
 
   }
 

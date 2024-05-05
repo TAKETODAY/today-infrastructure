@@ -42,12 +42,12 @@ import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterConfig;
 import cn.taketoday.mock.api.GenericMock;
 import cn.taketoday.mock.api.MockContext;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.util.CollectionUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.support.MockContextResourceLoader;
-import cn.taketoday.web.mock.support.StandardServletEnvironment;
+import cn.taketoday.web.mock.support.StandardMockEnvironment;
 import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 
 /**
@@ -113,7 +113,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
 
   /**
    * Set the {@code Environment} that this filter runs in.
-   * <p>Any environment set here overrides the {@link StandardServletEnvironment}
+   * <p>Any environment set here overrides the {@link StandardMockEnvironment}
    * provided by default.
    * <p>This {@code Environment} object is used only for resolving placeholders in
    * resource paths passed into init-parameters for this filter. If no init-params are
@@ -138,12 +138,12 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
   }
 
   /**
-   * Create and return a new {@link StandardServletEnvironment}.
+   * Create and return a new {@link StandardMockEnvironment}.
    * <p>Subclasses may override this in order to configure the environment or
    * specialize the environment type returned.
    */
   protected Environment createEnvironment() {
-    return new StandardServletEnvironment();
+    return new StandardMockEnvironment();
   }
 
   /**
@@ -169,7 +169,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * @see #init(cn.taketoday.mock.api.FilterConfig)
    */
   @Override
-  public void afterPropertiesSet() throws ServletException {
+  public void afterPropertiesSet() throws MockException {
     initFilterBean();
   }
 
@@ -202,12 +202,12 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * invoke subclass initialization.
    *
    * @param filterConfig the configuration for this filter
-   * @throws ServletException if bean properties are invalid (or required
+   * @throws MockException if bean properties are invalid (or required
    * properties are missing), or if subclass initialization fails.
    * @see #initFilterBean
    */
   @Override
-  public final void init(FilterConfig filterConfig) throws ServletException {
+  public final void init(FilterConfig filterConfig) throws MockException {
     Assert.notNull(filterConfig, "FilterConfig is required");
     this.filterConfig = filterConfig;
 
@@ -219,7 +219,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
         ResourceLoader resourceLoader = new MockContextResourceLoader(filterConfig.getMockContext());
         Environment env = this.environment;
         if (env == null) {
-          env = new StandardServletEnvironment();
+          env = new StandardMockEnvironment();
         }
         bw.registerCustomEditor(Resource.class, new ResourceEditor(resourceLoader, env));
         initBeanWrapper(bw);
@@ -228,7 +228,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
       catch (BeansException ex) {
         String msg = "Failed to set bean properties on filter '%s': %s".formatted(filterConfig.getFilterName(), ex.getMessage());
         logger.error(msg, ex);
-        throw new ServletException(msg, ex);
+        throw new MockException(msg, ex);
       }
     }
 
@@ -260,11 +260,11 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * Filter name and MockContext will be available in both cases.
    * <p>This default implementation is empty.
    *
-   * @throws ServletException if subclass initialization fails
+   * @throws MockException if subclass initialization fails
    * @see #getFilterName()
    * @see #getMockContext()
    */
-  protected void initFilterBean() throws ServletException { }
+  protected void initFilterBean() throws MockException { }
 
   /**
    * Make the FilterConfig of this filter available, if any.
@@ -327,9 +327,9 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
    * @param requiredProperties set of property names we need, where
    * we can't accept default values
    * @return PropertyValues
-   * @throws ServletException if any required properties are missing
+   * @throws MockException if any required properties are missing
    */
-  private PropertyValues getFilterConfigPropertyValues(FilterConfig config, Set<String> requiredProperties) throws ServletException {
+  private PropertyValues getFilterConfigPropertyValues(FilterConfig config, Set<String> requiredProperties) throws MockException {
     PropertyValues propertyValues = new PropertyValues();
     Set<String> missingProps = CollectionUtils.isNotEmpty(requiredProperties)
             ? new HashSet<>(requiredProperties) : null;
@@ -346,7 +346,7 @@ public abstract class GenericFilterBean implements Filter, BeanNameAware, Enviro
 
     // Fail if we are still missing properties.
     if (CollectionUtils.isNotEmpty(missingProps)) {
-      throw new ServletException(
+      throw new MockException(
               "Initialization from FilterConfig for filter '%s' failed; the following required properties were missing: %s"
                       .formatted(config.getFilterName(), StringUtils.collectionToDelimitedString(missingProps, ", ")));
     }

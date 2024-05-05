@@ -22,7 +22,7 @@ package cn.taketoday.mock.api;
  *
  * @author Various
  */
-public class ServletException extends Exception {
+public class MockException extends Exception {
 
   private static final long serialVersionUID = 4221302886851315160L;
 
@@ -31,7 +31,7 @@ public class ServletException extends Exception {
   /**
    * Constructs a new servlet exception.
    */
-  public ServletException() {
+  public MockException() {
     super();
   }
 
@@ -41,7 +41,7 @@ public class ServletException extends Exception {
    *
    * @param message a <code>String</code> specifying the text of the exception message
    */
-  public ServletException(String message) {
+  public MockException(String message) {
     super(message);
   }
 
@@ -53,7 +53,7 @@ public class ServletException extends Exception {
    * @param rootCause the <code>Throwable</code> exception that interfered with the servlet's normal operation, making
    * this servlet exception necessary
    */
-  public ServletException(String message, Throwable rootCause) {
+  public MockException(String message, Throwable rootCause) {
     super(message, rootCause);
     this.rootCause = rootCause;
   }
@@ -71,7 +71,7 @@ public class ServletException extends Exception {
    * @param rootCause the <code>Throwable</code> exception that interfered with the servlet's normal operation, making the
    * servlet exception necessary
    */
-  public ServletException(Throwable rootCause) {
+  public MockException(Throwable rootCause) {
     super(rootCause);
     this.rootCause = rootCause;
   }

@@ -46,7 +46,7 @@ import cn.taketoday.mock.api.FilterRegistration;
 import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRegistration;
 import cn.taketoday.mock.api.SessionCookieConfig;
 import cn.taketoday.mock.api.SessionTrackingMode;
@@ -590,7 +590,7 @@ public class MockContextImpl implements MockContext {
   }
 
   @Override
-  public <T extends MockApi> T createServlet(Class<T> c) throws ServletException {
+  public <T extends MockApi> T createServlet(Class<T> c) throws MockException {
     throw new UnsupportedOperationException();
   }
 
@@ -631,7 +631,7 @@ public class MockContextImpl implements MockContext {
   }
 
   @Override
-  public <T extends Filter> T createFilter(Class<T> c) throws ServletException {
+  public <T extends Filter> T createFilter(Class<T> c) throws MockException {
     throw new UnsupportedOperationException();
   }
 
@@ -672,7 +672,7 @@ public class MockContextImpl implements MockContext {
   }
 
   @Override
-  public <T extends EventListener> T createListener(Class<T> c) throws ServletException {
+  public <T extends EventListener> T createListener(Class<T> c) throws MockException {
     throw new UnsupportedOperationException();
   }
 

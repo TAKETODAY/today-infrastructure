@@ -27,7 +27,7 @@ import cn.taketoday.core.i18n.LocaleContext;
 import cn.taketoday.core.i18n.SimpleLocaleContext;
 import cn.taketoday.core.i18n.SimpleTimeZoneAwareLocaleContext;
 import cn.taketoday.core.i18n.TimeZoneAwareLocaleContext;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
@@ -124,7 +124,7 @@ public class CookieLocaleResolverTests {
     MockRequestContext requestContext = new MockRequestContext(request, null);
 
     request.addPreferredLocale(Locale.GERMAN);
-    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new ServletException());
+    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new MockException());
     Cookie cookie = new Cookie("LanguageKoekje", "++ GMT+1");
     request.setCookies(cookie);
 
@@ -156,7 +156,7 @@ public class CookieLocaleResolverTests {
   @Test
   public void testResolveLocaleContextWithInvalidTimeZoneOnErrorDispatch() {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
-    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new ServletException());
+    request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, new MockException());
     Cookie cookie = new Cookie("LanguageKoekje", "nl X-MT");
     request.setCookies(cookie);
     MockRequestContext requestContext = new MockRequestContext(request, null);

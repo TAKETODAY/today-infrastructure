@@ -28,7 +28,7 @@ import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.annotation.MultipartConfig;
 
 /**
@@ -200,8 +200,8 @@ public interface HttpMockRequest extends MockRequest {
    * the match type.
    * @since Servlet 4.0
    */
-  default HttpServletMapping getHttpServletMapping() {
-    return new HttpServletMapping() {
+  default HttpMockMapping getHttpServletMapping() {
+    return new HttpMockMapping() {
       @Override
       public String getMatchValue() {
         return "";
@@ -478,11 +478,11 @@ public interface HttpMockRequest extends MockRequest {
    * @throws IOException if an input or output error occurred while reading from this request or writing to the given
    * response
    * @throws IllegalStateException if the login mechanism attempted to modify the response and it was already committed
-   * @throws ServletException if the authentication failed and the caller is responsible for handling the error (i.e., the
+   * @throws MockException if the authentication failed and the caller is responsible for handling the error (i.e., the
    * underlying login mechanism did NOT establish the message and HTTP status code to be returned to the user)
    * @since Servlet 3.0
    */
-  boolean authenticate(HttpMockResponse response) throws IOException, ServletException;
+  boolean authenticate(HttpMockResponse response) throws IOException, MockException;
 
   /**
    * Validate the provided username and password in the password validation realm used by the web container login
@@ -501,21 +501,21 @@ public interface HttpMockRequest extends MockRequest {
    *
    * @param username The <code>String</code> value corresponding to the login identifier of the user.
    * @param password The password <code>String</code> corresponding to the identified user.
-   * @throws ServletException if the configured login mechanism does not support username password authentication, or
+   * @throws MockException if the configured login mechanism does not support username password authentication, or
    * if a non-null caller identity had already been established (prior to the call to login), or if validation of the
    * provided username and password fails.
    * @since Servlet 3.0
    */
-  void login(String username, String password) throws ServletException;
+  void login(String username, String password) throws MockException;
 
   /**
    * Establish <code>null</code> as the value returned when <code>getUserPrincipal</code>, <code>getRemoteUser</code>, and
    * <code>getAuthType</code> is called on the request.
    *
-   * @throws ServletException if logout fails
+   * @throws MockException if logout fails
    * @since Servlet 3.0
    */
-  void logout() throws ServletException;
+  void logout() throws MockException;
 
   /**
    * Gets all the {@link Part} components of this request, provided that it is of type <code>multipart/form-data</code>.
@@ -529,7 +529,7 @@ public interface HttpMockRequest extends MockRequest {
    *
    * @return a (possibly empty) <code>Collection</code> of the <code>Part</code> components of this request
    * @throws IOException if an I/O error occurred during the retrieval of the {@link Part} components of this request
-   * @throws ServletException if this request is not of type <code>multipart/form-data</code>
+   * @throws MockException if this request is not of type <code>multipart/form-data</code>
    * @throws IllegalStateException if the request body is larger than <code>maxRequestSize</code>, or any
    * <code>Part</code> in the request is larger than <code>maxFileSize</code>, or there is no
    * <code>@MultipartConfig</code> or <code>multipart-config</code> in deployment descriptors
@@ -537,7 +537,7 @@ public interface HttpMockRequest extends MockRequest {
    * @see MultipartConfig#maxRequestSize
    * @since Servlet 3.0
    */
-  Collection<Part> getParts() throws IOException, ServletException;
+  Collection<Part> getParts() throws IOException, MockException;
 
   /**
    * Gets the {@link Part} with the given name.
@@ -546,7 +546,7 @@ public interface HttpMockRequest extends MockRequest {
    * @return The <code>Part</code> with the given name, or <code>null</code> if this request is of type
    * <code>multipart/form-data</code>, but does not contain the requested <code>Part</code>
    * @throws IOException if an I/O error occurred during the retrieval of the requested <code>Part</code>
-   * @throws ServletException if this request is not of type <code>multipart/form-data</code>
+   * @throws MockException if this request is not of type <code>multipart/form-data</code>
    * @throws IllegalStateException if the request body is larger than <code>maxRequestSize</code>, or any
    * <code>Part</code> in the request is larger than <code>maxFileSize</code>, or there is no
    * <code>@MultipartConfig</code> or <code>multipart-config</code> in deployment descriptors
@@ -554,7 +554,7 @@ public interface HttpMockRequest extends MockRequest {
    * @see MultipartConfig#maxRequestSize
    * @since Servlet 3.0
    */
-  Part getPart(String name) throws IOException, ServletException;
+  Part getPart(String name) throws IOException, MockException;
 
   /**
    * Creates an instance of <code>HttpUpgradeHandler</code> for a given class and uses it for the http protocol upgrade
@@ -564,12 +564,12 @@ public interface HttpMockRequest extends MockRequest {
    * @param handlerClass The <code>HttpUpgradeHandler</code> class used for the upgrade.
    * @return an instance of the <code>HttpUpgradeHandler</code>
    * @throws IOException if an I/O error occurred during the upgrade
-   * @throws ServletException if the given <code>handlerClass</code> fails to be instantiated
+   * @throws MockException if the given <code>handlerClass</code> fails to be instantiated
    * @see HttpUpgradeHandler
    * @see WebConnection
    * @since Servlet 3.1
    */
-  <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException;
+  <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException;
 
   /**
    * Get the request trailer fields.

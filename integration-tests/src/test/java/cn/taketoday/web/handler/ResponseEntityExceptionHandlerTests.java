@@ -36,8 +36,8 @@ import cn.taketoday.http.MediaType;
 import cn.taketoday.http.ResponseEntity;
 import cn.taketoday.http.converter.HttpMessageNotReadableException;
 import cn.taketoday.http.converter.HttpMessageNotWritableException;
-import cn.taketoday.http.server.ServletServerHttpRequest;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.http.server.MockServerHttpRequest;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.web.MockContextImpl;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
@@ -208,7 +208,7 @@ class ResponseEntityExceptionHandlerTests {
     HttpHeaders requestHeaders = HttpHeaders.forWritable();
     requestHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED); // gh-29626
 
-    var req = new ServletServerHttpRequest(new HttpMockRequestImpl("GET", "/resource"));
+    var req = new MockServerHttpRequest(new HttpMockRequestImpl("GET", "/resource"));
 
     Exception ex = new HandlerNotFoundException(req.getMethodValue(),
             req.getServletRequest().getRequestURI(), requestHeaders);
@@ -311,7 +311,7 @@ class ResponseEntityExceptionHandlerTests {
     try {
       servlet.service(this.servletRequest, this.servletResponse);
     }
-    catch (ServletException ex) {
+    catch (MockException ex) {
       boolean condition1 = ex.getCause() instanceof IllegalStateException;
       assertThat(condition1).isTrue();
       boolean condition = ex.getCause().getCause() instanceof RequestBindingException;

@@ -29,7 +29,7 @@ import cn.taketoday.web.bind.NotMultipartRequestException;
 import cn.taketoday.web.multipart.MaxUploadSizeExceededException;
 import cn.taketoday.web.multipart.Multipart;
 import cn.taketoday.web.multipart.support.AbstractMultipartRequest;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.Part;
 
@@ -85,7 +85,7 @@ public class MockMultipartRequest extends AbstractMultipartRequest {
     catch (IOException e) {
       throw new MultipartException("MultipartFile parsing failed.", e);
     }
-    catch (ServletException e) {
+    catch (MockException e) {
       throw new NotMultipartRequestException("This is not a multipart request", e);
     }
     catch (Throwable ex) {

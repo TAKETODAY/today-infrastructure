@@ -22,10 +22,10 @@ import java.io.InputStream;
 
 import cn.taketoday.lang.Assert;
 import cn.taketoday.mock.api.ReadListener;
-import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.MockInputStream;
 
 /**
- * Delegating implementation of {@link ServletInputStream}.
+ * Delegating implementation of {@link MockInputStream}.
  *
  * <p>Used by {@link HttpMockRequestImpl}; typically not directly
  * used for testing application controllers.
@@ -34,7 +34,7 @@ import cn.taketoday.mock.api.ServletInputStream;
  * @see HttpMockRequestImpl
  * @since 4.0
  */
-public class DelegatingServletInputStream extends ServletInputStream {
+public class DelegatingMockInputStream extends MockInputStream {
 
   private final InputStream sourceStream;
 
@@ -45,7 +45,7 @@ public class DelegatingServletInputStream extends ServletInputStream {
    *
    * @param sourceStream the source stream (never {@code null})
    */
-  public DelegatingServletInputStream(InputStream sourceStream) {
+  public DelegatingMockInputStream(InputStream sourceStream) {
     Assert.notNull(sourceStream, "Source InputStream is required");
     this.sourceStream = sourceStream;
   }

@@ -29,7 +29,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.test.web.mock.DispatcherServletCustomizer;
+import cn.taketoday.test.web.mock.DispatcherMockCustomizer;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.test.web.mock.MockMvcBuilder;
 import cn.taketoday.test.web.mock.MockMvcBuilderSupport;
@@ -42,7 +42,7 @@ import cn.taketoday.test.web.mock.request.RequestPostProcessor;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 
 /**
  * Abstract implementation of {@link MockMvcBuilder} with common methods for
@@ -75,7 +75,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
 
   private final List<ResultHandler> globalResultHandlers = new ArrayList<>();
 
-  private final List<DispatcherServletCustomizer> dispatcherServletCustomizers = new ArrayList<>();
+  private final List<DispatcherMockCustomizer> dispatcherMockCustomizers = new ArrayList<>();
 
   private final List<MockMvcConfigurer> configurers = new ArrayList<>(4);
 
@@ -139,8 +139,8 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
   }
 
   @Override
-  public final <T extends B> T addDispatcherServletCustomizer(DispatcherServletCustomizer customizer) {
-    this.dispatcherServletCustomizers.add(customizer);
+  public final <T extends B> T addDispatcherServletCustomizer(DispatcherMockCustomizer customizer) {
+    this.dispatcherMockCustomizers.add(customizer);
     return self();
   }
 
@@ -193,7 +193,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
         try {
           filterDecorator.initIfRequired(mockContext);
         }
-        catch (ServletException ex) {
+        catch (MockException ex) {
           throw new IllegalStateException("Failed to initialize Filter " + filter, ex);
         }
       }
@@ -201,7 +201,7 @@ public abstract class AbstractMockMvcBuilder<B extends AbstractMockMvcBuilder<B>
 
     return super.createMockMvc(filterArray, mockServletConfig, ctx, this.defaultRequestBuilder,
             this.defaultResponseCharacterEncoding, this.globalResultMatchers, this.globalResultHandlers,
-            this.dispatcherServletCustomizers);
+            this.dispatcherMockCustomizers);
   }
 
   /**

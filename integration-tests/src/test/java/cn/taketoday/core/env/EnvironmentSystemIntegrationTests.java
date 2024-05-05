@@ -50,7 +50,7 @@ import cn.taketoday.mock.web.MockMockConfig;
 import cn.taketoday.util.FileCopyUtils;
 import cn.taketoday.web.mock.support.AbstractRefreshableWebApplicationContext;
 import cn.taketoday.web.mock.support.AnnotationConfigWebApplicationContext;
-import cn.taketoday.web.mock.support.StandardServletEnvironment;
+import cn.taketoday.web.mock.support.StandardMockEnvironment;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
 
 import static cn.taketoday.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
@@ -83,7 +83,7 @@ public class EnvironmentSystemIntegrationTests {
 
   private final ConfigurableEnvironment devEnv = new StandardEnvironment();
 
-  private final ConfigurableEnvironment prodWebEnv = new StandardServletEnvironment();
+  private final ConfigurableEnvironment prodWebEnv = new StandardMockEnvironment();
 
   @BeforeEach
   void setUp() {
@@ -387,22 +387,22 @@ public class EnvironmentSystemIntegrationTests {
     ctx.refresh();
 
     ConfigurableEnvironment environment = ctx.getEnvironment();
-    assertThat(environment).isInstanceOf(StandardServletEnvironment.class);
+    assertThat(environment).isInstanceOf(StandardMockEnvironment.class);
     PropertySources propertySources = environment.getPropertySources();
-    assertThat(propertySources.contains(StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME)).isTrue();
-    assertThat(propertySources.contains(StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME)).isTrue();
+    assertThat(propertySources.contains(StandardMockEnvironment.MOCK_CONTEXT_PROPERTY_SOURCE_NAME)).isTrue();
+    assertThat(propertySources.contains(StandardMockEnvironment.MOCK_CONFIG_PROPERTY_SOURCE_NAME)).isTrue();
 
     // ServletConfig gets precedence
     assertThat(environment.getProperty("pCommon")).isEqualTo("pCommonConfigValue");
-    assertThat(propertySources.precedenceOf(PropertySource.named(StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME)))
-            .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME)));
+    assertThat(propertySources.precedenceOf(PropertySource.named(StandardMockEnvironment.MOCK_CONFIG_PROPERTY_SOURCE_NAME)))
+            .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardMockEnvironment.MOCK_CONTEXT_PROPERTY_SOURCE_NAME)));
 
     // but all params are available
     assertThat(environment.getProperty("pContext1")).isEqualTo("pContext1Value");
     assertThat(environment.getProperty("pConfig1")).isEqualTo("pConfig1Value");
 
     // Mock* PropertySources have precedence over System* PropertySources
-    assertThat(propertySources.precedenceOf(PropertySource.named(StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME)))
+    assertThat(propertySources.precedenceOf(PropertySource.named(StandardMockEnvironment.MOCK_CONFIG_PROPERTY_SOURCE_NAME)))
             .isLessThan(propertySources.precedenceOf(PropertySource.named(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME)));
 
     // Replace system properties with a mock property source for convenience

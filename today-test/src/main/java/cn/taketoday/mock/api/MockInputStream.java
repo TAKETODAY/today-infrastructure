@@ -23,10 +23,10 @@ import java.io.InputStream;
 /**
  * Provides an input stream for reading binary data from a client request, including an efficient <code>readLine</code>
  * method for reading data one line at a time. With some protocols, such as HTTP POST and PUT, a
- * <code>ServletInputStream</code> object can be used to read data sent from the client.
+ * <code>MockInputStream</code> object can be used to read data sent from the client.
  *
  * <p>
- * A <code>ServletInputStream</code> object is normally retrieved via the {@link MockRequest#getInputStream} method.
+ * A <code>MockInputStream</code> object is normally retrieved via the {@link MockRequest#getInputStream} method.
  *
  *
  * <p>
@@ -36,12 +36,12 @@ import java.io.InputStream;
  * @author Various
  * @see MockRequest
  */
-public abstract class ServletInputStream extends InputStream {
+public abstract class MockInputStream extends InputStream {
 
   /**
    * Does nothing, because this is an abstract class.
    */
-  protected ServletInputStream() {
+  protected MockInputStream() {
   }
 
   /**
@@ -79,7 +79,6 @@ public abstract class ServletInputStream extends InputStream {
    *
    * @return <code>true</code> when all data for this particular request has been read, otherwise returns
    * <code>false</code>.
-   * @since Servlet 3.1
    */
   public abstract boolean isFinished();
 
@@ -93,12 +92,11 @@ public abstract class ServletInputStream extends InputStream {
    *
    * @return <code>true</code> if data can be obtained without blocking, otherwise returns <code>false</code>.
    * @see ReadListener
-   * @since Servlet 3.1
    */
   public abstract boolean isReady();
 
   /**
-   * Instructs the <code>ServletInputStream</code> to invoke the provided {@link ReadListener} when it is possible to read
+   * Instructs the <code>MockInputStream</code> to invoke the provided {@link ReadListener} when it is possible to read
    *
    * @param readListener the {@link ReadListener} that should be notified when it's possible to read.
    * @throws IllegalStateException if one of the following conditions is true
@@ -107,7 +105,6 @@ public abstract class ServletInputStream extends InputStream {
    * <li>setReadListener is called more than once within the scope of the same request.
    * </ul>
    * @throws NullPointerException if readListener is null
-   * @since Servlet 3.1
    */
   public abstract void setReadListener(ReadListener readListener);
 }

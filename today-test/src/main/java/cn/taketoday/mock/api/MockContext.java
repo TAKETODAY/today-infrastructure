@@ -557,13 +557,13 @@ public interface MockContext {
    * @param <T> the class of the Servlet to create
    * @param clazz the Servlet class to instantiate
    * @return the new Servlet instance
-   * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
+   * @throws MockException if the given <tt>clazz</tt> fails to be instantiated
    * @throws UnsupportedOperationException if this MockContext was passed to the
    * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  <T extends MockApi> T createServlet(Class<T> clazz) throws ServletException;
+  <T extends MockApi> T createServlet(Class<T> clazz) throws MockException;
 
   /**
    * Gets the ServletRegistration corresponding to the servlet with the given <tt>servletName</tt>.
@@ -700,13 +700,13 @@ public interface MockContext {
    * @param <T> the class of the Filter to create
    * @param clazz the Filter class to instantiate
    * @return the new Filter instance
-   * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
+   * @throws MockException if the given <tt>clazz</tt> fails to be instantiated
    * @throws UnsupportedOperationException if this MockContext was passed to the
    * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    */
-  <T extends Filter> T createFilter(Class<T> clazz) throws ServletException;
+  <T extends Filter> T createFilter(Class<T> clazz) throws MockException;
 
   /**
    * Gets the FilterRegistration corresponding to the filter with the given <tt>filterName</tt>.
@@ -812,15 +812,15 @@ public interface MockContext {
    * this MockContext, and must implement one or more of the following interfaces:
    * <ul>
    * <li>{@link MockContextAttributeListener}
-   * <li>{@link ServletRequestListener}
-   * <li>{@link ServletRequestAttributeListener}
+   * <li>{@link MockRequestListener}
+   * <li>{@link MockRequestAttributeListener}
    * <li>{@link HttpSessionAttributeListener}
    * <li>{@link HttpSessionIdListener}
    * <li>{@link HttpSessionListener}
    * </ul>
    *
    * <p>
-   * If this MockContext was passed to {@link ServletContainerInitializer#onStartup}, then the class with the given
+   * If this MockContext was passed to {@link MockContainerInitializer#onStartup}, then the class with the given
    * name may also implement {@link MockContextListener}, in addition to the interfaces listed above.
    *
    * <p>
@@ -829,7 +829,7 @@ public interface MockContext {
    *
    * <p>
    * If the class with the given name implements a listener interface whose invocation order corresponds to the
-   * declaration order (i.e., if it implements {@link ServletRequestListener}, {@link MockContextListener}, or
+   * declaration order (i.e., if it implements {@link MockRequestListener}, {@link MockContextListener}, or
    * {@link HttpSessionListener}), then the new listener will be added to the end of the ordered list
    * of listeners of that interface.
    *
@@ -840,7 +840,7 @@ public interface MockContext {
    * @param className the fully qualified class name of the listener
    * @throws IllegalArgumentException if the class with the given name does not implement any of the above interfaces, or
    * if it implements {@link MockContextListener} and this MockContext was not passed to
-   * {@link ServletContainerInitializer#onStartup}
+   * {@link MockContainerInitializer#onStartup}
    * @throws IllegalStateException if this MockContext has already been initialized
    * @throws UnsupportedOperationException if this MockContext was passed to the
    * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
@@ -856,20 +856,20 @@ public interface MockContext {
    * The given listener must be an instance of one or more of the following interfaces:
    * <ul>
    * <li>{@link MockContextAttributeListener}
-   * <li>{@link ServletRequestListener}
-   * <li>{@link ServletRequestAttributeListener}
+   * <li>{@link MockRequestListener}
+   * <li>{@link MockRequestAttributeListener}
    * <li>{@link HttpSessionAttributeListener}
    * <li>{@link HttpSessionIdListener}
    * <li>{@link HttpSessionListener}
    * </ul>
    *
    * <p>
-   * If this MockContext was passed to {@link ServletContainerInitializer#onStartup}, then the given listener may also
+   * If this MockContext was passed to {@link MockContainerInitializer#onStartup}, then the given listener may also
    * be an instance of {@link MockContextListener}, in addition to the interfaces listed above.
    *
    * <p>
    * If the given listener is an instance of a listener interface whose invocation order corresponds to the declaration
-   * order (i.e., if it is an instance of {@link ServletRequestListener}, {@link MockContextListener}, or
+   * order (i.e., if it is an instance of {@link MockRequestListener}, {@link MockContextListener}, or
    * {@link HttpSessionListener}), then the listener will be added to the end of the ordered list of
    * listeners of that interface.
    *
@@ -877,7 +877,7 @@ public interface MockContext {
    * @param t the listener to be added
    * @throws IllegalArgumentException if the given listener is not an instance of any of the above interfaces, or if it is
    * an instance of {@link MockContextListener} and this MockContext was not passed to
-   * {@link ServletContainerInitializer#onStartup}
+   * {@link MockContainerInitializer#onStartup}
    * @throws IllegalStateException if this MockContext has already been initialized
    * @throws UnsupportedOperationException if this MockContext was passed to the
    * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
@@ -893,20 +893,20 @@ public interface MockContext {
    * The given <tt>listenerClass</tt> must implement one or more of the following interfaces:
    * <ul>
    * <li>{@link MockContextAttributeListener}
-   * <li>{@link ServletRequestListener}
-   * <li>{@link ServletRequestAttributeListener}
+   * <li>{@link MockRequestListener}
+   * <li>{@link MockRequestAttributeListener}
    * <li>{@link HttpSessionAttributeListener}
    * <li>{@link HttpSessionIdListener}
    * <li>{@link HttpSessionListener}
    * </ul>
    *
    * <p>
-   * If this MockContext was passed to {@link ServletContainerInitializer#onStartup}, then the given
+   * If this MockContext was passed to {@link MockContainerInitializer#onStartup}, then the given
    * <tt>listenerClass</tt> may also implement {@link MockContextListener}, in addition to the interfaces listed above.
    *
    * <p>
    * If the given <tt>listenerClass</tt> implements a listener interface whose invocation order corresponds to the
-   * declaration order (i.e., if it implements {@link ServletRequestListener}, {@link MockContextListener}, or
+   * declaration order (i.e., if it implements {@link MockRequestListener}, {@link MockContextListener}, or
    * {@link HttpSessionListener}), then the new listener will be added to the end of the ordered list
    * of listeners of that interface.
    *
@@ -917,7 +917,7 @@ public interface MockContext {
    * @param listenerClass the listener class to be instantiated
    * @throws IllegalArgumentException if the given <tt>listenerClass</tt> does not implement any of the above interfaces,
    * or if it implements {@link MockContextListener} and this MockContext was not passed to
-   * {@link ServletContainerInitializer#onStartup}
+   * {@link MockContainerInitializer#onStartup}
    * @throws IllegalStateException if this MockContext has already been initialized
    * @throws UnsupportedOperationException if this MockContext was passed to the
    * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
@@ -931,7 +931,7 @@ public interface MockContext {
    *
    * <p>
    * The specified EventListener class must implement at least one of the {@link MockContextListener},
-   * {@link MockContextAttributeListener}, {@link ServletRequestListener}, {@link ServletRequestAttributeListener},
+   * {@link MockContextAttributeListener}, {@link MockRequestListener}, {@link MockRequestAttributeListener},
    * {@link HttpSessionAttributeListener}, {@link HttpSessionIdListener}, or
    * {@link HttpSessionListener} interfaces.
    *
@@ -949,17 +949,17 @@ public interface MockContext {
    * @param <T> the class of the EventListener to create
    * @param clazz the EventListener class to instantiate
    * @return the new EventListener instance
-   * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
+   * @throws MockException if the given <tt>clazz</tt> fails to be instantiated
    * @throws UnsupportedOperationException if this MockContext was passed to the
    * {@link MockContextListener#contextInitialized} method of a {@link MockContextListener} that was neither
    * declared in <code>web.xml</code> or <code>web-fragment.xml</code>, nor annotated with
    * {@link WebListener}
    * @throws IllegalArgumentException if the specified EventListener class does not implement any of the
-   * {@link MockContextListener}, {@link MockContextAttributeListener}, {@link ServletRequestListener},
-   * {@link ServletRequestAttributeListener}, {@link HttpSessionAttributeListener},
+   * {@link MockContextListener}, {@link MockContextAttributeListener}, {@link MockRequestListener},
+   * {@link MockRequestAttributeListener}, {@link HttpSessionAttributeListener},
    * {@link HttpSessionIdListener}, or {@link HttpSessionListener} interfaces.
    */
-  <T extends EventListener> T createListener(Class<T> clazz) throws ServletException;
+  <T extends EventListener> T createListener(Class<T> clazz) throws MockException;
 
   /**
    * Gets the class loader of the web application represented by this MockContext.

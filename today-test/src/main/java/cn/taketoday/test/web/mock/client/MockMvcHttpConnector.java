@@ -53,8 +53,8 @@ import cn.taketoday.test.web.reactive.server.MockServerClientHttpResponse;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.test.web.mock.MvcResult;
 import cn.taketoday.test.web.mock.RequestBuilder;
-import cn.taketoday.test.web.mock.request.MockHttpServletRequestBuilder;
-import cn.taketoday.test.web.mock.request.MockMultipartHttpServletRequestBuilder;
+import cn.taketoday.test.web.mock.request.MockHttpRequestBuilder;
+import cn.taketoday.test.web.mock.request.MockMultipartHttpRequestBuilder;
 import cn.taketoday.test.web.mock.request.MockMvcRequestBuilders;
 import cn.taketoday.test.web.mock.request.RequestPostProcessor;
 import cn.taketoday.test.web.mock.result.MockMvcResultHandlers;
@@ -133,7 +133,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     // Initialize the client request
     requestCallback.apply(httpRequest).block(TIMEOUT);
 
-    MockHttpServletRequestBuilder requestBuilder =
+    MockHttpRequestBuilder requestBuilder =
             initRequestBuilder(httpMethod, uri, httpRequest, contentRef.get());
 
     requestBuilder.headers(httpRequest.getHeaders());
@@ -148,12 +148,12 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     return requestBuilder;
   }
 
-  private MockHttpServletRequestBuilder initRequestBuilder(
+  private MockHttpRequestBuilder initRequestBuilder(
           HttpMethod httpMethod, URI uri, MockClientHttpRequest httpRequest, @Nullable byte[] bytes) {
 
     String contentType = httpRequest.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
     if (!StringUtils.startsWithIgnoreCase(contentType, "multipart/")) {
-      MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.request(httpMethod, uri);
+      MockHttpRequestBuilder requestBuilder = MockMvcRequestBuilders.request(httpMethod, uri);
       if (ObjectUtils.isNotEmpty(bytes)) {
         requestBuilder.content(bytes);
       }
@@ -161,7 +161,7 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     // Parse the multipart request in order to adapt to Servlet Part's
-    MockMultipartHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(httpMethod, uri);
+    MockMultipartHttpRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(httpMethod, uri);
 
     Assert.notNull(bytes, "No multipart content");
     ReactiveHttpInputMessage inputMessage = MockServerHttpRequest.post(uri.toString())

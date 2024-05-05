@@ -48,7 +48,7 @@ import cn.taketoday.web.context.annotation.SessionScope;
 import cn.taketoday.web.mock.WebApplicationContext;
 import cn.taketoday.web.mock.filter.GenericFilterBean;
 import cn.taketoday.mock.api.FilterChain;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 
@@ -260,7 +260,7 @@ public class RequestContextHolderTests {
     private SessionScopedService service;
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
       this.service.process();
       RequestContext requestContext = RequestContextHolder.get();
       assertRequestAttributes(requestContext);
@@ -272,7 +272,7 @@ public class RequestContextHolderTests {
   static class RequestFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
       request.setAttribute(FROM_REQUEST_FILTER, FROM_REQUEST_FILTER);
       chain.doFilter(request, response);
     }
@@ -281,7 +281,7 @@ public class RequestContextHolderTests {
   static class RequestAttributesFilter extends GenericFilterBean {
 
     @Override
-    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(MockRequest request, MockResponse response, FilterChain chain) throws IOException, MockException {
       RequestContextHolder.getRequired()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
       chain.doFilter(request, response);

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -52,7 +53,6 @@ import cn.taketoday.util.CompositeIterator;
 import cn.taketoday.util.ExceptionUtils;
 import cn.taketoday.util.LinkedCaseInsensitiveMap;
 import cn.taketoday.util.MultiValueMap;
-import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.util.StringUtils;
 import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.MockIndicator;
@@ -182,18 +182,15 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
 
   @Override
   protected HttpCookie[] doGetCookies() {
-
+    LinkedHashSet<HttpCookie> requestCookies = new LinkedHashSet<>(this.requestCookies);
     Cookie[] servletCookies = request.getCookies();
-    if (ObjectUtils.isEmpty(servletCookies)) { // there is no cookies
-      return EMPTY_COOKIES;
+    if (servletCookies != null) {
+      for (Cookie servletCookie : servletCookies) {
+        HttpCookie httpCookie = new HttpCookie(servletCookie.getName(), servletCookie.getValue());
+        requestCookies.add(httpCookie);
+      }
     }
-
-    ArrayList<HttpCookie> requestCookies = new ArrayList<>(this.requestCookies);
-    for (Cookie servletCookie : servletCookies) {
-      HttpCookie httpCookie = new HttpCookie(servletCookie.getName(), servletCookie.getValue());
-      requestCookies.add(httpCookie);
-    }
-    return requestCookies.toArray(new HttpCookie[0]);
+    return requestCookies.toArray(EMPTY_COOKIES);
   }
 
   private final ArrayList<HttpCookie> requestCookies = new ArrayList<>();
@@ -222,16 +219,6 @@ public class MockRequestContext extends RequestContext implements MockIndicator 
       ret.addAll(entry.getKey(), entry.getValue());
     }
     return ret;
-  }
-
-  @Override
-  public String[] getParameters(String name) {
-    return request.getParameterValues(name);
-  }
-
-  @Override
-  public String getParameter(String name) {
-    return request.getParameter(name);
   }
 
   @Override

@@ -29,7 +29,7 @@ import cn.taketoday.web.mock.MockContextAware;
 import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.view.AbstractUrlBasedView;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 
@@ -160,7 +160,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
     // Obtain a RequestDispatcher for the target resource (typically a JSP).
     RequestDispatcher rd = getRequestDispatcher(servletRequest, dispatcherPath);
     if (rd == null) {
-      throw new ServletException("Could not get RequestDispatcher for [" + getUrl() +
+      throw new MockException("Could not get RequestDispatcher for [" + getUrl() +
               "]: Check that the corresponding file exists within your web application archive!");
     }
 
@@ -217,7 +217,7 @@ public class InternalResourceView extends AbstractUrlBasedView implements MockCo
     if (this.preventDispatchLoop) {
       String uri = request.getRequestURI();
       if (path.startsWith("/") ? uri.equals(path) : uri.equals(StringUtils.applyRelativePath(uri, path))) {
-        throw new ServletException("Circular view path [" + path + "]: would dispatch back " +
+        throw new MockException("Circular view path [" + path + "]: would dispatch back " +
                 "to the current handler URL [" + uri + "] again. Check your ViewResolver setup! " +
                 "(Hint: This may be the result of an unspecified view, due to default view name generation.)");
       }

@@ -38,7 +38,7 @@ import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockConfig;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRegistration;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
@@ -148,18 +148,18 @@ public class MockHttpHandlerAdapter implements MockApi {
   }
 
   @Override
-  public void service(MockRequest request, MockResponse response) throws ServletException, IOException {
+  public void service(MockRequest request, MockResponse response) throws MockException, IOException {
     // Check for existing error attribute first
     if (DispatcherType.ASYNC == request.getDispatcherType()) {
       Throwable ex = (Throwable) request.getAttribute(WRITE_ERROR_ATTRIBUTE_NAME);
-      throw new ServletException("Failed to create response content", ex);
+      throw new MockException("Failed to create response content", ex);
     }
 
     // Start async before Read/WriteListener registration
     AsyncContext asyncContext = request.startAsync();
     asyncContext.setTimeout(-1);
 
-    ServletServerHttpRequest httpRequest;
+    MockServerHttpRequest httpRequest;
     AsyncListener requestListener;
     String logPrefix;
     try {
@@ -177,7 +177,7 @@ public class MockHttpHandlerAdapter implements MockApi {
     }
 
     ServerHttpResponse httpResponse = createResponse(((HttpMockResponse) response), asyncContext, httpRequest);
-    AsyncListener responseListener = ((ServletServerHttpResponse) httpResponse).getAsyncListener();
+    AsyncListener responseListener = ((MockServerHttpResponse) httpResponse).getAsyncListener();
     if (httpRequest.getMethod() == HttpMethod.HEAD) {
       httpResponse = new HttpHeadResponseDecorator(httpResponse);
     }
@@ -191,19 +191,19 @@ public class MockHttpHandlerAdapter implements MockApi {
     this.httpHandler.handle(httpRequest, httpResponse).subscribe(subscriber);
   }
 
-  protected ServletServerHttpRequest createRequest(HttpMockRequest request, AsyncContext context)
+  protected MockServerHttpRequest createRequest(HttpMockRequest request, AsyncContext context)
           throws IOException, URISyntaxException {
 
     Assert.notNull(this.servletPath, "Servlet path is not initialized");
-    return new ServletServerHttpRequest(
+    return new MockServerHttpRequest(
             request, context, this.servletPath, getDataBufferFactory(), getBufferSize());
   }
 
-  protected ServletServerHttpResponse createResponse(
+  protected MockServerHttpResponse createResponse(
           HttpMockResponse response,
-          AsyncContext context, ServletServerHttpRequest request) throws IOException {
+          AsyncContext context, MockServerHttpRequest request) throws IOException {
 
-    return new ServletServerHttpResponse(response, context, getDataBufferFactory(), getBufferSize(), request);
+    return new MockServerHttpResponse(response, context, getDataBufferFactory(), getBufferSize(), request);
   }
 
   @Override
@@ -237,8 +237,8 @@ public class MockHttpHandlerAdapter implements MockApi {
    * AsyncListener to complete the {@link AsyncContext} in case of error or
    * timeout notifications from the container
    * <p>Additional {@link AsyncListener}s are registered in
-   * {@link ServletServerHttpRequest} to signal onError/onComplete to the
-   * request body Subscriber, and in {@link ServletServerHttpResponse} to
+   * {@link MockServerHttpRequest} to signal onError/onComplete to the
+   * request body Subscriber, and in {@link MockServerHttpResponse} to
    * cancel the write Publisher and signal onError/onComplete downstream to
    * the writing result Subscriber.
    */

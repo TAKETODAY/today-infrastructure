@@ -116,14 +116,14 @@ public interface MockRequest {
   String getContentType();
 
   /**
-   * Retrieves the body of the request as binary data using a {@link ServletInputStream}. Either this method or
+   * Retrieves the body of the request as binary data using a {@link MockInputStream}. Either this method or
    * {@link #getReader} may be called to read the body, not both.
    *
-   * @return a {@link ServletInputStream} object containing the body of the request
+   * @return a {@link MockInputStream} object containing the body of the request
    * @throws IllegalStateException if the {@link #getReader} method has already been called for this request
    * @throws IOException if an input or output exception occurred
    */
-  ServletInputStream getInputStream() throws IOException;
+  MockInputStream getInputStream() throws IOException;
 
   /**
    * Returns the value of a request parameter as a <code>String</code>, or <code>null</code> if the parameter does not
@@ -563,5 +563,5 @@ public interface MockRequest {
    *
    * @return The network connection details.
    */
-  ServletConnection getServletConnection();
+  MockConnection getServletConnection();
 }

@@ -45,7 +45,7 @@ import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.AsyncEvent;
 import cn.taketoday.mock.api.AsyncListener;
 import cn.taketoday.mock.api.ReadListener;
-import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.MockInputStream;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import reactor.core.publisher.Flux;
@@ -57,7 +57,7 @@ import reactor.core.publisher.Flux;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
-class ServletServerHttpRequest extends AbstractServerHttpRequest {
+class MockServerHttpRequest extends AbstractServerHttpRequest {
 
   static final DataBuffer EOF_BUFFER = DefaultDataBufferFactory.sharedInstance.allocateBuffer(0);
 
@@ -69,19 +69,19 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
 
   private final AsyncListener asyncListener;
 
-  private final ServletInputStream inputStream;
+  private final MockInputStream inputStream;
 
   private final DataBufferFactory bufferFactory;
 
   private final RequestBodyPublisher bodyPublisher;
 
-  public ServletServerHttpRequest(HttpMockRequest request, AsyncContext asyncContext,
+  public MockServerHttpRequest(HttpMockRequest request, AsyncContext asyncContext,
           String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
     this(createDefaultHttpHeaders(request), request, asyncContext, servletPath, bufferFactory, bufferSize);
   }
 
-  public ServletServerHttpRequest(MultiValueMap<String, String> headers, HttpMockRequest request,
+  public MockServerHttpRequest(MultiValueMap<String, String> headers, HttpMockRequest request,
           AsyncContext asyncContext, String servletPath, DataBufferFactory bufferFactory, int bufferSize)
           throws IOException, URISyntaxException {
 
@@ -227,15 +227,15 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   /**
-   * Return the {@link ServletInputStream} for the current response.
+   * Return the {@link MockInputStream} for the current response.
    */
-  protected final ServletInputStream getInputStream() {
+  protected final MockInputStream getInputStream() {
     return this.inputStream;
   }
 
   /**
    * Read from the request body InputStream and return a DataBuffer.
-   * Invoked only when {@link ServletInputStream#isReady()} returns "true".
+   * Invoked only when {@link MockInputStream#isReady()} returns "true".
    *
    * @return a DataBuffer with data read, or
    * {@link AbstractListenerReadPublisher#EMPTY_BUFFER} if 0 bytes were read,
@@ -290,10 +290,10 @@ class ServletServerHttpRequest extends AbstractServerHttpRequest {
   }
 
   private class RequestBodyPublisher extends AbstractListenerReadPublisher<DataBuffer> {
-    private final ServletInputStream inputStream;
+    private final MockInputStream inputStream;
 
-    public RequestBodyPublisher(ServletInputStream inputStream) {
-      super(ServletServerHttpRequest.this.getLogPrefix());
+    public RequestBodyPublisher(MockInputStream inputStream) {
+      super(MockServerHttpRequest.this.getLogPrefix());
       this.inputStream = inputStream;
     }
 

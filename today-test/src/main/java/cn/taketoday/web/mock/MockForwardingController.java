@@ -26,7 +26,7 @@ import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.handler.mvc.AbstractController;
 import cn.taketoday.web.view.ModelAndView;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 
@@ -121,7 +121,7 @@ public class MockForwardingController extends AbstractController implements Bean
     Assert.state(mockContext != null, "No MockContext");
     RequestDispatcher rd = mockContext.getNamedDispatcher(servletName);
     if (rd == null) {
-      throw new ServletException("No servlet with name '%s' defined in web.xml".formatted(servletName));
+      throw new MockException("No servlet with name '%s' defined in web.xml".formatted(servletName));
     }
 
     HttpMockRequest servletRequest = MockUtils.getServletRequest(request);

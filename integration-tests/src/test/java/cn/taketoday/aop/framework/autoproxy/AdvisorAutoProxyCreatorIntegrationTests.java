@@ -37,7 +37,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.transaction.NoTransactionException;
 import cn.taketoday.transaction.interceptor.TransactionInterceptor;
 import cn.taketoday.transaction.testfixture.CallCountingTransactionManager;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -158,9 +158,9 @@ class AdvisorAutoProxyCreatorIntegrationTests {
     assertThat(txMan.commits).isEqualTo(0);
     // Should NOT roll back on ServletException
     try {
-      rb.echoException(new ServletException());
+      rb.echoException(new MockException());
     }
-    catch (ServletException ex) {
+    catch (MockException ex) {
 
     }
     assertThat(txMan.commits).as("Transaction counts match").isEqualTo(1);

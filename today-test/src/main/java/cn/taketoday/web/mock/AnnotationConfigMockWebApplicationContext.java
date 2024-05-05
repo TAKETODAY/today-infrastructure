@@ -60,7 +60,7 @@ import cn.taketoday.web.mock.support.GenericWebApplicationContext;
  * @see #scan(String...)
  * @since 4.0
  */
-public class AnnotationConfigServletWebApplicationContext extends GenericWebApplicationContext
+public class AnnotationConfigMockWebApplicationContext extends GenericWebApplicationContext
         implements AnnotationConfigRegistry, ConfigurableWebApplicationContext {
 
   private final AnnotatedBeanDefinitionReader reader;
@@ -73,49 +73,49 @@ public class AnnotationConfigServletWebApplicationContext extends GenericWebAppl
   private String[] basePackages;
 
   /**
-   * Create a new {@link AnnotationConfigServletWebApplicationContext} that needs to be
+   * Create a new {@link AnnotationConfigMockWebApplicationContext} that needs to be
    * populated through {@link #register} calls and then manually {@linkplain #refresh
    * refreshed}.
    */
-  public AnnotationConfigServletWebApplicationContext() {
+  public AnnotationConfigMockWebApplicationContext() {
     this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
   /**
-   * Create a new {@link AnnotationConfigServletWebApplicationContext} with the given
+   * Create a new {@link AnnotationConfigMockWebApplicationContext} with the given
    * {@code StandardBeanFactory}. The context needs to be populated through
    * {@link #register} calls and then manually {@linkplain #refresh refreshed}.
    *
    * @param beanFactory the StandardBeanFactory instance to use for this context
    */
-  public AnnotationConfigServletWebApplicationContext(StandardBeanFactory beanFactory) {
+  public AnnotationConfigMockWebApplicationContext(StandardBeanFactory beanFactory) {
     super(beanFactory);
     this.reader = new AnnotatedBeanDefinitionReader(this);
     this.scanner = new ClassPathBeanDefinitionScanner(this);
   }
 
   /**
-   * Create a new {@link AnnotationConfigServletWebApplicationContext}, deriving bean
+   * Create a new {@link AnnotationConfigMockWebApplicationContext}, deriving bean
    * definitions from the given annotated classes and automatically refreshing the
    * context.
    *
    * @param annotatedClasses one or more annotated classes, e.g. {@code @Configuration}
    * classes
    */
-  public AnnotationConfigServletWebApplicationContext(Class<?>... annotatedClasses) {
+  public AnnotationConfigMockWebApplicationContext(Class<?>... annotatedClasses) {
     this();
     register(annotatedClasses);
     refresh();
   }
 
   /**
-   * Create a new {@link AnnotationConfigServletWebApplicationContext}, scanning for
+   * Create a new {@link AnnotationConfigMockWebApplicationContext}, scanning for
    * bean definitions in the given packages and automatically refreshing the context.
    *
    * @param basePackages the packages to check for annotated classes
    */
-  public AnnotationConfigServletWebApplicationContext(String... basePackages) {
+  public AnnotationConfigMockWebApplicationContext(String... basePackages) {
     this();
     scan(basePackages);
     refresh();

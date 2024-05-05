@@ -32,7 +32,7 @@ import cn.taketoday.mock.web.MockMultipartFile;
 import cn.taketoday.mock.web.MockPart;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.test.web.mock.MockMvc;
-import cn.taketoday.test.web.mock.request.MockMultipartHttpServletRequestBuilder;
+import cn.taketoday.test.web.mock.request.MockMultipartHttpRequestBuilder;
 import cn.taketoday.validation.BindingResult;
 import cn.taketoday.web.RedirectModel;
 import cn.taketoday.web.annotation.PostMapping;
@@ -63,7 +63,7 @@ class MultipartControllerTests {
     byte[] json = "{\"name\":\"yeeeah\"}".getBytes(StandardCharsets.UTF_8);
     MockMultipartFile jsonPart = new MockMultipartFile("json", "json", "application/json", json);
 
-    MockMultipartHttpServletRequestBuilder requestBuilder = switch (url) {
+    MockMultipartHttpRequestBuilder requestBuilder = switch (url) {
       case "/multipartfile" -> multipart(url).file(new MockMultipartFile("file", "orig", null, fileContent));
       case "/multipartfile-via-put" -> multipart(HttpMethod.PUT, url).file(new MockMultipartFile("file", "orig", null, fileContent));
       default -> multipart(url).part(new MockPart("part", "orig", fileContent));

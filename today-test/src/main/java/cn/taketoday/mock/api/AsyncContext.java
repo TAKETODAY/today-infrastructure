@@ -17,7 +17,7 @@
 
 package cn.taketoday.mock.api;
 
-import cn.taketoday.mock.api.http.HttpServletMapping;
+import cn.taketoday.mock.api.http.HttpMockMapping;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 
 /**
@@ -56,7 +56,7 @@ public interface AsyncContext {
   static final String ASYNC_CONTEXT_PATH = "cn.taketoday.mock.api.async.context_path";
 
   /**
-   * The name of the request attribute under which the original {@link HttpServletMapping} is made
+   * The name of the request attribute under which the original {@link HttpMockMapping} is made
    * available to the target of a {@link #dispatch(String)} or {@link #dispatch(MockContext, String)}
    */
   static final String ASYNC_MAPPING = "cn.taketoday.mock.api.async.mapping";
@@ -355,9 +355,9 @@ public interface AsyncContext {
    * @param <T> the class of the object to instantiate
    * @param clazz the AsyncListener class to instantiate
    * @return the new AsyncListener instance
-   * @throws ServletException if the given <tt>clazz</tt> fails to be instantiated
+   * @throws MockException if the given <tt>clazz</tt> fails to be instantiated
    */
-  public <T extends AsyncListener> T createListener(Class<T> clazz) throws ServletException;
+  public <T extends AsyncListener> T createListener(Class<T> clazz) throws MockException;
 
   /**
    * Sets the timeout (in milliseconds) for this AsyncContext.

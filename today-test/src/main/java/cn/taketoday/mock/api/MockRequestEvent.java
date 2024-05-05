@@ -21,10 +21,9 @@ package cn.taketoday.mock.api;
  * Events of this kind indicate lifecycle events for a ServletRequest. The source of the event is the MockContext of
  * this web application.
  *
- * @see ServletRequestListener
- * @since Servlet 2.4
+ * @see MockRequestListener
  */
-public class ServletRequestEvent extends java.util.EventObject {
+public class MockRequestEvent extends java.util.EventObject {
 
   private static final long serialVersionUID = -7467864054698729101L;
 
@@ -36,7 +35,7 @@ public class ServletRequestEvent extends java.util.EventObject {
    * @param sc the MockContext of the web application.
    * @param request the ServletRequest that is sending the event.
    */
-  public ServletRequestEvent(MockContext sc, MockRequest request) {
+  public MockRequestEvent(MockContext sc, MockRequest request) {
     super(sc);
     this.request = request;
   }

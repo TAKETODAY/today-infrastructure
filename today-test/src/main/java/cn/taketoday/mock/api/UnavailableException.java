@@ -38,7 +38,7 @@ package cn.taketoday.mock.api;
  *
  * @author Various
  */
-public class UnavailableException extends ServletException {
+public class UnavailableException extends MockException {
 
   private static final long serialVersionUID = 5622686609215003468L;
 

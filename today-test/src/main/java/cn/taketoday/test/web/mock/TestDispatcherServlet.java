@@ -36,7 +36,7 @@ import cn.taketoday.web.mock.DispatcherServlet;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.MockUtils;
 import cn.taketoday.web.view.ModelAndView;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
@@ -67,7 +67,7 @@ final class TestDispatcherServlet extends DispatcherServlet {
   }
 
   @Override
-  public void service(MockRequest request, MockResponse response) throws ServletException {
+  public void service(MockRequest request, MockResponse response) throws MockException {
     RequestContext context = RequestContextHolder.getRequired();
     HttpMockRequest servletRequest = MockUtils.getServletRequest(context);
     HttpMockResponse servletResponse = MockUtils.getServletResponse(context);

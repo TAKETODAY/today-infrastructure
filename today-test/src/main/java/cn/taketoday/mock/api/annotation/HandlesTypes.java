@@ -22,11 +22,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import cn.taketoday.mock.api.MockContainerInitializer;
+
 /**
- * This annotation is used to declare the class types that a {@link cn.taketoday.mock.api.ServletContainerInitializer
+ * This annotation is used to declare the class types that a {@link MockContainerInitializer
  * ServletContainerInitializer} can handle.
  *
- * @see cn.taketoday.mock.api.ServletContainerInitializer
+ * @see MockContainerInitializer
  * @since Servlet 3.0
  */
 @Target({ ElementType.TYPE })
@@ -34,16 +36,16 @@ import java.lang.annotation.Target;
 public @interface HandlesTypes {
 
   /**
-   * The classes in which a {@link cn.taketoday.mock.api.ServletContainerInitializer ServletContainerInitializer} has expressed
+   * The classes in which a {@link MockContainerInitializer ServletContainerInitializer} has expressed
    * interest.
    *
    * <p>
    * If an implementation of <tt>ServletContainerInitializer</tt> specifies this annotation, the Servlet container must
    * pass the <tt>Set</tt> of application classes that extend, implement, or have been annotated with the class types
-   * listed by this annotation to the {@link cn.taketoday.mock.api.ServletContainerInitializer#onStartup} method of the
+   * listed by this annotation to the {@link MockContainerInitializer#onStartup} method of the
    * ServletContainerInitializer (if no matching classes are found, <tt>null</tt> must be passed instead)
    *
-   * @return the classes in which {@link cn.taketoday.mock.api.ServletContainerInitializer ServletContainerInitializer} has
+   * @return the classes in which {@link MockContainerInitializer ServletContainerInitializer} has
    * expressed interest
    */
   Class<?>[] value();

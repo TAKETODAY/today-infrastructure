@@ -40,7 +40,7 @@ import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -109,7 +109,7 @@ class StandaloneMockMvcBuilderTests {
   }
 
   @Test
-  void addFilterWithInitParams() throws ServletException {
+  void addFilterWithInitParams() throws MockException {
     Filter filter = mock(Filter.class);
     ArgumentCaptor<FilterConfig> captor = ArgumentCaptor.forClass(FilterConfig.class);
 

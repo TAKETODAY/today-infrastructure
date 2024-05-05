@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2023 the original author or authors.
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ import java.net.URI;
 import cn.taketoday.http.HttpHeaders;
 import cn.taketoday.http.HttpMethod;
 import cn.taketoday.http.HttpRequest;
-import cn.taketoday.http.server.ServletServerHttpRequest;
+import cn.taketoday.http.server.MockServerHttpRequest;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +47,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/path");
     request.setQueryString("a=1");
 
-    ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(request);
+    MockServerHttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
     assertThat(result.getScheme()).isEqualTo("http");
     assertThat(result.getHost()).isEqualTo("localhost");
@@ -68,7 +68,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerPort(80);
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo(protocol);
@@ -89,7 +89,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerPort(80);
     request.setRequestURI("/path");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo(protocol);
@@ -108,7 +108,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("Forwarded", "host=192.168.0.1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("https://192.168.0.1/mvc-showcase");
@@ -124,7 +124,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("Forwarded", "host=[1abc:2abc:3abc::5ABC:6abc]");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("http://[1abc:2abc:3abc::5ABC:6abc]/mvc-showcase");
@@ -140,7 +140,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("X-Forwarded-Host", "[1abc:2abc:3abc::5ABC:6abc]");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("http://[1abc:2abc:3abc::5ABC:6abc]/mvc-showcase");
@@ -156,7 +156,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("X-Forwarded-Host", "[1abc:2abc:3abc::5ABC:6abc]:8080");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("http://[1abc:2abc:3abc::5ABC:6abc]:8080/mvc-showcase");
@@ -171,7 +171,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("X-Forwarded-Host", "2a02:918:175:ab60:45ee:c12c:dac1:808b");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
 
     assertThatThrownBy(() ->
             ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build())
@@ -187,7 +187,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("X-Forwarded-Host", "anotherHost");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("https://anotherHost/mvc-showcase");
@@ -203,7 +203,7 @@ class ForwardedHeaderUtilsTests {
     request.setRequestURI("/mvc-showcase");
     request.addHeader("X-Forwarded-Host", "webtest.foo.bar.com:443");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getHost()).isEqualTo("webtest.foo.bar.com");
@@ -219,7 +219,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerPort(-1);
     request.addHeader("X-Forwarded-Host", "a.example.org, b.example.org, c.example.org");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getHost()).isEqualTo("a.example.org");
@@ -236,7 +236,7 @@ class ForwardedHeaderUtilsTests {
     request.addHeader("X-Forwarded-Host", "foobarhost");
     request.addHeader("X-Forwarded-Port", "9090");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getHost()).isEqualTo("foobarhost");
@@ -252,7 +252,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerPort(10080);
     request.addHeader("X-Forwarded-Host", "example.org");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getHost()).isEqualTo("example.org");
@@ -268,7 +268,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerPort(10080);
     request.addHeader("X-Forwarded-Proto", "https");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -285,7 +285,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerPort(10080);
     request.addHeader("X-Forwarded-Ssl", "on");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -302,7 +302,7 @@ class ForwardedHeaderUtilsTests {
     request.addHeader("X-Forwarded-Host", "example.org");
     request.addHeader("X-Forwarded-Proto", "https");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getHost()).isEqualTo("example.org");
@@ -322,7 +322,7 @@ class ForwardedHeaderUtilsTests {
     request.addHeader("X-Forwarded-Host", "84.198.58.199");
     request.addHeader("X-Forwarded-Port", "443");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("https://84.198.58.199/mvc-showcase");
@@ -339,7 +339,7 @@ class ForwardedHeaderUtilsTests {
     request.addHeader("X-Forwarded-Host", "a.example.org");
     request.addHeader("X-Forwarded-Port", "80,52022");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("http://a.example.org/mvc-showcase");
@@ -357,7 +357,7 @@ class ForwardedHeaderUtilsTests {
     request.addHeader("X-Forwarded-Port", "443");
     request.addHeader("X-Forwarded-Proto", "https,https");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.toString()).isEqualTo("https://a.example.org/mvc-showcase");
@@ -396,7 +396,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -412,7 +412,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -429,7 +429,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -445,7 +445,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -461,7 +461,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -480,7 +480,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -499,7 +499,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -519,7 +519,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");
@@ -539,7 +539,7 @@ class ForwardedHeaderUtilsTests {
     request.setServerName("example.com");
     request.setRequestURI("/rest/mobile/users/1");
 
-    HttpRequest httpRequest = new ServletServerHttpRequest(request);
+    HttpRequest httpRequest = new MockServerHttpRequest(request);
     UriComponents result = ForwardedHeaderUtils.adaptFromForwardedHeaders(httpRequest.getURI(), httpRequest.getHeaders()).build();
 
     assertThat(result.getScheme()).isEqualTo("https");

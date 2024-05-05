@@ -19,7 +19,7 @@ package cn.taketoday.mock.api.http;
 
 import java.io.IOException;
 
-import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.MockInputStream;
 import cn.taketoday.mock.api.MockOutputStream;
 
 /**
@@ -35,7 +35,7 @@ public interface WebConnection extends AutoCloseable {
    * @return a ServletInputStream for reading binary data
    * @throws IOException if an I/O error occurs
    */
-  public ServletInputStream getInputStream() throws IOException;
+  public MockInputStream getInputStream() throws IOException;
 
   /**
    * Returns an output stream for this web connection.

@@ -38,14 +38,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MockServerHttpResponseTests {
 
-  private ServletServerHttpResponse response;
+  private MockServerHttpResponse response;
 
   private MockHttpResponseImpl mockResponse;
 
   @BeforeEach
   void create() {
     mockResponse = new MockHttpResponseImpl();
-    response = new ServletServerHttpResponse(mockResponse);
+    response = new MockServerHttpResponse(mockResponse);
   }
 
   @Test
@@ -76,14 +76,14 @@ public class MockServerHttpResponseTests {
 
   @Test
   void getHeadersWithNoContentType() {
-    this.response = new ServletServerHttpResponse(this.mockResponse);
+    this.response = new MockServerHttpResponse(this.mockResponse);
     assertThat(this.response.getHeaders().get(HttpHeaders.CONTENT_TYPE)).isNull();
   }
 
   @Test
   void getHeadersWithContentType() {
     this.mockResponse.setContentType(MediaType.TEXT_PLAIN_VALUE);
-    this.response = new ServletServerHttpResponse(this.mockResponse);
+    this.response = new MockServerHttpResponse(this.mockResponse);
     assertThat(this.response.getHeaders().get(HttpHeaders.CONTENT_TYPE)).containsExactly(MediaType.TEXT_PLAIN_VALUE);
   }
 
@@ -94,7 +94,7 @@ public class MockServerHttpResponseTests {
 
     this.mockResponse.addHeader(headerName, headerValue);
     this.mockResponse.setContentType("text/csv");
-    this.response = new ServletServerHttpResponse(this.mockResponse);
+    this.response = new MockServerHttpResponse(this.mockResponse);
 
     assertThat(this.response.getHeaders().getFirst(headerName)).isEqualTo(headerValue);
     assertThat(this.response.getHeaders().get(headerName)).containsExactly(headerValue);
@@ -106,7 +106,7 @@ public class MockServerHttpResponseTests {
     // gh-25490
   void preExistingContentTypeIsOverriddenImmediately() {
     this.mockResponse.setContentType("text/csv");
-    this.response = new ServletServerHttpResponse(this.mockResponse);
+    this.response = new MockServerHttpResponse(this.mockResponse);
     this.response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
     assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);

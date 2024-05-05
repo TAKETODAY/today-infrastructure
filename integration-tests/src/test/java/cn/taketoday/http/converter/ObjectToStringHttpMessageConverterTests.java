@@ -30,8 +30,8 @@ import cn.taketoday.core.conversion.ConversionService;
 import cn.taketoday.core.conversion.support.DefaultConversionService;
 import cn.taketoday.core.io.Resource;
 import cn.taketoday.http.MediaType;
-import cn.taketoday.http.server.ServletServerHttpRequest;
-import cn.taketoday.http.server.ServletServerHttpResponse;
+import cn.taketoday.http.server.MockServerHttpRequest;
+import cn.taketoday.http.server.MockServerHttpResponse;
 import cn.taketoday.lang.Constant;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
@@ -51,7 +51,7 @@ public class ObjectToStringHttpMessageConverterTests {
 
   private MockHttpResponseImpl servletResponse;
 
-  private ServletServerHttpResponse response;
+  private MockServerHttpResponse response;
 
   @BeforeEach
   public void setup() {
@@ -59,7 +59,7 @@ public class ObjectToStringHttpMessageConverterTests {
     this.converter = new ObjectToStringHttpMessageConverter(conversionService);
 
     this.servletResponse = new MockHttpResponseImpl();
-    this.response = new ServletServerHttpResponse(this.servletResponse);
+    this.response = new MockServerHttpResponse(this.servletResponse);
   }
 
   @Test
@@ -128,21 +128,21 @@ public class ObjectToStringHttpMessageConverterTests {
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setContent(shortValue.toString().getBytes(Constant.DEFAULT_CHARSET));
-    assertThat(this.converter.read(Short.class, new ServletServerHttpRequest(request))).isEqualTo(shortValue);
+    assertThat(this.converter.read(Short.class, new MockServerHttpRequest(request))).isEqualTo(shortValue);
 
     Float floatValue = Float.valueOf(123);
     request = new HttpMockRequestImpl();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setCharacterEncoding("UTF-16");
     request.setContent(floatValue.toString().getBytes("UTF-16"));
-    assertThat(this.converter.read(Float.class, new ServletServerHttpRequest(request))).isEqualTo(floatValue);
+    assertThat(this.converter.read(Float.class, new MockServerHttpRequest(request))).isEqualTo(floatValue);
 
     Long longValue = Long.valueOf(55819182821331L);
     request = new HttpMockRequestImpl();
     request.setContentType(MediaType.TEXT_PLAIN_VALUE);
     request.setCharacterEncoding("UTF-8");
     request.setContent(longValue.toString().getBytes("UTF-8"));
-    assertThat(this.converter.read(Long.class, new ServletServerHttpRequest(request))).isEqualTo(longValue);
+    assertThat(this.converter.read(Long.class, new MockServerHttpRequest(request))).isEqualTo(longValue);
   }
 
   @Test

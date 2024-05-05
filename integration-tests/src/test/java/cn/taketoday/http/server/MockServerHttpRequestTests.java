@@ -40,20 +40,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MockServerHttpRequestTests {
 
-  private ServletServerHttpRequest request;
+  private MockServerHttpRequest request;
 
   private HttpMockRequestImpl mockRequest;
 
   @BeforeEach
   void create() {
     mockRequest = new HttpMockRequestImpl();
-    request = new ServletServerHttpRequest(mockRequest);
+    request = new MockServerHttpRequest(mockRequest);
   }
 
   @Test
   void getMethod() {
     mockRequest.setMethod("POST");
-    request = new ServletServerHttpRequest(mockRequest);
+    request = new MockServerHttpRequest(mockRequest);
     assertThat(request.getMethod()).as("Invalid method").isEqualTo(HttpMethod.POST);
   }
 

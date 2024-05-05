@@ -29,7 +29,7 @@ import cn.taketoday.mock.api.annotation.MockSecurity;
  *
  * @since Servlet 3.0
  */
-public class ServletSecurityElement extends HttpConstraintElement {
+public class MockSecurityElement extends HttpConstraintElement {
 
   private Collection<String> methodNames;
   private Collection<HttpMethodConstraintElement> methodConstraints;
@@ -38,7 +38,7 @@ public class ServletSecurityElement extends HttpConstraintElement {
    * Constructs an instance using the default <code>HttpConstraintElement</code> value as the default Constraint element
    * and with no HTTP Method specific constraint elements.
    */
-  public ServletSecurityElement() {
+  public MockSecurityElement() {
     methodConstraints = new HashSet<>();
     methodNames = Collections.emptySet();
   }
@@ -49,7 +49,7 @@ public class ServletSecurityElement extends HttpConstraintElement {
    * @param constraint the HttpConstraintElement to be applied to all HTTP methods other than those represented in the
    * <tt>methodConstraints</tt>
    */
-  public ServletSecurityElement(HttpConstraintElement constraint) {
+  public MockSecurityElement(HttpConstraintElement constraint) {
     super(constraint.getEmptyRoleSemantic(), constraint.getTransportGuarantee(), constraint.getRolesAllowed());
     methodConstraints = new HashSet<>();
     methodNames = Collections.emptySet();
@@ -62,7 +62,7 @@ public class ServletSecurityElement extends HttpConstraintElement {
    * @param methodConstraints the collection of HTTP method specific constraint elements
    * @throws IllegalArgumentException if duplicate method names are detected
    */
-  public ServletSecurityElement(Collection<HttpMethodConstraintElement> methodConstraints) {
+  public MockSecurityElement(Collection<HttpMethodConstraintElement> methodConstraints) {
     this.methodConstraints = (methodConstraints == null ? new HashSet<>() : methodConstraints);
     methodNames = checkMethodNames(this.methodConstraints);
   }
@@ -76,7 +76,7 @@ public class ServletSecurityElement extends HttpConstraintElement {
    * @param methodConstraints the collection of HTTP method specific constraint elements.
    * @throws IllegalArgumentException if duplicate method names are detected
    */
-  public ServletSecurityElement(HttpConstraintElement constraint,
+  public MockSecurityElement(HttpConstraintElement constraint,
           Collection<HttpMethodConstraintElement> methodConstraints) {
     super(constraint.getEmptyRoleSemantic(), constraint.getTransportGuarantee(), constraint.getRolesAllowed());
     this.methodConstraints = (methodConstraints == null ? new HashSet<>() : methodConstraints);
@@ -89,7 +89,7 @@ public class ServletSecurityElement extends HttpConstraintElement {
    * @param annotation the annotation value
    * @throws IllegalArgumentException if duplicate method names are detected
    */
-  public ServletSecurityElement(MockSecurity annotation) {
+  public MockSecurityElement(MockSecurity annotation) {
     super(annotation.value().value(), annotation.value().transportGuarantee(), annotation.value().rolesAllowed());
     this.methodConstraints = new HashSet<>();
     for (HttpMethodConstraint constraint : annotation.httpMethodConstraints()) {

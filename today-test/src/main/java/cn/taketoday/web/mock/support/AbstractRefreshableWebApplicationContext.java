@@ -128,12 +128,12 @@ public abstract class AbstractRefreshableWebApplicationContext
   }
 
   /**
-   * Create and return a new {@link StandardServletEnvironment}. Subclasses may override
+   * Create and return a new {@link StandardMockEnvironment}. Subclasses may override
    * in order to configure the environment or specialize the environment type returned.
    */
   @Override
   protected ConfigurableEnvironment createEnvironment() {
-    return new StandardServletEnvironment();
+    return new StandardMockEnvironment();
   }
 
   /**

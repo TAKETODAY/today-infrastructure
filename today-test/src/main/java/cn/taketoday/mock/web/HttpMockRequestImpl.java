@@ -58,13 +58,13 @@ import cn.taketoday.util.StringUtils;
 import cn.taketoday.mock.api.AsyncContext;
 import cn.taketoday.mock.api.DispatcherType;
 import cn.taketoday.mock.api.RequestDispatcher;
-import cn.taketoday.mock.api.ServletConnection;
-import cn.taketoday.mock.api.ServletException;
-import cn.taketoday.mock.api.ServletInputStream;
+import cn.taketoday.mock.api.MockConnection;
+import cn.taketoday.mock.api.MockException;
+import cn.taketoday.mock.api.MockInputStream;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.Cookie;
-import cn.taketoday.mock.api.http.HttpServletMapping;
+import cn.taketoday.mock.api.http.HttpMockMapping;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.api.http.HttpSession;
@@ -177,7 +177,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private String contentType;
 
   @Nullable
-  private ServletInputStream inputStream;
+  private MockInputStream inputStream;
 
   @Nullable
   private BufferedReader reader;
@@ -265,7 +265,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   private final MultiValueMap<String, Part> parts = new LinkedMultiValueMap<>();
 
   @Nullable
-  private HttpServletMapping httpServletMapping;
+  private HttpMockMapping httpMockMapping;
 
   // ---------------------------------------------------------------------
   // Constructors
@@ -496,7 +496,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public ServletInputStream getInputStream() {
+  public MockInputStream getInputStream() {
     if (this.inputStream != null) {
       return this.inputStream;
     }
@@ -506,8 +506,8 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     }
 
     this.inputStream = (this.content != null ?
-            new DelegatingServletInputStream(new ByteArrayInputStream(this.content)) :
-            new DelegatingServletInputStream(InputStream.nullInputStream()));
+            new DelegatingMockInputStream(new ByteArrayInputStream(this.content)) :
+            new DelegatingMockInputStream(InputStream.nullInputStream()));
     return this.inputStream;
   }
 
@@ -971,8 +971,8 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public ServletConnection getServletConnection() {
-    return new ServletConnection() {
+  public MockConnection getServletConnection() {
+    return new MockConnection() {
       @Override
       public String getConnectionId() {
         return HttpMockRequestImpl.this.getRequestId();
@@ -1360,17 +1360,17 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public boolean authenticate(HttpMockResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpMockResponse response) throws IOException, MockException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void login(String username, String password) throws ServletException {
+  public void login(String username, String password) throws MockException {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void logout() throws ServletException {
+  public void logout() throws MockException {
     this.userPrincipal = null;
     this.remoteUser = null;
     this.authType = null;
@@ -1382,12 +1382,12 @@ public class HttpMockRequestImpl implements HttpMockRequest {
 
   @Override
   @Nullable
-  public Part getPart(String name) throws IOException, ServletException {
+  public Part getPart(String name) throws IOException, MockException {
     return this.parts.getFirst(name);
   }
 
   @Override
-  public Collection<Part> getParts() throws IOException, ServletException {
+  public Collection<Part> getParts() throws IOException, MockException {
     List<Part> result = new LinkedList<>();
     for (List<Part> list : this.parts.values()) {
       result.addAll(list);
@@ -1395,15 +1395,15 @@ public class HttpMockRequestImpl implements HttpMockRequest {
     return result;
   }
 
-  public void setHttpServletMapping(@Nullable HttpServletMapping httpServletMapping) {
-    this.httpServletMapping = httpServletMapping;
+  public void setHttpServletMapping(@Nullable HttpMockMapping httpMockMapping) {
+    this.httpMockMapping = httpMockMapping;
   }
 
   @Override
-  public HttpServletMapping getHttpServletMapping() {
-    return (this.httpServletMapping == null ?
-            new MockHttpServletMapping("", "", "", determineMappingMatch()) :
-            this.httpServletMapping);
+  public HttpMockMapping getHttpServletMapping() {
+    return (this.httpMockMapping == null ?
+            new MockHttpMapping("", "", "", determineMappingMatch()) :
+            this.httpMockMapping);
   }
 
   /**
@@ -1417,7 +1417,7 @@ public class HttpMockRequestImpl implements HttpMockRequest {
   }
 
   @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException {
     throw new UnsupportedOperationException();
   }
 

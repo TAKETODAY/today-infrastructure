@@ -155,11 +155,11 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
    * When overriding this form of the method, call <code>super.init(config)</code>.
    *
    * @param config the <code>ServletConfig</code> object that contains configuration information for this servlet
-   * @throws ServletException if an exception occurs that interrupts the servlet's normal operation
+   * @throws MockException if an exception occurs that interrupts the servlet's normal operation
    * @see UnavailableException
    */
   @Override
-  public void init(MockConfig config) throws ServletException {
+  public void init(MockConfig config) throws MockException {
     this.config = config;
     this.init();
   }
@@ -172,9 +172,9 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
    * <code>GenericServlet.init(ServletConfig config)</code>. The <code>ServletConfig</code> object can still be retrieved
    * via {@link #getMockConfig}.
    *
-   * @throws ServletException if an exception occurs that interrupts the servlet's normal operation
+   * @throws MockException if an exception occurs that interrupts the servlet's normal operation
    */
-  public void init() throws ServletException {
+  public void init() throws MockException {
 
   }
 
@@ -207,11 +207,11 @@ public abstract class GenericMock implements MockApi, MockConfig, java.io.Serial
    *
    * @param req the <code>ServletRequest</code> object that contains the client's request
    * @param res the <code>ServletResponse</code> object that will contain the servlet's response
-   * @throws ServletException if an exception occurs that interferes with the servlet's normal operation occurred
+   * @throws MockException if an exception occurs that interferes with the servlet's normal operation occurred
    * @throws IOException if an input or output exception occurs
    */
   @Override
-  public abstract void service(MockRequest req, MockResponse res) throws ServletException, IOException;
+  public abstract void service(MockRequest req, MockResponse res) throws MockException, IOException;
 
   /**
    * Returns the name of this servlet instance. See {@link MockConfig#getMockName}.

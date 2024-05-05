@@ -24,10 +24,11 @@ import cn.taketoday.web.mock.DispatcherServlet;
  * managed by {@link MockMvc}.
  *
  * @author Stephane Nicoll
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 @FunctionalInterface
-public interface DispatcherServletCustomizer {
+public interface DispatcherMockCustomizer {
 
   /**
    * Customize the supplied {@link DispatcherServlet} <em>before</em> it is

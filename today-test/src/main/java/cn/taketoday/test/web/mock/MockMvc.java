@@ -147,7 +147,7 @@ public final class MockMvc {
    * at runtime and therefore needs to be injected with it.
    * <p>For most processing scenarios, simply use {@link MockMvc#perform},
    * or if you need to configure the {@code DispatcherServlet}, provide a
-   * {@link DispatcherServletCustomizer} to the {@code MockMvcBuilder}.
+   * {@link DispatcherMockCustomizer} to the {@code MockMvcBuilder}.
    */
   public DispatcherServlet getDispatcherServlet() {
     return this.servlet;

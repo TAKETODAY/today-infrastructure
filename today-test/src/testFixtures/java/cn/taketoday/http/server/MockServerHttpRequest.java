@@ -55,7 +55,7 @@ import cn.taketoday.mock.api.http.HttpMockRequest;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 3.0
  */
-public class ServletServerHttpRequest implements ServerHttpRequest {
+public class MockServerHttpRequest implements ServerHttpRequest {
 
   protected static final Charset FORM_CHARSET = StandardCharsets.UTF_8;
 
@@ -78,7 +78,7 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
    *
    * @param servletRequest the servlet request
    */
-  public ServletServerHttpRequest(HttpMockRequest servletRequest) {
+  public MockServerHttpRequest(HttpMockRequest servletRequest) {
     Assert.notNull(servletRequest, "HttpServletRequest is required");
     this.servletRequest = servletRequest;
     this.method = HttpMethod.valueOf(servletRequest.getMethod());
@@ -218,11 +218,11 @@ public class ServletServerHttpRequest implements ServerHttpRequest {
   @Override
   public ServerHttpAsyncRequestControl getAsyncRequestControl(ServerHttpResponse response) {
     if (this.asyncRequestControl == null) {
-      if (!(response instanceof ServletServerHttpResponse servletServerResponse)) {
+      if (!(response instanceof MockServerHttpResponse servletServerResponse)) {
         throw new IllegalArgumentException(
                 "Response must be a ServletServerHttpResponse: " + response.getClass());
       }
-      this.asyncRequestControl = new ServletServerHttpAsyncRequestControl(this, servletServerResponse);
+      this.asyncRequestControl = new MockServerHttpAsyncRequestControl(this, servletServerResponse);
     }
     return this.asyncRequestControl;
   }

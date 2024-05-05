@@ -34,24 +34,24 @@ import cn.taketoday.mock.api.http.HttpMockResponse;
  * @author Rossen Stoyanchev
  * @since 4.0
  */
-public class ServletServerHttpAsyncRequestControl implements ServerHttpAsyncRequestControl, AsyncListener {
+public class MockServerHttpAsyncRequestControl implements ServerHttpAsyncRequestControl, AsyncListener {
 
   private static final long NO_TIMEOUT_VALUE = Long.MIN_VALUE;
 
   @Nullable
   private AsyncContext asyncContext;
 
-  private final ServletServerHttpRequest request;
-  private final ServletServerHttpResponse response;
+  private final MockServerHttpRequest request;
+  private final MockServerHttpResponse response;
   private final AtomicBoolean asyncCompleted = new AtomicBoolean();
 
   /**
    * Constructor accepting a request and response pair that are expected to be of type
-   * {@link ServletServerHttpRequest} and {@link ServletServerHttpResponse}
+   * {@link MockServerHttpRequest} and {@link MockServerHttpResponse}
    * respectively.
    */
-  public ServletServerHttpAsyncRequestControl(
-          ServletServerHttpRequest request, ServletServerHttpResponse response) {
+  public MockServerHttpAsyncRequestControl(
+          MockServerHttpRequest request, MockServerHttpResponse response) {
     Assert.notNull(request, "request is required");
     Assert.notNull(response, "response is required");
 

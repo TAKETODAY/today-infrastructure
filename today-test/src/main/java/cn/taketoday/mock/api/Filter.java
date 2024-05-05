@@ -74,10 +74,10 @@ public interface Filter {
    *
    * @param filterConfig a <code>FilterConfig</code> object containing the filter's configuration and initialization
    * parameters
-   * @throws ServletException if an exception has occurred that interferes with the filter's normal operation
+   * @throws MockException if an exception has occurred that interferes with the filter's normal operation
    * @implSpec The default implementation takes no action.
    */
-  default void init(FilterConfig filterConfig) throws ServletException {
+  default void init(FilterConfig filterConfig) throws MockException {
   }
 
   /**
@@ -106,11 +106,11 @@ public interface Filter {
    * @param response the <code>ServletResponse</code> object contains the filter's response
    * @param chain the <code>FilterChain</code> for invoking the next filter or the resource
    * @throws IOException if an I/O related error has occurred during the processing
-   * @throws ServletException if an exception occurs that interferes with the filter's normal operation
+   * @throws MockException if an exception occurs that interferes with the filter's normal operation
    * @see UnavailableException
    */
   void doFilter(MockRequest request, MockResponse response, FilterChain chain)
-          throws IOException, ServletException;
+          throws IOException, MockException;
 
   /**
    * <p>

@@ -40,7 +40,7 @@ import cn.taketoday.http.HttpStatus;
 import cn.taketoday.http.MediaType;
 import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.lang.Nullable;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Controller;
@@ -289,7 +289,7 @@ class ExceptionHandlerAnnotationExceptionHandlerTests {
 
     AssertionError err = new AssertionError("argh");
     HandlerMethod handlerMethod = new HandlerMethod(new ResponseBodyController(), "handle");
-    ModelAndView mav = handleException(new ServletException("Handler dispatch failed", err), handlerMethod);
+    ModelAndView mav = handleException(new MockException("Handler dispatch failed", err), handlerMethod);
 
     assertThat(mav).as("Exception was not handled").isNotNull();
     assertThat(mav.isEmpty()).isTrue();

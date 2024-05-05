@@ -24,7 +24,7 @@ import cn.taketoday.lang.Nullable;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.MockApi;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 
@@ -79,7 +79,7 @@ public class PassThroughFilterChain implements FilterChain {
    * Pass the call on to the Filter/Servlet.
    */
   @Override
-  public void doFilter(MockRequest request, MockResponse response) throws ServletException, IOException {
+  public void doFilter(MockRequest request, MockResponse response) throws MockException, IOException {
     if (this.filter != null) {
       this.filter.doFilter(request, response, this.nextFilterChain);
     }

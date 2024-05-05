@@ -31,7 +31,7 @@ import cn.taketoday.mock.api.MockApi;
 import cn.taketoday.mock.api.MockConfig;
 import cn.taketoday.mock.api.MockContext;
 import cn.taketoday.mock.api.MockRequest;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockResponse;
 import cn.taketoday.mock.api.http.HttpMockRequest;
 import cn.taketoday.mock.api.http.HttpMockResponse;
@@ -40,7 +40,7 @@ import cn.taketoday.web.DispatcherHandler;
 import cn.taketoday.web.RequestContext;
 import cn.taketoday.web.RequestContextHolder;
 import cn.taketoday.web.async.WebAsyncManager;
-import cn.taketoday.web.mock.support.StandardServletEnvironment;
+import cn.taketoday.web.mock.support.StandardMockEnvironment;
 import cn.taketoday.web.mock.support.WebApplicationContextUtils;
 
 /**
@@ -151,7 +151,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
 
   @Override
   protected ConfigurableEnvironment createEnvironment() {
-    return new StandardServletEnvironment();
+    return new StandardMockEnvironment();
   }
 
   @Override
@@ -256,7 +256,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
   }
 
   @Override
-  public void service(MockRequest request, MockResponse response) throws ServletException {
+  public void service(MockRequest request, MockResponse response) throws MockException {
     if (request.getDispatcherType() == DispatcherType.ASYNC) {
       // send async results
       Object concurrentResult = request.getAttribute(WebAsyncManager.WEB_ASYNC_RESULT_ATTRIBUTE);
@@ -267,7 +267,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
         handleConcurrentResult(context, httpRequestHandler, concurrentResult);
       }
       catch (final Throwable e) {
-        throw new ServletException("Async processing failed: " + e, e);
+        throw new MockException("Async processing failed: " + e, e);
       }
       return;
     }
@@ -286,7 +286,7 @@ public class DispatcherServlet extends DispatcherHandler implements MockApi, Ser
       handleRequest(context);
     }
     catch (final Throwable e) {
-      throw new ServletException("Handler processing failed: " + e, e);
+      throw new MockException("Handler processing failed: " + e, e);
     }
     finally {
       if (reset) {

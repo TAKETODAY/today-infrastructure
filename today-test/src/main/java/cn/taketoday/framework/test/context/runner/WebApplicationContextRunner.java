@@ -20,7 +20,7 @@ package cn.taketoday.framework.test.context.runner;
 import java.util.function.Supplier;
 
 import cn.taketoday.mock.web.MockContextImpl;
-import cn.taketoday.web.mock.AnnotationConfigServletWebApplicationContext;
+import cn.taketoday.web.mock.AnnotationConfigMockWebApplicationContext;
 import cn.taketoday.framework.test.context.assertj.AssertableWebApplicationContext;
 import cn.taketoday.web.server.context.ConfigurableWebServerApplicationContext;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
@@ -43,13 +43,13 @@ public final class WebApplicationContextRunner
 
   /**
    * Create a new {@link WebApplicationContextRunner} instance using an
-   * {@link AnnotationConfigServletWebApplicationContext} with a
+   * {@link AnnotationConfigMockWebApplicationContext} with a
    * {@link MockContextImpl} as the underlying source.
    *
    * @see #withMockContext(Supplier)
    */
   public WebApplicationContextRunner() {
-    this(withMockContext(AnnotationConfigServletWebApplicationContext::new));
+    this(withMockContext(AnnotationConfigMockWebApplicationContext::new));
   }
 
   /**

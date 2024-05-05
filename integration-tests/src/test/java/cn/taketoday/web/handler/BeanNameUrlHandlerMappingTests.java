@@ -32,7 +32,7 @@ import cn.taketoday.mock.web.HttpMockRequestImpl;
 import cn.taketoday.mock.web.MockHttpResponseImpl;
 import cn.taketoday.stereotype.Component;
 import cn.taketoday.web.HandlerMapping;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.web.mock.ConfigurableWebApplicationContext;
 import cn.taketoday.web.mock.MockRequestContext;
 import cn.taketoday.web.mock.support.XmlWebApplicationContext;
@@ -201,14 +201,14 @@ class BeanNameUrlHandlerMappingTests {
   }
 
   @Test
-  public void doubleMappings() throws ServletException {
+  public void doubleMappings() throws MockException {
     BeanNameUrlHandlerMapping hm = (BeanNameUrlHandlerMapping) wac.getBean("handlerMapping");
     assertThatIllegalStateException().isThrownBy(() ->
             hm.registerHandler("/mypath/welcome.html", new Object()));
   }
 
   @Test
-  void aliasPlaceHolder() throws ServletException {
+  void aliasPlaceHolder() throws MockException {
 
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       context.register(BeanNameUrlHandlerMapping.class);

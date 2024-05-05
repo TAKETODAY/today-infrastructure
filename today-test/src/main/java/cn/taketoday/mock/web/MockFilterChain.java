@@ -30,7 +30,7 @@ import cn.taketoday.util.ObjectUtils;
 import cn.taketoday.mock.api.Filter;
 import cn.taketoday.mock.api.FilterChain;
 import cn.taketoday.mock.api.FilterConfig;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequest;
 import cn.taketoday.mock.api.MockResponse;
 
@@ -95,7 +95,7 @@ public class MockFilterChain implements FilterChain {
   }
 
   private static List<Filter> initFilterList(MockApi mockApi, Filter... filters) {
-    Filter[] allFilters = ObjectUtils.addObjectToArray(filters, new ServletFilterProxy(mockApi));
+    Filter[] allFilters = ObjectUtils.addObjectToArray(filters, new MockFilterProxy(mockApi));
     return Arrays.asList(allFilters);
   }
 
@@ -120,7 +120,7 @@ public class MockFilterChain implements FilterChain {
    * request and response.
    */
   @Override
-  public void doFilter(MockRequest request, MockResponse response) throws IOException, ServletException {
+  public void doFilter(MockRequest request, MockResponse response) throws IOException, MockException {
     Assert.notNull(request, "Request is required");
     Assert.notNull(response, "Response is required");
     Assert.state(this.request == null, "This FilterChain has already been called!");
@@ -150,24 +150,24 @@ public class MockFilterChain implements FilterChain {
   /**
    * A filter that simply delegates to a Servlet.
    */
-  private static final class ServletFilterProxy implements Filter {
+  private static final class MockFilterProxy implements Filter {
 
     private final MockApi delegateMockApi;
 
-    private ServletFilterProxy(MockApi mockApi) {
+    private MockFilterProxy(MockApi mockApi) {
       Assert.notNull(mockApi, "servlet cannot be null");
       this.delegateMockApi = mockApi;
     }
 
     @Override
     public void doFilter(MockRequest request, MockResponse response, FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, MockException {
 
       this.delegateMockApi.service(request, response);
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) throws MockException {
     }
 
     @Override

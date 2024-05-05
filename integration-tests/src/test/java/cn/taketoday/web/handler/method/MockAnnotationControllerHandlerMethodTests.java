@@ -140,7 +140,7 @@ import cn.taketoday.web.handler.function.RouterFunction;
 import cn.taketoday.web.handler.function.RouterFunctions;
 import cn.taketoday.web.handler.function.ServerResponse;
 import cn.taketoday.mock.api.MockConfig;
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.http.Cookie;
 import cn.taketoday.mock.api.http.HttpMockResponse;
 import cn.taketoday.mock.api.http.HttpSession;
@@ -2236,7 +2236,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   }
 
   @Test
-  void routerFunction() throws ServletException, IOException {
+  void routerFunction() throws MockException, IOException {
     initDispatcherServlet(wac -> {
       wac.registerBean(RouterFunction.class, () ->
               RouterFunctions.route()
@@ -4098,7 +4098,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
     }
   }
 
-  static class ServletPartDataClass {
+  static class PartDataClass {
 
     @NotNull
     public final Part param1;
@@ -4107,7 +4107,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
 
     public int param3;
 
-    public ServletPartDataClass(Part param1,
+    public PartDataClass(Part param1,
             @BindParam("param2") boolean p2, Optional<Integer> optionalParam) {
       this.param1 = param1;
       this.param2 = p2;
@@ -4124,7 +4124,7 @@ class MockAnnotationControllerHandlerMethodTests extends AbstractMockHandlerMeth
   static class ServletPartDataClassController {
 
     @RequestMapping("/bind")
-    public String handle(ServletPartDataClass data) throws IOException {
+    public String handle(PartDataClass data) throws IOException {
       return StreamUtils.copyToString(data.param1.getInputStream(), StandardCharsets.UTF_8) +
               "-" + data.param2 + "-" + data.param3;
     }

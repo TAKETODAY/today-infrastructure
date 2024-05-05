@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Map;
 
-import cn.taketoday.mock.api.ServletException;
+import cn.taketoday.mock.api.MockException;
 import cn.taketoday.mock.api.MockRequestWrapper;
 
 /**
@@ -114,7 +114,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 4.0
    */
   @Override
-  public HttpServletMapping getHttpServletMapping() {
+  public HttpMockMapping getHttpServletMapping() {
     return this._getHttpServletRequest().getHttpServletMapping();
   }
 
@@ -254,7 +254,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.0
    */
   @Override
-  public boolean authenticate(HttpMockResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpMockResponse response) throws IOException, MockException {
     return this._getHttpServletRequest().authenticate(response);
   }
 
@@ -264,7 +264,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.0
    */
   @Override
-  public void login(String username, String password) throws ServletException {
+  public void login(String username, String password) throws MockException {
     this._getHttpServletRequest().login(username, password);
   }
 
@@ -274,7 +274,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.0
    */
   @Override
-  public void logout() throws ServletException {
+  public void logout() throws MockException {
     this._getHttpServletRequest().logout();
   }
 
@@ -287,7 +287,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.0
    */
   @Override
-  public Collection<Part> getParts() throws IOException, ServletException {
+  public Collection<Part> getParts() throws IOException, MockException {
     return this._getHttpServletRequest().getParts();
   }
 
@@ -297,7 +297,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.0
    */
   @Override
-  public Part getPart(String name) throws IOException, ServletException {
+  public Part getPart(String name) throws IOException, MockException {
     return this._getHttpServletRequest().getPart(name);
   }
 
@@ -308,7 +308,7 @@ public class HttpMockRequestWrapper extends MockRequestWrapper implements HttpMo
    * @since Servlet 3.1
    */
   @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, MockException {
     return this._getHttpServletRequest().upgrade(handlerClass);
   }
 

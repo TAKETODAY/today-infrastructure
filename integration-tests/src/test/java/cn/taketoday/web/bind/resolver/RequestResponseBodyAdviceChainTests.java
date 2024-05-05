@@ -1,8 +1,5 @@
 /*
- * Original Author -> Harry Yang (taketoday@foxmail.com) https://taketoday.cn
- * Copyright © TODAY & 2017 - 2022 All Rights Reserved.
- *
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER
+ * Copyright 2017 - 2024 the original author or authors.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see [http://www.gnu.org/licenses/]
+ * along with this program. If not, see [https://www.gnu.org/licenses/]
  */
 
 package cn.taketoday.web.bind.resolver;
@@ -36,8 +33,8 @@ import cn.taketoday.http.converter.HttpMessageConverter;
 import cn.taketoday.http.converter.StringHttpMessageConverter;
 import cn.taketoday.http.server.ServerHttpRequest;
 import cn.taketoday.http.server.ServerHttpResponse;
-import cn.taketoday.http.server.ServletServerHttpRequest;
-import cn.taketoday.http.server.ServletServerHttpResponse;
+import cn.taketoday.http.server.MockServerHttpRequest;
+import cn.taketoday.http.server.MockServerHttpResponse;
 import cn.taketoday.lang.Nullable;
 import cn.taketoday.stereotype.Controller;
 import cn.taketoday.util.ReflectionUtils;
@@ -82,11 +79,11 @@ class RequestResponseBodyAdviceChainTests {
     this.returnType = new MethodParameter(ReflectionUtils.getMethod(this.getClass(), "handle", String.class), -1);
 
     HttpMockRequestImpl servletRequest = new HttpMockRequestImpl();
-    this.request = new ServletServerHttpRequest(servletRequest);
+    this.request = new MockServerHttpRequest(servletRequest);
 
     MockHttpResponseImpl servletResponse = new MockHttpResponseImpl();
 
-    this.response = new ServletServerHttpResponse(servletResponse);
+    this.response = new MockServerHttpResponse(servletResponse);
     this.requestContext = new MockRequestContext(null, servletRequest, servletResponse);
   }
 
@@ -98,7 +95,7 @@ class RequestResponseBodyAdviceChainTests {
     List<Object> advice = Arrays.asList(requestAdvice, responseAdvice);
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(advice);
 
-    HttpInputMessage wrapped = new ServletServerHttpRequest(new HttpMockRequestImpl());
+    HttpInputMessage wrapped = new MockServerHttpRequest(new HttpMockRequestImpl());
     given(requestAdvice.supports(this.paramType, String.class, this.converterType)).willReturn(true);
     given(requestAdvice.beforeBodyRead(ArgumentMatchers.eq(this.request), ArgumentMatchers.eq(this.paramType), ArgumentMatchers.eq(String.class),
             ArgumentMatchers.eq(this.converterType))).willReturn(wrapped);

@@ -19,7 +19,7 @@ package cn.taketoday.test.web.mock.client;
 
 import cn.taketoday.http.client.reactive.ClientHttpConnector;
 import cn.taketoday.test.web.reactive.server.WebTestClient;
-import cn.taketoday.test.web.mock.DispatcherServletCustomizer;
+import cn.taketoday.test.web.mock.DispatcherMockCustomizer;
 import cn.taketoday.test.web.mock.MockMvc;
 import cn.taketoday.test.web.mock.RequestBuilder;
 import cn.taketoday.test.web.mock.ResultMatcher;
@@ -64,7 +64,7 @@ abstract class AbstractMockMvcServerSpec<B extends MockMvcWebTestClient.MockMvcS
   }
 
   @Override
-  public <T extends B> T dispatcherServletCustomizer(DispatcherServletCustomizer customizer) {
+  public <T extends B> T dispatcherServletCustomizer(DispatcherMockCustomizer customizer) {
     getMockMvcBuilder().addDispatcherServletCustomizer(customizer);
     return self();
   }

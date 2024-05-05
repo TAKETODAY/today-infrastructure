@@ -184,7 +184,7 @@ public class RemoteThrowsAdvice implements ThrowsAdvice {
 
 Unlike the preceding
 advice, the next example declares four arguments, so that it has access to the invoked method, method
-arguments, and target object. The following advice is invoked if a `ServletException` is thrown:
+arguments, and target object. The following advice is invoked if a `MockException` is thrown:
 
 [tabs]
 ======
@@ -203,7 +203,7 @@ public class ServletThrowsAdviceWithArguments implements ThrowsAdvice {
 ======
 
 The final example illustrates how these two methods could be used in a single class
-that handles both `RemoteException` and `ServletException`. Any number of throws advice
+that handles both `RemoteException` and `MockException`. Any number of throws advice
 methods can be combined in a single class. The following listing shows the final example:
 
 [tabs]

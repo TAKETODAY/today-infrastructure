@@ -270,10 +270,10 @@ public class WebApplicationContextUtils {
    * @param sources the {@link PropertySources} to initialize (must not
    * be {@code null})
    * @param mockContext the current {@link MockContext} (ignored if {@code null}
-   * or if the {@link StandardServletEnvironment#SERVLET_CONTEXT_PROPERTY_SOURCE_NAME
+   * or if the {@link StandardMockEnvironment#MOCK_CONTEXT_PROPERTY_SOURCE_NAME
    * servlet context property source} has already been initialized)
    * @param mockConfig the current {@link MockConfig} (ignored if {@code null}
-   * or if the {@link StandardServletEnvironment#SERVLET_CONFIG_PROPERTY_SOURCE_NAME
+   * or if the {@link StandardMockEnvironment#MOCK_CONFIG_PROPERTY_SOURCE_NAME
    * servlet config property source} has already been initialized)
    * @see StubPropertySource
    * @see cn.taketoday.core.env.ConfigurableEnvironment#getPropertySources()
@@ -282,11 +282,11 @@ public class WebApplicationContextUtils {
           @Nullable MockContext mockContext, @Nullable MockConfig mockConfig) {
     Assert.notNull(sources, "'propertySources' is required");
 
-    String name = StandardServletEnvironment.SERVLET_CONTEXT_PROPERTY_SOURCE_NAME;
+    String name = StandardMockEnvironment.MOCK_CONTEXT_PROPERTY_SOURCE_NAME;
     if (mockContext != null && sources.get(name) instanceof StubPropertySource) {
       sources.replace(name, new MockContextPropertySource(name, mockContext));
     }
-    name = StandardServletEnvironment.SERVLET_CONFIG_PROPERTY_SOURCE_NAME;
+    name = StandardMockEnvironment.MOCK_CONFIG_PROPERTY_SOURCE_NAME;
     if (mockConfig != null && sources.get(name) instanceof StubPropertySource) {
       sources.replace(name, new MockConfigPropertySource(name, mockConfig));
     }

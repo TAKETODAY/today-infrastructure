@@ -43,36 +43,36 @@ import cn.taketoday.web.mock.MockContextPropertySource;
  *
  * @author Chris Beams
  * @author Juergen Hoeller
+ * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @see StandardEnvironment
  * @since 4.0
  */
-@Deprecated
-public class StandardServletEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
+public class StandardMockEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
 
   /** Servlet context init parameters property source name: {@value}. */
-  public static final String SERVLET_CONTEXT_PROPERTY_SOURCE_NAME = "mockContextInitParams";
+  public static final String MOCK_CONTEXT_PROPERTY_SOURCE_NAME = "mockContextInitParams";
 
   /** Servlet config init parameters property source name: {@value}. */
-  public static final String SERVLET_CONFIG_PROPERTY_SOURCE_NAME = "servletConfigInitParams";
+  public static final String MOCK_CONFIG_PROPERTY_SOURCE_NAME = "mockConfigInitParams";
 
   /** JNDI property source name: {@value}. */
   public static final String JNDI_PROPERTY_SOURCE_NAME = "jndiProperties";
 
   // Defensive reference to JNDI API for JDK 9+ (optional java.naming module)
   private static final boolean jndiPresent = ClassUtils.isPresent(
-          "javax.naming.InitialContext", StandardServletEnvironment.class.getClassLoader());
+          "javax.naming.InitialContext", StandardMockEnvironment.class.getClassLoader());
 
   /**
    * Create a new {@code StandardServletEnvironment} instance.
    */
-  public StandardServletEnvironment() { }
+  public StandardMockEnvironment() { }
 
   /**
    * Create a new {@code StandardServletEnvironment} instance with a specific {@link PropertySources} instance.
    *
    * @param propertySources property sources to use
    */
-  protected StandardServletEnvironment(PropertySources propertySources) {
+  protected StandardMockEnvironment(PropertySources propertySources) {
     super(propertySources);
   }
 
@@ -80,12 +80,12 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
    * Customize the set of property sources with those contributed by superclasses as
    * well as those appropriate for standard servlet-based environments:
    * <ul>
-   * <li>{@value #SERVLET_CONFIG_PROPERTY_SOURCE_NAME}
-   * <li>{@value #SERVLET_CONTEXT_PROPERTY_SOURCE_NAME}
+   * <li>{@value #MOCK_CONFIG_PROPERTY_SOURCE_NAME}
+   * <li>{@value #MOCK_CONTEXT_PROPERTY_SOURCE_NAME}
    * <li>{@value #JNDI_PROPERTY_SOURCE_NAME}
    * </ul>
-   * <p>Properties present in {@value #SERVLET_CONFIG_PROPERTY_SOURCE_NAME} will
-   * take precedence over those in {@value #SERVLET_CONTEXT_PROPERTY_SOURCE_NAME}, and
+   * <p>Properties present in {@value #MOCK_CONFIG_PROPERTY_SOURCE_NAME} will
+   * take precedence over those in {@value #MOCK_CONTEXT_PROPERTY_SOURCE_NAME}, and
    * properties found in either of the above take precedence over those found in
    * {@value #JNDI_PROPERTY_SOURCE_NAME}.
    * <p>Properties in any of the above will take precedence over system properties and
@@ -106,8 +106,8 @@ public class StandardServletEnvironment extends StandardEnvironment implements C
    */
   @Override
   protected void customizePropertySources(PropertySources propertySources) {
-    propertySources.addLast(new StubPropertySource(SERVLET_CONFIG_PROPERTY_SOURCE_NAME));
-    propertySources.addLast(new StubPropertySource(SERVLET_CONTEXT_PROPERTY_SOURCE_NAME));
+    propertySources.addLast(new StubPropertySource(MOCK_CONFIG_PROPERTY_SOURCE_NAME));
+    propertySources.addLast(new StubPropertySource(MOCK_CONTEXT_PROPERTY_SOURCE_NAME));
     if (jndiPresent && JndiLocatorDelegate.isDefaultJndiEnvironmentAvailable()) {
       propertySources.addLast(new JndiPropertySource(JNDI_PROPERTY_SOURCE_NAME));
     }

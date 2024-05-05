@@ -173,7 +173,7 @@ processed by the Infra `DispatcherServlet`, no special setup is necessary.
 
 If you use a Servlet web container, with requests processed outside of Infra
 `DispatcherServlet` (for example, when using JSF), you need to register the
-`cn.taketoday.web.context.request.RequestContextListener` `ServletRequestListener`.
+`cn.taketoday.web.context.request.RequestContextListener` `MockRequestListener`.
 This can be done programmatically by using the `WebApplicationInitializer` interface.
 Alternatively, add the following declaration to your web application's `web.xml` file:
 

@@ -37,10 +37,8 @@ import cn.taketoday.mock.api.annotation.WebListener;
  * <p>
  * Implementations of this interface are invoked at their {@link #requestInitialized} method in the order in which they
  * have been declared, and at their {@link #requestDestroyed} method in reverse order.
- *
- * @since Servlet 2.4
  */
-public interface ServletRequestListener extends EventListener {
+public interface MockRequestListener extends EventListener {
 
   /**
    * Receives notification that a ServletRequest is about to go out of scope of the web application.
@@ -49,7 +47,7 @@ public interface ServletRequestListener extends EventListener {
    * application
    * @implSpec The default implementation takes no action.
    */
-  default public void requestDestroyed(ServletRequestEvent sre) {
+  default public void requestDestroyed(MockRequestEvent sre) {
   }
 
   /**
@@ -59,6 +57,6 @@ public interface ServletRequestListener extends EventListener {
    * application
    * @implSpec The default implementation takes no action.
    */
-  default public void requestInitialized(ServletRequestEvent sre) {
+  default public void requestInitialized(MockRequestEvent sre) {
   }
 }
