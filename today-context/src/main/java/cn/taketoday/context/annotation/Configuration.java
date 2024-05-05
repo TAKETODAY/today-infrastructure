@@ -348,7 +348,7 @@ import cn.taketoday.stereotype.Component;
  * }</pre>
  *
  * <p>See the
- * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/testing.html#testcontext-framework">TestContext framework</a>
+ * <a href="https://docs.today-tech.cn/today-infrastructure/testing.html#testcontext-framework">TestContext framework</a>
  * reference documentation for details.
  *
  * <h2>Enabling built-in Framework features using {@code @Enable} annotations</h2>

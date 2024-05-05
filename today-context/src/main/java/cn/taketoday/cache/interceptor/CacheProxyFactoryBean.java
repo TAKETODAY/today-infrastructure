@@ -39,7 +39,7 @@ import cn.taketoday.cache.annotation.Cacheable;
  * <strong>Users should favor the {@code cache:} XML namespace
  * {@link Cacheable @Cacheable} annotation.</strong>
  * See the
- * <a href="https://docs.spring.io/spring/docs/current/today-framework-reference/integration.html#cache-annotations">declarative annotation-based caching</a>
+ * <a href="https://docs.today-tech.cn/today-infrastructure/integration.html#cache-annotations">declarative annotation-based caching</a>
  * section of the Framework reference documentation for more information.
  *
  * @author Costin Leau

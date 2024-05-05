@@ -72,8 +72,7 @@ import cn.taketoday.validation.annotation.ValidationAnnotationUtils;
  * external clients. Therefore the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
  * sections on data binding for
- * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Infra Web MVC</a> and
- * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Infra WebFlux</a>
+ * <a href="https://docs.today-tech.cn/today-infrastructure/web/webmvc.html#mvc">Infra Web MVC</a>
  * in the reference manual.
  *
  * <p>The binding results can be examined via the {@link BindingResult} interface,

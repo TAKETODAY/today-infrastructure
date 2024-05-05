@@ -39,17 +39,14 @@ import cn.taketoday.web.multipart.MultipartFile;
 
 /**
  * Special {@link DataBinder} for data binding from web request parameters
- * to JavaBean objects. Designed for web environments, but not dependent on
- * the Servlet API; serves as base class for more specific DataBinder variants,
- * such as {@link cn.taketoday.web.bind.ServletRequestDataBinder}.
+ * to JavaBean objects.
  *
  * <p><strong>WARNING</strong>: Data binding can lead to security issues by exposing
  * parts of the object graph that are not meant to be accessed or modified by
  * external clients. Therefore the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
  * sections on data binding for
- * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc-ann-initbinder-model-design">Infra Web MVC</a> and
- * <a href="https://docs.spring.io/spring-framework/docs/current/reference/html/web-reactive.html#webflux-ann-initbinder-model-design">Infra WebFlux</a>
+ * <a href="https://docs.today-tech.cn/today-infrastructure/web/webmvc.html#mvc">Infra Web MVC</a>
  * in the reference manual.
  *
  * <p>Includes support for field markers which address a common problem with
@@ -86,7 +83,6 @@ import cn.taketoday.web.multipart.MultipartFile;
  * @see #setRequiredFields
  * @see #setFieldMarkerPrefix
  * @see #setFieldDefaultPrefix
- * @see ServletRequestDataBinder
  * @since 4.0 2022/3/2 16:28
  */
 public class WebDataBinder extends DataBinder {
