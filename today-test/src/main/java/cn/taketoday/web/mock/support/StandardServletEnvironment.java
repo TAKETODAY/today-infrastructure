@@ -50,7 +50,7 @@ import cn.taketoday.web.mock.MockContextPropertySource;
 public class StandardServletEnvironment extends StandardEnvironment implements ConfigurableWebEnvironment {
 
   /** Servlet context init parameters property source name: {@value}. */
-  public static final String SERVLET_CONTEXT_PROPERTY_SOURCE_NAME = "servletContextInitParams";
+  public static final String SERVLET_CONTEXT_PROPERTY_SOURCE_NAME = "mockContextInitParams";
 
   /** Servlet config init parameters property source name: {@value}. */
   public static final String SERVLET_CONFIG_PROPERTY_SOURCE_NAME = "servletConfigInitParams";

@@ -79,8 +79,8 @@ public class ScriptTemplateViewTests {
 
   @Test
   public void missingTemplate() throws Exception {
-    MockContextImpl servletContext = new MockContextImpl();
-    this.wac.setMockContext(servletContext);
+    MockContextImpl mockContext = new MockContextImpl();
+    this.wac.setMockContext(mockContext);
     this.wac.refresh();
     this.view.setResourceLoaderPath("classpath:cn/taketoday/web/servlet/view/script/");
     this.view.setUrl("missing.txt");
@@ -225,8 +225,8 @@ public class ScriptTemplateViewTests {
 
   @Test // SPR-14210
   public void resourceLoaderPath() throws Exception {
-    MockContextImpl servletContext = new MockContextImpl();
-    this.wac.setMockContext(servletContext);
+    MockContextImpl mockContext = new MockContextImpl();
+    this.wac.setMockContext(mockContext);
     this.wac.refresh();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpResponseImpl response = new MockHttpResponseImpl();
@@ -255,8 +255,8 @@ public class ScriptTemplateViewTests {
 
   @Test // SPR-13379
   public void contentType() throws Exception {
-    MockContextImpl servletContext = new MockContextImpl();
-    this.wac.setMockContext(servletContext);
+    MockContextImpl mockContext = new MockContextImpl();
+    this.wac.setMockContext(mockContext);
     this.wac.refresh();
     HttpMockRequestImpl request = new HttpMockRequestImpl();
     MockHttpResponseImpl response = new MockHttpResponseImpl();

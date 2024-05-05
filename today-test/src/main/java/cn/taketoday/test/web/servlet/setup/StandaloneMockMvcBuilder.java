@@ -371,15 +371,15 @@ public class StandaloneMockMvcBuilder extends AbstractMockMvcBuilder<StandaloneM
 
   @Override
   protected WebApplicationContext initWebAppContext() {
-    MockContextImpl servletContext = new MockContextImpl();
-    StubWebApplicationContext wac = new StubWebApplicationContext(servletContext);
+    MockContextImpl mockContext = new MockContextImpl();
+    StubWebApplicationContext wac = new StubWebApplicationContext(mockContext);
 
     var reader = new AnnotatedBeanDefinitionReader(wac);
     reader.register(StandaloneConfiguration.class);
 
     registerMvcSingletons(wac);
 
-    servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+    mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
     return wac;
   }
 

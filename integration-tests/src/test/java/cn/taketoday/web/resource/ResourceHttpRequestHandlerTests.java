@@ -78,11 +78,11 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestMockContext servletContext = new TestMockContext();
+      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -172,7 +172,7 @@ public class ResourceHttpRequestHandlerTests {
 
     @Test
     void getResourceWithMediaTypeResolvedThroughMockContext() throws Throwable {
-      MockContextImpl servletContext = new MockContextImpl() {
+      MockContextImpl mockContext = new MockContextImpl() {
         @Override
         public String getMimeType(String filePath) {
           return "foo/bar";
@@ -181,11 +181,11 @@ public class ResourceHttpRequestHandlerTests {
 
       List<Resource> paths = List.of(new ClassPathResource("test/", getClass()));
       ResourceHttpRequestHandler handler = new ResourceHttpRequestHandler();
-//      handler.setMockContext(servletContext);
+//      handler.setMockContext(mockContext);
       handler.setLocations(paths);
       handler.afterPropertiesSet();
 
-      HttpMockRequestImpl request = new HttpMockRequestImpl(servletContext, "GET", "");
+      HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext, "GET", "");
       request.setRequestURI("foo.css");
       handler.handleRequest(new MockRequestContext(null, request, response));
 
@@ -229,11 +229,11 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestMockContext servletContext = new TestMockContext();
+      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.handler.afterPropertiesSet();
-      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -423,10 +423,10 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() {
-      TestMockContext servletContext = new TestMockContext();
+      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -572,10 +572,10 @@ public class ResourceHttpRequestHandlerTests {
 
     @BeforeEach
     void setup() throws Throwable {
-      TestMockContext servletContext = new TestMockContext();
+      TestMockContext mockContext = new TestMockContext();
       this.handler = new ResourceHttpRequestHandler();
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
-      this.request = new HttpMockRequestImpl(servletContext, "GET", "");
+      this.request = new HttpMockRequestImpl(mockContext, "GET", "");
       this.response = new MockHttpResponseImpl();
       requestContext = new MockRequestContext(null, request, response);
     }
@@ -807,7 +807,7 @@ public class ResourceHttpRequestHandlerTests {
     }
 
     @Test
-    void servletContextRootValidation() {
+    void mockContextRootValidation() {
       StaticWebApplicationContext context = new StaticWebApplicationContext() {
         @Override
         public Resource getResource(String location) {

@@ -42,13 +42,13 @@ public class BasicAnnotationConfigWacTests extends AbstractBasicWacTests {
     }
 
     @Bean
-    public MockContextAwareBean servletContextAwareBean() {
+    public MockContextAwareBean mockContextAwareBean() {
       return new MockContextAwareBean();
     }
   }
 
   @Autowired
-  protected MockContextAwareBean servletContextAwareBean;
+  protected MockContextAwareBean mockContextAwareBean;
 
   @Test
   public void fooEnigmaAutowired() {
@@ -56,9 +56,9 @@ public class BasicAnnotationConfigWacTests extends AbstractBasicWacTests {
   }
 
   @Test
-  public void servletContextAwareBeanProcessed() {
-    assertThat(servletContextAwareBean).isNotNull();
-    assertThat(servletContextAwareBean.mockContext).isNotNull();
+  public void mockContextAwareBeanProcessed() {
+    assertThat(mockContextAwareBean).isNotNull();
+    assertThat(mockContextAwareBean.mockContext).isNotNull();
   }
 
 }

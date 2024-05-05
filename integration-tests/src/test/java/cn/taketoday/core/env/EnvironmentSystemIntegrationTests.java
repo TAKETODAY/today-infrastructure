@@ -373,11 +373,11 @@ public class EnvironmentSystemIntegrationTests {
 
   @Test
   void registerServletParamPropertySources_AbstractRefreshableWebApplicationContext() {
-    MockContextImpl servletContext = new MockContextImpl();
-    servletContext.addInitParameter("pCommon", "pCommonContextValue");
-    servletContext.addInitParameter("pContext1", "pContext1Value");
+    MockContextImpl mockContext = new MockContextImpl();
+    mockContext.addInitParameter("pCommon", "pCommonContextValue");
+    mockContext.addInitParameter("pContext1", "pContext1Value");
 
-    MockMockConfig servletConfig = new MockMockConfig(servletContext);
+    MockMockConfig servletConfig = new MockMockConfig(mockContext);
     servletConfig.addInitParameter("pCommon", "pCommonConfigValue");
     servletConfig.addInitParameter("pConfig1", "pConfig1Value");
 

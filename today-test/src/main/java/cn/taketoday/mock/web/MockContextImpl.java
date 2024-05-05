@@ -497,8 +497,8 @@ public class MockContextImpl implements MockContext {
     this.attributes.remove(name);
   }
 
-  public void setMockContextName(String servletContextName) {
-    this.mockContextName = servletContextName;
+  public void setMockContextName(String mockContextName) {
+    this.mockContextName = mockContextName;
   }
 
   @Override

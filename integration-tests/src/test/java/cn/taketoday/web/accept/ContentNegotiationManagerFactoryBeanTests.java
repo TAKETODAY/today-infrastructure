@@ -52,10 +52,10 @@ class ContentNegotiationManagerFactoryBeanTests {
 
   @BeforeEach
   void setup() {
-    TestMockContext servletContext = new TestMockContext();
-    servletContext.getMimeTypes().put("foo", "application/foo");
+    TestMockContext mockContext = new TestMockContext();
+    mockContext.getMimeTypes().put("foo", "application/foo");
 
-    this.servletRequest = new HttpMockRequestImpl(servletContext);
+    this.servletRequest = new HttpMockRequestImpl(mockContext);
     webRequest = new MockRequestContext(servletRequest, null);
     this.factoryBean = new ContentNegotiationManagerFactoryBean();
   }

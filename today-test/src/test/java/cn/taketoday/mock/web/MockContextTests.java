@@ -201,30 +201,30 @@ class MockContextTests {
   @DisplayName("with FileSystemResourceLoader")
   class MockContextWithFileSystemResourceLoaderTests {
 
-    private final MockContextImpl servletContext =
+    private final MockContextImpl mockContext =
             new MockContextImpl("cn/taketoday/mock", new FileSystemResourceLoader());
 
     @Test
     void getResourcePathsWithRelativePathToWindowsCDrive() {
-      Set<String> paths = servletContext.getResourcePaths("C:\\temp");
+      Set<String> paths = mockContext.getResourcePaths("C:\\temp");
       assertThat(paths).isNull();
     }
 
     @Test
     void getResourceWithRelativePathToWindowsCDrive() throws Exception {
-      URL resource = servletContext.getResource("C:\\temp");
+      URL resource = mockContext.getResource("C:\\temp");
       assertThat(resource).isNull();
     }
 
     @Test
     void getResourceAsStreamWithRelativePathToWindowsCDrive() {
-      InputStream inputStream = servletContext.getResourceAsStream("C:\\temp");
+      InputStream inputStream = mockContext.getResourceAsStream("C:\\temp");
       assertThat(inputStream).isNull();
     }
 
     @Test
     void getRealPathWithRelativePathToWindowsCDrive() {
-      String realPath = servletContext.getRealPath("C:\\temp");
+      String realPath = mockContext.getRealPath("C:\\temp");
 
       if (OS.WINDOWS.isCurrentOs()) {
         assertThat(realPath).isNull();

@@ -103,8 +103,8 @@ final class MockMvcFilterDecorator implements Filter {
   private static Function<MockContext, FilterConfig> getFilterConfigInitializer(
           @Nullable String filterName, @Nullable Map<String, String> initParams) {
 
-    return servletContext -> {
-      MockFilterConfig filterConfig = (filterName != null ? new MockFilterConfig(servletContext, filterName) : new MockFilterConfig(servletContext));
+    return mockContext -> {
+      MockFilterConfig filterConfig = (filterName != null ? new MockFilterConfig(mockContext, filterName) : new MockFilterConfig(mockContext));
       if (initParams != null) {
         initParams.forEach(filterConfig::addInitParameter);
       }

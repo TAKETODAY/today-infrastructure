@@ -55,7 +55,7 @@ class CookieMethodArgumentResolversTests {
   private HttpMockRequestImpl request;
 
   private ParameterResolvingStrategies strategies = new ParameterResolvingStrategies();
-  final MockContextImpl servletContext = new MockContextImpl();
+  final MockContextImpl mockContext = new MockContextImpl();
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -63,7 +63,7 @@ class CookieMethodArgumentResolversTests {
     context.refresh();
 
     CookieParameterResolver.register(strategies, context.getBeanFactory());
-    ServletParameterResolvers.register(context.getBeanFactory(), strategies, servletContext);
+    ServletParameterResolvers.register(context.getBeanFactory(), strategies, mockContext);
 
     Method method = getClass().getMethod("params", Cookie.class, String.class, String.class);
     paramNamedCookie = new ResolvableMethodParameter(new SynthesizingMethodParameter(method, 0));

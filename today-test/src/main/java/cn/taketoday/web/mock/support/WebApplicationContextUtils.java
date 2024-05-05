@@ -261,7 +261,7 @@ public class WebApplicationContextUtils {
 
   /**
    * Replace {@code Servlet}-based {@link StubPropertySource stub property sources} with
-   * actual instances populated with the given {@code servletContext} and
+   * actual instances populated with the given {@code mockContext} and
    * {@code servletConfig} objects.
    * <p>This method is idempotent with respect to the fact it may be called any number
    * of times but will perform replacement of stub property sources with their

@@ -63,7 +63,7 @@ public class XsltViewTests {
 
   private final MockHttpResponseImpl response = new MockHttpResponseImpl();
 
-  private final MockContextImpl servletContext = new MockContextImpl();
+  private final MockContextImpl mockContext = new MockContextImpl();
 
   @Test
   public void withNoSource() throws Exception {
@@ -202,7 +202,7 @@ public class XsltViewTests {
   private XsltView getXsltView(String templatePath) {
     XsltView view = new XsltView();
     view.setUrl(templatePath);
-    view.setApplicationContext(new StaticWebApplicationContext(servletContext));
+    view.setApplicationContext(new StaticWebApplicationContext(mockContext));
     view.initApplicationContext();
     return view;
   }

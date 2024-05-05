@@ -55,9 +55,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ResourceHttpRequestHandlerIntegrationTests {
 
-  private final MockContextImpl servletContext = new MockContextImpl();
+  private final MockContextImpl mockContext = new MockContextImpl();
 
-  private final MockMockConfig servletConfig = new MockMockConfig(this.servletContext);
+  private final MockMockConfig servletConfig = new MockMockConfig(this.mockContext);
 
   public static Stream<Arguments> argumentSource() {
     return Stream.of(
@@ -127,7 +127,7 @@ public class ResourceHttpRequestHandlerIntegrationTests {
 
   private DispatcherServlet initDispatcherServlet(Class<?>... configClasses) {
     var context = new AnnotationConfigWebApplicationContext();
-    context.setMockContext(this.servletContext);
+    context.setMockContext(this.mockContext);
     context.register(configClasses);
     context.refresh();
 

@@ -44,18 +44,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DefaultMockMvcBuilderTests {
 
-  private final MockContextImpl servletContext = new MockContextImpl();
+  private final MockContextImpl mockContext = new MockContextImpl();
 
   /**
    * See SPR-12553 and SPR-13075.
    */
   @Test
   public void rootWacServletContainerAttributePreviouslySet() {
-    StubWebApplicationContext child = new StubWebApplicationContext(this.servletContext);
-    this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, child);
+    StubWebApplicationContext child = new StubWebApplicationContext(this.mockContext);
+    this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, child);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(child);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.servletContext)).isSameAs(builder.initWebAppContext());
+    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext());
   }
 
   /**
@@ -63,16 +63,16 @@ public class DefaultMockMvcBuilderTests {
    */
   @Test
   public void rootWacServletContainerAttributePreviouslySetWithContextHierarchy() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.servletContext);
+    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
 
-    this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
+    this.mockContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, root);
 
     StaticWebApplicationContext child = new StaticWebApplicationContext();
     child.setParent(root);
-    child.setMockContext(this.servletContext);
+    child.setMockContext(this.mockContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(child);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.servletContext)).isSameAs(builder.initWebAppContext().getParent());
+    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(builder.initWebAppContext().getParent());
   }
 
   /**
@@ -80,11 +80,11 @@ public class DefaultMockMvcBuilderTests {
    */
   @Test
   public void rootWacServletContainerAttributeNotPreviouslySet() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.servletContext);
+    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     DefaultMockMvcBuilder builder = webAppContextSetup(root);
     ApplicationContext wac = builder.initWebAppContext();
     assertThat(wac).isSameAs(root);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.servletContext)).isSameAs(root);
+    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(root);
   }
 
   /**
@@ -95,10 +95,10 @@ public class DefaultMockMvcBuilderTests {
     StaticApplicationContext ear = new StaticApplicationContext();
     StaticWebApplicationContext root = new StaticWebApplicationContext();
     root.setParent(ear);
-    root.setMockContext(this.servletContext);
+    root.setMockContext(this.mockContext);
     StaticWebApplicationContext dispatcher = new StaticWebApplicationContext();
     dispatcher.setParent(root);
-    dispatcher.setMockContext(this.servletContext);
+    dispatcher.setMockContext(this.mockContext);
 
     DefaultMockMvcBuilder builder = webAppContextSetup(dispatcher);
     ApplicationContext wac = builder.initWebAppContext();
@@ -106,7 +106,7 @@ public class DefaultMockMvcBuilderTests {
     assertThat(wac).isSameAs(dispatcher);
     assertThat(wac.getParent()).isSameAs(root);
     assertThat(wac.getParent().getParent()).isSameAs(ear);
-    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.servletContext)).isSameAs(root);
+    assertThat(WebApplicationContextUtils.getRequiredWebApplicationContext(this.mockContext)).isSameAs(root);
   }
 
   /**
@@ -114,7 +114,7 @@ public class DefaultMockMvcBuilderTests {
    */
   @Test
   public void dispatcherServletCustomizer() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.servletContext);
+    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
 
@@ -128,7 +128,7 @@ public class DefaultMockMvcBuilderTests {
 
   @Test
   public void dispatcherServletCustomizerProcessedInOrder() {
-    StubWebApplicationContext root = new StubWebApplicationContext(this.servletContext);
+    StubWebApplicationContext root = new StubWebApplicationContext(this.mockContext);
     var reader = new AnnotatedBeanDefinitionReader(root);
     reader.register(WebConfig.class);
 

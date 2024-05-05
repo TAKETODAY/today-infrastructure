@@ -693,53 +693,53 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
 
   @Test
   void parameterDispatchingController() throws Exception {
-    final MockContextImpl servletContext = new MockContextImpl();
-    final MockMockConfig servletConfig = new MockMockConfig(servletContext);
+    final MockContextImpl mockContext = new MockContextImpl();
+    final MockMockConfig servletConfig = new MockMockConfig(mockContext);
 
     WebApplicationContext webAppContext =
             initDispatcherServlet(MyParameterDispatchingController.class, wac -> {
-              wac.setMockContext(servletContext);
+              wac.setMockContext(mockContext);
               AnnotationConfigUtils.registerAnnotationConfigProcessors(wac);
               wac.getBeanFactory().registerResolvableDependency(MockConfig.class, servletConfig);
             });
 
-    HttpMockRequestImpl request = new HttpMockRequestImpl(servletContext, "GET", "/myPath.do");
+    HttpMockRequestImpl request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     MockHttpResponseImpl response = new MockHttpResponseImpl();
     HttpSession session = request.getSession();
     assertThat(session).isNotNull();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
-    assertThat(request.getAttribute("servletContext")).isSameAs(servletContext);
+    assertThat(request.getAttribute("mockContext")).isSameAs(mockContext);
     assertThat(request.getAttribute("servletConfig")).isSameAs(servletConfig);
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
     assertThat(request.getAttribute("locale")).isSameAs(request.getLocale());
 
-    request = new HttpMockRequestImpl(servletContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     response = new MockHttpResponseImpl();
     session = request.getSession();
     assertThat(session).isNotNull();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myView");
-    assertThat(request.getAttribute("servletContext")).isSameAs(servletContext);
+    assertThat(request.getAttribute("mockContext")).isSameAs(mockContext);
     assertThat(request.getAttribute("servletConfig")).isSameAs(servletConfig);
     assertThat(request.getAttribute("sessionId")).isSameAs(session.getId());
     assertThat(request.getAttribute("requestUri")).isSameAs(request.getRequestURI());
 
-    request = new HttpMockRequestImpl(servletContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     request.addParameter("view", "other");
     response = new MockHttpResponseImpl();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myOtherView");
 
-    request = new HttpMockRequestImpl(servletContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     request.addParameter("view", "my");
     request.addParameter("lang", "de");
     response = new MockHttpResponseImpl();
     getServlet().service(request, response);
     assertThat(response.getContentAsString()).isEqualTo("myLangView");
 
-    request = new HttpMockRequestImpl(servletContext, "GET", "/myPath.do");
+    request = new HttpMockRequestImpl(mockContext, "GET", "/myPath.do");
     request.addParameter("surprise", "!");
     response = new MockHttpResponseImpl();
     getServlet().service(request, response);
@@ -2830,7 +2830,7 @@ class ServletAnnotationControllerHandlerMethodTests extends AbstractServletHandl
         throw new IllegalStateException();
       }
       response.getWriter().write("myView");
-      request.setAttribute("servletContext", this.mockContext);
+      request.setAttribute("mockContext", this.mockContext);
       request.setAttribute("servletConfig", this.mockConfig);
       request.setAttribute("sessionId", this.session.getId());
       request.setAttribute("requestUri", this.request.getRequestURI());
